@@ -49,6 +49,19 @@ const OCR = (() => {
     const file = await Store.get("kv", blobKey(m.id)).catch(() => null);
     if (!file) { m.ocr = { ...m.ocr, status: "error", error: "нет исходного файла: прикрепите скан ещё раз" }; await Store.put("materials", m.id, m); emit(); return; }
     try {
+      // картинка (фото страницы, скриншот): распознаём сразу
+      if (/^image\//.test(file.type || "") || /\.(png|jpe?g|webp|bmp|gif|tiff?)$/i.test(m.name || "")) {
+        const w = await getWorker(); m.ocr = { ...m.ocr, status: "run", pages: 1 }; emit();
+        const r = await w.recognize(file);
+        const raw = (r.data.text || "").trim();
+        const cl = window.Cleaner ? Cleaner.clean(raw, {}) : { text: raw, report: [] };
+        m.text = cl.text; m.chars = cl.text.length; m.scanned = false;
+        m.ocr = { status: "done", page: 1, pages: 1, at: new Date().toISOString() };
+        if (window.Materials) Object.assign(m, Materials.classify(m));
+        await Store.put("materials", m.id, m); toast(`Распознано: «${m.title || m.name}»`, 5000);
+        if (typeof loadMaterials === "function") await loadMaterials();
+        emit(); return;
+      }
       await loadScript("pdfworker"); await loadScript("pdfjs");
       const pdf = await window.pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
       const w = await getWorker();

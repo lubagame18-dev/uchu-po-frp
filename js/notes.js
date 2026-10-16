@@ -34,7 +34,7 @@ const Notes = (() => {
       <div class="nb-pane" data-pane="links" hidden><textarea class="inp" id="nbLinks" placeholder="По одной ссылке в строке: статьи, видео, презентации, которые нашли сами"></textarea></div>
       <div class="nb-pane" data-pane="check" hidden><div class="nb-check" id="nbCheck"></div><div class="row-btn"><input type="text" class="inp" id="nbCheckIn" placeholder="Акцент или пункт, который обязательно должен быть в уроке"><button type="button" class="btn sm" id="nbCheckAdd">Добавить</button></div></div>
       <div class="nb-pane" data-pane="text" hidden><textarea class="inp tall" id="nbText" placeholder="Вставьте текст стихотворения или эпизода — вопросы и задания будут опираться на цитаты именно из него"></textarea></div>
-      <div class="nb-pane" data-pane="files" hidden><div class="nb-files" id="nbFiles"></div><label class="btn sm ghost">Прикрепить файл к уроку<input type="file" id="nbFileIn" multiple accept=".docx,.pdf,.txt,.md" hidden></label><p class="hint">Файлы используются только для этого урока (упражнения и тексты из них идут первыми). В общие материалы они не попадают.</p></div>
+      <div class="nb-pane" data-pane="files" hidden><div class="nb-files" id="nbFiles"></div><label class="btn sm ghost">Прикрепить файл к уроку<input type="file" id="nbFileIn" multiple hidden></label><p class="hint">Файлы используются только для этого урока (упражнения и тексты из них идут первыми). В общие материалы они не попадают.</p></div>
       <div class="nb-foot"><button type="button" class="btn plain" id="nbClear">Очистить заметки</button><span class="small">Черновик сохраняется сам.</span></div>`;
     btn.parentNode.insertBefore(box, btn);
     // старое поле «Пожелания» (было только для ИИ) теперь живёт в заметках

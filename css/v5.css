@@ -485,3 +485,21 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .cr-dots button[aria-current="true"] { background: #7A0F1C; transform: scale(1.35); }
 @media (max-width: 560px) { .cr-page { padding: 34px 22px 14px; } .cr-page h2 { font-size: 22px; } .cr-cover h2 { font-size: 28px; } }
 @media (prefers-reduced-motion: reduce) { .cr-page.flip-f, .cr-page.flip-b, .cr-list li, .cr-orn { animation: none; opacity: 1; } }
+/* v5.10: режим разработчика — два главных раздела и большая кнопка загрузки */
+.dev-main .chip { font-size: 17px; padding: 10px 18px; }
+.dev-more { margin-top: 26px; font-size: 14px; opacity: .8; }
+.dev-more > summary { cursor: pointer; color: #6d625a; }
+.big-drop { border: 3px dashed var(--ink); border-radius: 20px; padding: 28px 18px; text-align: center; cursor: pointer; background: linear-gradient(135deg, rgba(122,15,28,.06), rgba(255,200,60,.12)); transition: background .2s, transform .15s; }
+.big-drop:hover, .big-drop.over { background: linear-gradient(135deg, rgba(122,15,28,.14), rgba(255,200,60,.25)); transform: translateY(-1px); }
+.big-drop.busy { opacity: .7; pointer-events: none; }
+.big-drop .bd-t { margin: 0 0 6px; font-family: var(--f-display); font-weight: 800; font-size: 24px; }
+.big-drop .bd-t::before { content: "⬆ "; }
+.rec-steps { margin: 12px 0 4px; padding-left: 22px; color: #4a433d; }
+.rec-card { border: 2px solid var(--ink); border-radius: 14px; padding: 12px 16px; margin-top: 12px; background: var(--card); }
+.rec-card.warn { border-color: #c88a00; background: #fff8e6; }
+.rec-card h3 { margin: 0 0 8px; }
+.rec-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.cov-all { margin-top: 16px; } .cov-all > summary { cursor: pointer; padding: 6px 0; }
+.fl-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.fl-list li { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid rgba(0,0,0,.08); }
+.fl-n { flex: 1 1 260px; min-width: 0; } .fl-t { display: flex; gap: 4px; flex-wrap: wrap; }

@@ -64,7 +64,7 @@ const Dev = (() => {
     document.querySelector(".nav")?.appendChild(chip);
     if (window.Log) Log.add("вход", "включён режим разработчика");
     rerenderCurrent();
-    show("cover");
+    show("files");
     toast("Режим разработчика включён. Выход — кнопка «Выйти» вверху.");
   }
   /* Выход: убираем всё, что добавил режим, и перерисовываем текущий раздел */
@@ -90,7 +90,8 @@ const Dev = (() => {
 
   /* ---------- разделы ---------- */
   let subj = "ru"; // русский язык и литература — раздельно
-  const SECTIONS = [["cover", "Темы ФРП"], ["materials", "Материалы"], ["exercises", "Конструктор упражнений"], ["lessons", "Конспекты"], ["frp", "ФРП"], ["inbox", "Файлы от пользователей"], ["drafts", "Черновики"], ["logs", "Логи"], ["reports", "Отчёты и собранные файлы"]];
+  const MAIN = [["files", "Загруженные файлы"], ["rec", "Рекомендации"]];
+  const SECTIONS = [["materials", "Все материалы"], ["exercises", "Конструктор упражнений"], ["lessons", "Конспекты"], ["frp", "ФРП"], ["inbox", "Файлы от пользователей"], ["drafts", "Черновики"], ["logs", "Логи"], ["reports", "Отчёты и собранные файлы"]];
   function show(sec) {
     if (!on) return;
     section = sec;
@@ -98,11 +99,15 @@ const Dev = (() => {
     document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.id === "nav-dev" ? "page" : "false"));
     const v = document.getElementById("view-dev"); if (!v) return;
     v.hidden = false; window.scrollTo({ top: 0 });
-    v.innerHTML = `<h1>Разработчик</h1><div class="seg dev-subj" role="group" aria-label="Предмет"><button type="button" data-subj="ru" aria-pressed="${subj === "ru"}">Русский язык</button><button type="button" data-subj="lit" aria-pressed="${subj === "lit"}">Литература</button></div><nav class="dev-tabs" aria-label="Разделы разработчика">${SECTIONS.map(([k, n]) => `<button class="chip" data-sec="${k}" aria-pressed="${k === sec}">${k === "exercises" && subj === "lit" ? "Вопросы и задания" : n}${k === "inbox" ? inboxBadge() : ""}</button>`).join("")}</nav><div id="devBody"></div>`;
+    const main = MAIN.some(([k]) => k === sec);
+    v.innerHTML = `<h1>Разработчик</h1><div class="seg dev-subj" role="group" aria-label="Предмет"><button type="button" data-subj="ru" aria-pressed="${subj === "ru"}">Русский язык</button><button type="button" data-subj="lit" aria-pressed="${subj === "lit"}">Литература</button></div>
+      <nav class="dev-tabs dev-main" aria-label="Разделы разработчика">${MAIN.map(([k, n]) => `<button class="chip" data-sec="${k}" aria-pressed="${k === sec}">${n}</button>`).join("")}</nav>
+      <div id="devBody"></div>
+      <details class="dev-more" ${main ? "" : "open"}><summary>Служебные разделы</summary><nav class="dev-tabs">${SECTIONS.map(([k, n]) => `<button class="chip" data-sec="${k}" aria-pressed="${k === sec}">${k === "exercises" && subj === "lit" ? "Вопросы и задания" : n}</button>`).join("")}</nav></details>`;
     v.querySelectorAll("[data-sec]").forEach(b => b.onclick = () => show(b.dataset.sec));
     v.querySelectorAll("[data-subj]").forEach(b => b.onclick = () => { subj = b.dataset.subj; show(section); });
     const body = v.querySelector("#devBody");
-    ({ cover: x => window.DevCover ? DevCover.render(x, subj) : (x.innerHTML = "<p>Модуль покрытия не загружен.</p>"), materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
+    ({ files: secFiles, rec: x => window.DevCover ? DevCover.render(x, subj) : (x.innerHTML = "<p>Модуль рекомендаций не загружен.</p>"), cover: x => DevCover.render(x, subj), materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
   }
   // переход в обычный раздел прячет экран разработчика
   const origGo = window.go;
@@ -111,6 +116,19 @@ const Dev = (() => {
   /* Публикация на GitHub — только у владельца сайта: в браузере, где сохранён токен, или по адресу с #owner.
      Методисты, которые входят в режим разработчика, данных репозитория и токена не видят. */
   const OWNER = () => !!(window.Publish?.ready() || /(^|[#&])owner\b/.test(location.hash));
+  /* Загруженные файлы: одна большая кнопка (любые файлы) и список того, что уже встроено */
+  function secFiles(b) {
+    const mine = state.materials.filter(m => !m.builtin && !m.fromNotes && (m.subject || "ru") === subj);
+    const built = state.materials.filter(m => m.builtin && (m.subject || "ru") === subj);
+    const base = (Base.summary() || []).filter(x => (x.subject || "ru") === subj);
+    const row = m => { const st = m.ocr?.status === "run" || m.ocr?.status === "queue" ? "распознаётся" : !(m.text || "").trim() ? (m.unreadable ? "текст не извлечён" : "скан без текста") : (n => n >= 1000 ? `${Math.round(n / 1000)} тыс. знаков` : `${n} знаков`)(m.chars || m.text.length); return `<li><span class="fl-n">${esc(String(m.title || m.name).slice(0, 110))}</span><span class="fl-t">${m.grade ? `<span class="tag">${m.grade} кл.</span>` : ""}<span class="tag">${esc(Materials?.TYPES?.[m.type]?.label || m.kind || "материал")}</span><span class="tag ${/текст не|скан/.test(st) ? "red" : st === "распознаётся" ? "" : "ok"}">${st}</span></span></li>`; };
+    b.innerHTML = `<section class="dev-card">${DevCover.upload("dvAny")}</section>
+      <section class="dev-card"><h2>Загружено вами (${mine.length})</h2>${mine.length ? `<ul class="fl-list">${mine.map(row).join("")}</ul>` : `<p class="small">Пока ничего. Загрузите файлы кнопкой выше.</p>`}
+        <div class="mat-row"><button class="btn sm ghost" id="dvEmbed">${window.Publish?.ready() ? "Опубликовать для всех учителей" : "Скачать базу (extra.js) для владельца сайта"}</button></div></section>
+      <section class="dev-card"><h2>Уже встроено в сайт (${built.length + base.length})</h2><ul class="fl-list">${base.map(x => `<li><span class="fl-n">${esc(x.title || x.short)}</span><span class="fl-t">${x.grade ? `<span class="tag">${x.grade} кл.</span>` : ""}<span class="tag ok">в базе</span></span></li>`).join("")}${built.map(row).join("")}</ul></section>`;
+    DevCover.bindUpload(b, () => show("files"));
+    b.querySelector("#dvEmbed").onclick = () => embedAll();
+  }
   function secMaterials(b) {
     const base = (Base.summary() || []).filter(s => (s.subject || "ru") === subj);
     b.innerHTML = `${OWNER() ? `<section class="dev-card" id="ghCard"></section>` : ""}

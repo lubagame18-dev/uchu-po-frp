@@ -111,8 +111,8 @@ const DevCover = (() => {
     const gs = grades(UI.subj);
     if (!gs.length) { b.innerHTML = `<section class="dev-card"><h2>Темы ФРП</h2><p>Программа по этому предмету не встроена.</p></section>`; return; }
     if (!gs.includes(UI.grade)) UI.grade = gs[0];
-    b.innerHTML = `<section class="dev-card cov"><h2>Темы ФРП — ${UI.subj === "ru" ? "русский язык" : "литература"}</h2>
-      <p class="hint">Все темы программы по классам и чем каждая обеспечена в базе сайта. ● — материалов достаточно, ◐ — мало, ○ — нет. Щёлкните по теме — увидите, чего не хватает и где это найти.</p>
+    b.innerHTML = `<section class="dev-card cov"><h2>Рекомендации: что загрузить — ${UI.subj === "ru" ? "русский язык" : "литература"}</h2>
+      <p class="hint">Выберите класс — увидите, каких материалов не хватает по темам ФРП и где их скачать.</p>
       <nav class="dev-tabs" aria-label="Классы">${gs.map(g => `<button class="chip" data-g="${g}" aria-pressed="${g === UI.grade}">${g} класс</button>`).join("")}</nav>
       <div id="covBody"><p class="small">Считаю…</p></div></section>`;
     b.querySelectorAll("[data-g]").forEach(x => x.onclick = () => { UI.grade = +x.dataset.g; render(b, UI.subj); });
@@ -129,30 +129,38 @@ const DevCover = (() => {
     const miss = rows.filter(x => x.r.status === "none" || x.r.status === "part");
     const loaded = [...(window.state?.materials || []).filter(m => (m.subject || "ru") === subj && m.grade == grade && /workbook|textbook|lesson|method/.test((m.kind || "") + " " + (m.type || ""))).map(m => m.title || m.name),
       ...(typeof Base !== "undefined" && Base.summary ? (Base.summary() || []).filter(x => (x.subject || "ru") === subj && x.grade == grade).map(x => x.title || x.short) : [])].filter((x, i, a) => x && a.indexOf(x) === i);
+    const scans = (window.state?.materials || []).filter(m => (m.subject || "ru") === subj && m.grade == grade && !(m.text || "").trim());
+    const order = [...miss.filter(x => x.r.status === "none"), ...miss.filter(x => x.r.status === "part")];
+    const link = (n, u) => `<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`;
     box.innerHTML = `<div class="cov-sum"><div class="cov-bar" role="img" aria-label="Обеспечено ${pct}% тем"><span class="ok" style="width:${cnt("ok") / real * 100}%"></span><span class="warn" style="width:${cnt("part") / real * 100}%"></span></div>
-        <p><b>${grade} класс:</b> тем ${rows.length}; обеспечено ${cnt("ok")}, мало материалов ${cnt("part")}, нет ничего ${cnt("none")}${cnt("service") ? `, контроль и повторение ${cnt("service")}` : ""}.</p></div>
-      ${sections.map(sec => `<details class="cov-sec" ${sec.items.some(x => x.r.status === "none") ? "open" : ""}><summary><b>${esc(sec.s)}</b> <span class="small">${sec.items.filter(x => x.r.status === "ok").length}/${sec.items.filter(x => x.r.status !== "service").length} обеспечено</span></summary>
-        <ul class="cov-list">${sec.items.map(({ t, r }) => `<li class="cov-${DOT[r.status][2]}"><details><summary><span class="cov-dot" title="${DOT[r.status][1]}">${DOT[r.status][0]}</span> <span class="cov-n">${esc(t.num || t.n)}</span> ${esc(t.title)}${t.hours ? ` <span class="small">(${t.hours} ч)</span>` : ""}<span class="cov-cells">${r.cells.map(([k, v]) => `<span class="tag">${k}: ${v}</span>`).join("")}</span></summary>
-          <div class="cov-more">${r.lacks.length ? `<p><b>Не хватает:</b> ${r.lacks.join(", ")}.</p><p class="small">Где найти: ${topicLinks(subj, t, grade, r).map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`).join(" · ")}</p>` : `<p class="small">${r.status === "service" ? "Урок контроля или повторения: собирается из материалов изученных тем." : "Материалов достаточно."}</p>`}
-          <button class="btn sm ghost" data-try="${esc(t.title)}">Собрать урок по теме</button></div></details></li>`).join("")}</ul></details>`).join("")}
-      <details class="cov-rec"><summary><b>Рекомендации: что загрузить${miss.length ? ` (${miss.length} тем)` : ""}</b></summary>
-        <div class="cov-recb">
-          <p>Сайт не может сам скачивать файлы с чужих сайтов. Откройте ссылки, скачайте подходящие файлы (PDF с текстом или Word) и загрузите их кнопкой ниже — система очистит их, разложит по классу и темам и обучится на них.</p>
-          <h3>Пособия для ${grade} класса</h3>
-          ${loaded.length ? `<p class="small">Уже загружено для ${grade} класса: ${loaded.slice(0, 6).map(m => esc(String(m).slice(0, 90))).join("; ")}${loaded.length > 6 ? "…" : ""}</p>` : `<p class="small">Для ${grade} класса пособий в базе пока нет.</p>`}
-          ${(() => { const sc = (window.state?.materials || []).filter(m => (m.subject || "ru") === subj && m.grade == grade && !(m.text || "").trim()); return sc.length ? `<p class="small"><b>Есть, но не прочитаны</b> (сканы без текста — система их не видит): ${sc.map(m => esc(String(m.title || m.name).slice(0, 70))).join("; ")}. Распознайте их (OCR в разделе «Материалы») или загрузите PDF с текстовым слоем.</p>` : ""; })()}
-          <p class="small">Что можно добавить:</p><ul>${SERIES[subj].map(([n, d]) => `<li><a href="${ya(`${n} ${grade} класс pdf`)}" target="_blank" rel="noopener">${esc(n)}, ${grade} класс</a> <span class="small">— ${esc(d)}</span></li>`).join("")}</ul>
-          ${miss.length ? `<h3>Темы без материалов</h3><ul class="cov-miss">${miss.filter(x => x.r.status === "none").concat(miss.filter(x => x.r.status === "part")).slice(0, 60).map(({ t, r }) => `<li><b>${esc(t.title.slice(0, 110))}</b> — нужно: ${r.lacks.join(", ")}. ${topicLinks(subj, t, grade, r).map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`).join(" · ")}</li>`).join("")}</ul>` : `<p>Все темы ${grade} класса обеспечены.</p>`}
-          <div class="mat-drop"><p>Перетащите сюда скачанные файлы (.pdf, .docx, .txt) — можно сразу несколько</p><label class="btn sm flame">Загрузить и обучить<input type="file" id="covAdd" multiple accept=".pdf,.docx,.txt,.md" hidden></label></div>
-        </div></details>`;
+        <p><b>${grade} класс:</b> тем по ФРП ${rows.length}; материалов хватает для ${cnt("ok")}, мало — ${cnt("part")}, нет совсем — ${cnt("none")}.</p></div>
+      ${upload("covAdd")}
+      <ol class="rec-steps"><li>Откройте ссылку и скачайте файл.</li><li>Вернитесь на сайт.</li><li>Нажмите «Загрузить и встроить» выше — подойдёт любой файл.</li></ol>
+      ${scans.length ? `<div class="rec-card warn"><h3>Загружено, но не прочитано</h3><p>Это сканы без текста: ${scans.map(m => esc(String(m.title || m.name).slice(0, 70))).join("; ")}. Они уже стоят на распознавании; если долго нет результата — загрузите эти же книги в виде PDF с текстом.</p></div>` : ""}
+      <div class="rec-card"><h3>Скачать и загрузить: пособия для ${grade} класса</h3>
+        ${loaded.length ? `<p class="small">Уже есть: ${loaded.slice(0, 6).map(m => esc(String(m).slice(0, 90))).join("; ")}${loaded.length > 6 ? "…" : ""}.</p>` : ""}
+        <ul class="rec-list">${SERIES[subj].map(([n, d]) => `<li>${link(`${n}, ${grade} класс`, ya(`${n} ${grade} класс pdf`))} <span class="small">— ${esc(d)}</span></li>`).join("")}</ul></div>
+      ${order.length ? `<div class="rec-card"><h3>Скачать и загрузить: темы без материалов (${order.length})</h3><ul class="rec-list">${order.slice(0, 80).map(({ t, r }) => `<li><b>${esc(t.title.slice(0, 120))}</b><br><span class="small">нужно: ${r.lacks.join(", ")}.</span> ${topicLinks(subj, t, grade, r).map(([n, u]) => link(n, u)).join(" · ")}</li>`).join("")}</ul></div>` : `<div class="rec-card"><p>Все темы ${grade} класса обеспечены материалами.</p></div>`}
+      <details class="cov-all"><summary><b>Все темы ${grade} класса по ФРП</b> <span class="small">(● хватает · ◐ мало · ○ нет)</span></summary>
+      ${sections.map(sec => `<details class="cov-sec"><summary><b>${esc(sec.s)}</b> <span class="small">${sec.items.filter(x => x.r.status === "ok").length}/${sec.items.filter(x => x.r.status !== "service").length}</span></summary>
+        <ul class="cov-list">${sec.items.map(({ t, r }) => `<li class="cov-${DOT[r.status][2]}"><details><summary><span class="cov-dot" title="${DOT[r.status][1]}">${DOT[r.status][0]}</span> <span class="cov-n">${esc(t.num || t.n)}</span> ${esc(t.title)}<span class="cov-cells">${r.cells.map(([k, v]) => `<span class="tag">${k}: ${v}</span>`).join("")}</span></summary>
+          <div class="cov-more">${r.lacks.length ? `<p><b>Не хватает:</b> ${r.lacks.join(", ")}. ${topicLinks(subj, t, grade, r).map(([n, u]) => link(n, u)).join(" · ")}</p>` : `<p class="small">${r.status === "service" ? "Урок контроля или повторения." : "Материалов достаточно."}</p>`}
+          <button class="btn sm ghost" data-try="${esc(t.title)}">Собрать урок по теме</button></div></details></li>`).join("")}</ul></details>`).join("")}</details>`;
     box.querySelectorAll("[data-try]").forEach(x => x.onclick = () => tryTopic(subj, grade, x.dataset.try));
-    const inp = box.querySelector("#covAdd");
-    const add = async files => { if (!files.length) return; await addMaterials(files); matCache = null; toast("Файлы встроены. Пересчитываю покрытие…"); paint(box, subj, grade); };
-    inp.onchange = e => { add([...e.target.files]); e.target.value = ""; };
-    const drop = box.querySelector(".mat-drop");
-    ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
-    ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
-    drop.addEventListener("drop", e => add([...(e.dataTransfer.files || [])]));
+    bindUpload(box, () => { toast("Файлы встроены. Пересчитываю…"); paint(box, subj, grade); });
+  }
+  /* Одна большая кнопка: любые файлы, сразу встраиваются */
+  function upload(id) { return `<div class="big-drop" data-drop><p class="bd-t">Загрузить и встроить</p><p class="small">Любые файлы и сколько угодно: Word, PDF, PowerPoint, Excel, фото страниц, архивы .zip… Перетащите сюда или нажмите.</p><input type="file" id="${id}" multiple hidden></div>`; }
+  function bindUpload(root, after) {
+    root.querySelectorAll("[data-drop]").forEach(drop => {
+      const inp = drop.querySelector("input[type=file]");
+      const add = async files => { if (!files.length) return; drop.classList.add("busy"); drop.querySelector(".bd-t").textContent = `Встраиваю файлов: ${files.length}…`; try { await addMaterials(files); } finally { matCache = null; baseIdx = baseIdx; drop.classList.remove("busy"); after && after(); } };
+      drop.onclick = e => { if (e.target !== inp) inp.click(); };
+      inp.onchange = e => { add([...e.target.files]); e.target.value = ""; };
+      ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+      ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+      drop.addEventListener("drop", e => add([...(e.dataTransfer.files || [])]));
+    });
   }
   function tryTopic(subj, grade, title) {
     try {
@@ -163,6 +171,6 @@ const DevCover = (() => {
       toast("Тема подставлена. Нажмите «Создать урок».");
     } catch (e) { console.warn(e); }
   }
-  return { render, ruTopic, litTopic, UI };
+  return { render, ruTopic, litTopic, UI, upload, bindUpload };
 })();
 window.DevCover = DevCover;

@@ -607,7 +607,7 @@ window.UCHU_SITE = {
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
   <section class="own-card"><h2>Мои материалы</h2><p class="hint" style="font-size:14px">Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
-    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда — можно несколько сразу: .docx, .pdf, .txt, пакет материалов .json</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><input type="file" id="matInput" multiple accept=".pdf,.docx,.txt,.md,.json" hidden></div>
+    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда — любые и сколько угодно: Word, PDF, PowerPoint, Excel, фото страниц, архивы .zip и другие</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><input type="file" id="matInput" multiple hidden></div>
     <p class="hint">При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
     <div class="mat-row"><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
     <div id="matLib"></div>
@@ -2923,10 +2923,52 @@ function guessKind(name, text) {
 }
 function guessGrade(name, text) { const m = (name + " " + text.slice(0, 3000)).match(/(\d{1,2})\s*(?:-?\s*(?:й|го)?\s*)?(?:класс|кл(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))|kl|klass)/i); const g = m ? +m[1] : null; return g >= 5 && g <= 11 ? g : null; }
 function guessSubject(name, text) { const t = (name + " " + text.slice(0, 4000)).toLowerCase(); return /литератур/.test(t) && !/русск[A-Za-z0-9_А-Яа-яЁё]* язык/.test(t.slice(0, 1500)) ? "lit" : "ru"; }
+/* Чтение файла любого формата. Ничего не отклоняется: что не читается как текст,
+   сохраняется как скан (картинки и PDF без текста — на распознавание OCR). */
+const IMG_EXT = ["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff", "heic"];
+const xmlText = (xml, tagRe) => { const d = new DOMParser().parseFromString(xml, "application/xml"); const out = []; const walk = n => { if (n.nodeType === 1 && tagRe.test(n.localName)) { out.push(n.textContent); return; } n.childNodes && n.childNodes.forEach(walk); }; walk(d); return out; };
+async function zipOf(file) { await loadScript("jszip"); return window.JSZip.loadAsync(await file.arrayBuffer()); }
+function rtfToText(rtf) {
+  let cp = 1251; const m = rtf.match(/\\ansicpg(\d+)/); if (m) cp = +m[1];
+  const dec = new TextDecoder(cp === 1251 ? "windows-1251" : cp === 866 ? "ibm866" : "windows-1252");
+  let out = "", depth = 0, skip = [];
+  const SKIP = /^(fonttbl|colortbl|stylesheet|info|pict|object|themedata|colorschememapping|latentstyles|datastore|xmlnstbl|listtable|listoverridetable|rsidtbl|generator|\*)/;
+  for (let i = 0; i < rtf.length; i++) {
+    const c = rtf[i];
+    if (c === "{") { depth++; continue; }
+    if (c === "}") { if (skip.length && skip[skip.length - 1] === depth) skip.pop(); depth--; continue; }
+    if (c === "\\") {
+      const n = rtf[i + 1];
+      if (n === "'") { const b = parseInt(rtf.substr(i + 2, 2), 16); if (!skip.length) out += dec.decode(new Uint8Array([b])); i += 3; continue; }
+      if (n === "\\" || n === "{" || n === "}") { if (!skip.length) out += n; i++; continue; }
+      if (n === "*") { skip.push(depth); i++; continue; }
+      const w = rtf.slice(i + 1).match(/^([a-z]+)(-?\d+)? ?/i); if (!w) { i++; continue; }
+      const word = w[1];
+      if (SKIP.test(word) && !skip.length) skip.push(depth);
+      if (!skip.length) { if (word === "par" || word === "line") out += "\n"; else if (word === "tab") out += "\t"; else if (word === "u" && w[2]) { out += String.fromCharCode((+w[2] + 65536) % 65536); i += w[0].length; if (rtf[i + 1] === "?") i++; continue; } }
+      i += w[0].length; continue;
+    }
+    if (!skip.length && c !== "\r" && c !== "\n") out += c;
+  }
+  return out;
+}
+/* Старый .doc (Word 97–2003): достаём текст эвристически — русские и латинские фразы из UTF-16 и из 1251 */
+async function legacyDocText(file) {
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const u16 = new TextDecoder("utf-16le").decode(buf.slice(0, buf.length - (buf.length % 2)));
+  const run = t => (t.match(/[А-Яа-яЁёA-Za-z0-9«»„“”"'(),.;:!?\-–—…№%\s]{24,}/g) || []).filter(x => /[А-Яа-яЁё]{3}/.test(x)).join("\n");
+  const a = run(u16), b = run(new TextDecoder("windows-1251").decode(buf));
+  return (a.length >= b.length ? a : b).replace(/[ \t]{2,}/g, " ").replace(/\r/g, "\n");
+}
 async function readFile(file) {
-  const ext = file.name.split(".").pop().toLowerCase();
-  if (["txt", "md", "json", "csv"].includes(ext)) return { text: await file.text() };
-  if (ext === "docx") {
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  if (["txt", "md", "json", "csv", "tsv", "srt", "log"].includes(ext)) {
+    const buf = new Uint8Array(await file.arrayBuffer());
+    let t = new TextDecoder("utf-8").decode(buf);
+    if ((t.match(/\uFFFD/g) || []).length > 20) t = new TextDecoder("windows-1251").decode(buf); // старые файлы в кодировке Windows
+    return { text: t };
+  }
+  if (ext === "docx" || ext === "docm" || ext === "dotx") {
     await loadScript("mammoth");
     const buf = await file.arrayBuffer();
     const r = await window.mammoth.convertToHtml({ arrayBuffer: buf });
@@ -2945,7 +2987,44 @@ async function readFile(file) {
     }
     return { text: out, pages: n, scanned: out.replace(/\s/g, "").length < n * 40 };
   }
-  throw new Error("Формат ." + ext + " не поддерживается (нужен .docx, .pdf, .txt)");
+  if (["pptx", "ppsx", "potx", "pptm"].includes(ext)) {
+    const z = await zipOf(file);
+    const names = Object.keys(z.files).filter(n => /^ppt\/(slides\/slide|notesSlides\/notesSlide)\d+\.xml$/.test(n)).sort((a, b) => (/notes/.test(a) - /notes/.test(b)) || (+a.match(/(\d+)\.xml/)[1] - +b.match(/(\d+)\.xml/)[1]));
+    let out = "";
+    for (const n of names) { const xml = await z.file(n).async("string"); const ps = xml.split(/<\/a:p>/).map(p => (p.match(/<a:t>([^<]*)<\/a:t>/g) || []).map(x => x.replace(/<\/?a:t>/g, "")).join("")).filter(Boolean); out += `${/notes/.test(n) ? "Заметки к слайду" : "Слайд"} ${n.match(/(\d+)\.xml/)[1]}\n${ps.join("\n")}\n\n`; }
+    return { text: out.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"') };
+  }
+  if (["xlsx", "xlsm"].includes(ext)) {
+    const z = await zipOf(file);
+    const ss = z.file("xl/sharedStrings.xml") ? xmlText(await z.file("xl/sharedStrings.xml").async("string"), /^si$/) : [];
+    let out = "";
+    for (const n of Object.keys(z.files).filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n))) {
+      const d = new DOMParser().parseFromString(await z.file(n).async("string"), "application/xml");
+      for (const row of d.getElementsByTagName("row")) out += [...row.getElementsByTagName("c")].map(c => { const v = c.getElementsByTagName("v")[0]?.textContent ?? c.textContent; return c.getAttribute("t") === "s" ? ss[+v] || "" : v; }).join(" | ") + "\n";
+      out += "\n";
+    }
+    return { text: out };
+  }
+  if (["odt", "odp", "ods", "ott"].includes(ext)) {
+    const z = await zipOf(file); const xml = await z.file("content.xml").async("string");
+    return { text: xmlText(xml, /^(p|h)$/).join("\n") };
+  }
+  if (ext === "epub") {
+    const z = await zipOf(file); let out = "";
+    for (const n of Object.keys(z.files).filter(n => /\.(x?html?)$/i.test(n)).sort()) { const d = new DOMParser().parseFromString(await z.file(n).async("string"), "text/html"); d.querySelectorAll("p,h1,h2,h3,h4,li,br").forEach(x => x.append("\n")); out += d.body?.textContent + "\n"; }
+    return { text: out };
+  }
+  if (ext === "fb2") { const t = await file.text(); return { text: xmlText(t, /^(p|v|title|subtitle)$/).join("\n") }; }
+  if (["html", "htm", "xhtml", "mht"].includes(ext)) { const d = new DOMParser().parseFromString(await file.text(), "text/html"); d.querySelectorAll("p,h1,h2,h3,h4,li,br,tr,div").forEach(x => x.append("\n")); return { text: (d.body?.textContent || "").replace(/\n{3,}/g, "\n\n"), html: d.body?.innerHTML }; }
+  if (ext === "rtf") return { text: rtfToText(await file.text()) };
+  if (ext === "doc" || ext === "dot") { const t = await legacyDocText(file); return { text: t, scanned: t.replace(/\s/g, "").length < 200, note: "старый формат .doc: текст извлечён автоматически, для точности лучше пересохранить как .docx" }; }
+  if (IMG_EXT.includes(ext) || /^image\//.test(file.type)) return { text: "", pages: 1, scanned: true, image: true };
+  // неизвестный формат: пробуем как текст; если это не текст — сохраняем файл без текста (не отклоняем)
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const t = new TextDecoder("utf-8").decode(buf.slice(0, 2000000));
+  const printable = (t.match(/[\u0020-\u007E\u0400-\u04FF\s«»—–…№]/g) || []).length / Math.max(1, t.length);
+  if (printable > 0.85) return { text: t };
+  return { text: "", scanned: true, unknown: true };
 }
 async function loadMaterials() {
   try { state.materials = (await Store.all("materials")).sort((a, b) => String(b.addedAt).localeCompare(String(a.addedAt))); } catch { state.materials = []; }
@@ -2975,14 +3054,24 @@ async function addMaterials(list, forceKind) {
   // v5: пакетная загрузка без дублей, автоочистка текста, автосортировка, OCR для сканов
   let added = 0, dup = 0, ocrN = 0; const cleanedSum = [];
   const known = new Set(state.materials.filter(m => !m.builtin).map(m => m.hash).filter(Boolean));
+  // архивы распаковываются: каждый файл внутри встраивается отдельно
+  const files = [];
   for (const f of list) {
+    if (/\.zip$/i.test(f.name)) {
+      try { const z = await zipOf(f); for (const n of Object.keys(z.files)) { const e = z.files[n]; if (e.dir || /(^|\/)(__MACOSX|\.)/.test(n)) continue; files.push(new File([await e.async("blob")], n.split("/").pop())); } }
+      catch (e) { toast(`Архив «${f.name}» не открылся: ${e.message || e}`, 6000); }
+    } else files.push(f);
+  }
+  for (const f of files) {
     toast("Читаю " + f.name + "…", 20000);
     try {
       if (/\.json$/i.test(f.name)) { const n = await importPack(await f.text()); if (n !== null) { added += n; continue; } }
-      const r = await readFile(f);
+      let r; try { r = await readFile(f); } catch (e) { console.warn("readFile", f.name, e); r = { text: "", scanned: true, unknown: true, note: "текст не извлёкся: " + (e.message || e) }; }
       const raw = (r.text || "").slice(0, MAX_FILE_CHARS);
-      const kind = forceKind || guessKind(f.name, raw);
-      if (kind === "frp") { await loadFrpFrom(f.name, raw, r.html); continue; }
+      const kind0 = forceKind || guessKind(f.name, raw);
+      // ФРП встраивается как программа, только если в ней правда нашлись разделы; иначе файл — обычный материал
+      if (kind0 === "frp") { const ok = await loadFrpFrom(f.name, raw, r.html, !forceKind); if (ok || forceKind === "frp") continue; }
+      const kind = kind0 === "frp" ? "method" : kind0;
       const cl = window.Cleaner && !r.scanned ? Cleaner.clean(raw, { pdf: /\.pdf$/i.test(f.name) }) : { text: raw.replace(/\f/g, ""), report: [] };
       const text = cl.text;
       const hash = window.Materials ? Materials.hashText(r.scanned ? f.name + ":" + f.size : text) : null;
@@ -2990,9 +3079,11 @@ async function addMaterials(list, forceKind) {
       const m = { id: uid(), name: f.name, size: f.size, kind, subject: guessSubject(f.name, text), grade: guessGrade(f.name, text), text, chars: text.length, pages: r.pages || null, scanned: !!r.scanned, addedAt: new Date().toISOString(), hash };
       if (cl.report.length) { m.cleaned = { summary: Cleaner.summary(cl.report), report: cl.report, at: m.addedAt }; if (raw.length < 2.5e6) m.original = raw.replace(/\f/g, ""); cleanedSum.push(m.cleaned.summary); }
       if (window.Materials) Object.assign(m, Materials.classify(m));
+      if (r.note) m.note = r.note;
+      if (r.unknown) m.unreadable = true;
       if (window.Dev?.on) m.devEmbed = true; // загружено разработчиком — идёт в общую базу
       await Store.put("materials", m.id, m); added++; if (hash) known.add(hash);
-      if (m.scanned && window.OCR && /\.pdf$/i.test(f.name)) { if (await OCR.keepFile(m.id, f)) { await OCR.enqueue(m); ocrN++; } }
+      if (m.scanned && window.OCR && (/\.pdf$/i.test(f.name) || r.image)) { if (await OCR.keepFile(m.id, f)) { await OCR.enqueue(m); ocrN++; } }
     } catch (e) { toast(`Не удалось прочитать «${f.name}»: ${e.message || e}`, 6000); }
   }
   await loadMaterials();
@@ -3000,13 +3091,14 @@ async function addMaterials(list, forceKind) {
   if (msg) toast(msg + ".", 7000);
   renderMaterials(); refreshTopics();
 }
-async function loadFrpFrom(name, text, html) {
+async function loadFrpFrom(name, text, html, quiet) {
   const parsed = FRP.parse({ text, html, name });
   const sm = FRP.summary(parsed);
-  if (!sm.topics && !sm.subject && !sm.personal) { toast("В файле не нашлось разделов ФРП (результаты, планирование). Проверьте, что это текст программы, а не скан.", 7000); return; }
+  if (!sm.topics && !sm.subject && !sm.personal) { if (quiet) return false; toast("В файле не нашлось разделов ФРП (результаты, планирование). Проверьте, что это текст программы, а не скан.", 7000); return; }
   await FRP.save(parsed);
   toast(`ФРП загружена: тем ${sm.topics}, предметных результатов ${sm.subject}, личностных ${sm.personal}, метапредметных ${sm.meta}.`, 7000);
   renderMaterials(); refreshTopics(); updateType();
+  return true;
 }
 async function importPack(json) {
   let j; try { j = JSON.parse(json); } catch { return null; }
