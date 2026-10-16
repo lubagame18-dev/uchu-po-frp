@@ -1,0 +1,1 @@
+{ "functions": { "api/ai/[...path].js": { "maxDuration": 60 } } }
