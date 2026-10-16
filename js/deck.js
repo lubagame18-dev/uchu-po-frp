@@ -213,6 +213,14 @@ const Deck = (() => {
     // 5. Маршрут урока (как agenda у Gamma) — если этапов много
     const route = c.plan.filter(s => !/организац|домашн|рефлекс/i.test(s)).map(stageTitle);
     if (route.length >= 5) add({ kind: "steps", title: "Маршрут урока", points: [...new Set(route)].slice(0, 6), on: route.length >= 6, notes: "План урока по техкарте. Можно выключить в плане презентации." });
+    // 5а. Русский язык: опора урока по профилю (теория, алгоритм, тексты-документы, таблица)
+    const RK = !lit ? p.plan?.rukit : null;
+    if (RK && RK.kind !== "general") {
+      if (RK.algo) add({ kind: "steps", title: RK.algo.name, points: RK.algo.steps.map(x => x.replace(/\s*\(.*?\)/g, "").slice(0, 160)), notes: "Алгоритм — тот же, что в конспекте и рабочем листе." });
+      else if (RK.theory?.length) add({ kind: RK.theory.length > 3 ? "list" : "cards", title: "Запомним", points: RK.theory.slice(0, 6), notes: "Опорная теория — для записи в тетрадь." });
+      (RK.handouts || []).forEach(h => add({ kind: "quote", title: h.title, quote: h.text, by: "", notes: h.key ? "Для учителя: " + h.key : "" }));
+      if (RK.table) add({ kind: "table", title: RK.table.title, head: RK.table.head, rows: RK.table.rows.map(r => [r[0]]), notes: "Таблица — та же, что в рабочем листе." });
+    }
     // 6. Этапы техкарты
     const poem = lit && p.plan?.analysis?.verse && p.plan.analysis.stanzas?.length ? p.plan.analysis.stanzas : null;
     let poemDone = false;

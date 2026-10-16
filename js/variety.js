@@ -409,6 +409,8 @@ const Variety = (() => {
     const plan = { text: found ? String(found.text).slice(0, 40000) : null, analysis: A, format: fmt, sample: sample ? { topic: sample.topic, src: sample.src, num: sample.num, epigraph: sample.epigraph, questions: sample.questions.slice(0, 40).map(q => q.text) } : null, stages: st.stages, structureNote: st.note, textSource: found ? found.source : null, textUrl: found?.url || null, used: [] };
     // методический набор урока литературы: фрагменты, вопросы с ответами, словарь, термины, выводы
     if (p.subject === "lit" && typeof LitKit !== "undefined") { try { plan.kit = LitKit.build(p, plan); } catch (e) { console.warn("LitKit", e); } }
+    // профиль урока русского языка: свой формат для орфографии, пунктуации, синтаксиса, лексики, стилей…
+    if (p.subject === "ru" && typeof RuKit !== "undefined") { try { plan.rukit = RuKit.build(p); const st2 = type.id !== "ctrl" && !/контрол/i.test(type.name || "") ? RuKit.stagesFor(plan.rukit) : null; if (st2) { plan.stages = st2; plan.structureNote = `урок-практикум (${plan.rukit.label.toLowerCase()})`; } } catch (e) { console.warn("RuKit", e); } }
     return plan;
   }
   /* После сборки: запомнить, что использовано, чтобы следующий урок был другим */

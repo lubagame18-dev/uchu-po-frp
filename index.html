@@ -1827,9 +1827,14 @@ const Base = (() => {
     const base = B(); if (!base) return [];
     const st = FRP.stems(topic); if (!st.size) return [];
     const need = Math.min(2, st.size);
+    // общие слова темы («член», «предложение», «слово», «правописание»…) не должны сами по себе тянуть упражнение:
+    // если в теме есть особые слова (например, «подлежащее»), хотя бы одно из них должно встретиться
+    const GEN = /^(член|предл|слов|текст|право|напис|част|реч|язык|русск|основ|главн|втор|прост|сложн|групп|вид|прав|случ)/;
+    const spec = new Set([...st].filter(x => !GEN.test(x)));
     const out = [];
     for (const it of base.ru) {
       if (it.k !== "ex") continue;
+      if (spec.size && spec.size < st.size && !FRP.score((it.sec || "") + " " + it.t.slice(0, 400), spec)) continue;
       const sec = FRP.score(it.sec || "", st);
       const head = FRP.score(it.t.slice(0, 400), st);
       const body = FRP.score(it.t, st);
@@ -2132,8 +2137,11 @@ const Engine = (() => {
   function ruStageRow(stage, p, mins, extras) {
     const tpl = (RU_STAGES.find(([re]) => re.test(stage)) || RU_STAGES.find(([re]) => re.source === "реализац"))[1];
     // v5: формулировки этапа чередуются от урока к уроку (Variety), чтобы конспекты не повторялись
-    const t = window.Variety && p.plan ? Variety.ruStage(stage, tpl.t, p, p.plan) : tpl.t;
-    return `| ${stage} (${mins} мин) | ${t.map(x => fill(x, p)).join("<br>")}${extras.teacher ? "<br>" + extras.teacher : ""} | ${tpl.s} | ${tpl.u}${extras.task ? "<br><br>" + extras.task : ""} |`;
+    let t = window.Variety && p.plan ? Variety.ruStage(stage, tpl.t, p, p.plan) : tpl.t;
+    // v5.9: профиль урока (стили, лексика, орфография…) — свои реплики с ожидаемыми ответами
+    const kl = window.RuKit && p.plan?.rukit ? RuKit.stageLines(p.plan.rukit, stage) : null;
+    if (kl) t = kl.replace ? kl.lines : [...t, ...kl.lines];
+    return `| ${stage} (${mins} мин) | ${t.map(x => cellSafe(fill(x, p))).join("<br>")}${extras.teacher ? "<br>" + extras.teacher : ""} | ${kl?.s || tpl.s} | ${tpl.u}${extras.task ? "<br><br>" + extras.task : ""} |`;
   }
   function litStageRow(stage, p, mins, extra) {
     const add = extra ? `<br>— ${cellSafe(short(extra.t, 260))} *(${extra.src})*` : "";
@@ -2183,7 +2191,7 @@ const Engine = (() => {
     const litQs = LB ? [...LB.questions.filter(onTopic).map(q => ({ t: q.text, src: q.source })), ...LB.lessons.flatMap(l => l.questions.filter(t => onTopic({ text: t, source: l.title })).map(t => ({ t, src: "разработка: " + l.title })))] : [];
     const stages = p.plan?.stages || type.stages;
     const mins = splitMinutes(stages, p.duration);
-    const goal = ru ? ({ onz: `сформировать представление о теме «${p.topic}» и научить применять новое правило`, refl: `закрепить умения по теме «${p.topic}», выявить и устранить типичные ошибки`, sys: `обобщить и систематизировать знания по теме «${core(p.topic)}»`, ctrl: `проверить уровень освоения темы «${core(p.topic)}»`, speech: `научить создавать текст по теме «${p.topic}»`, text: `научить анализировать текст с опорой на тему «${p.topic}»`, workshop: `организовать самостоятельное открытие знания по теме «${p.topic}»` }[type.id] || `освоить тему «${p.topic}»`)
+    const goal = ru && p.plan?.rukit?.goal ? p.plan.rukit.goal : ru ? ({ onz: `сформировать представление о теме «${p.topic}» и научить применять новое правило`, refl: `закрепить умения по теме «${p.topic}», выявить и устранить типичные ошибки`, sys: `обобщить и систематизировать знания по теме «${core(p.topic)}»`, ctrl: `проверить уровень освоения темы «${core(p.topic)}»`, speech: `научить создавать текст по теме «${p.topic}»`, text: `научить анализировать текст с опорой на тему «${p.topic}»`, workshop: `организовать самостоятельное открытие знания по теме «${p.topic}»` }[type.id] || `освоить тему «${p.topic}»`)
       : ({ bio: `познакомить с жизнью и творческим путём автора в связи с эпохой (тема «${p.topic}») и подготовить к чтению его произведений`, lyric: `научить анализировать лирическое стихотворение: тема, идея, лирический герой, образы, средства выразительности (тема «${p.topic}»)`, lyricTheme: `сопоставить несколько стихотворений и сформулировать сквозную мысль автора (тема «${p.topic}»)`, commented: `научить медленному, комментированному чтению текста (тема «${p.topic}»)`, epic: `дать представление о композиции, конфликте и системе персонажей произведения (тема «${p.topic}»)`, performative: `научить выразительному чтению с опорой на анализ текста (тема «${p.topic}»)`, problem: `исследовать проблемный вопрос урока на материале текстов и документов эпохи (тема «${p.topic}»)` }[type.id] || `организовать осмысленное чтение и анализ (тема «${p.topic}»)`);
     let md = `# ${p.topic}\n\n**Класс:** ${p.grade} · **Предмет:** ${ru ? "Русский язык" : "Литература"} · **Тип урока:** ${type.name} · **Урок по теме:** ${lessonLabel(p.lessonNo)} · **Длительность:** ${p.duration} мин\n\n`;
     md += `**Цель:** ${goal}.\n\n**Задачи:**\n\n- Обучающая: ${ru ? "освоить понятия и правила темы, научиться применять их на практике" : type.id === "bio" ? "узнать узловые события жизни автора и связать их с его произведениями" : "выявить особенности содержания и формы произведения"}.\n- Развивающая: развивать умение анализировать, сравнивать и обобщать языковой и литературный материал.\n- Воспитательная: формировать интерес к ${ru ? "русскому языку" : "чтению"} и бережное отношение к слову.\n\n`;
@@ -2221,8 +2229,9 @@ const Engine = (() => {
     md += "\n\n---\n\n";
     const A5 = p.plan?.analysis;
     const obs = A5 ? [A5.anaphora && `анафора «${A5.anaphora.word}…»`, A5.pairs?.length && `антитеза «${A5.pairs.map(x => x.join(" — ")).slice(0, 2).join("», «")}»`, A5.similes?.length && `сравнение «${A5.similes[0]}»`, A5.epithets?.length && `эпитеты «${A5.epithets.slice(0, 2).join("», «")}»`, A5.turn && `композиционный перелом на строке «${A5.turn.line.replace(/[\s,;:—–-]+$/, "")}»`, A5.ring && "кольцевая композиция", A5.colors?.length && `цветопись: ${A5.colors.slice(0, 3).join(", ")}`, A5.sounds?.length && `звуковые образы: ${A5.sounds.slice(0, 3).join(", ")}`].filter(Boolean) : [];
+    if (ru && window.RuKit && p.plan?.rukit) md += RuKit.conspectMd(p.plan.rukit) + "\n";
     if (!ru && obs.length) md += `> 💡 ВАЖНО: наблюдения по тексту (${A5.source}) — ${obs.join("; ")}.\n\n`;
-    md += rules.length ? rules.map(r => `> 💡 ВАЖНО: ${r.text} *(${r.source})*`).join("\n\n") : (!ru && obs.length ? "" : `> 💡 ВАЖНО: ⟦${ru ? "правило урока — сформулируйте по учебнику; справка — в разделе «Из открытых источников»" : "ключевой вывод урока"}⟧`);
+    md += rules.length ? rules.map(r => `> 💡 ВАЖНО: ${r.text} *(${r.source})*`).join("\n\n") : (!ru && obs.length ? "" : ru && p.plan?.rukit?.theory?.length ? "" : `> 💡 ВАЖНО: ⟦${ru ? "правило урока — сформулируйте по учебнику; справка — в разделе «Из открытых источников»" : "ключевой вывод урока"}⟧`);
     if (!ru) md += `\n\n> 🔍 ПОДТЕКСТ: ⟦главный скрытый смысл — сформулируйте после анализа текста⟧`;
     // v5.8: методический набор (фрагменты, словарь, термины, выводы) — то же самое будет на слайдах и в рабочем листе
     const kit = !ru ? p.plan?.kit : null;
@@ -2248,7 +2257,7 @@ const Engine = (() => {
     if (p.control !== "school" && KB.exams[p.control]) md += `\n\n> ⚠️ ЛОВУШКА ЭКЗАМЕНА: ${KB.exams[p.control].label}: ${ru ? "отвечайте строго на вопрос задания и проверяйте каждое слово по правилу" : "каждое утверждение подтверждайте цитатой, не пересказывайте текст"}.`;
     const hw5 = !ru && window.Variety && p.plan ? Variety.homework(p, type, p.plan) : null;
     if (hw5) md += `\n\n---\n\n## Домашнее задание\n\n- Базовый уровень: ${hw5.base}.\n- Повышенный уровень: ${hw5.adv}.\n\n## Источники\n\n`;
-    else md += `\n\n---\n\n## Домашнее задание\n\n- Базовый уровень: ${ex.length ? ex[ex.length - 1].source + " — " + short(ex[ex.length - 1].text, 90).replace(/[.…]+$/, "") + "…" : "⟦упражнение из учебника по теме⟧."}\n- Повышенный уровень: ${ru ? `составьте 5 предложений по теме «${p.topic}» и объясните орфограммы или знаки препинания` : "письменный ответ на проблемный вопрос урока (5–7 предложений с цитатами)"}.\n\n## Источники\n\n`;
+    else md += `\n\n---\n\n## Домашнее задание\n\n- Базовый уровень: ${ru && !ex.length && p.plan?.rukit?.hw ? "задание из рабочего листа «Создаём свой текст»" : ex.length ? ex[ex.length - 1].source + " — " + short(ex[ex.length - 1].text, 90).replace(/[.…]+$/, "") + "…" : "⟦упражнение из учебника по теме⟧."}\n- Повышенный уровень: ${ru && p.plan?.rukit?.hw ? p.plan.rukit.hw : ru ? `составьте 5 предложений по теме «${p.topic}» и объясните орфограммы или знаки препинания` : "письменный ответ на проблемный вопрос урока (5–7 предложений с цитатами)"}.\n\n## Источники\n\n`;
     const src = new Set(ex.map(e => e.source).concat(rules.map(r => r.source)).map(x => x.replace(/, (с\.|упр\.).*$/, "")));
     if (LB?.part) src.add(LB.part.source);
     if (LB) LB.lessons.forEach(l => src.add("Разработка урока: " + l.title));
@@ -2275,7 +2284,12 @@ const Engine = (() => {
     let n = 0;
     const lvl = hard => hard ? `### 🚀 Задание ${++n}. Повышенный уровень${exam ? ` (${exam.label})` : ""}` : `### 🔓 Задание ${++n}. Базовый уровень`;
     if (ru) {
-      const ex = pickEx(p, materials, 5);
+      const RK = p.plan?.rukit;
+      if (RK && RK.kind !== "general") {
+        if (RK.theory?.length) md += `### 📘 Теория (кратко)\n\n${RK.theory.slice(0, 6).map(x => "- " + x).join("\n")}\n\n`;
+        for (const t of RK.wsTasks.filter(x => x.text && !/Создаём/.test(x.name))) md += `### 🔓 Задание ${++n}. ${t.name}\n\n${t.text}\n\n${/\|/.test(t.text) ? "" : `${BL}\n\n${BL}\n\n`}`;
+      }
+      const ex = pickEx(p, materials, RK && /styles|lex/.test(RK.kind) ? 2 : 5);
       ex.sort((a, b) => a.hard - b.hard);
       for (const e of ex) md += `${lvl(e.hard)}\n\n${trimEx(e.text, 4000)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`;
       if (ex.length < 3) {
@@ -2285,7 +2299,9 @@ const Engine = (() => {
         if (window.Variety && p.plan) Variety.history.mark("mech", mechs.map(m => m.id));
       }
       // v5: творческое задание — каждый раз другая механика из рабочих тетрадей (кроссворд, лингвистическое уравнение, перфокарта…)
-      if (p.plan?.format) md += `### 🏆 Задание ${++n}. Творческое (${p.plan.format.name.toLowerCase()})\n\n${p.plan.format.task}\n\n*Механика: ${p.plan.format.src}*\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+      const own = RK?.wsTasks?.find(x => /Создаём/.test(x.name));
+      if (own) md += `### 🏆 Задание ${++n}. ${own.name}\n\n${own.text}\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+      else if (p.plan?.format) md += `### 🏆 Задание ${++n}. Творческое (${p.plan.format.name.toLowerCase()})\n\n${p.plan.format.task}\n\n*Механика: ${p.plan.format.src}*\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
       else md += `### 🏆 Задание ${++n}. Творческое\n\nСоставьте 3–4 предложения по теме «${p.topic}». Подчеркните то, что изучали на уроке.\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
     } else {
       md += `<!--TEXT-->\n\n`;
@@ -4083,12 +4099,15 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/learn.js"></script>
 <script src="js/variety.js"></script>
 <script src="js/litkit.js"></script>
+<script src="js/rukit.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/verify.js"></script>
 <script src="js/ocr.js"></script>
 <script src="js/materials.js"></script>
 <script src="js/collect.js"></script>
 <script src="js/devmode.js"></script>
+<script src="js/devcover.js"></script>
+<script src="js/credits.js"></script>
 <script src="js/deck.js"></script>
 <script src="js/slides.js"></script>
 <script src="js/publish.js"></script>

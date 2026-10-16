@@ -178,19 +178,45 @@ function diagnose(e, status, text) {
   return { reason: "other", message: "GigaChat не ответил: " + (e?.message || ("HTTP " + status + " " + String(text || "").slice(0, 160))) };
 }
 
+/* ---------- ключ: приводим к виду Authorization key ----------
+   Частые причины «ключ не принят»: вставлено «Basic …», кавычки, переносы строк,
+   пара «Client ID:Client Secret» вместо готового ключа, или только Client ID. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function normalizeKey(raw) {
+  let k = String(raw || "").replace(/^\s*(authorization\s*:\s*)?basic\s+/i, "").replace(/["'«»\s]/g, "");
+  if (!k) return { key: "" };
+  if (UUID.test(k)) return { key: "", error: "Вставлен Client ID. Нужен Authorization key (длинная строка, кнопка «Получить ключ» в личном кабинете GigaChat API) — или пара Client ID:Client Secret." };
+  const pair = k.match(/^([0-9a-f-]{36})[:;,|/]([0-9a-f-]{36})$/i);
+  if (pair) return { key: Buffer.from(pair[1] + ":" + pair[2]).toString("base64"), fixed: "пара Client ID и Client Secret превращена в ключ" };
+  try { const dec = Buffer.from(k, "base64").toString("utf8"); if (!/^[0-9a-f-]{36}:[0-9a-f-]{36}$/i.test(dec)) return { key: k, warn: "ключ не похож на Authorization key (base64 от «Client ID:Client Secret»)" }; } catch { }
+  return { key: k };
+}
+const SCOPES = ["GIGACHAT_API_PERS", "GIGACHAT_API_B2B", "GIGACHAT_API_CORP"];
+const scopeOf = new Map(); // какой scope подошёл ключу
+
 /* ---------- токены GigaChat: живут 30 минут, кэшируем по хэшу ключа ---------- */
 const tokens = new Map();
-async function gigaToken(key) {
+async function gigaToken(rawKey) {
   await ensureCa();
+  const nk = normalizeKey(rawKey);
+  if (!nk.key) { const m = nk.error || "нет ключа GigaChat"; lastError = { at: new Date().toISOString(), reason: "auth", message: m }; throw Object.assign(new Error(m), { status: 401, reason: "auth" }); }
+  const key = nk.key;
   const id = crypto.createHash("sha256").update(key).digest("hex");
   const cached = tokens.get(id);
   if (cached && cached.exp - Date.now() > 60000) return cached.token;
+  // scope: сначала из настроек (или подошедший раньше), при отказе по scope — остальные по очереди
+  const order = [...new Set([scopeOf.get(id) || ENV.gigaScope, ...SCOPES])];
   let res, text;
-  try {
-    res = await request(ENV.gigaOauth, { headers: { Authorization: "Basic " + key, RqUID: crypto.randomUUID(), Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" }, body: "scope=" + encodeURIComponent(ENV.gigaScope), timeout: 20000 });
-    text = await readAll(res);
-  } catch (e) { const d = diagnose(e); lastError = { at: new Date().toISOString(), ...d }; throw Object.assign(new Error(d.message), { status: 502, reason: d.reason }); }
-  if (res.statusCode !== 200) { const d = diagnose(null, res.statusCode, text); lastError = { at: new Date().toISOString(), ...d }; throw Object.assign(new Error(d.message), { status: res.statusCode === 401 ? 401 : 502, reason: d.reason }); }
+  for (const scope of order) {
+    try {
+      res = await request(ENV.gigaOauth, { headers: { Authorization: "Basic " + key, RqUID: crypto.randomUUID(), Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" }, body: "scope=" + encodeURIComponent(scope), timeout: 20000 });
+      text = await readAll(res);
+    } catch (e) { const d = diagnose(e); lastError = { at: new Date().toISOString(), ...d }; throw Object.assign(new Error(d.message), { status: 502, reason: d.reason }); }
+    if (res.statusCode === 200) { scopeOf.set(id, scope); break; }
+    const scopeIssue = (res.statusCode === 400 || res.statusCode === 401) && /scope/i.test(text || "");
+    if (!scopeIssue) break;
+  }
+  if (res.statusCode !== 200) { const d = diagnose(null, res.statusCode, text); if (d.reason === "auth" && nk.warn) d.message += " Похоже, " + nk.warn + "."; lastError = { at: new Date().toISOString(), ...d }; throw Object.assign(new Error(d.message), { status: res.statusCode === 401 ? 401 : 502, reason: d.reason }); }
   const j = JSON.parse(text);
   tokens.set(id, { token: j.access_token, exp: Number(j.expires_at) || Date.now() + 25 * 60000 });
   lastError = null;
@@ -216,7 +242,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 5, providers: ["gigachat", "yandex", "relay", "images"], images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 6, providers: ["gigachat", "yandex", "relay", "images"], images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -234,7 +260,7 @@ async function handler(req, res) {
     // проверка «вживую»: получить токен GigaChat ключом с сервера (или из заголовка)
     const key = String(req.headers["x-gigachat-key"] || process.env.GIGACHAT_KEY || "").trim();
     if (!key) return send(res, 200, { ok: false, reason: "no_key", message: "На прокси нет ключа GigaChat (GIGACHAT_KEY)." });
-    try { await gigaToken(key); return send(res, 200, { ok: true, message: "Сбер выдал токен: GigaChat доступен." }); }
+    try { await gigaToken(key); const nk = normalizeKey(key); return send(res, 200, { ok: true, message: "Сбер выдал токен: GigaChat доступен." + (nk.fixed ? " (" + nk.fixed + ")" : ""), scope: scopeOf.get(crypto.createHash("sha256").update(nk.key).digest("hex")) }); }
     catch (e) { return send(res, 200, { ok: false, reason: e.reason || "other", message: e.message }); }
   }
   if (req.method !== "POST") return send(res, 405, { error: "метод не поддерживается" });

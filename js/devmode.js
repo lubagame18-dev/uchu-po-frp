@@ -64,7 +64,7 @@ const Dev = (() => {
     document.querySelector(".nav")?.appendChild(chip);
     if (window.Log) Log.add("вход", "включён режим разработчика");
     rerenderCurrent();
-    show("materials");
+    show("cover");
     toast("Режим разработчика включён. Выход — кнопка «Выйти» вверху.");
   }
   /* Выход: убираем всё, что добавил режим, и перерисовываем текущий раздел */
@@ -89,7 +89,8 @@ const Dev = (() => {
   }
 
   /* ---------- разделы ---------- */
-  const SECTIONS = [["materials", "Материалы"], ["exercises", "Конструктор упражнений"], ["lessons", "Конспекты"], ["frp", "ФРП"], ["inbox", "Файлы от пользователей"], ["drafts", "Черновики"], ["logs", "Логи"], ["reports", "Отчёты и собранные файлы"]];
+  let subj = "ru"; // русский язык и литература — раздельно
+  const SECTIONS = [["cover", "Темы ФРП"], ["materials", "Материалы"], ["exercises", "Конструктор упражнений"], ["lessons", "Конспекты"], ["frp", "ФРП"], ["inbox", "Файлы от пользователей"], ["drafts", "Черновики"], ["logs", "Логи"], ["reports", "Отчёты и собранные файлы"]];
   function show(sec) {
     if (!on) return;
     section = sec;
@@ -97,24 +98,28 @@ const Dev = (() => {
     document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.id === "nav-dev" ? "page" : "false"));
     const v = document.getElementById("view-dev"); if (!v) return;
     v.hidden = false; window.scrollTo({ top: 0 });
-    v.innerHTML = `<h1>Разработчик</h1><nav class="dev-tabs" aria-label="Разделы разработчика">${SECTIONS.map(([k, n]) => `<button class="chip" data-sec="${k}" aria-pressed="${k === sec}">${n}${k === "inbox" ? inboxBadge() : ""}</button>`).join("")}</nav><div id="devBody"></div>`;
+    v.innerHTML = `<h1>Разработчик</h1><div class="seg dev-subj" role="group" aria-label="Предмет"><button type="button" data-subj="ru" aria-pressed="${subj === "ru"}">Русский язык</button><button type="button" data-subj="lit" aria-pressed="${subj === "lit"}">Литература</button></div><nav class="dev-tabs" aria-label="Разделы разработчика">${SECTIONS.map(([k, n]) => `<button class="chip" data-sec="${k}" aria-pressed="${k === sec}">${k === "exercises" && subj === "lit" ? "Вопросы и задания" : n}${k === "inbox" ? inboxBadge() : ""}</button>`).join("")}</nav><div id="devBody"></div>`;
     v.querySelectorAll("[data-sec]").forEach(b => b.onclick = () => show(b.dataset.sec));
+    v.querySelectorAll("[data-subj]").forEach(b => b.onclick = () => { subj = b.dataset.subj; show(section); });
     const body = v.querySelector("#devBody");
-    ({ materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
+    ({ cover: x => window.DevCover ? DevCover.render(x, subj) : (x.innerHTML = "<p>Модуль покрытия не загружен.</p>"), materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
   }
   // переход в обычный раздел прячет экран разработчика
   const origGo = window.go;
   window.go = function (view, opts) { const v = document.getElementById("view-dev"); if (v) v.hidden = true; document.getElementById("nav-dev")?.setAttribute("aria-current", "false"); return origGo(view, opts); };
 
+  /* Публикация на GitHub — только у владельца сайта: в браузере, где сохранён токен, или по адресу с #owner.
+     Методисты, которые входят в режим разработчика, данных репозитория и токена не видят. */
+  const OWNER = () => !!(window.Publish?.ready() || /(^|[#&])owner\b/.test(location.hash));
   function secMaterials(b) {
-    const base = Base.summary() || [];
-    b.innerHTML = `<section class="dev-card" id="ghCard"></section>
-      <section class="dev-card"><h2>Все материалы сайта</h2><p class="hint">Встроенные (data/extra.js) и загруженные вами в режиме разработчика. Загрузите файлы — они очистятся, разложатся по классам и темам${window.Publish?.ready() ? " и сразу опубликуются для всех учителей" : "; затем нажмите «Опубликовать» (или скачайте extra.js)"}.</p>
+    const base = (Base.summary() || []).filter(s => (s.subject || "ru") === subj);
+    b.innerHTML = `${OWNER() ? `<section class="dev-card" id="ghCard"></section>` : ""}
+      <section class="dev-card"><h2>Все материалы сайта</h2><p class="hint">Встроенные (data/extra.js) и загруженные вами в режиме разработчика. Загрузите файлы — они очистятся, разложатся по классам и темам${window.Publish?.ready() ? " и сразу опубликуются для всех учителей" : "; затем скачайте extra.js и передайте владельцу сайта"}.</p>
       <div class="mat-drop" id="dvDrop"><p>Перетащите сюда учебники, тетради, разработки (.docx, .pdf, .txt) — можно сразу много</p><label class="btn sm flame">Загрузить и встроить для всех<input type="file" id="dvAdd" multiple accept=".pdf,.docx,.txt,.md,.json" hidden></label></div>
       <div class="mat-row"><button class="btn sm" id="dvEmbed">${window.Publish?.ready() ? "Опубликовать базу сейчас" : "Скачать новый extra.js"}</button><label class="btn sm ghost">Распознать скан (OCR)<input type="file" id="dvOcr" accept=".pdf" hidden></label></div><div id="dvLib"></div></section>
-      <section class="dev-card"><h2>Встроенная база (data/base.js)</h2><div class="mcards">${base.map(s => `<article class="mcard"><div class="mc-ico">${s.kind === "lesson" ? "📘" : s.kind === "workbook" ? "✍️" : "📚"}</div><div class="mc-body"><h3>${esc(s.short)}</h3><p class="mc-desc">${esc(s.title)}</p><div class="tags">${s.grade ? `<span class="tag">${s.grade} класс</span>` : ""}<span class="tag">${s.subject === "lit" ? "Литература" : "Русский"}</span>${s.ex ? `<span class="tag">упражнений: ${s.ex}</span>` : ""}${s.items ? `<span class="tag">фрагментов: ${s.items}</span>` : ""}</div></div></article>`).join("")}</div></section>`;
+      <section class="dev-card"><h2>Встроенная база (data/base.js) — ${subj === "ru" ? "русский язык" : "литература"}</h2><div class="mcards">${base.map(s => `<article class="mcard"><div class="mc-ico">${s.kind === "lesson" ? "📘" : s.kind === "workbook" ? "✍️" : "📚"}</div><div class="mc-body"><h3>${esc(s.short)}</h3><p class="mc-desc">${esc(s.title)}</p><div class="tags">${s.grade ? `<span class="tag">${s.grade} класс</span>` : ""}<span class="tag">${s.subject === "lit" ? "Литература" : "Русский"}</span>${s.ex ? `<span class="tag">упражнений: ${s.ex}</span>` : ""}${s.items ? `<span class="tag">фрагментов: ${s.items}</span>` : ""}</div></div></article>`).join("")}</div></section>`;
     Materials.renderLib(b.querySelector("#dvLib"), "all");
-    if (window.Publish) Publish.panel(b.querySelector("#ghCard"));
+    if (window.Publish && OWNER()) Publish.panel(b.querySelector("#ghCard"));
     const add = async files => { if (!files.length) return; await addMaterials(files); show("materials"); };
     b.querySelector("#dvAdd").onchange = e => { add([...e.target.files]); e.target.value = ""; };
     const drop = b.querySelector("#dvDrop");
@@ -132,10 +137,11 @@ const Dev = (() => {
     if (!items.length) { toast("Нечего встраивать."); return; }
     await downloadDataJs("extra.js", "UCHU_EXTRA", { version: new Date().toISOString().slice(0, 10), items });
     if (window.Log) Log.add("встраивание", `extra.js: ${items.length} материалов`);
-    if (!window.Publish?.ready()) toast(`extra.js скачан (${items.length} материалов). Загрузите его в папку data на GitHub вместо старого — или вставьте токен GitHub в «Публикация на сайт», и это будет происходить само.`, 10000);
+    if (!window.Publish?.ready()) toast(`extra.js скачан (${items.length} материалов). Передайте файл владельцу сайта — он обновит базу для всех.`, 10000);
   }
 
   function secExercises(b) {
+    if (subj === "lit") return secLitTasks(b);
     const fromMats = state.materials.filter(m => !m.scanned && m.text && (m.type === "exercise" || /workbook|textbook/.test(m.kind))).flatMap(m => Materials.exercises(m));
     const B = window.UCHU_BASE, src = i => (B?.sources || [])[i]?.short || "база";
     const mech = KB.ru.mechanics;
@@ -153,8 +159,16 @@ const Dev = (() => {
     ["exQ", "exTag", "exTopic", "exGrade"].forEach(id => b.querySelector("#" + id).addEventListener("input", paint)); paint();
   }
 
+  /* Литература: вопросы и задания учебника и разработок (вместо конструктора упражнений) */
+  function secLitTasks(b) {
+    const L = window.UCHU_BASE?.lit, src = i => (window.UCHU_BASE?.sources || [])[i]?.short || "база";
+    const qs = (L?.questions || []).map(q => ({ text: q.t, part: L.parts[q.part], src: `${src(q.s)}, с. ${q.p}` }));
+    b.innerHTML = `<section class="dev-card"><h2>Вопросы и задания по литературе</h2><p class="hint">Из учебника и разработок во встроенной базе. Всего: ${qs.length}. Темы без вопросов видны в разделе «Темы ФРП».</p><input type="search" class="inp" id="lqQ" placeholder="Автор, произведение или слово из вопроса"><div id="lqList"></div></section>`;
+    const paint = () => { const q = b.querySelector("#lqQ").value.toLowerCase(); const arr = qs.filter(x => !q || (x.text + " " + (x.part?.author || "") + " " + (x.part?.title || "")).toLowerCase().includes(q)); b.querySelector("#lqList").innerHTML = `<p class="small">Показано ${Math.min(arr.length, 150)} из ${arr.length}</p><ul>${arr.slice(0, 150).map(x => `<li>${esc(x.text)} <span class="small">(${esc((x.part?.author || "") + " " + (x.part?.title || ""))}; ${esc(x.src)})</span></li>`).join("")}</ul>`; };
+    b.querySelector("#lqQ").addEventListener("input", paint); paint();
+  }
   function secLessons(b) {
-    const k = Learn.get();
+    const k0 = Learn.get(), k = { ...k0, lessons: k0.lessons.filter(l => (l.subject || "lit") === subj) };
     b.innerHTML = `<section class="dev-card"><h2>Конспекты и разработки (образцы)</h2><p class="hint">Уроки, которые система выделила из разработок и сборников планов-конспектов. По ним строится структура урока на ту же тему и подбираются вопросы. Всего: ${k.lessons.length}.</p>
       <input type="search" class="inp" id="lsQ" placeholder="Найти урок по теме"><div id="lsList"></div></section>`;
     const paint = () => {
@@ -169,8 +183,8 @@ const Dev = (() => {
   }
 
   function secFrp(b) {
-    b.innerHTML = `<section class="dev-card"><h2>ФРП</h2><div id="dvFrp"></div><p class="hint">Встроены 4 программы (data/frp.js): русский язык 5–9 (2025, с поурочным планированием) и 10–11, литература 5–9 и 10–11 — результаты, темы, программное содержание и виды деятельности дословно. Если выйдет новая редакция: загрузите её файл (.pdf с текстом или .docx) — он заменит программу для своих классов; затем «Встроить для всех» (с токеном GitHub публикуется сразу, без токена скачивается frp.js).</p><div class="mat-row"><button class="btn sm" id="dvFrpUp">Загрузить файл программы</button><button class="btn sm flame" id="dvFrpEmbed">Встроить для всех (frp.js)</button></div></section>`;
-    b.querySelector("#dvFrp").innerHTML = ["ru", "lit"].map(k => { const l = FRP.list(k); return `<h3>${k === "ru" ? "Русский язык" : "Литература"}</h3>` + (l.length ? l.map(d => { const sm = FRP.summary(d); return `<p><b>${esc(d.name)}</b> (${d.builtin ? "встроена" : "загружена в этом браузере"}): классы ${sm.grades.join(", ") || "—"}; тем ${sm.topics}; предметных результатов ${sm.subject}; личностных ${sm.personal}; метапредметных ${sm.meta}.</p>`; }).join("") : `<p class="small">Не встроена.</p>`); }).join("");
+    b.innerHTML = `<section class="dev-card"><h2>ФРП</h2><div id="dvFrp"></div><p class="hint">Встроены 4 программы (data/frp.js): русский язык 5–9 (2025, с поурочным планированием) и 10–11, литература 5–9 и 10–11 — результаты, темы, программное содержание и виды деятельности дословно. Если выйдет новая редакция: загрузите её файл (.pdf с текстом или .docx) — он заменит программу для своих классов; затем «Встроить для всех» (файл frp.js передайте владельцу сайта, если публикация не подключена).</p><div class="mat-row"><button class="btn sm" id="dvFrpUp">Загрузить файл программы</button><button class="btn sm flame" id="dvFrpEmbed">Встроить для всех (frp.js)</button></div></section>`;
+    b.querySelector("#dvFrp").innerHTML = [subj].map(k => { const l = FRP.list(k); return `<h3>${k === "ru" ? "Русский язык" : "Литература"}</h3>` + (l.length ? l.map(d => { const sm = FRP.summary(d); return `<p><b>${esc(d.name)}</b> (${d.builtin ? "встроена" : "загружена в этом браузере"}): классы ${sm.grades.join(", ") || "—"}; тем ${sm.topics}; предметных результатов ${sm.subject}; личностных ${sm.personal}; метапредметных ${sm.meta}.</p>`; }).join("") : `<p class="small">Не встроена.</p>`); }).join("");
     b.querySelector("#dvFrpUp").onclick = () => document.getElementById("frpInput").click();
     b.querySelector("#dvFrpEmbed").onclick = () => embedFrp().catch(e => toast("Не получилось: " + (e.message || e)));
   }

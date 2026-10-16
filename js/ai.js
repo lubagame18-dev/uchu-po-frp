@@ -180,7 +180,7 @@ const AI = (() => {
     deepseek: (c, p, o, e) => openaiCompat("deepseek", "https://api.deepseek.com/chat/completions", { Authorization: "Bearer " + c.keys.deepseek }, c.models.deepseek, p, o, e),
     gemini: (c, p, o, e) => openaiCompat("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", { Authorization: "Bearer " + c.keys.gemini }, c.models.gemini, p, o, e),
     custom: (c, p, o, e) => openaiCompat("custom", c.custom.base.replace(/\/+$/, "") + "/chat/completions", c.custom.key ? { Authorization: "Bearer " + c.custom.key } : {}, c.custom.model, p, o, e),
-    yandexfn: (c, p, o, e) => { const base = c.yandexFn.replace(/\/+$/, ""); const url = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/gigachat/v1/chat/completions")}` : base + "/gigachat/v1/chat/completions"; return openaiCompat("yandexfn", url, c.keys.gigachat ? { "X-GigaChat-Key": c.keys.gigachat } : {}, o.modelTier === "complex" ? "GigaChat-2-Max" : c.models.gigachat, p, o, e); },
+    yandexfn: (c, p, o, e) => { const base = c.yandexFn.replace(/\/+$/, ""); const url = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/gigachat/v1/chat/completions")}` : base + "/gigachat/v1/chat/completions"; return openaiCompat("yandexfn", url, c.keys.gigachat ? { "X-GigaChat-Key": (gigaKey(c.keys.gigachat).key || c.keys.gigachat) } : {}, o.modelTier === "complex" ? "GigaChat-2-Max" : c.models.gigachat, p, o, e); },
     anthropic: async (c, p, o, emit) => {
       const [u, init] = viaRelay(c, "anthropic", "https://api.anthropic.com/v1/messages", { method: "POST", signal: o.signal, headers: { "content-type": "application/json", "x-api-key": c.keys.anthropic, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify({ model: c.models.anthropic, max_tokens: 16000, stream: true, messages: [{ role: "user", content: p }] }) });
       const res = await fetch(u, init); if (!res.ok) throw httpErr(res.status, await res.text());
@@ -273,6 +273,19 @@ const AI = (() => {
     toast("Pollinations подключён.", 6000);
   }
 
+  /* ---------- ключ GigaChat: приводим к Authorization key ----------
+     Убираем «Basic », кавычки и пробелы; пару «Client ID:Client Secret» (или два поля) кодируем в base64.
+     Только Client ID — ошибка с подсказкой. */
+  const UUIDRE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  function gigaKey(raw, id2, secret2) {
+    let k = String(raw || "").replace(/^\s*(authorization\s*:\s*)?basic\s+/i, "").replace(/["'«»\s]/g, "");
+    if (!k && id2 && secret2) k = id2.trim() + ":" + secret2.trim();
+    if (UUIDRE.test(k) && secret2) k = k + ":" + secret2.trim();
+    const pair = k.match(/^([0-9a-f-]{36})[:;,|/]([0-9a-f-]{36})$/i);
+    if (pair) return { key: btoa(pair[1] + ":" + pair[2]), note: "Client ID и Client Secret превращены в ключ авторизации" };
+    if (UUIDRE.test(k)) return { key: "", note: "Это Client ID, а нужен ключ авторизации (Authorization key) — или вставьте ещё Client Secret в поле ниже." };
+    return { key: k, note: "" };
+  }
   /* ---------- проверка: Яндекс-функция и диагностика GigaChat ---------- */
   async function probeYandex(c = cfg()) {
     if (!c.yandexFn) return { ok: false, text: "адрес функции не задан" };
@@ -282,9 +295,9 @@ const AI = (() => {
       const h = await (await fetch(u("/health"), { signal: ctl.signal, cache: "no-store" })).json();
       if (h.service !== "uchu-po-frp-proxy") return { ok: false, text: "по адресу отвечает не прокси «Учу по ФРП»" };
       if (!h.keys?.gigachat && !c.keys.gigachat) return { ok: false, text: "функция работает, но ключа GigaChat в ней нет (переменная GIGACHAT_KEY)" };
-      const d = await (await fetch(u("/diagnose"), { signal: ctl.signal, cache: "no-store", headers: c.keys.gigachat ? { "X-GigaChat-Key": c.keys.gigachat } : {} }).catch(() => null))?.json?.().catch(() => null);
+      const d = await (await fetch(u("/diagnose"), { signal: ctl.signal, cache: "no-store", headers: c.keys.gigachat ? { "X-GigaChat-Key": (gigaKey(c.keys.gigachat).key || c.keys.gigachat) } : {} }).catch(() => null))?.json?.().catch(() => null);
       if (d && !d.ok) return { ok: false, text: d.message || "Сбер отказал", reason: d.reason };
-      if (!d && h.version !== 5) return { ok: h.cert, text: h.cert ? "функция отвечает (старая версия прокси без диагностики — обновите код функции)" : "функция старой версии: нет сертификата Минцифры — обновите код функции (proxy.js v5)" };
+      if (!d && !(h.version >= 5)) return { ok: h.cert, text: h.cert ? "функция отвечает (старая версия прокси без диагностики — обновите код функции)" : "функция старой версии: нет сертификата Минцифры — обновите код функции (proxy.js v5)" };
       return { ok: true, text: `GigaChat доступен. ${h.certMode || ""}` };
     } catch (e) { return { ok: false, text: e.name === "AbortError" ? "функция не ответила за 15 секунд (облако недоступно или перегружено)" : "функция недоступна из этой сети" }; }
     finally { clearTimeout(t); }
@@ -336,6 +349,7 @@ const AI = (() => {
       <div class="prov"><div class="prov-h"><b>5. GigaChat через Яндекс-функцию</b> <span class="small">неприоритетный вариант</span> ${row("yandexfn")}</div>
         <input type="text" id="yFn" spellcheck="false" placeholder="https://functions.yandexcloud.net/…" value="${v(c.yandexFn)}">
         <label for="kGG" class="small">Свой ключ GigaChat (не нужен, если ключ лежит в функции)</label><input type="password" id="kGG" autocomplete="off" value="${v(c.keys.gigachat)}">
+        <details class="small"><summary>Нет «ключа авторизации», есть Client ID и Client Secret?</summary><div class="mat-row"><input type="text" id="kGGid" placeholder="Client ID" spellcheck="false" autocomplete="off"><input type="password" id="kGGsec" placeholder="Client Secret" autocomplete="off"></div><p class="hint">Сайт сам соберёт из них ключ. Подходит любой из вариантов: ключ авторизации, «Basic …», пара «ID:Secret».</p></details>
         <div class="mat-row"><button type="button" class="btn sm ghost" id="yProbe">Проверить функцию и Сбер</button><span class="small" id="yProbeSt"></span></div></div>
       <details class="prov"><summary><b>6. Claude и свой сервис</b></summary>
         <label for="kAN" class="small">Ключ Anthropic (из России недоступен)</label><input type="password" id="kAN" autocomplete="off" placeholder="sk-ant-…" value="${v(c.keys.anthropic)}">
@@ -353,7 +367,7 @@ const AI = (() => {
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm teal" id="trQr">Показать QR-код</button><button type="button" class="btn sm ghost" id="trCopy">Скопировать ссылку</button></div><div id="trBox"></div></details>
     </form></div>`);
     const $m = s => m.querySelector(s);
-    const collect = () => { const n = cfg(); n.prefer = $m("#aiPrefer").value; n.keys = { ...n.keys, openrouter: $m("#kOR").value.trim(), pollinations: $m("#kPL").value.trim(), deepseek: $m("#kDS").value.trim(), gemini: $m("#kGM").value.trim(), gigachat: $m("#kGG").value.trim(), anthropic: $m("#kAN").value.trim() }; n.models.openrouter = $m("#mOR").value.trim() || "openrouter/free"; n.yandexFn = $m("#yFn").value.trim(); n.custom = { base: $m("#cuBase").value.trim(), key: $m("#cuKey").value.trim(), model: $m("#cuModel").value.trim() }; n.proxy = { on: $m("#pxOn").checked, url: $m("#pxUrl").value.trim(), port: $m("#pxPort").value.trim(), login: $m("#pxLogin").value.trim(), password: $m("#pxPass").value, split: $m("#pxSplit").checked }; return n; };
+    const collect = () => { const n = cfg(); n.prefer = $m("#aiPrefer").value; n.keys = { ...n.keys, openrouter: $m("#kOR").value.trim(), pollinations: $m("#kPL").value.trim(), deepseek: $m("#kDS").value.trim(), gemini: $m("#kGM").value.trim(), gigachat: (() => { const g = gigaKey($m("#kGG").value, $m("#kGGid")?.value || "", $m("#kGGsec")?.value || ""); if (g.note) toast(g.note, 7000); if (g.key) { $m("#kGG").value = g.key; if ($m("#kGGid")) $m("#kGGid").value = ""; if ($m("#kGGsec")) $m("#kGGsec").value = ""; } return g.key; })(), anthropic: $m("#kAN").value.trim() }; n.models.openrouter = $m("#mOR").value.trim() || "openrouter/free"; n.yandexFn = $m("#yFn").value.trim(); n.custom = { base: $m("#cuBase").value.trim(), key: $m("#cuKey").value.trim(), model: $m("#cuModel").value.trim() }; n.proxy = { on: $m("#pxOn").checked, url: $m("#pxUrl").value.trim(), port: $m("#pxPort").value.trim(), login: $m("#pxLogin").value.trim(), password: $m("#pxPass").value, split: $m("#pxSplit").checked }; return n; };
     $m("#aiForm").onsubmit = e => { e.preventDefault(); save(collect()); closeModal(); toast(configured() ? "Сохранено. Очередь нейросетей: " + chain().map(id => P[id].name).join(" → ") + "." : "Сохранено. Чтобы включить нейросеть, войдите через OpenRouter или вставьте ключ."); };
     $m("#orLogin").onclick = () => { save(collect()); openrouterLogin(); };
     $m("#uniGo").onclick = async () => {
