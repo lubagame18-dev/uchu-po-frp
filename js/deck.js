@@ -31,9 +31,10 @@ const Deck = (() => {
   const KINDS = {
     title: "Титульный", author: "Автор (портрет)", goal: "Цель урока", steps: "Шаги / план", cards: "Карточки с тезисами",
     list: "Список", big: "Крупный вопрос", quote: "Цитата (дословно)", poem: "Стихотворение (дословно)",
-    task: "Упражнение (дословно)", rule: "Правило (дословно)", hw: "Домашнее задание", image: "Картинка во весь слайд"
+    task: "Упражнение (дословно)", rule: "Правило (дословно)", hw: "Домашнее задание", image: "Картинка во весь слайд",
+    fragment: "Фрагмент текста (дословно)", glossary: "Словарная работа", terms: "Работа с терминами", table: "Таблица для заполнения", concl: "Выводы"
   };
-  const VERBATIM = new Set(["quote", "poem", "task", "rule"]);
+  const VERBATIM = new Set(["quote", "poem", "task", "rule", "fragment"]);
   function opts() { let o = {}; try { o = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { } return { amount: AMOUNT[o.amount] ? o.amount : "medium", images: IMAGES[o.images] ? o.images : "key" }; }
   function saveOpts(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch { } }
 
@@ -56,7 +57,7 @@ const Deck = (() => {
   }
   const isQ = s => /\?\s*(?:[»"])?\s*$/.test(s) || /\?\s/.test(s);
   /* Выбор тезисов: сначала опирающиеся на текст (с цитатой), потом короткие; порядок — как в конспекте */
-  let curTopic = "";
+  let curTopic = "", curKit = null;
   function pickPoints(list, amt) {
     list = list.filter(x => !(typeof Learn !== "undefined" && Learn.offTopic && Learn.offTopic(x, curTopic)));
     const uniq = []; const seen = new Set();
@@ -130,9 +131,57 @@ const Deck = (() => {
   const looksRule = s => { const t = plainMd(s).replace(/\*\([^)]*\)\*/g, ""); return t.length >= 25 && t.length <= 450 && /(пиш[еу]тся|называ[ею]тся|ставится|ставятся|не ставится|обособля|выделя[ею]тся|употребля[ею]тся|образу[ею]тся|обозначает|отвечает на вопрос|это\s|является|относятся|различают|бывают)/i.test(t); };
 
   /* ---------- план презентации ---------- */
+  /* Литература: на слайдах только то, с чем работают и что записывают — без вопросов учителя.
+     Тема и цель, проблемный вопрос, справка, словарь, текст (фрагменты, дословно, слова с подсказками),
+     иллюстрации с подписью (художник, название), термины, таблица, выводы, творческое задание, д/з. */
+  function litOutline(md, p, type, o) {
+    const kit = p.plan.kit, c = parseConspect(md), cards = []; let n = 0;
+    const add = card => { cards.push({ id: "c" + (++n), on: true, ...card }); return cards[cards.length - 1]; };
+    const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : null;
+    const work = (p.topic.match(/«([^»]+)»/) || [])[1];
+    const shortWork = work && work.length > 44 ? work.split(/,\s*/)[0] + "…" : work;
+    const imgOn = o.images !== "none";
+    add({ kind: "title", title: work ? `«${work}»` : (c.title || p.topic), points: [author || "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${work || p.topic} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация` : "", acc: "right" });
+    if (c.goal) { const g = goalForStudents(c.goal, p.topic); add({ kind: g.points.length >= 2 ? "goal" : "big", title: "Тема и цель урока", lead: g.head, points: g.points.slice(0, 6) }); }
+    add({ kind: "big", title: "Проблемный вопрос", lead: kit.problem, notes: "Запишите в тетрадь. Ответ — в выводах в конце урока." });
+    if (author && c.wiki) {
+      const pts = []; const yrs = c.wiki.match(/\(([^)]*?\d{4}[^)]*?\d{4}[^)]*?)\)/);
+      if (yrs) { const ys = yrs[1].match(/\d{4}/g); if (ys && ys.length >= 2) pts.push(`${ys[0]}–${ys[ys.length - 1]}`); }
+      const who = c.wiki.match(/\)\s*[—–-]\s*([^.;]{8,120})/); if (who) pts.push(capF(who[1].trim()));
+      if (pts.length) add({ kind: "author", title: author, points: pts, img: imgOn ? `commons:${author} портрет` : "", acc: "left", notes: "Справка — по Википедии; даты сверьте с учебником." });
+    }
+    if (kit.glossary.length) {
+      const per = Math.ceil(kit.glossary.length / Math.ceil(kit.glossary.length / 4));
+      for (let i = 0; i < kit.glossary.length; i += per) add({ kind: "glossary", title: "Словарная работа" + (i ? " (продолжение)" : ""), items: kit.glossary.slice(i, i + per) });
+    }
+    // текст: фрагменты дословно; слова из словаря и примеры терминов — с подсказкой по щелчку
+    const verse = !!p.plan.analysis?.verse;
+    const mid = Math.ceil(kit.fragments.length / 2);
+    for (const f of kit.fragments) {
+      if (imgOn && f.n === mid + 1 && kit.fragments.length >= 4) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} ${kit.fragments[mid - 1].label.replace(/^[^:]*:\s*/, "")}`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) — с Викисклада." });
+      if (verse) {
+        const lines = f.text.split("\n"); const chunks = []; let cur = [];
+        const total = lines.filter(x => x.trim()).length, target = Math.ceil(total / Math.ceil(total / 8));
+        for (const l of lines) { cur.push(l); const k = cur.filter(x => x.trim()).length; if ((k >= target && (!l.trim() || /[.!?…;:,—]\s*$/.test(l))) || k >= target + 2) { chunks.push(cur.join("\n")); cur = []; } }
+        if (cur.join("").trim()) chunks.push(cur.join("\n"));
+        chunks.forEach((ch, k) => add({ kind: "fragment", verse: true, mdBody: LitKit.markup(verbatimMd(ch.trim(), { verse: true }), kit), title: f.whole ? `«${shortWork || "Текст"}»${k ? " (продолжение)" : ""}` : f.part ? `«${shortWork || "Текст"}». Часть ${f.n}${k ? " (продолжение)" : ""}` : `Фрагмент ${f.n}${k ? " (продолжение)" : `. ${f.label}`}`, text: ch.trim(), by: f.whole && k === chunks.length - 1 ? author || "" : f.whole ? "" : `строки ${f.from}–${f.to}`, notes: k ? "" : `Текст — дословно${p.plan.textSource ? ` (${p.plan.textSource})` : ""}.` }));
+      } else add({ kind: "fragment", verse: false, mdBody: LitKit.markup(verbatimMd(f.text), kit), title: f.whole ? `«${shortWork || "Текст"}»` : `Фрагмент ${f.n}. ${f.label}`, text: f.text, by: "", notes: `Текст — дословно.` });
+    }
+    if (imgOn) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} иллюстрация`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) берётся с Викисклада. Если картинка подобрана из Яндекса — впишите подпись, щёлкнув по картинке." });
+    if (kit.terms.length) for (let i = 0; i < kit.terms.length; i += 2) add({ kind: "terms", title: "Работа с терминами" + (i ? " (продолжение)" : ""), items: kit.terms.slice(i, i + 2), notes: "Запишите в тетрадь: термин, определение, пример из текста." });
+    const A = p.plan.analysis;
+    const HH = kit.heroes?.length >= 2 ? kit.heroes : A?.heroes || [];
+    if (HH.length >= 2) add({ kind: "table", title: "Сравним героев", head: ["", HH[0], HH[1]], rows: (kit.rows || ["Поступки", "Речь (цитата)", "Отношение автора"]).map(r => [r]), notes: "Таблица — та же, что в рабочем листе." });
+    add({ kind: "concl", title: "Выводы", points: kit.conclusions, notes: "Запишите в тетрадь." });
+    const cr = c.rows.find(r => /^творческ/i.test(r.stage)); if (cr) { const t = cleanLine(unbr(cr.content)); if (t.length > 10) add({ kind: "big", title: "Творческое задание", lead: t }); }
+    if (c.hw.length) add({ kind: "hw", title: "Домашнее задание", points: c.hw.slice(0, 4) });
+    return cards;
+  }
   function outline(md, p, type, o = opts()) {
+    curTopic = p.topic; curKit = p.plan?.kit || null;
+    if (p.subject === "lit" && p.plan?.kit?.fragments?.length) return litOutline(md, p, type, o);
     const amt = AMOUNT[o.amount] || AMOUNT.medium, lit = p.subject === "lit";
-    curTopic = p.topic;
+    curTopic = p.topic; curKit = p.plan?.kit || null;
     const c = parseConspect(md);
     const cards = []; let n = 0;
     const add = card => { cards.push({ id: "c" + (++n), on: true, ...card }); return cards[cards.length - 1]; };
@@ -256,7 +305,8 @@ const Deck = (() => {
   function cardMd(card) {
     const set = {};
     let title = card.title || "", level = 2, body = "";
-    const img = card.img ? `![${md1(card.cap || card.title).replace(/[\[\]()]/g, "")}](search:${card.img.replace(/[()"]/g, "").trim()})` : "";
+    const isrc = card.img ? (/^commons:/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
+    const img = card.img ? `![${md1(card.cap || card.title).replace(/[\[\]()]/g, "")}](${isrc})` : "";
     switch (card.kind) {
       case "title": level = 1; set.layout = "title"; body = (card.points || []).join("\n\n"); break;
       case "author": set.layout = "titleText"; body = (card.points || []).map(x => `- ${x}`).join("\n"); break;
@@ -270,6 +320,11 @@ const Deck = (() => {
       case "task": set.layout = "task"; set.vb = 1; body = verbatimMd(card.task); break;
       case "rule": set.layout = "quote"; set.vb = 1; body = `> ${verbatimMd(card.rule).replace(/\n\n/g, "\n>\n> ")}` + (card.src ? `\n\n*${md1(card.src)}*` : ""); break;
       case "hw": set.layout = "cards"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
+      case "glossary": set.layout = "cards"; set.kind = "glossary"; body = (card.items || []).map(g => `- **${md1(g.word)}** — ${md1(g.def)}`).join("\n"); break;
+      case "terms": set.layout = "cards"; body = (card.items || []).map(t => `- **${md1(t.term)}** — ${md1(t.def)}${t.ex ? `  \n*Пример:* «${md1(t.ex).replace(/[«»]/g, "")}»` : ""}`).join("\n"); break;
+      case "fragment": set.layout = card.verse ? "poem" : "task"; set.vb = 1; body = (card.mdBody || verbatimMd(card.text, { verse: card.verse })) + (card.by ? `\n\n*${md1(card.by)}*` : ""); break;
+      case "table": set.layout = "one"; body = `| ${card.head.map(md1).join(" | ")} |\n|${card.head.map(() => "---").join("|")}|\n${card.rows.map(r => `| ${md1(r[0])} |${" |".repeat(card.head.length - 1)}`).join("\n")}`; break;
+      case "concl": set.layout = "list"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "image": set.layout = "image"; break;
       default: body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
     }
@@ -346,13 +401,14 @@ ${JSON.stringify(payload)}`;
     const draw = () => {
       list.innerHTML = cards.map((c, i) => {
         const vb = VERBATIM.has(c.kind);
-        const text = vb ? (c.task || c.quote || c.poem || c.rule || "") : [c.lead, ...(c.points || [])].filter(Boolean).join("\n");
+        const fixed = vb || c.items || c.rows;
+        const text = vb ? (c.task || c.quote || c.poem || c.rule || c.text || "") : c.items ? c.items.map(x => `${x.word || x.term} — ${x.def}`).join("\n") : c.rows ? `${c.head.join(" | ")}` : [c.lead, ...(c.points || [])].filter(Boolean).join("\n");
         return `<li class="dk-card${c.on === false ? " off" : ""}" draggable="true" data-i="${i}">
           <span class="dk-n">${i + 1}</span>
           <div class="dk-main">
             <div class="dk-row"><input type="checkbox" data-on ${c.on === false ? "" : "checked"} aria-label="Включить слайд"><input type="text" data-title value="${esc(c.title || "")}" aria-label="Заголовок"><select data-kind aria-label="Вид слайда">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}" ${k === c.kind ? "selected" : ""}>${v}</option>`).join("")}</select>
               <label class="dk-img" title="Картинка из Яндекса: запрос">🖼 <input type="text" data-img value="${esc(c.img || "")}" placeholder="без картинки"></label><button class="btn sm ghost" data-del aria-label="Удалить карточку">×</button></div>
-            ${vb ? `<div class="dk-vb"><span class="tag">дословно</span> ${esc(text.slice(0, 260))}${text.length > 260 ? "…" : ""} <span class="small">(${text.length} зн.)</span></div>` : `<textarea data-pts rows="${Math.min(6, Math.max(2, (c.points || []).length + (c.lead ? 1 : 0)))}" aria-label="Тезисы, по одному в строке">${esc(text)}</textarea>`}
+            ${fixed ? `<div class="dk-vb"><span class="tag">${vb ? "дословно" : "из конспекта"}</span> ${esc(text.slice(0, 260))}${text.length > 260 ? "…" : ""} <span class="small">(${text.length} зн.)</span></div>` : `<textarea data-pts rows="${Math.min(6, Math.max(2, (c.points || []).length + (c.lead ? 1 : 0)))}" aria-label="Тезисы, по одному в строке">${esc(text)}</textarea>`}
           </div></li>`;
       }).join("");
       $("#dkCount", m).textContent = `Слайдов: ${cards.filter(c => c.on !== false).length}`;

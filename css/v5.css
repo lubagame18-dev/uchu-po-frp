@@ -256,7 +256,8 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .sx-acc { position: absolute; z-index: 0; overflow: hidden; background: var(--sx-soft); }
 .sx-acc figure.pic { margin: 0; width: 100%; height: 100%; display: block; position: relative; }
 .sx-acc figure.pic img { width: 100%; height: 100%; max-height: none; object-fit: cover; border-radius: 0; display: block; }
-.sx-acc figure.pic figcaption { display: none; }
+.sx-acc figure.pic figcaption { display: block; position: absolute; left: 0; right: 0; bottom: 0; margin: 0; background: rgba(0,0,0,.6); color: #fff !important; font-style: normal; font-size: 1.25cqw !important; line-height: 1.25; padding: .5cqw .9cqw; text-align: left; }
+.sx-acc figure.pic figcaption:empty { display: none; }
 .sx-acc .pic-empty { height: 100%; min-height: 0 !important; border-radius: 0 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3em; font-size: 2cqw !important; }
 .sx.acc-right .sx-acc { top: 0; right: 0; bottom: 0; width: 40%; }
 .sx.acc-right .sx-inner { right: 40%; }
@@ -414,3 +415,11 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .fp-item small { font-size: 11px; color: #666; }
 .fp-item.on, .fp-item:hover { border-color: #7A0F1C; }
 .sx-acc .pic-empty * { font-size: inherit !important; line-height: 1.2; } .sx-acc .pic-empty { overflow: hidden; text-align: center; }
+.pk-th, .sx-sg { position: relative; }
+.pk-cap { position: absolute; left: 3px; top: 3px; background: #1d1b2c; color: #fff; font: 700 10px/1.2 Arial, sans-serif; padding: 2px 5px; border-radius: 5px; z-index: 2; }
+/* подсказки к словам (словарь, термины): щелчок — всплывающее пояснение */
+.sx-body a.sx-gl { color: inherit !important; text-decoration-line: underline; text-decoration-style: dotted; text-decoration-color: var(--sx-accent, #7A0F1C); text-decoration-thickness: 2px; text-underline-offset: .16em; cursor: help; background: rgba(122,15,28,.07); border-radius: .2em; }
+.sx-tip { position: absolute; z-index: 1200; max-width: 360px; background: #fff; color: #111; border: 2px solid #7A0F1C; border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.3); font: 15px/1.4 Arial, sans-serif; }
+.sx-tip b { color: #7A0F1C; }
+.sx-tip .row { display: flex; gap: 6px; margin-top: 8px; }
+.sx-tip textarea { width: 100%; box-sizing: border-box; margin: 6px 0; font: inherit; }

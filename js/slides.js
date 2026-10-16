@@ -109,7 +109,7 @@ const SlideEditor = (() => {
   /* ---------- отрисовка слайда ---------- */
   /* Кнопки-переходы: ссылка на #next, #prev, #first, #last или #slide-N становится кнопкой */
   const NAV = /^#(next|prev|first|last|slide-\d+)$/;
-  function linkify(html) { return html.replace(/<a href="(#(?:next|prev|first|last|slide-\d+))"/g, (m, h) => `<a class="sx-btn${h === "#prev" ? " back" : ""}" href="${h}"`); }
+  function linkify(html) { return html.replace(/<a href="#g"(?: title="([^"]*)")?>/g, (m, t) => `<a class="sx-gl" href="#g" data-tip="${t || ""}" title="${t || ""}" tabindex="0">`).replace(/<a href="(#(?:next|prev|first|last|slide-\d+))"/g, (m, h) => `<a class="sx-btn${h === "#prev" ? " back" : ""}" href="${h}"`); }
   function navTarget(href, i, n) { const m = String(href).match(NAV); if (!m) return null; const v = m[1]; const t = v === "next" ? i + 1 : v === "prev" ? i - 1 : v === "first" ? 0 : v === "last" ? n - 1 : +v.slice(6) - 1; return Math.max(0, Math.min(n - 1, t)); }
   /* Блоки слайда (без картинки-акцента) — для вставки, перестановки, удаления */
   function blocksOf(sl) { const p = sl.set.acc ? splitAcc(sl.body) : { acc: "", rest: sl.body || "" }; return { acc: p.acc, toks: window.marked.lexer(p.rest || "").filter(t => t.type !== "space").map(t => t.raw.replace(/\n+$/, "")) }; }
@@ -580,6 +580,7 @@ const SlideEditor = (() => {
       tools.hidden = false; tools.style.left = Math.max(0, r.left - st.left) + "px"; tools.style.top = Math.max(0, r.top - st.top - 38) + "px";
     };
     body.addEventListener("click", e => {
+      const g = e.target.closest("a.sx-gl"); if (g && body.contains(g)) { e.preventDefault(); glossTip(g); return; }
       const a = e.target.closest("a"); if (a && body.contains(a)) { e.preventDefault(); linkDialog(a, null); return; }
       const blk = [...body.children].find(c => c.contains(e.target)); selBlock = blk ? [...body.children].indexOf(blk) : -1; show();
     });
@@ -597,6 +598,23 @@ const SlideEditor = (() => {
       else return;
       setBlocks(sl, acc, toks); write(a); rerender();
     });
+  }
+  /* Слово с пояснением: щелчок показывает объяснение рядом; можно поправить или убрать */
+  function glossTip(g) {
+    document.querySelectorAll(".sx-tip.ed").forEach(x => x.remove());
+    const tip = document.createElement("div"); tip.className = "sx-tip ed"; tip.setAttribute("role", "dialog");
+    tip.innerHTML = `<b>${esc(g.textContent)}</b><textarea rows="3" aria-label="Пояснение">${esc(g.dataset.tip || g.title || "")}</textarea><div class="mat-row"><button class="btn sm flame" data-k="ok">Сохранить</button><button class="btn sm ghost" data-k="del">Убрать пояснение</button><button class="btn sm ghost" data-k="x">×</button></div>`;
+    document.body.appendChild(tip);
+    const r = g.getBoundingClientRect(); tip.style.left = Math.min(innerWidth - 300, Math.max(8, r.left)) + scrollX + "px"; tip.style.top = r.bottom + scrollY + 6 + "px";
+    const close = () => { tip.remove(); document.removeEventListener("mousedown", out, true); };
+    const out = e => { if (!tip.contains(e.target)) close(); };
+    setTimeout(() => document.addEventListener("mousedown", out, true), 0);
+    tip.onclick = e => {
+      const k = e.target.dataset.k; if (!k) return;
+      if (k === "ok") { const v = tip.querySelector("textarea").value.trim().replace(/"/g, "«").replace(/[\[\]]/g, ""); g.setAttribute("title", v); g.dataset.tip = v; }
+      if (k === "del") g.replaceWith(document.createTextNode(g.textContent));
+      close(); if (k !== "x") { commit(); setTimeout(rerender, 650); }
+    };
   }
   /* Кнопка-переход: текст и куда ведёт (следующий, предыдущий, слайд №, ссылка) */
   function linkDialog(aEl, onMd, text0) {
@@ -754,12 +772,12 @@ const SlideEditor = (() => {
     if (!document.body.contains(box)) return;
     const ya = res.filter(r => r.src === "Яндекс");
     if (note) note.textContent = ya.length ? "Картинки из Яндекс Картинок. Щёлкните по картинке, чтобы вставить её на слайд; потом её можно обрезать, заменить или сделать фоном." : `Поиск Яндекса сейчас недоступен (${Media.yandexState || "нет ответа"}). Показаны картинки Википедии и Викисклада. Можно открыть Яндекс Картинки, скопировать картинку и нажать Ctrl+V на слайде.`;
-    box.innerHTML = res.length ? res.slice(0, 12).map((r, i) => `<button class="sx-sg" data-k="${i}" title="${esc(r.title || "")} · ${esc(r.src)}"><img src="${esc(r.thumb)}" alt="${esc(r.title || "")}" loading="lazy" referrerpolicy="no-referrer"></button>`).join("") : `<p class="small">Ничего не нашлось — измените запрос.</p>`;
+    box.innerHTML = res.length ? res.slice(0, 12).map((r, i) => `<button class="sx-sg" data-k="${i}" title="${esc(r.cap || r.title || "")} · ${esc(r.src)}">${r.cap ? `<span class="pk-cap">с подписью</span>` : ""}<img src="${esc(r.thumb)}" alt="${esc(r.title || "")}" loading="lazy" referrerpolicy="no-referrer"></button>`).join("") : `<p class="small">Ничего не нашлось — измените запрос.</p>`;
     box.querySelectorAll(".sx-sg").forEach(b => b.onclick = async () => {
       const r = res[+b.dataset.k]; b.disabled = true; b.classList.add("busy");
       const blob = await Media.toBlob(r.url);
       if (blob && onPick) { await onPick(blob, r); return; }
-      if (blob) { await insertBlob(blob, r.title); }
+      if (blob) { await insertBlob(blob, r.cap || r.title); }
       else { const a = slides(); a[cur].body = (a[cur].body + `\n\n${Media.mdImage(r.title || a[cur].title, r.url, { q })}`).trim(); write(a); rerender(); toast("Картинка вставлена ссылкой: сохранить её копию не удалось, в PowerPoint она может не попасть."); }
     });
   }
@@ -798,9 +816,10 @@ ${css}
 html,body{margin:0;height:100%;background:#222}body{font-family:Arial,"Segoe UI",sans-serif}
 .deck{height:100%;display:flex;align-items:center;justify-content:center}.deck-s{display:none;width:min(100vw,177.78vh)}.deck-s.on{display:block}.deck-s .sx{border-radius:0;box-shadow:none}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
-</style></head><body class="theme-${theme()}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран</div>
+.sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
+</style></head><body class="theme-${theme()}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения</div>
 <script>const s=[...document.querySelectorAll('.deck-s')];let i=0;const go=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>x.classList.toggle('on',j===i));};go(${opts.open ? cur : 0});
-addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});addEventListener('click',e=>{const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});<\/script></body></html>`;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});<\/script></body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     if (opts.open) { const w = window.open(URL.createObjectURL(blob), "_blank"); if (!w) { toast("Браузер не дал открыть окно показа — разрешите всплывающие окна или скачайте HTML."); } return; }
     await saveFile(`${slug(L().title)}_${L().params.grade}kl_prezentaciya.html`, blob);
@@ -814,7 +833,7 @@ addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key))
      в PowerPoint редактируемой надписью или картинкой в том же месте и того же
      размера. Поэтому шаблоны, картинки-акценты, свободная вёрстка и подобранный
      шрифт выглядят так же, как в редакторе. 1 px = 0,75 pt. */
-  const PX = 1280, PY = 720, IN = 96;
+  const PX = 1280, PY = 720, IN = 96; let glSlide = null, pxCur = 0;
   const hex = c => { const m = String(c).match(/rgba?\(([^)]+)\)/); if (!m) return null; const v = m[1].split(/[,\s/]+/).filter(Boolean).map(Number); if (v.length > 3 && v[3] === 0) return null; return v.slice(0, 3).map(x => Math.round(x).toString(16).padStart(2, "0")).join("").toUpperCase(); };
   const alpha = c => { const m = String(c).match(/rgba\(([^)]+)\)/); if (!m) return 1; const v = m[1].split(/[,\s/]+/).filter(Boolean).map(Number); return v[3] ?? 1; };
   async function imgCanvas(src, o, w, h, fit, pos) {
@@ -833,6 +852,7 @@ addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key))
       if (n.nodeType === 3) { let t = n.textContent.replace(/\s+/g, " "); if (f.upper) t = t.toUpperCase(); if (t) out.push({ text: t, options: { ...f, upper: undefined } }); return; }
       if (n.nodeType !== 1) return;
       if (n.matches(".sx-grip,.fx-move,.fx-size,.sx-resize,figure,script,style,a.sx-btn")) return;
+      if (n.matches("a.sx-gl")) { const g = { ...f, underline: { style: "dotted" }, hyperlink: { slide: (glSlide ?? pxCur) + 1, tooltip: (n.dataset.tip || n.title || "").slice(0, 250) } }; n.childNodes.forEach(c => walk(c, g)); return; }
       if (n.tagName === "A" && /^https?:/.test(n.getAttribute("href") || "")) { const g = { ...f, hyperlink: { url: n.href } }; n.childNodes.forEach(c => walk(c, g)); return; }
       if (n.tagName === "BR") { if (out.length) out[out.length - 1].options.breakLine = true; else out.push({ text: "", options: { ...f, breakLine: true } }); return; }
       if (n.matches(".blank")) { out.push({ text: "________", options: { ...f } }); return; }
@@ -954,7 +974,8 @@ addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key))
     const host = document.createElement("div"); host.className = "sx-export theme-" + theme(); document.body.appendChild(host);
     try {
       const arr = splitSlides(md).map(parse);
-      for (let i = 0; i < arr.length; i++) await pptxSlide(pptx, arr[i], i, host, arr.length);
+      const gi = arr.findIndex(x => ["glossary", "terms"].includes(x.set?.kind)); glSlide = gi >= 0 ? gi : null;
+      for (let i = 0; i < arr.length; i++) await (pxCur = i, pptxSlide)(pptx, arr[i], i, host, arr.length);
     } finally { host.remove(); }
     return pptx.write({ outputType: "blob" });
   }

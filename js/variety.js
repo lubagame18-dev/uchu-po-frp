@@ -406,7 +406,9 @@ const Variety = (() => {
     const fmt = p.subject === "lit" ? chooseFormat(A, p, type) : chooseRuFormat(p);
     const sample = samples[0] || null;
     const st = p.subject === "lit" ? adaptStages(type, p, A, sample, fmt) : { stages: type.stages.slice(), note: "" };
-    const plan = { analysis: A, format: fmt, sample: sample ? { topic: sample.topic, src: sample.src, num: sample.num, epigraph: sample.epigraph, questions: sample.questions.slice(0, 40).map(q => q.text) } : null, stages: st.stages, structureNote: st.note, textSource: found ? found.source : null, textUrl: found?.url || null, used: [] };
+    const plan = { text: found ? String(found.text).slice(0, 40000) : null, analysis: A, format: fmt, sample: sample ? { topic: sample.topic, src: sample.src, num: sample.num, epigraph: sample.epigraph, questions: sample.questions.slice(0, 40).map(q => q.text) } : null, stages: st.stages, structureNote: st.note, textSource: found ? found.source : null, textUrl: found?.url || null, used: [] };
+    // методический набор урока литературы: фрагменты, вопросы с ответами, словарь, термины, выводы
+    if (p.subject === "lit" && typeof LitKit !== "undefined") { try { plan.kit = LitKit.build(p, plan); } catch (e) { console.warn("LitKit", e); } }
     return plan;
   }
   /* После сборки: запомнить, что использовано, чтобы следующий урок был другим */
@@ -434,6 +436,27 @@ const Variety = (() => {
     if (/эпиграф/i.test(stage) && plan.sample?.epigraph) teacher = `Эпиграф: «${plan.sample.epigraph.text.replace(/\s*\n\s*/g, " / ").trim()}» (${plan.sample.epigraph.author}).<br>` + teacher; // эпиграф — дословно, без сокращения
     if (/^Творческое задание/i.test(stage) && plan.format) teacher = plan.format.task;
     if (/восприят|первичн/i.test(stage)) teacher = `— Слушая, ${pickLRU(["отметьте строку, где меняется настроение", "запишите одно слово, которое останется после чтения", "отметьте слово, которое хочется произнести громче остальных", "подчеркните одну деталь, которую легко «увидеть»", "отметьте место, где вам стало тревожно (или светло)"], "q", hash, 1)[0]}. *(целевая установка на чтение)*<br>` + teacher;
+    // v5.8: работа с фрагментами текста, проблемный вопрос, словарь — по методическому набору урока (LitKit)
+    const kit = plan.kit;
+    if (kit && !/^Творческое задание|^домашн/i.test(stage)) {
+      if (/мотивац|постановк|проблем|целеполаг/i.test(stage) && !plan.problemShown) { teacher += `<br>— Проблемный вопрос урока: ${kit.problem} *(записывают в тетрадь; ответ — в конце урока, в выводах)*`; plan.problemShown = true; }
+      if (/словар/i.test(stage) && kit.glossary.length) teacher = `Словарная работа (слайд «Словарь»; слова кликабельны во фрагментах): ${kit.glossary.map(g => `**${g.word}** — ${g.def}`).join("; ")}.<br>` + teacher;
+      if (/итог|вывод|обобщ|рефлекс/i.test(stage) && !plan.answerShown) { teacher += `<br>— Вернёмся к проблемному вопросу: ${kit.problem} Сформулируйте ответ, опираясь на фрагменты, с которыми работали. *(Ожидаемый ответ: ${kit.answer || "ученики формулируют главную мысль с опорой на 2–3 цитаты из разных фрагментов"})*<br>— Запишите выводы в тетрадь (слайд «Выводы»).`; plan.answerShown = true; }
+      if (/восприят|первичн|чтени/i.test(stage)) teacher += `<br>Читаем ${kit.fragments[0]?.whole ? "текст целиком" : `фрагменты 1–${kit.fragments.length}`} — на слайдах, дословно.`;
+      if (/анализ|аналит|комментар|эпизод|композиц|конфликт|персонаж|образ|синтез|беседа|работа над|наблюд/i.test(stage) && kit.fragments.length) {
+        // все фрагменты распределяются по этапам анализа (ни один не теряется)
+        const AN = /анализ|аналит|комментар|эпизод|композиц|конфликт|персонаж|образ|синтез|беседа|работа над|наблюд/i;
+        const nSt = Math.max(1, (plan.stages || []).filter(s => AN.test(s) && !/^Творческое|домашн/i.test(s)).length);
+        const per = Math.ceil(kit.fragments.length / nSt), k = plan.fragI || 0;
+        const take = kit.fragments.slice(k, k + per); plan.fragI = k + per;
+        if (take.length) teacher = take.map(fr => {
+          const qa = (kit.qa.find(x => x.n === fr.n) || { items: [] }).items;
+          const firstLine = String(fr.text).split("\n").find(l => l.trim()) || "";
+          return `**Работа ${fr.part ? `с частью ${fr.n} («${fr.label}»)` : `с фрагментом ${fr.n}. ${fr.label}`}** («${firstLine.trim().replace(/[.,;:—–-]+$/, "")}…»${fr.whole ? "" : `, строки ${fr.from}–${fr.to}`}; текст на слайде):<br>` + qa.map(x => `— ${x.q} *(Ожидаемый ответ: ${x.a})*`).join("<br>");
+        }).join("<br>");
+        else teacher = teacher.split("<br>").slice(0, 2).join("<br>");
+      }
+    }
     const cats = /^творческ/i.test(stage) ? [] : [...new Set(qs.map(x => x.cat === "HL" ? "H" : x.cat))].map(c => Learn.CATS[c]?.label).filter(Boolean);
     const methods = cats.length ? `Вопросы: ${cats.join(", ")}.` : "";
     const uud = /рефлекс/i.test(stage) ? "Регулятивные: рефлексия." : /сравн|сопостав/i.test(stage) ? "Познавательные: сравнение. Коммуникативные: аргументация." : /контекст|биограф|хронолог|документ/i.test(stage) ? "Познавательные: работа с источником." : /творческ/i.test(stage) ? "Коммуникативные: совместная деятельность. Личностные: эстетическое воспитание." : "Познавательные: анализ текста.";
@@ -452,6 +475,34 @@ const Variety = (() => {
       p.grade <= 7 ? "Нарисуйте (схематично) картинку, которая возникла при чтении, и подпишите строкой из текста." : "Какая строка «зацепила» вас сильнее всего? Выпишите её и объясните почему."
     ];
     tasks.push({ lvl: 1, text: pickLRU(perception, "q", hash, 1, used)[0], lines: 2 });
+    // единый комплект урока (тот же, что в конспекте и на слайдах): словарь, фрагменты, термины, выводы
+    const K = plan.kit;
+    if (K) {
+      const G = (K.glossary || []).slice(0, 6);
+      if (G.length >= 3) {
+        const L = "АБВГДЕЖЗ", order = G.map((g, i) => (i + Math.ceil(G.length / 2)) % G.length);
+        tasks.push({ lvl: 1, name: "Словарная работа", text: `Соедините устаревшее слово с его значением (на слайде «Словарная работа» — подсказка: щёлкните по слову во фрагменте). Ответ запишите парами: 1 — Б, …
+
+| № | Слово | Буква | Значение |
+|---|---|---|---|
+${G.map((g, i) => `| ${i + 1} | ${g.word} |  | ${L[i]}) ${G[order[i]].def} |`).join("\n")}` });
+        H.mark("task", ["gloss:" + p.topic]);
+      }
+      for (const f of (K.fragments || []).slice(0, 4)) {
+        const it = (K.qa || []).find(x => x.n === f.n)?.items || [];
+        if (!it.length) continue;
+        const first = String(f.text).split("\n").find(l => l.trim()) || "";
+        tasks.push({ lvl: it.length > 1 ? 2 : 1, name: f.part ? `Часть ${f.n}` : `Фрагмент ${f.n}`, text: `**${f.part ? `Часть ${f.n}. ${f.label}` : `Фрагмент ${f.n}. ${f.label}`}** (строки ${f.from}–${f.to}, текст на слайде; начало: «${clip(short(first, 50))}…»).\n\n${it.slice(0, 2).map((x, j) => `${j + 1}) ${x.q}`).join("\n\n")}`, lines: Math.min(4, 2 * Math.min(2, it.length)) });
+      }
+      const T = (K.terms || []).slice(0, 5);
+      if (T.length) tasks.push({ lvl: 2, name: "Работа с терминами", text: `Запишите определения терминов (слайды «Работа с терминами») и найдите пример во фрагментах урока.\n\n| Термин | Определение | Пример из текста (фрагмент №) |\n|---|---|---|\n${T.map(t => `| ${t.term} |  |  |`).join("\n")}` });
+      if (K.heroes?.length >= 2) tasks.push({ lvl: 2, name: "Сравним героев", text: `Сравните героев (та же таблица — на слайде).\n\n| Признак | ${K.heroes[0]} | ${K.heroes[1]} |\n|---|---|---|\n${(K.rows || ["Поступки", "Речь (цитата)", "Отношение автора"]).map(r => `| ${r} |  |  |`).join("\n")}` });
+      if (K.problem) tasks.push({ lvl: 2, name: "Проблемный вопрос", text: `Ответьте на проблемный вопрос урока (5–7 предложений, две цитаты из разных фрагментов): **${K.problem}**`, lines: 4 });
+      tasks.push({ lvl: 1, name: "Выводы", text: `Запишите выводы урока (слайд «Выводы»), заполнив пропуски.\n\n- Средства выразительности, которые мы нашли: ____________________\n- Жанр и его особенности: ____________________\n- Главная мысль (ответ на проблемный вопрос): ____________________` });
+      if (plan.format) tasks.push({ lvl: 3, text: plan.format.task, lines: 3, name: plan.format.name });
+      plan.used = [...used];
+      return tasks;
+    }
     // анализ — набор зависит от того, что найдено в тексте
     const an = [];
     const dev = [];
