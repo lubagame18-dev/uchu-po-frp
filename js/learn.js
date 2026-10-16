@@ -278,6 +278,15 @@ const Learn = (() => {
   function structuresFor(typeId) { return get().structures[typeId] || []; }
   function techniques() { return get().techniques; }
 
-  return { CATS, ORDER, classify, sentences, questionsFrom, isGeneric, stagesFrom, techniquesFrom, splitLessons, build, update, rollback, include, exclude, versions, excludedNow, get, lessonsFor, genericQuestions, openers, structuresFor, techniques };
+  /* Вопрос не по теме урока: называет другого писателя (в том числе прилагательным: «ломоносовской»)
+     или относится к организации урока, а не к произведению */
+  const WRITERS = ["ломоносов", "державин", "карамзин", "фонвизин", "крылов", "жуковск", "грибоедов", "пушкин", "лермонтов", "гогол", "тургенев", "некрасов", "тютчев", "достоевск", "салтыков", "лесков", "островск", "гончаров", "чехов", "бунин", "куприн", "андреев", "есенин", "маяковск", "ахматов", "цветаев", "мандельштам", "пастернак", "булгаков", "шолохов", "платонов", "твардовск", "солженицын", "шукшин", "распутин", "астафьев", "паустовск", "пришвин", "бродск", "рубцов", "гумил", "заболоцк", "андерсен", "шекспир", "дефо", "свифт", "мольер", "сервантес", "гомер", "данте", "гёте", "гете", "байрон", "кольцов", "батюшков", "баратынск", "фадеев", "богомолов", "зощенк", "абрамов", "искандер", "экзюпери", "мериме", "твен"];
+  const ORG_Q = /(нет на уроке|отсутству|дежурн|запишите (число|дату)|откройте тетрад|проверим готовность|садитесь)/i;
+  function offTopic(text, topic) {
+    const t = String(text || "").toLowerCase().replace(/ё/g, "е"), tp = String(topic || "").toLowerCase().replace(/ё/g, "е");
+    if (ORG_Q.test(t)) return true;
+    return WRITERS.some(w => { const ww = w.replace(/ё/g, "е"); return new RegExp("(^|[^а-я])" + ww + "[а-я]*", "i").test(t) && !tp.includes(ww.slice(0, Math.max(4, ww.length - 1))); });
+  }
+  return { CATS, ORDER, classify, offTopic, sentences, questionsFrom, isGeneric, stagesFrom, techniquesFrom, splitLessons, build, update, rollback, include, exclude, versions, excludedNow, get, lessonsFor, genericQuestions, openers, structuresFor, techniques };
 })();
 window.Learn = Learn;

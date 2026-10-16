@@ -250,7 +250,7 @@ const Variety = (() => {
     const g = genreOf(p, A);
     const MARK = { lyric: /(стихотворени|строф|лирик|лирическ|рифм|поэт)/i, drama: /(пьес|комеди|драм|трагеди|действи[еяи]|сцен[аеуы]|ремарк)/i, prose: /(рассказ|роман|повест|сказк|глав[аеуы]|рассказчик)/i };
     const genreOk = t => Object.entries(MARK).every(([k, re]) => k === g || !re.test(t)) && !(g === "lyric" && /(персонаж|эпизод|сюжет)/i.test(t));
-    const fromFiles = typeof Learn !== "undefined" ? Learn.genericQuestions(cat === "HL" ? "H" : cat).filter(x => !used.has(hash(x.text)) && genreOk(x.text) && (cat !== "HL" || /лирическ/i.test(x.text))) : [];
+    const fromFiles = typeof Learn !== "undefined" ? Learn.genericQuestions(cat === "HL" ? "H" : cat).filter(x => !used.has(hash(x.text)) && genreOk(x.text) && !(Learn.offTopic && Learn.offTopic(x.text, p.topic)) && (cat !== "HL" || /лирическ/i.test(x.text))) : [];
     const sys = A ? (T[cat] || []).filter(x => has(A, x.need)) : [];
     const sysTexts = sys.map(x => ({ text: x.t(A), a: x.a ? x.a(A) : null, src: null })).filter(x => !used.has(hash(x.text)));
     const noText = (T0[cat] || []).map(f => ({ text: f(p), a: null, src: null })).filter(x => !used.has(hash(x.text)));
@@ -423,7 +423,7 @@ const Variety = (() => {
     let qs = stageQuestions(stage, plan.analysis, p, used, /анализ|аналит|беседа|работа над темой|информацион/i.test(stage) ? 3 : 2);
     // из образцового урока на ту же тему — не больше одного вопроса на этап
     if (plan.sample?.questions?.length && /анализ|беседа|работа над темой|комментари|синтез/i.test(stage) && rnd() < 0.5) {
-      const sq = plan.sample.questions.find(x => !used.has(hash(x)) && x.length < 200);
+      const sq = plan.sample.questions.find(x => !used.has(hash(x)) && x.length < 200 && !(Learn.offTopic && Learn.offTopic(x, p.topic)));
       if (sq) { used.add(hash(sq)); qs = [...qs.slice(0, 2), { text: sq, cat: Learn.classify(sq), src: `образец: ${plan.sample.src}${plan.sample.num ? `, урок № ${plan.sample.num}` : ""}` }]; }
     }
     plan.used = [...used];

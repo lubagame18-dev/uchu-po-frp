@@ -171,7 +171,12 @@ const SlideEditor = (() => {
     const inner = el.querySelector(".sx-inner");
     if (inner.scrollHeight > inner.clientHeight + 2 || inner.scrollWidth > inner.clientWidth + 2) return false;
     // длинное слово в заголовке или тексте не должно вылезать за край (иначе его пришлось бы рвать посередине)
-    return ![...el.querySelectorAll(".sx-title, .sx-body > p, .sx-body li, .sx-body blockquote")].some(x => x.scrollWidth > x.clientWidth + 2);
+    if ([...el.querySelectorAll(".sx-title, .sx-body > p, .sx-body li, .sx-body blockquote")].some(x => x.scrollWidth > x.clientWidth + 2)) return false;
+    // текст не должен заходить на нижнее поле плашки: проверяем низ каждого блока относительно внутренней границы
+    const ib = inner.getBoundingClientRect(), cs = getComputedStyle(inner), limit = ib.bottom - parseFloat(cs.paddingBottom) + 1;
+    const body = el.querySelector(".sx-body");
+    if (body && body.scrollHeight > body.clientHeight + 2) return false;
+    return ![el.querySelector(".sx-title"), ...(body ? body.children : [])].some(x => x && x.getBoundingClientRect().bottom > limit);
   }
   /* Подбор: бинарный поиск масштаба шрифта в пределах MIN…MAX */
   function autoScale(sl, i) {
@@ -180,7 +185,7 @@ const SlideEditor = (() => {
     const el = box.firstElementChild;
     const lay = autoLayout(sl, i);
     const max = ["title", "section", "quote", "big"].includes(lay) ? 1.15 : MAX;
-    const min = sl.set.vb || lay === "task" || lay === "poem" ? MIN_VB : MIN;
+    const min = ["title", "section"].includes(lay) ? 0.45 : sl.set.vb || lay === "task" || lay === "poem" ? MIN_VB : MIN;
     let lo = min, hi = max, best = min;
     el.style.setProperty("--fs", max); if (fits(el)) return { fs: max, ok: true };
     for (let k = 0; k < 8; k++) { const mid = (lo + hi) / 2; el.style.setProperty("--fs", mid); if (fits(el)) { best = mid; lo = mid; } else hi = mid; }
@@ -261,7 +266,8 @@ const SlideEditor = (() => {
       if (sl.set.fs || sl.set.free) { out.push(sl); return; } // шрифт или вёрстка заданы вручную — не трогаем
       const r = autoScale(sl, i);
       const vbSmall = (sl.set.vb || ["task", "poem"].includes(autoLayout(sl, i))) && r.fs < 0.7;
-      if ((!r.ok || vbSmall) && allowSplit && sl.set.fit !== "off") {
+      const noSplit = ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, i)); // титульный и крупный вопрос не делим — только уменьшаем шрифт
+      if ((!r.ok || vbSmall) && allowSplit && !noSplit && sl.set.fit !== "off") {
         const parts = splitSlide(sl, i);
         if (parts) { parts.forEach(p => { const rr = autoScale(p, i); out.push({ ...p, set: { ...p.set, afs: rr.fs } }); }); changed = true; splits++; return; }
       }
@@ -329,7 +335,7 @@ const SlideEditor = (() => {
           <p class="sx-warn" id="sxWarn" hidden>Текст не помещается даже при минимальном шрифте. Нажмите «Разделить» — слайд разделится на 2–3, весь текст останется.</p>
           <div class="sx-slidebar"><button class="btn sm ghost" id="sxAdd">+ Слайд после</button><button class="btn sm ghost" id="sxDup">Дублировать</button><button class="btn sm ghost" id="sxCopy">Копировать</button><button class="btn sm ghost" id="sxPaste" ${clipboard ? "" : "disabled"}>Вставить</button><button class="btn sm ghost" id="sxUp" ${cur ? "" : "disabled"}>↑</button><button class="btn sm ghost" id="sxDown" ${cur < arr.length - 1 ? "" : "disabled"}>↓</button><button class="btn sm ghost" id="sxDel" ${arr.length > 1 ? "" : "disabled"}>Удалить слайд</button></div>
           <section class="sx-sugg" aria-label="Картинки к слайду"><div class="sx-sugg-h"><b>Картинки Яндекса к этому слайду</b><input type="text" id="sxQ" class="mini-q" value="${esc(suggestQuery(sl))}" aria-label="Запрос для поиска картинок"><button class="btn sm ghost" id="sxQGo">Найти</button><button class="btn sm ghost" id="sxQYa">Открыть в Яндексе ↗</button></div><div class="sx-sugg-grid" id="sxSugg"><p class="small">Ищу…</p></div><p class="small" id="sxSuggNote">Щёлкните по картинке, чтобы вставить её на слайд. Потом по ней можно щёлкнуть ещё раз: обрезать, заменить, сделать фоном.</p></section>
-          <div class="slide-notes"><b>Заметка учителю:</b> <span class="nt" contenteditable="true" id="sxNotes">${esc(sl.notes)}</span></div>
+          <details class="slide-notes"><summary><b>Заметки для учителя</b> — на слайде не показываются, в PowerPoint попадают в заметки докладчика</summary><span class="nt" contenteditable="true" id="sxNotes">${esc(sl.notes)}</span></details>
           <p class="hint">Картинку можно вставить из буфера (Ctrl+V) или перетащить файл на слайд. Блоки текста перетаскиваются за значок ⠿ слева; «Свободная вёрстка» позволяет ставить заголовок и блоки в любое место слайда (значок ✥) и менять их ширину (правый край). Щёлкните по картинке, чтобы заменить, обрезать или сделать фоном; потяните за картинку, чтобы передвинуть, за уголок — чтобы изменить размер.</p>
         </div></div>`;
     sheet.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
@@ -619,7 +625,7 @@ const SlideEditor = (() => {
   function autoSplitIfNeeded() {
     if (document.activeElement?.closest?.("#sxFrame")) return;
     const a = slides(), sl = a[cur]; if (!sl || sl.set.fs || sl.set.fit === "off") return;
-    const r = autoScale(sl, cur); if (r.ok) return;
+    const r = autoScale(sl, cur); if (r.ok || ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, cur))) return;
     const parts = splitSlide(sl, cur); if (!parts) return;
     a.splice(cur, 1, ...parts); write(a); rerender();
     toast("Слайд не помещался — он разделён, весь текст сохранён. Отменить: ↶.", 6000);

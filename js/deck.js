@@ -56,7 +56,9 @@ const Deck = (() => {
   }
   const isQ = s => /\?\s*(?:[»"])?\s*$/.test(s) || /\?\s/.test(s);
   /* Выбор тезисов: сначала опирающиеся на текст (с цитатой), потом короткие; порядок — как в конспекте */
+  let curTopic = "";
   function pickPoints(list, amt) {
+    list = list.filter(x => !(typeof Learn !== "undefined" && Learn.offTopic && Learn.offTopic(x, curTopic)));
     const uniq = []; const seen = new Set();
     for (const x of list) { const k = x.toLowerCase().replace(/[^а-яёa-z0-9]/g, "").slice(0, 60); if (x && !seen.has(k)) { seen.add(k); uniq.push(x); } }
     if (uniq.length <= amt.max) return uniq;
@@ -130,6 +132,7 @@ const Deck = (() => {
   /* ---------- план презентации ---------- */
   function outline(md, p, type, o = opts()) {
     const amt = AMOUNT[o.amount] || AMOUNT.medium, lit = p.subject === "lit";
+    curTopic = p.topic;
     const c = parseConspect(md);
     const cards = []; let n = 0;
     const add = card => { cards.push({ id: "c" + (++n), on: true, ...card }); return cards[cards.length - 1]; };
@@ -138,9 +141,12 @@ const Deck = (() => {
     const core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
     const surname = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
     // 1. Титульный: тема + класс, картинка-акцент к произведению или теме
-    add({ kind: "title", title: c.title || p.topic, points: [`${p.grade} класс · ${lit ? "Литература" : "Русский язык"}`], img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "right", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
+    // название: для литературы — произведение крупно, автор отдельной строкой (без лишних пометок)
+    const shortWork = work && work.length > 44 ? work.split(/,\s*/)[0] + "…" : work;
+    const titleText = lit && work ? `«${work}»` : (c.title || p.topic);
+    add({ kind: "title", title: titleText, points: [lit && author ? author : "", `${p.grade} класс · ${lit ? "Литература" : "Русский язык"}`].filter(Boolean), img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "right", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
     // 2. Автор: портрет и короткая справка из открытого источника (годы жизни, кто это)
-    if (lit && author) {
+    if (lit && author && c.wiki) { // слайд об авторе — только если есть проверенная справка (без пустого слайда)
       const pts = [];
       const yrs = c.wiki.match(/\(([^)]*?\d{4}[^)]*?\d{4}[^)]*?)\)/);
       if (yrs) { const ys = yrs[1].match(/\d{4}/g); if (ys && ys.length >= 2) pts.push(`${ys[0]}–${ys[ys.length - 1]}`); }
@@ -198,7 +204,11 @@ const Deck = (() => {
           for (const pt of parts) { if (curN && curN + pt.length > 8) pushC(); curC.push(pt.join("\n")); curN += pt.length; if (st.length > 8) pushC(); }
         }
         pushC();
-        chunks.forEach((ch, k) => add({ kind: "poem", title: (work ? `«${work}»` : "Текст") + (k ? " (продолжение)" : ""), poem: ch.join("\n\n"), by: k === chunks.length - 1 ? author || "" : "", notes: k ? "" : `Текст — дословно, источник: ${p.plan.textSource || "см. конспект"}.` }));
+        // большое произведение (поэма, «Песня…»): на слайды — только начало, дословно; полный текст — в учебнике
+        const totalLines = poem.reduce((a, st) => a + st.length, 0);
+        const long = totalLines > 32;
+        const use = long ? chunks.slice(0, 1) : chunks;
+        use.forEach((ch, k) => add({ kind: "poem", title: (shortWork ? `«${shortWork}»` : "Текст") + (long ? " — начало" : k ? " (продолжение)" : ""), poem: ch.join("\n\n"), by: k === use.length - 1 ? author || "" : "", notes: k ? "" : `Текст — дословно, источник: ${p.plan.textSource || "см. конспект"}.${long ? " Произведение большое: на слайде начало, полный текст — в учебнике." : ""}` }));
       }
       const qs = lines.filter(l => isQ(cleanLine(l)) && !/Эпиграф:/.test(l)).map(l => tight(l, amt)).filter(x => x.length > 8);
       const problem = lines.map(l => (cleanLine(l).match(/Проблемный вопрос(?: урока)?:\s*(.+\?)/i) || [])[1]).find(Boolean);
