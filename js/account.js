@@ -102,12 +102,14 @@ const Account = (() => {
       if (pass.length < 6) { msg.textContent = "Пароль — не короче 6 знаков."; return; }
       msg.textContent = mode === "in" ? "Вхожу…" : "Создаю кабинет…";
       try {
-        if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.textContent = "Готово! Подтвердите почту по ссылке из письма и войдите."; return; } }
+        if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.textContent = "Почти готово! Мы отправили письмо на " + email + ". Откройте его, нажмите ссылку подтверждения и войдите здесь."; return; } }
         else await signIn(email, pass);
         if (window.PasswordCredential) { try { await navigator.credentials.store(new PasswordCredential({ id: email, password: pass })); } catch { } }
         closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
         window.Access?.paint(); await plan().catch(() => null);
-        if (window.Access?.wantBuy) { const it = Access.wantBuy; Access.wantBuy = null; Access.checkout(it); }
+        // выбранный тариф помним и после подтверждения почты (письмо открывает сайт заново)
+        let want = window.Access?.wantBuy; try { want = want || localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
+        if (want && window.Access) { Access.wantBuy = null; Access.checkout(want); }
         else if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
       } catch (er) { msg.textContent = RU(er.message); }
     };

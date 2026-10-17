@@ -93,7 +93,7 @@ const Access = (() => {
   }
   /* Покупка: сначала вход в кабинет → сразу после входа — оформление выбранного тарифа → оплата */
   function buy(item) {
-    if (!me()) { closeModal(); Access.wantBuy = item; toast("Войдите или зарегистрируйтесь — после этого сразу перейдёте к оплате.", 5000); window.Account?.open(); return; }
+    if (!me()) { closeModal(); Access.wantBuy = item; try { localStorage.setItem("uchu:want-buy", item); } catch { } toast("Войдите или зарегистрируйтесь — после этого сразу перейдёте к оплате.", 5000); window.Account?.open(); return; }
     checkout(item);
   }
   function checkout(item) {
