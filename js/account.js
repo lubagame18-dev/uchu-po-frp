@@ -64,13 +64,15 @@ const Account = (() => {
   if (typeof origSave === "function") window.saveLesson = async L => { const r = await origSave(L); clearTimeout(pushT); pushT = setTimeout(() => push(), 3000); return r; };
 
   const PLAN_NAMES = { free: "бесплатный", basic: "«Учитель» (без ИИ)", ai: "«Учитель + ИИ»", pro: "«Методист»" };
-  async function plan() { try { if (!(await refresh())) return null; return (await api(`/rest/v1/profiles?id=eq.${S.uid}&select=plan,ai_left,paid_until`))?.[0] || null; } catch { return null; } }
+  async function plan() { try { if (!(await refresh())) return null; const p = (await api(`/rest/v1/profiles?id=eq.${S.uid}&select=plan,ai_left,paid_until`))?.[0] || null; if (p && S) { S.plan = p.plan; save(); window.Access?.paint(); } return p; } catch { return null; } }
   /* ---------- окно кабинета ---------- */
   function open() {
     if (!ready()) {
       openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
         <p>Сейчас уроки хранятся в этом браузере. Вход по почте и облачное хранение заработают, когда владелец сайта подключит облако.</p>
-        <p class="hint">Пока можно сохранить все уроки в файл и перенести их на другое устройство: «Мои уроки» → «Скачать все уроки (файл)».</p></div></div>`);
+        <p class="hint">Пока можно сохранить все уроки в файл и перенести их на другое устройство: «Мои уроки» → «Скачать все уроки (файл)».</p>
+        ${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}</div></div>`);
+      document.getElementById("acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
       return;
     }
     if (S) {
@@ -78,7 +80,8 @@ const Account = (() => {
         <p>Вы вошли как <b>${esc(S.email)}</b>.</p>
         <p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row"><button class="btn sm flame" id="acSync">Синхронизировать сейчас</button><button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
+        <div class="mat-row"><button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
+      m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
       plan().then(p => { const el = m.querySelector("#acPlan"); if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}<br><b>Запросов к ИИ сайта осталось:</b> ${p.ai_left ?? "—"}` : `<b>Тариф:</b> бесплатный`; });
       m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };

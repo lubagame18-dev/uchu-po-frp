@@ -34,4 +34,15 @@ async function spend(q, request, readAll) {
   if (!on() || !q.id) return;
   await sb(request, readAll, `/rest/v1/profiles?id=eq.${q.id}`, { method: "PATCH", body: { ai_left: Math.max(0, q.left - 1) } });
 }
-module.exports = { check, spend, on };
+/* Промокод: закрепить «свободную зону» за учётной записью (коды — в переменной PROMO_CODES через запятую) */
+async function promo(userToken, code, request, readAll) {
+  const codes = String(process.env.PROMO_CODES || "").split(",").map(x => x.trim().toUpperCase()).filter(Boolean);
+  if (!codes.includes(String(code || "").trim().toUpperCase())) return { ok: false, status: 404, message: "нет такого промокода" };
+  if (!on() || !userToken) return { ok: true };
+  const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
+  if (u.status !== 200 || !u.json?.id) return { ok: false, status: 401, message: "войдите в кабинет" };
+  await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: u.json.id, plan: "promo", ai_left: 0 } }).catch(() => null);
+  await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { plan: "promo" } });
+  return { ok: true };
+}
+module.exports = { check, spend, on, promo };

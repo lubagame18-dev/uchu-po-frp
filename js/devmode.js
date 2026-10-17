@@ -129,8 +129,27 @@ const Dev = (() => {
       <section class="dev-card"><h2>Загружено вами (${mine.length})</h2>${mine.length ? `<ul class="fl-list">${mine.map(row).join("")}</ul>` : `<p class="small">Пока ничего. Загрузите файлы кнопкой выше.</p>`}
         <div class="mat-row"><button class="btn sm ghost" id="dvEmbed">${window.Publish?.ready() ? "Опубликовать для всех учителей" : "Скачать базу (extra.js) для владельца сайта"}</button></div></section>
       <section class="dev-card"><h2>Уже встроено в сайт (${built.length + base.length})</h2><ul class="fl-list">${base.map(x => `<li><span class="fl-n">${esc(x.title || x.short)}</span><span class="fl-t">${x.grade ? `<span class="tag">${x.grade} кл.</span>` : ""}<span class="tag ok">в базе</span></span></li>`).join("")}${built.map(row).join("")}</ul></section>`;
+    if (OWNER() && window.Access) promoCard(b);
     DevCover.bindUpload(b, () => show("files"));
     b.querySelector("#dvEmbed").onclick = () => embedAll();
+  }
+  /* Промокоды свободной зоны — только у владельца. Хранятся хэши (data/promo.js), сами коды нигде не видны. */
+  function promoCard(b) {
+    const box = document.createElement("section"); box.className = "dev-card";
+    const list = () => [].concat(window.UCHU_PROMO || []);
+    const draw = () => {
+      box.innerHTML = `<h2>Промокоды (свободная зона)</h2><p class="hint">Промокод открывает все функции без оплаты; нейросеть человек подключает сам. Хранятся только «отпечатки» кодов — сам код знаете только вы. Действующих кодов: ${list().length}.</p>
+        <div class="row-btn"><input type="text" id="pcNew" placeholder="Новый промокод, например ШКОЛА-2026" autocomplete="off" spellcheck="false"><button class="btn sm flame" id="pcAdd">Добавить</button></div>
+        <ul class="fl-list">${list().map((h, i) => `<li><span class="fl-n">код № ${i + 1} · отпечаток ${h.slice(0, 10)}…</span><button class="btn sm ghost" data-pdel="${i}">Отключить</button></li>`).join("")}</ul>`;
+      box.querySelector("#pcAdd").onclick = async () => { const v = box.querySelector("#pcNew").value.trim(); if (v.length < 4) { toast("Промокод — не короче 4 знаков."); return; } const h = await Access.sha(v); if (list().includes(h)) { toast("Такой код уже есть."); return; } window.UCHU_PROMO = [...list(), h]; await publishPromo(`Добавлен промокод (${list().length})`); draw(); };
+      box.querySelectorAll("[data-pdel]").forEach(x => x.onclick = async () => { window.UCHU_PROMO = list().filter((_, i) => i !== +x.dataset.pdel); await publishPromo("Отключён промокод"); draw(); });
+    };
+    draw(); b.prepend(box);
+  }
+  async function publishPromo(msg) {
+    const js = `/* «Учу по ФРП»: промокоды свободного режима (только хэши). Изменено ${new Date().toLocaleString("ru-RU")} */\nwindow.UCHU_PROMO = ${JSON.stringify([].concat(window.UCHU_PROMO || []))};\n`;
+    if (window.Publish?.ready()) { try { await Publish.commit([{ path: "data/promo.js", content: js }], msg); toast("Промокоды опубликованы — заработают на сайте через 1–2 минуты."); return; } catch (e) { toast("Не опубликовалось: " + (e.message || e)); } }
+    await saveFile("promo.js", new Blob([js], { type: "text/javascript" })); toast("Файл promo.js скачан: положите его в папку data на GitHub вместо старого.", 8000);
   }
   function secMaterials(b) {
     const base = (Base.summary() || []).filter(s => (s.subject || "ru") === subj);

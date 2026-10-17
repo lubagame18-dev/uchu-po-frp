@@ -285,6 +285,10 @@ async function handler(req, res) {
     }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
     if (!Array.isArray(body.messages)) return send(res, 400, { error: "нужен массив messages" });
+    if (route === "/promo") {
+      const r = await Q.promo(req.headers["x-user-token"], body.code, request, readAll);
+      return send(res, r.ok ? 200 : r.status, r.ok ? { ok: true } : { error: r.message });
+    }
     if (route === "/deepseek/v1/chat/completions") {
       // пул аккаунтов DeepSeek: ключи только на сервере; карусель и подстраховка — в deepseek-pool.js
       // если подключено облако кабинета — запрос только по входу и в пределах тарифа (списывается 1 запрос)

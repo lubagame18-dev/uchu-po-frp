@@ -121,7 +121,9 @@ const AI = (() => {
   function save(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { toast("Не удалось сохранить настройки ИИ."); } paint(); }
   const has = (c, id) => id[0] === "x" ? !!c.extra.find(x => x.id === id && x.model) : ({ openrouter: !!c.keys.openrouter, pollinations: !!c.keys.pollinations, deepseek: !!c.keys.deepseek, gemini: !!c.keys.gemini, anthropic: !!c.keys.anthropic, yandexfn: !!c.yandexFn, site: !!(window.UCHU_SITE?.siteAi && c.yandexFn), custom: !!(c.custom.base && c.custom.model) })[id];
   function chain(c = cfg()) {
-    const avail = [...c.extra.map(x => x.id), ...ORDER].filter(id => has(c, id));
+    let avail = [...c.extra.map(x => x.id), ...ORDER].filter(id => has(c, id));
+    // коммерческая версия: свои ключи — только в свободной зоне (по промокоду); иначе — только ИИ сайта по тарифу
+    if (window.Access?.commercial() && !Access.ownAi()) avail = Access.aiAllowed() ? avail.filter(id => id === "site") : [];
     return c.prefer !== "auto" && avail.includes(c.prefer) ? [c.prefer, ...avail.filter(x => x !== c.prefer)] : avail;
   }
   const configured = () => chain().length > 0;

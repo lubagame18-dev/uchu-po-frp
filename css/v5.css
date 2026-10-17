@@ -524,3 +524,16 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 @media print { .ws-sheet .ws-banner.pb { break-before: page; margin-top: 0; } }
 .an-opts { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
 .an-opts .chip.on { background: var(--ink); color: var(--paper); }
+/* v5.12: тарифы и промокод */
+.tr-reason { background: #fff3d6; border: 2px solid #e8b23a; border-radius: 12px; padding: 10px 14px; margin: 0 0 10px; }
+.tr-now { margin: 0 0 12px; } .tr-now.ok { background: #e6f4ec; border-radius: 12px; padding: 10px 14px; }
+.tr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.tr-card { position: relative; border: 2px solid var(--ink); border-radius: 18px; padding: 16px; background: var(--card); display: flex; flex-direction: column; gap: 8px; }
+.tr-card.best { border-color: #a43fd0; box-shadow: 0 8px 22px rgba(164,63,208,.18); }
+.tr-card.on { outline: 3px solid #2f8f5b; }
+.tr-card h3 { margin: 0; font-size: 18px; }
+.tr-price { font-family: var(--f-display); font-weight: 800; font-size: 28px; } .tr-price small { font-size: 14px; font-weight: 600; opacity: .7; }
+.tr-card ul { margin: 0; padding-left: 18px; font-size: 14px; flex: 1; }
+.tr-badge { position: absolute; top: -11px; right: 12px; background: #ffd84d; color: #3a2a00; font-weight: 800; font-size: 11px; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; }
+.tr-promo { margin-top: 18px; border-top: 2px dashed var(--rule); padding-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.tr-promo .row-btn { display: flex; gap: 8px; flex-wrap: wrap; } .tr-promo input { flex: 1 1 220px; text-transform: uppercase; }

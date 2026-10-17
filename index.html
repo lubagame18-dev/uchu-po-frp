@@ -492,7 +492,11 @@ window.UCHU_SITE = {
      Пока поля пустые, кабинет работает в этом браузере, а вход недоступен. Инструкция — ЛИЧНЫЙ_КАБИНЕТ_И_ОПЛАТА.md */
   cloud: { url: "", anonKey: "" },
   /* ИИ сайта: true — когда в Яндекс-функции настроен пул аккаунтов DeepSeek (DEEPSEEK_POOL); учителям свой ключ не нужен */
-  siteAi: false
+  siteAi: false,
+  /* Коммерческая версия: тарифы и промокод. Промокод открывает «свободную зону» (всё бесплатно, ИИ — свой).
+     payUrl — страница оплаты (появится после подключения платёжного сервиса). */
+  commercial: true,
+  payUrl: ""
 };</script>
 <header class="topbar">
   <div class="wrap">
@@ -3594,7 +3598,9 @@ async function createLesson() {
   p.notes = window.Notes ? Notes.snapshot() : null;
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   const useAi = state.build === "ai";
+  if (window.Access && !Access.canBuild(useAi)) return; // тариф или промокод
   if (useAi && window.UCHU && !window.UCHU.configured()) { openAiSettings(); return; }
+  if (window.Access) Access.countLesson();
   const { notes: _n, ...pParams } = p;
   const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason } }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
   // файлы из заметок участвуют в сборке только этого урока
@@ -4228,7 +4234,8 @@ function openModal(html) {
 }
 function escClose(e) { if (e.key === "Escape") closeModal(); }
 function closeModal() { $("#modalRoot").innerHTML = ""; document.removeEventListener("keydown", escClose); }
-function openAiSettings() { if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl(); else toast("Нейросеть подключается в автономной версии сайта."); }
+function openAiSettings() {
+  if (window.Access && Access.commercial() && !Access.ownAi()) { Access.open(Access.aiAllowed() ? "ИИ сайта ещё не подключён владельцем. Пока можно собирать уроки без ИИ." : "Свою нейросеть можно подключить в свободной зоне — по промокоду. ИИ сайта входит в тарифы «Учитель + ИИ» и «Методист»."); return; } if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl(); else toast("Нейросеть подключается в автономной версии сайта."); }
 
 function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });
@@ -4309,6 +4316,8 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/devcover.js"></script>
 <script src="js/credits.js"></script>
 <script src="js/account.js"></script>
+<script src="data/promo.js"></script>
+<script src="js/access.js"></script>
 <script src="js/deck.js"></script>
 <script src="js/slides.js"></script>
 <script src="js/publish.js"></script>
