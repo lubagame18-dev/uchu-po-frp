@@ -173,18 +173,24 @@ const Access = (() => {
       if (!code) { msg.textContent = "Введите код."; return; }
       if (!fn || !tok) { msg.textContent = "Войдите в личный кабинет."; return; }
       b.disabled = true; msg.textContent = "Включаю тариф…";
+      // без ответа 30 с — понятная ошибка вместо вечного «Включаю тариф…»; тариф в кабинете обновляется фоном
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 30000);
+      const slow = setTimeout(() => { msg.textContent = "Сервер просыпается (первый запрос после паузы бывает до 20 секунд)…"; }, 6000);
       try {
-        await window.Account?.refreshPlan?.().catch(() => null);
         const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/pay/test")}` : base + "/pay/test";
-        const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify({ item, code }) });
+        const r = await fetch(u, { method: "POST", signal: ctl.signal, headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify({ item, code }) });
         const j = await r.json().catch(() => ({}));
         if (r.status === 404 || /нужен массив messages|нет такого тарифа/.test(j.error || "") && item === "free") throw new Error("на сервере старая версия функции — загрузите новый архив");
+        if (r.status === 401) throw new Error("сессия истекла — выйдите и войдите в кабинет заново");
         if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
-        await window.Account?.refreshPlan?.();
+        // сразу показываем новый тариф (по ответу сервера), а из облака уточняем фоном
+        const S = window.Account?.session; if (S && j.patch) { if (j.patch.plan) S.plan = j.patch.plan; if (typeof j.patch.tokens_limit === "number") S.tokens = { used: j.patch.tokens_used || 0, limit: j.patch.tokens_limit }; paint(); }
+        window.Account?.refreshPlan?.().catch(() => null);
         closeModal();
         const nm = PLANS[item]?.name || PACKS[item]?.name || "Бесплатный";
-        toast(`🧪 Тест: «${nm}» включён.${isDev() ? " Вы видите сайт как разработчик — чтобы увидеть, что видит учитель, нажмите «Посмотреть как учитель» в режиме разработчика." : ""}`, 8000);
-      } catch (e) { b.disabled = false; msg.textContent = "Не получилось: " + (e.message || e); }
+        toast(`🧪 Тест: «${nm}» включён.${isDev() ? " Вы видите сайт как разработчик — чтобы увидеть, что видит учитель, нажмите «Посмотреть как учитель» в панели разработчика." : ""}`, 7000);
+      } catch (e) { b.disabled = false; msg.textContent = "Не получилось: " + (e.name === "AbortError" ? "сервер не ответил за 30 секунд. Проверьте интернет и что в Яндекс Облаке загружен последний архив функции, затем нажмите ещё раз." : e instanceof TypeError ? "нет связи с сервером (интернет, VPN или адрес функции в настройках)." : (e.message || e)); }
+      finally { clearTimeout(to); clearTimeout(slow); }
     };
   }
   /* Возврат с оплаты: ?pay=ok — обновить тариф из кабинета */
