@@ -2172,9 +2172,13 @@ const Engine = (() => {
     // v5.9: профиль урока (стили, лексика, орфография…) — свои реплики с ожидаемыми ответами
     const kl = window.RuKit && p.plan?.rukit ? RuKit.stageLines(p.plan.rukit, stage) : null;
     // v5.44: без профиля урока — цепочка «наблюдение → гипотеза → правило → алгоритм» вместо одиночного вопроса
-    if (!(kl && kl.replace) && window.Heur) { const H = Heur.ruStage(stage, p); if (H) t = Heur.rows(H); }
-    if (kl) t = kl.replace ? kl.lines : [...t, ...kl.lines];
-    return `| ${stage} (${mins} мин) | ${t.map(x => cellSafe(fill(x, p))).join("<br>")}${extras.teacher ? "<br>" + extras.teacher : ""} | ${kl?.s || tpl.s} | ${tpl.u}${extras.task ? "<br><br>" + extras.task : ""} |`;
+    // на мотивации и открытии правила — конкретный языковой материал (пары слов), если он есть; иначе — профиль урока
+    const concrete = window.Heur && Heur.ruCtx(p).ex.length >= 3 && /мотивац|реализац|открыти|нового/i.test(stage.split(":")[0]);
+    if (window.Heur && (!(kl && kl.replace) || concrete)) { const H = Heur.ruStage(stage, p); if (H) t = Heur.rows(H); }
+    if (kl && !concrete) t = kl.replace ? kl.lines : [...t, ...kl.lines];
+    else if (kl && concrete) t = [...t, ...kl.lines.filter(l => !/^—/.test(l))];
+    const br = window.Heur && !/^Мотивац/i.test(stage) ? Heur.bridge(stage, p) : "", why = window.Heur ? Heur.purpose(stage) : "";
+    return `| ${stage} (${mins} мин) | ${br ? `🔗 *Переход:* «${br}»<br>` : ""}${t.map(x => cellSafe(fill(x, p))).join("<br>")}${extras.teacher ? "<br>" + extras.teacher : ""} | ${kl?.s || tpl.s} | ${why ? `**Зачем:** ${why}.<br>` : ""}${tpl.u}${extras.task ? "<br><br>" + extras.task : ""} |`;
   }
   function litStageRow(stage, p, mins, extra) {
     const add = extra ? `<br>— ${cellSafe(short(extra.t, 260))} *(${extra.src})*` : "";
@@ -2186,12 +2190,22 @@ const Engine = (() => {
       if (window.Heur && !/^Творческое|домашн/i.test(stage)) {
         const H = Heur.litStage(stage, p), kit = p.plan.kit;
         const fragStage = kit && /\*\*Работа (с фрагментом|с частью)/.test(r.teacher);
-        if (H && !fragStage && !(kit && /словар/i.test(stage) && kit.glossary?.length)) {
-          const keep = r.teacher.split("<br>").filter(l => /^Эпиграф:|Проблемный вопрос урока|Вернёмся к проблемному|Читаем (текст|фрагменты)/.test(l));
-          teacher = [...keep.filter(l => /^Эпиграф/.test(l)), ...Heur.rows(H), ...keep.filter(l => !/^Эпиграф/.test(l))].join("<br>");
+        if (fragStage) {
+          // медленное чтение: строфа за строфой → перелом → финал; затем приёмы — цепочкой, без готовых ответов
+          const txt = kit.fragments.map(f => f.text).join("\n\n"), A = p.plan.analysis || {};
+          const slow = Heur.slowRead(txt, A);
+          const dev = kit.qa.flatMap(x => x.items).filter(x => x.steps).slice(0, 2).map(x => ({ t: `${x.steps[0]} ${x.steps[1] || ""}`.trim(), a: x.a, h: x.hint }));
+          const head = r.teacher.split("<br>").filter(l => /^\*\*Работа/.test(l)).map(l => l.replace(/:\s*$/, ""));
+          teacher = [...head.slice(0, 1), "Медленное чтение (текст на слайде):", ...Heur.rows(slow.length ? slow : []), ...(dev.length ? ["Как автор этого добивается:", ...Heur.rows(dev)] : [])].join("<br>");
+        } else if (H && !(kit && /словар/i.test(stage) && kit.glossary?.length)) {
+          // проблемный вопрос не объявляется готовым: он — в ориентире учителя, ученики формулируют сами
+          const keep = r.teacher.split("<br>").filter(l => /^Эпиграф:|Вернёмся к проблемному|Читаем (текст|фрагменты)/.test(l));
+          teacher = [...keep.filter(l => /^Эпиграф/.test(l)), ...Heur.rows(H), ...keep.filter(l => !/^Эпиграф/.test(l) && !/Вернёмся к проблемному/.test(l))].join("<br>");
         }
       }
-      return `| ${stage} (${mins} мин) | ${cellSafe(teacher)}${add} | ${cellSafe(r.methods)} |`;
+      if (window.Heur) { const b = Heur.bridge(stage, p); if (b && !/^Организац/i.test(stage)) teacher = `🔗 *Переход:* «${b}»<br>${teacher}`; }
+      const why = window.Heur ? Heur.purpose(stage) : "";
+      return `| ${stage} (${mins} мин) | ${cellSafe(teacher)}${add} | ${why ? `**Зачем:** ${why}.<br>` : ""}${cellSafe(r.methods)} |`;
     }
     const tpl = (LIT_STAGE.find(([re]) => re.test(stage)) || LIT_STAGE.find(([re]) => re.test("анализ")))[1];
     return `| ${stage} (${mins} мин) | ${tpl.t.join("<br>")}${add}<br>*(ответы учеников)* | ${tpl.u} |`;
@@ -2310,6 +2324,8 @@ const Engine = (() => {
     md += `\n\n<!--WEB-->`;
     if (p.control !== "school" && KB.exams[p.control]) md += `\n\n> ⚠️ ЛОВУШКА ЭКЗАМЕНА: ${KB.exams[p.control].label}: ${ru ? "отвечайте строго на вопрос задания и проверяйте каждое слово по правилу" : "каждое утверждение подтверждайте цитатой, не пересказывайте текст"}.`;
     const hw5 = !ru && window.Variety && p.plan ? Variety.homework(p, type, p.plan) : null;
+    // домашнее задание продолжает урок: базовый уровень — письменный ответ на проблемный вопрос с опорой на текст
+    if (hw5 && p.plan?.kit?.problem) hw5.base = `письменный ответ (5–7 предложений) на вопрос урока: «${p.plan.kit.problem.replace(/[«»]/g, "\"")}» — не меньше двух цитат из разных частей текста`;
     if (hw5) p.hwText = { base: hw5.base, adv: hw5.adv };
     else { const lastEx = ex.find(e => !(p.exFull || []).some(f => f.text === e.text)) || ex[ex.length - 1]; p.hwText = { base: ru && !ex.length && p.plan?.rukit?.hw ? "задание «Создаём свой текст»" : lastEx ? lastEx.source + " — " + short(lastEx.text, 90).replace(/[.…]+$/, "") + "…" : "упражнение из учебника по теме", adv: ru && p.plan?.rukit?.hw ? p.plan.rukit.hw : ru ? `составьте 5 предложений по теме «${p.topic}» и объясните орфограммы или знаки препинания` : "письменно ответить на проблемный вопрос урока", exText: lastEx ? lastEx.text : null, exSrc: lastEx ? lastEx.source : null }; }
     if (hw5) md += `\n\n---\n\n## Домашнее задание\n\n- Базовый уровень: ${hw5.base}.\n- Повышенный уровень: ${hw5.adv}.\n\n## Источники\n\n`;
@@ -3581,6 +3597,11 @@ const QUESTIONS = `## Методика (главное требование к �
 5. После каждого вопроса — *(Ориентир для учителя: …)* — что должны увидеть ученики; это НЕ озвучивается. Если ученики затрудняются — *(Наводящий вопрос: …)*, а не ответ.
 6. Разные виды деятельности: выразительное чтение, работа с цитатами, сопоставление (с другим текстом, иллюстрацией, экранизацией), работа в парах и группах, письменное высказывание, дифференцированные задания.
 7. Рефлексия связана с проблемным вопросом: «Как изменился ваш ответ на вопрос урока?», а не «понравился ли урок».
+8. Мостики между этапами: каждый этап начинается с реплики-перехода, которая опирается на то, к чему пришли на предыдущем этапе, и ведёт к вопросу урока («Вопрос мы записали — но без текста на него не ответить. Послушаем…»). Урок — одна линия, а не набор блоков.
+9. Оправданность: у каждого этапа — короткое «Зачем» (что он даёт для ответа на вопрос урока). Нет этапов «для галочки»; творческое задание и домашнее задание продолжают проблемный вопрос.
+10. Больше работы с текстом: медленное чтение по строфам (частям), поиск перелома, внимание к финалу и названию; каждая мысль учеников подтверждается строкой текста.
+11. Простой, естественный язык учителя — как он реально говорит с классом этого возраста. Без канцелярита и абстракций («раскройте идейно-художественное своеобразие»); конкретно: «Почему парус просит бури, если вокруг солнце?».
+12. Для русского языка — конкретный языковой материал (пары слов и предложений, «ловушки»), а не «примеры на доске».
 Примеры формулировок: «Сравните два предложения. Что изменилось и почему?», «Что произойдёт, если убрать…?», «Докажите, опираясь на текст…», «Какая строка, по-вашему, главная? Почему?».`;
 const INTEGRITY = `## Честность материала
 - Не выдумывай цитаты: приводи фрагменты, только если уверен в точности; иначе ⟦вставить текст по изданию⟧.
