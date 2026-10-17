@@ -48,4 +48,12 @@ async function promo(userToken, code, request, readAll) {
   await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { plan: "promo" } });
   return { ok: true };
 }
-module.exports = { check, spend, on, promo };
+/* Автор сайта: вошёл в кабинет почтой из таблицы site_admins */
+async function isAdmin(userToken, request, readAll) {
+  if (!on() || !userToken) return false;
+  const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
+  const email = (u.json?.email || "").toLowerCase(); if (u.status !== 200 || !email) return false;
+  const r = await sb(request, readAll, `/rest/v1/site_admins?email=eq.${encodeURIComponent(email)}&select=email`);
+  return Array.isArray(r.json) && r.json.length > 0;
+}
+module.exports = { check, spend, on, promo, isAdmin };

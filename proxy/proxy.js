@@ -245,7 +245,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 6, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: DS.loadPool().filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 7, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -286,6 +286,12 @@ async function handler(req, res) {
     }
     if (route === "/pay/notify") { const r = await PAY.notify(raw, req.headers, request, readAll); res.writeHead(r.status, { "Content-Type": "text/plain; charset=utf-8" }); return res.end(r.text); }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
+    if (route === "/admin/keys") {
+      // ячейки ключей DeepSeek — только автору сайта (вход в кабинет почтой из site_admins или X-Admin-Token)
+      const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
+      if (!tokOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для автора сайта: войдите в личный кабинет своей почтой" });
+      const r = await DS.admin(body, request, readAll); return send(res, r.status, r.json);
+    }
     if (route === "/pay/create") { const r = await PAY.create(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json); }
     if (!Array.isArray(body.messages)) return send(res, 400, { error: "нужен массив messages" });
     if (route === "/promo") {

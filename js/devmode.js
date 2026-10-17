@@ -90,7 +90,7 @@ const Dev = (() => {
 
   /* ---------- разделы ---------- */
   let subj = "ru"; // русский язык и литература — раздельно
-  const MAIN = [["files", "Загруженные файлы"], ["rec", "Рекомендации"]];
+  const MAIN = [["files", "Загруженные файлы"], ["rec", "Рекомендации"], ["keys", "Ключи ИИ"]];
   const SECTIONS = [["materials", "Все материалы"], ["exercises", "Конструктор упражнений"], ["lessons", "Конспекты"], ["frp", "ФРП"], ["inbox", "Файлы от пользователей"], ["drafts", "Черновики"], ["logs", "Логи"], ["reports", "Отчёты и собранные файлы"]];
   function show(sec) {
     if (!on) return;
@@ -107,7 +107,7 @@ const Dev = (() => {
     v.querySelectorAll("[data-sec]").forEach(b => b.onclick = () => show(b.dataset.sec));
     v.querySelectorAll("[data-subj]").forEach(b => b.onclick = () => { subj = b.dataset.subj; show(section); });
     const body = v.querySelector("#devBody");
-    ({ files: secFiles, rec: x => window.DevCover ? DevCover.render(x, subj) : (x.innerHTML = "<p>Модуль рекомендаций не загружен.</p>"), cover: x => DevCover.render(x, subj), materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
+    ({ files: secFiles, keys: secKeys, rec: x => window.DevCover ? DevCover.render(x, subj) : (x.innerHTML = "<p>Модуль рекомендаций не загружен.</p>"), cover: x => DevCover.render(x, subj), materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
   }
   // переход в обычный раздел прячет экран разработчика
   const origGo = window.go;
@@ -130,6 +130,47 @@ const Dev = (() => {
     sharedCard(b);
     DevCover.bindUpload(b, () => show("files"));
     b.querySelector("#dvEmbed").onclick = () => embedAll();
+  }
+  /* Ключи DeepSeek: 5 ячеек. Ключ уходит на сервер (Яндекс-функция) и хранится в облаке,
+     сайт видит только начало и конец ключа. Запросы идут по кругу; если аккаунт ответил ошибкой
+     (нет денег, лимит, сбой) — запрос сам переходит на следующую ячейку. */
+  async function keysApi(body) {
+    const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
+    if (!fn) throw new Error("не задан адрес Яндекс-функции");
+    if (!tok) throw new Error("войдите в личный кабинет своей почтой (кнопка вверху справа) — ключи может менять только автор сайта");
+    await window.Account.refreshPlan?.().catch(() => null);
+    const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/keys")}` : fn + "/admin/keys";
+    const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 404 || r.status === 405 || (!r.ok && /нужен массив messages/.test(j.error || ""))) throw new Error("на сервере старая версия функции — загрузите новый uchu-function.zip");
+    if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
+    return j;
+  }
+  function secKeys(b) {
+    b.innerHTML = `<section class="dev-card"><h2>Ключи ИИ (DeepSeek)</h2><p class="small">Загружаю…</p></section>`;
+    const box = b.firstElementChild;
+    const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
+    const draw = (j, note) => {
+      box.innerHTML = `<h2>Ключи ИИ (DeepSeek)</h2>
+        <p class="small">Заполните столько ячеек, сколько у вас аккаунтов. Запросы учителей идут по кругу; если аккаунт не отвечает (закончились деньги, лимит, сбой) — запрос сам переходит на следующий, учитель ошибки не видит. Ключ после сохранения хранится только на сервере — здесь видны лишь его начало и конец.</p>
+        ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
+        <div class="key-grid">${j.slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
+          <div class="key-h"><b>Аккаунт ${x.slot}</b>${st(x)}</div>
+          <input type="text" name="label" placeholder="Название, например: почта аккаунта" value="${esc(x.label || "")}" autocomplete="off">
+          <input type="text" class="secret" name="key" placeholder="${x.empty ? "Ключ sk-…" : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
+          <details${x.url ? " open" : ""}><summary class="small">Свой адрес API (необязательно)</summary><input type="text" name="url" placeholder="https://api.deepseek.com" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
+          <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>
+          <div class="row-btn"><button class="btn sm flame" type="submit">Сохранить</button>${x.empty ? "" : `<button class="btn sm" type="button" data-k="test">Проверить</button><button class="btn sm ghost" type="button" data-k="delete">Очистить</button>`}</div>
+        </form>`).join("")}</div>
+        ${j.env?.length ? `<p class="small">Ещё в настройках функции (переменная DEEPSEEK_POOL): ${j.env.map(e => esc(e.label) + " " + esc(e.key)).join(", ")}.</p>` : ""}`;
+      box.querySelectorAll(".key-slot").forEach(f => {
+        const slot = +f.dataset.slot;
+        const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await keysApi(body); draw(r, r.test ? { ...r.test, message: `Аккаунт ${slot}: ${r.test.message}` } : (body.action === "save" ? { ok: true, message: `Аккаунт ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Аккаунт ${slot} очищен.` } : null)); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
+        f.onsubmit = e => { e.preventDefault(); run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
+        f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить аккаунт ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
+      });
+    };
+    keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Ключи ИИ (DeepSeek)</h2><p class="small">${esc(e.message)}</p>`; });
   }
   /* Материалы, которые учителя прикрепили у себя: приходят через облако, видны только автору сайта.
      «Встроить» — материал попадает в «Загружено вами», дальше «Опубликовать для всех учителей». */

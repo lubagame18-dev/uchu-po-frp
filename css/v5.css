@@ -583,3 +583,12 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 #btnAccount { display: inline-flex; align-items: center; gap: 6px; }
 .acc-mini { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--ink); margin: -3px 0; }
 .mat-note { margin: 8px 0 0; color: var(--muted-2); }
+
+/* ---------- режим разработчика: ячейки ключей ИИ ---------- */
+.key-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
+.key-slot { min-width: 0; display: grid; gap: 7px; padding: 12px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; }
+.key-slot input[type=text] { width: 100%; padding: 7px 9px; border: 1.5px solid var(--ink); border-radius: 9px; font: inherit; font-size: 13px; }
+.key-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.key-slot details input { margin-top: 5px; }
+.key-slot .row-btn { flex-wrap: wrap; gap: 6px; }
+.key-h .tag { white-space: nowrap; }

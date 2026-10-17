@@ -52,3 +52,7 @@ drop policy if exists admin_del on shared_materials;
 create policy admin_del on shared_materials for delete using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
 -- автор сайта: почта, с которой вы входите в кабинет
 insert into site_admins (email) select email from auth.users on conflict do nothing;
+
+-- ключи DeepSeek (ячейки 1–5 из режима разработчика): политик нет — читает и пишет только сервер секретным ключом
+create table if not exists ai_keys (slot int primary key check (slot between 1 and 5), label text, key text, base_url text, is_active boolean not null default true, updated_at timestamptz default now());
+alter table ai_keys enable row level security;

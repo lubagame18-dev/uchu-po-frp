@@ -12,6 +12,9 @@
    4. Флаг isActive: false — аккаунт выключен вручную и не используется.
 
    Как задать аккаунты (любой из способов):
+   • ГЛАВНЫЙ: на сайте, режим разработчика → «Ключи ИИ» (5 ячеек). Ключи сохраняются
+     в облаке Supabase, в таблице ai_keys, которую читает только сервер (секретным ключом);
+     сайт после сохранения видит лишь начало и конец ключа;
    • переменная окружения DEEPSEEK_POOL = JSON-массив:
        [{"email":"first@mail.ru","key":"sk-...","isActive":true}, ...]
    • или прямо здесь, в ACCOUNT_POOL ниже (только на сервере, не в репозитории сайта!).
@@ -30,13 +33,36 @@ function loadPool() {
   if (process.env.DEEPSEEK_KEY) list = [{ email: "основной", key: process.env.DEEPSEEK_KEY, isActive: true }, ...list];
   return list.map((a, i) => ({ id: i, email: String(a.email || "аккаунт " + (i + 1)), key: String(a.key || "").trim(), isActive: a.isActive !== false }));
 }
+/* ---------- ключи из облака (таблица ai_keys, читает только сервер) ---------- */
+const SB = () => ({ url: (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key: process.env.SUPABASE_SERVICE_KEY || "" });
+let dbCache = { at: 0, list: [] };
+async function sb(request, readAll, path, { method = "GET", body } = {}) {
+  const { url, key } = SB(); if (!url || !key) return { status: 0, json: null };
+  const res = await request(url + path, { method, headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json", Prefer: "return=representation,resolution=merge-duplicates" }, body: body ? JSON.stringify(body) : undefined, timeout: 15000 });
+  const t = await readAll(res); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
+  return { status: res.statusCode, json: j };
+}
+async function dbPool(request, readAll, force) {
+  if (!SB().url || !SB().key || !request) return [];
+  if (!force && Date.now() - dbCache.at < 30000) return dbCache.list;
+  try { const r = await sb(request, readAll, "/rest/v1/ai_keys?select=*&order=slot"); if (r.status === 200 && Array.isArray(r.json)) dbCache = { at: Date.now(), list: r.json }; }
+  catch (e) { console.warn("ai_keys:", e.message); }
+  return dbCache.list;
+}
+/* Все аккаунты: сначала ячейки с сайта, потом из переменных функции */
+async function pool(request, readAll, force) {
+  const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, email: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), isActive: a.is_active !== false }));
+  return db.concat(loadPool());
+}
 const isPlaceholder = k => !k || /^\.+$/.test(k) || /^(sk-)?\.{2,}/.test(k) || k.length < 10;
+const pool0 = (r, ra) => pool(r, ra);
 const rest = new Map(); // id → до какого времени аккаунт «отдыхает»
 let cursor = 0;
 
+const last = new Map(); // id → последний ответ { at, status, error }
 /* Рабочие аккаунты в порядке карусели, начиная со следующего */
-function queue() {
-  const pool = loadPool().filter(a => a.isActive && !isPlaceholder(a.key));
+async function queue(request, readAll) {
+  const pool = (await pool0(request, readAll)).filter(a => a.isActive && !isPlaceholder(a.key));
   if (!pool.length) return [];
   const start = cursor++ % pool.length;
   const ordered = pool.slice(start).concat(pool.slice(0, start));
@@ -48,31 +74,38 @@ const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
 
 /* Запрос к DeepSeek с переключением аккаунтов. request — функция из proxy.js (Node https). */
 async function chat(body, request, readAll) {
-  const accounts = queue();
+  const accounts = await queue(request, readAll);
   if (!accounts.length) { const e = new Error("на сервере не настроен ни один аккаунт DeepSeek"); e.status = 503; e.reason = "no_key"; throw e; }
   const payload = JSON.stringify({ ...body, model: body.model && !/^deepseek-(chat|reasoner)$/.test(body.model) ? body.model : MODEL, stream: false });
-  let last = null;
+  let lastErr = null;
   for (const a of accounts) {
     try {
-      const res = await request(API + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: payload, timeout: 120000 });
+      const res = await request((a.url || API) + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: payload, timeout: 120000 });
       const text = await readAll(res);
-      if (res.statusCode === 200) { rest.delete(a.id); return { status: 200, text, account: mask(a.email) }; }
-      last = { status: res.statusCode, text };
+      if (res.statusCode === 200) { rest.delete(a.id); last.set(a.id, { at: Date.now(), status: 200 }); return { status: 200, text, account: mask(a.email) }; }
+      last.set(a.id, { at: Date.now(), status: res.statusCode, error: String(text).slice(0, 160) });
+      lastErr = { status: res.statusCode, text };
       // 401 — ключ неверный, 402 — нет денег: аккаунт отдыхает час; 429 — лимит: 5 минут; 5xx — 1 минута
       const pause = res.statusCode === 401 || res.statusCode === 402 ? 3600e3 : res.statusCode === 429 ? 300e3 : res.statusCode >= 500 ? 60e3 : 0;
       if (!pause) break; // ошибка в самом запросе (400) — другой аккаунт не поможет
       rest.set(a.id, Date.now() + pause);
       console.warn(`DeepSeek: ${mask(a.email)} ответил ${res.statusCode}, переключаюсь на следующий аккаунт`);
-    } catch (e) { last = { status: 502, text: String(e.message || e) }; rest.set(a.id, Date.now() + 60e3); }
+    } catch (e) { lastErr = { status: 502, text: String(e.message || e) }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text.slice(0, 160) }); rest.set(a.id, Date.now() + 60e3); }
   }
-  const e = new Error("DeepSeek не ответил ни на одном аккаунте: " + (last ? `HTTP ${last.status} ${String(last.text).slice(0, 160)}` : "нет ответа"));
-  e.status = last?.status === 400 ? 400 : 502; e.reason = last?.status === 402 ? "payment" : last?.status === 429 ? "rate" : "other"; throw e;
+  const e = new Error("DeepSeek не ответил ни на одном аккаунте: " + (lastErr ? `HTTP ${lastErr.status} ${String(lastErr.text).slice(0, 160)}` : "нет ответа"));
+  e.status = lastErr?.status === 400 ? 400 : 502; e.reason = lastErr?.status === 402 ? "payment" : lastErr?.status === 429 ? "rate" : "other"; throw e;
 }
 
 /* Баланс каждого аккаунта (для владельца): GET https://api.deepseek.com/user/balance */
+async function balance1(a, request, readAll) {
+  const res = await request((a.url || API) + "/user/balance", { method: "GET", headers: { Authorization: "Bearer " + a.key, Accept: "application/json" }, timeout: 20000 });
+  const t = await readAll(res); if (res.statusCode !== 200) throw new Error(res.statusCode === 401 ? "ключ не подходит (401)" : `HTTP ${res.statusCode} ${t.slice(0, 120)}`);
+  const j = JSON.parse(t || "{}"), info = (j.balance_infos || [])[0] || {};
+  return { available: j.is_available, balance: info.total_balance, currency: info.currency };
+}
 async function balances(request, readAll) {
   const out = [];
-  for (const a of loadPool()) {
+  for (const a of await pool(request, readAll)) {
     if (!a.isActive || isPlaceholder(a.key)) { out.push({ account: mask(a.email), active: a.isActive, configured: !isPlaceholder(a.key) }); continue; }
     try {
       const res = await request(API + "/user/balance", { method: "GET", headers: { Authorization: "Bearer " + a.key, Accept: "application/json" }, timeout: 20000 });
@@ -83,4 +116,34 @@ async function balances(request, readAll) {
   }
   return out;
 }
-module.exports = { chat, balances, loadPool, isPlaceholder, queue, ACCOUNT_POOL };
+/* ---------- управление ячейками с сайта (только автору сайта) ---------- */
+const SLOTS = 5;
+const tail = k => isPlaceholder(k) ? "" : String(k).slice(0, 3) + "…" + String(k).slice(-4);
+async function admin(body, request, readAll) {
+  if (!SB().url || !SB().key) return { status: 400, json: { error: "в функции не заданы SUPABASE_URL и SUPABASE_SERVICE_KEY" } };
+  const act = body.action || "list", slot = Math.round(+body.slot);
+  if (act !== "list" && !(slot >= 1 && slot <= SLOTS)) return { status: 400, json: { error: "ячейка — от 1 до " + SLOTS } };
+  if (act === "save") {
+    const row = { slot, label: String(body.label || "").slice(0, 80), base_url: String(body.url || "").trim().slice(0, 200), is_active: body.isActive !== false, updated_at: new Date().toISOString() };
+    if (row.base_url && !/^https:\/\/[\w.-]+(\/[\w./-]*)?$/.test(row.base_url)) return { status: 400, json: { error: "адрес должен начинаться с https://" } };
+    const k = String(body.key || "").trim(); if (k) row.key = k;
+    const old = (await dbPool(request, readAll, true)).find(a => a.slot === slot);
+    if (!old && !k) return { status: 400, json: { error: "вставьте ключ" } };
+    const r = await sb(request, readAll, "/rest/v1/ai_keys?on_conflict=slot", { method: "POST", body: { ...(old || {}), ...row } });
+    if (r.status >= 300) return { status: 502, json: { error: /ai_keys/.test(JSON.stringify(r.json)) ? "в облаке нет таблицы ai_keys — выполните SQL из инструкции" : "облако не сохранило: " + JSON.stringify(r.json).slice(0, 160) } };
+    rest.delete("s" + slot); last.delete("s" + slot);
+  }
+  if (act === "delete") { await sb(request, readAll, `/rest/v1/ai_keys?slot=eq.${slot}`, { method: "DELETE" }); rest.delete("s" + slot); last.delete("s" + slot); }
+  const rows = await dbPool(request, readAll, true);
+  let test = null;
+  if (act === "test") {
+    const a = (await pool(request, readAll)).find(x => x.slot === slot);
+    if (!a || isPlaceholder(a.key)) test = { ok: false, message: "в ячейке нет ключа" };
+    else { try { const b = await balance1(a, request, readAll); test = { ok: true, ...b, message: `ключ работает, баланс ${b.balance ?? "?"} ${b.currency || ""}`.trim() }; } catch (e) { test = { ok: false, message: e.message }; } }
+  }
+  const now = Date.now();
+  const slots = Array.from({ length: SLOTS }, (_, i) => { const n = i + 1, a = rows.find(r => r.slot === n), id = "s" + n, L = last.get(id); return a ? { slot: n, label: a.label || "", url: a.base_url || "", isActive: a.is_active !== false, key: tail(a.key), resting: rest.get(id) > now ? Math.ceil((rest.get(id) - now) / 60000) : 0, last: L || null } : { slot: n, empty: true }; });
+  const env = loadPool().filter(a => !isPlaceholder(a.key)).map(a => ({ label: mask(a.email), isActive: a.isActive, key: tail(a.key) }));
+  return { status: 200, json: { ok: true, slots, env, test, table: rows !== null } };
+}
+module.exports = { chat, balances, loadPool, pool, admin, isPlaceholder, queue, ACCOUNT_POOL };
