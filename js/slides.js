@@ -22,24 +22,25 @@ const SlideEditor = (() => {
   const LAYOUTS = {
     title: "Титульный", section: "Разделитель", one: "Одна колонка", titleText: "Заголовок + текст", two: "Две колонки",
     list: "Список", quote: "Цитата", compare: "Сравнение", gallery: "Галерея", image: "Изображение на весь слайд",
-    cards: "Карточки с тезисами", steps: "Шаги", big: "Крупный вопрос", task: "Упражнение (дословно)", poem: "Стихотворение (дословно)"
+    cards: "Карточки с тезисами", steps: "Шаги", big: "Крупный вопрос", task: "Упражнение (дословно)", poem: "Стихотворение (дословно)", video: "Видеофрагмент"
   };
   const ACC = { "": "Без картинки-акцента", left: "Картинка слева", right: "Картинка справа", top: "Картинка сверху", bg: "Картинка фоном" };
   const OV = { frosted: "Матовое стекло", faded: "Затемнение к тексту", clear: "Без наложения" };
   const VA = { top: "Текст сверху", center: "Текст по центру", bottom: "Текст снизу" };
-  const INSERT = [["text", "Т", "Текст"], ["head", "H", "Подзаголовок"], ["list", "•", "Список"], ["num", "1.", "Нумерация"], ["quote", "❝", "Цитата"], ["callout", "💡", "Выноска"], ["table", "▦", "Таблица"], ["button", "➜", "Кнопка-переход"], ["photo", "🖼", "Фото с компьютера"], ["yandex", "🔍", "Картинка из Яндекса"], ["hr", "—", "Разделитель"]];
-  const NEWSLIDE = [["cards", "▤", "Карточки"], ["steps", "①", "Шаги"], ["big", "?", "Крупный вопрос"], ["quote", "❝", "Цитата"], ["two", "◫", "Две колонки"], ["image", "▣", "Фото на весь слайд"], ["title", "★", "Раздел / титул"]];
+  const INSERT = [["text", "Т", "Текст"], ["head", "H", "Подзаголовок"], ["list", "•", "Список"], ["num", "1.", "Нумерация"], ["quote", "❝", "Цитата"], ["callout", "💡", "Выноска"], ["table", "▦", "Таблица"], ["button", "➜", "Кнопка-переход"], ["photo", "🖼", "Фото с компьютера"], ["yandex", "🔍", "Картинка из Яндекса"], ["video", "▶", "Видео"], ["sticker", "★", "Стикер"], ["hr", "—", "Разделитель"]];
+  const NEWSLIDE = [["cards", "▤", "Карточки"], ["steps", "①", "Шаги"], ["big", "?", "Крупный вопрос"], ["quote", "❝", "Цитата"], ["two", "◫", "Две колонки"], ["image", "▣", "Фото на весь слайд"], ["title", "★", "Раздел / титул"], ["board", "▭", "На доске"], ["video", "▶", "Видеофрагмент"]];
   const SNIP = {
     text: "Новый текст — щёлкните, чтобы изменить.", head: "### Подзаголовок", list: "- Первый пункт\n- Второй пункт", num: "1. Первый шаг\n2. Второй шаг",
     quote: "> «Цитата»\n\n— Автор", callout: "> 💡 Важно: …", table: "| Столбец 1 | Столбец 2 |\n|---|---|\n| | |\n| | |", button: "[Продолжить →](#next)", hr: "* * *"
   };
   const NEWBODY = {
     cards: ["Новый слайд", "- Тезис\n- Тезис\n- Тезис"], steps: ["Новый слайд", "1. Шаг\n2. Шаг\n3. Шаг"], big: ["Вопрос", "Сформулируйте главный вопрос?"],
-    quote: ["Цитата", "> «Слова автора»\n\n— Автор"], two: ["Новый слайд", "- Левая колонка\n\n- Правая колонка"], image: ["", "![Картинка](search:)"], title: ["Новый раздел", "Подзаголовок"]
+    quote: ["Цитата", "> «Слова автора»\n\n— Автор"], two: ["Новый слайд", "- Левая колонка\n\n- Правая колонка"], image: ["", "![Картинка](search:)"], title: ["Новый раздел", "Подзаголовок"],
+    board: ["Тема урока", "Число, месяц.  \nКлассная работа.\n\n**Правило / схема**\n\n- Пример: *выделите орфограмму*"], video: ["Видеофрагмент", "Смотрим и отвечаем: …"]
   };
   let selBlock = -1, moreOpen = false;
   const MIN_VB = 0.56; // для дословных блоков (упражнение, цитата, стихи): шрифт можно уменьшить сильнее, но не меньше ~18 pt
-  const THEMES = { bordo: "Бордо + светлая плашка (фирменная)", navy: "Тёмно-синяя рамка + плашка", forest: "Зелёная рамка + плашка", light: "Светлая", warm: "Тёплая бумага", sea: "Морская", sage: "Шалфей", contrast: "Контрастная (чёрное на белом)" };
+  const THEMES = { bordo: "Бордо + светлая плашка (фирменная)", navy: "Тёмно-синяя рамка + плашка", forest: "Зелёная рамка + плашка", light: "Светлая", warm: "Тёплая бумага", sea: "Морская", sage: "Шалфей", contrast: "Контрастная (чёрное на белом)", ...Object.fromEntries(Object.entries(window.ThemeKit?.META || {}).map(([k, v]) => [k, "✦ " + v.name])) };
   /* Шрифты: заголовки + текст. Все с кириллицей; Google Fonts подгружаются по выбору */
   const FONTS = {
     classic: { name: "Georgia + Arial (классика)", h: "Georgia", b: "Arial" },
@@ -48,9 +49,15 @@ const SlideEditor = (() => {
     cormorant: { name: "Cormorant Garamond + Montserrat (премиум)", h: "Cormorant Garamond", b: "Montserrat", g: ["Cormorant+Garamond:wght@600;700", "Montserrat:wght@400;600"] },
     pt: { name: "PT Serif + PT Sans (школьный)", h: "PT Serif", b: "PT Sans", g: ["PT+Serif:wght@400;700", "PT+Sans:wght@400;700"] },
     lora: { name: "Lora + Open Sans (книжный)", h: "Lora", b: "Open Sans", g: ["Lora:wght@600;700", "Open+Sans:wght@400;600;700"] },
-    oswald: { name: "Oswald + Roboto (плакатный)", h: "Oswald", b: "Roboto", g: ["Oswald:wght@500;700", "Roboto:wght@400;700"] }
+    oswald: { name: "Oswald + Roboto (плакатный)", h: "Oswald", b: "Roboto", g: ["Oswald:wght@500;700", "Roboto:wght@400;700"] },
+    marck: { name: "Marck Script + Lora (сказочный)", h: "Marck Script", b: "Lora", g: ["Marck+Script", "Lora:wght@400;600;700"] },
+    russo: { name: "Russo One + Rubik (ретро-плакат)", h: "Russo One", b: "Rubik", g: ["Russo+One", "Rubik:wght@400;600;700"] },
+    caveat: { name: "Caveat + PT Sans (от руки)", h: "Caveat", b: "PT Sans", g: ["Caveat:wght@600;700", "PT+Sans:wght@400;700"] },
+    forum: { name: "Forum + PT Serif (музейный)", h: "Forum", b: "PT Serif", g: ["Forum", "PT+Serif:wght@400;700"] },
+    yeseva: { name: "Yeseva One + Lora (винтаж)", h: "Yeseva One", b: "Lora", g: ["Yeseva+One", "Lora:wght@400;600;700"] }
   };
-  const fontSet = () => FONTS[L()?.slideFonts] || FONTS.classic;
+  const fontKey = () => FONTS[L()?.slideFonts] ? L().slideFonts : (window.ThemeKit?.META[theme()]?.font || "classic");
+  const fontSet = () => FONTS[fontKey()] || FONTS.classic;
   const loadedFonts = new Set();
   function ensureFonts(key) {
     const f = FONTS[key]; if (!f?.g || loadedFonts.has(key)) return Promise.resolve();
@@ -59,7 +66,7 @@ const SlideEditor = (() => {
     document.head.appendChild(l);
     return new Promise(r => { l.onload = () => (document.fonts?.ready || Promise.resolve()).then(r); l.onerror = r; setTimeout(r, 4000); });
   }
-  const fontCss = () => { const f = fontSet(); return `--sx-fh:'${f.h}', Georgia, serif;--sx-fb:'${f.b}', Arial, sans-serif;`; }; // одинарные кавычки: стиль стоит внутри атрибута style="…"
+  const fontCss = (fk) => { const f = (fk && FONTS[fk]) || fontSet(); return `--sx-fh:'${f.h}', Georgia, serif;--sx-fb:'${f.b}', Arial, sans-serif;`; }; // одинарные кавычки: стиль стоит внутри атрибута style="…"
   const MIN = 0.72, MAX = 1.3; // пределы автоподбора шрифта
   let cur = 0, clipboard = null;
   const undo = [], redo = [];
@@ -107,6 +114,13 @@ const SlideEditor = (() => {
   const ANIMS = { soft: "Мягкая", bright: "Яркая", none: "Без анимации" };
   const anim = () => ({ mode: "soft", cut: false, deco: true, ix: true, step: false, ...(L()?.slideAnim || {}) });
   const theme = () => (L()?.slideTheme && THEMES[L().slideTheme]) ? L().slideTheme : "bordo";
+  /* Смена темы: у художественных тем свой шрифт заголовков (ручной выбор шрифта сбрасывается) */
+  function applyTheme(k, { auto = false } = {}) {
+    const Ls = L(); if (!Ls || !THEMES[k]) return;
+    Ls.slideTheme = k; Ls.slideThemeAuto = auto;
+    if (window.ThemeKit?.has(k)) Ls.slideFonts = null;
+    Ls.slidesFitted = false; saveLesson(Ls);
+  }
 
   /* ---------- отрисовка слайда ---------- */
   /* Кнопки-переходы: ссылка на #next, #prev, #first, #last или #slide-N становится кнопкой */
@@ -123,20 +137,22 @@ const SlideEditor = (() => {
     if (!m) return { acc: "", rest: body || "" };
     return { acc: m[0], rest: ((body || "").slice(0, m.index) + (body || "").slice(m.index + m[0].length)).replace(/^\s+/, "").replace(/\n{3,}/g, "\n\n") };
   }
-  function slideHtml(sl, i, { edit = false, fs = null } = {}) {
-    const lay = autoLayout(sl, i), st = sl.set;
+  function slideHtml(sl, i, { edit = false, fs = null, th = null } = {}) {
+    const lay = autoLayout(sl, i), st = sl.set, T = th || theme(), TK = window.ThemeKit?.has(T);
     const accPos = st.acc && lay !== "image" && lay !== "gallery" ? st.acc : "";
     const parts = accPos ? splitAcc(sl.body) : { acc: "", rest: sl.body || "" };
     const acc = accPos && parts.acc ? accPos : "";
     const bg = st.bgimg ? "" : st.bg ? `background:${esc(st.bg)};` : "";
-    const style = `${fontCss()}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${bg}`;
-    const body = linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
+    const style = `${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${bg}`;
+    const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
+    const body = vid + linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
-    const cls = [`sx lay-${lay}`, st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
+    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
-    const html = `<div class="${cls}" data-i="${i}" style="${style}">${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}
+    const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
+    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "") : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}
       <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(sl.title)}</${H}>
-      <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${body}</div></div></div>`;
+      <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${body}</div></div>${window.ThemeKit && stk.length ? ThemeKit.stickersHtml(stk, edit) : ""}</div>`;
     return st.free ? applyFree(html, st) : html;
   }
   /* Свободная вёрстка: заголовок и каждый блок текста стоят там, куда их поставил учитель (координаты в % слайда) */
@@ -283,7 +299,7 @@ const SlideEditor = (() => {
 
   /* ---------- редактор ---------- */
   function render(sheet, md, editable) {
-    if (L()?.slideFonts && FONTS[L().slideFonts]?.g && !loadedFonts.has(L().slideFonts)) { ensureFonts(L().slideFonts).then(() => { L().slidesFitted = false; rerender(); }); }
+    { const fk = fontKey(); if (FONTS[fk]?.g && !loadedFonts.has(fk)) ensureFonts(fk).then(() => { L().slidesFitted = false; rerender(); }); }
     sheet.className = "sxed theme-" + theme(); sheet.removeAttribute("contenteditable");
     if (!editable) { // идёт генерация — простой просмотр
       sheet.innerHTML = `<div class="sx-view">${splitSlides(md).map((s, i) => `<div class="sx-frame">${slideHtml(parse(s), i)}</div>`).join("")}</div>`;
@@ -306,7 +322,7 @@ const SlideEditor = (() => {
       <div class="sx-tools" role="toolbar" aria-label="Тонкие настройки слайда" ${moreOpen ? "" : "hidden"} id="sxMore">
         <label class="sx-tl">Шаблон <select id="sxLay">${Object.entries(LAYOUTS).map(([k, n]) => `<option value="${k}" ${k === lay ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         <button class="btn sm ghost" id="sxLayAll" title="Применить этот шаблон ко всем слайдам">ко всем</button>
-        <label class="sx-tl">Шрифты <select id="sxFonts">${Object.entries(FONTS).map(([k, f]) => `<option value="${k}" ${k === (L().slideFonts || "classic") ? "selected" : ""}>${f.name}</option>`).join("")}</select></label>
+        <label class="sx-tl">Шрифты <select id="sxFonts">${Object.entries(FONTS).map(([k, f]) => `<option value="${k}" ${k === fontKey() ? "selected" : ""}>${f.name}</option>`).join("")}</select></label>
         <label class="sx-tl">Тема <select id="sxTheme">${Object.entries(THEMES).map(([k, n]) => `<option value="${k}" ${k === theme() ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         <span class="sx-grp" aria-label="Шрифт"><button class="btn sm ghost" id="sxFsM" title="Мельче">A−</button><button class="btn sm ghost" id="sxFsA" title="Подобрать автоматически" aria-pressed="${!sl.set.fs}">Авто ${Math.round((sl.set.fs || sl.set.afs || 1) * 100)}%</button><button class="btn sm ghost" id="sxFsP" title="Крупнее">A+</button></span>
         <span class="sx-grp" aria-label="Отступы"><button class="btn sm ghost" id="sxPadM" title="Отступы меньше">⇤</button><span class="small">поля</span><button class="btn sm ghost" id="sxPadP" title="Отступы больше">⇥</button></span>
@@ -384,6 +400,7 @@ const SlideEditor = (() => {
 
   function bindStage(sheet, arr) {
     const $s = s => sheet.querySelector(s);
+    { const fr0 = sheet.querySelector("#sxFrame"); if (fr0) { bindStickers(fr0); window.VideoKit?.bind(fr0); fr0.querySelector(".sx-video.empty")?.addEventListener("click", () => openVideo(cur)); } }
     // миниатюры: выбор, перетаскивание
     sheet.querySelectorAll(".sx-th").forEach(li => {
       li.onclick = () => { cur = +li.dataset.i; selBlock = -1; rerender(); };
@@ -396,7 +413,7 @@ const SlideEditor = (() => {
     });
     $s("#sxLay").onchange = e => set({ layout: e.target.value, afs: undefined });
     $s("#sxLayAll").onclick = () => { const v = $s("#sxLay").value; set({ layout: v, afs: undefined }, { all: true }); toast(`Шаблон «${LAYOUTS[v]}» применён ко всем слайдам.`); };
-    $s("#sxTheme").onchange = e => { L().slideTheme = e.target.value; saveLesson(L()); L().slidesFitted = false; rerender(); };
+    $s("#sxTheme").onchange = e => { applyTheme(e.target.value); rerender(); };
     $s("#sxFonts").onchange = async e => { const k = e.target.value; toast("Подключаю шрифты…", 2500); await ensureFonts(k); L().slideFonts = k; saveLesson(L()); L().slidesFitted = false; rerender(); toast("Шрифты применены ко всей презентации; размер текста подобран заново."); };
     const sl = arr[cur];
     const fsNow = () => sl.set.fs || sl.set.afs || 1;
@@ -539,9 +556,9 @@ const SlideEditor = (() => {
     const a = slides(), first = a[0] || { title: L().title, body: "", set: {}, level: 1 };
     const sample = { ...first, set: { ...first.set, afs: 0.8, fs: undefined } };
     const p = popover(anchor, `<div class="pm-h">Тема оформления</div>
-      <div class="lp-grid themes">${Object.entries(THEMES).map(([k, t]) => `<button class="lp-item ${k === theme() ? "on" : ""}" data-theme="${k}"><div class="lp-mini theme-${k}">${slideHtml(sample, 0)}</div><span>${t}</span></button>`).join("")}</div>
+      <div class="lp-grid themes">${Object.entries(THEMES).map(([k, t]) => `<button class="lp-item ${k === theme() ? "on" : ""}" data-theme="${k}"><div class="lp-mini theme-${k}">${slideHtml(sample, 0, { th: k })}</div><span>${t}</span></button>`).join("")}</div>
       <div class="pm-h">Шрифты (заголовок + текст)</div>
-      <div class="fp-grid">${Object.entries(FONTS).map(([k, f]) => `<button class="fp-item ${k === (L().slideFonts || "classic") ? "on" : ""}" data-font="${k}"><b style="font-family:'${f.h}',Georgia,serif">Аа Заголовок</b><span style="font-family:'${f.b}',Arial,sans-serif">Текст слайда</span><small>${f.name}</small></button>`).join("")}</div>`, "pm wide");
+      <div class="fp-grid">${Object.entries(FONTS).map(([k, f]) => `<button class="fp-item ${k === fontKey() ? "on" : ""}" data-font="${k}"><b style="font-family:'${f.h}',Georgia,serif">Аа Заголовок</b><span style="font-family:'${f.b}',Arial,sans-serif">Текст слайда</span><small>${f.name}</small></button>`).join("")}</div>`, "pm wide");
     p.querySelectorAll(".lp-mini .sx-body, .lp-mini .sx-acc").forEach(decorate); hydrateBg(p);
     Object.keys(FONTS).forEach(k => ensureFonts(k));
     p.querySelectorAll("[data-theme]").forEach(b => b.onclick = () => { closePop(); const sel = $("#sxTheme"); sel.value = b.dataset.theme; sel.dispatchEvent(new Event("change")); });
@@ -573,17 +590,67 @@ const SlideEditor = (() => {
     setTimeout(() => { const el = $("#sxFrame .sx-body")?.children[at]; if (el) { el.scrollIntoView({ block: "nearest" }); placeCaret(el); } }, 60);
   }
   function placeCaret(el) { try { const r = document.createRange(); r.selectNodeContents(el); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); el.closest("[contenteditable]")?.focus(); } catch { } }
+  /* Видео: на видеослайд — заменить ролик; на обычный — новый слайд после текущего */
+  function openVideo(at) {
+    const a = slides(), sl = a[cur] || {}, isV = sl.set?.kind === "video" || sl.set?.layout === "video";
+    const tp = L().params?.topic || "", q = sl.set?.vq || (tp ? (L().params.subject === "lit" ? `${(tp.match(/«([^»]+)»/) || [])[1] || tp} экранизация фрагмент` : `${tp} видеоурок`) : sl.title || "");
+    VideoKit.openDialog({ q, v: isV ? sl.set.video || {} : {}, onDone: v => {
+      const b = slides();
+      if (isV && at !== null) { b[cur].set.video = v; b[cur].set.vq = v.q; }
+      else { b.splice(cur + 1, 0, { title: "Видеофрагмент", level: 2, body: "Смотрим и отвечаем: что важного вы заметили?", notes: `Фрагмент: ${v.c || ""} ${VideoKit.span(v)}. ${VideoKit.watchUrl(v)}`.trim(), set: { layout: "video", kind: "video", video: v, vq: v.q } }); cur++; }
+      selBlock = -1; write(b); rerender(); toast("Видео на слайде. В показе нажмите ▶ — проиграется только выбранный отрезок.", 5000);
+    } });
+  }
+  /* Стикеры: палитра, добавление, перетаскивание, поворот колёсиком, двойной щелчок — убрать */
+  function stickerPicker(anchor) {
+    const sl = slides()[cur];
+    const p = popover(anchor, `<div class="pm-h">Стикеры поверх слайда</div><div class="stk-grid">${Object.entries(ThemeKit.STK).map(([k, v]) => `<button class="stk-it" data-stk="${k}" title="${v.n}">${ThemeKit.stkSvg(k)}<small>${v.n}</small></button>`).join("")}</div>
+      <div class="pm-row"><label class="check"><input type="checkbox" id="stkAuto" ${sl.set.nostk ? "" : "checked"}> Стикеры темы на ключевых слайдах</label></div><p class="small" style="padding:0 6px">Стикер можно перетащить; колёсико или Shift+стрелки — повернуть; +/− — размер; двойной щелчок — убрать.</p>`, "pm wide");
+    p.querySelectorAll("[data-stk]").forEach(b => b.onclick = () => { const a = slides(); a[cur].set.stk = [...(a[cur].set.stk || []), { n: b.dataset.stk, x: 70 + Math.round(Math.random() * 12), y: 8 + Math.round(Math.random() * 10), s: 11, r: Math.round(Math.random() * 16 - 8) }]; write(a); closePop(); rerender(); });
+    p.querySelector("#stkAuto").onchange = e => { const a = slides(); a[cur].set.nostk = e.target.checked ? undefined : 1; write(a); rerender(); };
+  }
+  function bindStickers(fr) {
+    const sx = fr.querySelector(".sx"); if (!sx) return;
+    const own = () => { // авто-стикеры становятся своими при первом изменении
+      const a = slides(), st = a[cur].set;
+      if (!st.nostk && window.ThemeKit?.has(theme())) { st.stk = [...ThemeKit.autoStickers(theme(), st.kind || autoLayout(a[cur], cur), cur), ...(st.stk || [])]; st.nostk = 1; }
+      return a;
+    };
+    sx.querySelectorAll(".stk").forEach(el => {
+      const idx = () => [...sx.querySelectorAll(".stk")].indexOf(el);
+      el.addEventListener("pointerdown", e => {
+        e.preventDefault(); e.stopPropagation(); el.setPointerCapture(e.pointerId); el.focus();
+        const R = sx.getBoundingClientRect(), x0 = parseFloat(el.style.left), y0 = parseFloat(el.style.top), sx0 = e.clientX, sy0 = e.clientY;
+        const mv = ev => { el.style.left = Math.max(-5, Math.min(97, x0 + (ev.clientX - sx0) / R.width * 100)) + "%"; el.style.top = Math.max(-5, Math.min(95, y0 + (ev.clientY - sy0) / R.height * 100)) + "%"; };
+        const up = () => { el.removeEventListener("pointermove", mv); el.removeEventListener("pointerup", up); const a = own(), k = idx(); const it = a[cur].set.stk[k]; if (it) { it.x = Math.round(parseFloat(el.style.left) * 10) / 10; it.y = Math.round(parseFloat(el.style.top) * 10) / 10; delete it.auto; } write(a); };
+        el.addEventListener("pointermove", mv); el.addEventListener("pointerup", up);
+      });
+      const tweak = fn => { const a = own(), it = a[cur].set.stk[idx()]; if (!it) return; fn(it); delete it.auto; write(a); rerender(); };
+      el.addEventListener("dblclick", e => { e.stopPropagation(); const a = own(); a[cur].set.stk.splice(idx(), 1); write(a); rerender(); });
+      el.addEventListener("wheel", e => { e.preventDefault(); tweak(it => { it.r = ((it.r || 0) + (e.deltaY > 0 ? 6 : -6)) % 360; }); }, { passive: false });
+      el.addEventListener("keydown", e => {
+        if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); const a = own(); a[cur].set.stk.splice(idx(), 1); write(a); rerender(); }
+        else if (e.key === "+" || e.key === "=") tweak(it => { it.s = Math.min(40, (it.s || 10) + 1.5); });
+        else if (e.key === "-") tweak(it => { it.s = Math.max(4, (it.s || 10) - 1.5); });
+        else if (e.shiftKey && /Arrow(Left|Right)/.test(e.key)) { e.preventDefault(); tweak(it => { it.r = (it.r || 0) + (e.key === "ArrowLeft" ? -6 : 6); }); }
+      });
+    });
+  }
   function bindInsert(sheet, fr) {
     sheet.querySelectorAll("[data-ins]").forEach(b => b.onclick = () => {
       const k = b.dataset.ins;
       if (k === "photo") { const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = () => { const f = inp.files[0]; if (f) insertBlob(f, f.name.replace(/\.[^.]+$/, "")); }; inp.click(); return; }
       if (k === "yandex") { const q = $("#sxQ"); if (q) { q.scrollIntoView({ block: "center", behavior: "smooth" }); q.focus(); q.select(); toast("Введите запрос и щёлкните по картинке — она встанет на слайд."); } return; }
       if (k === "button") { linkDialog(null, md => insertMd(md)); return; }
+      if (k === "video") { openVideo(cur); return; }
+      if (k === "sticker") { stickerPicker(b); return; }
       insertMd(SNIP[k]);
     });
     sheet.querySelectorAll("[data-new]").forEach(b => b.onclick = () => {
       const k = b.dataset.new, [t, body] = NEWBODY[k], a = slides();
-      a.splice(cur + 1, 0, { title: t, level: k === "title" ? 1 : 2, body, notes: "", set: { layout: k === "title" ? "section" : k } }); cur++; selBlock = -1; write(a); rerender();
+      const set = k === "board" ? { layout: "one", kind: "board" } : k === "video" ? { layout: "video", kind: "video" } : { layout: k === "title" ? "section" : k };
+      if (k === "video") { openVideo(null); return; }
+      a.splice(cur + 1, 0, { title: t, level: k === "title" ? 1 : 2, body, notes: k === "board" ? "Запись на доске: дата, «Классная работа», тема, опорная схема, примеры с выделенной орфограммой." : "", set }); cur++; selBlock = -1; write(a); rerender();
     });
     const play = $("#sxPlay"); if (play) play.onclick = () => exportHtml({ open: true }).catch(e => toast("Не получилось: " + (e.message || e)));
     // выбор блока щелчком
@@ -821,6 +888,8 @@ const SlideEditor = (() => {
     const toData = async src => { try { const b = src.startsWith("idb:") ? await Store.get("images", src.slice(4)) : await (await fetch(src, { mode: "cors" })).blob(); return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); }); } catch { return src.startsWith("idb:") ? "" : src; } };
     const box = document.createElement("div");
     box.innerHTML = arr.map((s, i) => `<section class="deck-s">${slideHtml(s, i)}</section>`).join("");
+    // видеослайд без ссылки в показ не попадает; пустой плеер на обычном слайде убирается
+    box.querySelectorAll(".sx-video.empty").forEach(v => { const sec = v.closest(".deck-s"); if (sec?.querySelector(".sx.k-video, .sx.lay-video")) sec.remove(); else v.remove(); });
     box.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
     await new Promise(r => setTimeout(r, 300));
     // в показе пустых мест «Нет картинки» не бывает: незаполненная картинка убирается
@@ -836,8 +905,10 @@ ${anCss(anim())}
 ${ixCss(anim())}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
-</style></head><body class="theme-${theme()} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
-<script>const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.classList.add('t'+(j%4)));
+${trCss()}
+</style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
+<script>${window.VideoKit ? VideoKit.SHOW_JS : ""}
+const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.classList.add('t'+(j%4)));
 document.querySelectorAll('.lay-title').forEach(t=>{const im=t.closest('.deck-s').querySelector('figure.pic img,img.sx-bgimg');if(im&&im.src){t.classList.add('has-cut');t.style.setProperty('--cut','url("'+im.src+'")');}});
 const IX=${anim().ix ? 1 : 0},STEP=${anim().step ? 1 : 0};
 const isTerm=li=>{if(li.querySelector('img,table,a'))return null;const t=li.textContent.trim(),k=t.indexOf(' — ');if(k<2||k>44||t.length-k<3)return null;const a=t.slice(0,k);if(a.split(' ').length>6||a!==a.replace(/[.!?:;]/g,''))return null;return [a,t.slice(k+3)];};
@@ -871,6 +942,34 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
 .an-deco .deck::after{width:26vmin;height:26vmin;right:-6vmin;bottom:-8vmin;background:radial-gradient(circle,rgba(255,215,120,.22),rgba(255,215,120,0) 70%);animation-delay:-4s}
 .an-cut .deck-s .lay-title.has-cut .sx-title{background:var(--cut) center/cover;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-stroke:.08cqw rgba(0,0,0,.35);font-weight:900;filter:saturate(1.25) contrast(1.15)}
 @media (prefers-reduced-motion:reduce){.deck-s.on,.deck-s.on *{animation:none!important}}`;
+  }
+  /* Переходы под характер темы: перелистывание страницы, падающий лист, диафрагма, туман, мел */
+  const TRANS = { night: "dream", haze: "blur", botanic: "slide", salon: "page", poster: "push", sketch: "slide", collage: "drop", museum: "dark", mystic: "iris", board: "wipe" };
+  function trCss() {
+    if (anim().mode === "none") return "";
+    const t = anim().mode === "bright" ? .9 : 1.1;
+    return `@keyframes trPage{from{opacity:.2;transform:perspective(1600px) rotateY(-70deg)}to{opacity:1;transform:none}}
+@keyframes trDrop{0%{opacity:0;transform:translateY(-6%) rotate(-3deg)}70%{opacity:1;transform:translateY(.6%) rotate(.6deg)}100%{transform:none}}
+@keyframes trIris{from{clip-path:circle(0% at 50% 50%)}to{clip-path:circle(75% at 50% 50%)}}
+@keyframes trBlur{from{opacity:0;filter:blur(18px) brightness(1.2)}to{opacity:1;filter:none}}
+@keyframes trDream{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes trWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes trPush{from{transform:translateY(100%)}to{transform:none}}
+@keyframes trSlide{from{opacity:0;transform:translateX(8%)}to{opacity:1;transform:none}}
+@keyframes trDark{0%{opacity:0;filter:brightness(0)}100%{opacity:1;filter:none}}
+@keyframes stkPop{0%{scale:0;opacity:0}70%{scale:1.15;opacity:1}100%{scale:1}}
+.tr-page .deck-s.on{transform-origin:0 50%;animation:trPage ${t}s cubic-bezier(.2,.8,.2,1) both}
+.tr-drop .deck-s.on{animation:trDrop ${t}s cubic-bezier(.2,.8,.2,1) both}
+.tr-iris .deck-s.on{animation:trIris ${t * 1.1}s ease-in-out both}
+.tr-blur .deck-s.on{animation:trBlur ${t}s ease both}
+.tr-dream .deck-s.on{animation:trDream ${t * 1.2}s ease both}
+.tr-wipe .deck-s.on{animation:trWipe ${t}s cubic-bezier(.6,0,.2,1) both}
+.tr-push .deck-s.on{animation:trPush ${t * .8}s cubic-bezier(.2,.8,.2,1) both}
+.tr-slide .deck-s.on{animation:trSlide ${t}s cubic-bezier(.2,.8,.2,1) both}
+.tr-dark .deck-s.on{animation:trDark ${t * 1.2}s ease both}
+.deck-s.on .stk{animation:stkPop .7s ${t * .7}s cubic-bezier(.2,.8,.2,1.4) both}
+.deck-s.on .sx-deco{animation:anFade 1.2s ease both}
+@media (prefers-reduced-motion:reduce){.deck-s.on,.deck-s.on .stk{animation:none!important}}`;
   }
   /* Интерактив в показе: карточки-перевороты, объём при наведении, подсветка за курсором, прогресс, пошаговый показ */
   function ixCss(A) {
@@ -954,6 +1053,11 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const s = pptx.addSlide();
     const bgc = hex(getComputedStyle(sx).backgroundColor) || "FFFFFF";
     s.background = { color: bgc };
+    // художественный фон темы — картинкой под всем остальным (текст поверх остаётся редактируемым)
+    if (sx.querySelector(".sx-deco") && window.ThemeKit) {
+      const lay = autoLayout(sl, i), bgData = await ThemeKit.rasterSvg(ThemeKit.svg(theme(), i, lay === "title" || lay === "section" ? lay : ""), 1280, 720, "image/jpeg");
+      if (bgData) s.addImage({ data: bgData, x: 0, y: 0, w: PX / IN, h: PY / IN });
+    }
     const addImg = async (img, fig) => {
       const b = box(img); if (b.w < .05 || b.h < .05) return;
       const o = Media.parseOpts ? { z: fig?.dataset.z, x: fig?.dataset.x, y: fig?.dataset.y } : {};
@@ -985,6 +1089,15 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     }
     const body = sx.querySelector(".sx-body");
     for (const blk of body.children) {
+      if (blk.matches(".sx-video")) {
+        const b = box(blk), v = sl.set.video || {}, yt = window.VideoKit && VideoKit.parse(v.u)?.kind === "youtube";
+        if (!v.u) continue;
+        if (yt) { try { s.addMedia({ type: "online", link: `https://www.youtube.com/embed/${VideoKit.parse(v.u).id}${VideoKit.sec(v.s) ? "?start=" + VideoKit.sec(v.s) : ""}`, x: b.x, y: b.y, w: b.w, h: b.h }); continue; } catch { } }
+        s.addShape(pptx.ShapeType.rect, { x: b.x, y: b.y, w: b.w, h: b.h, fill: { color: "111111" }, line: { type: "none" } });
+        const th = VideoKit.thumb(v); if (th) { const d = await imgCanvas(th, {}, b.pw, b.ph, "cover").catch(() => null); if (d) s.addImage({ data: d, x: b.x, y: b.y, w: b.w, h: b.h, transparency: 40 }); }
+        s.addText([{ text: "▶  Смотреть фрагмент", options: { bold: true, fontSize: 28, color: "FFFFFF", hyperlink: { url: VideoKit.watchUrl(v), tooltip: "Открыть видео" }, breakLine: true } }, { text: `${v.c || ""}${VideoKit.span(v) ? " · " + VideoKit.span(v) : ""}`, options: { fontSize: 16, color: "DDDDDD" } }], { x: b.x, y: b.y, w: b.w, h: b.h, align: "center", valign: "middle", fontFace: "Arial" });
+        continue;
+      }
       if (blk.matches("figure.pic")) { const img = blk.querySelector("img"); if (img) await addImg(img, blk); const cap = blk.querySelector("figcaption"); if (cap && cap.textContent.trim() && getComputedStyle(cap).display !== "none") text(cap); continue; }
       if (blk.matches(".tblwrap")) {
         const t = blk.querySelector("table"), b = box(t), st = textStyle(t.querySelector("td,th") || t);
@@ -1033,7 +1146,15 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       const b = box(a), cs = getComputedStyle(a), t = navTarget(a.getAttribute("href"), i, total);
       s.addText([{ text: cs.textTransform === "uppercase" ? a.textContent.trim().toUpperCase() : a.textContent.trim(), options: t !== null ? { hyperlink: { slide: t + 1, tooltip: "Перейти" } } : {} }], { x: b.x, y: b.y, w: b.w * 1.06 + 0.06, h: b.h, shape: pptx.ShapeType.roundRect, rectRadius: 0.2, fill: { color: hex(cs.backgroundColor) || "7A0F1C" }, line: cs.outlineStyle !== "none" ? { color: hex(cs.outlineColor) || "7A0F1C", width: 1.5 } : { type: "none" }, color: hex(cs.color) || "FFFFFF", bold: true, fontFace: textStyle(a).fontFace, fontSize: Math.round(parseFloat(cs.fontSize) * 0.75), align: "center", valign: "middle", margin: 2 });
     }
-    if (sl.notes) s.addNotes(sl.notes);
+    // стикеры — картинками (в PowerPoint их можно двигать и поворачивать)
+    if (window.ThemeKit) for (const el of sx.querySelectorAll(".stk")) {
+      const svgEl = el.querySelector("svg"); if (!svgEl) continue;
+      const st0 = el.style.transform; el.style.transform = "none"; const b = box(el); el.style.transform = st0;
+      const xml = new XMLSerializer().serializeToString(svgEl).replace("<svg ", '<svg width="400" height="400" ');
+      const d = await ThemeKit.rasterSvg(xml, 400, 400);
+      if (d) s.addImage({ data: d, x: b.x, y: b.y, w: b.w, h: b.h, rotate: parseFloat((st0.match(/-?[\d.]+/) || [0])[0]) || 0 });
+    }
+    if (sl.notes || sl.set.video?.u) s.addNotes([sl.notes, sl.set.video?.u ? `Видео: ${window.VideoKit ? VideoKit.watchUrl(sl.set.video) : sl.set.video.u} ${window.VideoKit ? VideoKit.span(sl.set.video) : ""}` : ""].filter(Boolean).join("\n"));
   }
   async function toPptxBlob(md, title) {
     const pptx = new window.PptxGenJS(); pptx.layout = "LAYOUT_WIDE"; pptx.title = title || "";
@@ -1050,7 +1171,8 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
   async function addTransitions(blob) {
     if (!window.JSZip) await loadScript("jszip");
     const z = await window.JSZip.loadAsync(blob);
-    const kinds = ['<p:fade/>', '<p:push dir="u"/>', '<p:wipe dir="r"/>', '<p:fade thruBlk="0"/>'];
+    const byTheme = { night: ['<p:fade/>'], haze: ['<p:dissolve/>'], botanic: ['<p:cover dir="l"/>'], salon: ['<p:fade/>', '<p:cover dir="l"/>'], poster: ['<p:push dir="u"/>'], sketch: ['<p:wipe dir="r"/>', '<p:push dir="l"/>'], collage: ['<p:push dir="d"/>', '<p:cover dir="d"/>'], museum: ['<p:fade thruBlk="1"/>'], mystic: ['<p:circle/>', '<p:fade/>'], board: ['<p:wipe dir="r"/>'] };
+    const kinds = byTheme[theme()] || ['<p:fade/>', '<p:push dir="u"/>', '<p:wipe dir="r"/>', '<p:fade thruBlk="0"/>'];
     const names = Object.keys(z.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n));
     for (const n of names) {
       let x = await z.file(n).async("string"); if (/<p:transition/.test(x)) continue;
@@ -1067,6 +1189,6 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     Ls.docs.slides = md; Ls.slidesFitted = false; cur = 0;
     $("#md").value = md; saveLesson(Ls); rerender();
   }
-  return { render, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  return { render, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;

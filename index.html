@@ -557,6 +557,10 @@ window.UCHU_SITE = {
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
           </div>
         </div>
+        <div class="field th-field" id="thField"><span class="lbl">Оформление презентации</span>
+          <select id="slTheme" aria-label="Оформление презентации"><option value="auto">✨ Авто — по теме урока</option></select>
+          <span class="small" id="slThemeWhy"></span>
+        </div>
         <details class="field method-blocks" id="methodBlocks"><summary><span class="lbl">Методические блоки</span> <span class="small" id="mbLock">для методистов</span></summary>
           <div class="mb-row"><label for="xCtrl">🧪 Контроль</label><select id="xCtrl"><option value="">не нужен</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select></div>
           <div class="mb-row mb-sub"><label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> ключи и критерии</label></div>
@@ -3804,6 +3808,7 @@ async function buildWithAi(L, p, type, formats) {
         const cmd = techOf(L, p, type);
         rememberVerbatim(L, p);
         state.gen.pct = 20; updateProgress();
+        autoTheme(L, p);
         const r = await Deck.build(cmd, p, type, { ai: true, signal: state.gen.ctl.signal });
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
         L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => r.md);
@@ -3889,7 +3894,7 @@ function buildDocNoAi(f, L, p, type) {
   if (EXTRA_DOCS.includes(f)) { techOf(L, p, type); return Engine.extra(f, p, type, state.materials, { ...state.extra, ctrl: state.extra.ctrl || "self" }); }
   const cmd = techOf(L, p, type);
   rememberVerbatim(L, p);
-  if (window.Deck) { const cards = Deck.outline(cmd, p, type); L.deckOutline = cards; return Deck.toMarkdown(cards); }
+  if (window.Deck) { autoTheme(L, p); const cards = Deck.outline(cmd, p, type); L.deckOutline = cards; return Deck.toMarkdown(cards); }
   return Engine.slidesFromConspect(cmd, p, type);
 }
 /* v5.4: для презентации «как в Gamma» запоминаем дословные тексты: упражнения целиком и стихотворение по строфам */
@@ -4016,6 +4021,12 @@ function renderEmpty() {
 }
 let markedReady = null;
 function ensureMarked() { return markedReady || (markedReady = Promise.all([loadScript("marked"), loadScript("purify")]).then(() => window.marked.setOptions({ gfm: true, breaks: true }))); }
+/* Оформление презентации: выбранное в конструкторе или «Авто» по теме урока (ручной выбор в редакторе не трогаем) */
+function autoTheme(L, p) {
+  if (!window.ThemeKit || (L.slideTheme && L.slideThemeAuto === false)) return;
+  let want = "auto"; try { want = localStorage.getItem("uchu:theme") || "auto"; } catch { }
+  L.slideTheme = want !== "auto" ? want : ThemeKit.auto(p); L.slideThemeAuto = want === "auto"; L.slideFonts = null;
+}
 function mdToHtml(md) {
   const BL = "BLANKFIELDTOKEN";
   const pre = Media.preprocess(md.replace(/\[ ?_{3,} ?\]/g, BL));
@@ -4142,7 +4153,7 @@ const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; s
    =================================================================== */
 async function saveLesson(L) {
   if (!L || L.sample) return;
-  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, slideTheme: L.slideTheme || null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null };
+  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null };
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }
@@ -4427,6 +4438,13 @@ function bind() {
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
+  { const sel = $("#slTheme"); if (sel && window.ThemeKit && window.SlideEditor) {
+    sel.innerHTML += Object.entries(ThemeKit.META).map(([k, v]) => `<option value="${k}">${v.name} — ${v.desc}</option>`).join("") + Object.entries(SlideEditor.THEMES).filter(([k]) => !ThemeKit.has(k)).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+    try { sel.value = localStorage.getItem("uchu:theme") || "auto"; } catch { }
+    const why = () => { const t = $("#topic")?.value || ""; $("#slThemeWhy").textContent = sel.value === "auto" && t.trim() ? "сейчас: " + ThemeKit.why({ topic: t, subject: state.subject }) : ""; };
+    sel.onchange = () => { try { localStorage.setItem("uchu:theme", sel.value); } catch { } why(); };
+    $("#topic")?.addEventListener("input", why); why();
+  } }
   $("#grade").onchange = () => { state.grade = +$("#grade").value; syncControls(); readForm(); refreshTopics(); };
   $("#control").onchange = () => { state.control = $("#control").value; syncControls(); readForm(); };
   ["#wishes", "#duration", "#deep"].forEach(s => $(s).addEventListener("change", readForm));
@@ -4511,6 +4529,8 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/lessonnotes.js"></script>
 <script src="js/tutor.js"></script>
 <script src="js/mnemo.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/video.js"></script>
 <script src="data/promo.js"></script>
 <script src="js/access.js"></script>
 <script src="js/deck.js"></script>

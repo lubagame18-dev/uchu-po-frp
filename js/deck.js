@@ -32,7 +32,8 @@ const Deck = (() => {
     title: "Титульный", author: "Автор (портрет)", goal: "Цель урока", steps: "Шаги / план", cards: "Карточки с тезисами",
     list: "Список", big: "Крупный вопрос", quote: "Цитата (дословно)", poem: "Стихотворение (дословно)",
     task: "Упражнение (дословно)", rule: "Правило (дословно)", hw: "Домашнее задание", image: "Картинка во весь слайд",
-    fragment: "Фрагмент текста (дословно)", glossary: "Словарная работа", terms: "Работа с терминами", table: "Таблица для заполнения", concl: "Выводы"
+    fragment: "Фрагмент текста (дословно)", glossary: "Словарная работа", terms: "Работа с терминами", table: "Таблица для заполнения", concl: "Выводы",
+    board: "На доске (что записать)", mnemo: "Как запомнить", flip: "Проверь себя (карточки)", video: "Видеофрагмент", section: "Разделитель"
   };
   const VERBATIM = new Set(["quote", "poem", "task", "rule", "fragment"]);
   function opts() { let o = {}; try { o = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { } return { amount: AMOUNT[o.amount] ? o.amount : "medium", images: IMAGES[o.images] ? o.images : "key" }; }
@@ -200,7 +201,66 @@ const Deck = (() => {
     if (c.hw.length) add({ kind: "hw", title: "Домашнее задание", points: c.hw.slice(0, 4) });
     return cards;
   }
-  function outline(md, p, type, o = opts()) {
+  /* ---------- дополнения ко всем презентациям: доска, запоминалки, видео, разделители ---------- */
+  const MONTH = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+  const DAY = ["первое", "второе", "третье", "четвёртое", "пятое", "шестое", "седьмое", "восьмое", "девятое", "десятое", "одиннадцатое", "двенадцатое", "тринадцатое", "четырнадцатое", "пятнадцатое", "шестнадцатое", "семнадцатое", "восемнадцатое", "девятнадцатое", "двадцатое"];
+  function dateWords(d = new Date()) { const n = d.getDate(); const w = n <= 20 ? DAY[n - 1] : n < 30 ? "двадцать " + DAY[n - 21] : n === 30 ? "тридцатое" : "тридцать первое"; return capF(w) + " " + MONTH[d.getMonth()]; }
+  // орфограмма мелом: заглавная буква в слове-примере («предлАгать») → выделенная строчная
+  const chalk = s => String(s).replace(/([а-яё]*)([А-ЯЁ]{1,2})([а-яё]+)/g, (m, a, b, c) => a ? `${a}**${b.toLowerCase()}**${c}` : m);
+  function boardCard(p, cards, RK, MN) {
+    const lit = p.subject === "lit", core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
+    const pts = [];
+    if (lit) {
+      const prob = cards.find(c => c.kind === "big" && /проблемн/i.test(c.title)); if (prob?.lead) pts.push(`Вопрос урока: *${md1(prob.lead)}*`);
+      const terms = cards.flatMap(c => c.kind === "terms" ? c.items.map(t => t.term) : c.kind === "glossary" ? c.items.map(g => g.word) : []).slice(0, 5);
+      if (terms.length) pts.push(`Ключевые слова: **${terms.join(", ")}**`);
+      if (!prob) { const q = cards.find(c => c.kind === "big" && /\?$/.test(c.lead || "")); if (q) pts.push(`Вопрос урока: *${md1(q.lead)}*`); }
+      const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : ""; if (author) pts.unshift(`Автор: **${author}**`);
+      const route = cards.find(c => c.kind === "steps" && /маршрут|план/i.test(c.title));
+      if (route?.points?.length) pts.push("План: " + route.points.slice(0, 5).map(x => md1(x).replace(/\.$/, "")).join(" → "));
+      pts.push("Вывод: _______________");
+    } else {
+      if (RK?.algo?.steps?.length) RK.algo.steps.slice(0, 5).forEach((x, k) => { let t = x.replace(/\s*\(.*?\)/g, "").trim(); if (t.length > 90) t = t.split(/[;:—]/)[0].trim(); pts.push(t); });
+      else if (RK?.theory?.length) RK.theory.slice(0, 3).forEach(t => pts.push(plainMd(t).slice(0, 120)));
+      if (MN?.quiz?.length) pts.push("Примеры: " + MN.quiz.slice(0, 3).map(([, a]) => chalk(a.split(":")[0].trim())).join(", "));
+    }
+    return { kind: "board", title: lit ? (p.topic.match(/«[^»]+»/) || [p.topic])[0] : capF(core), points: [`${dateWords()}.`, "Классная работа.", ...pts], notes: "Запись на доске и в тетради: число, «Классная работа», тема, опорная схема, примеры (орфограмма выделена). Дату поправьте под день урока." };
+  }
+  function enrich(cards, p, o) {
+    const lit = p.subject === "lit", RK = !lit ? p.plan?.rukit : null;
+    let n = cards.length;
+    const at = (i, card) => { cards.splice(Math.max(0, Math.min(cards.length, i)), 0, { id: "x" + (++n), on: true, ...card }); };
+    const idx = k => cards.findIndex(c => c.kind === k);
+    // запоминалки для литературы (тропы, размеры, композиция…) — после терминов/фрагментов
+    const MN = window.Mnemo ? Mnemo.find(p.topic, RK?.algo?.name || "", p.subject) : null;
+    if (lit && MN && !cards.some(c => c.title === "Как запомнить")) {
+      const before = idx("concl") >= 0 ? idx("concl") : idx("hw") >= 0 ? idx("hw") : cards.length;
+      at(before, { kind: "list", title: "Как запомнить", points: MN.tips.map(plainMd), notes: "Приёмы запоминания — по школьным учебникам. Попросите учеников придумать свой пример." });
+      at(before + 1, { kind: "list", title: "Проверь себя: переверни карточку", points: MN.quiz.map(([g, a]) => `${g} — ${a}`), notes: "В показе карточки переворачиваются по щелчку." });
+    }
+    // доска — сразу после цели
+    const g = idx("goal");
+    at(g >= 0 ? g + 1 : 1, boardCard(p, cards, RK, MN));
+    // видео — для литературы: экранизация, спектакль или чтение актёром; место — после текста, перед выводами
+    if (lit) {
+      const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "", author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "";
+      const last = cards.map(c => c.kind).lastIndexOf("fragment"), pos = last >= 0 ? last + 1 : [idx("concl"), cards.findIndex(c => /^(итог|выводы|творческ)/i.test(c.title || "")), idx("hw")].find(x => x >= 0) ?? cards.length;
+      const verse = !!p.plan?.analysis?.verse;
+      at(pos, { kind: "video", title: verse ? "Слушаем: читает актёр" : "Смотрим фрагмент", vq: `${work || p.topic} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} ${verse ? "читает актёр" : "экранизация фрагмент"}`.replace(/\s+/g, " ").trim(),
+        points: verse ? ["Совпало ли прочтение актёра с вашим?", "Какие слова он выделил голосом? Почему?"] : ["Что режиссёр показал иначе, чем вы представляли при чтении?", "Какие детали стали главными в кадре?"],
+        notes: "Найдите фрагмент: щёлкните по плееру → кнопки поиска RuTube / VK / YouTube / Культура.РФ; вставьте ссылку, начало и конец. Без ссылки слайд в показ не попадёт." });
+    }
+    // разделители между большими частями (если слайдов много) — дают паузу и ритм
+    if (cards.length >= 12) {
+      const first = cards.findIndex(c => ["fragment", "task", "poem"].includes(c.kind));
+      if (first > 2) at(first, { kind: "section", title: lit ? "Читаем и думаем" : "Практика", points: [lit ? "Работа с текстом" : "Применяем правило"] });
+      const fin = idx("concl") >= 0 ? idx("concl") : idx("hw");
+      if (fin > 4 && cards[fin - 1]?.kind !== "section") at(fin, { kind: "section", title: "Подведём итоги", points: [] });
+    }
+    return cards;
+  }
+  function outline(md, p, type, o = opts()) { return enrich(outline0(md, p, type, o), p, o); }
+  function outline0(md, p, type, o = opts()) {
     curTopic = p.topic; curKit = p.plan?.kit || null;
     if (p.subject === "lit" && p.plan?.kit?.fragments?.length) return litOutline(md, p, type, o);
     const amt = AMOUNT[o.amount] || AMOUNT.medium, lit = p.subject === "lit";
@@ -365,6 +425,9 @@ const Deck = (() => {
       case "table": set.layout = "one"; body = `| ${card.head.map(md1).join(" | ")} |\n|${card.head.map(() => "---").join("|")}|\n${card.rows.map(r => `| ${md1(r[0])} |${" |".repeat(card.head.length - 1)}`).join("\n")}`; break;
       case "concl": set.layout = "list"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "image": set.layout = "image"; break;
+      case "board": { set.layout = "one"; const pp = card.points || []; body = `${md1(pp[0] || "")}  \n${md1(pp[1] || "")}` + (pp.length > 2 ? "\n\n" + pp.slice(2).map(x => `- ${md1(x)}`).join("\n") : ""); break; }
+      case "video": set.layout = "video"; set.vq = card.vq || card.title; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
+      case "section": level = 1; set.layout = "section"; body = (card.points || []).join("\n\n"); break;
       default: body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
     }
     if (img && card.kind !== "image") { set.acc = card.acc || "right"; body = `${img}\n\n${body}`.trim(); }
@@ -409,10 +472,19 @@ ${JSON.stringify(payload)}`;
     } catch (e) { console.warn("Deck AI", e); return cards; }
   }
 
+  /* Запоминалки от нейросети — для тем, которых нет в готовом списке */
+  async function aiMnemo(cards, p) {
+    if (cards.some(c => c.title === "Как запомнить") || !window.Mnemo?.ai) return cards;
+    const MN = await Mnemo.ai(p.topic, p.grade, p.subject); if (!MN) return cards;
+    const i = cards.findIndex(c => ["concl", "hw"].includes(c.kind)), pos = i >= 0 ? i : cards.length;
+    const add = [{ id: "m1", on: true, kind: "list", title: "Как запомнить", points: MN.tips.map(plainMd), notes: "Приёмы предложены нейросетью по школьной методике — проверьте перед уроком." }];
+    if (MN.quiz.length) add.push({ id: "m2", on: true, kind: "list", title: "Проверь себя: переверни карточку", points: MN.quiz.map(([g, a]) => `${g} — ${a}`), notes: "В показе карточки переворачиваются по щелчку." });
+    cards.splice(pos, 0, ...add); return cards;
+  }
   /* ---------- сборка ---------- */
   async function build(md, p, type, { ai = false, signal, o = opts() } = {}) {
     let cards = outline(md, p, type, o);
-    if (ai) cards = await condenseAi(cards, p, o.amount, signal);
+    if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); }
     return { cards, md: toMarkdown(cards) };
   }
 
@@ -432,6 +504,7 @@ ${JSON.stringify(payload)}`;
           <button class="btn sm ghost" id="dkRe" title="Заново составить план по конспекту с выбранными настройками">Составить план заново</button>
           <span class="small" id="dkCount"></span>
         </div>
+        ${window.ThemeKit ? `<details class="dk-theme" open><summary><b>Оформление</b> — <span id="dkThName"></span></summary><div class="th-pick" id="dkTh"></div></details>` : ""}
         <ol class="deck-cards" id="dkList"></ol>
         <div class="mat-row"><button class="btn sm ghost" id="dkAdd">+ Карточка</button></div>
         <div class="pk-foot"><button class="btn flame" id="dkBuild">Собрать презентацию</button>${window.UCHU?.configured?.() ? `<label class="check"><input type="checkbox" id="dkAi"> Сжать формулировки нейросетью (дословные блоки не трогает)</label>` : ""}<span class="small" id="dkMsg">Текущие слайды заменятся; вернуть их можно кнопкой ↶.</span></div>
@@ -473,6 +546,18 @@ ${JSON.stringify(payload)}`;
       });
     };
     draw();
+    // оформление: «Авто» подбирает по произведению/разделу; можно выбрать до сборки
+    let thPick = L.slideThemeAuto === false && L.slideTheme ? L.slideTheme : "auto";
+    const drawTh = () => {
+      const box = $("#dkTh", m); if (!box || !window.SlideEditor) return;
+      const autoK = ThemeKit.auto(p);
+      const sample = { title: (p.topic.match(/«[^»]+»/) || [p.topic])[0].slice(0, 60), level: 1, body: `${p.grade} класс`, notes: "", set: { layout: "title", afs: .8 } };
+      const opt = (k, label, sub) => `<button type="button" data-th="${k}" class="${thPick === k ? "on" : ""}">${SlideEditor.slideHtml(sample, 0, { th: k === "auto" ? autoK : k })}<span>${label}</span><small>${sub}</small></button>`;
+      box.innerHTML = opt("auto", "✨ Авто: " + ThemeKit.META[autoK].name, "по теме урока") + Object.entries(ThemeKit.META).map(([k, v]) => opt(k, v.name, v.desc)).join("") + Object.entries(SlideEditor.THEMES).filter(([k]) => !ThemeKit.has(k)).map(([k, v]) => opt(k, v, "строгая")).join("");
+      $("#dkThName", m).textContent = thPick === "auto" ? `авто: ${ThemeKit.why(p)}` : (ThemeKit.META[thPick]?.name || SlideEditor.THEMES[thPick] || "");
+      box.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { thPick = b.dataset.th; drawTh(); });
+    };
+    drawTh();
     const cur = () => ({ amount: $("#dkAmt", m).value, images: $("#dkImg", m).value });
     $("#dkAmt", m).onchange = $("#dkImg", m).onchange = () => saveOpts(cur());
     $("#dkRe", m).onclick = () => { saveOpts(cur()); cards = outline(L.docs.conspect || "", p, type, cur()); draw(); };
@@ -481,6 +566,8 @@ ${JSON.stringify(payload)}`;
       const btn = $("#dkBuild", m); btn.disabled = true; $("#dkMsg", m).textContent = "Собираю слайды и подбираю картинки в Яндексе…";
       saveOpts(cur());
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Нейросеть сжимает формулировки…"; cards = await condenseAi(cards, p, cur().amount); }
+      if (window.ThemeKit && window.SlideEditor) { const k = thPick === "auto" ? ThemeKit.auto(p) : thPick; SlideEditor.applyTheme(k, { auto: thPick === "auto" }); }
+      if ($("#dkAi", m)?.checked) cards = await aiMnemo(cards, p).catch(() => cards);
       L.deckOutline = cards;
       let md = toMarkdown(cards);
       md = await Media.autoFill(md).catch(() => md);
