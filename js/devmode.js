@@ -158,11 +158,13 @@ const Dev = (() => {
     return j;
   }
   function secKeys(b) {
-    b.innerHTML = `<section class="dev-card"><h2>Ключи ИИ (DeepSeek)</h2><p class="small">Загружаю…</p></section>`;
-    const box = b.firstElementChild;
+    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card"><h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">Загружаю…</p></section>`;
+    ownKeyCard(b.querySelector("#dvOwn"));
+    const box = b.lastElementChild;
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
     const draw = (j, note) => {
-      box.innerHTML = `<h2>Ключи ИИ (DeepSeek)</h2>
+      box.innerHTML = `<h2>Общие ключи ИИ (DeepSeek) <span class="tag red">для всех учителей</span></h2>
+        <div class="key-warn"><b>Внимательно: это общий ключ.</b> Им пользуются все учителя на тарифах с ИИ, расход идёт с баланса этого аккаунта DeepSeek. Свой ключ для личной работы сюда не вставляйте — для него блок «Личный ключ» выше.</div>
         <p class="small">Заполните столько ячеек, сколько у вас аккаунтов. Запросы учителей идут по кругу; если аккаунт не отвечает (закончились деньги, лимит, сбой) — запрос сам переходит на следующий, учитель ошибки не видит. Ключ после сохранения хранится только на сервере — здесь видны лишь его начало и конец.</p>
         ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
         <div class="key-grid">${j.slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
@@ -177,11 +179,31 @@ const Dev = (() => {
       box.querySelectorAll(".key-slot").forEach(f => {
         const slot = +f.dataset.slot;
         const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await keysApi(body); draw(r, r.test ? { ...r.test, message: `Аккаунт ${slot}: ${r.test.message}` } : (body.action === "save" ? { ok: true, message: `Аккаунт ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Аккаунт ${slot} очищен.` } : null)); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
-        f.onsubmit = e => { e.preventDefault(); run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
+        f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm("Это ОБЩИЙ ключ: им будут пользоваться все учителя на тарифах с ИИ, деньги спишутся с этого аккаунта. Сохранить?")) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
         f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить аккаунт ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
       });
     };
-    keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Ключи ИИ (DeepSeek)</h2><p class="small">${esc(e.message)}</p>`; });
+    keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">${esc(e.message)}</p>`; });
+  }
+  /* Личный ключ разработчика: только в этом браузере, только для своей работы (собрать урок с ИИ, проверить, доработать) */
+  function ownKeyCard(box) {
+    const draw = msg => {
+      const c = window.AI ? AI.cfg() : null, list = c ? AI.chain(c) : [];
+      box.innerHTML = `<h2>Личный ключ <span class="tag ok">только для вас</span></h2>
+        <p class="small">Хранится только в этом браузере, учителя им не пользуются. Нужен, чтобы вы сами собирали уроки с ИИ, проверяли и дорабатывали их. Подойдёт ключ DeepSeek, OpenRouter, Gemini и других — сайт сам узнает сервис.</p>
+        ${list.length ? `<p><b>Подключено:</b> ${list.map(id => esc(AI.P[id]?.name || id)).join(" → ")}</p>` : `<p class="small"><b>Личный ключ ещё не подключён.</b></p>`}
+        <div class="row-btn"><input type="text" class="secret" id="okKey" placeholder="Ваш личный ключ API" autocomplete="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true"><button class="btn sm flame" id="okGo" type="button">Подключить</button><button class="btn sm ghost" id="okAll" type="button">Все настройки нейросети</button></div>
+        <p class="small" id="okSt" role="status">${esc(msg || "")}</p>`;
+      const $b = q => box.querySelector(q);
+      $b("#okAll").onclick = () => window.AI?.open();
+      $b("#okGo").onclick = async () => {
+        const k = $b("#okKey").value.trim(), st = $b("#okSt"); if (!k) { st.textContent = "Вставьте ключ."; return; }
+        $b("#okGo").disabled = true;
+        try { const r = await AI.connectKey(k, "", t => (st.textContent = t)); draw(`${r.ok ? "✓" : "✗"} ${r.name}, модель ${r.model}: ${r.text}`); }
+        catch (e) { st.textContent = "✗ " + (e.message || e); $b("#okGo").disabled = false; }
+      };
+    };
+    draw();
   }
   /* Материалы, которые учителя прикрепили у себя: приходят через облако, видны только автору сайта.
      «Встроить» — материал попадает в «Загружено вами», дальше «Опубликовать для всех учителей». */

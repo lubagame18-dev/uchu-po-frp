@@ -601,3 +601,7 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 .pc-code { font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .04em; }
 #dvPromo .row-btn { flex-wrap: wrap; gap: 6px; }
 #dvPromo .row-btn input { flex: 1 1 160px; min-width: 0; }
+.key-warn { margin: 8px 0 10px; padding: 10px 12px; border: 2px solid #e5484d; border-radius: 12px; background: #fff1f1; font-size: 14px; }
+.key-own { border-color: #2f8f5b; }
+.key-own .row-btn { flex-wrap: wrap; gap: 6px; }
+.key-own .row-btn input { flex: 1 1 220px; min-width: 0; }
