@@ -138,6 +138,29 @@ const Account = (() => {
       return p;
     } catch { return null; }
   }
+  /* Карточка тарифа в кабинете: всё, что оплачено и сколько осталось — с самого начала */
+  const TOK = { free: 0, basic: 0, ai: 2000000, pro: 4800000 };
+  function planCard(p) {
+    const plan = p ? (p.plan === "promo" ? "free" : p.plan) : "free";
+    const name = PLAN_NAMES[plan] || plan, dev = window.Access?.isDev?.();
+    const until = p?.paid_until && plan !== "free" ? new Date(p.paid_until) : null, days = until ? Math.max(0, Math.ceil((until - Date.now()) / 864e5)) : null;
+    const hasTok = typeof p?.tokens_limit === "number";
+    const lim = hasTok ? p.tokens_limit : TOK[plan] || 0, used = hasTok ? Math.min(p.tokens_used || 0, Math.max(lim, p.tokens_used || 0)) : 0, left = Math.max(0, lim - used);
+    const pct = lim ? Math.round(used / lim * 100) : 0;
+    const row = (k, v) => `<div class="pc-row"><span>${k}</span><b>${v}</b></div>`;
+    let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promo ? `<span class="tag ok">промокод −50%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
+    h += row("Оплачено до", until ? `${until.toLocaleDateString("ru-RU")} (ещё ${days} дн.)` : plan === "free" ? "бесплатно, без срока" : "—");
+    h += row("Уроки без ИИ", plan === "free" ? `3 в месяц (осталось ${window.Access?.lessonsLeft?.() === Infinity ? "∞" : window.Access?.lessonsLeft?.() ?? 3})` : "без ограничений");
+    if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");
+    else if (!lim) h += row("ИИ сайта", "не входит в тариф");
+    else {
+      h += row("Токенов ИИ в тарифе", kTok(lim)) + row("Потрачено", kTok(used)) + row("Доступно", `${kTok(left)} · ≈ ${Math.floor(left / 40000)} уроков с ИИ`);
+      h += `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div>`;
+      if (!hasTok) h += `<p class="small">Учёт расхода включится после команды в облаке (колонки tokens_used, tokens_limit) — пока показан объём тарифа.</p>`;
+    }
+    h += `<details class="pc-how"><summary class="small">Как распределяются токены</summary><table class="pc-t"><tr><th>Тариф</th><th>Токенов в месяц</th><th>≈ уроков с ИИ</th></tr><tr><td>Бесплатный</td><td>—</td><td>—</td></tr><tr><td>Учитель</td><td>—</td><td>—</td></tr><tr><td>Учитель + ИИ</td><td>2 млн</td><td>50</td></tr><tr><td>Методист</td><td>4,8 млн</td><td>120</td></tr><tr><td>+10 уроков</td><td>+400 тыс.</td><td>+10</td></tr><tr><td>+30 уроков</td><td>+1,2 млн</td><td>+30</td></tr></table><p class="small">Один урок с ИИ (конспект, презентация, лист) ≈ 40 тыс. токенов; правка листа ≈ 10 тыс. Списывается точный расход каждого запроса. Новый месяц тарифа — новый объём; неистраченное при продлении того же тарифа переносится.</p></details></div>`;
+    return h;
+  }
   /* Расход ИИ по тарифу: полоска «потрачено из доступного» */
   const kTok = n => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(".", ",") + " млн" : Math.round(n / 1000) + " тыс.";
   function tokLine(p) {
@@ -174,7 +197,7 @@ const Account = (() => {
       m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; await saveInfo(fields()); pm.textContent = "Сохранено ✓"; };
       m.querySelector("#acPhoto").onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { pm.textContent = "Загружаю фото…"; await saveInfo({ ...fields(), avatar: await shrink(f) }); closeModal(); open(); } catch (er) { pm.textContent = "Не получилось: " + er.message; } };
       m.querySelector("#acNoPhoto")?.addEventListener("click", async () => { await saveInfo({ ...fields(), avatar: null }); closeModal(); open(); });
-      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${S.promo ? " · промокод −50%" : ""}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}${S.promo ? "" : typeof p.tokens_limit === "number" ? tokLine(p) : `<br><b>Уроков с ИИ осталось:</b> ${p.ai_left ?? "—"}`}` : `<b>Тариф:</b> бесплатный`; });
+      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el) el.innerHTML = planCard(p); });
       if (m.querySelector("#acSync")) m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };
       return;
