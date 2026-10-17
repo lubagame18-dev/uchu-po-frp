@@ -840,33 +840,3 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.tk-glow.lay-title .sx-title { background: linear-gradient(100deg, #FFF6DA 30%, #FFFFFF 45%, #F6D77C 55%, #FFF6DA 70%) 0 0 / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 6s linear infinite; }
 .sx-mini .sx.tk-glow .sx-glow, .lp-mini .sx.tk-glow .sx-glow, .th-strip .sx.tk-glow .sx-glow { display: none; }
 @media (prefers-reduced-motion: reduce) { .sx.tk-glow .sx-glow::before, .sx.tk-glow .sx-glow::after, .sx.tk-glow .sx-glow i, .sx.tk-glow.lay-title .sx-title { animation-duration: 40s; } }
-/* ===== Стиль №3 «Журнальный радикализм» (макет 1920×1080: 1 px = 0,0521 cqw; 1 pt PowerPoint = 0,104 cqw) ===== */
-.sx.tk-brutal .sx-acc { left: 41.67% !important; right: 0 !important; top: 0 !important; bottom: 0 !important; width: auto !important; height: auto !important; border-radius: 0 !important; clip-path: none !important; box-shadow: none !important; z-index: 1; }
-.sx.tk-brutal .sx-acc::after { display: none; }
-.sx.tk-brutal .sx-acc figure.pic img { filter: contrast(1.05) saturate(.95); }
-.sx.tk-brutal .sx-inner { inset: 0 !important; padding: 0 !important; display: block; z-index: 3; }
-.sx.tk-brutal .sx-title { position: absolute; left: 4.17%; top: 11.11%; width: 44.27%; min-height: 16.67%; box-sizing: border-box; margin: 0; padding: 1.2cqw 1.8cqw; background: #FFFFFF; color: #1A1A1A; border: .21cqw solid #000; box-shadow: .73cqw .73cqw 0 #000; font-family: 'Montserrat', 'Arial Black', Impact, sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; line-height: .98; display: flex; align-items: center; font-size: calc(min(9.4cqw, 57cqw / var(--tw, 8)) * var(--fs)); }
-.sx.tk-brutal .sx-title::after { display: none !important; }
-.sx.tk-brutal .sx-body { position: absolute; left: 4.17%; top: 37.04%; width: 33.85%; height: 50.93%; box-sizing: border-box; padding: 1.8cqw 2cqw; background: #1A1A1A; color: #FFFFFF; outline: .1cqw solid #FFFFFF; outline-offset: -.5cqw; box-shadow: .73cqw .73cqw 0 rgba(0,0,0,.85); font-family: 'Montserrat', Arial, sans-serif; font-weight: 600; font-size: calc(3.54cqw * var(--fs)); line-height: 1.22; overflow: hidden; display: block !important; }
-.sx.tk-brutal .sx-body strong { color: #D7C49E; }
-.sx.tk-brutal .sx-body li::marker { color: #D7C49E; }
-.sx.tk-brutal.lay-cards .sx-body li { background: transparent; border: 0; border-top: .2cqw solid #D7C49E; box-shadow: none; color: #fff; }
-.sx.tk-brutal:not(.acc) .sx-title { width: 70%; }
-.sx.tk-brutal:not(.acc) .sx-body { width: 88%; }
-.sx.tk-brutal.lay-title .sx-body { background: transparent; outline: none; box-shadow: none; color: #1A1A1A; height: auto; top: 33%; }
-.sx.tk-brutal .sx-body blockquote { background: rgba(255,255,255,.06); border-left-color: #D7C49E; }
-/* ===== Стиль №4 «Минималистичный брендбук»: ≥ 50 % воздуха, линер, лимонный стикер −5° ===== */
-.sx.tk-brandbook .sx-inner { inset: 0 !important; padding: 0 !important; display: block; z-index: 3; }
-.sx.tk-brandbook .sx-title { position: absolute; left: 10.42%; top: 6%; width: 60%; margin: 0; color: #333333; font-family: 'Jost', 'Futura', 'Century Gothic', sans-serif; font-weight: 300; text-transform: lowercase; letter-spacing: .01em; font-size: calc(3.75cqw * var(--fs)); }
-.sx.tk-brandbook .sx-title::after { display: none !important; }
-.sx.tk-brandbook .sx-body { position: absolute; left: 10.42%; top: 18.52%; width: 42%; min-height: 41.67%; max-height: 72%; box-sizing: border-box; padding: 2.2cqw 2.4cqw; background: #FFF2CC; color: #555555; transform: rotate(-5deg); transform-origin: 30% 20%; box-shadow: 0 .5cqw .52cqw rgba(0,0,0,.08); font-family: 'Caveat', 'Marck Script', cursive; font-weight: 600; font-size: calc(3.4cqw * var(--fs)); line-height: 1.18; overflow: hidden; display: block !important; }
-.sx.tk-brandbook .sx-body strong { color: #333333; }
-.sx.tk-brandbook .sx-body li::marker { color: #333333; }
-.sx.tk-brandbook.lay-cards .sx-body li { background: transparent; border: 0; border-bottom: .1cqw solid rgba(51,51,51,.35); box-shadow: none; border-radius: 0; }
-.sx.tk-brandbook .sx-acc { left: 58% !important; right: 6% !important; top: 22% !important; bottom: 22% !important; width: auto !important; background: transparent !important; border-radius: 0 !important; box-shadow: none !important; clip-path: none !important; }
-.sx.tk-brandbook .sx-acc::after { display: none; }
-.sx.tk-brandbook .sx-acc figure.pic img { object-fit: contain; filter: grayscale(1) contrast(1.35) brightness(1.08); mix-blend-mode: multiply; }
-.sx.tk-brandbook.lay-title .sx-title { top: 34%; font-size: calc(5.2cqw * var(--fs)); }
-.sx.tk-brandbook.lay-title .sx-body { top: 56%; min-height: 0; width: 34%; padding: 1.4cqw 1.8cqw; }
-.sx:is(.tk-brandbook, .tk-brutal.acc) .sx-body ol, .sx:is(.tk-brandbook, .tk-brutal.acc) .sx-body ul { grid-template-columns: 1fr !important; }
-.sx:is(.tk-brandbook, .tk-brutal) .sx-body li { overflow-wrap: normal; }

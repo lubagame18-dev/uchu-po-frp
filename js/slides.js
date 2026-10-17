@@ -61,8 +61,6 @@ const SlideEditor = (() => {
     oldstd: { name: "Old Standard TT + PT Serif (хроника)", h: "Old Standard TT", b: "PT Serif", g: ["Old+Standard+TT:wght@400;700", "PT+Serif:wght@400;700"] },
     prata: { name: "Prata + Lora (ночная)", h: "Prata", b: "Lora", g: ["Prata", "Lora:wght@400;600;700"] },
     alice: { name: "Alice + PT Sans (акварель)", h: "Alice", b: "PT Sans", g: ["Alice", "PT+Sans:wght@400;700"] },
-    mblack: { name: "Montserrat Black (плакатный гротеск)", h: "Montserrat", b: "Montserrat", g: ["Montserrat:wght@600;700;900"] },
-    jost: { name: "Jost Light + Caveat (брендбук)", h: "Jost", b: "Caveat", g: ["Jost:wght@300;400", "Caveat:wght@500;600"] },
     playcorm: { name: "Playfair Display + Cormorant (ренессанс)", h: "Playfair Display", b: "Cormorant Garamond", g: ["Playfair+Display:wght@400;600", "Cormorant+Garamond:wght@500;600;700"] },
     unbounded: { name: "Unbounded + Manrope (модерн)", h: "Unbounded", b: "Manrope", g: ["Unbounded:wght@500;700", "Manrope:wght@400;600;700"] }
   };
@@ -148,14 +146,13 @@ const SlideEditor = (() => {
     return { acc: m[0], rest: ((body || "").slice(0, m.index) + (body || "").slice(m.index + m[0].length)).replace(/^\s+/, "").replace(/\n{3,}/g, "\n\n") };
   }
   function slideHtml(sl, i, { edit = false, fs = null, th = null } = {}) {
-    const lay = autoLayout(sl, i), st = sl.set, T = window.ThemeKit ? ThemeKit.resolve(th || theme(), i) : (th || theme()), TK = window.ThemeKit?.has(T);
+    const lay = autoLayout(sl, i), st = sl.set, T = th || theme(), TK = window.ThemeKit?.has(T);
     const accPos = st.acc && lay !== "image" && lay !== "gallery" ? st.acc : "";
     const parts = accPos ? splitAcc(sl.body) : { acc: "", rest: sl.body || "" };
     const acc = accPos && parts.acc ? accPos : "";
     const bg = st.bgimg ? "" : st.bg ? `background:${esc(st.bg)};` : "";
     const tkv = TK ? ThemeKit.vars(T, L()?.slidePalette) : "";
-    const tw = Math.max(6, ...String(sl.title || "").split(/\s+/).map(w => w.length));
-    const style = `--tw:${tw};${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${bg}`;
+    const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
     const body = vid + linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
@@ -312,8 +309,6 @@ const SlideEditor = (() => {
   /* ---------- редактор ---------- */
   function render(sheet, md, editable) {
     { const fk = fontKey(); if (FONTS[fk]?.g && !loadedFonts.has(fk)) ensureFonts(fk).then(() => { L().slidesFitted = false; rerender(); }); }
-    if (/mix34|brandbook/.test(theme()) && !loadedFonts.has("jost")) ensureFonts("jost").then(() => { L().slidesFitted = false; rerender(); });
-    if (/mix34|brutal/.test(theme()) && !loadedFonts.has("mblack")) ensureFonts("mblack").then(() => { L().slidesFitted = false; rerender(); });
     sheet.className = "sxed theme-" + theme(); sheet.removeAttribute("contenteditable");
     if (!editable) { // идёт генерация — простой просмотр
       sheet.innerHTML = `<div class="sx-view">${splitSlides(md).map((s, i) => `<div class="sx-frame">${slideHtml(parse(s), i)}</div>`).join("")}</div>`;
@@ -1108,7 +1103,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     s.background = { color: bgc };
     // художественный фон темы — картинкой под всем остальным (текст поверх остаётся редактируемым)
     if (sx.querySelector(".sx-deco") && window.ThemeKit) {
-      const lay = autoLayout(sl, i), side = ThemeKit.sideOf(lay, sx.matches(".acc") ? (sl.set.acc || "") : sl.set.photo ? "right" : ""), bgData = await ThemeKit.rasterSvg(ThemeKit.svg(ThemeKit.resolve(theme(), i), i, lay === "title" || lay === "section" ? lay : "", side, L()?.slidePalette, "bg"), 1280, 720, "image/jpeg");
+      const lay = autoLayout(sl, i), side = ThemeKit.sideOf(lay, sx.matches(".acc") ? (sl.set.acc || "") : sl.set.photo ? "right" : ""), bgData = await ThemeKit.rasterSvg(ThemeKit.svg(theme(), i, lay === "title" || lay === "section" ? lay : "", side, L()?.slidePalette, "bg"), 1280, 720, "image/jpeg");
       if (bgData) s.addImage({ data: bgData, x: 0, y: 0, w: PX / IN, h: PY / IN });
     }
     const addImg = async (img, fig) => {
@@ -1124,7 +1119,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     // бумага под текст (рваный край поверх картинки) — прозрачной картинкой
     if (sx.querySelector(".sx-paper") && window.ThemeKit) {
       const lay = autoLayout(sl, i), side = ThemeKit.sideOf(lay, sx.matches(".acc") ? (sl.set.acc || "") : sl.set.photo ? "right" : "");
-      const pd = await ThemeKit.rasterSvg(ThemeKit.svg(ThemeKit.resolve(theme(), i), i, lay === "title" || lay === "section" ? lay : "", side, L()?.slidePalette, "paperflat"), 1280, 720);
+      const pd = await ThemeKit.rasterSvg(ThemeKit.svg(theme(), i, lay === "title" || lay === "section" ? lay : "", side, L()?.slidePalette, "paperflat"), 1280, 720);
       if (pd) s.addImage({ data: pd, x: 0, y: 0, w: PX / IN, h: PY / IN });
     }
     // подложка текста (наложение на фоновую картинку)
