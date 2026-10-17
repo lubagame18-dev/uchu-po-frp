@@ -79,7 +79,7 @@ const Access = (() => {
       ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : L === "promo" ? `<p class="tr-now ok">Доступ по промокоду.</p>` : PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
       <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur ? `<span class="tr-badge">ваш тариф</span>` : k === "ai" ? `<span class="tr-badge hot">${p.tag}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div><h3>${p.name}</h3><div class="tr-price">${p.price ? `${p.price} ₽<small>/мес</small>` : "0 ₽"}</div><ul class="tr-feats">${p.feats.map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">Подключён сейчас</span>` : k === "free" ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && PLANS[cur].price && p.price > PLANS[cur].price ? "Повысить" : cur && PLANS[cur].price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
       ${cur && PLANS[cur].ai ? `<div class="tr-packs"><b>Не хватает уроков с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}</div>` : ""}
-      ${!me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : L === "dev" || L === "promo" ? "" : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>Промокод</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
+      ${!me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : L === "promo" ? "" : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>Промокод</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
     m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
     m.querySelectorAll("[data-pack]").forEach(b => b.onclick = () => buy(b.dataset.pack));
@@ -133,7 +133,8 @@ const Access = (() => {
     const ai = document.getElementById("btnAi"); if (ai) ai.hidden = commercial() && !ownAi();
     let b = document.getElementById("btnPlan");
     if (!b && commercial()) { b = document.createElement("button"); b.type = "button"; b.id = "btnPlan"; b.className = "btn sm ghost"; b.onclick = () => open(); document.querySelector(".account")?.prepend(b); }
-    if (b) { const L = level(); b.textContent = L === "dev" ? "🔧 Разработчик" : L === "promo" ? "🎟 Промокод" : `💳 ${PLANS[L].name}`; b.title = "Тарифы и промокод"; b.hidden = !commercial(); }
+    // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
+    if (b) { const L = level(); b.textContent = `💳 ${PLANS[L]?.name || "Тарифы"}`; b.title = "Тарифы и промокод"; b.hidden = !commercial() || L === "dev" || L === "promo"; }
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);

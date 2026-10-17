@@ -62,9 +62,6 @@ const Dev = (() => {
     root.querySelector("#devExit").onclick = exit;
     root.querySelector("#devForget").onclick = () => { try { localStorage.removeItem(SESSION); localStorage.removeItem(SAVED); } catch { } exit(); window.Access?.paint(); };
     root.querySelector("#devOpen").onclick = () => show(section);
-    const chip = document.createElement("button"); chip.className = "chip"; chip.id = "nav-dev"; chip.textContent = "Разработчик"; chip.dataset.devnav = "1";
-    chip.onclick = () => show(section);
-    document.querySelector(".nav")?.appendChild(chip);
     if (window.Log) Log.add("вход", "включён режим разработчика");
     rerenderCurrent();
     show("files"); window.Access?.paint();
@@ -130,8 +127,36 @@ const Dev = (() => {
         <div class="mat-row"><button class="btn sm ghost" id="dvEmbed">${window.Publish?.ready() ? "Опубликовать для всех учителей" : "Скачать базу (extra.js) для владельца сайта"}</button></div></section>
       <section class="dev-card"><h2>Уже встроено в сайт (${built.length + base.length})</h2><ul class="fl-list">${base.map(x => `<li><span class="fl-n">${esc(x.title || x.short)}</span><span class="fl-t">${x.grade ? `<span class="tag">${x.grade} кл.</span>` : ""}<span class="tag ok">в базе</span></span></li>`).join("")}${built.map(row).join("")}</ul></section>`;
     if (OWNER() && window.Access) promoCard(b);
+    sharedCard(b);
     DevCover.bindUpload(b, () => show("files"));
     b.querySelector("#dvEmbed").onclick = () => embedAll();
+  }
+  /* Материалы, которые учителя прикрепили у себя: приходят через облако, видны только автору сайта.
+     «Встроить» — материал попадает в «Загружено вами», дальше «Опубликовать для всех учителей». */
+  function sharedCard(b) {
+    const box = document.createElement("section"); box.className = "dev-card"; box.id = "dvShared";
+    box.innerHTML = `<h2>Присланные учителями</h2><p class="small">Загружаю…</p>`;
+    const first = b.querySelector(".dev-card"); if (first) first.after(box); else b.prepend(box);
+    const draw = async () => {
+      let rows;
+      try { rows = await window.Account.sharedList(); }
+      catch (e) { box.innerHTML = `<h2>Присланные учителями</h2><p class="small">${esc(/does not exist|relation|404|schema cache/i.test(e.message) ? "В облаке ещё нет таблицы для присланных материалов — выполните в Supabase SQL из инструкции." : e.message)}</p>`; return; }
+      rows = rows.filter(r => (r.subject || "ru") === subj);
+      const have = new Set(state.materials.map(m => m.sharedId).filter(Boolean));
+      box.innerHTML = `<h2>Присланные учителями (${rows.length})</h2><p class="small">Учителя прикрепили это у себя. Решите, что встроить для всех: «Встроить» добавляет материал в «Загружено вами», затем — «Опубликовать для всех учителей».</p>
+        ${rows.length ? `<ul class="fl-list">${rows.map(r => `<li><span class="fl-n">${esc(String(r.title || r.name).slice(0, 110))}<br><span class="small">${esc(r.email || "")} · ${new Date(r.created_at).toLocaleDateString("ru-RU")} · ${Math.round((r.chars || 0) / 1000)} тыс. знаков</span></span><span class="fl-t">${r.grade ? `<span class="tag">${r.grade} кл.</span>` : ""}<span class="tag">${esc(window.Materials?.TYPES?.[r.type]?.label || r.kind || "материал")}</span>${have.has(r.id) ? `<span class="tag ok">встроен</span>` : `<button class="btn sm flame" data-sin="${esc(r.id)}">Встроить</button>`}<button class="btn sm ghost" data-sdel="${esc(r.id)}">Убрать</button></span></li>`).join("")}</ul>` : `<p class="small">Пока ничего не прислано.</p>`}`;
+      box.querySelectorAll("[data-sin]").forEach(x => x.onclick = async () => {
+        x.disabled = true; x.textContent = "Встраиваю…";
+        try {
+          const r = await window.Account.sharedGet(x.dataset.sin); if (!r) throw new Error("материал не найден");
+          const m = { id: uid(), name: r.name, title: r.title || undefined, kind: r.kind || "other", type: r.type || undefined, subject: r.subject || "ru", grade: r.grade || null, topic: r.topic || null, text: r.text || "", chars: (r.text || "").length, addedAt: new Date().toISOString(), hash: window.Materials ? Materials.hashText(r.text || "") : null, devEmbed: true, sharedId: r.id, from: r.email };
+          if (window.Materials && !m.type) Object.assign(m, Materials.classify(m));
+          await Store.put("materials", m.id, m); await loadMaterials(); toast("Встроено. Чтобы появилось у всех учителей — «Опубликовать для всех учителей».", 6000); show("files");
+        } catch (e) { toast("Не получилось: " + (e.message || e)); x.disabled = false; x.textContent = "Встроить"; }
+      });
+      box.querySelectorAll("[data-sdel]").forEach(x => x.onclick = async () => { if (!confirm("Убрать материал из присланных? У учителя он останется.")) return; try { await window.Account.sharedDel(x.dataset.sdel); draw(); } catch (e) { toast("Не получилось: " + (e.message || e)); } });
+    };
+    draw();
   }
   /* Промокоды свободной зоны — только у владельца. Хранятся хэши (data/promo.js), сами коды нигде не видны. */
   function promoCard(b) {
@@ -320,9 +345,11 @@ const Dev = (() => {
   function mountEntry() {
     if (document.getElementById("devEntry")) return;
     const f = document.createElement("footer"); f.className = "site-foot";
-    f.innerHTML = `<div class="wrap"><span>«Учу по ФРП» — уроки по ФРП</span><button class="btn plain" id="devEntry">Режим разработчика</button></div>`;
+    // внизу — только неприметные серые ссылки: инструкция, источники, вход разработчика
+    f.innerHTML = `<div class="wrap foot-links"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button></span><button type="button" class="foot-dev" id="devEntry" title="Режим разработчика">для разработчика</button></div>`;
     document.body.appendChild(f);
     f.querySelector("#devEntry").onclick = openLogin;
+    f.querySelector("#helpLink").onclick = () => { if (typeof go === "function") go("help"); window.scrollTo(0, 0); };
   }
   document.addEventListener("DOMContentLoaded", mountEntry);
   const remembered = () => { try { return localStorage.getItem(SESSION) === HASH.slice(0, 16); } catch { return false; } };

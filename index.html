@@ -509,7 +509,6 @@ window.UCHU_SITE = {
       <button class="chip" id="nav-builder" aria-current="page">Конструктор</button>
       <button class="chip" id="nav-library">Мои уроки</button>
       <button class="chip" id="nav-materials">Материалы</button>
-      <button class="chip" id="nav-help">Инструкция</button>
     </nav>
     <div class="account"></div>
   </div>
@@ -562,7 +561,7 @@ window.UCHU_SITE = {
         </div>
         <p class="hint" id="controlHint"></p>
         <div class="field"><span class="lbl">Как собирать</span>
-          <div class="seg build" id="segBuild"><button data-v="noai" aria-pressed="true">Без ИИ <small>по алгоритму</small></button><button data-v="ai" id="buildAi" aria-pressed="false">С ИИ</button></div>
+          <div class="seg build" id="segBuild"><button data-v="noai" aria-pressed="true">Без ИИ</button><button data-v="ai" id="buildAi" aria-pressed="false">С ИИ</button></div>
           <p class="hint" id="buildHint"></p>
         </div>
         <div id="aiOnly" hidden>
@@ -571,7 +570,6 @@ window.UCHU_SITE = {
         </div>
         <button class="btn flame cta" id="btnCreate">Создать урок</button>
         <p class="hint" id="createHint"></p>
-        <p class="mats-link">ФРП, рабочие тетради и учебник уже встроены в сайт. Свои файлы можно прикрепить в разделе <a href="#materials" id="goMaterials">«Материалы»</a>.</p>
       </section>
     </aside>
 
@@ -618,18 +616,19 @@ window.UCHU_SITE = {
 <!-- ===================== МАТЕРИАЛЫ ===================== -->
 <main id="view-materials" class="wrap page" hidden>
   <h1>Материалы</h1>
-  <p class="lead">Учителю ничего загружать не нужно: уроки собираются по ФРП из встроенной базы сайта и открытых образовательных источников. Свои материалы можно добавить — они хранятся в этом браузере и при совпадении темы идут первыми.</p>
-  <section class="frp-card"><h2>ФРП</h2><div id="frpBox"></div>
+  <p class="lead" data-dev>Учителю ничего загружать не нужно: уроки собираются по ФРП из встроенной базы сайта и открытых образовательных источников. Свои материалы можно добавить — они хранятся в этом браузере и при совпадении темы идут первыми.</p>
+  <section class="frp-card" data-dev><h2>ФРП</h2><div id="frpBox"></div>
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
-  <section class="own-card"><h2>Мои материалы</h2><p class="hint" style="font-size:14px">Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
-    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда — любые и сколько угодно: Word, PDF, PowerPoint, Excel, фото страниц, архивы .zip и другие</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><input type="file" id="matInput" multiple hidden></div>
-    <p class="hint">При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
-    <div class="mat-row"><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
+  <section class="own-card"><h2>Мои материалы</h2><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
+    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><input type="file" id="matInput" multiple hidden></div>
+    <p class="hint" data-dev>При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
+    <p class="small mat-note">Прикреплённые материалы видит и автор сайта — чтобы делать базу уроков лучше.</p>
+    <div class="mat-row" data-dev><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
     <div id="matLib"></div>
   </section>
-  <section class="send-card" id="sendCard"></section>
-  <section class="learn-card" id="learnCard"></section>
+  <section class="send-card" id="sendCard" data-dev></section>
+  <section class="learn-card" id="learnCard" data-dev></section>
 </main>
 
 <!-- ===================== ИНСТРУКЦИЯ ===================== -->
@@ -2753,7 +2752,7 @@ const Media = (() => {
   return { commons, yandexSearch, toBlob, proxyBase, get yandexState() { return yandexState; }, RE, preprocess, postprocess, hydrate, figToMd, search, autoFill, openPicker, exportData, parseOpts, mdImage, yandexUrl };
 })();
 
-const HELP_MD = "# Как пользоваться «Учу по ФРП»\n\nСайт за пару минут собирает урок по федеральной рабочей программе: **технологическую карту**, **презентацию** и **рабочий лист**. Ничего устанавливать не нужно.\n\n---\n\n## 1. Войдите в личный кабинет\n\nНажмите **«👤 Войти»** вверху справа → **«Регистрация»** → введите почту и придумайте пароль (любой, от 6 знаков). Вход запоминается — в следующий раз вводить ничего не придётся.\n\nВ кабинете хранятся **все ваши уроки**. Их можно открыть с любого устройства: с компьютера дома, с ноутбука в школе, с телефона.\n\n## 2. Создайте урок\n\n1. На странице **«Конструктор»** выберите **предмет** (русский язык или литература) и **класс**.\n2. **Тема урока:** начните печатать или нажмите стрелку ▾ — появятся темы из ФРП для вашего класса.\n3. Выберите, **какой это урок по теме** (1-й, 2-й…). Тип урока сайт определит сам.\n4. Отметьте, что нужно: **техкарта**, **презентация**, **рабочий лист**.\n5. Нажмите большую кнопку **«Создать урок»**.\n\nЧерез несколько секунд урок готов. Вверху — вкладки: **Конспект**, **Презентация**, **Рабочий лист**.\n\n**Совет.** Для литературы вставьте текст стихотворения или отрывка в **«Заметки к уроку»** (перед кнопкой «Создать урок») — тогда вопросы и слайды будут точно по этому тексту.\n\n## 3. Поправьте, если хочется\n\n- **Конспект и рабочий лист** правятся прямо на листе: щёлкните по тексту и пишите.\n- **Презентация:** щёлкните по слайду — его можно изменить. Меню **«⋯»** в углу слайда меняет вид слайда, картинку, размер текста. Кнопка **«🎨 Оформление»** меняет цвета, шрифты и анимацию для всей презентации.\n- **▶ Показ** — открыть презентацию на весь экран для урока.\n\n## 4. Скачайте\n\nКнопки **«Скачать»** над листом: **Word**, **PDF**, **PowerPoint** — или всё сразу одним архивом.\n\n## 5. Где мои уроки\n\nРаздел **«Мои уроки»** вверху. Там все созданные уроки: открыть, скачать, удалить. Когда вы вошли в личный кабинет, уроки сохраняются сами.\n\n---\n\n## Тарифы\n\nНажмите кнопку тарифа вверху (например, **«💳 Бесплатный»**).\n\n- **Бесплатный** — 3 урока в месяц, чтобы попробовать.\n- **Учитель** — уроки без ограничений.\n- **Учитель + ИИ** и **Методист** — ещё и уроки с искусственным интеллектом: подробный конспект и правки листов по вашей просьбе.\n\n**Как подключить тариф:**\n1. Выберите тариф и нажмите **«Выбрать»**.\n2. Если вы ещё не вошли — войдите или зарегистрируйтесь (сайт сам попросит).\n3. Сразу после входа откроется **оформление**: проверьте тариф и нажмите **«Перейти к оплате»**. Оплата — картой или по СБП, чек придёт на почту.\n4. Галочка **«Автоплатёж»** — тариф будет продлеваться сам каждый месяц. Отключить автоплатёж можно в любой момент по ссылке в письме.\n\n**Сменить тариф** можно в любое время там же. При повышении тарифа вы доплачиваете только разницу за оставшиеся дни. Если на тарифе с ИИ закончились уроки с ИИ — их можно **докупить** недорого.\n\n**Промокод** вводится в окне тарифов, внизу (сначала нужно войти в кабинет).\n\n---\n\n## Вопросы\n\n- **Урок с ИИ или без ИИ?** Без ИИ — мгновенно, по программе и встроенной базе пособий. С ИИ (в тарифах с ИИ) — подробнее, с развёрнутыми репликами учителя.\n- **Нет интернета?** Сайт работает и без него: урок соберётся по встроенной базе, а материалы из интернета добавятся, когда связь появится.\n- **Что-то пошло не так?** Обновите страницу. Уроки не пропадут — они в «Моих уроках».\n";
+const HELP_MD = "# Как работать с сайтом\n\n## Создать урок\n1. **Конструктор** → предмет, класс, тема (стрелка ▾ — темы из ФРП).\n2. Номер урока по теме: 1-й, 2-й… Тип урока сайт определит сам.\n3. Отметьте: техкарта, презентация, рабочий лист → **«Создать урок»**.\n\nДля литературы вставьте текст произведения в **«Заметки к уроку»** — вопросы и слайды будут по нему.\n\n## Поправить и скачать\n- Конспект и лист правятся прямо на странице: щёлкните по тексту.\n- Презентация: щёлкните по слайду; **«🎨 Оформление»** меняет цвета и анимацию; **«▶ Показ»** — на весь экран.\n- **«Скачать»**: Word, PDF, PowerPoint или всё архивом.\n\n## Где хранятся уроки\nВ **«Моих уроках»**. Войдите в личный кабинет (**«Войти»** вверху справа) — уроки сохранятся в облаке и откроются на любом устройстве.\n\n## Свои материалы\n**«Материалы»** → **«Прикрепить и встроить»**. Сайт будет брать из них задания для уроков.\n\n## Тарифы и промокод\nКнопка тарифа вверху → выберите тариф → войдите → оплата картой или по СБП. Промокод вводится там же, внизу окна, после входа.\n";
 </script>
 <script>
 /* ===================================================================
@@ -3173,6 +3172,7 @@ async function addMaterials(list, forceKind) {
       if (r.unknown) m.unreadable = true;
       if (window.Dev?.on) m.devEmbed = true; // загружено разработчиком — идёт в общую базу
       await Store.put("materials", m.id, m); added++; if (hash) known.add(hash);
+      if (!window.Dev?.on) window.Account?.shareMaterial?.(m); // учительский материал — автору сайта (раздел разработчика «Присланные учителями»)
       if (m.scanned && window.OCR && (/\.pdf$/i.test(f.name) || r.image)) { if (await OCR.keepFile(m.id, f)) { await OCR.enqueue(m); ocrN++; } }
     } catch (e) { toast(`Не удалось прочитать «${f.name}»: ${e.message || e}`, 6000); }
   }
@@ -3298,16 +3298,18 @@ function syncControls() {
   if (!controlAllowed(state.control, state.grade)) state.control = "school";
   $("#control").value = state.control;
   const ex = KB.exams[state.control];
-  $("#controlHint").textContent = ex ? ex.verify : "Шкала оценивания — школьная (5/4/3).";
+  $("#controlHint").textContent = ex ? ex.verify : ""; $("#controlHint").hidden = !ex;
   syncBuild();
 }
 function syncBuild() {
   const U = window.UCHU, ok = window.AI ? AI.configured() : U ? U.configured() : !!caps.sample;
   const name = window.AI ? (AI.label() || "") : "Claude";
-  $("#buildAi").innerHTML = ok ? `С ИИ <small>${esc(name)}</small>` : `С ИИ <small>не подключён</small>`;
+  // какая нейросеть подключена — видно только разработчику и по промокоду (кто подключает ИИ сам)
+  const own = !window.Access || !Access.commercial() || Access.ownAi();
+  $("#buildAi").innerHTML = !own ? "С ИИ" : ok ? `С ИИ <small>${esc(name)}</small>` : `С ИИ <small>не подключён</small>`;
   setSeg("segBuild", state.build);
   $("#aiOnly").hidden = state.build !== "ai";
-  $("#buildHint").textContent = state.build === "ai" ? "Нейросеть пишет текст по методбазе; результаты ФРП и структура подставляются системой." : `Собирается мгновенно по алгоритму: структура типа урока, результаты ФРП дословно, упражнения из ваших материалов (их сейчас ${state.materials.filter(m => m.kind !== "frp").length}).`;
+  $("#buildHint").hidden = true;
 }
 function readForm() {
   state.grade = +$("#grade").value; state.duration = +$("#duration").value;
@@ -4277,7 +4279,7 @@ function bind() {
   $("#matExport").onclick = exportPack;
   $("#frpEmbed").onclick = () => embedFrp().catch(e => toast("Не получилось: " + (e.message || e)));
   $("#matEmbed").onclick = () => embedMaterials().catch(e => toast("Не получилось: " + (e.message || e)));
-  $("#goMaterials").onclick = e => { e.preventDefault(); go("materials"); };
+  if ($("#goMaterials")) $("#goMaterials").onclick = e => { e.preventDefault(); go("materials"); };
 }
 function openTopicPanel() { renderTopicPanel(); $("#topicPanel").hidden = false; $("#topicBtn").setAttribute("aria-expanded", "true"); }
 

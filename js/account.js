@@ -32,7 +32,7 @@ const Account = (() => {
       const u = await api("/auth/v1/user", { headers: { Authorization: "Bearer " + at } });
       setSession({ access_token: at, refresh_token: rt, expires_in: +h.get("expires_in") || 3600, user: u }, u.email);
       toast("Почта подтверждена — вы вошли в личный кабинет.", 6000);
-      await pull().catch(() => null); await plan().catch(() => null);
+      await pull().catch(() => null); await plan().catch(() => null); loadInfo().catch(() => null);
       let want = null; try { want = localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
       if (want && window.Access) Access.checkout(want);
     } catch (e) { toast("Не удалось войти по ссылке: " + RU(e.message) + " Войдите с почтой и паролем.", 8000); }
@@ -89,17 +89,68 @@ const Account = (() => {
   const origSave = window.saveLesson;
   if (typeof origSave === "function") window.saveLesson = async L => { const r = await origSave(L); clearTimeout(pushT); pushT = setTimeout(() => push(), 3000); return r; };
 
+  /* ---------- профиль учителя: имя, школа, город, фото (всё по желанию) ---------- */
+  async function loadInfo() {
+    if (!ready() || !S || S.local || !(await refresh())) return S?.info || null;
+    try { const r = (await api(`/rest/v1/user_info?id=eq.${S.uid}&select=name,school,city,avatar`))?.[0]; if (r) { S.info = r; save(); } } catch (e) { /* таблицы ещё нет — профиль хранится на устройстве */ }
+    return S?.info || null;
+  }
+  async function saveInfo(info) {
+    if (!S) return;
+    S.info = { ...(S.info || {}), ...info }; save();
+    if (!ready() || S.local || !(await refresh())) return;
+    try { await api("/rest/v1/user_info", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ id: S.uid, ...S.info, updated_at: new Date().toISOString() }) }); }
+    catch (e) { console.warn("user_info", e); }
+  }
+  /* фото уменьшается до 160×160 (≈10 КБ), чтобы хранить прямо в профиле */
+  function shrink(file) {
+    return new Promise((res, rej) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => { const n = 160, c = document.createElement("canvas"); c.width = c.height = n; const k = Math.min(img.width, img.height), x = (img.width - k) / 2, y = (img.height - k) / 2; c.getContext("2d").drawImage(img, x, y, k, k, 0, 0, n, n); URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.82)); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("не удалось открыть картинку")); };
+      img.src = url;
+    });
+  }
+  /* ---------- материалы учителей → автору сайта (видны в режиме разработчика) ---------- */
+  async function shareMaterial(m) {
+    if (!ready() || !S || S.local || !(m.text || "").trim() || !(await refresh())) return;
+    const row = { id: (S.uid || "").slice(0, 8) + ":" + (m.hash || m.id), user_id: S.uid, email: S.email, name: m.name, title: m.title || null, kind: m.kind || null, type: m.type || null, subject: m.subject || null, grade: Number.isFinite(+m.grade) && m.grade ? +m.grade : null, topic: m.topic || null, text: String(m.text).slice(0, 400000), chars: (m.text || "").length };
+    try { await api("/rest/v1/shared_materials", { method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=minimal" }, body: JSON.stringify(row) }); } catch (e) { console.warn("shared_materials", e); }
+  }
+  async function sharedList() {
+    if (!ready() || !S || S.local) throw new Error("Войдите в личный кабинет (вверху справа) — присланные материалы видны только автору сайта.");
+    if (!(await refresh())) throw new Error("Войдите в личный кабинет заново.");
+    return await api("/rest/v1/shared_materials?select=id,email,name,title,kind,type,subject,grade,topic,chars,created_at&order=created_at.desc&limit=500") || [];
+  }
+  async function sharedGet(id) { await refresh(); return (await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}&select=*`))?.[0] || null; }
+  async function sharedDel(id) { await refresh(); await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" }); }
+
   const PLAN_NAMES = { free: "бесплатный", basic: "«Учитель» (без ИИ)", ai: "«Учитель + ИИ»", pro: "«Методист»" };
   async function plan() { try { if (!(await refresh())) return null; const p = (await api(`/rest/v1/profiles?id=eq.${S.uid}&select=plan,ai_left,paid_until`))?.[0] || null; if (p && S) { S.plan = p.plan; save(); window.Access?.paint(); } return p; } catch { return null; } }
   /* ---------- окно кабинета ---------- */
   function open() {
     if (S) {
+      const I = S.info || {};
       const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-        <p>Вы вошли как <b>${esc(S.email)}</b>.</p>
+        <form class="ac-prof" id="acProf">
+          <label class="ac-ava" title="Нажмите, чтобы выбрать фото">${I.avatar ? `<img src="${esc(I.avatar)}" alt="">` : `<span>${esc(initials(I.name) || "👤")}</span>`}<input type="file" id="acPhoto" accept="image/*" hidden><em>${I.avatar ? "сменить" : "фото"}</em></label>
+          <div class="ac-fields">
+            <input type="text" id="acName" placeholder="Имя и фамилия" value="${esc(I.name || "")}" autocomplete="name">
+            <input type="text" id="acSchool" placeholder="Школа (по желанию)" value="${esc(I.school || "")}" autocomplete="organization">
+            <input type="text" id="acCity" placeholder="Город (по желанию)" value="${esc(I.city || "")}" autocomplete="address-level2">
+            <div class="row-btn"><button class="btn sm" type="submit">Сохранить</button>${I.avatar ? `<button class="btn sm ghost" type="button" id="acNoPhoto">Убрать фото</button>` : ""}<span class="small" id="acPMsg" role="status"></span></div>
+          </div>
+        </form>
+        <p class="small">Почта для входа: ${esc(S.email)}</p>
         ${S.local ? `<p class="small">Ваши уроки сохраняются в личном кабинете. Для надёжности можно сохранить их и в файл: «Мои уроки» → «Скачать все уроки».</p>` : `<p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>`}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
         <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
+      const pm = m.querySelector("#acPMsg");
+      const fields = () => ({ name: m.querySelector("#acName").value.trim(), school: m.querySelector("#acSchool").value.trim(), city: m.querySelector("#acCity").value.trim() });
+      m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; await saveInfo(fields()); pm.textContent = "Сохранено ✓"; };
+      m.querySelector("#acPhoto").onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { pm.textContent = "Загружаю фото…"; await saveInfo({ ...fields(), avatar: await shrink(f) }); closeModal(); open(); } catch (er) { pm.textContent = "Не получилось: " + er.message; } };
+      m.querySelector("#acNoPhoto")?.addEventListener("click", async () => { await saveInfo({ ...fields(), avatar: null }); closeModal(); open(); });
       (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}<br><b>Уроков с ИИ осталось:</b> ${p.ai_left ?? "—"}` : `<b>Тариф:</b> бесплатный`; });
       if (m.querySelector("#acSync")) m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };
@@ -124,7 +175,7 @@ const Account = (() => {
         else await signIn(email, pass);
         if (window.PasswordCredential) { try { await navigator.credentials.store(new PasswordCredential({ id: email, password: pass })); } catch { } }
         closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
-        window.Access?.paint(); await plan().catch(() => null);
+        window.Access?.paint(); await plan().catch(() => null); loadInfo().catch(() => null);
         // выбранный тариф помним и после подтверждения почты (письмо открывает сайт заново)
         let want = window.Access?.wantBuy; try { want = want || localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
         if (want && window.Access) { Access.wantBuy = null; Access.checkout(want); }
@@ -134,10 +185,16 @@ const Account = (() => {
   }
   /* ---------- кнопка в шапке ---------- */
   const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn sm"; btn.id = "btnAccount"; btn.onclick = open;
-  function paint() { btn.textContent = S ? "👤 " + (S.email || "").split("@")[0] : "👤 Войти"; btn.title = S ? "Личный кабинет: " + S.email : "Личный кабинет: вход по почте"; }
+  const initials = n => String(n || "").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase();
+  function paint() {
+    const I = S?.info || {};
+    if (!S) btn.innerHTML = "👤 Войти";
+    else btn.innerHTML = `${I.avatar ? `<img class="acc-mini" src="${esc(I.avatar)}" alt="">` : "👤 "}${esc(I.name ? I.name.split(/\s+/).slice(0, 2).join(" ") : "Кабинет")}`;
+    btn.title = S ? "Личный кабинет" : "Личный кабинет: вход по почте";
+  }
   document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); });
-  document.addEventListener("uchu:ready", () => { if (/access_token|error_description/.test(location.hash)) fromLink(); else if (S && ready()) pull().catch(() => null); });
+  document.addEventListener("uchu:ready", () => { if (/access_token|error_description/.test(location.hash)) fromLink(); else if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); } });
   paint();
-  return { open, refreshPlan: () => plan(), signIn, signUp, signOut, push, pull, remove, ready, get session() { return S; } };
+  return { open, refreshPlan: () => plan(), shareMaterial, sharedList, sharedGet, sharedDel, loadInfo, saveInfo, signIn, signUp, signOut, push, pull, remove, ready, get session() { return S; } };
 })();
 window.Account = Account;

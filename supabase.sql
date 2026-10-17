@@ -30,3 +30,25 @@ create table if not exists payments (
   created_at timestamptz not null default now()
 );
 alter table payments enable row level security;
+
+-- профиль учителя (имя, школа, город, фото) — каждый видит и меняет только свой
+create table if not exists user_info (id uuid primary key default auth.uid() references auth.users on delete cascade, name text, school text, city text, avatar text, updated_at timestamptz default now());
+alter table user_info enable row level security;
+drop policy if exists own_info on user_info;
+create policy own_info on user_info for all using (auth.uid() = id) with check (auth.uid() = id);
+
+-- материалы, которые учителя прикрепили у себя: отправить может любой вошедший, видит только автор сайта
+create table if not exists site_admins (email text primary key);
+alter table site_admins enable row level security;
+drop policy if exists admin_self on site_admins;
+create policy admin_self on site_admins for select using (email = auth.jwt()->>'email');
+create table if not exists shared_materials (id text primary key, user_id uuid not null default auth.uid() references auth.users on delete cascade, email text, name text, title text, kind text, type text, subject text, grade int, topic text, text text, chars int, created_at timestamptz not null default now());
+alter table shared_materials enable row level security;
+drop policy if exists send_own on shared_materials;
+create policy send_own on shared_materials for insert with check (auth.uid() = user_id);
+drop policy if exists admin_read on shared_materials;
+create policy admin_read on shared_materials for select using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
+drop policy if exists admin_del on shared_materials;
+create policy admin_del on shared_materials for delete using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
+-- автор сайта: почта, с которой вы входите в кабинет
+insert into site_admins (email) select email from auth.users on conflict do nothing;
