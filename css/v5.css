@@ -612,3 +612,10 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 .tc-rules { padding-left: 22px; display: grid; gap: 8px; }
 .tc-rules li { display: flex; gap: 6px; align-items: flex-start; }
 .tc-rules textarea { flex: 1; min-width: 0; }
+input.secret.shown { -webkit-text-security: none; text-security: none; }
+.pw-wrap { position: relative; display: block; }
+.pw-wrap input { width: 100%; padding-right: 44px; }
+.pw-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: 0; font-size: 18px; cursor: pointer; padding: 4px 6px; line-height: 1; }
+input.secret.keep:focus { -webkit-text-security: disc; text-security: disc; }
+input.secret.keep.shown, input.secret.keep.shown:focus { -webkit-text-security: none; text-security: none; }
+.rec-card.done { border-color: #2f8f5b; background: #f1fbf5; }

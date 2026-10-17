@@ -41,17 +41,17 @@ const Dev = (() => {
     // вход запомнен на этом устройстве (для этой почты) — сразу входим, без кода
     try { if (remembered()) { enter(); join(deob(localStorage.getItem(SAVED) || "")); return; } } catch { }
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Режим разработчика</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
-      <form class="dlg-b" id="devForm" autocomplete="on">
-        ${email() ? `<p class="small">Кабинет: ${esc(email())}</p>` : ""}<input type="text" name="username" value="разработчик" autocomplete="username" hidden>
-        <div class="field"><label for="devPass">Код разработчика</label><div class="row-btn"><input type="password" id="devPass" name="password" autocomplete="current-password" required><button type="button" class="btn sm ghost" id="devFill">Заполнить вход</button></div></div>
+      <form class="dlg-b" id="devForm" autocomplete="off">
+        ${email() ? `<p class="small">Кабинет: ${esc(email())}</p>` : ""}
+        <div class="field"><label for="devPass">Код разработчика <span class="small">(не пароль от кабинета)</span></label><div class="row-btn"><input type="text" class="secret keep" id="devPass" name="dev-code" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" required><button type="button" class="btn sm ghost" id="devEye" aria-label="Показать код">👁</button><button type="button" class="btn sm ghost" id="devFill">Заполнить</button></div></div>
         <label class="check"><input type="checkbox" id="devRemember" checked> Запомнить вход на этом устройстве (пароль больше не спросится; забыть — кнопка «Выйти и забыть»)</label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit">Войти</button><span class="small" id="devMsg" role="status"></span></div>
       </form></div>`);
     const pass = m.querySelector("#devPass"), msg = m.querySelector("#devMsg");
+    m.querySelector("#devEye").onclick = () => pass.classList.toggle("shown");
     pass.value = ""; setTimeout(() => { if (pass.value && !localStorage.getItem(SAVED)) pass.value = ""; }, 400); // браузер мог подставить чужой сохранённый ключ
     m.querySelector("#devFill").onclick = async () => {
       let v = deob(localStorage.getItem(SAVED) || "");
-      if (!v && navigator.credentials && window.PasswordCredential) { try { const c = await navigator.credentials.get({ password: true, mediation: "optional" }); if (c?.password) v = c.password; } catch { } }
       if (v) { pass.value = v; msg.textContent = "Пароль подставлен. Нажмите «Войти»."; } else msg.textContent = "В этом браузере пароль не сохранён.";
     };
     m.querySelector("#devForm").onsubmit = async e => {
@@ -59,7 +59,6 @@ const Dev = (() => {
       const ok = (await sha(SALT + pass.value)) === HASH;
       if (!ok) { msg.textContent = "Неверный код."; pass.select(); if (window.Log) Log.add("вход", "неверный пароль разработчика"); return; }
       try { if (m.querySelector("#devRemember").checked) { localStorage.setItem(SAVED, ob(pass.value)); localStorage.setItem(SESSION, mark()); } else { localStorage.removeItem(SAVED); localStorage.removeItem(SESSION); } } catch { }
-      if (window.PasswordCredential && m.querySelector("#devRemember").checked) { try { await navigator.credentials.store(new PasswordCredential({ id: "разработчик", password: pass.value })); } catch { } }
       join(pass.value); closeModal(); enter();
     };
   }
@@ -501,7 +500,7 @@ const Dev = (() => {
     if (document.getElementById("devEntry")) return;
     const f = document.createElement("footer"); f.className = "site-foot";
     // внизу — только неприметные серые ссылки: инструкция, источники, вход разработчика
-    f.innerHTML = `<div class="wrap foot-links"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button></span><button type="button" class="foot-dev" id="devEntry" title="Вход для разработчиков: сначала личный кабинет, потом код">Я разработчик</button></div>`;
+    f.innerHTML = `<div class="wrap foot-links"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button></span><button type="button" class="foot-dev" id="devEntry" aria-label="2026">© 2026</button></div>`;
     document.body.appendChild(f);
     f.querySelector("#devEntry").onclick = openLogin;
     f.querySelector("#helpLink").onclick = () => { if (typeof go === "function") go("help"); window.scrollTo(0, 0); };

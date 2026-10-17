@@ -136,7 +136,7 @@ const Account = (() => {
     } catch { return null; }
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
-  const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "разделы разработчика" : "Я разработчик"}</button></div>`;
+  const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "разделы разработчика" : "© 2026"}</button></div>`;
   function bindDev(m) { const b = m.querySelector("#acDev"); if (b) b.onclick = () => { closeModal(); if (window.Dev?.on) window.Dev.show("files"); else window.Dev?.openLogin(); }; }
   /* ---------- окно кабинета ---------- */
   function open() {
@@ -172,13 +172,14 @@ const Account = (() => {
       <form class="dlg-b" id="acForm" autocomplete="on">
         <div class="seg mini" role="tablist"><button type="button" data-mode="in" aria-pressed="true">Вход</button><button type="button" data-mode="up" aria-pressed="false">Регистрация</button></div>
         <div class="field"><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
-        <div class="field"><label for="acPass">Пароль</label><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><span class="small">Любой, от 6 знаков — без требований к символам.</span></div>
+        <div class="field"><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div><span class="small">Любой, от 6 знаков — без требований к символам.</span></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
         <p class="hint">Вход запоминается на этом устройстве. Уроки из этого браузера тоже перенесутся в облако.</p>
         ${devLink()}
       </form></div>`);
     bindDev(m);
     let mode = "in";
+    m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
     m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; });
     m.querySelector("#acForm").onsubmit = async e => {
       e.preventDefault(); const email = m.querySelector("#acEmail").value.trim(), pass = m.querySelector("#acPass").value, msg = m.querySelector("#acMsg");

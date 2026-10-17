@@ -8,6 +8,7 @@
    где их найти и скачать, и кнопка загрузки, чтобы система на них обучилась.
    =================================================================== */
 const DevCover = (() => {
+  const ST = () => (typeof state !== "undefined" ? state : window.state) || {};
   "use strict";
   const low = s => String(s || "").toLowerCase().replace(/ё/g, "е");
   const SERVICE = /контрольн|диктант|резерв|итогов|промежуточн|проверочн|административн|диагностическ|зачёт|зачет|обобщени.*повторени|^повторение\.?$/i;
@@ -17,7 +18,7 @@ const DevCover = (() => {
   const VERB = /(вставьте|расставьте|подчеркните|выпишите|определите|укажите|найдите|спишите|составьте|замените|прочитайте|запишите|объясните|распределите|подберите|перепишите|обозначьте|выделите|раскройте|образуйте|разберите|сравните|дополните|напишите|в каком)/i;
   let matCache = null, matSig = "";
   function matExercises() {
-    const mats = (window.state?.materials || []).filter(m => m.text && (m.subject || "ru") === "ru" && !m.fromNotes);
+    const mats = (ST().materials || []).filter(m => m.text && (m.subject || "ru") === "ru" && !m.fromNotes);
     const sig = mats.map(m => m.id).join("|");
     if (matCache && sig === matSig) return matCache;
     matSig = sig; matCache = [];
@@ -59,7 +60,7 @@ const DevCover = (() => {
     const qs = (LB.questions || []).filter(q => { const g = +(String(q.source).match(/(\d{1,2})\s*кл/) || [])[1]; return !g || Math.abs(g - grade) <= 1; }).length;
     const les = (typeof Learn !== "undefined" ? Learn.lessonsFor(t.title, grade, 3, "lit").length : 0) + (LB.lessons || []).length;
     const method = typeof LitKit !== "undefined" && LitKit.workOf ? !!LitKit.workOf(t.title) : false;
-    const mats = (window.state?.materials || []).filter(m => (m.subject || "") === "lit" && m.text);
+    const mats = (ST().materials || []).filter(m => (m.subject || "") === "lit" && m.text);
     const text = works.some(w => { const k = low(w).slice(0, 18); return mats.some(m => low(m.text).includes(k)); }) || (LB.lessons || []).length > 0;
     const service = SERVICE.test(t.title) || /^(введение|итоговый урок)/i.test(t.title);
     const status = service ? "service" : (text || method) && (qs >= 3 || les) ? "ok" : text || method || qs || les ? "part" : "none";
@@ -132,21 +133,37 @@ const DevCover = (() => {
     const pct = Math.round(cnt("ok") / real * 100);
     const sections = []; for (const x of rows) { const s = x.t.section || "Без раздела"; let g = sections.find(y => y.s === s); if (!g) sections.push(g = { s, items: [] }); g.items.push(x); }
     const miss = rows.filter(x => x.r.status === "none" || x.r.status === "part");
-    const loaded = [...(window.state?.materials || []).filter(m => (m.subject || "ru") === subj && m.grade == grade && /workbook|textbook|lesson|method/.test((m.kind || "") + " " + (m.type || ""))).map(m => m.title || m.name),
+    const loaded = [...(ST().materials || []).filter(m => (m.subject || "ru") === subj && m.grade == grade && /workbook|textbook|lesson|method/.test((m.kind || "") + " " + (m.type || ""))).map(m => m.title || m.name),
       ...(typeof Base !== "undefined" && Base.summary ? (Base.summary() || []).filter(x => (x.subject || "ru") === subj && x.grade == grade).map(x => x.title || x.short) : [])].filter((x, i, a) => x && a.indexOf(x) === i);
-    const scans = (window.state?.materials || []).filter(m => (m.subject || "ru") === subj && m.grade == grade && !(m.text || "").trim());
+    const scans = (ST().materials || []).filter(m => (m.subject || "ru") === subj && m.grade == grade && !(m.text || "").trim());
     const order = [...miss.filter(x => x.r.status === "none"), ...miss.filter(x => x.r.status === "part")];
+    // что уже встроено — убираем из рекомендаций и показываем отдельно
+    const all = ST().materials || [];
+    const lowx = x => String(x || "").toLowerCase();
+    const surname = n => (String(n).match(/(?:[А-ЯЁ]\.\s*){1,2}([А-ЯЁ][а-яё-]+)/) || String(n).match(/^([А-ЯЁ][а-яё]+)/) || [])[1] || "";
+    const hasSeries = n => { const sn = lowx(surname(n)); if (!sn) return null; return all.find(m => (m.subject || "ru") === subj && (!m.grade || m.grade == grade) && (lowx(m.title || m.name).includes(sn) || lowx(String(m.text || "").slice(0, 3000)).includes(sn)) && (m.grade == grade || new RegExp("(^|\\D)" + grade + "(\\D|$)").test(m.title || m.name || ""))); };
+    const frpRange = n => { const r = String(n).match(/(\d+)–(\d+)/); return r ? [+r[1], +r[2]] : null; };
+    const frpGrades = new Set(); for (const d of FRP.list(subj)) for (const g of Object.keys(d.topics || {})) frpGrades.add(+g);
+    const frpHave = ([n]) => { const r = frpRange(n); if (!r) return false; for (let g = r[0]; g <= r[1]; g++) if (!frpGrades.has(g)) return false; return true; };
+    const forGrade = ([n]) => { const r = frpRange(n); return !r || (grade >= r[0] && grade <= r[1]); };
+    const frpLeft = FRP_LINKS[subj].filter(x => forGrade(x) && !frpHave(x)), frpDone = FRP_LINKS[subj].filter(x => forGrade(x) && frpHave(x));
+    const serLeft = SERIES[subj].filter(([n]) => !hasSeries(n)), serDone = SERIES[subj].map(([n]) => [n, hasSeries(n)]).filter(x => x[1]);
+    const devDone = all.filter(m => (m.subject || "ru") === subj && m.grade == grade && (m.cloud || m.cloudAt || m.devEmbed) && (m.text || "").trim());
     const link = (n, u) => `<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`;
     box.innerHTML = `<div class="cov-sum"><div class="cov-bar" role="img" aria-label="Обеспечено ${pct}% тем"><span class="ok" style="width:${cnt("ok") / real * 100}%"></span><span class="warn" style="width:${cnt("part") / real * 100}%"></span></div>
         <p><b>${grade} класс:</b> тем по ФРП ${rows.length}; материалов хватает для ${cnt("ok")}, мало — ${cnt("part")}, нет совсем — ${cnt("none")}.</p></div>
       ${upload("covAdd")}
       <ol class="rec-steps"><li>Откройте ссылку и скачайте файл.</li><li>Вернитесь на сайт.</li><li>Нажмите «Загрузить и встроить» выше — подойдёт любой файл.</li></ol>
-      ${scans.length ? `<div class="rec-card warn"><h3>Загружено, но не прочитано</h3><p>Это сканы без текста: ${scans.map(m => esc(String(m.title || m.name).slice(0, 70))).join("; ")}. Они уже стоят на распознавании; если долго нет результата — загрузите эти же книги в виде PDF с текстом.</p></div>` : ""}
-      <div class="rec-card"><h3>Скачать и загрузить: ФРП (официальные файлы)</h3><p class="small">Сайт сам распознает программу и встроит её: результаты, темы, планирование. Источник — сайт «Единое содержание общего образования» (edsoo.ru).</p>
-        <ul class="rec-list">${FRP_LINKS[subj].map(([n, u]) => `<li>${link(n, u)}</li>`).join("")}<li>${link("Все ФРП по другим предметам", "https://edsoo.ru/rabochie-programmy/")}</li></ul></div>
-      <div class="rec-card"><h3>Скачать и загрузить: пособия для ${grade} класса</h3>
-        ${loaded.length ? `<p class="small">Уже есть: ${loaded.slice(0, 6).map(m => esc(String(m).slice(0, 90))).join("; ")}${loaded.length > 6 ? "…" : ""}.</p>` : ""}
-        <ul class="rec-list">${SERIES[subj].map(([n, d]) => `<li>${link(`${n}, ${grade} класс`, ya(`${n} ${grade} класс pdf`))} <span class="small">— ${esc(d)}</span></li>`).join("")}</ul></div>
+      ${scans.length ? `<div class="rec-card warn"><h3>Загружено, но не прочитано</h3><p>Это сканы без текста: ${scans.map(m => esc(String(m.title || m.name).slice(0, 70))).join("; ")}. Сайт распознаёт их сам (страница за страницей, нужен интернет); после распознавания они встроятся автоматически.</p><button class="btn sm" id="covOcr" type="button">Распознать сейчас</button></div>` : ""}
+      ${frpLeft.length ? `<div class="rec-card"><h3>Скачать и загрузить: ФРП (официальные файлы)</h3><p class="small">Сайт сам распознает программу и встроит её: результаты, темы, планирование. Источник — сайт «Единое содержание общего образования» (edsoo.ru).</p>
+        <ul class="rec-list">${frpLeft.map(([n, u]) => `<li>${link(n, u)}</li>`).join("")}</ul></div>` : ""}
+      ${serLeft.length ? `<div class="rec-card"><h3>Скачать и загрузить: пособия для ${grade} класса</h3>
+        <ul class="rec-list">${serLeft.map(([n, d]) => `<li>${link(`${n}, ${grade} класс`, ya(`${n} ${grade} класс pdf`))} <span class="small">— ${esc(d)}</span></li>`).join("")}</ul></div>` : ""}
+      <div class="rec-card done"><h3>✓ Уже встроено в структуру сайта — ${grade} класс</h3>
+        <ul class="rec-list">${[...frpDone.map(([n]) => `<li>${esc(n)} <span class="tag ok">встроена</span></li>`),
+          ...serDone.map(([n, m]) => `<li>${esc(n)} <span class="small">— «${esc(String(m.title || m.name).slice(0, 70))}»</span> <span class="tag ok">встроено</span></li>`),
+          ...devDone.map(m => `<li>${esc(String(m.title || m.name).slice(0, 90))} <span class="tag ok">${m.cloud || m.cloudAt ? "у всех учителей" : "отправится в общую базу"}</span></li>`),
+          ...loaded.filter(t => !devDone.some(m => (m.title || m.name) === t)).slice(0, 30).map(t => `<li>${esc(String(t).slice(0, 90))} <span class="tag ok">в базе</span></li>`)].join("") || "<li class=\"small\">Пока ничего.</li>"}</ul></div>
       ${order.length ? `<div class="rec-card"><h3>Скачать и загрузить: темы без материалов (${order.length})</h3><ul class="rec-list">${order.slice(0, 80).map(({ t, r }) => `<li><b>${esc(t.title.slice(0, 120))}</b><br><span class="small">нужно: ${r.lacks.join(", ")}.</span> ${topicLinks(subj, t, grade, r).map(([n, u]) => link(n, u)).join(" · ")}</li>`).join("")}</ul></div>` : `<div class="rec-card"><p>Все темы ${grade} класса обеспечены материалами.</p></div>`}
       <details class="cov-all"><summary><b>Все темы ${grade} класса по ФРП</b> <span class="small">(● хватает · ◐ мало · ○ нет)</span></summary>
       ${sections.map(sec => `<details class="cov-sec"><summary><b>${esc(sec.s)}</b> <span class="small">${sec.items.filter(x => x.r.status === "ok").length}/${sec.items.filter(x => x.r.status !== "service").length}</span></summary>
@@ -154,6 +171,7 @@ const DevCover = (() => {
           <div class="cov-more">${r.lacks.length ? `<p><b>Не хватает:</b> ${r.lacks.join(", ")}. ${topicLinks(subj, t, grade, r).map(([n, u]) => link(n, u)).join(" · ")}</p>` : `<p class="small">${r.status === "service" ? "Урок контроля или повторения." : "Материалов достаточно."}</p>`}
           <button class="btn sm ghost" data-try="${esc(t.title)}">Собрать урок по теме</button></div></details></li>`).join("")}</ul></details>`).join("")}</details>`;
     box.querySelectorAll("[data-try]").forEach(x => x.onclick = () => tryTopic(subj, grade, x.dataset.try));
+    box.querySelector("#covOcr")?.addEventListener("click", async e => { e.target.disabled = true; e.target.textContent = "Распознаю…"; for (const m of scans) { if (window.OCR && await OCR.hasFile(m.id)) { if (!m.ocr || m.ocr.status === "error") await OCR.enqueue(m); } } OCR?.run(); toast("Распознавание запущено. Прогресс — в «Загруженных файлах».", 6000); });
     bindUpload(box, () => { toast("Файлы встроены. Пересчитываю…"); paint(box, subj, grade); });
   }
   /* Одна большая кнопка: любые файлы, сразу встраиваются */

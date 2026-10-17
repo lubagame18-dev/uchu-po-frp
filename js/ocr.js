@@ -30,6 +30,14 @@ const OCR = (() => {
   async function keepFile(id, file) { try { await Store.put("kv", blobKey(id), file); return true; } catch { return false; } }
   async function hasFile(id) { try { return !!(await Store.get("kv", blobKey(id))); } catch { return false; } }
 
+  /* распознанный текст — дальше по тому же пути, что и обычный файл:
+     у разработчика — в общую базу сайта, у учителя — автору сайта («Присланные учителями») */
+  async function afterText(m) {
+    try {
+      if (m.devEmbed && window.CloudBase && window.Account?.session) { if (await CloudBase.publish(m)) { m.cloudAt = new Date().toISOString(); await Store.put("materials", m.id, m); } }
+      else if (!m.devEmbed) window.Account?.shareMaterial?.(m);
+    } catch (e) { console.warn("ocr after", e); }
+  }
   async function enqueue(m) {
     m.ocr = { status: "queue", page: 0, pages: m.pages || null, at: new Date().toISOString() };
     await Store.put("materials", m.id, m); emit(); run();
@@ -58,7 +66,7 @@ const OCR = (() => {
         m.text = cl.text; m.chars = cl.text.length; m.scanned = false;
         m.ocr = { status: "done", page: 1, pages: 1, at: new Date().toISOString() };
         if (window.Materials) Object.assign(m, Materials.classify(m));
-        await Store.put("materials", m.id, m); toast(`Распознано: «${m.title || m.name}»`, 5000);
+        await Store.put("materials", m.id, m); toast(`Распознано: «${m.title || m.name}»`, 5000); await afterText(m);
         if (typeof loadMaterials === "function") await loadMaterials();
         emit(); return;
       }
@@ -83,7 +91,7 @@ const OCR = (() => {
       m.cleaned = { summary: window.Cleaner ? Cleaner.summary(cl.report) : "", report: cl.report, at: new Date().toISOString() };
       m.ocr = { status: "done", page: pdf.numPages, pages: pdf.numPages, at: new Date().toISOString() };
       if (window.Materials) Object.assign(m, Materials.classify(m));
-      await Store.put("materials", m.id, m);
+      await Store.put("materials", m.id, m); await afterText(m);
       toast(`Распознано: «${m.title || m.name}» — ${pdf.numPages} стр.`, 6000);
       if (typeof loadMaterials === "function") await loadMaterials();
     } catch (e) {
