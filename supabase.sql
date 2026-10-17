@@ -74,3 +74,11 @@ drop policy if exists base_read on base_materials;
 create policy base_read on base_materials for select using (true);
 drop policy if exists base_admin on base_materials;
 create policy base_admin on base_materials for all using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email')) with check (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
+
+-- правила сборки уроков («Обучение сайта»): читают все, меняют разработчики
+create table if not exists site_rules (id text primary key, data jsonb not null, updated_by text, updated_at timestamptz not null default now());
+alter table site_rules enable row level security;
+drop policy if exists rules_read on site_rules;
+create policy rules_read on site_rules for select using (true);
+drop policy if exists rules_admin on site_rules;
+create policy rules_admin on site_rules for all using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email')) with check (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));

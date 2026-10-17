@@ -217,7 +217,7 @@ const AI = (() => {
   async function sample(input, opts = {}) {
     const c = cfg(), list = chain(c);
     if (!list.length) throw { code: "not_configured", message: "ИИ не подключён" };
-    const prompt = Array.isArray(input) ? input.map(t => (t.role === "assistant" ? "Ассистент: " : "") + t.content).join("\n\n") : String(input);
+    const prompt = (Array.isArray(input) ? input.map(t => (t.role === "assistant" ? "Ассистент: " : "") + t.content).join("\n\n") : String(input)) + (!opts.noRules && window.Rules ? Rules.aiSuffix() : "");
     const st = status(), now = Date.now();
     // провайдеры, упавшие по лимиту в последние 10 минут, — в конец очереди
     const order = [...list.filter(id => !(st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)), ...list.filter(id => st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)];

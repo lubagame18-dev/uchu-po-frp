@@ -2291,12 +2291,22 @@ const Engine = (() => {
 
   /* ---------- 6. Рабочий лист без ИИ ---------- */
   const BL = "[ ________________________________________ ]";
+  /* «Оцени себя» — по правилам сайта: простые фразы для детей, результаты ФРП или ничего */
+  function selfCheck(r) {
+    const m = window.Rules ? Rules.get("ws_selfcheck") : "kids";
+    if (m === "none") return "";
+    if (m === "frp") return r.loaded && r.subject.length ? `---\n\n### 🪞 Оцени себя\n\n${r.subject.map(x => `- ☐ ${x.text}`).join("\n")}\n\n` : "";
+    return `---\n\n### 🪞 Оцени себя\n\n- ☐ Я понял(а) тему и могу объяснить её соседу\n- ☐ Я выполнил(а) задания сам(а), без подсказки\n- ☐ Мне нужно ещё потренироваться\n\n`;
+  }
   function worksheetCore(p, type, materials) {
     const ru = p.subject === "ru";
     const exam = p.control !== "school" && KB.exams[p.control];
     const r = FRP.results(p.subject, p.grade, p.topic, type.id);
     let md = `# ${p.topic}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n`;
-    if (r.loaded && r.subject.length) md += `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.\n\n`;
+    // цель в листе — по правилам сайта (по умолчанию для детей, без формулировок ФРП)
+    const wg = window.Rules ? Rules.get("ws_goal") : "kids";
+    if (wg === "frp" && r.loaded && r.subject.length) md += `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.\n\n`;
+    else if (wg === "kids" && window.Deck?.childGoal) { try { const g = Deck.childGoal(p, {}); if (g.points.length) md += `> 🎯 **Сегодня на уроке мы:** ${g.points.map(x => x.replace(/^\S/, c => c.toLowerCase())).join("; ")}.\n\n`; } catch { } }
     md += "---\n\n";
     let n = 0;
     const lvl = hard => hard ? `### 🚀 Задание ${++n}. Повышенный уровень${exam ? ` (${exam.label})` : ""}` : `### 🔓 Задание ${++n}. Базовый уровень`;
@@ -2333,7 +2343,7 @@ const Engine = (() => {
           const head = (t.lvl === 3 ? `### 🏆 Задание ${++n}. Творческое${t.name ? ` (${t.name.toLowerCase()})` : ""}` : lvl(t.lvl === 2) + (t.name ? ` · ${t.name}` : "")) + (stg ? ` · этап «${stg}»` : "");
           md += `${head}\n\n${t.text}\n\n${/\|/.test(t.text) || /^>/m.test(t.text) ? "" : Array(t.lines || 2).fill(BL).join("\n\n") + "\n\n"}`;
         }
-        if (r.loaded && r.subject.length) md += `---\n\n### 🪞 Оцени себя\n\n${r.subject.map(x => `- ☐ ${x.text}`).join("\n")}\n\n`;
+        md += selfCheck(r);
         const K = p.plan.kit, G = (K?.glossary || []).slice(0, 6);
         const kitKey = K ? [G.length >= 3 ? `**Словарная работа:** ${G.map((g, i) => `${i + 1} — ${"АБВГДЕЖЗ"[(i - Math.ceil(G.length / 2) + G.length * 2) % G.length]}`).join(", ")}.` : "", ...(K.qa || []).slice(0, 4).filter(x => x.items.length).map(x => `**Фрагмент ${x.n}:** ${x.items.slice(0, 2).map((y, j) => `${j + 1}) ${y.a}`).join(" ")}`), (K.terms || []).length ? `**Термины:** ${K.terms.slice(0, 5).map(t => `${t.term} — ${t.def}${t.ex ? ` (${t.ex})` : ""}`).join("; ")}.` : ""].filter(Boolean).join("\n\n") + "\n\n" : "";
         md += `---\n\n### 🔑 ОТВЕТЫ И КРИТЕРИИ ОЦЕНИВАНИЯ\n\n${kitKey}Ответы зависят от прочтения текста; оценивается опора на текст и точность цитат.${p.plan.analysis ? ` Подсказки для учителя: ${[p.plan.analysis.anaphora && `анафора «${p.plan.analysis.anaphora.word}…»`, p.plan.analysis.pairs?.length && `антитеза «${p.plan.analysis.pairs[0].join("» — «")}»`, p.plan.analysis.similes?.length && `сравнение «${p.plan.analysis.similes[0]}»`, p.plan.analysis.turn && `перелом на строке «${p.plan.analysis.turn.line}»`].filter(Boolean).join("; ") || "—"}.` : ""}\n\n`;
@@ -2348,7 +2358,7 @@ const Engine = (() => {
       md += `${lvl(true)}\n\n${type.id === "commented" ? "Заполните таблицу по эпизоду." : "Найдите 2–3 ключевые цитаты и объясните их смысл."}\n\n| Цитата | Комментарий | Скрытый смысл / подтекст |\n|---|---|---|\n|  |  |  |\n|  |  |  |\n\n`;
       md += `${lvl(true)}\n\nОтветьте на проблемный вопрос урока (5–7 предложений, опирайтесь на текст).\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
     }
-    if (r.loaded && r.subject.length) md += `---\n\n### 🪞 Оцени себя\n\n${r.subject.map(x => `- ☐ ${x.text}`).join("\n")}\n\n`;
+    md += selfCheck(r);
     md += `---\n\n### 🔑 ОТВЕТЫ И КРИТЕРИИ ОЦЕНИВАНИЯ\n\n`;
     md += ru ? `Ответы к заданиям из материалов — по ключу пособия, из которого взято задание.\n\n` : `Ответы зависят от прочтения текста; оценивается опора на текст и точность цитат.\n\n`;
     md += exam ? `Задания повышенного уровня оцениваются по критериям ${exam.label} (сверить с демоверсией ФИПИ текущего года).\n` : `**Школьная шкала:** по 1 баллу за базовое задание, по 2 — за повышенное и творческое; 85% и выше — «5», 65–84% — «4», 45–64% — «3».\n`;
@@ -4325,6 +4335,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/credits.js"></script>
 <script src="js/account.js"></script>
 <script src="js/cloudbase.js"></script>
+<script src="js/rules.js"></script>
 <script src="data/promo.js"></script>
 <script src="js/access.js"></script>
 <script src="js/deck.js"></script>

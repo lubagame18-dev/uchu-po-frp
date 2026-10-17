@@ -605,3 +605,10 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 .key-own { border-color: #2f8f5b; }
 .key-own .row-btn { flex-wrap: wrap; gap: 6px; }
 .key-own .row-btn input { flex: 1 1 220px; min-width: 0; }
+.teach textarea.inp { width: 100%; }
+.teach .row-btn { flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tc-prop { margin-top: 12px; padding: 12px 14px; border: 2px solid #a43fd0; border-radius: 14px; background: #f7efff; }
+.tc-prop s { opacity: .55; }
+.tc-rules { padding-left: 22px; display: grid; gap: 8px; }
+.tc-rules li { display: flex; gap: 6px; align-items: flex-start; }
+.tc-rules textarea { flex: 1; min-width: 0; }

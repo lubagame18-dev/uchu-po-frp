@@ -103,7 +103,7 @@ const Dev = (() => {
 
   /* ---------- разделы ---------- */
   let subj = "ru"; // русский язык и литература — раздельно
-  const MAIN = [["files", "Загруженные файлы"], ["rec", "Рекомендации"], ["keys", "Ключи ИИ"]];
+  const MAIN = [["files", "Загруженные файлы"], ["rec", "Рекомендации"], ["keys", "Ключи ИИ"], ["teach", "Обучение сайта"]];
   const SECTIONS = [["materials", "Все материалы"], ["exercises", "Конструктор упражнений"], ["lessons", "Конспекты"], ["frp", "ФРП"], ["inbox", "Файлы от пользователей"], ["drafts", "Черновики"], ["logs", "Логи"], ["reports", "Отчёты и собранные файлы"]];
   function show(sec) {
     if (!on) return;
@@ -120,7 +120,7 @@ const Dev = (() => {
     v.querySelectorAll("[data-sec]").forEach(b => b.onclick = () => show(b.dataset.sec));
     v.querySelectorAll("[data-subj]").forEach(b => b.onclick = () => { subj = b.dataset.subj; show(section); });
     const body = v.querySelector("#devBody");
-    ({ files: secFiles, keys: secKeys, rec: x => window.DevCover ? DevCover.render(x, subj) : (x.innerHTML = "<p>Модуль рекомендаций не загружен.</p>"), cover: x => DevCover.render(x, subj), materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
+    ({ files: secFiles, keys: secKeys, teach: secTeach, rec: x => window.DevCover ? DevCover.render(x, subj) : (x.innerHTML = "<p>Модуль рекомендаций не загружен.</p>"), cover: x => DevCover.render(x, subj), materials: secMaterials, exercises: secExercises, lessons: secLessons, frp: secFrp, inbox: secInbox, drafts: secDrafts, logs: secLogs, reports: secReports })[sec](body);
   }
   // переход в обычный раздел прячет экран разработчика
   const origGo = window.go;
@@ -190,6 +190,50 @@ const Dev = (() => {
       });
     };
     keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">${esc(e.message)}</p>`; });
+  }
+  /* Обучение сайта: переключатели сборки и правила словами — сразу для всех учителей */
+  function secTeach(b) {
+    const R = window.Rules; if (!R) { b.innerHTML = "<p>Модуль правил не загружен.</p>"; return; }
+    let draft = R.all(), proposal = null;
+    const draw = msg => {
+      const m = R.meta, aiOn = !!window.AI?.configured?.();
+      b.innerHTML = `<section class="dev-card teach">
+        <h2>Научить словами</h2>
+        <p class="small">Напишите, что не нравится или как должно быть. ${aiOn ? "Нейросеть предложит изменения — вы посмотрите и примените." : "<b>Нейросеть не подключена</b> — пожелание добавится как правило для сборки с ИИ. Чтобы сайт сам переключал настройки, подключите личный ключ (раздел «Ключи ИИ»)."}</p>
+        <textarea class="inp" id="tcWish" rows="3" placeholder="Например: в рабочих листах не нужны предметные результаты; цель на слайде пишите для детей, интересно"></textarea>
+        <div class="row-btn"><button class="btn flame" id="tcGo" type="button">${aiOn ? "Разобрать пожелание" : "Добавить как правило"}</button><span class="small" id="tcSt" role="status">${esc(msg || "")}</span></div>
+        ${proposal ? `<div class="tc-prop"><b>Предложение нейросети</b>${proposal.explain ? `<p>${esc(proposal.explain)}</p>` : ""}<ul>
+          ${Object.entries(proposal.set).map(([k, v]) => { const s = R.SCHEMA.find(x => x.k === k); return `<li>⚙ ${esc(s.label)}: <s>${esc(s.options ? s.options[R.get(k)] : R.get(k))}</s> → <b>${esc(s.options ? s.options[v] : v)}</b></li>`; }).join("")}
+          ${proposal.add.map(x => `<li>➕ правило: ${esc(x)}</li>`).join("")}
+          ${proposal.remove.map(i => `<li>➖ убрать правило: ${esc(R.get("ai_rules")[i])}</li>`).join("")}
+          ${!Object.keys(proposal.set).length && !proposal.add.length && !proposal.remove.length ? "<li>Менять нечего — так уже настроено.</li>" : ""}</ul>
+          <div class="row-btn"><button class="btn sm flame" id="tcApply" type="button">Применить для всех</button><button class="btn sm ghost" id="tcCancel" type="button">Отмена</button></div></div>` : ""}
+      </section>
+      <section class="dev-card teach">
+        <h2>Как собирается урок <span class="tag">для всех учителей</span></h2>
+        ${R.SCHEMA.map(s => `<div class="field"><label for="tc_${s.k}">${esc(s.label)}</label>${s.options ? `<select id="tc_${s.k}" data-k="${s.k}">${Object.entries(s.options).map(([k, v]) => `<option value="${k}" ${draft[s.k] === k ? "selected" : ""}>${esc(v)}</option>`).join("")}</select>` : `<input type="text" id="tc_${s.k}" data-k="${s.k}" value="${esc(draft[s.k] || "")}">`}</div>`).join("")}
+        <h3>Правила для нейросети</h3><p class="small">Добавляются к каждому запросу при сборке и правке уроков с ИИ.</p>
+        <ol class="tc-rules">${(draft.ai_rules || []).map((x, i) => `<li><textarea class="inp" data-ri="${i}" rows="2">${esc(x)}</textarea><button class="btn sm ghost" data-rdel="${i}" type="button" aria-label="Удалить правило">×</button></li>`).join("")}</ol>
+        <div class="row-btn"><button class="btn sm" id="tcAdd" type="button">+ Правило</button><button class="btn flame" id="tcSave" type="button">Сохранить для всех</button><button class="btn sm ghost" id="tcReset" type="button">Вернуть как было</button></div>
+        <p class="small">${m.at ? `Последнее изменение: ${new Date(m.at).toLocaleString("ru-RU")}${m.by ? " — " + esc(m.by) : ""}.` : "Сейчас действуют правила по умолчанию."} Изменения доходят до учителей в течение 15 минут (или при обновлении страницы).</p>
+      </section>`;
+      const $b = q => b.querySelector(q), st = $b("#tcSt");
+      const collect = () => { b.querySelectorAll("[data-k]").forEach(x => draft[x.dataset.k] = x.value); draft.ai_rules = [...b.querySelectorAll("[data-ri]")].map(x => x.value.trim()).filter(Boolean); };
+      const apply = async (data, note) => { try { await R.save(data, note); draft = R.all(); proposal = null; draw("Сохранено — действует для всех учителей."); } catch (e) { draw("Не сохранилось: " + (/site_rules|does not exist|schema cache/i.test(e.message) ? "в облаке нет таблицы site_rules — выполните SQL из инструкции" : e.message)); } };
+      $b("#tcGo").onclick = async () => {
+        const w = $b("#tcWish").value.trim(); if (!w) { st.textContent = "Напишите пожелание."; return; }
+        if (!aiOn) { collect(); draft.ai_rules.push(w); return apply({ ai_rules: draft.ai_rules }, "добавлено правило"); }
+        $b("#tcGo").disabled = true; st.textContent = "Нейросеть думает…";
+        try { proposal = await R.teach(w); draw(); } catch (e) { $b("#tcGo").disabled = false; st.textContent = "✗ " + e.message; }
+      };
+      $b("#tcApply")?.addEventListener("click", () => { const rules = (R.get("ai_rules") || []).filter((_, i) => !proposal.remove.includes(i)).concat(proposal.add); apply({ ...proposal.set, ai_rules: rules }, "обучение словами"); });
+      $b("#tcCancel")?.addEventListener("click", () => { proposal = null; draw(); });
+      $b("#tcAdd").onclick = () => { collect(); draft.ai_rules.push(""); draw(); b.querySelector(".tc-rules li:last-child textarea")?.focus(); };
+      b.querySelectorAll("[data-rdel]").forEach(x => x.onclick = () => { collect(); draft.ai_rules.splice(+x.dataset.rdel, 1); draw(); });
+      $b("#tcSave").onclick = () => { collect(); apply(draft, "переключатели и правила"); };
+      $b("#tcReset").onclick = () => { if (confirm("Вернуть правила по умолчанию для всех учителей?")) apply({ ...R.DEF, ai_rules: [...R.DEF.ai_rules] }, "правила по умолчанию"); };
+    };
+    draw();
   }
   /* Личный ключ разработчика: только в этом браузере, только для своей работы (собрать урок с ИИ, проверить, доработать) */
   function ownKeyCard(box) {

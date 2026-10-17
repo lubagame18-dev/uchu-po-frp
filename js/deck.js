@@ -146,7 +146,9 @@ const Deck = (() => {
       else if (RK?.kind === "syntax") pts.push("научимся находить каждый член предложения по вопросу", "разберёмся, как не перепутать похожие члены предложения", "потренируемся на примерах");
       else pts.push(`узнаем главное по теме «${T}»`, "научимся применять это на практике", "проверим себя");
     }
-    return { head: "Сегодня на уроке мы:", points: pts.slice(0, 4).map(capF) };
+    // правило сайта: цель на слайде — для детей или формулировками ФРП
+    if (window.Rules?.get("slide_goal") === "frp" && typeof FRP !== "undefined") { const r = FRP.results(p.subject, p.grade, p.topic, p.type?.id); if (r?.subject?.length) return { head: "Цель урока:", points: r.subject.slice(0, 4).map(x => capF(x.text)) }; }
+    return { head: window.Rules?.get("slide_goal_title") || "Сегодня на уроке мы:", points: pts.slice(0, 4).map(capF) };
   }
   /* Правило — короткий текст с формулировкой («пишется», «называется», «ставится»…), а не случайный абзац из пособия */
   const looksRule = s => { const t = plainMd(s).replace(/\*\([^)]*\)\*/g, ""); return t.length >= 25 && t.length <= 450 && /(пиш[еу]тся|называ[ею]тся|ставится|ставятся|не ставится|обособля|выделя[ею]тся|употребля[ею]тся|образу[ею]тся|обозначает|отвечает на вопрос|это\s|является|относятся|различают|бывают)/i.test(t); };
@@ -479,6 +481,6 @@ ${JSON.stringify(payload)}`;
     };
   }
 
-  return { outline, toMarkdown, build, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { childGoal, outline, toMarkdown, build, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
 })();
 window.Deck = Deck;
