@@ -307,24 +307,29 @@ const LitKit = (() => {
   }
 
   /* ---------- 6. Проблемный вопрос и выводы ---------- */
-  function problemOf(p, A) {
-    const work = (p.topic.match(/«([^»]+)»/) || [])[1];
-    // настоящий проблемный вопрос вырастает из противоречия в самом тексте: финал, перелом, «как будто»
-    if (A?.verse && A.__text) {
-      const ls = A.__text.split("\n").map(x => x.trim()).filter(Boolean), last = ls[ls.length - 1] || "", first = ls[0] || "";
-      const lastQ = last.replace(/[.!…]+$/, ""), turn = A.turn?.line ? A.turn.line.replace(/[.,!…;:—–-]+$/, "") : "";
-      if (/как будто|будто|словно|разве|(^|\s)но(\s|$)|(^|\s)а(\s|$)/i.test(last)) return `«${lastQ}». Разве такое бывает? Почему автор так говорит?`;
-      if (turn) return `Почему после строки «${turn}» всё меняется?`;
-      if (first && last && first !== last) return `Начало — «${first.replace(/[.!…,]+$/, "")}», финал — «${lastQ}». Что случилось между этими строками?`;
+  /* Проблемный вопрос — не «о чём текст» и не «начало–конец», а смысловой конфликт, несостыковка.
+     Порядок: 1) база произведения; 2) образовательные материалы (разработки уроков по этому произведению);
+     3) открытые источники (статья о произведении); 4) конфликт в самом тексте: перелом против того, что ему
+     предшествует; столкновение образов; герои. Нейросеть (если подключена) уточняет вопрос — см. Heur/index. */
+  const PROBLEMISH = /почему|зачем|как (понять|объяснить|совместить|примирить)|в ч[её]м (смысл|причина|парадокс|противореч)|противореч|парадокс|разве|можно ли|прав ли|кто прав/i;
+  function problemOf(p, A, plan) {
+    const work = (p.topic.match(/«([^»]+)»/) || [])[1], wl = work ? work.toLowerCase().slice(0, 12) : "";
+    problemOf.src = ""; problemOf.note = "";
+    // 2) образовательные материалы: проблемный вопрос из разработки урока именно по этому произведению
+    const sq = (plan?.sample?.questions || []).map(String).filter(q => q.length > 25 && q.length < 220 && /\?/.test(q) && PROBLEMISH.test(q) && (!plan.sample.topic || !wl || String(plan.sample.topic).toLowerCase().includes(wl)));
+    if (sq.length) { problemOf.src = `образовательный материал: ${plan.sample.src || "разработка урока"}`; return sq.sort((x, y) => (/почему|противореч|парадокс|разве/i.test(y) ? 1 : 0) - (/почему|противореч|парадокс|разве/i.test(x) ? 1 : 0))[0].trim(); }
+    // 3) открытые источники: в статье о произведении названо противоречие (конфликт, протест, одиночество…)
+    const ww = String(plan?.workWiki || ""); const cs = ww.split(/(?<=[.!?])\s+/).find(x => /противопостав|конфликт|протест|бунт|одиночеств|тоск|свобод|контраст|противореч/i.test(x));
+    // 4) конфликт в тексте: строка-перелом против спокойной картины перед ней
+    if (A?.__text) {
+      const ls = A.__text.split("\n").map(x => x.trim()).filter(Boolean);
+      const turn = A.turn?.line ? A.turn.line.replace(/[.,!…;:—–-]+$/, "") : "", ti = turn ? ls.findIndex(l => l.startsWith(turn.slice(0, 15))) : -1;
+      if (ti > 0) { const prev = ls[ti - 1].replace(/[.,!…;:—–-]+$/, ""); problemOf.src = "смысловой конфликт в тексте" + (cs ? "; открытые источники" : ""); problemOf.note = cs || ""; return `Почему «${turn}» — если «${prev}»?`; }
     }
-    // проза: начало и финал текста — что произошло с героем между ними
-    if (A && !A.verse && A.__text) {
-      const sents = A.__text.replace(/\s+/g, " ").split(/(?<=[.!?…])\s+/).map(x => x.trim()).filter(x => x.length > 8);
-      const f = sents[0], l = sents[sents.length - 1];
-      if (f && l && f !== l && sents.length >= 4) return `В начале: «${f.replace(/[.!…]+$/, "")}». В конце: «${l.replace(/[.!…]+$/, "")}». Что произошло между этими строками — и почему автор заканчивает именно так?`;
-    }
-    if (A?.heroes?.length >= 2) return `Кто прав в столкновении героев — ${A.heroes[0]} или ${A.heroes[1]}? И на чьей стороне автор?`;
-    if (A?.pairs?.length) return `Что важнее для автора: «${A.pairs[0][0]}» или «${A.pairs[0][1]}»? Можно ли их примирить?`;
+    if (A?.heroes?.length >= 2) { problemOf.src = "конфликт героев"; return `Кто прав в столкновении героев — ${A.heroes[0]} или ${A.heroes[1]}? И почему автор не даёт простого ответа?`; }
+    if (A?.pairs?.length) { problemOf.src = "столкновение образов в тексте"; return `Почему в тексте сталкиваются «${A.pairs[0][0]}» и «${A.pairs[0][1]}»? Что автор хочет, чтобы мы почувствовали в этом столкновении?`; }
+    if (cs) { problemOf.src = "открытые источники"; problemOf.note = cs; return `Где в тексте мы видим то, о чём пишут исследователи: «${cs.replace(/[.]+$/, "").slice(0, 160)}»? Согласны ли вы?`; }
+    problemOf.src = "общий вопрос (нужен текст или нейросеть)";
     if (A?.title || work) return `О чём на самом деле ${A?.verse ? "это стихотворение" : "это произведение"} — «${A?.title || work}»?`;
     return `Что хотел сказать автор произведения, о котором идёт речь на уроке?`;
   }
@@ -356,7 +361,7 @@ const LitKit = (() => {
     const terms = termsFor(p, A, allQa);
     const gloss = glossaryFor(frs.map(f => f.text));
     const heroes = W?.compare || (A.heroes || []).slice(0, 2);
-    return { fragments: frs.map(({ qa, ...f }) => f), qa, terms, glossary: gloss, problem: W?.problem || problemOf(p, A), answer: W?.answer || null, idea: W?.idea || null, heroes, rows: W?.rows || null, conclusions: conclusions(p, A, frs, terms, W) };
+    return { fragments: frs.map(({ qa, ...f }) => f), qa, terms, glossary: gloss, problem: W?.problem || problemOf(p, A, plan), problemSrc: W?.problem ? "база произведения" : problemOf.src, problemNote: problemOf.note || "", answer: W?.answer || null, idea: W?.idea || null, heroes, rows: W?.rows || null, conclusions: conclusions(p, A, frs, terms, W) };
   }
 
   /* ---------- 8. Разметка фрагмента для слайда: слова с подсказками ---------- */

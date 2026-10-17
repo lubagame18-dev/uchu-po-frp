@@ -408,6 +408,10 @@ const Variety = (() => {
     const sample = samples[0] || null;
     const st = p.subject === "lit" ? adaptStages(type, p, A, sample, fmt) : { stages: type.stages.slice(), note: "" };
     const plan = { text: found ? String(found.text).slice(0, 40000) : null, analysis: A, format: fmt, sample: sample ? { topic: sample.topic, src: sample.src, num: sample.num, epigraph: sample.epigraph, questions: sample.questions.slice(0, 40).map(q => q.text) } : null, stages: st.stages, structureNote: st.note, textSource: found ? found.source : null, textUrl: found?.url || null, used: [] };
+    // открытые источники: статья о произведении (Википедия) — для проблемного вопроса и ориентира учителя
+    if (p.subject === "lit" && title && typeof Base !== "undefined" && Base.wikiSummary) {
+      try { const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : ""; const w = await Promise.race([Base.wikiSummary(`${title}${sur ? " (" + sur + ")" : ""}`), new Promise(r => setTimeout(() => r(null), 6000))]); const t = w?.extract || w?.text || (typeof w === "string" ? w : ""); if (t && (!sur || t.includes(sur.slice(0, 5)))) plan.workWiki = String(t).slice(0, 3000); } catch { }
+    }
     // методический набор урока литературы: фрагменты, вопросы с ответами, словарь, термины, выводы
     if (p.subject === "lit" && typeof LitKit !== "undefined") { try { plan.kit = LitKit.build(p, plan); } catch (e) { console.warn("LitKit", e); } }
     // профиль урока русского языка: свой формат для орфографии, пунктуации, синтаксиса, лексики, стилей…
