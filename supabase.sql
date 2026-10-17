@@ -82,3 +82,10 @@ drop policy if exists rules_read on site_rules;
 create policy rules_read on site_rules for select using (true);
 drop policy if exists rules_admin on site_rules;
 create policy rules_admin on site_rules for all using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email')) with check (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
+
+-- учёт токенов ИИ сайта по тарифу (сколько потрачено и сколько можно за месяц)
+alter table profiles add column if not exists tokens_used bigint not null default 0;
+alter table profiles add column if not exists tokens_limit bigint not null default 0;
+-- бесплатный тариф: счёт уроков по кабинету, устройству и сети (только сервер)
+create table if not exists free_usage (key text not null, month text not null, n int not null default 0, updated_at timestamptz default now(), primary key (key, month));
+alter table free_usage enable row level security;

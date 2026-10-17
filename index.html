@@ -3713,7 +3713,7 @@ async function createLesson() {
   p.notes = window.Notes ? Notes.snapshot() : null;
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   const useAi = state.build === "ai";
-  if (window.Access && !Access.canBuild(useAi)) return; // тариф или промокод
+  if (window.Access && !(await Access.canBuildAsync(useAi))) return; // тариф, промокод, бесплатный лимит (сервер)
   if (useAi && window.UCHU && !window.UCHU.configured()) { openAiSettings(); return; }
   if (window.Access) Access.countLesson();
   const { notes: _n, ...pParams } = p;

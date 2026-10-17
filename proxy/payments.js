@@ -10,9 +10,10 @@
    Цены — только здесь, на сервере: подменить цену со стороны браузера нельзя.
    =================================================================== */
 const crypto = require("crypto");
-const PLANS = { basic: { name: "Учитель", price: 300, ai: 0 }, ai: { name: "Учитель + ИИ", price: 500, ai: 50 }, pro: { name: "Методист", price: 900, ai: 120 } };
+/* tokens — сколько токенов ИИ сайта (DeepSeek) входит в тариф на месяц: ≈ 40 тыс. на урок с ИИ */
+const PLANS = { basic: { name: "Учитель", price: 300, ai: 0, tokens: 0 }, ai: { name: "Учитель + ИИ", price: 500, ai: 50, tokens: 2000000 }, pro: { name: "Методист", price: 900, ai: 120, tokens: 4800000 } };
 const PROMO_K = 0.5; // скидка по промокоду
-const PACKS = { ai10: { name: "10 уроков с ИИ", price: 50, ai: 10 }, ai30: { name: "30 уроков с ИИ", price: 140, ai: 30 } };
+const PACKS = { ai10: { name: "10 уроков с ИИ", price: 50, ai: 10, tokens: 400000 }, ai30: { name: "30 уроков с ИИ", price: 140, ai: 30, tokens: 1200000 } };
 const DAY = 864e5;
 const env = k => process.env[k] || "";
 const on = () => !!(env("PRODAMUS_URL") && env("PRODAMUS_KEY"));
@@ -96,18 +97,41 @@ async function notify(raw, headers, request, readAll) {
   }
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
   const [type, item] = kind.split("_");
-  const promo = !!p.promo || p.plan === "promo"; if (p.plan === "promo") p.plan = "free";
+  const promo = !!p.promo || p.plan === "promo";
   const expect = type === "pack" ? PACKS[item]?.price : type === "plan" ? Math.round((PLANS[item]?.price || 0) * (promo ? PROMO_K : 1)) || undefined : 10;
   if (!expect || sum + 0.01 < expect) return { status: 200, text: "success" }; // сумма меньше цены — тариф не выдаём
-  const now = Date.now(), until = p.paid_until && new Date(p.paid_until) > now ? new Date(p.paid_until).getTime() : now;
-  let patch;
-  const aiOf = x => promo ? 0 : PLANS[x]?.ai || 0;
-  if (type === "plan") patch = { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + 30 * DAY).toISOString() };
-  else if (type === "up") patch = { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)) };
-  else patch = { ai_left: (p.ai_left || 0) + PACKS[item].ai };
-  await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: uid, plan: "free", ai_left: 0 } }).catch(() => null);
-  await sb(request, readAll, `/rest/v1/profiles?id=eq.${uid}`, { method: "PATCH", body: patch });
+  await apply(uid, p, type, item, promo, request, readAll);
   await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(String(data.order_id || ""))}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
   return { status: 200, text: "success" };
 }
-module.exports = { create, notify, sign, verify, parseForm, PLANS, PACKS, on };
+/* Начисление тарифа (после оплаты или тестовой оплаты): срок, уроки с ИИ и лимит токенов на месяц */
+function patchFor(p, type, item, promo) {
+  if (p.plan === "promo") p = { ...p, plan: "free" };
+  const aiOf = x => promo ? 0 : PLANS[x]?.ai || 0, tokOf = x => promo ? 0 : PLANS[x]?.tokens || 0;
+  const now = Date.now(), until = p.paid_until && new Date(p.paid_until) > now ? new Date(p.paid_until).getTime() : now;
+  const leftTok = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0));
+  if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + 30 * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
+  if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: (p.tokens_limit || 0) + Math.max(0, tokOf(item) - tokOf(p.plan)) };
+  return { ai_left: (p.ai_left || 0) + PACKS[item].ai, tokens_limit: (p.tokens_limit || 0) + PACKS[item].tokens };
+}
+async function apply(uid, p, type, item, promo, request, readAll) {
+  const patch = patchFor(p, type, item, promo);
+  await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: uid, plan: "free", ai_left: 0 } }).catch(() => null);
+  const r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${uid}`, { method: "PATCH", body: patch });
+  if (r.status >= 300) { const { tokens_limit, tokens_used, ...old } = patch; await sb(request, readAll, `/rest/v1/profiles?id=eq.${uid}`, { method: "PATCH", body: old }); } // колонок токенов ещё нет
+  return patch;
+}
+/* Тестовая оплата (только разработчики): тариф начисляется без денег — проверить ИИ сайта и учёт токенов */
+async function test(body, userToken, request, readAll) {
+  const user = await userOf(userToken, request, readAll);
+  if (!user) return { status: 401, json: { error: "войдите в личный кабинет" } };
+  const item = String(body.item || ""), type = PLANS[item] ? "plan" : PACKS[item] ? "pack" : "";
+  if (!type) return { status: 400, json: { error: "нет такого тарифа" } };
+  let uid = user.id;
+  if (body.email && String(body.email).toLowerCase() !== String(user.email).toLowerCase()) { const pr = (await sb(request, readAll, `/rest/v1/profiles?email=eq.${encodeURIComponent(String(body.email).toLowerCase())}&select=id`)).json?.[0]; if (!pr) return { status: 404, json: { error: "учитель с такой почтой ещё не заходил на сайт" } }; uid = pr.id; }
+  const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
+  const patch = await apply(uid, p, type, item, !!p.promo, request, readAll);
+  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: `test.${uid}.${type}_${item}.${Date.now()}`, user_id: uid, kind: `${type}_${item}`, amount: 0, status: "test" } }).catch(() => null);
+  return { status: 200, json: { ok: true, patch } };
+}
+module.exports = { create, notify, test, patchFor, sign, verify, parseForm, PLANS, PACKS, on };

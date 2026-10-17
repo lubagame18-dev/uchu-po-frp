@@ -632,3 +632,5 @@ input.secret.keep.shown, input.secret.keep.shown:focus { -webkit-text-security: 
 .mb-row select { flex: 1 1 160px; min-width: 0; }
 .mb-sub { margin-left: 18px; margin-top: 4px; }
 .mb-sub input[type=file] { font-size: 12px; max-width: 100%; }
+.tok-bar { height: 10px; border: 2px solid var(--ink); border-radius: 99px; overflow: hidden; margin: 8px 0 4px; background: #fff; }
+.tok-bar span { display: block; height: 100%; background: linear-gradient(90deg, #8a4bff, #f05aa6); }

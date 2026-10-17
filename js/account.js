@@ -45,7 +45,10 @@ const Account = (() => {
   async function localUp(email, password) { const u = lusers(), e = email.toLowerCase(); if (u[e]) throw new Error("already registered"); u[e] = { h: await phash(e, password), at: new Date().toISOString() }; localStorage.setItem(LKEY, JSON.stringify(u)); S = { email: e, local: true }; save(); return "ok"; }
   async function localIn(email, password) { const u = lusers()[email.toLowerCase()]; if (!u || u.h !== await phash(email, password)) throw new Error("Invalid login credentials"); S = { email: email.toLowerCase(), local: true }; save(); }
   async function signIn(email, password) { if (!ready()) return localIn(email, password); setSession(await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }), email); await pull(); }
+  // одноразовые почтовые ящики — не принимаем (защита бесплатного тарифа от многократных регистраций)
+  const TEMP = /@(mailinator|guerrillamail|guerrillamailblock|sharklasers|10minutemail|10minemail|tempmail|temp-mail|tempmailo|tempr|tmpmail|tmpeml|yopmail|throwawaymail|trashmail|getnada|nada|dispostable|fakeinbox|maildrop|mintemail|mohmal|emailondeck|moakt|mail\.tm|mailnesia|burnermail|spamgourmet|dropmail|1secmail|minuteinbox|inboxkitten|tempail|luxusmail|emailfake|fakemail|crazymailing|mytemp|tempinbox|mailcatch|discard|33mail|harakirimail|getairmail|byom|vusra|wuuvo)\./i;
   async function signUp(email, password) {
+    if (TEMP.test(email)) throw new Error("Одноразовые почтовые ящики не подходят — укажите свою постоянную почту.");
     if (!ready()) return localUp(email, password);
     // ссылка из письма должна вести обратно на сайт (а не на корень github.io)
     const back = location.origin + location.pathname;
@@ -130,10 +133,18 @@ const Account = (() => {
     try {
       if (!(await refresh())) return null;
       const q = f => api(`/rest/v1/profiles?id=eq.${S.uid}&select=${f}`);
-      const p = (await q("plan,ai_left,paid_until,promo").catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // колонки promo может ещё не быть
-      if (p && S) { S.plan = p.plan; S.promo = !!p.promo || p.plan === "promo"; save(); window.Access?.paint(); }
+      const p = (await q("plan,ai_left,paid_until,promo,tokens_used,tokens_limit").catch(() => q("plan,ai_left,paid_until,promo")).catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // новых колонок может ещё не быть
+      if (p && S) { S.plan = p.plan; S.promo = !!p.promo || p.plan === "promo"; S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
       return p;
     } catch { return null; }
+  }
+  /* Расход ИИ по тарифу: полоска «потрачено из доступного» */
+  const kTok = n => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(".", ",") + " млн" : Math.round(n / 1000) + " тыс.";
+  function tokLine(p) {
+    const lim = p.tokens_limit || 0, used = Math.min(p.tokens_used || 0, lim || p.tokens_used || 0), left = Math.max(0, lim - used);
+    if (!lim) return "<br><b>ИИ сайта:</b> не входит в тариф";
+    const pct = Math.round(used / lim * 100);
+    return `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div><span class="small"><b>ИИ:</b> потрачено ${kTok(used)} из ${kTok(lim)} токенов · осталось ≈ ${Math.floor(left / 40000)} уроков с ИИ</span>`;
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
   const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "разделы разработчика" : "© 2026"}</button></div>`;
@@ -163,7 +174,7 @@ const Account = (() => {
       m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; await saveInfo(fields()); pm.textContent = "Сохранено ✓"; };
       m.querySelector("#acPhoto").onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { pm.textContent = "Загружаю фото…"; await saveInfo({ ...fields(), avatar: await shrink(f) }); closeModal(); open(); } catch (er) { pm.textContent = "Не получилось: " + er.message; } };
       m.querySelector("#acNoPhoto")?.addEventListener("click", async () => { await saveInfo({ ...fields(), avatar: null }); closeModal(); open(); });
-      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${S.promo ? " · промокод −50%" : ""}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}${S.promo ? "" : `<br><b>Уроков с ИИ осталось:</b> ${p.ai_left ?? "—"}`}` : `<b>Тариф:</b> бесплатный`; });
+      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${S.promo ? " · промокод −50%" : ""}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}${S.promo ? "" : typeof p.tokens_limit === "number" ? tokLine(p) : `<br><b>Уроков с ИИ осталось:</b> ${p.ai_left ?? "—"}`}` : `<b>Тариф:</b> бесплатный`; });
       if (m.querySelector("#acSync")) m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };
       return;

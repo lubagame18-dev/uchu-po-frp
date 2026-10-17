@@ -163,9 +163,9 @@ const Dev = (() => {
     return j;
   }
   function secKeys(b) {
-    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card"><h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">Загружаю…</p></section>`;
-    ownKeyCard(b.querySelector("#dvOwn"));
-    const box = b.lastElementChild;
+    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card"><h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
+    ownKeyCard(b.querySelector("#dvOwn")); testPayCard(b.querySelector("#dvTest"));
+    const box = b.children[1];
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
     const draw = (j, note) => {
       box.innerHTML = `<h2>Общие ключи ИИ (DeepSeek) <span class="tag red">для всех учителей</span></h2>
@@ -189,6 +189,23 @@ const Dev = (() => {
       });
     };
     keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">${esc(e.message)}</p>`; });
+  }
+  /* Тестовая оплата: тариф начисляется без денег — чтобы проверить ИИ сайта (общие ключи DeepSeek) и учёт токенов */
+  function testPayCard(box) {
+    const fnUrl = path => { const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""); return /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent(path)}` : fn + path; };
+    const call = async (path, body) => { const tok = window.Account?.session?.access; if (!tok) throw new Error("войдите в личный кабинет"); await window.Account.refreshPlan?.().catch(() => null); const r = await fetch(fnUrl(path), { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify(body) }); const t = await r.text(); let j = {}; try { j = JSON.parse(t); } catch { } if (r.status === 404 || /нужен массив messages/.test(j.error || "")) throw new Error("на сервере старая версия функции — загрузите новый архив"); if (!r.ok) throw new Error(j.error || "HTTP " + r.status); return { j, t, h: r.headers }; };
+    const usage = () => { const t = window.Account?.session?.tokens; return t ? `Потрачено ${Math.round(t.used / 1000)} тыс. из ${Math.round(t.limit / 1000)} тыс. токенов.` : "Учёт токенов появится после команды в Supabase (колонки tokens_used, tokens_limit)."; };
+    const draw = msg => {
+      box.innerHTML = `<h2>Проверка оплаты и ИИ сайта <span class="tag">тест, без денег</span></h2>
+        <p class="small">1) Смоделируйте оплату тарифа — он начислится вашему кабинету (или учителю по почте), как после настоящей оплаты. 2) Отправьте пробный запрос — он пройдёт через общие ключи DeepSeek, токены спишутся с тарифа.</p>
+        <div class="row-btn"><select id="tpItem"><option value="ai">«Учитель + ИИ» (2 млн токенов)</option><option value="pro">«Методист» (4,8 млн токенов)</option><option value="basic">«Учитель» (без ИИ)</option><option value="ai10">+10 уроков с ИИ</option></select><input type="text" id="tpEmail" placeholder="почта учителя (пусто — вам)" autocomplete="off"><button class="btn sm flame" id="tpPay" type="button">Смоделировать оплату</button></div>
+        <div class="row-btn"><button class="btn sm" id="tpAsk" type="button">Пробный запрос к ИИ сайта</button><span class="small">${esc(usage())}</span></div>
+        <p class="small" id="tpSt" role="status">${msg || ""}</p>`;
+      const st = box.querySelector("#tpSt");
+      box.querySelector("#tpPay").onclick = async e => { e.target.disabled = true; st.textContent = "Начисляю…"; try { const { j } = await call("/pay/test", { item: box.querySelector("#tpItem").value, email: box.querySelector("#tpEmail").value.trim() }); await window.Account.refreshPlan?.(); draw(`✓ Начислено: ${esc(JSON.stringify(j.patch))}`); } catch (er) { draw("✗ " + esc(er.message)); } };
+      box.querySelector("#tpAsk").onclick = async e => { e.target.disabled = true; st.textContent = "Спрашиваю DeepSeek…"; try { const { j, h } = await call("/deepseek/v1/chat/completions", { model: "deepseek-flash", messages: [{ role: "user", content: "Ответь одной фразой: что такое метафора?" }], max_tokens: 120 }); const a = j.choices?.[0]?.message?.content || "(пустой ответ)"; await window.Account.refreshPlan?.(); draw(`✓ Ответ: «${esc(a.trim().slice(0, 200))}»<br>Аккаунт: ${esc(h.get("X-Uchu-Account") || "—")} · токенов за запрос: ${j.usage?.total_tokens ?? "?"} · всего: ${esc(h.get("X-Uchu-Tokens") || "—")}`); } catch (er) { draw("✗ " + esc(er.message)); } };
+    };
+    draw();
   }
   /* Обучение сайта: переключатели сборки и правила словами — сразу для всех учителей */
   function secTeach(b) {

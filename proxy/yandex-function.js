@@ -7,6 +7,8 @@ module.exports.handler = async (event) => {
   // сайт передаёт путь параметром ?path=/gigachat/v1/chat/completions
   const path = (q.path || event.path || event.url || "/").replace(/^\/+/, "/"); delete q.path;
   const qs = Object.keys(q).length ? "?" + new URLSearchParams(q) : "";
+  // адрес посетителя (для учёта бесплатных уроков по сети)
+  const ip = event.requestContext?.identity?.sourceIp; if (ip) event.headers = { ...(event.headers || {}), "x-forwarded-for": ip };
   if (event.httpMethod === "POST" && body) {
     try { const j = JSON.parse(body); j.stream = false; return await out({ method: "POST", url: path + qs, headers: event.headers, body: JSON.stringify(j) }); } catch { }
   }

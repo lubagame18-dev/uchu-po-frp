@@ -137,7 +137,7 @@ function cors(req, res) {
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-GigaChat-Key, X-Yandex-Key, X-Yandex-Folder, X-Proxy-Auth, X-Api-Key, Anthropic-Version, Anthropic-Dangerous-Direct-Browser-Access, HTTP-Referer, X-Title, X-User-Token, X-Admin-Token");
-  res.setHeader("Access-Control-Expose-Headers", "X-Uchu-Reason");
+  res.setHeader("Access-Control-Expose-Headers", "X-Uchu-Reason, X-Uchu-Tokens, X-Uchu-Account");
 }
 function send(res, status, obj) { if (obj && obj.reason) res.setHeader("X-Uchu-Reason", obj.reason); res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" }); res.end(JSON.stringify(obj)); }
 function readBody(req) {
@@ -245,7 +245,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 7, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 8, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -293,6 +293,13 @@ async function handler(req, res) {
       if (!tokOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для автора сайта: войдите в личный кабинет своей почтой" });
       const r = await DS.admin(body, request, readAll); return send(res, r.status, r.json);
     }
+    if (route === "/free/use") { const ip2 = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim(); const r = await Q.freeUse(req.headers["x-user-token"], body, ip2, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? r : { error: r.message, reason: r.reason }); }
+    if (route === "/pay/test") {
+      // тестовая оплата — только разработчики (почта в site_admins) или X-Admin-Token
+      const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
+      if (!tokOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "тестовая оплата — только для разработчиков" });
+      const r = await PAY.test(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json);
+    }
     if (route === "/pay/create") { const r = await PAY.create(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json); }
     if (!Array.isArray(body.messages)) return send(res, 400, { error: "нужен массив messages" });
     if (route === "/promo") {
@@ -304,8 +311,13 @@ async function handler(req, res) {
       // если подключено облако кабинета — запрос только по входу и в пределах тарифа (списывается 1 запрос)
       const quota = await Q.check(req.headers["x-user-token"], request, readAll);
       if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
+      // не дать потратить больше, чем осталось по тарифу: ответ ограничивается остатком токенов
+      if (quota.tok) body.max_tokens = Math.max(256, Math.min(+body.max_tokens || 8192, quota.left));
       const r = await DS.chat(body, request, readAll);
-      await Q.spend(quota, request, readAll).catch(e => console.warn("quota", e.message));
+      let used = 0; try { const u = JSON.parse(r.text).usage; used = u?.total_tokens || ((u?.prompt_tokens || 0) + (u?.completion_tokens || 0)); } catch { }
+      if (!used) used = Math.round((JSON.stringify(body.messages || "").length + r.text.length) / 3); // оценка, если сервис не прислал расход
+      await Q.spend(quota, request, readAll, used).catch(e => console.warn("quota", e.message));
+      if (quota.tok) res.setHeader("X-Uchu-Tokens", `${quota.used + used}/${quota.limit}`);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "X-Uchu-Account": r.account });
       return res.end(r.text);
     }
