@@ -36,8 +36,10 @@ async function spend(q, request, readAll) {
 }
 /* Промокод: закрепить «свободную зону» за учётной записью (коды — в переменной PROMO_CODES через запятую) */
 async function promo(userToken, code, request, readAll) {
-  const codes = String(process.env.PROMO_CODES || "").split(",").map(x => x.trim().toUpperCase()).filter(Boolean);
-  if (!codes.includes(String(code || "").trim().toUpperCase())) return { ok: false, status: 404, message: "нет такого промокода" };
+  const LOOK = { А: "A", В: "B", Е: "E", Ё: "E", К: "K", М: "M", Н: "H", О: "O", Р: "P", С: "C", Т: "T", Х: "X", У: "Y" };
+  const N = x => String(x || "").toUpperCase().replace(/\s+/g, "").replace(/^ФРП/, "FRP").replace(/[АВЕЁКМНОРСТХУ]/g, ch => LOOK[ch]).replace(/[–—]/g, "-");
+  const codes = String(process.env.PROMO_CODES || "").split(",").map(N).filter(Boolean);
+  if (!codes.includes(N(code))) return { ok: false, status: 404, message: "нет такого промокода" };
   if (!on() || !userToken) return { ok: true };
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
   if (u.status !== 200 || !u.json?.id) return { ok: false, status: 401, message: "войдите в кабинет" };

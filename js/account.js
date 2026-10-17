@@ -13,7 +13,7 @@ const Account = (() => {
   const C = () => window.UCHU_SITE?.cloud || {};
   const ready = () => !!(C().url && C().anonKey);
   let S = null; try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { }
-  const save = () => { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch { } paint(); };
+  const save = () => { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch { } paint(); window.Access?.paint?.(); };
   const api = async (path, opt = {}) => {
     const r = await fetch(C().url.replace(/\/+$/, "") + path, { ...opt, headers: { apikey: C().anonKey, "Content-Type": "application/json", ...(S?.access ? { Authorization: "Bearer " + S.access } : {}), ...(opt.headers || {}) } });
     const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
@@ -22,19 +22,27 @@ const Account = (() => {
   };
   const RU = m => /invalid login|invalid_grant|credentials/i.test(m) ? "Неверная почта или пароль." : /already registered|exists/i.test(m) ? "Эта почта уже зарегистрирована — войдите." : /password.*(6|short)/i.test(m) ? "Пароль — не короче 6 знаков." : /email.*(invalid|valid)/i.test(m) ? "Проверьте адрес почты." : /confirm/i.test(m) ? "Подтвердите почту по ссылке из письма (или владелец может отключить подтверждение)." : m;
   function setSession(j, email) { S = { email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000 }; save(); }
-  async function signIn(email, password) { setSession(await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }), email); await pull(); }
+  /* Пока облако не подключено — учётная запись в этом браузере (почта + отпечаток пароля); уроки — тоже здесь */
+  const LKEY = "uchu:local-users";
+  const lusers = () => { try { return JSON.parse(localStorage.getItem(LKEY)) || {}; } catch { return {}; } };
+  async function phash(e, p) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("uchu-user:" + e.toLowerCase() + ":" + p)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+  async function localUp(email, password) { const u = lusers(), e = email.toLowerCase(); if (u[e]) throw new Error("already registered"); u[e] = { h: await phash(e, password), at: new Date().toISOString() }; localStorage.setItem(LKEY, JSON.stringify(u)); S = { email: e, local: true }; save(); return "ok"; }
+  async function localIn(email, password) { const u = lusers()[email.toLowerCase()]; if (!u || u.h !== await phash(email, password)) throw new Error("Invalid login credentials"); S = { email: email.toLowerCase(), local: true }; save(); }
+  async function signIn(email, password) { if (!ready()) return localIn(email, password); setSession(await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }), email); await pull(); }
   async function signUp(email, password) {
+    if (!ready()) return localUp(email, password);
     const j = await api("/auth/v1/signup", { method: "POST", body: JSON.stringify({ email, password }) });
     if (j.access_token) { setSession(j, email); await push(true); return "ok"; }
     return "confirm"; // в проекте включено подтверждение почты
   }
   async function refresh() {
+    if (S?.local || !ready()) return false;
     if (!S?.refresh) return false;
     if (S.exp - Date.now() > 120000) return true;
     try { setSession(await api("/auth/v1/token?grant_type=refresh_token", { method: "POST", body: JSON.stringify({ refresh_token: S.refresh }) }), S.email); return true; }
     catch (e) { if (e.status === 400 || e.status === 401) { S = null; save(); } return false; }
   }
-  function signOut() { S = null; save(); toast("Вы вышли из кабинета. Уроки в облаке сохранены."); }
+  function signOut() { const local = S?.local; S = null; save(); window.Access?.paint(); toast(local ? "Вы вышли из кабинета." : "Вы вышли из кабинета. Уроки в облаке сохранены."); }
   /* ---------- синхронизация уроков ---------- */
   let pushT = null, busy = false;
   async function upsert(rows) { if (!rows.length) return; await api("/rest/v1/lessons", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows) }); }
@@ -67,23 +75,15 @@ const Account = (() => {
   async function plan() { try { if (!(await refresh())) return null; const p = (await api(`/rest/v1/profiles?id=eq.${S.uid}&select=plan,ai_left,paid_until`))?.[0] || null; if (p && S) { S.plan = p.plan; save(); window.Access?.paint(); } return p; } catch { return null; } }
   /* ---------- окно кабинета ---------- */
   function open() {
-    if (!ready()) {
-      openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-        <p>Сейчас уроки хранятся в этом браузере. Вход по почте и облачное хранение заработают, когда владелец сайта подключит облако.</p>
-        <p class="hint">Пока можно сохранить все уроки в файл и перенести их на другое устройство: «Мои уроки» → «Скачать все уроки (файл)».</p>
-        ${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}</div></div>`);
-      document.getElementById("acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
-      return;
-    }
     if (S) {
       const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
         <p>Вы вошли как <b>${esc(S.email)}</b>.</p>
-        <p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>
+        ${S.local ? `<p class="small">Учётная запись создана в этом браузере. Облачное хранение уроков включится, когда владелец подключит облако; пока храните уроки и в файле («Мои уроки» → «Скачать все уроки»).</p>` : `<p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>`}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row"><button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
+        <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
-      plan().then(p => { const el = m.querySelector("#acPlan"); if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}<br><b>Запросов к ИИ сайта осталось:</b> ${p.ai_left ?? "—"}` : `<b>Тариф:</b> бесплатный`; });
-      m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
+      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}<br><b>Запросов к ИИ сайта осталось:</b> ${p.ai_left ?? "—"}` : `<b>Тариф:</b> бесплатный`; });
+      if (m.querySelector("#acSync")) m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };
       return;
     }
@@ -105,7 +105,8 @@ const Account = (() => {
         if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.textContent = "Готово! Подтвердите почту по ссылке из письма и войдите."; return; } }
         else await signIn(email, pass);
         if (window.PasswordCredential) { try { await navigator.credentials.store(new PasswordCredential({ id: email, password: pass })); } catch { } }
-        closeModal(); toast("Вы вошли. Уроки сохраняются в облаке.");
+        closeModal(); toast(ready() ? "Вы вошли. Уроки сохраняются в облаке." : "Вы вошли. Теперь можно выбрать тариф или ввести промокод.");
+        window.Access?.paint(); if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
       } catch (er) { msg.textContent = RU(er.message); }
     };
   }

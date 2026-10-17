@@ -60,14 +60,14 @@ const Dev = (() => {
       <main id="view-dev" class="wrap page" hidden></main>`;
     document.body.prepend(root);
     root.querySelector("#devExit").onclick = exit;
-    root.querySelector("#devForget").onclick = () => { try { localStorage.removeItem(SESSION); localStorage.removeItem(SAVED); } catch { } exit(); };
+    root.querySelector("#devForget").onclick = () => { try { localStorage.removeItem(SESSION); localStorage.removeItem(SAVED); } catch { } exit(); window.Access?.paint(); };
     root.querySelector("#devOpen").onclick = () => show(section);
     const chip = document.createElement("button"); chip.className = "chip"; chip.id = "nav-dev"; chip.textContent = "Разработчик"; chip.dataset.devnav = "1";
     chip.onclick = () => show(section);
     document.querySelector(".nav")?.appendChild(chip);
     if (window.Log) Log.add("вход", "включён режим разработчика");
     rerenderCurrent();
-    show("files");
+    show("files"); window.Access?.paint();
     toast("Режим разработчика включён. Выход — кнопка «Выйти» вверху.");
   }
   /* Выход: убираем всё, что добавил режим, и перерисовываем текущий раздел */
@@ -325,6 +325,7 @@ const Dev = (() => {
     f.querySelector("#devEntry").onclick = openLogin;
   }
   document.addEventListener("DOMContentLoaded", mountEntry);
-  return { openLogin, enter, exit, show, publishBase: embedAll, get on() { return on; } };
+  const remembered = () => { try { return localStorage.getItem(SESSION) === HASH.slice(0, 16); } catch { return false; } };
+  return { openLogin, enter, exit, show, publishBase: embedAll, remembered, get on() { return on; } };
 })();
 window.Dev = Dev;
