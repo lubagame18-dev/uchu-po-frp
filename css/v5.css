@@ -792,3 +792,51 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .th-strip { display: flex; gap: 8px; overflow-x: auto; padding: 6px 2px 10px; scroll-snap-type: x mandatory; }
 .th-strip .th-s { flex: 0 0 230px; scroll-snap-align: start; pointer-events: none; }
 .th-strip .sx { border-radius: 6px; box-shadow: 0 1px 5px rgba(0,0,0,.2); }
+.pr-box { border: 2px solid var(--rule); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; background: var(--card); }
+.pr-box summary { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.pr-box textarea { width: 100%; margin-top: 8px; font: 13px/1.45 var(--f-mono, monospace); }
+/* ===== Ренессанс: живопись крупно, текст светлым по чёрному, рваный край картины, красный круг ===== */
+.sx.tk-renaissance .sx-inner { inset: 13% 50% 12% 7%; }
+.sx.tk-renaissance:not(.acc) .sx-inner { inset: 14% 12% 12% 10%; }
+.sx.tk-renaissance.acc-left .sx-inner { inset: 13% 7% 12% 50%; }
+.sx.tk-renaissance .sx-acc { width: 50% !important; }
+.sx.tk-renaissance.acc-right .sx-acc { clip-path: polygon(3.5% 0, 100% 0, 100% 100%, 1.5% 100%, 4% 92%, 1% 84%, 3.8% 76%, .6% 67%, 4.4% 58%, 1.2% 49%, 3.6% 40%, .4% 31%, 4.2% 22%, 1.4% 13%, 3.9% 6%); }
+.sx.tk-renaissance.acc-left .sx-acc { clip-path: polygon(0 0, 96.5% 0, 98.5% 7%, 96% 14%, 99% 23%, 95.8% 31%, 99.4% 40%, 96.4% 49%, 98.8% 58%, 95.6% 67%, 99.2% 76%, 96% 84%, 98.6% 92%, 97% 100%, 0 100%); }
+.sx.tk-renaissance.acc-bg .sx-inner { inset: 14% 40% 12% 7%; background: linear-gradient(90deg, rgba(22,20,18,.88), rgba(22,20,18,.55) 70%, transparent) !important; padding: 2cqw 3cqw; }
+.sx.tk-renaissance .sx-acc::after { background: linear-gradient(90deg, rgba(22,20,18,.55), transparent 30%); }
+.sx.tk-renaissance .sx-acc figure.pic img { filter: sepia(.18) saturate(.9) contrast(1.06); }
+.sx.tk-renaissance .sx-title { color: #EDE4D3; text-transform: uppercase; font-weight: 400; letter-spacing: .03em; line-height: 1.02; }
+.sx.tk-renaissance.lay-title .sx-title { color: var(--sx-accent); font-size: calc(8.2cqw * var(--fs)); letter-spacing: .01em; }
+.sx.tk-renaissance .sx-title::after { content: ""; display: block; width: 6cqw; height: .25cqw; background: var(--sx-accent); margin-top: 1.4cqw; }
+.sx.tk-renaissance.lay-title .sx-title::after { width: 9cqw; }
+.sx.tk-renaissance .sx-body { color: #E4DAC6; font-size: calc(3.6cqw * var(--fs)); }
+.sx.tk-renaissance .sx-body strong { color: #F1C77A; }
+.sx.tk-renaissance.lay-cards .sx-body li { background: rgba(237,228,211,.06); border-top-color: var(--sx-accent); box-shadow: none; }
+.sx.tk-renaissance .sx-body blockquote { background: rgba(237,228,211,.05); }
+.sx.tk-renaissance.k-board .sx-body { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.38em - 1px), rgba(237,228,211,.18) calc(1.38em - 1px), rgba(237,228,211,.18) 1.38em); }
+/* ===== Сияние: ночное небо, стекло, мерцание, мягкий свет ===== */
+.sx.tk-glow .sx-inner { background: rgba(255,255,255,.08) !important; border: .12cqw solid rgba(255,255,255,.28) !important; border-radius: 2.2cqw !important; padding: 2.6cqw 3.4cqw !important; backdrop-filter: blur(10px) saturate(1.2); box-shadow: 0 0 4cqw rgba(140,100,255,.25), inset 0 0 2cqw rgba(255,255,255,.06) !important; inset: 9% 7% 9% 7%; }
+.sx.tk-glow.acc-right .sx-inner { inset: 9% 46% 9% 5%; }
+.sx.tk-glow.acc-left .sx-inner { inset: 9% 5% 9% 46%; }
+.sx.tk-glow.lay-title:not(.acc) .sx-inner { inset: 20% 16%; }
+.sx.tk-glow .sx-acc { top: 7% !important; bottom: 7% !important; width: 40% !important; border-radius: 2.2cqw !important; box-shadow: 0 0 5cqw rgba(160,120,255,.45) !important; overflow: hidden; }
+.sx.tk-glow.acc-right .sx-acc { right: 4% !important; }
+.sx.tk-glow.acc-left .sx-acc { left: 4% !important; }
+.sx.tk-glow .sx-acc::after { background: linear-gradient(160deg, rgba(255,255,255,.18), transparent 40%, rgba(108,75,216,.25)); }
+.sx.tk-glow .sx-title { color: #FFF6DA; text-shadow: 0 0 1.4cqw rgba(246,215,124,.55), 0 0 .3cqw rgba(255,255,255,.6); font-weight: 600; }
+.sx.tk-glow .sx-body { color: #F5F1FF; }
+.sx.tk-glow .sx-body strong { color: #FFE7A0; }
+.sx.tk-glow.lay-cards .sx-body li { background: rgba(255,255,255,.1); border: .1cqw solid rgba(255,255,255,.25); border-top: .4cqw solid #F6D77C; box-shadow: 0 0 1.6cqw rgba(160,120,255,.25); }
+.sx.tk-glow .sx-body li::marker { color: #F6D77C; }
+.sx.tk-glow .sx-glow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.sx.tk-glow .sx-glow::before, .sx.tk-glow .sx-glow::after { content: ""; position: absolute; width: 46%; aspect-ratio: 1; border-radius: 50%; filter: blur(3cqw); opacity: .55; }
+.sx.tk-glow .sx-glow::before { left: -10%; top: -20%; background: radial-gradient(circle, rgba(140,100,255,.9), transparent 65%); animation: glowA 14s ease-in-out infinite; }
+.sx.tk-glow .sx-glow::after { right: -12%; bottom: -25%; background: radial-gradient(circle, rgba(240,130,210,.75), transparent 65%); animation: glowB 17s ease-in-out infinite; }
+.sx.tk-glow .sx-glow i { position: absolute; width: .45cqw; aspect-ratio: 1; border-radius: 50%; background: #fff; box-shadow: 0 0 1cqw 0.3cqw rgba(255,240,200,.8); animation: twinkle 3.2s ease-in-out infinite; }
+@keyframes glowA { 50% { transform: translate(18%, 22%) scale(1.15); } }
+@keyframes glowB { 50% { transform: translate(-20%, -16%) scale(1.2); } }
+@keyframes twinkle { 0%, 100% { opacity: .15; transform: scale(.6); } 50% { opacity: 1; transform: scale(1.2); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.sx.tk-glow.lay-title .sx-title { background: linear-gradient(100deg, #FFF6DA 30%, #FFFFFF 45%, #F6D77C 55%, #FFF6DA 70%) 0 0 / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 6s linear infinite; }
+.sx-mini .sx.tk-glow .sx-glow, .lp-mini .sx.tk-glow .sx-glow, .th-strip .sx.tk-glow .sx-glow { display: none; }
+@media (prefers-reduced-motion: reduce) { .sx.tk-glow .sx-glow::before, .sx.tk-glow .sx-glow::after, .sx.tk-glow .sx-glow i, .sx.tk-glow.lay-title .sx-title { animation-duration: 40s; } }

@@ -41,7 +41,7 @@ const AI = (() => {
     custom: { name: "Свой сервис", sub: "любой OpenAI-совместимый", limits: "по условиям сервиса", foreign: true },
     site: { name: "ИИ", sub: "по тарифу", limits: "по тарифу", foreign: false }
   };
-  const ORDER = ["site", "openrouter", "pollinations", "deepseek", "gemini", "yandexfn", "anthropic", "custom"];
+  const ORDER = ["site", "openrouter", "pollinations", "deepseek", "gemini", "anthropic", "custom"]; // GigaChat (Сбер) убран: не подключается
   /* Любая нейросеть по одному ключу: провайдер узнаётся по виду ключа, модели — из списка сервиса */
   const DETECT = [
     { re: /^sk-or-/, slot: "openrouter", name: "OpenRouter" },
@@ -232,7 +232,7 @@ const AI = (() => {
       let text = "";
       const emit = d => { if (!d) return; text += d; try { opts.onText && opts.onText({ text, delta: d }); } catch (er) { console.error(er); } };
       try {
-        if (prev) { toast(`${P[prev.id].name}: ${prev.why}. Переключаюсь на ${P[id].name}.`, 6000); if (window.Log) Log.add("ИИ", `${P[prev.id].name} → ${P[id].name}: ${prev.why}`); }
+        if (prev) { if (window.Log) Log.add("ИИ", `${P[prev.id].name} → ${P[id].name}: ${prev.why}`); }
         const r = await (RUN[id] || runExtra(id))(c, prompt, opts, emit);
         if (!text.trim()) throw { code: "empty_completion" };
         setStatus(id, { ok: true }); active = id; paint();
@@ -332,7 +332,7 @@ const AI = (() => {
   function label() { const l = chain(); if (!l.length) return null; return P[active && l.includes(active) ? active : l[0]].name; }
   function paint() {
     const ok = configured(), n = label();
-    btn.textContent = ok ? "⚙ ИИ: " + (n.length > 18 ? n.split(" ")[0] : n) : "⚙ Подключить ИИ";
+    btn.textContent = ok ? "⚙ ИИ" : "⚙ Подключить ИИ";
     btn.classList.toggle("flame", !ok);
     if (typeof syncBuild === "function") try { syncBuild(); } catch { }
   }
@@ -385,12 +385,7 @@ const AI = (() => {
         <input type="text" class="secret" id="kPL" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk_…" value="${v(c.keys.pollinations)}"><p class="hint">${esc(P.pollinations.limits)}. Без ключа Pollinations тексты больше не выдаёт.</p></div>
 
       <div class="prov"><div class="prov-h"><b>3. DeepSeek</b> <span class="small">свой ключ</span> ${row("deepseek")}</div><input type="text" class="secret" id="kDS" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk-…" value="${v(c.keys.deepseek)}"><p class="hint"><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">Получить ключ ↗</a> · ${esc(P.deepseek.limits)}</p></div>
-      <div class="prov"><div class="prov-h"><b>4. GigaChat через Яндекс-функцию</b> <span class="small">неприоритетный вариант</span> ${row("yandexfn")}</div>
-        <input type="text" id="yFn" spellcheck="false" placeholder="https://functions.yandexcloud.net/…" value="${v(c.yandexFn)}">
-        <label for="kGG" class="small">Свой ключ GigaChat (не нужен, если ключ лежит в функции)</label><input type="text" class="secret" id="kGG" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" value="${v(c.keys.gigachat)}">
-        <details class="small"><summary>Нет «ключа авторизации», есть Client ID и Client Secret?</summary><div class="mat-row"><input type="text" id="kGGid" placeholder="Client ID" spellcheck="false" autocomplete="off"><input type="text" class="secret" id="kGGsec" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" placeholder="Client Secret" autocomplete="off"></div><p class="hint">Сайт сам соберёт из них ключ. Подходит любой из вариантов: ключ авторизации, «Basic …», пара «ID:Secret».</p></details>
-        <div class="mat-row"><button type="button" class="btn sm ghost" id="yProbe">Проверить функцию и Сбер</button><span class="small" id="yProbeSt"></span></div></div>
-      <details class="prov"><summary><b>5. Свой сервис</b></summary>
+      <details class="prov"><summary><b>4. Свой сервис</b></summary>
         <label for="cuBase" class="small">Свой OpenAI-совместимый сервис: адрес (…/v1), ключ, модель</label><input type="text" id="cuBase" spellcheck="false" placeholder="https://api.example.com/v1" value="${v(c.custom.base)}"><input type="text" class="secret" id="cuKey" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="ключ" value="${v(c.custom.key)}"><input type="text" id="cuModel" spellcheck="false" placeholder="модель" value="${v(c.custom.model)}"></details>
       <details class="prov"><summary><b>Прокси — крайняя мера</b> <span class="small">только вручную</span></summary>
         <p class="hint">Нужен, только если из сети школы зарубежные нейросети не открываются. Браузер не умеет ходить через системный прокси сам, поэтому здесь указывается сервер-посредник «Учу по ФРП» (файл proxy/proxy.js на любом своём сервере или в Яндекс Облаке).</p>
@@ -405,7 +400,7 @@ const AI = (() => {
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm teal" id="trQr">Показать QR-код</button><button type="button" class="btn sm ghost" id="trCopy">Скопировать ссылку</button></div><div id="trBox"></div></details>
     </form></div>`);
     const $m = s => m.querySelector(s);
-    const collect = () => { const n = cfg(); n.prefer = $m("#aiPrefer").value; n.keys = { ...n.keys, openrouter: $m("#kOR").value.trim(), pollinations: $m("#kPL").value.trim(), deepseek: $m("#kDS").value.trim(), gemini: "", gigachat: (() => { const g = gigaKey($m("#kGG").value, $m("#kGGid")?.value || "", $m("#kGGsec")?.value || ""); if (g.note) toast(g.note, 7000); if (g.key) { $m("#kGG").value = g.key; if ($m("#kGGid")) $m("#kGGid").value = ""; if ($m("#kGGsec")) $m("#kGGsec").value = ""; } return g.key; })(), anthropic: "" }; n.models.openrouter = $m("#mOR").value.trim() || "openrouter/free"; n.yandexFn = $m("#yFn").value.trim(); n.custom = { base: $m("#cuBase").value.trim(), key: $m("#cuKey").value.trim(), model: $m("#cuModel").value.trim() }; n.proxy = { on: $m("#pxOn").checked, url: $m("#pxUrl").value.trim(), port: $m("#pxPort").value.trim(), login: $m("#pxLogin").value.trim(), password: $m("#pxPass").value, split: $m("#pxSplit").checked }; return n; };
+    const collect = () => { const n = cfg(); n.prefer = $m("#aiPrefer").value; n.keys = { ...n.keys, openrouter: $m("#kOR").value.trim(), pollinations: $m("#kPL").value.trim(), deepseek: $m("#kDS").value.trim(), gemini: "", gigachat: "", anthropic: "" }; n.models.openrouter = $m("#mOR").value.trim() || "openrouter/free"; n.yandexFn = ""; n.custom = { base: $m("#cuBase").value.trim(), key: $m("#cuKey").value.trim(), model: $m("#cuModel").value.trim() }; n.proxy = { on: $m("#pxOn").checked, url: $m("#pxUrl").value.trim(), port: $m("#pxPort").value.trim(), login: $m("#pxLogin").value.trim(), password: $m("#pxPass").value, split: $m("#pxSplit").checked }; return n; };
     $m("#aiForm").onsubmit = e => { e.preventDefault(); save(collect()); closeModal(); toast(configured() ? "Сохранено. Очередь нейросетей: " + chain().map(id => P[id].name).join(" → ") + "." : "Сохранено. Чтобы включить нейросеть, войдите через OpenRouter или вставьте ключ."); };
     $m("#orLogin").onclick = () => { save(collect()); openrouterLogin(); };
     $m("#uniGo").onclick = async () => {
@@ -417,7 +412,6 @@ const AI = (() => {
     m.querySelectorAll("[data-xt]").forEach(b => b.onclick = async () => { b.textContent = "…"; const r = await test(b.dataset.xt); b.textContent = r.ok ? "✓ работает" : "✗ " + r.text.slice(0, 40); });
     m.querySelectorAll("[data-xd]").forEach(b => b.onclick = () => { const n = cfg(); n.extra = n.extra.filter(y => y.id !== b.dataset.xd); save(n); b.closest(".uni-row").remove(); });
     $m("#plLogin").onclick = () => { save(collect()); pollinationsLogin(); };
-    $m("#yProbe").onclick = async () => { save(collect()); const s = $m("#yProbeSt"); s.textContent = "Проверяю…"; const r = await probeYandex(); s.textContent = (r.ok ? "✓ " : "✗ ") + r.text; setStatus("yandexfn", r.ok ? { ok: true } : { ok: false, why: r.text }); };
     $m("#aiTestAll").onclick = async () => { save(collect()); const box = $m("#aiTestBox"); const ids = chain(); if (!ids.length) { box.textContent = "Нечего проверять: ни одна нейросеть не подключена."; return; } box.innerHTML = ids.map(id => `<div id="t-${id}">${esc(P[id].name)}: проверяю…</div>`).join(""); for (const id of ids) { const r = await test(id); const el = box.querySelector("#t-" + id); if (el) el.textContent = `${P[id].name}: ${r.ok ? "✓" : "✗"} ${r.text}`; } };
     $m("#pxTest").onclick = async () => {
       const n = collect(), s = $m("#pxSt"); if (!n.proxy.url) { s.textContent = "Укажите адрес."; return; }

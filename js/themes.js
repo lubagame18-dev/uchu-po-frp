@@ -19,6 +19,8 @@ const ThemeKit = (() => {
      • картинка «в обрез» (на всю высоту) и бумага с рваным краем поверх неё — глубина без пёстрых узоров;
      • единый язык: те же фактуры, шрифты и цвета на каждом слайде. */
   const META = {
+    renaissance: { name: "Ренессанс", desc: "чёрный, живопись крупно, красный круг, рваные края", font: "playcorm", frame: "161412" },
+    glow:    { name: "Сияние", desc: "ночное сияние, стекло, мерцание и свет", font: "cormorant", frame: "120E2E" },
     art:     { name: "По картине", desc: "цвета берутся из иллюстрации урока", font: "kurale", frame: "26292C" },
     museum:  { name: "Галерея", desc: "графит и олива, пергамент, рваный край", font: "kurale", frame: "23262A" },
     salon:   { name: "Усадьба", desc: "приглушённый зелёный, сливки, золото", font: "oranien", frame: "55624F" },
@@ -36,6 +38,8 @@ const ThemeKit = (() => {
   };
   // палитры: base/base2 — фон (60 %), l1/l2 — слои того же семейства (30 %), acc — акцент (10 %), paper/ink — бумага и текст
   const PAL = {
+    renaissance: { base: "#161412", base2: "#1E1B18", l1: "#4B5D6E", l2: "#5B5E3A", acc: "#B5432A", paper: "#D8CBB0", ink: "#EDE4D3", line: "#C08A2E", torn: 6 },
+    glow:    { base: "#120E2E", base2: "#2A1650", l1: "#6C4BD8", l2: "#E07AC8", acc: "#F6D77C", paper: "rgba(255,255,255,.1)", ink: "#F5F1FF", line: "#CDB8FF", torn: 7 },
     museum:  { base: "#23262A", base2: "#30353B", l1: "#3C4856", l2: "#525240", acc: "#8C1C2B", paper: "#EAE3D2", ink: "#1B1714", line: "#B69B62", torn: 1 },
     salon:   { base: "#55624F", base2: "#6E7D6A", l1: "#7F8E78", l2: "#46523F", acc: "#34502F", paper: "#F6F0E1", ink: "#1F241D", line: "#B9975B", torn: 0 },
     sepia:   { base: "#3A2E24", base2: "#4E3E30", l1: "#6B5643", l2: "#2C231B", acc: "#7A3E1D", paper: "#EFE4CC", ink: "#2A2018", line: "#A88A62", torn: 1 },
@@ -107,7 +111,7 @@ const ThemeKit = (() => {
 
   /* ---------- фон (60 + 30 %) ---------- */
   function bgSvg(key, v, kind, side, P, R) {
-    let s = `<defs>${grain("g", key === "modern" || key === "aqua" ? .05 : .12)}<linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${P.base}"/><stop offset="1" stop-color="${P.base2}"/></linearGradient><radialGradient id="vg" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${/museum|sepia|night|mystic|art/.test(key) ? .45 : .08}"/></radialGradient><filter id="bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="80"/></filter></defs>`;
+    let s = `<defs>${grain("g", key === "modern" || key === "aqua" ? .05 : .12)}<linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${P.base}"/><stop offset="1" stop-color="${P.base2}"/></linearGradient><radialGradient id="vg" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${/museum|sepia|night|mystic|art|renaissance|glow/.test(key) ? .5 : .08}"/></radialGradient><filter id="bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="80"/></filter></defs>`;
     s += `<rect width="${W}" height="${H}" fill="url(#b)"/>`;
     const L = v % 2 === 0; // сторона крупного слоя чередуется — ритм без повторов
     const tornLayer = (x, y, w, h, col, op, amp = 26) => `<polygon points="${tornRect(x, y, w, h, [amp, amp, amp, amp], 22, R)}" fill="${col}" opacity="${op}"/>`;
@@ -116,6 +120,24 @@ const ThemeKit = (() => {
       for (let k = 0; k < 6; k++) { const x = 80 + R() * (W - 300), y = 80 + R() * (H - 200); s += `<path d="M${f1(x)} ${f1(y)}q${f1(80 + R() * 120)} ${f1(-20 + R() * 40)} ${f1(200 + R() * 140)} ${f1(-10 + R() * 20)}" stroke="#fff" stroke-width="${f1(18 + R() * 30)}" opacity=".035" fill="none" stroke-linecap="round"/>`; }
       s += `<rect x="34" y="${H - 34}" width="${W - 68}" height="20" fill="#4E351D"/><rect x="${W - 360}" y="${H - 46}" width="70" height="12" rx="4" fill="#F4F1E8"/>`;
       return s + `<rect width="${W}" height="${H}" filter="url(#g)"/>`;
+    }
+    if (key === "renaissance") {
+      // строгий чёрный, тонкие линейки, номер, лилия, красный круг у края картины, лёгкие «наброски» сангиной
+      // круг — у края картины (частично под ней) или в углу, никогда поверх текста
+      const edge = side === "right" || side === "left", cx = side === "right" ? W * .535 : side === "left" ? W * .465 : L ? W * .96 : W * .04, cy = edge ? (v % 2 ? H * .76 : H * .26) : H * .9;
+      s += `<circle cx="${f1(cx)}" cy="${f1(cy)}" r="${edge ? 82 : 120}" fill="${P.acc}" opacity=".9"/>`;
+      for (let k = 0; k < 7; k++) { const x = R() * W, y = R() * H; s += `<path d="M${f1(x)} ${f1(y)}c${f1(40 + R() * 80)} ${f1(-20 + R() * 40)} ${f1(90 + R() * 80)} ${f1(-30 + R() * 60)} ${f1(160 + R() * 90)} ${f1(-10 + R() * 20)}" stroke="#8C6A48" stroke-width="1" fill="none" opacity=".18"/>`; }
+      s += `<line x1="60" y1="46" x2="${W - 60}" y2="46" stroke="${P.line}" stroke-width="1" opacity=".55"/><line x1="60" y1="${H - 46}" x2="${W - 60}" y2="${H - 46}" stroke="${P.line}" stroke-width="1" opacity=".55"/>`;
+      s += `<path d="M${W / 2} 22c-8 7-8 18 0 25c8-7 8-18 0-25zm-18 15c3 8 11 11 18 10c-5-7-11-10-18-10zm36 0c-3 8-11 11-18 10c5-7 11-10 18-10z" fill="${P.line}" opacity=".85"/>`;
+      s += `<text x="64" y="80" fill="${P.line}" font-family="Georgia,serif" font-size="20" letter-spacing="4" opacity=".85">${String(v + 1).padStart(2, "0")}</text>`;
+      return s + `<rect width="${W}" height="${H}" fill="url(#vg)"/><rect width="${W}" height="${H}" filter="url(#g)"/>`;
+    }
+    if (key === "glow") {
+      s += `<g filter="url(#bl)">${[[P.l1, .2, .25, 420], [P.l2, .85, .2, 360], ["#3BC4E8", .7, .95, 380], ["#8E5CF2", .1, .9, 320]].map(([c, x, y, r]) => `<circle cx="${f1((L ? x : 1 - x) * W)}" cy="${f1(y * H)}" r="${r}" fill="${c}" opacity=".55"/>`).join("")}</g>`;
+      for (let k = 0; k < 140; k++) s += `<circle cx="${f1(R() * W)}" cy="${f1(R() * H)}" r="${f1(.5 + R() * 1.7)}" fill="#FFFFFF" opacity="${f1(.2 + R() * .7)}"/>`;
+      for (let k = 0; k < 7; k++) s += sparkle(f1(R() * W), f1(R() * H), f1(6 + R() * 12), "#FFF3C8", .9);
+      s += `<path d="M0 ${H * .78}C${W * .3} ${H * .66} ${W * .6} ${H * .92} ${W} ${H * .72}" stroke="#FFFFFF" stroke-opacity=".18" stroke-width="2" fill="none"/>`;
+      return s + `<rect width="${W}" height="${H}" fill="url(#vg)"/>`;
     }
     if (key === "haze" || key === "aqua") {
       const blobs = key === "haze" ? [P.base2, P.l1, P.l2, P.base] : [P.l1, P.l2, "#F2C9D4", P.base2];
@@ -156,7 +178,7 @@ const ThemeKit = (() => {
 
   /* ---------- бумага под текст: рваный край к картинке, фактура, тень ---------- */
   function paperSvg(key, v, kind, side, P, R, flat = false) {
-    const pr = panelRect(side, kind); if (!pr || key === "board") return "";
+    const pr = panelRect(side, kind); if (!pr || key === "board" || key === "renaissance" || key === "glow") return "";
     const [px, py, pw, ph] = [pr[0] / 100 * W, pr[1] / 100 * H, pr[2] / 100 * W, pr[3] / 100 * H];
     const T = P.torn, big = 30, small = T === 2 ? 7 : 5;
     // сторона к картинке рвётся сильно, остальные — едва заметно (или ровно — «Модерн», «Усадьба», «Ночь»)
@@ -217,7 +239,13 @@ const ThemeKit = (() => {
   const stkSvg = n => STK[n] ? `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${STK[n].svg}</svg>` : "";
   // стикеры темы по умолчанию — на ключевых слайдах, в свободном углу
   const THEME_STK = { night: "star", haze: "sparkle", botanic: "leaf", salon: "flower", poster: "burst", sketch: "plane", collage: "tape", museum: "", mystic: "moon", board: "" };
-  function autoStickers() { return []; } // без клипарта по умолчанию: наклейки добавляет учитель или вырезанные картинки
+  const THEME_STK2 = { night: "star", glow: "sparkle", haze: "sparkle", aqua: "sparkle", botanic: "leaf", salon: "flower", poster: "burst", sketch: "plane", collage: "tape", mystic: "moon", modern: "", museum: "", art: "", sepia: "", renaissance: "", board: "" };
+  function autoStickers(key, kind, i) {
+    const out = [], byKind = { rule: "note", big: "ask", hw: "pencil", task: "pin", mnemo: "bulb" }[kind];
+    if (byKind && !/renaissance|museum|art|sepia|modern/.test(key)) out.push({ n: byKind, x: 84, y: 4, s: 11, r: 6 });
+    else if (THEME_STK2[key] && i % 3 === 1) out.push({ n: THEME_STK2[key], x: 89, y: 78, s: 7, r: -8 });
+    return out;
+  }
   function stickersHtml(list, edit) {
     const q = s => String(s).replace(/"/g, "&quot;");
     return (list || []).filter(x => STK[x.n] || x.img).map((x, k) => `<div class="stk${x.auto ? " auto" : ""}${x.img ? " ph" : ""}" data-k="${k}" data-n="${x.n || "photo"}" style="left:${x.x}%;top:${x.y}%;width:${x.s}%;transform:rotate(${x.r || 0}deg)${x.img ? `;aspect-ratio:${x.ar || 1}` : ""}" ${edit ? 'tabindex="0" title="Перетащите; колёсико — повернуть; +/− — размер; двойной щелчок — убрать"' : 'aria-hidden="true"'}>${x.img ? `<img class="stk-img" data-src="${q(x.img)}" alt="">` : stkSvg(x.n)}</div>`).join("");
@@ -236,11 +264,12 @@ const ThemeKit = (() => {
 
   /* ---------- автоподбор оформления по теме урока ---------- */
   const RULES = [
-    [/сказк|мечт|звезд|звёзд|грин|алые паруса|экзюпери|андерсен|ершов|конёк|чудес|новогод|рождеств|ночь перед/i, ["night"]],
+    [/грин|алые паруса|экзюпери|ершов|конёк|ночь перед/i, ["glow", "night"]],
     [/войн|блокад|фронт|тёркин|теркин|шолохов|судьба человека|сотников|ленинград|победа|афганист|борис васильев|зори здесь/i, ["sepia", "collage"]],
-    [/живопис|картин|художник|репродукц|икон|рублёв|рублев|музей|портрет/i, ["art", "museum"]],
+    [/живопис|картин|художник|репродукц|икон|рублёв|рублев|музей|портрет|возрожден|ренессанс|шекспир|данте|сервантес|антич|миф/i, ["renaissance", "art"]],
+    [/сказк|чудес|волшеб|мечт|сон|звезд|звёзд|новогод|рождеств|снегурочк|щелкунчик|андерсен/i, ["glow", "night"]],
     [/гоголь|вий|вечера на хуторе|баллад|жуковск|светлана|людмила|мистик|страшн|пиковая дама|мцыри|демон|кавказ/i, ["mystic"]],
-    [/онегин|пушкин|лермонтов|герой нашего времени|тургенев|толстой|бал|дворян|капитанская дочка|горе от ума|грибоедов|карамзин|бедная лиза|ася|первая любовь|гончаров|обломов|островск|гроза|бесприданниц/i, ["salon", "art"]],
+    [/онегин|пушкин|лермонтов|герой нашего времени|тургенев|толстой|бал|дворян|капитанская дочка|горе от ума|грибоедов|карамзин|бедная лиза|ася|первая любовь|гончаров|обломов|островск|гроза|бесприданниц/i, ["salon", "renaissance", "art"]],
     [/слово о полку|древнерус|летопис|житие|повесть временных|былин|средневек|ренессанс|возрожден|шекспир|данте|сервантес|дон кихот|мифолог|миф|антич|гомер|одиссе|илиад|легенд|библ/i, ["museum"]],
     [/есенин|блок|ахматов|цветаев|пастернак|серебрян|лирик|любов|элеги|фет|тютчев|чувств|настроени/i, ["haze", "aqua"]],
     [/природ|осен|весн|зим|лето|лес|берёз|берез|пришвин|паустовск|бианки|сад|цвет|растени|экологи|чехов.*сад|вишнёв/i, ["botanic"]],
@@ -259,7 +288,7 @@ const ThemeKit = (() => {
   function auto(p) {
     const t = `${p?.topic || ""} ${p?.plan?.kit?.work || ""}`;
     for (const [re, list] of RULES) if (re.test(t)) return list[hash(t) % list.length];
-    return p?.subject === "lit" ? ["art", "haze", "salon", "museum", "aqua"][hash(t) % 5] : ["modern", "sketch", "aqua", "botanic"][hash(t) % 4];
+    return p?.subject === "lit" ? ["renaissance", "art", "glow", "haze", "salon", "aqua"][hash(t) % 6] : ["modern", "sketch", "aqua", "botanic"][hash(t) % 4];
   }
   function why(p) { const k = auto(p); return `${META[k].name} — ${META[k].desc}`; }
 

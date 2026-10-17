@@ -61,6 +61,7 @@ const SlideEditor = (() => {
     oldstd: { name: "Old Standard TT + PT Serif (хроника)", h: "Old Standard TT", b: "PT Serif", g: ["Old+Standard+TT:wght@400;700", "PT+Serif:wght@400;700"] },
     prata: { name: "Prata + Lora (ночная)", h: "Prata", b: "Lora", g: ["Prata", "Lora:wght@400;600;700"] },
     alice: { name: "Alice + PT Sans (акварель)", h: "Alice", b: "PT Sans", g: ["Alice", "PT+Sans:wght@400;700"] },
+    playcorm: { name: "Playfair Display + Cormorant (ренессанс)", h: "Playfair Display", b: "Cormorant Garamond", g: ["Playfair+Display:wght@400;600", "Cormorant+Garamond:wght@500;600;700"] },
     unbounded: { name: "Unbounded + Manrope (модерн)", h: "Unbounded", b: "Manrope", g: ["Unbounded:wght@500;700", "Manrope:wght@400;600;700"] }
   };
   const fontKey = () => FONTS[L()?.slideFonts] ? L().slideFonts : (window.ThemeKit?.META[theme()]?.font || "classic");
@@ -158,7 +159,7 @@ const SlideEditor = (() => {
     const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
-    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
+    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
       <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(sl.title)}</${H}>
       <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${body}</div></div>${window.ThemeKit && stk.length ? ThemeKit.stickersHtml(stk, edit) : ""}</div>`;
     return st.free ? applyFree(html, st) : html;
@@ -647,8 +648,14 @@ const SlideEditor = (() => {
     // 1) палитра из первой найденной иллюстрации
     const first = arr.map(idbOf).find(Boolean);
     if (first) { const b = await Store.get("images", first.id).catch(() => null); if (b) { try { L().slidePalette = await ThemeKit.paletteFrom(b); } catch { } } }
-    // 2) портрет писателя — вырезанной наклейкой (если устройство тянет модель удаления фона)
+    // 1б) полароид на титуле — в «тёплых» тематических оформлениях (как вклеенная фотография)
     let changed = false;
+    const POL = { poster: "polaroid", sketch: "polaroid", haze: "polaroid", aqua: "polaroid", collage: "torn", botanic: "tape", night: "stamp" }[theme()];
+    if (POL && window.PhotoStk && arr[0]?.set.acc) {
+      const hit = idbOf(arr[0]); const b = hit ? await Store.get("images", hit.id).catch(() => null) : null;
+      if (b) { try { const r = await PhotoStk.make(b, POL, { caption: POL === "polaroid" ? String(arr[0].title).replace(/[«»]/g, "").slice(0, 30) : "" }); const id = "img-" + uid(); await Store.put("images", id, r.blob); const sl = arr[0]; sl.body = sl.body.replace(hit.m[0], "").trim(); sl.set.acc = undefined; sl.set.photo = 1; const w = r.ar >= 1 ? 38 : 28; sl.set.stk = [...(sl.set.stk || []), { img: "idb:" + id, ar: Math.round(r.ar * 1000) / 1000, x: 56, y: Math.max(4, Math.round(50 - (w * 16 / 9 / r.ar) / 2)), s: w, r: 3 }]; changed = true; } catch { } }
+    }
+    // 2) портрет писателя — вырезанной наклейкой (если устройство тянет модель удаления фона)
     if (wantCut() && window.PhotoStk && ThemeKit.has(theme()) && theme() !== "board") {
       for (const sl of arr.filter(x => x.set.kind === "author").slice(0, 1)) {
         const hit = idbOf(sl); if (!hit) continue;
@@ -946,7 +953,7 @@ const SlideEditor = (() => {
   /* ---------- выгрузка в HTML (самостоятельная страница, стрелки — листать) ---------- */
   async function exportHtml(opts = {}) {
     toast(opts.open ? "Открываю показ…" : "Готовлю HTML…", 6000);
-    const arr = slides(), css = [...document.styleSheets].flatMap(ss => { try { return [...ss.cssRules].map(r => r.cssText).filter(t => /\.sx|theme-|figure\.pic|\.blank|\.uline|\.tblwrap|@font-face/.test(t)); } catch { return []; } }).join("\n");
+    const arr = slides(), css = [...document.styleSheets].flatMap(ss => { try { return [...ss.cssRules].map(r => r.cssText).filter(t => /\.sx|theme-|figure\.pic|\.blank|\.uline|\.tblwrap|@font-face|@keyframes (glowA|glowB|twinkle|shimmer)/.test(t)); } catch { return []; } }).join("\n");
     const fontLinks = [...document.querySelectorAll('link[href^="https://fonts.googleapis.com"]')].map(l => `<link rel="stylesheet" href="${l.href}">`).join("");
     const toData = async src => { try { const b = src.startsWith("idb:") ? await Store.get("images", src.slice(4)) : await (await fetch(src, { mode: "cors" })).blob(); return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); }); } catch { return src.startsWith("idb:") ? "" : src; } };
     const box = document.createElement("div");
