@@ -445,7 +445,8 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .cov-miss li { margin: 4px 0; }
 @media (max-width: 640px) { .cov-cells { margin-left: 24px; } .cov-more { padding-left: 8px; } }
 /* v5.9: методические источники — неприметная ссылка внизу и «книга» с перелистыванием */
-.site-foot { text-align: center; padding: 28px 16px 22px; }
+.cr-foot-only { text-align: center; padding: 28px 16px 22px; }
+.site-foot .foot-link { flex: 1 0 100%; text-align: center; margin-top: 10px; }
 .foot-link { background: none; border: 0; padding: 4px 6px; font: 12px/1.4 Arial, sans-serif; color: #9a9590; cursor: pointer; letter-spacing: .02em; text-decoration: underline dotted rgba(154,149,144,.6); text-underline-offset: 3px; }
 .foot-link:hover, .foot-link:focus-visible { color: #7A0F1C; }
 .cr-wrap { position: fixed; inset: 0; z-index: 3000; background: radial-gradient(ellipse at 50% 40%, rgba(60,10,18,.55), rgba(15,5,8,.82)); display: flex; align-items: center; justify-content: center; padding: 16px; animation: crIn .3s ease; }
@@ -503,3 +504,23 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .fl-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
 .fl-list li { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; padding: 6px 8px; border-bottom: 1px solid rgba(0,0,0,.08); }
 .fl-n { flex: 1 1 260px; min-width: 0; } .fl-t { display: flex; gap: 4px; flex-wrap: wrap; }
+/* ключи API: скрыты точками, но не считаются паролями — менеджер паролей их не запоминает и не подставляет в чужие поля */
+input.secret { -webkit-text-security: disc; text-security: disc; font-family: monospace; }
+input.secret:focus { -webkit-text-security: none; text-security: none; }
+/* v5.11: рабочий лист — обложки-баннеры для каждого листа (рабочий лист, памятка, самостоятельная, д/з) */
+.ws-sheet .ws-banner { position: relative; overflow: hidden; margin: 0 -4px 18px; padding: 34px 26px 26px; border-radius: 22px; background: linear-gradient(120deg, #6b2bd9 0%, #a43fd0 45%, #f05aa6 100%); color: #fff; box-shadow: 0 10px 24px rgba(107,43,217,.25); break-inside: avoid; }
+.ws-sheet .ws-banner.pb { margin-top: 46px; }
+.ws-sheet .ws-banner.teacher { background: linear-gradient(120deg, #3b3b58, #6c5a8c); }
+.ws-sheet .ws-banner h1 { position: relative; z-index: 1; color: #fff; margin: 10px 0 0; font-size: 34px; line-height: 1.1; letter-spacing: -.01em; max-width: 80%; }
+.ws-sheet .ws-tag { position: relative; z-index: 1; display: inline-block; background: #ffd84d; color: #3a2a00; font-weight: 800; font-size: 13px; padding: 5px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; }
+.ws-sheet .ws-ico { position: absolute; z-index: 1; right: 26px; top: 50%; transform: translateY(-50%); width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,.95); display: grid; place-items: center; font-size: 38px; box-shadow: 0 6px 14px rgba(0,0,0,.15); }
+.ws-sheet .wc { position: absolute; border-radius: 50%; pointer-events: none; }
+.ws-sheet .c1 { width: 180px; height: 180px; right: -40px; top: -70px; background: rgba(255,216,77,.35); }
+.ws-sheet .c2 { width: 120px; height: 120px; left: 38%; bottom: -60px; background: rgba(255,255,255,.18); }
+.ws-sheet .c3 { width: 60px; height: 60px; left: -18px; top: 18px; background: rgba(240,90,166,.55); }
+.ws-sheet h3 { border-left: 6px solid #a43fd0; padding: 6px 12px; background: #f6efff; border-radius: 0 12px 12px 0; }
+.ws-sheet h2 { color: #6b2bd9; }
+@media (max-width: 600px) { .ws-sheet .ws-banner h1 { font-size: 26px; max-width: 70%; } .ws-sheet .ws-ico { width: 56px; height: 56px; font-size: 28px; right: 14px; } }
+@media print { .ws-sheet .ws-banner.pb { break-before: page; margin-top: 0; } }
+.an-opts { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
+.an-opts .chip.on { background: var(--ink); color: var(--paper); }

@@ -451,6 +451,7 @@ const Variety = (() => {
         const nSt = Math.max(1, (plan.stages || []).filter(s => AN.test(s) && !/^Творческое|домашн/i.test(s)).length);
         const per = Math.ceil(kit.fragments.length / nSt), k = plan.fragI || 0;
         const take = kit.fragments.slice(k, k + per); plan.fragI = k + per;
+        take.forEach(fr => { (plan.fragStage = plan.fragStage || {})[fr.n] = stage.split(":")[0].trim(); });
         if (take.length) teacher = take.map(fr => {
           const qa = (kit.qa.find(x => x.n === fr.n) || { items: [] }).items;
           const firstLine = String(fr.text).split("\n").find(l => l.trim()) || "";

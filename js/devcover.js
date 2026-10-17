@@ -85,6 +85,11 @@ const DevCover = (() => {
       ["И. Н. Сухих. Литература. Книга для учителя", "методические рекомендации"]
     ]
   };
+  /* Официальные файлы ФРП (edsoo.ru, редакция 2025 г.) */
+  const FRP_LINKS = {
+    ru: [["ФРП «Русский язык», 5–9 классы", "https://edsoo.ru/wp-content/uploads/2025/09/01_frp_russkij-yazyk_5-9-klassy_itog-na-sajt_1-2.pdf"], ["ФРП «Русский язык», 10–11 классы (базовый)", "https://edsoo.ru/wp-content/uploads/2025/07/2025_soo_frp_russkij-yazyk_10_11.pdf"], ["ФРП «Русский язык», 1–4 классы", "https://edsoo.ru/wp-content/uploads/2025/07/2025_noo_frp_russkij-yazyk_1-4.pdf"]],
+    lit: [["ФРП «Литература», 5–9 классы", "https://edsoo.ru/wp-content/uploads/2025/07/2025_ooo_frp_literatura_5-9.pdf"], ["ФРП «Литература», 10–11 классы (базовый)", "https://edsoo.ru/wp-content/uploads/2025/07/2025_soo_frp_literatura_10_11_baz.pdf"], ["ФРП «Литература», 10–11 классы (углублённый)", "https://edsoo.ru/wp-content/uploads/2025/07/2025_soo_frp_literatura_10_11_ugl.pdf"], ["ФРП «Литературное чтение», 1–4 классы", "https://edsoo.ru/wp-content/uploads/2025/07/2025_noo_frp_literaturnoe-chtenie_1-4.pdf"]]
+  };
   function topicLinks(subj, t, grade, r) {
     const core = t.title.replace(/\(.*?\)/g, "").replace(/\s+/g, " ").trim().slice(0, 90);
     if (subj === "ru") return [
@@ -137,6 +142,8 @@ const DevCover = (() => {
       ${upload("covAdd")}
       <ol class="rec-steps"><li>Откройте ссылку и скачайте файл.</li><li>Вернитесь на сайт.</li><li>Нажмите «Загрузить и встроить» выше — подойдёт любой файл.</li></ol>
       ${scans.length ? `<div class="rec-card warn"><h3>Загружено, но не прочитано</h3><p>Это сканы без текста: ${scans.map(m => esc(String(m.title || m.name).slice(0, 70))).join("; ")}. Они уже стоят на распознавании; если долго нет результата — загрузите эти же книги в виде PDF с текстом.</p></div>` : ""}
+      <div class="rec-card"><h3>Скачать и загрузить: ФРП (официальные файлы)</h3><p class="small">Сайт сам распознает программу и встроит её: результаты, темы, планирование. Источник — сайт «Единое содержание общего образования» (edsoo.ru).</p>
+        <ul class="rec-list">${FRP_LINKS[subj].map(([n, u]) => `<li>${link(n, u)}</li>`).join("")}<li>${link("Все ФРП по другим предметам", "https://edsoo.ru/rabochie-programmy/")}</li></ul></div>
       <div class="rec-card"><h3>Скачать и загрузить: пособия для ${grade} класса</h3>
         ${loaded.length ? `<p class="small">Уже есть: ${loaded.slice(0, 6).map(m => esc(String(m).slice(0, 90))).join("; ")}${loaded.length > 6 ? "…" : ""}.</p>` : ""}
         <ul class="rec-list">${SERIES[subj].map(([n, d]) => `<li>${link(`${n}, ${grade} класс`, ya(`${n} ${grade} класс pdf`))} <span class="small">— ${esc(d)}</span></li>`).join("")}</ul></div>

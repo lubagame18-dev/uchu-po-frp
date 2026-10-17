@@ -31,6 +31,8 @@ const http = require("http");
 const https = require("https");
 const crypto = require("crypto");
 const fs = require("fs"), path = require("path"), tls = require("tls");
+const DS = require("./deepseek-pool.js");
+const Q = require("./quota.js");
 
 const ENV = {
   port: Number(process.env.PORT || 8787),
@@ -133,7 +135,7 @@ function cors(req, res) {
   if (allowed) res.setHeader("Access-Control-Allow-Origin", allowed);
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-GigaChat-Key, X-Yandex-Key, X-Yandex-Folder, X-Proxy-Auth, X-Api-Key, Anthropic-Version, Anthropic-Dangerous-Direct-Browser-Access, HTTP-Referer, X-Title");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-GigaChat-Key, X-Yandex-Key, X-Yandex-Folder, X-Proxy-Auth, X-Api-Key, Anthropic-Version, Anthropic-Dangerous-Direct-Browser-Access, HTTP-Referer, X-Title, X-User-Token, X-Admin-Token");
   res.setHeader("Access-Control-Expose-Headers", "X-Uchu-Reason");
 }
 function send(res, status, obj) { if (obj && obj.reason) res.setHeader("X-Uchu-Reason", obj.reason); res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" }); res.end(JSON.stringify(obj)); }
@@ -242,7 +244,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 6, providers: ["gigachat", "yandex", "relay", "images"], images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 6, providers: ["gigachat", "deepseek", "yandex", "relay", "images"], deepseek: DS.loadPool().filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -255,6 +257,11 @@ async function handler(req, res) {
   if (req.method === "GET" && route === "/img") {
     try { const r = await fetchImage(String(u.searchParams.get("url") || "")); res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "public, max-age=86400" }); return res.end(r.buf); }
     catch (e) { return send(res, e.status || 502, { error: e.message }); }
+  }
+  if (req.method === "GET" && route === "/deepseek/balance") {
+    // баланс аккаунтов — только владельцу (заголовок X-Admin-Token = переменная ADMIN_TOKEN)
+    if (!process.env.ADMIN_TOKEN || req.headers["x-admin-token"] !== process.env.ADMIN_TOKEN) return send(res, 403, { error: "нужен токен владельца" });
+    return send(res, 200, { ok: true, accounts: await DS.balances(request, readAll) });
   }
   if (req.method === "GET" && route === "/diagnose") {
     // проверка «вживую»: получить токен GigaChat ключом с сервера (или из заголовка)
@@ -278,6 +285,16 @@ async function handler(req, res) {
     }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
     if (!Array.isArray(body.messages)) return send(res, 400, { error: "нужен массив messages" });
+    if (route === "/deepseek/v1/chat/completions") {
+      // пул аккаунтов DeepSeek: ключи только на сервере; карусель и подстраховка — в deepseek-pool.js
+      // если подключено облако кабинета — запрос только по входу и в пределах тарифа (списывается 1 запрос)
+      const quota = await Q.check(req.headers["x-user-token"], request, readAll);
+      if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
+      const r = await DS.chat(body, request, readAll);
+      await Q.spend(quota, request, readAll).catch(e => console.warn("quota", e.message));
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "X-Uchu-Account": r.account });
+      return res.end(r.text);
+    }
     if (route === "/gigachat/v1/chat/completions") {
       const key = String(req.headers["x-gigachat-key"] || process.env.GIGACHAT_KEY || "").trim();
       if (!key) return send(res, 401, { error: "нет ключа GigaChat (заголовок X-GigaChat-Key)", reason: "no_key" });

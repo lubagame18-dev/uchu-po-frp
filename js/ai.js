@@ -25,7 +25,7 @@ const AI = (() => {
   const DEF = {
     prefer: "auto",
     keys: { openrouter: "", pollinations: "", deepseek: "", gemini: "", anthropic: "", gigachat: "" },
-    models: { openrouter: "openrouter/free", openrouterDeep: "openrouter/free", pollinations: "openai", deepseek: "deepseek-chat", gemini: "gemini-2.5-flash", anthropic: "claude-sonnet-5-5", gigachat: "GigaChat-2-Pro" },
+    models: { openrouter: "openrouter/free", openrouterDeep: "openrouter/free", pollinations: "openai", deepseek: "deepseek-flash", gemini: "gemini-2.5-flash", anthropic: "claude-sonnet-5-5", gigachat: "GigaChat-2-Pro" },
     custom: { base: "", key: "", model: "" },
     extra: [], // любые подключённые по одному ключу: [{ id, name, base, key, model }]
     yandexFn: SITE.yandexFunction || "",
@@ -38,9 +38,10 @@ const AI = (() => {
     gemini: { name: "Gemini", sub: "Google AI Studio, свой ключ", limits: "бесплатный тариф Google; из России без VPN обычно недоступен", foreign: true },
     yandexfn: { name: "GigaChat через Яндекс-функцию", sub: "неприоритетный вариант", limits: "по ключу GigaChat, который лежит в функции", foreign: false },
     anthropic: { name: "Claude", sub: "свой ключ Anthropic", limits: "по тарифу Anthropic; из России недоступен", foreign: true },
-    custom: { name: "Свой сервис", sub: "любой OpenAI-совместимый", limits: "по условиям сервиса", foreign: true }
+    custom: { name: "Свой сервис", sub: "любой OpenAI-совместимый", limits: "по условиям сервиса", foreign: true },
+    site: { name: "ИИ сайта", sub: "DeepSeek через сервер сайта, свой ключ не нужен", limits: "по тарифу кабинета", foreign: false }
   };
-  const ORDER = ["openrouter", "pollinations", "deepseek", "gemini", "yandexfn", "anthropic", "custom"];
+  const ORDER = ["site", "openrouter", "pollinations", "deepseek", "gemini", "yandexfn", "anthropic", "custom"];
   /* Любая нейросеть по одному ключу: провайдер узнаётся по виду ключа, модели — из списка сервиса */
   const DETECT = [
     { re: /^sk-or-/, slot: "openrouter", name: "OpenRouter" },
@@ -62,7 +63,7 @@ const AI = (() => {
   ];
   const HOSTNAMES = { "api.openai.com": "OpenAI", "api.deepseek.com": "DeepSeek", "api.moonshot.ai": "Moonshot Kimi", "dashscope-intl.aliyuncs.com": "Qwen", "api.together.xyz": "Together", "api.mistral.ai": "Mistral", "api.groq.com": "Groq", "api.x.ai": "xAI Grok", "openrouter.ai": "OpenRouter", "llm.api.cloud.yandex.net": "YandexGPT", "gigachat.devices.sberbank.ru": "GigaChat" };
   // модель по умолчанию: быстрая и недорогая, если есть; иначе первая из списка
-  const PREF = [/deepseek-chat|deepseek-v3/i, /gpt-5-mini|gpt-4\.1-mini|gpt-4o-mini/i, /gemini-[\d.]+-flash(?!-lite)/i, /llama-3\.3-70b|llama-4/i, /qwen.*(max|plus|72b)/i, /mistral-(large|medium)-latest/i, /grok-[\d]+(-fast|-mini)?/i, /kimi|moonshot-v1-32k/i, /sonnet/i, /chat|instruct/i];
+  const PREF = [/deepseek-flash|deepseek-chat|deepseek-v3/i, /gpt-5-mini|gpt-4\.1-mini|gpt-4o-mini/i, /gemini-[\d.]+-flash(?!-lite)/i, /llama-3\.3-70b|llama-4/i, /qwen.*(max|plus|72b)/i, /mistral-(large|medium)-latest/i, /grok-[\d]+(-fast|-mini)?/i, /kimi|moonshot-v1-32k/i, /sonnet/i, /chat|instruct/i];
   function pickModel(ids) { for (const re of PREF) { const m = ids.find(x => re.test(x) && !/embed|whisper|tts|image|vision-only|moderation|audio|realtime|search/i.test(x)); if (m) return m; } return ids.find(x => !/embed|whisper|tts|image|moderation|audio/i.test(x)) || ids[0]; }
   async function listModels(base, key, ms = 12000) {
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
@@ -111,11 +112,14 @@ const AI = (() => {
     // перенос ключей из прежней версии сайта
     if (!c.migrated) { try { const old = JSON.parse(localStorage.getItem("uchu:ai")) || {}; c.keys = { ...(c.keys || {}), ...(old.anthropicKey ? { anthropic: old.anthropicKey } : {}), ...(old.gigaKey ? { gigachat: old.gigaKey } : {}), ...(old.openaiKey && /openrouter/.test(old.openaiBase || "") ? { openrouter: old.openaiKey } : {}), ...(old.openaiKey && /deepseek/.test(old.openaiBase || "") ? { deepseek: old.openaiKey } : {}) }; c.migrated = true; } catch { } }
     const out = { ...DEF, ...c, keys: { ...DEF.keys, ...(c.keys || {}) }, models: { ...DEF.models, ...(c.models || {}) }, custom: { ...DEF.custom, ...(c.custom || {}) }, proxy: { ...DEF.proxy, ...(c.proxy || {}) }, yandexFn: c.yandexFn || DEF.yandexFn, extra: Array.isArray(c.extra) ? c.extra : [] };
+    // DeepSeek: старые имена моделей (deepseek-chat, deepseek-reasoner) с 24.07.2026 не поддерживаются — теперь deepseek-flash
+    if (/^deepseek-(chat|reasoner|v3|v4-flash)/i.test(out.models.deepseek || "")) out.models.deepseek = "deepseek-flash";
+    for (const x of out.extra) if (/api\.deepseek\.com/.test(x.base || "") && /^deepseek-(chat|reasoner)/i.test(x.model || "")) x.model = "deepseek-flash";
     for (const x of out.extra) P[x.id] = { name: x.name, sub: x.model, limits: "по условиям сервиса", foreign: !/yandex|sber/.test(x.base) };
     return out;
   }
   function save(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { toast("Не удалось сохранить настройки ИИ."); } paint(); }
-  const has = (c, id) => id[0] === "x" ? !!c.extra.find(x => x.id === id && x.model) : ({ openrouter: !!c.keys.openrouter, pollinations: !!c.keys.pollinations, deepseek: !!c.keys.deepseek, gemini: !!c.keys.gemini, anthropic: !!c.keys.anthropic, yandexfn: !!c.yandexFn, custom: !!(c.custom.base && c.custom.model) })[id];
+  const has = (c, id) => id[0] === "x" ? !!c.extra.find(x => x.id === id && x.model) : ({ openrouter: !!c.keys.openrouter, pollinations: !!c.keys.pollinations, deepseek: !!c.keys.deepseek, gemini: !!c.keys.gemini, anthropic: !!c.keys.anthropic, yandexfn: !!c.yandexFn, site: !!(window.UCHU_SITE?.siteAi && c.yandexFn), custom: !!(c.custom.base && c.custom.model) })[id];
   function chain(c = cfg()) {
     const avail = [...c.extra.map(x => x.id), ...ORDER].filter(id => has(c, id));
     return c.prefer !== "auto" && avail.includes(c.prefer) ? [c.prefer, ...avail.filter(x => x !== c.prefer)] : avail;
@@ -180,6 +184,7 @@ const AI = (() => {
     deepseek: (c, p, o, e) => openaiCompat("deepseek", "https://api.deepseek.com/chat/completions", { Authorization: "Bearer " + c.keys.deepseek }, c.models.deepseek, p, o, e),
     gemini: (c, p, o, e) => openaiCompat("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", { Authorization: "Bearer " + c.keys.gemini }, c.models.gemini, p, o, e),
     custom: (c, p, o, e) => openaiCompat("custom", c.custom.base.replace(/\/+$/, "") + "/chat/completions", c.custom.key ? { Authorization: "Bearer " + c.custom.key } : {}, c.custom.model, p, o, e),
+    site: (c, p, o, e) => { const base = c.yandexFn.replace(/\/+$/, ""); const url = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/deepseek/v1/chat/completions")}` : base + "/deepseek/v1/chat/completions"; const tok = window.Account?.session?.access; return openaiCompat("site", url, tok ? { "X-User-Token": tok } : {}, "deepseek-flash", p, o, e); },
     yandexfn: (c, p, o, e) => { const base = c.yandexFn.replace(/\/+$/, ""); const url = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/gigachat/v1/chat/completions")}` : base + "/gigachat/v1/chat/completions"; return openaiCompat("yandexfn", url, c.keys.gigachat ? { "X-GigaChat-Key": (gigaKey(c.keys.gigachat).key || c.keys.gigachat) } : {}, o.modelTier === "complex" ? "GigaChat-2-Max" : c.models.gigachat, p, o, e); },
     anthropic: async (c, p, o, emit) => {
       const [u, init] = viaRelay(c, "anthropic", "https://api.anthropic.com/v1/messages", { method: "POST", signal: o.signal, headers: { "content-type": "application/json", "x-api-key": c.keys.anthropic, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify({ model: c.models.anthropic, max_tokens: 16000, stream: true, messages: [{ role: "user", content: p }] }) });
@@ -332,33 +337,33 @@ const AI = (() => {
 
       <div class="prov uni"><div class="prov-h"><b>Любая нейросеть по одному ключу</b> <span class="small">OpenAI, DeepSeek, Gemini, Claude, Grok, Groq, Mistral, Qwen, Kimi, Together, Perplexity, Hugging Face, OpenRouter…</span></div>
         <p class="hint">Вставьте ключ и нажмите «Подключить» — сайт сам узнает сервис, найдёт список моделей, выберет подходящую и проверит. Для другого сервиса укажите ещё его адрес (…/v1).</p>
-        <div class="mat-row"><input type="password" id="uniKey" autocomplete="off" placeholder="ключ API" style="flex:1 1 260px"><input type="text" id="uniBase" spellcheck="false" placeholder="адрес (необязательно)" style="flex:1 1 220px"><button type="button" class="btn sm flame" id="uniGo">Подключить</button></div>
+        <div class="mat-row"><input type="text" class="secret" id="uniKey" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="ключ API" style="flex:1 1 260px"><input type="text" id="uniBase" spellcheck="false" placeholder="адрес (необязательно)" style="flex:1 1 220px"><button type="button" class="btn sm flame" id="uniGo">Подключить</button></div>
         <p class="small" id="uniSt"></p>
         ${c.extra.length ? `<div class="uni-list">${c.extra.map(x => `<div class="uni-row" data-x="${x.id}"><b>${esc(x.name)}</b> ${row(x.id)} <select data-xm="${x.id}" aria-label="Модель">${[...new Set([x.model, ...(x.models || [])])].filter(Boolean).map(mm => `<option ${mm === x.model ? "selected" : ""}>${esc(mm)}</option>`).join("")}</select><button type="button" class="btn sm ghost" data-xt="${x.id}">Проверить</button><button type="button" class="btn sm ghost" data-xd="${x.id}" aria-label="Отключить">×</button></div>`).join("")}</div>` : ""}</div>
 
       <div class="prov"><div class="prov-h"><b>1. OpenRouter</b> <span class="small">${esc(P.openrouter.sub)}</span> ${row("openrouter")}</div>
         <div class="mat-row"><button type="button" class="btn sm flame" id="orLogin">${c.keys.openrouter ? "Войти заново" : "Войти через OpenRouter"}</button><span class="small">или вставьте ключ:</span></div>
-        <input type="password" id="kOR" autocomplete="off" placeholder="sk-or-…" value="${v(c.keys.openrouter)}"><p class="hint">Лимиты: ${esc(P.openrouter.limits)}. Модель: <input type="text" id="mOR" class="mini-inp" value="${v(c.models.openrouter)}" spellcheck="false"></p></div>
+        <input type="text" class="secret" id="kOR" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk-or-…" value="${v(c.keys.openrouter)}"><p class="hint">Лимиты: ${esc(P.openrouter.limits)}. Модель: <input type="text" id="mOR" class="mini-inp" value="${v(c.models.openrouter)}" spellcheck="false"></p></div>
 
       <div class="prov"><div class="prov-h"><b>2. Pollinations</b> <span class="small">${esc(P.pollinations.sub)}</span> ${row("pollinations")}</div>
         <div class="mat-row"><button type="button" class="btn sm ghost" id="plLogin">${SITE.pollinationsAppKey ? "Войти через Pollinations" : "Получить ключ ↗"}</button></div>
-        <input type="password" id="kPL" autocomplete="off" placeholder="sk_…" value="${v(c.keys.pollinations)}"><p class="hint">${esc(P.pollinations.limits)}. Без ключа Pollinations тексты больше не выдаёт.</p></div>
+        <input type="text" class="secret" id="kPL" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk_…" value="${v(c.keys.pollinations)}"><p class="hint">${esc(P.pollinations.limits)}. Без ключа Pollinations тексты больше не выдаёт.</p></div>
 
-      <div class="prov"><div class="prov-h"><b>3. DeepSeek</b> <span class="small">свой ключ</span> ${row("deepseek")}</div><input type="password" id="kDS" autocomplete="off" placeholder="sk-…" value="${v(c.keys.deepseek)}"><p class="hint"><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">Получить ключ ↗</a> · ${esc(P.deepseek.limits)}</p></div>
-      <div class="prov"><div class="prov-h"><b>4. Gemini</b> <span class="small">Google AI Studio</span> ${row("gemini")}</div><input type="password" id="kGM" autocomplete="off" placeholder="AIza…" value="${v(c.keys.gemini)}"><p class="hint"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Получить ключ ↗</a> · ${esc(P.gemini.limits)}</p></div>
+      <div class="prov"><div class="prov-h"><b>3. DeepSeek</b> <span class="small">свой ключ</span> ${row("deepseek")}</div><input type="text" class="secret" id="kDS" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk-…" value="${v(c.keys.deepseek)}"><p class="hint"><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">Получить ключ ↗</a> · ${esc(P.deepseek.limits)}</p></div>
+      <div class="prov"><div class="prov-h"><b>4. Gemini</b> <span class="small">Google AI Studio</span> ${row("gemini")}</div><input type="text" class="secret" id="kGM" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="AIza…" value="${v(c.keys.gemini)}"><p class="hint"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Получить ключ ↗</a> · ${esc(P.gemini.limits)}</p></div>
       <div class="prov"><div class="prov-h"><b>5. GigaChat через Яндекс-функцию</b> <span class="small">неприоритетный вариант</span> ${row("yandexfn")}</div>
         <input type="text" id="yFn" spellcheck="false" placeholder="https://functions.yandexcloud.net/…" value="${v(c.yandexFn)}">
-        <label for="kGG" class="small">Свой ключ GigaChat (не нужен, если ключ лежит в функции)</label><input type="password" id="kGG" autocomplete="off" value="${v(c.keys.gigachat)}">
-        <details class="small"><summary>Нет «ключа авторизации», есть Client ID и Client Secret?</summary><div class="mat-row"><input type="text" id="kGGid" placeholder="Client ID" spellcheck="false" autocomplete="off"><input type="password" id="kGGsec" placeholder="Client Secret" autocomplete="off"></div><p class="hint">Сайт сам соберёт из них ключ. Подходит любой из вариантов: ключ авторизации, «Basic …», пара «ID:Secret».</p></details>
+        <label for="kGG" class="small">Свой ключ GigaChat (не нужен, если ключ лежит в функции)</label><input type="text" class="secret" id="kGG" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" value="${v(c.keys.gigachat)}">
+        <details class="small"><summary>Нет «ключа авторизации», есть Client ID и Client Secret?</summary><div class="mat-row"><input type="text" id="kGGid" placeholder="Client ID" spellcheck="false" autocomplete="off"><input type="text" class="secret" id="kGGsec" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" placeholder="Client Secret" autocomplete="off"></div><p class="hint">Сайт сам соберёт из них ключ. Подходит любой из вариантов: ключ авторизации, «Basic …», пара «ID:Secret».</p></details>
         <div class="mat-row"><button type="button" class="btn sm ghost" id="yProbe">Проверить функцию и Сбер</button><span class="small" id="yProbeSt"></span></div></div>
       <details class="prov"><summary><b>6. Claude и свой сервис</b></summary>
-        <label for="kAN" class="small">Ключ Anthropic (из России недоступен)</label><input type="password" id="kAN" autocomplete="off" placeholder="sk-ant-…" value="${v(c.keys.anthropic)}">
-        <label for="cuBase" class="small">Свой OpenAI-совместимый сервис: адрес (…/v1), ключ, модель</label><input type="text" id="cuBase" spellcheck="false" placeholder="https://api.example.com/v1" value="${v(c.custom.base)}"><input type="password" id="cuKey" autocomplete="off" placeholder="ключ" value="${v(c.custom.key)}"><input type="text" id="cuModel" spellcheck="false" placeholder="модель" value="${v(c.custom.model)}"></details>
+        <label for="kAN" class="small">Ключ Anthropic (из России недоступен)</label><input type="text" class="secret" id="kAN" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk-ant-…" value="${v(c.keys.anthropic)}">
+        <label for="cuBase" class="small">Свой OpenAI-совместимый сервис: адрес (…/v1), ключ, модель</label><input type="text" id="cuBase" spellcheck="false" placeholder="https://api.example.com/v1" value="${v(c.custom.base)}"><input type="text" class="secret" id="cuKey" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="ключ" value="${v(c.custom.key)}"><input type="text" id="cuModel" spellcheck="false" placeholder="модель" value="${v(c.custom.model)}"></details>
       <details class="prov"><summary><b>Прокси — крайняя мера</b> <span class="small">только вручную</span></summary>
         <p class="hint">Нужен, только если из сети школы зарубежные нейросети не открываются. Браузер не умеет ходить через системный прокси сам, поэтому здесь указывается сервер-посредник «Учу по ФРП» (файл proxy/proxy.js на любом своём сервере или в Яндекс Облаке).</p>
         <label class="check"><input type="checkbox" id="pxOn" ${c.proxy.on ? "checked" : ""}> Включить прокси</label>
         <div class="row2"><div class="field"><label for="pxUrl">Адрес</label><input type="text" id="pxUrl" spellcheck="false" placeholder="https://proxy.школа.рф" value="${v(c.proxy.url)}"></div><div class="field"><label for="pxPort">Порт</label><input type="text" id="pxPort" inputmode="numeric" placeholder="443" value="${v(c.proxy.port)}"></div></div>
-        <div class="row2"><div class="field"><label for="pxLogin">Логин</label><input type="text" id="pxLogin" autocomplete="off" value="${v(c.proxy.login)}"></div><div class="field"><label for="pxPass">Пароль</label><input type="password" id="pxPass" autocomplete="off" value="${v(c.proxy.password)}"></div></div>
+        <div class="row2"><div class="field"><label for="pxLogin">Логин</label><input type="text" id="pxLogin" autocomplete="off" value="${v(c.proxy.login)}"></div><div class="field"><label for="pxPass">Пароль</label><input type="text" class="secret" id="pxPass" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" value="${v(c.proxy.password)}"></div></div>
         <label class="check"><input type="checkbox" id="pxSplit" ${c.proxy.split ? "checked" : ""}> Split Tunneling: российские сервисы напрямую, остальное через прокси</label>
         <div class="mat-row"><button type="button" class="btn sm ghost" id="pxTest">Проверить подключение</button><span class="small" id="pxSt">${c.proxy.on ? "прокси включён" : "прокси выключен"}</span></div></details>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button class="btn flame" type="submit">Сохранить</button><span class="small" id="aiSaved"></span></div>

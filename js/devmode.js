@@ -13,7 +13,7 @@ const Dev = (() => {
   "use strict";
   const SALT = "uchu-po-frp:dev:v5";
   const HASH = "7c22fbd5e2f15b7e42bc033064a7e36016d49d7e6f1300dab2bb1fdd3dd31c1e"; // SHA-256(SALT + пароль); подставляется при сборке, сам пароль в коде не хранится
-  const SAVED = "uchu:dev-fill";
+  const SAVED = "uchu:dev-fill", SESSION = "uchu:dev-session";
   let on = false, section = "materials";
 
   async function sha(text) {
@@ -26,16 +26,18 @@ const Dev = (() => {
 
   /* ---------- вход ---------- */
   function openLogin() {
-    if (on) return show("materials");
+    if (on) return show("files");
+    // вход запомнен на этом устройстве — сразу входим, без пароля
+    try { if (localStorage.getItem(SESSION) === HASH.slice(0, 16)) { enter(); return; } } catch { }
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Режим разработчика</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <form class="dlg-b" id="devForm" autocomplete="on">
         <input type="text" name="username" value="разработчик" autocomplete="username" hidden>
         <div class="field"><label for="devPass">Пароль</label><div class="row-btn"><input type="password" id="devPass" name="password" autocomplete="current-password" required><button type="button" class="btn sm ghost" id="devFill">Заполнить вход</button></div></div>
-        <label class="check"><input type="checkbox" id="devRemember"> Запомнить пароль в этом браузере (для кнопки «Заполнить вход»; сам вход всё равно каждый раз вручную)</label>
+        <label class="check"><input type="checkbox" id="devRemember" checked> Запомнить вход на этом устройстве (пароль больше не спросится; забыть — кнопка «Выйти и забыть»)</label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit">Войти</button><span class="small" id="devMsg" role="status"></span></div>
       </form></div>`);
     const pass = m.querySelector("#devPass"), msg = m.querySelector("#devMsg");
-    m.querySelector("#devRemember").checked = !!localStorage.getItem(SAVED);
+    pass.value = ""; setTimeout(() => { if (pass.value && !localStorage.getItem(SAVED)) pass.value = ""; }, 400); // браузер мог подставить чужой сохранённый ключ
     m.querySelector("#devFill").onclick = async () => {
       let v = deob(localStorage.getItem(SAVED) || "");
       if (!v && navigator.credentials && window.PasswordCredential) { try { const c = await navigator.credentials.get({ password: true, mediation: "optional" }); if (c?.password) v = c.password; } catch { } }
@@ -45,7 +47,7 @@ const Dev = (() => {
       e.preventDefault();
       const ok = (await sha(SALT + pass.value)) === HASH;
       if (!ok) { msg.textContent = "Неверный пароль."; pass.select(); if (window.Log) Log.add("вход", "неверный пароль разработчика"); return; }
-      try { m.querySelector("#devRemember").checked ? localStorage.setItem(SAVED, ob(pass.value)) : localStorage.removeItem(SAVED); } catch { }
+      try { if (m.querySelector("#devRemember").checked) { localStorage.setItem(SAVED, ob(pass.value)); localStorage.setItem(SESSION, HASH.slice(0, 16)); } else { localStorage.removeItem(SAVED); localStorage.removeItem(SESSION); } } catch { }
       if (window.PasswordCredential && m.querySelector("#devRemember").checked) { try { await navigator.credentials.store(new PasswordCredential({ id: "разработчик", password: pass.value })); } catch { } }
       closeModal(); enter();
     };
@@ -54,10 +56,11 @@ const Dev = (() => {
     on = true;
     document.body.classList.add("dev-on");
     const root = document.createElement("div"); root.id = "devRoot";
-    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button></div>
+    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button><button class="btn sm ghost" id="devForget" title="Выйти и больше не входить автоматически на этом устройстве">Выйти и забыть</button></div>
       <main id="view-dev" class="wrap page" hidden></main>`;
     document.body.prepend(root);
     root.querySelector("#devExit").onclick = exit;
+    root.querySelector("#devForget").onclick = () => { try { localStorage.removeItem(SESSION); localStorage.removeItem(SAVED); } catch { } exit(); };
     root.querySelector("#devOpen").onclick = () => show(section);
     const chip = document.createElement("button"); chip.className = "chip"; chip.id = "nav-dev"; chip.textContent = "Разработчик"; chip.dataset.devnav = "1";
     chip.onclick = () => show(section);

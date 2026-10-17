@@ -127,6 +127,27 @@ const Deck = (() => {
     return { head: capF(head || topic), points };
   }
 
+  /* Цель для детей: «Сегодня мы…» — 3–4 конкретных шага из содержания урока, простыми словами */
+  function childGoal(p, c) {
+    const pts = [], kit = p.plan?.kit, RK = p.plan?.rukit;
+    const work = (p.topic.match(/«([^»]+)»/) || [])[1];
+    const short = (s, n = 70) => { s = String(s).replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n).replace(/\s\S*$/, "") + "…" : s; };
+    if (p.subject === "lit") {
+      if (work) pts.push(`прочитаем и разберём «${short(work, 50)}»${kit?.fragments?.[0]?.part ? " по частям" : kit?.fragments?.length > 1 ? ` по ${kit.fragments.length} фрагментам` : ""}`);
+      const terms = (kit?.terms || []).slice(0, 3).map(t => t.term);
+      if (terms.length) pts.push(`узнаем, что такое ${terms.join(", ")}, и найдём их в тексте`);
+      if (kit?.heroes?.length >= 2) pts.push(`сравним героев: ${kit.heroes[0]} и ${kit.heroes[1]}`);
+      if (kit?.problem) pts.push(`ответим на главный вопрос: ${short(kit.problem.replace(/\?$/, ""), 80)}?`);
+    } else {
+      const T = short(p.topic.replace(/^\s*(Повторение\.?\s*)/i, ""), 60);
+      if (RK?.kind === "styles") pts.push("прочитаем настоящие тексты и узнаем, чем они отличаются", "научимся определять жанр (стиль) по признакам", "напишем свой текст");
+      else if (RK?.kind === "lex") pts.push(`узнаем, что такое ${RK.lexSets?.[0]?.name || "это явление"}`, "поработаем со словарём", "научимся точно выбирать слова в речи");
+      else if (RK?.algo) pts.push(`узнаем правило «${short(RK.algo.name, 50)}»`, "научимся рассуждать по алгоритму, чтобы не ошибаться", "потренируемся на упражнениях и проверим себя");
+      else if (RK?.kind === "syntax") pts.push("научимся находить каждый член предложения по вопросу", "разберёмся, как не перепутать похожие члены предложения", "потренируемся на примерах");
+      else pts.push(`узнаем главное по теме «${T}»`, "научимся применять это на практике", "проверим себя");
+    }
+    return { head: "Сегодня на уроке мы:", points: pts.slice(0, 4).map(capF) };
+  }
   /* Правило — короткий текст с формулировкой («пишется», «называется», «ставится»…), а не случайный абзац из пособия */
   const looksRule = s => { const t = plainMd(s).replace(/\*\([^)]*\)\*/g, ""); return t.length >= 25 && t.length <= 450 && /(пиш[еу]тся|называ[ею]тся|ставится|ставятся|не ставится|обособля|выделя[ею]тся|употребля[ею]тся|образу[ею]тся|обозначает|отвечает на вопрос|это\s|является|относятся|различают|бывают)/i.test(t); };
 
@@ -142,7 +163,7 @@ const Deck = (() => {
     const shortWork = work && work.length > 44 ? work.split(/,\s*/)[0] + "…" : work;
     const imgOn = o.images !== "none";
     add({ kind: "title", title: work ? `«${work}»` : (c.title || p.topic), points: [author || "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${work || p.topic} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация` : "", acc: "right" });
-    if (c.goal) { const g = goalForStudents(c.goal, p.topic); add({ kind: g.points.length >= 2 ? "goal" : "big", title: "Тема и цель урока", lead: g.head, points: g.points.slice(0, 6) }); }
+    { const g = childGoal(p, c); add({ kind: "goal", title: "Тема и цель урока", lead: g.head, points: g.points, notes: c.goal ? "Цель из конспекта: " + cleanLine(c.goal) : "" }); }
     add({ kind: "big", title: "Проблемный вопрос", lead: kit.problem, notes: "Запишите в тетрадь. Ответ — в выводах в конце урока." });
     if (author && c.wiki) {
       const pts = []; const yrs = c.wiki.match(/\(([^)]*?\d{4}[^)]*?\d{4}[^)]*?)\)/);
@@ -209,7 +230,7 @@ const Deck = (() => {
       if (m) { add({ kind: "quote", title: "Эпиграф", quote: m[1].replace(/\s*\/\s*/g, "\n"), by: m[2], notes: "Эпиграф приведён дословно." }); break; }
     }
     // 4. Цель — словами ученика
-    if (c.goal) { const g = goalForStudents(c.goal, p.topic); add({ kind: g.points.length >= 2 ? "goal" : "big", title: "Цель урока", lead: g.head, points: g.points.slice(0, 6), notes: cleanLine(c.goal) }); }
+    { const g = childGoal(p, c); add({ kind: "goal", title: "Цель урока", lead: g.head, points: g.points, notes: c.goal ? "Цель из конспекта: " + cleanLine(c.goal) : "" }); }
     // 5. Маршрут урока (как agenda у Gamma) — если этапов много
     const route = c.plan.filter(s => !/организац|домашн|рефлекс/i.test(s)).map(stageTitle);
     if (route.length >= 5) add({ kind: "steps", title: "Маршрут урока", points: [...new Set(route)].slice(0, 6), on: route.length >= 6, notes: "План урока по техкарте. Можно выключить в плане презентации." });

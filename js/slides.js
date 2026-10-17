@@ -104,6 +104,8 @@ const SlideEditor = (() => {
     if (/\|.*\|/.test(text)) return "one";
     return pics ? "two" : "titleText";
   }
+  const ANIMS = { soft: "Мягкая", bright: "Яркая", none: "Без анимации" };
+  const anim = () => ({ mode: "soft", cut: false, deco: true, ...(L()?.slideAnim || {}) });
   const theme = () => (L()?.slideTheme && THEMES[L().slideTheme]) ? L().slideTheme : "bordo";
 
   /* ---------- отрисовка слайда ---------- */
@@ -516,6 +518,15 @@ const SlideEditor = (() => {
     const p = popover(anchor, `<div class="pm-h">Шаблон слайда — щёлкните, чтобы применить</div>
       <div class="lp-grid">${Object.entries(LAYOUTS).map(([k, t]) => `<button class="lp-item ${k === curLay ? "on" : ""}" data-lay="${k}"><div class="lp-mini theme-${theme()}">${slideHtml({ ...sl, set: { ...sl.set, layout: k, fs: undefined, afs: 0.9, free: undefined } }, cur)}</div><span>${t}</span></button>`).join("")}</div>
       <label class="check"><input type="checkbox" id="lpAll"> применить ко всем слайдам</label>`, "pm wide");
+    const A = anim();
+    p.insertAdjacentHTML("beforeend", `<div class="pm-h">Показ: анимация</div><div class="an-opts">${Object.entries(ANIMS).map(([k, n]) => `<button class="chip ${k === A.mode ? "on" : ""}" data-anim="${k}">${n}</button>`).join("")}</div>
+      <label class="check"><input type="checkbox" id="anCut" ${A.cut ? "checked" : ""}> Заголовок титульного слайда — «вырезан» в картинке</label>
+      <label class="check"><input type="checkbox" id="anDeco" ${A.deco ? "checked" : ""}> Полупрозрачные детали на фоне</label>
+      <p class="hint">Анимация видна в «▶ Показ» и в HTML; в PowerPoint — плавные переходы между слайдами.</p>`);
+    const saveA = ch => { L().slideAnim = { ...anim(), ...ch }; saveLesson(L()); };
+    p.querySelectorAll("[data-anim]").forEach(b => b.onclick = () => { saveA({ mode: b.dataset.anim }); p.querySelectorAll("[data-anim]").forEach(x => x.classList.toggle("on", x === b)); });
+    p.querySelector("#anCut").onchange = e => saveA({ cut: e.target.checked });
+    p.querySelector("#anDeco").onchange = e => saveA({ deco: e.target.checked });
     p.querySelectorAll(".lp-mini .sx-body, .lp-mini .sx-acc").forEach(decorate); hydrateBg(p);
     p.querySelectorAll("[data-lay]").forEach(b => b.onclick = () => { const all = p.querySelector("#lpAll").checked; closePop(); set({ layout: b.dataset.lay, afs: undefined }, { all }); L().slidesFitted = false; toast(`Шаблон «${LAYOUTS[b.dataset.lay]}» применён${all ? " ко всем слайдам" : ""}.`); });
   }
@@ -808,21 +819,46 @@ const SlideEditor = (() => {
     box.innerHTML = arr.map((s, i) => `<section class="deck-s">${slideHtml(s, i)}</section>`).join("");
     box.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
     await new Promise(r => setTimeout(r, 300));
+    // в показе пустых мест «Нет картинки» не бывает: незаполненная картинка убирается
+    box.querySelectorAll("figure.pic").forEach(f => { if (/^(search|commons):/.test(f.dataset.src || "") || !f.querySelector("img")) { const acc = f.closest(".sx-acc"); (acc || f).remove(); } });
     for (const fig of box.querySelectorAll("figure.pic")) { const img = fig.querySelector("img"); if (img) img.src = await toData(fig.dataset.src); }
     for (const img of box.querySelectorAll("img.sx-bgimg")) img.src = await toData(img.dataset.src);
     box.querySelectorAll("[contenteditable]").forEach(e => e.removeAttribute("contenteditable"));
     const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(L().title)}</title>${fontLinks}<style>
 ${css}
 html,body{margin:0;height:100%;background:#222}body{font-family:Arial,"Segoe UI",sans-serif}
-.deck{height:100%;display:flex;align-items:center;justify-content:center}.deck-s{display:none;width:min(100vw,177.78vh)}.deck-s.on{display:block}.deck-s .sx{border-radius:0;box-shadow:none}
+.deck{height:100%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.deck-s{display:none;width:min(100vw,177.78vh)}.deck-s.on{display:block}.deck-s .sx{border-radius:0;box-shadow:none}
+${anCss(anim())}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
-</style></head><body class="theme-${theme()}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения</div>
-<script>const s=[...document.querySelectorAll('.deck-s')];let i=0;const go=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>x.classList.toggle('on',j===i));};go(${opts.open ? cur : 0});
+</style></head><body class="theme-${theme()} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения</div>
+<script>const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.classList.add('t'+(j%4)));
+document.querySelectorAll('.lay-title').forEach(t=>{const im=t.closest('.deck-s').querySelector('figure.pic img,img.sx-bgimg');if(im&&im.src){t.classList.add('has-cut');t.style.setProperty('--cut','url("'+im.src+'")');}});
+const go=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});};go(${opts.open ? cur : 0});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});<\/script></body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     if (opts.open) { const w = window.open(URL.createObjectURL(blob), "_blank"); if (!w) { toast("Браузер не дал открыть окно показа — разрешите всплывающие окна или скачайте HTML."); } return; }
     await saveFile(`${slug(L().title)}_${L().params.grade}kl_prezentaciya.html`, blob);
+  }
+  /* Анимация показа: переходы между слайдами (по кругу: появление, сдвиг, приближение),
+     поочерёдное появление блоков, полупрозрачные детали и заголовок-«вырезка» из картинки */
+  function anCss(A) {
+    if (A.mode === "none") return "";
+    const d = A.mode === "bright" ? 1 : 0.6;
+    return `@keyframes anFade{from{opacity:0}to{opacity:1}}@keyframes anUp{from{opacity:0;transform:translateY(${40 * d}px)}to{opacity:1;transform:none}}
+@keyframes anLeft{from{opacity:0;transform:translateX(${90 * d}px)}to{opacity:1;transform:none}}@keyframes anZoom{from{opacity:0;transform:scale(${1 - 0.12 * d})}to{opacity:1;transform:none}}
+@keyframes anBlock{from{opacity:0;transform:translateY(${18 * d}px);filter:blur(${4 * d}px)}to{opacity:1;transform:none;filter:none}}
+@keyframes anFloat{50%{transform:translate(12px,-14px) scale(1.04)}}
+.deck-s.on.t0{animation:anFade ${0.5 + d * 0.3}s ease both}.deck-s.on.t1{animation:anLeft ${0.5 + d * 0.3}s cubic-bezier(.2,.8,.2,1) both}.deck-s.on.t2{animation:anZoom ${0.5 + d * 0.3}s cubic-bezier(.2,.8,.2,1) both}.deck-s.on.t3{animation:anUp ${0.5 + d * 0.3}s cubic-bezier(.2,.8,.2,1) both}
+.deck-s.on .sx-title{animation:anBlock .7s .1s cubic-bezier(.2,.8,.2,1) both}
+.deck-s.on .sx-body>*{animation:anBlock .6s cubic-bezier(.2,.8,.2,1) both}
+${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}){animation-delay:${(0.25 + i * (A.mode === "bright" ? 0.18 : 0.12)).toFixed(2)}s}`).join("")}
+.deck-s.on .sx-acc{animation:anZoom .9s .15s cubic-bezier(.2,.8,.2,1) both}
+.an-deco .deck::before,.an-deco .deck::after{content:"";position:absolute;border-radius:50%;pointer-events:none;z-index:2;mix-blend-mode:screen;animation:anFloat 9s ease-in-out infinite}
+.an-deco .deck::before{width:34vmin;height:34vmin;left:-8vmin;top:-10vmin;background:radial-gradient(circle,rgba(255,255,255,.22),rgba(255,255,255,0) 70%)}
+.an-deco .deck::after{width:26vmin;height:26vmin;right:-6vmin;bottom:-8vmin;background:radial-gradient(circle,rgba(255,215,120,.22),rgba(255,215,120,0) 70%);animation-delay:-4s}
+.an-cut .deck-s .lay-title.has-cut .sx-title{background:var(--cut) center/cover;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-stroke:.08cqw rgba(0,0,0,.35);font-weight:900;filter:saturate(1.25) contrast(1.15)}
+@media (prefers-reduced-motion:reduce){.deck-s.on,.deck-s.on *{animation:none!important}}`;
   }
   /* Для PDF: те же слайды, что в редакторе */
   function stageHtml(md) { return `<div class="sx-print theme-${theme()}">${splitSlides(md).map((s, i) => `<div class="sx-frame print" style="page-break-after:always">${slideHtml(parse(s), i)}</div>`).join("")}</div>`; }
@@ -977,7 +1013,22 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)
       const gi = arr.findIndex(x => ["glossary", "terms"].includes(x.set?.kind)); glSlide = gi >= 0 ? gi : null;
       for (let i = 0; i < arr.length; i++) await (pxCur = i, pptxSlide)(pptx, arr[i], i, host, arr.length);
     } finally { host.remove(); }
-    return pptx.write({ outputType: "blob" });
+    const blob = await pptx.write({ outputType: "blob" });
+    return anim().mode === "none" ? blob : addTransitions(blob).catch(() => blob);
+  }
+  /* PowerPoint: плавные переходы между слайдами (по кругу: появление, выталкивание, сдвиг, растворение) */
+  async function addTransitions(blob) {
+    if (!window.JSZip) await loadScript("jszip");
+    const z = await window.JSZip.loadAsync(blob);
+    const kinds = ['<p:fade/>', '<p:push dir="u"/>', '<p:wipe dir="r"/>', '<p:fade thruBlk="0"/>'];
+    const names = Object.keys(z.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n));
+    for (const n of names) {
+      let x = await z.file(n).async("string"); if (/<p:transition/.test(x)) continue;
+      const k = +n.match(/(\d+)\.xml/)[1] - 1, tr = `<p:transition spd="${anim().mode === "bright" ? "med" : "slow"}">${kinds[k % kinds.length]}</p:transition>`;
+      x = /<\/p:clrMapOvr>/.test(x) ? x.replace("</p:clrMapOvr>", "</p:clrMapOvr>" + tr) : x.replace("</p:cSld>", "</p:cSld>" + tr);
+      z.file(n, x);
+    }
+    return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" });
   }
 
   /* Заменить всю презентацию (сборка по плану «как в Gamma»): с отменой через ↶ */

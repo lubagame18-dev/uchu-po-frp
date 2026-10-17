@@ -7,12 +7,12 @@ const Credits = (() => {
   "use strict";
   const PAGES = [
     { kind: "cover", title: "С благодарностью", text: "Конспекты, вопросы и задания на этом сайте собраны с опорой на методические наработки учёных, учителей и студентов. Их идеи и находки — основа каждого урока.", sign: "Перелистните страницу →" },
-    { title: "Создатель сайта", items: [["Гладышева Л.", "автор и создатель сайта «Учу по ФРП»"]] },
+    { title: "Создатель сайта", items: [["Гладышева Любовь", "автор и создатель сайта «Учу по ФРП»"]] },
     { title: "Учёные и методисты", note: "Методические наработки.", items: [
-      ["Адаева О.", ""],
+      ["Адаева Ольга Борисовна", ""],
       ["Глухих Н.", ""],
       ["Казачук И.", ""],
-      ["Терентьева Н.", ""]
+      ["Терентьева Нина Павловна", ""]
     ] },
     { title: "Учебники и пособия", note: "Учебники, рабочие тетради и пособия.", items: [
       ["Баранов М.", ""],
@@ -24,12 +24,12 @@ const Credits = (() => {
       ["Фефилова Г.", ""]
     ] },
     { title: "Студенты", note: "Методические наработки.", items: [
-      ["Детинина А.", ""],
-      ["Лукьянова А.", ""],
-      ["Малыгина А.", ""],
-      ["Подорова А.", ""],
-      ["Рожкова Е.", ""],
-      ["Якимович Л.", ""]
+      ["Детинина Анастасия", ""],
+      ["Лукьянова Арина", ""],
+      ["Малыгина Алина", ""],
+      ["Подорова Антонина", ""],
+      ["Рожкова Елизавета", ""],
+      ["Якимович Лада", ""]
     ] },
     { title: "Программы и открытые источники", items: [
       ["Федеральные рабочие программы", "«Русский язык», «Литература»"],
@@ -74,12 +74,14 @@ const Credits = (() => {
     show(0, 0);
     w.querySelector(".cr-next").focus();
   }
+  /* Ссылка — в общем подвале сайта (рядом с «Режим разработчика»); если подвала ещё нет — свой маленький подвал */
   function mount() {
     if (document.getElementById("creditsLink")) return;
-    const f = document.createElement("footer"); f.className = "site-foot";
-    f.innerHTML = `<button type="button" id="creditsLink" class="foot-link">Методические источники и авторы</button>`;
-    document.body.appendChild(f);
-    f.querySelector("#creditsLink").onclick = open;
+    const b = document.createElement("button"); b.type = "button"; b.id = "creditsLink"; b.className = "foot-link"; b.textContent = "Методические источники и авторы"; b.onclick = open;
+    const host = document.querySelector(".site-foot .wrap");
+    if (host) { host.appendChild(b); return; }
+    const f = document.createElement("footer"); f.className = "site-foot cr-foot-only"; f.appendChild(b); document.body.appendChild(f);
+    setTimeout(() => { const h = document.querySelector(".site-foot:not(.cr-foot-only) .wrap"); if (h) { h.appendChild(b); f.remove(); } }, 0);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount); else mount();
   return { open, PAGES };

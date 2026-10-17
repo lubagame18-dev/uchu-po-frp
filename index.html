@@ -2,6 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta name="robots" content="index, follow, noai, noimageai">
+<meta name="CCBot" content="nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Бесплатный конструктор уроков русского языка и литературы по ФРП: техкарта, презентация, рабочий лист.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFC93C' stroke='%231B1330' stroke-width='5'/%3E%3Cpath d='M20 12v40' stroke='%23FF5A36' stroke-width='4'/%3E%3Ctext x='39' y='45' font-family='Arial' font-size='30' font-weight='900' fill='%231B1330' text-anchor='middle'%3EФ%3C/text%3E%3C/svg%3E">
@@ -484,7 +486,13 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 window.UCHU_SITE = {
   yandexFunction: "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24",
   pollinationsAppKey: "",
-  mail: { to: "pedagogruslit@gmail.com", subject: "Методические наработки для сайта" }
+  mail: { to: "pedagogruslit@gmail.com", subject: "Методические наработки для сайта" },
+  /* Личный кабинет (вход по почте и паролю, уроки хранятся в облаке и не пропадают при очистке браузера).
+     Облако — бесплатный проект Supabase: вставьте сюда адрес проекта и публичный ключ (anon public).
+     Пока поля пустые, кабинет работает в этом браузере, а вход недоступен. Инструкция — ЛИЧНЫЙ_КАБИНЕТ_И_ОПЛАТА.md */
+  cloud: { url: "", anonKey: "" },
+  /* ИИ сайта: true — когда в Яндекс-функции настроен пул аккаунтов DeepSeek (DEEPSEEK_POOL); учителям свой ключ не нужен */
+  siteAi: false
 };</script>
 <header class="topbar">
   <div class="wrap">
@@ -593,6 +601,7 @@ window.UCHU_SITE = {
 <main id="view-library" class="wrap page" hidden>
   <h1>Мои уроки</h1>
   <p class="lead">Каждый созданный комплект сохраняется в этом браузере. Откройте его, чтобы продолжить правку или скачать.</p>
+  <div class="mat-row lib-tools"><button class="btn sm ghost" id="libExport">⬇ Скачать все уроки (файл)</button><label class="btn sm ghost">⬆ Загрузить уроки из файла<input type="file" id="libImport" accept=".json" hidden></label><span class="small">Чтобы уроки не пропали при очистке браузера — войдите в личный кабинет («👤 Войти» вверху) или храните этот файл.</span></div>
   <div class="cards" id="libCards"></div>
   <h2 class="sec">Образцы</h2>
   <p class="lead">Готовые комплекты — по ним видно, что выдаёт сервис.</p>
@@ -2212,7 +2221,7 @@ const Engine = (() => {
         let task = "";
         if (practice) {
           const e = ex[exI++];
-          if (e) (p.exFull = p.exFull || []).push({ source: e.source, text: e.text }); // для слайдов: упражнение целиком, дословно
+          if (e) (p.exFull = p.exFull || []).push({ source: e.source, text: e.text, stage: s.split(":")[0].trim(), hard: !!e.hard }); // для слайдов: упражнение целиком, дословно
           task = e ? `**Задание** *(источник: ${e.source})*:<br>${cellSafe(trimEx(e.text, 4000))}` : `**Задание:** ⟦упражнение по теме «${p.topic}» из учебника или рабочей тетради⟧`;
         }
         const teacher = /реализац|открыти/i.test(s) && rules.length ? `💡 **ВАЖНО:** ${cellSafe(rules[0].text)} *(${rules[0].source})*` : "";
@@ -2256,8 +2265,10 @@ const Engine = (() => {
     md += `\n\n<!--WEB-->`;
     if (p.control !== "school" && KB.exams[p.control]) md += `\n\n> ⚠️ ЛОВУШКА ЭКЗАМЕНА: ${KB.exams[p.control].label}: ${ru ? "отвечайте строго на вопрос задания и проверяйте каждое слово по правилу" : "каждое утверждение подтверждайте цитатой, не пересказывайте текст"}.`;
     const hw5 = !ru && window.Variety && p.plan ? Variety.homework(p, type, p.plan) : null;
+    if (hw5) p.hwText = { base: hw5.base, adv: hw5.adv };
+    else { const lastEx = ex.find(e => !(p.exFull || []).some(f => f.text === e.text)) || ex[ex.length - 1]; p.hwText = { base: ru && !ex.length && p.plan?.rukit?.hw ? "задание «Создаём свой текст»" : lastEx ? lastEx.source + " — " + short(lastEx.text, 90).replace(/[.…]+$/, "") + "…" : "упражнение из учебника по теме", adv: ru && p.plan?.rukit?.hw ? p.plan.rukit.hw : ru ? `составьте 5 предложений по теме «${p.topic}» и объясните орфограммы или знаки препинания` : "письменно ответить на проблемный вопрос урока", exText: lastEx ? lastEx.text : null, exSrc: lastEx ? lastEx.source : null }; }
     if (hw5) md += `\n\n---\n\n## Домашнее задание\n\n- Базовый уровень: ${hw5.base}.\n- Повышенный уровень: ${hw5.adv}.\n\n## Источники\n\n`;
-    else md += `\n\n---\n\n## Домашнее задание\n\n- Базовый уровень: ${ru && !ex.length && p.plan?.rukit?.hw ? "задание из рабочего листа «Создаём свой текст»" : ex.length ? ex[ex.length - 1].source + " — " + short(ex[ex.length - 1].text, 90).replace(/[.…]+$/, "") + "…" : "⟦упражнение из учебника по теме⟧."}\n- Повышенный уровень: ${ru && p.plan?.rukit?.hw ? p.plan.rukit.hw : ru ? `составьте 5 предложений по теме «${p.topic}» и объясните орфограммы или знаки препинания` : "письменный ответ на проблемный вопрос урока (5–7 предложений с цитатами)"}.\n\n## Источники\n\n`;
+    else md += `\n\n---\n\n## Домашнее задание\n\n- Базовый уровень: ${p.hwText.base.replace(/\.$/, "")}.\n- Повышенный уровень: ${p.hwText.adv.replace(/\.$/, "")}.\n\n*Задания — на листе «Домашнее задание» в рабочем листе.*\n\n## Источники\n\n`;
     const src = new Set(ex.map(e => e.source).concat(rules.map(r => r.source)).map(x => x.replace(/, (с\.|упр\.).*$/, "")));
     if (LB?.part) src.add(LB.part.source);
     if (LB) LB.lessons.forEach(l => src.add("Разработка урока: " + l.title));
@@ -2274,7 +2285,7 @@ const Engine = (() => {
 
   /* ---------- 6. Рабочий лист без ИИ ---------- */
   const BL = "[ ________________________________________ ]";
-  function worksheet(p, type, materials) {
+  function worksheetCore(p, type, materials) {
     const ru = p.subject === "ru";
     const exam = p.control !== "school" && KB.exams[p.control];
     const r = FRP.results(p.subject, p.grade, p.topic, type.id);
@@ -2286,12 +2297,11 @@ const Engine = (() => {
     if (ru) {
       const RK = p.plan?.rukit;
       if (RK && RK.kind !== "general") {
-        if (RK.theory?.length) md += `### 📘 Теория (кратко)\n\n${RK.theory.slice(0, 6).map(x => "- " + x).join("\n")}\n\n`;
         for (const t of RK.wsTasks.filter(x => x.text && !/Создаём/.test(x.name))) md += `### 🔓 Задание ${++n}. ${t.name}\n\n${t.text}\n\n${/\|/.test(t.text) ? "" : `${BL}\n\n${BL}\n\n`}`;
       }
-      const ex = pickEx(p, materials, RK && /styles|lex/.test(RK.kind) ? 2 : 5);
-      ex.sort((a, b) => a.hard - b.hard);
-      for (const e of ex) md += `${lvl(e.hard)}\n\n${trimEx(e.text, 4000)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`;
+      // рабочий лист сопровождает урок: те же упражнения и в том же порядке, что в техкарте (с названием этапа)
+      const ex = p.exFull?.length ? p.exFull.map(e => ({ ...e, fromLesson: true })) : pickEx(p, materials, RK && /styles|lex/.test(RK.kind) ? 2 : 5).sort((a, b) => a.hard - b.hard);
+      for (const e of ex) md += `${lvl(e.hard)}${e.stage ? ` · ${e.stage}` : ""}\n\n${trimEx(e.text, 4000)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`;
       if (ex.length < 3) {
         const mech = KB.ru.mechanics.filter(m => { const [a, b] = m.grades.split("-").map(Number); return p.grade >= a && p.grade <= (b || a); });
         const mechs = window.Variety && p.plan ? Variety.pick(mech, "mech", m => m.id, 4 - ex.length) : mech.slice(0, 4 - ex.length);
@@ -2313,7 +2323,8 @@ const Engine = (() => {
         const tasks = Variety.litWorksheet(p, type, p.plan);
         if (bq) tasks.splice(2, 0, { lvl: 1, text: `${bq.text}\n\n*Источник: ${bq.source}*`, lines: 2 });
         for (const t of tasks) {
-          const head = t.lvl === 3 ? `### 🏆 Задание ${++n}. Творческое${t.name ? ` (${t.name.toLowerCase()})` : ""}` : lvl(t.lvl === 2) + (t.name ? ` · ${t.name}` : "");
+          const fm = String(t.name || "").match(/(?:Фрагмент|Часть) (\d+)/), stg = fm && p.plan?.fragStage?.[+fm[1]];
+          const head = (t.lvl === 3 ? `### 🏆 Задание ${++n}. Творческое${t.name ? ` (${t.name.toLowerCase()})` : ""}` : lvl(t.lvl === 2) + (t.name ? ` · ${t.name}` : "")) + (stg ? ` · этап «${stg}»` : "");
           md += `${head}\n\n${t.text}\n\n${/\|/.test(t.text) || /^>/m.test(t.text) ? "" : Array(t.lines || 2).fill(BL).join("\n\n") + "\n\n"}`;
         }
         if (r.loaded && r.subject.length) md += `---\n\n### 🪞 Оцени себя\n\n${r.subject.map(x => `- ☐ ${x.text}`).join("\n")}\n\n`;
@@ -2337,6 +2348,60 @@ const Engine = (() => {
     md += exam ? `Задания повышенного уровня оцениваются по критериям ${exam.label} (сверить с демоверсией ФИПИ текущего года).\n` : `**Школьная шкала:** по 1 баллу за базовое задание, по 2 — за повышенное и творческое; 85% и выше — «5», 65–84% — «4», 45–64% — «3».\n`;
     return md;
   }
+
+  /* Рабочий лист — комплект отдельных листов: рабочий лист урока (сопровождает урок, по этапам),
+     памятка, самостоятельная работа, домашнее задание и ответы для учителя. Каждый лист начинается
+     с заголовка первого уровня — на экране и в PDF это яркая обложка-баннер, в Word — новая страница. */
+  function worksheet(p, type, materials) {
+    const core = worksheetCore(p, type, materials);
+    const ru = p.subject === "ru", RK = p.plan?.rukit, K = p.plan?.kit;
+    const cut = core.search(/^-{3}\s*\n+### 🔑|^### 🔑/m);
+    let lesson = cut >= 0 ? core.slice(0, cut) : core, answers = cut >= 0 ? core.slice(cut).replace(/^-{3}\s*\n+/, "") : "";
+    // самооценка — в конце рабочего листа урока
+    lesson = lesson.replace(/^# .*$/m, `# Рабочий лист урока\n\n**Тема:** ${p.topic}`).replace(/\n---\s*\n+(### 🪞)/, "\n$1");
+    lesson = lesson.replace(/\n---\n\n/, `\n\n> Лист сопровождает урок: задания идут в том же порядке, что этапы урока.\n\n`);
+    // 1) Памятка
+    let memo = "";
+    if (ru) {
+      if (RK?.algo) memo += `## Алгоритм: ${RK.algo.name}\n\n${RK.algo.steps.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n${RK.algo.ex?.length ? `**Примеры:** ${RK.algo.ex.join("; ")}.\n\n` : ""}`;
+      if (RK?.theory?.length && !RK.algo) memo += `## Главное\n\n${RK.theory.map(x => "- " + x).join("\n")}\n\n`;
+      const rules = typeof Base !== "undefined" ? Base.rules(p.topic, p.grade, 1) : [];
+      if (rules.length) memo += `## Правило из пособия\n\n> ${rules[0].text}\n\n*${rules[0].source}*\n\n`;
+      if (RK?.table) memo += `## ${RK.table.title}\n\n| ${RK.table.head.join(" | ")} |\n|${RK.table.head.map(() => "---").join("|")}|\n${RK.table.rows.map(r => `| ${r.join(" | ")} |`).join("\n")}\n\n`;
+    } else {
+      if (K?.terms?.length) memo += `## Термины урока\n\n${K.terms.map(t => `- **${t.term}** — ${t.def}${t.ex ? ` *Пример: «${t.ex.replace(/[«»]/g, "")}».*` : ""}`).join("\n")}\n\n`;
+      if (K?.glossary?.length) memo += `## Словарик\n\n${K.glossary.map(g => `- **${g.word}** — ${g.def}`).join("\n")}\n\n`;
+      memo += `## Как анализировать ${p.plan?.analysis?.verse ? "стихотворение" : "эпизод"}\n\n${(p.plan?.analysis?.verse ? ["Тема: о чём текст?", "Настроение и как оно меняется", "Ключевые образы и слова", "Средства выразительности и их роль", "Композиция: части, поворот, финал", "Главная мысль (идея)"] : ["Место эпизода в произведении", "Кто участвует, что происходит", "Поступки и речь героев: что они говорят о характере", "Детали, пейзаж, портрет", "Позиция автора", "Смысл эпизода для всего произведения"]).map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n`;
+    }
+    // 2) Самостоятельная работа
+    let self = "";
+    if (ru) {
+      const used = new Set([...(p.exFull || []).map(e => e.text.slice(0, 60)), p.hwText?.exText ? p.hwText.exText.slice(0, 60) : ""]);
+      const more = pickEx(p, materials, 6).filter(e => !used.has(e.text.slice(0, 60))).slice(0, 2);
+      more.forEach((e, i) => { self += `### ${i ? "Задание 2 (повышенный уровень)" : "Задание 1 (базовый уровень)"}\n\n${trimEx(e.text, 3000)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`; });
+      if (!more.length && RK?.algo?.ex?.length) self += `### Задание 1\n\nОбъясните написание по алгоритму, обозначьте орфограмму (знак) графически.\n\n${RK.algo.ex.map((x, i) => `${i + 1}) ${x}`).join("\n")}\n\n${BL}\n\n${BL}\n\n`;
+      if (!self && RK?.wsTasks?.length) self += `### Задание\n\n${RK.wsTasks[0].text}\n\n`;
+      if (!self) self += `### Задание\n\nСоставьте 4–5 предложений по теме «${p.topic}» и объясните, как вы применили правило.\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+    } else {
+      const T = (K?.terms || []).filter(t => t.ex).slice(0, 4);
+      if (T.length >= 2) { const L2 = "АБВГ"; const order = T.map((_, i) => (i + 1) % T.length); self += `### Задание 1. Соотнесите термин и пример\n\n| № | Термин | Буква | Пример |\n|---|---|---|---|\n${T.map((t, i) => `| ${i + 1} | ${t.term} |  | ${L2[i]}) «${T[order[i]].ex.replace(/[«»|]/g, "")}» |`).join("\n")}\n\n`; }
+      const seenQ = new Set(), frq = (K?.qa || []).flatMap(x => x.items.map(y => ({ n: x.n, q: y.q }))).filter(x => { const k = x.q.replace(/«[^»]*»/g, "").slice(0, 40); if (seenQ.has(k) || /О чём говорит|Что происходит/.test(x.q)) return false; seenQ.add(k); return true; }).reverse().slice(0, 2).reverse();
+      frq.forEach((x, i) => { self += `### Задание ${(T.length >= 2 ? 2 : 1) + i}\n\n${x.q} *(фрагмент ${x.n})*\n\n${BL}\n\n${BL}\n\n`; });
+      self += `### Задание ${(T.length >= 2 ? 1 : 0) + frq.length + 1}. Мини-сочинение\n\n${K?.problem ? `Ответьте на вопрос: **${K.problem}** (5–6 предложений, одна цитата).` : "Сформулируйте главную мысль произведения и подтвердите её цитатой (5–6 предложений)."}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+    }
+    self += `**Критерии:** базовое задание — 1 балл, повышенное — 2 балла; «5» — всё верно, «4» — одна-две неточности, «3» — выполнено больше половины.\n\n`;
+    // 3) Домашнее задание — то же, что в конспекте
+    const hw = p.hwText || { base: "выполнить упражнение из учебника по теме урока", adv: "подготовить устный ответ с примерами" };
+    let home = `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}\n\n*Источник: ${hw.exSrc}*\n\n` : ""}${BL}\n\n${BL}\n\n${BL}\n\n### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+    const head = (title) => `# ${title}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n`;
+    let out = lesson.trim() + "\n\n";
+    if (memo) out += head("Памятка").replace(/✍️.*\n\n/, "") + `**Тема:** ${p.topic}\n\n` + memo;
+    out += head("Самостоятельная работа") + self;
+    out += head("Домашнее задание") + home;
+    if (answers) out += `# Ответы и критерии (для учителя)\n\n` + answers.replace(/^### 🔑 ОТВЕТЫ И КРИТЕРИИ ОЦЕНИВАНИЯ\s*/m, "");
+    return out;
+  }
+  const capF = s => String(s).charAt(0).toUpperCase() + String(s).slice(1);
 
   /* ---------- 7. Презентация по конспекту (выдержки) ---------- */
   const EMO = [[/мотивац|организац|эпиграф|настро|опор/i, "💬"], [/цел|проект|постановк/i, "🎯"], [/реализац|открыти|правил|теори/i, "📝"], [/анализ|аналит|комментари|наблюд/i, "🔍"], [/чтени|восприят/i, "📖"], [/закреплен|практик|самостоят|контрольн|трениров/i, "✍️"], [/рефлекс/i, "🪞"], [/домашн/i, "🏠"]];
@@ -2540,6 +2605,24 @@ const Media = (() => {
       }).filter(Boolean);
     } catch { return []; }
   }
+  /* Выбор картинки: самая популярная (выше в выдаче) из тех, что подходят по названию и подписи;
+     картинки «с текстом» (презентации, плакаты с правилами, цитаты, схемы) и чужие люди отсеиваются.
+     Если ничего подходящего нет — место остаётся пустым для ручного выбора (лучше пусто, чем не в тему). */
+  const TEXTY = /презентац|слайд|плакат|правил|таблиц|схем|кроссворд|тест\b|ответ|цитат|надпис|текст|открытк|рамк|шаблон|фон для|обои|демотиватор|мем\b|конспект|урок\b|памятк|ребус|раскраск|скачать|pptx?|docx?|pdf/i;
+  function pickBest(q, items) {
+    if (!items?.length) return null;
+    const st = FRP.stems(q.replace(/иллюстрац\S*|картин\S*|портрет\S*|фото\S*/gi, ""));
+    const names = (q.match(/(?:^|\s)[А-ЯЁ][а-яё]{3,}/g) || []).slice(1).map(w => w.trim().toLowerCase().replace(/ё/g, "е").slice(0, 5)); // фамилии и имена (кроме первого слова)
+    const scored = items.map((it, i) => {
+      const t = String((it.title || "") + " " + (it.cap || "")).toLowerCase().replace(/ё/g, "е");
+      if (!t.trim()) return { it, s: 1 - i * 0.05 }; // без названия — только по месту в выдаче
+      if (TEXTY.test(t)) return { it, s: -1 };
+      if (names.length && !names.some(n => t.includes(n))) return { it, s: -1 }; // в запросе человек — в названии должен быть он
+      const hit = st.size ? FRP.score(t, st) / st.size : 0.5;
+      return { it, s: hit * 2 + (it.cap ? 0.5 : 0) + 1 - i * 0.06 };
+    }).filter(x => x.s > 0.4).sort((a, b) => b.s - a.s);
+    return scored[0]?.it || null;
+  }
   async function autoFill(md, onProgress) {
     // commons: — иллюстрация с подписью (художник, название, год); если не нашлась — поиск Яндекса с пометкой «укажите художника и название»
     for (const m of [...md.matchAll(RE)].filter(m => m[2].startsWith("commons:"))) {
@@ -2554,7 +2637,7 @@ const Media = (() => {
     let out = md, done = 0;
     for (const m of todo) {
       const q = decodeURIComponent(m[2].slice(7));
-      const found = (await search(q, 3))[0];
+      const found = pickBest(q, await search(q, 12));
       if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(m[1], src, { q, from: found.src })); }
       onProgress && onProgress(++done, todo.length);
     }
@@ -3529,7 +3612,8 @@ async function buildWithAi(L, p, type, formats) {
   for (const f of formats) {
     L.status[f] = "run";
     state.gen = { lessonId: L.id, doc: f, pct: 0, ctl: new AbortController() };
-    if (state.lesson?.id === L.id) { state.active = f; renderLesson(); }
+    // остаёмся на том листе, где учитель (обычно — первый готовый конспект); вкладки сами показывают, что готово
+    if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = f; renderLesson(); }
     if (f === "slides" && window.Deck) {
       // v5.4: презентация «как в Gamma» — план по конспекту; нейросеть только сжимает формулировки, дословные блоки не трогает
       try {
@@ -3785,7 +3869,8 @@ async function renderPreview() {
     $$("[data-del]", sheet).forEach(b => b.onclick = () => moveSlide(+b.dataset.del, 0));
     $$("[data-addpic]", sheet).forEach(b => b.onclick = () => addPicture(+b.dataset.addpic));
   } else {
-    sheet.className = "sheet"; sheet.innerHTML = mdToHtml(md); decorate(sheet);
+    sheet.className = "sheet" + (state.active === "worksheet" ? " ws-sheet" : ""); sheet.innerHTML = mdToHtml(md); decorate(sheet);
+    if (state.active === "worksheet") wsDecorate(sheet, L);
     if (editable) sheet.setAttribute("contenteditable", "true"); else sheet.removeAttribute("contenteditable");
   }
   $$("figure.pic", sheet).forEach(fig => fig.onclick = e => { if (!editable) return; e.preventDefault(); pictureClick(fig); });
@@ -3884,9 +3969,11 @@ async function renderLibrary() {
   $("#libCards").innerHTML = libCache.length ? libCache.map(L => lessonCard(L)).join("") : `<div class="lcard"><h3>Пока пусто</h3><p class="small" style="margin:0">Первый созданный урок появится здесь сам.</p><div class="acts"><button class="btn sm" data-go="builder">К конструктору</button></div></div>`;
   $("#sampleCards").innerHTML = SAMPLES.map(s => lessonCard(s, true)).join("");
   $$("[data-open]").forEach(b => b.onclick = () => { const id = b.dataset.open; if (SAMPLES.some(x => x.id === id)) openSample(id); else { const L = libCache.find(x => x.id === id); if (L) openLesson({ ...L, status: {} }); } });
-  $$("[data-delete]").forEach(b => b.onclick = async () => { if (b.dataset.sure) { await Store.del("lessons", b.dataset.delete); renderLibrary(); } else { b.dataset.sure = 1; b.textContent = "Точно удалить?"; } });
+  $$("[data-delete]").forEach(b => b.onclick = async () => { if (b.dataset.sure) { await Store.del("lessons", b.dataset.delete); if (window.Account) Account.remove(b.dataset.delete); renderLibrary(); } else { b.dataset.sure = 1; b.textContent = "Точно удалить?"; } });
   $$("[data-zip]").forEach(b => b.onclick = async () => { const L = libCache.find(x => x.id === b.dataset.zip); if (!L) return; b.disabled = true; try { await exportZip(L); } catch (e) { toast("Не удалось собрать архив: " + (e.message || e)); } finally { b.disabled = false; } });
   $$("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
+  $("#libExport").onclick = async () => { const ls = await listLessons(); await saveFile(`uchu-po-frp_uroki_${new Date().toISOString().slice(0, 10)}.json`, new Blob([JSON.stringify({ app: "uchu-po-frp-lessons", version: 1, lessons: ls })], { type: "application/json" })); };
+  $("#libImport").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const j = JSON.parse(await f.text()); if (j.app !== "uchu-po-frp-lessons") throw new Error("это не файл уроков сайта"); const have = new Map((await listLessons()).map(L => [L.id, L])); let n = 0; for (const L of j.lessons || []) { const o = have.get(L.id); if (!o || String(o.updatedAt) < String(L.updatedAt)) { await Store.put("lessons", L.id, L); n++; } } toast(`Загружено уроков: ${n}.`); if (window.Account) Account.push(true); renderLibrary(); } catch (er) { toast("Не получилось: " + (er.message || er)); } };
 }
 function openSample(id) { const s = SAMPLES.find(x => x.id === id); if (!s) return; openLesson({ ...JSON.parse(JSON.stringify(s)), status: {}, sample: true }, "conspect"); revealWorkspace(); }
 
@@ -3943,7 +4030,9 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-async function mdToDocxBlob(md, title) {
+const wsOpts = (L, d) => d === "worksheet" ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+async function mdToDocxBlob(md, title, opts = {}) {
+  const ws = !!opts.worksheet, wsTag = opts.tag || ""; let h1n = 0;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx, toks = window.marked.lexer(md.replace(Media.RE, (m, cap) => cap ? `*Иллюстрация: ${cap}*` : "").replace(/<!--[\s\S]*?-->/g, ""));
   const children = [];
@@ -3952,7 +4041,8 @@ async function mdToDocxBlob(md, title) {
   let wide = false;
   const emit = (t, ctx = {}) => {
     switch (t.type) {
-      case "heading": children.push(new D.Paragraph({ heading: [D.HeadingLevel.HEADING_1, D.HeadingLevel.HEADING_2, D.HeadingLevel.HEADING_3, D.HeadingLevel.HEADING_4][Math.min(t.depth, 4) - 1], children: inlineRuns(t.tokens, D), spacing: { before: 240, after: 120 } })); break;
+      case "heading": if (t.depth === 1 && ws) { const first = !h1n++; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag + " ", bold: true, size: 20, color: "3A2A00", shading: { type: D.ShadingType.CLEAR, fill: "FFD84D" } })], spacing: { before: 0, after: 80 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "FFFFFF", size: 44 }), shading: { type: D.ShadingType.CLEAR, fill: "8E3FD1" }, border: { bottom: { style: D.BorderStyle.SINGLE, size: 24, color: "F05AA6", space: 4 } }, spacing: { before: 0, after: 240 }, indent: { left: 120, right: 120 } })); break; }
+        children.push(new D.Paragraph({ heading: [D.HeadingLevel.HEADING_1, D.HeadingLevel.HEADING_2, D.HeadingLevel.HEADING_3, D.HeadingLevel.HEADING_4][Math.min(t.depth, 4) - 1], children: inlineRuns(t.tokens, D), spacing: { before: 240, after: 120 } })); break;
       case "paragraph": children.push(P(inlineRuns(t.tokens, D, ctx.quote ? { italics: false } : {}), ctx.quote ? { indent: { left: 360 }, shading: { type: D.ShadingType.CLEAR, fill: ctx.fill || "EEF1F7" }, border: { left: { style: D.BorderStyle.SINGLE, size: 18, color: ctx.color || "2448C4", space: 6 } } } : {})); break;
       case "text": children.push(P(inlineRuns(t.tokens || [t], D))); break;
       case "list": t.items.forEach((it, i) => { const inl = it.tokens.flatMap(x => x.type === "text" || x.type === "paragraph" ? (x.tokens || [x]) : []); children.push(new D.Paragraph({ children: [new D.TextRun({ text: t.ordered ? `${(t.start || 1) + i}. ` : "• " }), ...inlineRuns(inl, D)], indent: { left: 360, hanging: 260 }, spacing: { after: 60 } })); }); break;
@@ -3978,7 +4068,7 @@ async function mdToDocxBlob(md, title) {
   });
   return D.Packer.toBlob(doc);
 }
-async function exportDocx() { const L = state.lesson; await saveFile(baseName(L, state.active) + ".docx", await mdToDocxBlob(L.docs[state.active], L.title)); }
+async function exportDocx() { const L = state.lesson; await saveFile(baseName(L, state.active) + ".docx", await mdToDocxBlob(L.docs[state.active], L.title, wsOpts(L, state.active))); }
 
 /* ---------- PowerPoint: текст от 26 pt, перенос, картинки ---------- */
 function plain(tokens) { return (tokens || []).map(t => t.tokens ? plain(t.tokens) : decodeEnt(t.text || "")).join("").replace(/<br\s*\/?>/gi, " ").replace(/FIGTOKEN\d+END/g, "").trim(); }
@@ -4070,37 +4160,55 @@ async function slidesToPptxBlob(md, title) {
 async function exportPptx() { const L = state.lesson; toast("Готовлю презентацию…", 8000); await saveFile(baseName(L, "slides") + ".pptx", await slidesToPptxBlob(L.docs.slides, L.title)); }
 
 /* ---------- PDF ---------- */
+/* Рабочий лист: каждый лист (заголовок первого уровня) — обложка-баннер: фиолетово-розовый градиент,
+   жёлтая плашка-тег, крупный белый заголовок, плоская иконка и цветные круги */
+const WS_ICON = [[/памятк/i, "💡"], [/самостоят|контрольн/i, "✅"], [/домашн/i, "🏠"], [/ответ/i, "🔑"], [/./, "📝"]];
+function wsDecorate(root, L) {
+  const P = L?.params || {}, tag = `${P.grade || ""} класс · ${P.subject === "lit" ? "Литература" : "Русский язык"}`;
+  [...root.querySelectorAll("h1")].forEach((h, i) => {
+    const icon = (WS_ICON.find(([re]) => re.test(h.textContent)) || [0, "📝"])[1];
+    const b = document.createElement("div"); b.className = "ws-banner" + (i ? " pb" : "") + (/ответ/i.test(h.textContent) ? " teacher" : "");
+    b.innerHTML = `<i class="wc c1"></i><i class="wc c2"></i><i class="wc c3"></i><span class="ws-tag">${esc(tag)}</span><span class="ws-ico" aria-hidden="true">${icon}</span>`;
+    h.replaceWith(b); b.appendChild(h);
+  });
+}
 async function docToPdfBlob(L, doc) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
   const stage = $("#pdfstage"), md = doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;
-  else stage.innerHTML = `<div class="sheet">${mdToHtml(md)}</div>`;
+  else stage.innerHTML = `<div class="sheet${doc === "worksheet" ? " ws-sheet" : ""}">${mdToHtml(md)}</div>`;
   decorate(stage);
+  if (doc === "worksheet") wsDecorate(stage, L);
   await new Promise(r => setTimeout(r, 400));
   await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
   const wide = doc !== "slides" && /\|.*\|.*\|.*\|/.test(md);
-  const blob = await window.html2pdf().set({ margin: [8, 6, 10, 6], image: { type: "jpeg", quality: 0.95 }, html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: doc === "slides" || wide ? "landscape" : "portrait" }, pagebreak: { mode: ["css", "legacy"], avoid: ["tr", "h2", "h3", "blockquote", "li", ".slide", "figure"] } }).from(stage.firstElementChild).outputPdf("blob");
+  const blob = await window.html2pdf().set({ margin: [8, 6, 10, 6], image: { type: "jpeg", quality: 0.95 }, html2canvas: { scale: doc === "slides" ? 1.4 : 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: doc === "slides" || wide ? "landscape" : "portrait" }, pagebreak: { mode: ["css", "legacy"], before: ".ws-banner.pb", avoid: ["tr", "h2", "h3", "blockquote", "li", ".slide", "figure", ".ws-banner"] } }).from(stage.firstElementChild).outputPdf("blob");
   stage.innerHTML = ""; return blob;
 }
 async function exportPdf() { const L = state.lesson; toast("Готовлю PDF…", 9000); await saveFile(baseName(L, state.active) + ".pdf", await docToPdfBlob(L, state.active)); }
 async function exportZip(L) {
+  // каждый файл собирается отдельно: если один не получился (например, PDF на планшете не хватило памяти
+  // или библиотека PDF не загрузилась), архив всё равно скачивается с остальными файлами
   toast("Собираю архив: техкарта, презентация, рабочий лист…", 20000);
   await loadScript("jszip");
-  const zip = new window.JSZip();
-  for (const d of Object.keys(DOCS)) {
-    if (!L.docs[d]) continue;
-    if (d === "slides") zip.file(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title));
-    else zip.file(baseName(L, d) + ".docx", await mdToDocxBlob(L.docs[d], L.title));
-    zip.file(baseName(L, d) + ".pdf", await docToPdfBlob(L, d));
-  }
-  await saveFile(`${slug(L.title)}_${L.params.grade}kl_komplekt.zip`, await zip.generateAsync({ type: "blob" }));
+  const zip = new window.JSZip(), fails = [];
+  const put = async (name, make) => { try { const b = await make(); if (b && b.size !== 0) zip.file(name, b); else fails.push(name); } catch (e) { console.warn("zip", name, e); fails.push(name); } };
+  const docs = Object.keys(DOCS).filter(d => L.docs[d]);
+  for (const d of docs) await put(baseName(L, d) + (d === "slides" ? ".pptx" : ".docx"), () => d === "slides" ? slidesToPptxBlob(L.docs[d], L.title) : mdToDocxBlob(L.docs[d], L.title, wsOpts(L, d)));
+  let pdfOk = true; try { await loadScript("html2pdf"); } catch { pdfOk = false; }
+  if (pdfOk) for (const d of docs) await put(baseName(L, d) + ".pdf", () => docToPdfBlob(L, d));
+  else fails.push("PDF (библиотека не загрузилась — проверьте интернет)");
+  if (!Object.keys(zip.files).length) throw new Error("ни один файл не собрался");
+  if (fails.length) zip.file("ПРОЧТИТЕ.txt", "Не удалось собрать: " + fails.join(", ") + ".\nСкачайте их по отдельности кнопками над листом.");
+  await saveFile(`${slug(L.title)}_${L.params.grade}kl_komplekt.zip`, await zip.generateAsync({ type: "blob", compression: "DEFLATE" }));
+  if (fails.length) toast("Архив скачан, но без: " + fails.join(", ") + ". Их можно скачать по отдельности.", 9000);
 }
 async function exportOne(L, d, f) {
   // перед выгрузкой презентации — автоподбор шрифта и деление длинных слайдов (если редактор ещё не открывался)
   if (window.SlideEditor && (d === "slides" || d === "all") && L === state.lesson && L.docs.slides && !L.slidesFitted) { L.slidesFitted = true; SlideEditor.fitAll(); }
   if (d === "all") return exportZip(L);
-  if (f === "docx") { toast("Готовлю Word…", 6000); return saveFile(baseName(L, d) + ".docx", await mdToDocxBlob(L.docs[d], L.title)); }
+  if (f === "docx") { toast("Готовлю Word…", 6000); return saveFile(baseName(L, d) + ".docx", await mdToDocxBlob(L.docs[d], L.title, wsOpts(L, d))); }
   if (f === "pptx") { toast("Готовлю презентацию…", 8000); return saveFile(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title)); }
   if (f === "pdf") { toast("Готовлю PDF…", 9000); return saveFile(baseName(L, d) + ".pdf", await docToPdfBlob(L, d)); }
 }
@@ -4200,6 +4308,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/devmode.js"></script>
 <script src="js/devcover.js"></script>
 <script src="js/credits.js"></script>
+<script src="js/account.js"></script>
 <script src="js/deck.js"></script>
 <script src="js/slides.js"></script>
 <script src="js/publish.js"></script>
