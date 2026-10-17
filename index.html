@@ -556,6 +556,14 @@ window.UCHU_SITE = {
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
           </div>
         </div>
+        <details class="field method-blocks" id="methodBlocks"><summary><span class="lbl">Методические блоки</span> <span class="small" id="mbLock">для методистов</span></summary>
+          <div class="mb-row"><label for="xCtrl">🧪 Контроль</label><select id="xCtrl"><option value="">не нужен</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select></div>
+          <div class="mb-row mb-sub"><label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> ключи и критерии</label></div>
+          <div class="mb-row mb-sub"><label class="small" for="xExtraFile">Доп. материалы к контролю:</label> <input type="file" id="xExtraFile" accept=".docx,.pdf,.txt,.odt,.rtf,.doc"><span class="small" id="xExtraName"></span></div>
+          <div class="mb-row"><span>🧠 Запоминание</span><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div>
+          <div class="mb-row"><label class="check"><input type="checkbox" id="xHw"> 🏠 Домашняя работа отдельным листом</label></div>
+          <div class="mb-row mb-sub"><label class="small" for="xHwFile">Прикрепить своё д/з:</label> <input type="file" id="xHwFile" accept=".docx,.pdf,.txt,.odt,.rtf,.doc"><span class="small" id="xHwName"></span></div>
+        </details>
         <div class="row2">
           <div class="field"><span class="lbl">Режим</span><div class="seg" id="segMode"><button data-v="school" aria-pressed="true">Школа</button><button data-v="tutor" aria-pressed="false">Репетитор</button></div></div>
           <div class="field"><label for="control">Контроль</label><select id="control"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select></div>
@@ -2420,6 +2428,72 @@ const Engine = (() => {
   }
   const capF = s => String(s).charAt(0).toUpperCase() + String(s).slice(1);
 
+  /* ---------- 6а. Методические блоки (для методистов): контроль, запоминание, домашняя работа ---------- */
+  const CTRL = { self: { name: "Самостоятельная работа", min: 10, n: 2 }, check: { name: "Проверочная работа", min: 20, n: 3 }, test: { name: "Контрольная работа", min: 40, n: 4 } };
+  function extra(kind, p, type, materials, o = {}) {
+    const ru = p.subject === "ru", RK = p.plan?.rukit, K = p.plan?.kit;
+    const head = t => `# ${t}\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________\n\n`;
+    if (kind === "control") {
+      const C = CTRL[o.ctrl] || CTRL.self, variants = o.variants && o.ctrl !== "self" ? 2 : 1;
+      const used = new Set([...(p.exFull || []).map(e => e.text.slice(0, 60)), p.hwText?.exText ? p.hwText.exText.slice(0, 60) : ""]);
+      const pool = ru ? pickEx(p, materials, C.n * variants * 2 + 4).filter(e => !used.has(e.text.slice(0, 60))) : [];
+      let md = `# ${C.name}\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade} · **Время:** ${C.min} мин\n\n`;
+      const keys = [];
+      for (let v = 0; v < variants; v++) {
+        md += `${variants > 1 ? `## Вариант ${v + 1}\n\n` : ""}✍️ ФИО: ___________________________ | 📅 Дата: _________\n\n`;
+        if (ru) {
+          const mine = pool.filter((_, i) => i % variants === v).slice(0, C.n);
+          mine.forEach((e, i) => { md += `### Задание ${i + 1}${i === mine.length - 1 && C.n > 2 ? " (повышенный уровень)" : ""}\n\n${trimEx(e.text, 2500)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`; keys.push(`${variants > 1 ? `В${v + 1}, ` : ""}задание ${i + 1}: по ключу пособия (${e.source})`); });
+          if (!mine.length && RK?.algo?.ex?.length) { md += `### Задание 1\n\nОбъясните написание (постановку знаков) по алгоритму «${RK.algo.name}», обозначьте графически.\n\n${RK.algo.ex.map((x, i) => `${i + 1}) ${x}`).join("\n")}\n\n${BL}\n\n${BL}\n\n`; keys.push(`задание 1: ${RK.algo.ex.join("; ")}`); }
+          md += `### Задание ${Math.max(mine.length, 1) + 1}. Своими словами\n\nСформулируйте правило по теме «${p.topic}» и приведите свой пример.\n\n${BL}\n\n${BL}\n\n`;
+          if (RK?.algo) keys.push(`своими словами: ${RK.algo.steps.slice(1).join(" ")}`);
+        } else {
+          const T = (K?.terms || []).filter(t => t.ex).slice(v * 2, v * 2 + 4);
+          if (T.length >= 2) { md += `### Задание 1. Соотнесите термин и пример\n\n| № | Термин | Буква | Пример |\n|---|---|---|---|\n${T.map((t, i) => `| ${i + 1} | ${t.term} |  | ${"АБВГ"[i]}) «${T[(i + 1) % T.length].ex.replace(/[«»|]/g, "")}» |`).join("\n")}\n\n`; keys.push(`${variants > 1 ? `В${v + 1}: ` : ""}${T.map((t, i) => `${i + 1} — ${"АБВГ"[(i + T.length - 1) % T.length]}`).join(", ")}`); }
+          const qs = (K?.qa || []).flatMap(x => x.items.map(y => ({ ...y, n: x.n }))).filter((_, i) => i % variants === v).slice(0, C.n);
+          qs.forEach((x, i) => { md += `### Задание ${(T.length >= 2 ? 2 : 1) + i}\n\n${x.q} *(фрагмент ${x.n})*\n\n${BL}\n\n${BL}\n\n`; keys.push(`${x.q} — ${x.a}`); });
+          if (o.ctrl !== "self") md += `### Задание ${(T.length >= 2 ? 1 : 0) + qs.length + 1}. Развёрнутый ответ\n\n${K?.problem ? `**${K.problem}** Ответьте в 6–8 предложениях, приведите 2 цитаты.` : "Сформулируйте главную мысль произведения и подтвердите её цитатами (6–8 предложений)."}\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+          if (K?.answer) keys.push(`развёрнутый ответ: ${K.answer}`);
+        }
+      }
+      md += `---\n\n## Критерии оценивания\n\n${o.ctrl === "test" ? "Базовые задания — по 1 баллу, повышенные и развёрнутый ответ — по 2–3 балла. «5» — 90–100%, «4» — 70–89%, «3» — 50–69%, «2» — меньше 50%." : "Базовое задание — 1 балл, повышенное — 2 балла. «5» — всё верно, «4» — одна-две неточности, «3» — выполнено больше половины."}\n\n`;
+      if (o.keys !== false) md += `# Ключи (для учителя)\n\n${keys.map(k => "- " + k).join("\n") || "- по ключам пособий, указанных в заданиях"}\n`;
+      if (o.extraText) md += `\n\n# Дополнительные материалы\n\n${o.extraText}\n`;
+      return md;
+    }
+    if (kind === "memo") {
+      let md = "";
+      if (o.memoSheet !== false) {
+        md += `# Лист для запоминания\n\n**Тема:** ${p.topic}\n\n`;
+        const facts = [...new Set(ru ? [...(RK?.algo ? RK.algo.steps : []), ...(RK?.theory || [])] : [...(K?.terms || []).map(t => `${t.term} — ${t.def}`), ...(K?.conclusions || [])])];
+        if (facts.length) {
+          md += `## Прочитай и запомни\n\n${facts.slice(0, 8).map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n`;
+          // проверь себя: ключевые слова закрыты пропусками
+          const gap = t => { let n = 0; return t.replace(/[А-Яа-яЁё]{6,}/g, w => (n++ % 3 === 1 ? "________" : w)); };
+          md += `## Проверь себя: восстанови пропуски\n\n${facts.slice(0, 6).map((x, i) => `${i + 1}. ${gap(x)}`).join("\n")}\n\n`;
+        }
+        if (RK?.algo?.ex?.length) md += `## Образцы\n\n${RK.algo.ex.map(x => "- " + x).join("\n")}\n\n`;
+        if (K?.glossary?.length) md += `## Слова урока\n\n${K.glossary.map(g => `- **${g.word}** — ${g.def}`).join("\n")}\n\n`;
+      }
+      if (o.memo !== false) {
+        const ws = worksheet(p, type, materials), m = ws.match(/^# Памятка[\s\S]*?(?=^# )/m);
+        md += m ? m[0] : `# Памятка\n\n**Тема:** ${p.topic}\n\n${ru && RK?.algo ? RK.algo.steps.map((x, i) => `${i + 1}. ${x}`).join("\n") : "Главное по теме урока — запишите в тетрадь."}\n\n`;
+      }
+      return md;
+    }
+    if (kind === "homework") {
+      const hw = p.hwText || { base: "выполнить упражнение из учебника по теме урока", adv: "подготовить устный ответ с примерами" };
+      let md = head("Домашнее задание");
+      md += `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}\n\n*Источник: ${hw.exSrc}*\n\n` : ""}${BL}\n\n${BL}\n\n`;
+      md += `### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+      md += `### Творческое задание (по выбору)\n\n${ru ? `Найдите в художественной книге, которую вы читаете, 3 примера на тему «${core(p.topic)}» и объясните их.` : `Нарисуйте иллюстрацию к самому яркому эпизоду (строфе) и подпишите её цитатой.`}\n\n${BL}\n\n`;
+      if (o.hwText) md += `### Задание учителя\n\n${o.hwText}\n\n`;
+      md += `---\n\n**Критерии:** базовое — «3»–«4», повышенное — «5», творческое — дополнительная оценка.\n`;
+      return md;
+    }
+    return "";
+  }
+
   /* ---------- 7. Презентация по конспекту (выдержки) ---------- */
   const EMO = [[/мотивац|организац|эпиграф|настро|опор/i, "💬"], [/цел|проект|постановк/i, "🎯"], [/реализац|открыти|правил|теори/i, "📝"], [/анализ|аналит|комментари|наблюд/i, "🔍"], [/чтени|восприят/i, "📖"], [/закреплен|практик|самостоят|контрольн|трениров/i, "✍️"], [/рефлекс/i, "🪞"], [/домашн/i, "🏠"]];
   const emoFor = s => (EMO.find(([re]) => re.test(s)) || [0, "🧩"])[1];
@@ -2511,7 +2585,7 @@ const Engine = (() => {
     return (hasHead ? head.trim() + "\n\n" : "") + out.join("\n\n---\n\n") + "\n";
   }
 
-  return { detectType, conspect, worksheet, slidesFromConspect, normalizeSlides, resultsBlock, exercisesFrom, rulesFrom, pickEx, lessonLabel, authorOf, core };
+  return { detectType, conspect, worksheet, extra, slidesFromConspect, normalizeSlides, resultsBlock, exercisesFrom, rulesFrom, pickEx, lessonLabel, authorOf, core };
 })();
 
 /* ===================================================================
@@ -2955,8 +3029,12 @@ const DOCS = {
   lesson: { label: "Конспект урока", short: "Конспект", file: "konspekt-uroka", expect: 9000 },
   conspect: { label: "Технологическая карта", short: "Техкарта", file: "tehkarta", expect: 12000 },
   slides: { label: "Презентация", short: "Презентация", file: "prezentaciya", expect: 4500 },
-  worksheet: { label: "Рабочий лист", short: "Рабочий лист", file: "rabochiy-list", expect: 5500 }
+  worksheet: { label: "Рабочий лист", short: "Рабочий лист", file: "rabochiy-list", expect: 5500 },
+  control: { label: "Контроль", short: "Контроль", file: "kontrol", expect: 4000 },
+  memo: { label: "Запоминание", short: "Памятка", file: "pamyatka", expect: 3000 },
+  homework: { label: "Домашняя работа", short: "Д/з", file: "domashnyaya-rabota", expect: 3000 }
 };
+const WS_DOCS = ["worksheet", "control", "memo", "homework"], EXTRA_DOCS = ["control", "memo", "homework"];
 const LIBS = {
   marked: ["vendor/marked.umd.js", "https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"],
   purify: ["vendor/purify.min.js", "https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js"],
@@ -3002,6 +3080,7 @@ const lessonLabel = n => Engine.lessonLabel(n);
 const state = {
   subject: "ru", grade: 8, duration: 45, mode: "school", lessonNo: 1, control: "school", topic: "", wishes: "",
   formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "noai",
+  extra: { ctrl: "", variants: false, keys: true, memoSheet: false, memo: false, hw: false, hwText: "", extraText: "" },
   type: null, lesson: null, active: "conspect",
   gen: null,            // {lessonId, doc, pct, ctl}
   view: "builder", materials: []
@@ -3308,7 +3387,13 @@ function updateType() {
 }
 function fillGrades() { $("#grade").innerHTML = [5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}">${g} класс</option>`).join(""); $("#grade").value = state.grade; }
 /* техкарта — только методистам (тариф «Методист») и разработчикам */
+function readExtra() {
+  const X = state.extra; if (!$("#xCtrl")) return;
+  X.ctrl = $("#xCtrl").value; X.variants = $("#xVar").checked; X.keys = $("#xKeys").checked; X.memoSheet = $("#xMemoSheet").checked; X.memo = $("#xMemo").checked; X.hw = $("#xHw").checked;
+}
 function syncTechCheck() {
+  const okX = !window.Access || Access.techAllowed(), mb = document.getElementById("methodBlocks");
+  if (mb) { mb.classList.toggle("locked", !okX); $("#mbLock").textContent = okX ? "контроль, запоминание, д/з" : "🔒 тариф «Методист»"; mb.querySelectorAll("input,select").forEach(x => x.disabled = !okX); }
   const ok = !window.Access || Access.techAllowed(), lab = document.getElementById("chkTech"); if (!lab) return;
   lab.classList.toggle("locked", !ok); lab.querySelector(".pro-lock").hidden = ok;
   if (!ok) { lab.querySelector("input").checked = false; state.formats.conspect = false; }
@@ -3614,7 +3699,10 @@ async function createLesson() {
   readForm(); await Base.ready();
   if (!state.topic) { $("#topic").focus(); $("#createHint").textContent = "Введите тему урока или выберите её из списка."; return; }
   if (state.formats.conspect && window.Access && !Access.techAllowed()) { state.formats.conspect = false; syncTechCheck(); }
+  readExtra();
   const formats = Object.keys(state.formats).filter(k => state.formats[k]);
+  // методические блоки (тариф «Методист» и разработчики)
+  if (!window.Access || Access.techAllowed()) { const X = state.extra; if (X.ctrl) formats.push("control"); if (X.memoSheet || X.memo) formats.push("memo"); if (X.hw) formats.push("homework"); }
   if (!formats.length) { $("#createHint").textContent = "Отметьте хотя бы один документ."; return; }
   if (state.gen) { $("#createHint").textContent = "Дождитесь окончания текущей генерации или остановите её."; return; }
   $("#createHint").textContent = "";
@@ -3651,6 +3739,7 @@ async function buildWithAi(L, p, type, formats) {
     state.gen = { lessonId: L.id, doc: f, pct: 0, ctl: new AbortController() };
     // остаёмся на том листе, где учитель (обычно — первый готовый конспект); вкладки сами показывают, что готово
     if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = f; renderLesson(); }
+    if (EXTRA_DOCS.includes(f)) { L.docs[f] = buildDocNoAi(f, L, p, type); L.status[f] = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
     if (f === "lesson") { L.docs.lesson = LessonNotes.build(techOf(L, p, type), p); L.status.lesson = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
     if (f === "slides" && window.Deck) {
       // v5.4: презентация «как в Gamma» — план по конспекту; нейросеть только сжимает формулировки, дословные блоки не трогает
@@ -3740,6 +3829,7 @@ function buildDocNoAi(f, L, p, type) {
   if (f === "conspect") return injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
   if (f === "lesson") return LessonNotes.build(techOf(L, p, type), p);
   if (f === "worksheet") return Engine.worksheet(p, type, state.materials);
+  if (EXTRA_DOCS.includes(f)) { techOf(L, p, type); return Engine.extra(f, p, type, state.materials, { ...state.extra, ctrl: state.extra.ctrl || "self" }); }
   const cmd = techOf(L, p, type);
   rememberVerbatim(L, p);
   if (window.Deck) { const cards = Deck.outline(cmd, p, type); L.deckOutline = cards; return Deck.toMarkdown(cards); }
@@ -3911,8 +4001,8 @@ async function renderPreview() {
     $$("[data-del]", sheet).forEach(b => b.onclick = () => moveSlide(+b.dataset.del, 0));
     $$("[data-addpic]", sheet).forEach(b => b.onclick = () => addPicture(+b.dataset.addpic));
   } else {
-    sheet.className = "sheet" + (state.active === "worksheet" ? " ws-sheet" : ""); sheet.innerHTML = mdToHtml(md); decorate(sheet);
-    if (state.active === "worksheet") wsDecorate(sheet, L);
+    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : ""); sheet.innerHTML = mdToHtml(md); decorate(sheet);
+    if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (editable) sheet.setAttribute("contenteditable", "true"); else sheet.removeAttribute("contenteditable");
   }
   $$("figure.pic", sheet).forEach(fig => fig.onclick = e => { if (!editable) return; e.preventDefault(); pictureClick(fig); });
@@ -4072,7 +4162,7 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-const wsOpts = (L, d) => d === "worksheet" ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+const wsOpts = (L, d) => WS_DOCS.includes(d) ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
 async function mdToDocxBlob(md, title, opts = {}) {
   const ws = !!opts.worksheet, wsTag = opts.tag || ""; let h1n = 0;
   await Promise.all([ensureMarked(), loadScript("docx")]);
@@ -4219,9 +4309,9 @@ async function docToPdfBlob(L, doc) {
   const stage = $("#pdfstage"), md = doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;
-  else stage.innerHTML = `<div class="sheet${doc === "worksheet" ? " ws-sheet" : ""}">${mdToHtml(md)}</div>`;
+  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}">${mdToHtml(md)}</div>`;
   decorate(stage);
-  if (doc === "worksheet") wsDecorate(stage, L);
+  if (WS_DOCS.includes(doc)) wsDecorate(stage, L);
   await new Promise(r => setTimeout(r, 400));
   await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
   const wide = doc !== "slides" && /\|.*\|.*\|.*\|/.test(md);
@@ -4290,6 +4380,9 @@ function bind() {
   document.addEventListener("click", e => { if (!e.target.closest(".combo")) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } });
   $$("#formats input").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП — в тарифе «Методист»: для проверки оформления и сдачи."); } readForm(); });
   syncTechCheck(); document.addEventListener("uchu:access", syncTechCheck);
+  $("#methodBlocks").addEventListener("click", e => { if (window.Access && !Access.techAllowed() && e.target.closest(".mb-row")) { e.preventDefault(); Access.open("Методические блоки (контроль, листы для запоминания, домашняя работа) — в тарифе «Методист»."); } });
+  const attach = (inp, out, key) => $(inp).onchange = async e => { const f = e.target.files?.[0]; if (!f) return; $(out).textContent = "читаю…"; try { const r = await readFile(f); state.extra[key] = (r.text || "").trim().slice(0, 20000); $(out).textContent = state.extra[key] ? `✓ ${f.name}` : "текст не извлёкся"; if (key === "hwText" && state.extra[key]) $("#xHw").checked = true; } catch (er) { $(out).textContent = "не прочиталось: " + (er.message || er); } };
+  attach("#xExtraFile", "#xExtraName", "extraText"); attach("#xHwFile", "#xHwName", "hwText");
   $("#btnCreate").onclick = createLesson;
   $("#btnStop").onclick = () => state.gen?.ctl?.abort();
   $("#md").addEventListener("input", onMdEdit);

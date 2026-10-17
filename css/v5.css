@@ -625,3 +625,10 @@ input.secret.keep.shown, input.secret.keep.shown:focus { -webkit-text-security: 
 .sheet table:has(th:only-child) td:first-child, .sheet .nw { font-weight: 400; }
 .sheet table:has(th:only-child) { width: 100%; }
 @media print { .sheet table { break-inside: avoid; } }
+.method-blocks { border: 2px dashed var(--ink); border-radius: 14px; padding: 8px 12px; margin: 8px 0; }
+.method-blocks summary { cursor: pointer; }
+.method-blocks.locked { opacity: .7; }
+.mb-row { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin-top: 8px; }
+.mb-row select { flex: 1 1 160px; min-width: 0; }
+.mb-sub { margin-left: 18px; margin-top: 4px; }
+.mb-sub input[type=file] { font-size: 12px; max-width: 100%; }
