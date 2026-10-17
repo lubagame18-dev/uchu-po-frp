@@ -127,6 +127,9 @@ const Account = (() => {
 
   const PLAN_NAMES = { free: "бесплатный", basic: "«Учитель» (без ИИ)", ai: "«Учитель + ИИ»", pro: "«Методист»" };
   async function plan() { try { if (!(await refresh())) return null; const p = (await api(`/rest/v1/profiles?id=eq.${S.uid}&select=plan,ai_left,paid_until`))?.[0] || null; if (p && S) { S.plan = p.plan; save(); window.Access?.paint(); } return p; } catch { return null; } }
+  /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
+  const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "разделы разработчика" : "вход для разработчика"}</button></div>`;
+  function bindDev(m) { const b = m.querySelector("#acDev"); if (b) b.onclick = () => { closeModal(); if (window.Dev?.on) window.Dev.show("files"); else window.Dev?.openLogin(); }; }
   /* ---------- окно кабинета ---------- */
   function open() {
     if (S) {
@@ -144,7 +147,8 @@ const Account = (() => {
         <p class="small">Почта для входа: ${esc(S.email)}</p>
         ${S.local ? `<p class="small">Ваши уроки сохраняются в личном кабинете. Для надёжности можно сохранить их и в файл: «Мои уроки» → «Скачать все уроки».</p>` : `<p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>`}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
+        <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
+      bindDev(m);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
       const pm = m.querySelector("#acPMsg");
       const fields = () => ({ name: m.querySelector("#acName").value.trim(), school: m.querySelector("#acSchool").value.trim(), city: m.querySelector("#acCity").value.trim() });
@@ -163,7 +167,9 @@ const Account = (() => {
         <div class="field"><label for="acPass">Пароль</label><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><span class="small">Любой, от 6 знаков — без требований к символам.</span></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
         <p class="hint">Вход запоминается на этом устройстве. Уроки из этого браузера тоже перенесутся в облако.</p>
+        ${devLink()}
       </form></div>`);
+    bindDev(m);
     let mode = "in";
     m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; });
     m.querySelector("#acForm").onsubmit = async e => {

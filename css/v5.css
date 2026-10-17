@@ -592,3 +592,5 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 .key-slot details input { margin-top: 5px; }
 .key-slot .row-btn { flex-wrap: wrap; gap: 6px; }
 .key-h .tag { white-space: nowrap; }
+.ac-dev { display: flex; justify-content: flex-end; margin: 10px -6px -8px 0; }
+.ac-dev .foot-dev { flex: 0 0 auto; width: auto; margin: 0; }

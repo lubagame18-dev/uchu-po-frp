@@ -124,6 +124,8 @@ const AI = (() => {
     let avail = [...c.extra.map(x => x.id), ...ORDER].filter(id => has(c, id));
     // коммерческая версия: свои ключи — только в свободной зоне (по промокоду); иначе — только ИИ сайта по тарифу
     if (window.Access?.commercial() && !Access.ownAi()) avail = Access.aiAllowed() ? avail.filter(id => id === "site") : [];
+    // по промокоду — только одна своя нейросеть (без ИИ сайта и без сервера сайта)
+    else if (window.Access?.commercial() && Access.level() === "promo") avail = avail.filter(id => id !== "site" && id !== "yandexfn").slice(0, 1);
     return c.prefer !== "auto" && avail.includes(c.prefer) ? [c.prefer, ...avail.filter(x => x !== c.prefer)] : avail;
   }
   const configured = () => chain().length > 0;
@@ -327,7 +329,30 @@ const AI = (() => {
     if (typeof syncBuild === "function") try { syncBuild(); } catch { }
   }
   const v = x => esc(x || "");
+  /* Окно для входа по промокоду: одна своя нейросеть — вставил ключ, и всё */
+  function openLite() {
+    const c = cfg(), cur = chain(c)[0];
+    const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Ваша нейросеть</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+      ${cur ? `<div class="auto-box"><b>Подключена: ${esc(P[cur].name)}</b><div class="row-btn" style="margin-top:8px"><button type="button" class="btn sm" id="lzTest">Проверить</button><button type="button" class="btn sm ghost" id="lzOff">Отключить</button><span class="small" id="lzSt"></span></div></div>` : ""}
+      <p class="hint">${cur ? "Чтобы заменить, вставьте другой ключ." : "Вставьте ключ своей нейросети — сайт сам узнает сервис и проверит его."} Подключается одна нейросеть.</p>
+      <div class="field"><input type="text" class="secret" id="lzKey" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="ключ API"></div>
+      <details class="small"><summary>Сервис не узнаётся? Укажите его адрес</summary><input type="text" id="lzBase" spellcheck="false" placeholder="https://…/v1" style="width:100%;margin-top:6px"></details>
+      <div class="row-btn" style="margin-top:10px"><button type="button" class="btn flame" id="lzGo">Подключить</button><button type="button" class="btn sm ghost" id="lzOR">Бесплатно: войти через OpenRouter</button></div>
+      <p class="small" id="lzMsg" role="status"></p></div></div>`);
+    const $m = q => m.querySelector(q);
+    const only = () => { const n = cfg(); n.keys = { ...DEF.keys }; n.extra = []; n.custom = { ...DEF.custom }; n.prefer = "auto"; save(n); };
+    $m("#lzGo").onclick = async () => {
+      const key = $m("#lzKey").value.trim(), base = $m("#lzBase").value.trim(), msg = $m("#lzMsg"); if (!key) { msg.textContent = "Вставьте ключ."; return; }
+      const before = localStorage.getItem(KEY); $m("#lzGo").disabled = true; only();
+      try { const r = await connectKey(key, base, t => (msg.textContent = t)); if (!r.ok) throw new Error(r.text); toast(`${r.name} подключена.`); closeModal(); }
+      catch (e) { try { before ? localStorage.setItem(KEY, before) : localStorage.removeItem(KEY); } catch { } paint(); msg.textContent = "Не получилось: " + (e.message || e); $m("#lzGo").disabled = false; }
+    };
+    $m("#lzOR").onclick = () => { only(); openrouterLogin(); };
+    $m("#lzOff")?.addEventListener("click", () => { only(); closeModal(); toast("Нейросеть отключена."); });
+    $m("#lzTest")?.addEventListener("click", async () => { const s = $m("#lzSt"); s.textContent = "Проверяю…"; const r = await test(cur); s.textContent = (r.ok ? "✓ " : "✗ ") + r.text; });
+  }
   function open() {
+    if (window.Access?.commercial() && Access.level() === "promo") return openLite();
     const c = cfg(), st = status(), l = chain(c);
     const row = id => { const s = st[id]; return s ? (s.ok ? `<span class="tag ok">✓ работал ${ago(s.at)}</span>` : `<span class="tag red" title="${esc(s.why)}">✗ ${esc(s.why.slice(0, 50))}</span>`) : ""; };
     const m = openModal(`<div class="dialog"><div class="dlg-h"><h2>Нейросеть</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
