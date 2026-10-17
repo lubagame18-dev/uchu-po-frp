@@ -21,11 +21,12 @@ const Access = (() => {
   async function sha(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
   const hashes = () => [].concat(window.UCHU_PROMO || []);
   const PLANS = {
-    free: { name: "Бесплатный", price: 0, lessons: 3, ai: false, list: ["3 урока в месяц без ИИ", "техкарта, презентация, рабочий лист", "уроки хранятся в этом браузере"] },
-    basic: { name: "Учитель", price: 300, lessons: Infinity, ai: false, list: ["уроки без ИИ — без ограничений", "все листы, скачивание Word, PDF, PowerPoint", "личный кабинет: уроки в облаке"] },
-    ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, list: ["всё из тарифа «Учитель»", "50 уроков с ИИ в месяц", "свой ключ не нужен — ИИ сайта"] },
+    free: { name: "Бесплатный", price: 0, lessons: 3, ai: false, list: ["3 урока в месяц", "техкарта, презентация, рабочий лист", "уроки сохраняются в личном кабинете"] },
+    basic: { name: "Учитель", price: 300, lessons: Infinity, ai: false, list: ["уроки без ограничений", "скачивание в Word, PDF, PowerPoint", "все уроки — в личном кабинете"] },
+    ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, list: ["всё из тарифа «Учитель»", "50 уроков с ИИ в месяц", "подробные конспекты и правки по запросу"] },
     pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, list: ["всё из тарифа «Учитель + ИИ»", "120 уроков с ИИ в месяц", "приоритетная поддержка"] }
   };
+
   /* Текущий уровень: промокод > тариф кабинета > бесплатный. В некоммерческой версии — всё открыто. */
   /* Разработчик (вход по паролю разработчика, в том числе запомненный) — всё открыто без промокодов */
   const isDev = () => !!(window.Dev?.on || window.Dev?.remembered?.());
@@ -36,7 +37,7 @@ const Access = (() => {
     if (p === "promo" || (A.promo && me() && A.promo.email === me())) return "promo"; // промокод — только у вошедшего, за своей почтой
     return PLANS[p] ? p : "free";
   }
-  const label = () => { const L = level(); return L === "dev" ? "разработчик: всё открыто" : L === "promo" ? "свободная зона по промокоду" : `тариф «${PLANS[L].name}»`; };
+  const label = () => { const L = level(); return L === "dev" ? "разработчик" : L === "promo" ? "по промокоду" : `тариф «${PLANS[L].name}»`; };
   const free = () => level() === "dev" || level() === "promo";
   const ownAi = () => free();                   // свои ключи и любые нейросети — только в свободной зоне
   const aiAllowed = () => free() || !!PLANS[level()].ai;
@@ -45,8 +46,8 @@ const Access = (() => {
   function countLesson() { if (free() || PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
-    if (useAi && !aiAllowed()) { open("Уроки с ИИ — в тарифах «Учитель + ИИ» и «Методист» или по промокоду."); return false; }
-    if (!useAi && lessonsLeft() <= 0) { open("Бесплатные уроки на этот месяц закончились. Выберите тариф или введите промокод."); return false; }
+    if (useAi && !aiAllowed()) { open("Уроки с ИИ — в тарифах «Учитель + ИИ» и «Методист»."); return false; }
+    if (!useAi && lessonsLeft() <= 0) { open("Бесплатные уроки на этот месяц закончились. Выберите тариф."); return false; }
     return true;
   }
   async function applyPromo(code) {
@@ -63,22 +64,21 @@ const Access = (() => {
 
   /* ---------- окно тарифов ---------- */
   function open(reason) {
-    const L = level();
-    const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Тарифы</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+    const L = level(), cur = L === "dev" || L === "promo" ? null : L;
+    const m = openModal(`<div class="dialog wide tr-dlg"><div class="dlg-h"><h2>Тарифы</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       ${reason ? `<p class="tr-reason">${esc(reason)}</p>` : ""}
-      ${L === "dev" ? `<p class="tr-now ok">Вы вошли как <b>разработчик</b>: все функции открыты без тарифов и промокодов.</p>` : L === "promo" ? `<p class="tr-now ok">Открыта <b>свободная зона</b> по промокоду (${esc(me())}): всё бесплатно, нейросеть подключаете сами («⚙ ИИ» вверху).</p>` : `<p class="tr-now">Сейчас: <b>${esc(PLANS[L].name)}</b>${PLANS[L].lessons !== Infinity ? ` · осталось уроков в этом месяце: <b>${lessonsLeft()}</b>` : ""}</p>`}
-      <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === L ? "on" : ""} ${k === "ai" ? "best" : ""}">${k === "ai" ? `<span class="tr-badge">выбор учителей</span>` : ""}<h3>${p.name}</h3><div class="tr-price">${p.price ? `${p.price} ₽<small>/мес</small>` : "0 ₽"}</div><ul>${p.list.map(x => `<li>${esc(x)}</li>`).join("")}</ul>${k === "free" ? "" : `<button class="btn sm ${k === "ai" ? "flame" : ""}" data-buy="${k}" ${k === L ? "disabled" : ""}>${k === L ? "Ваш тариф" : "Выбрать"}</button>`}</article>`).join("")}</div>
-      ${!me() ? `<div class="tr-promo"><b>Есть промокод?</b><span class="small">Сначала войдите или зарегистрируйтесь в личном кабинете — промокод закрепляется за вашей почтой.</span><button type="button" class="btn sm flame" id="trLogin">Войти или зарегистрироваться</button></div>` : L === "dev" ? "" : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>Промокод</b> — открывает свободную зону: все функции без оплаты, ИИ подключаете сами</label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span>${L === "promo" ? `<button type="button" class="btn plain small" id="trLeave">Выйти из свободной зоны</button>` : ""}</form>`}
+      ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : L === "promo" ? `<p class="tr-now ok">Доступ по промокоду.</p>` : PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
+      <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""}">${k === cur ? `<span class="tr-badge">ваш тариф</span>` : ""}<div class="tr-in"><h3>${p.name}</h3><div class="tr-price">${p.price ? `${p.price} ₽<small>/мес</small>` : "0 ₽"}</div><ul>${p.list.map(x => `<li>${esc(x)}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">Подключён сейчас</span>` : k === "free" ? "" : `<button class="btn sm flame" data-buy="${k}">Выбрать</button>`}</div></article>`).join("")}</div>
+      ${!me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : L === "dev" || L === "promo" ? "" : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>Промокод</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
     m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy, m));
     const lg = m.querySelector("#trLogin"); if (lg) lg.onclick = () => { closeModal(); Access.wantPromo = true; window.Account?.open(); };
     if (m.querySelector("#trPromo")) m.querySelector("#trPromo").onsubmit = async e => {
       e.preventDefault(); const msg = m.querySelector("#trMsg"), code = m.querySelector("#trCode").value;
       if (!code.trim()) return; msg.textContent = "Проверяю…";
-      if (await applyPromo(code)) { closeModal(); toast("Промокод принят: открыта свободная зона. Нейросеть можно подключить самостоятельно — «⚙ ИИ».", 8000); }
+      if (await applyPromo(code)) { closeModal(); toast("Промокод принят.", 5000); }
       else msg.textContent = "Такого промокода нет. Проверьте написание.";
     };
-    const lv = m.querySelector("#trLeave"); if (lv) lv.onclick = () => { leavePromo(); closeModal(); toast("Свободная зона закрыта."); };
   }
   function buy(plan, m) {
     if (!window.Account?.ready()) { toast("Оплата появится, когда будет подключён личный кабинет. Пока можно пользоваться бесплатно или по промокоду.", 7000); return; }
@@ -92,7 +92,7 @@ const Access = (() => {
     const ai = document.getElementById("btnAi"); if (ai) ai.hidden = commercial() && !ownAi();
     let b = document.getElementById("btnPlan");
     if (!b && commercial()) { b = document.createElement("button"); b.type = "button"; b.id = "btnPlan"; b.className = "btn sm ghost"; b.onclick = () => open(); document.querySelector(".account")?.prepend(b); }
-    if (b) { const L = level(); b.textContent = L === "dev" ? "🔧 Разработчик" : L === "promo" ? "🔓 Свободная зона" : `💳 ${PLANS[L].name}`; b.title = "Тарифы и промокод"; b.hidden = !commercial(); }
+    if (b) { const L = level(); b.textContent = L === "dev" ? "🔧 Разработчик" : L === "promo" ? "🎟 Промокод" : `💳 ${PLANS[L].name}`; b.title = "Тарифы и промокод"; b.hidden = !commercial(); }
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);

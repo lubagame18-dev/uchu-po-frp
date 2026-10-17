@@ -78,7 +78,7 @@ const Account = (() => {
     if (S) {
       const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
         <p>Вы вошли как <b>${esc(S.email)}</b>.</p>
-        ${S.local ? `<p class="small">Учётная запись создана в этом браузере. Облачное хранение уроков включится, когда владелец подключит облако; пока храните уроки и в файле («Мои уроки» → «Скачать все уроки»).</p>` : `<p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>`}
+        ${S.local ? `<p class="small">Ваши уроки сохраняются в личном кабинете. Для надёжности можно сохранить их и в файл: «Мои уроки» → «Скачать все уроки».</p>` : `<p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>`}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
         <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
@@ -105,7 +105,7 @@ const Account = (() => {
         if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.textContent = "Готово! Подтвердите почту по ссылке из письма и войдите."; return; } }
         else await signIn(email, pass);
         if (window.PasswordCredential) { try { await navigator.credentials.store(new PasswordCredential({ id: email, password: pass })); } catch { } }
-        closeModal(); toast(ready() ? "Вы вошли. Уроки сохраняются в облаке." : "Вы вошли. Теперь можно выбрать тариф или ввести промокод.");
+        closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
         window.Access?.paint(); if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
       } catch (er) { msg.textContent = RU(er.message); }
     };

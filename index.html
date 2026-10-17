@@ -4235,7 +4235,7 @@ function openModal(html) {
 function escClose(e) { if (e.key === "Escape") closeModal(); }
 function closeModal() { $("#modalRoot").innerHTML = ""; document.removeEventListener("keydown", escClose); }
 function openAiSettings() {
-  if (window.Access && Access.commercial() && !Access.ownAi()) { Access.open(Access.aiAllowed() ? "ИИ сайта ещё не подключён владельцем. Пока можно собирать уроки без ИИ." : "Свою нейросеть можно подключить в свободной зоне — по промокоду. ИИ сайта входит в тарифы «Учитель + ИИ» и «Методист»."); return; } if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl(); else toast("Нейросеть подключается в автономной версии сайта."); }
+  if (window.Access && Access.commercial() && !Access.ownAi()) { Access.open(Access.aiAllowed() ? "Уроки с ИИ скоро будут доступны. Пока можно собирать уроки без ИИ." : "Уроки с ИИ — в тарифах «Учитель + ИИ» и «Методист»."); return; } if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl(); else toast("Нейросеть подключается в автономной версии сайта."); }
 
 function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });
