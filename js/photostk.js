@@ -30,7 +30,11 @@ const PhotoStk = (() => {
     const steps = 36;
     for (let k = 0; k < steps; k++) { const a = k / steps * Math.PI * 2, rr = rough ? r * (.65 + R() * .7) : r; g.drawImage(im, pad + Math.cos(a) * rr, pad + Math.sin(a) * rr, w, h); }
     g.drawImage(im, pad, pad, w, h);
-    g.globalCompositeOperation = "source-in"; g.fillStyle = color; g.fillRect(0, 0, c.width, c.height);
+    // сглаживание: размываем силуэт и обрезаем по порогу — ровная «вырубка», как у настоящей наклейки
+    const c2 = canvas(c.width, c.height), g2 = c2.getContext("2d"); g2.filter = `blur(${Math.max(1.5, r * .18)}px)`; g2.drawImage(c, 0, 0);
+    const d = g2.getImageData(0, 0, c2.width, c2.height), px = d.data, [cr, cg, cb] = [1, 3, 5].map(k => parseInt(color.slice(k, k + 2), 16));
+    for (let k = 0; k < px.length; k += 4) { const a = px[k + 3] > 100 ? 255 : 0; px[k] = cr; px[k + 1] = cg; px[k + 2] = cb; px[k + 3] = a; }
+    g.clearRect(0, 0, c.width, c.height); g.putImageData(d, 0, 0);
     return { c, pad };
   }
   function shadowed(src, blur = 14, dy = 8, op = .35) {
@@ -95,7 +99,7 @@ const PhotoStk = (() => {
     const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Фото-наклейка</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       <p class="hint">Выберите вид — наклейка встанет поверх слайда, её можно двигать, поворачивать (колёсико) и менять размер (+/−).</p>
-      <div class="mat-row"><label class="check"><input type="checkbox" id="psCut"> Вырезать по контуру (убрать фон) — для вида «Вырезка»</label><label>Подпись (для полароида) <input type="text" id="psCap" value="${esc(caption)}" maxlength="40"></label></div>
+      <div class="mat-row"><label class="check"><input type="checkbox" id="psCut" checked> Вырезать по контуру (убрать фон) — для вида «Вырезка»</label><label>Подпись (для полароида) <input type="text" id="psCap" value="${esc(caption)}" maxlength="40"></label></div>
       <div class="ps-grid" id="psGrid">${Object.entries(STYLES).map(([k, n]) => `<button class="ps-it" data-ps="${k}"><span class="ps-pv"><i>…</i></span><small>${n}</small></button>`).join("")}</div>
       <p class="small" id="psMsg"></p></div></div>`);
     const $m = s => m.querySelector(s);
@@ -105,13 +109,13 @@ const PhotoStk = (() => {
       const im = await loadImg(src), [w, h] = fit(im, 260), c = canvas(w, h); c.getContext("2d").drawImage(im, 0, 0, w, h); const small = await toBlob(c);
       for (const b of m.querySelectorAll("[data-ps]")) { try { const r = await make(small, b.dataset.ps, { caption: $m("#psCap").value }); b.querySelector(".ps-pv").innerHTML = `<img src="${URL.createObjectURL(r.blob)}" alt="">`; } catch { } }
     };
-    previews();
     $m("#psCut").onchange = async e => {
       if (!e.target.checked) { src = blob; previews(); return; }
       $m("#psMsg").textContent = "Убираю фон… Первый раз загружается модель (около 40 МБ), это может занять минуту.";
       try { cutDone = cutDone || await removeBg(blob); src = cutDone; $m("#psMsg").textContent = "Фон убран — выберите «Вырезка»."; previews(); }
-      catch (err) { $m("#psMsg").textContent = "Не получилось убрать фон: " + (err.message || err); e.target.checked = false; }
+      catch (err) { $m("#psMsg").textContent = "Не получилось убрать фон (нужен интернет и около 40 МБ памяти): " + (err.message || err) + ". Можно выбрать другой вид."; e.target.checked = false; src = blob; previews(); }
     };
+    $m("#psCut").dispatchEvent(new Event("change")); // по умолчанию — вырезка без фона
     let t; $m("#psCap").oninput = () => { clearTimeout(t); t = setTimeout(previews, 500); };
     m.querySelectorAll("[data-ps]").forEach(b => b.onclick = async () => {
       $m("#psMsg").textContent = "Готовлю наклейку…";

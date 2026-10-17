@@ -507,7 +507,7 @@ ${JSON.stringify(payload)}`;
         ${window.ThemeKit ? `<details class="dk-theme" open><summary><b>Оформление</b> — <span id="dkThName"></span></summary><div class="th-pick" id="dkTh"></div></details>` : ""}
         <ol class="deck-cards" id="dkList"></ol>
         <div class="mat-row"><button class="btn sm ghost" id="dkAdd">+ Карточка</button></div>
-        <div class="pk-foot"><button class="btn flame" id="dkBuild">Собрать презентацию</button>${window.UCHU?.configured?.() ? `<label class="check"><input type="checkbox" id="dkAi"> Сжать формулировки нейросетью (дословные блоки не трогает)</label>` : ""}<span class="small" id="dkMsg">Текущие слайды заменятся; вернуть их можно кнопкой ↶.</span></div>
+        <div class="pk-foot"><button class="btn flame" id="dkBuild">Собрать презентацию</button>${window.UCHU?.configured?.() ? `<label class="check"><input type="checkbox" id="dkAi"> Сжать формулировки нейросетью (дословные блоки не трогает)</label>` : ""}<label class="check" title="Портрет писателя станет наклейкой: фон убирается, по контуру — белая обводка. Первый раз загружается модель (~40 МБ)."><input type="checkbox" id="dkCut" ${(() => { try { const v = localStorage.getItem("uchu:cutout"); return v ? v === "1" : !/Mobi|Android/i.test(navigator.userAgent); } catch { return true; } })() ? "checked" : ""}> Вырезать портреты (наклейка без фона)</label><span class="small" id="dkMsg">Текущие слайды заменятся; вернуть их можно кнопкой ↶.</span></div>
       </div></div>`);
     const list = $("#dkList", m);
     const draw = () => {
@@ -571,7 +571,8 @@ ${JSON.stringify(payload)}`;
       L.deckOutline = cards;
       let md = toMarkdown(cards);
       md = await Media.autoFill(md).catch(() => md);
-      if (window.SlideEditor?.stickerize) md = await SlideEditor.stickerize(md).catch(() => md);
+      try { localStorage.setItem("uchu:cutout", $("#dkCut", m)?.checked ? "1" : "0"); } catch { }
+      if (window.SlideEditor?.stickerize) md = await SlideEditor.stickerize(md, { onStep: t => { $("#dkMsg", m).textContent = t; } }).catch(() => md);
       if (window.SlideEditor) SlideEditor.replaceAll(md);
       closeModal(); toast("Презентация собрана по плану. Картинки можно заменить: щёлкните по картинке на слайде.", 6000);
     };

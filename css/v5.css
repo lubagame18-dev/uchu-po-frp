@@ -668,25 +668,53 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .btn:hover { transform: translate(-1px, -1px); }
 @media (prefers-reduced-motion: reduce) { .cta, .cta::after { animation: none; } }
 
-/* ===== v5.40: художественные темы (ThemeKit) — фон-рисунок, светлая плашка под крупный текст ===== */
-.sx .sx-deco { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0; pointer-events: none; }
-.sx.tk { --tk-in: 4.6cqw; --tk-rad: 1.4cqw; --tk-shadow: 0 .5cqw 2cqw rgba(0,0,0,.28); background-color: var(--tk-frame, #222); }
-.sx.tk .sx-inner { inset: var(--tk-in); background: var(--sx-bg); border-radius: var(--tk-rad); box-shadow: var(--tk-shadow); padding: calc(3.2cqw * var(--pad)) calc(4.2cqw * var(--pad)); }
-.sx.tk.acc-right .sx-acc { top: var(--tk-in); bottom: var(--tk-in); right: var(--tk-in); width: 36%; border-radius: var(--tk-rad); box-shadow: var(--tk-shadow); }
-.sx.tk.acc-right .sx-inner { right: calc(36% + var(--tk-in) * 1.6); }
-.sx.tk.acc-left .sx-acc { top: var(--tk-in); bottom: var(--tk-in); left: var(--tk-in); width: 36%; border-radius: var(--tk-rad); box-shadow: var(--tk-shadow); }
-.sx.tk.acc-left .sx-inner { left: calc(36% + var(--tk-in) * 1.6); }
-.sx.tk.acc-top .sx-acc { top: var(--tk-in); left: var(--tk-in); right: var(--tk-in); height: 34%; border-radius: var(--tk-rad) var(--tk-rad) 0 0; }
-.sx.tk.acc-top .sx-inner { top: calc(34% + var(--tk-in)); border-radius: 0 0 var(--tk-rad) var(--tk-rad); }
-.sx.tk.acc-bg .sx-acc { inset: 0; border-radius: 0; box-shadow: none; }
-.sx.tk.acc-bg .sx-inner { inset: var(--tk-in); margin: 0; background: color-mix(in srgb, var(--sx-bg) 90%, transparent); }
-.sx.tk.has-bgimg .sx-inner { background: var(--sx-bg); }
-.sx.tk.lay-title:not(.acc) .sx-inner { inset: 15% 15%; }
-.sx.tk.lay-section:not(.acc) .sx-inner { inset: 22% 12%; }
-.sx.tk.lay-image .sx-inner { inset: 0; background: transparent; box-shadow: none; border-radius: 0; }
-.sx.tk .sx-acc { z-index: 1; }
-.sx.tk .sx-inner { z-index: 2; }
-.sx.tk .lay-cards .sx-body li, .sx.tk.lay-cards .sx-body li { background: #FFFFFF; border-top-color: var(--sx-accent); box-shadow: 0 .2cqw .8cqw rgba(0,0,0,.08); }
+/* ===== v5.42: художественные темы — фон и бумага рисуются SVG (одинаково в показе и PowerPoint) ===== */
+.sx .sx-deco, .sx .sx-paper { position: absolute; inset: 0; background-size: 100% 100%; pointer-events: none; }
+.sx .sx-deco { z-index: 0; }
+.sx .sx-paper { z-index: 1; }
+.sx.tk { background-color: var(--tk-base, #222); --tk-shadow: none; }
+.sx.tk .sx-inner { z-index: 2; background: transparent; box-shadow: none; outline: none; border: 0; border-radius: 0; padding: 0; inset: 12% 9.5% 11% 9.5%; }
+.sx.tk.lay-title:not(.acc) .sx-inner, .sx.tk.lay-section:not(.acc) .sx-inner { inset: 22% 18% 21% 18%; }
+.sx.tk .sx-acc { z-index: 1; top: 0; bottom: 0; border-radius: 0; box-shadow: none; outline: none; border: 0; background: var(--tk-base); }
+.sx.tk.acc-right .sx-acc { right: 0; left: auto; width: 50%; }
+.sx.tk.acc-right .sx-inner { inset: 12% 47% 11% 8%; }
+.sx.tk.acc-left .sx-acc { left: 0; right: auto; width: 50%; }
+.sx.tk.acc-left .sx-inner { inset: 12% 8% 11% 47%; }
+.sx.tk.acc-top .sx-acc { left: 0; right: 0; top: 0; bottom: auto; height: 44%; width: auto; }
+.sx.tk.acc-top .sx-inner { inset: 44% 9% 8% 9%; }
+.sx.tk.acc-bg .sx-acc { inset: 0; }
+.sx.tk.acc-bg .sx-inner { inset: 14% 46% 13% 9%; margin: 0; background: transparent !important; backdrop-filter: none; }
+.sx.tk.lay-image .sx-inner { inset: 0; padding: calc(4.6cqw * var(--pad)) calc(6cqw * var(--pad)); }
+.sx.tk .sx-acc figure.pic img { filter: saturate(.92) contrast(1.04); }
+.sx.tk .sx-acc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--tk-base) 35%, transparent), transparent 40%); pointer-events: none; }
+.sx.tk.acc-left .sx-acc::after { background: linear-gradient(270deg, color-mix(in srgb, var(--tk-base) 35%, transparent), transparent 40%); }
+/* крупная типографика: заголовок — акцентный цвет темы, текст — тёмный на светлой бумаге */
+.sx.tk .sx-title { color: var(--sx-accent); font-size: calc(4.9cqw * var(--fs)); line-height: 1.05; margin-bottom: 1.8cqw; letter-spacing: -.005em; }
+.sx.tk.lay-title .sx-title { font-size: calc(7.2cqw * var(--fs)); }
+.sx.tk .sx-body { color: var(--sx-ink); font-size: calc(3.45cqw * var(--fs)); }
+.sx.tk .sx-body strong { color: var(--sx-ink); }
+.sx.tk.lay-title .sx-body { color: color-mix(in srgb, var(--sx-ink) 75%, transparent); }
+.sx.tk .lay-title .sx-title::after, .sx.tk.lay-title .sx-title::after { background: var(--sx-accent); }
+.sx.tk.lay-cards .sx-body li { background: color-mix(in srgb, #fff 55%, transparent); border: 0; border-top: .45cqw solid var(--sx-accent); box-shadow: 0 .2cqw .7cqw rgba(0,0,0,.07); }
+.sx.tk.lay-steps .sx-body li::before { background: var(--sx-accent); color: #fff; }
+.sx.tk .sx-body blockquote { background: color-mix(in srgb, var(--sx-accent) 7%, transparent); border-left-color: var(--sx-accent); }
+.sx.tk .sx-body li::marker { color: var(--sx-accent); }
+/* шрифтовые акценты тем */
+.sx.tk-museum .sx-title, .sx.tk-art .sx-title, .sx.tk-sepia .sx-title { text-transform: uppercase; letter-spacing: .02em; font-weight: 400; }
+.sx.tk-salon .sx-title, .sx.tk-haze .sx-title, .sx.tk-botanic .sx-title { font-style: italic; }
+.sx.tk-poster .sx-title, .sx.tk-collage .sx-title { text-transform: uppercase; font-weight: 400; }
+.sx.tk-modern .sx-title { font-weight: 700; letter-spacing: -.02em; color: var(--sx-ink); }
+.sx.tk-modern .sx-title::first-letter { color: var(--sx-accent); }
+.sx.tk-sketch .sx-title { font-size: calc(5.8cqw * var(--fs)); }
+.sx.tk-sketch.lay-title .sx-title { font-size: calc(8.4cqw * var(--fs)); }
+.sx.tk-night .sx-title, .sx.tk-mystic .sx-title { font-weight: 400; }
+/* доска */
+.sx.tk-board .sx-inner { inset: 9% 8%; }
+.sx.tk-board .sx-title { color: #F4F1E8; }
+.sx.tk-board .sx-body { color: #F4F1E8; }
+.sx.tk-board .sx-body strong { color: #F2C94C; }
+.sx.tk-board.lay-cards .sx-body li { background: rgba(255,255,255,.06); border: .2cqw solid rgba(244,241,232,.55); }
+.sx.tk-board.lay-steps .sx-body li::before { background: transparent; border: .2cqw solid #F2C94C; color: #F2C94C; }
 /* пустых зон меньше: карточки, шаги и списки — по центру свободного места под заголовком */
 .sx.lay-cards .sx-body, .sx.lay-steps .sx-body, .sx.lay-list .sx-body { display: flex; flex-direction: column; justify-content: center; }
 .sx.lay-cards .sx-body > *, .sx.lay-steps .sx-body > *, .sx.lay-list .sx-body > * { flex: 0 0 auto; }
@@ -695,71 +723,6 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx .stk svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .sx-frame.big .sx .stk { pointer-events: auto; cursor: move; touch-action: none; }
 .sx-frame.big .sx .stk:hover, .sx-frame.big .sx .stk:focus-visible { outline: 2px dashed var(--sx-accent); outline-offset: 2px; }
-
-/* Звёздная ночь */
-.sx.tk-night { --tk-frame: #0E1B3D; --sx-bg: #FBF4E2; --sx-ink: #1E2340; --sx-accent: #B07A1E; --sx-muted: #4A4E68; --sx-soft: #F3E7C8; --sx-line: #D9B66A; }
-.sx.tk-night .sx-inner { outline: .18cqw solid #D9B66A; outline-offset: -1cqw; }
-.sx.tk-night .sx-title { color: #8A5A12; font-weight: 400; }
-.sx.tk-night .sx-acc { outline: .4cqw solid #E2B85A; }
-.sx.tk-night.lay-steps .sx-body li::before { background: linear-gradient(135deg, #F2CF7A, #B9761C); color: #fff; }
-/* Туман и свет */
-.sx.tk-haze { --tk-frame: #F2A35E; --sx-bg: #FFF7EC; --sx-ink: #3A2A20; --sx-accent: #D2611F; --sx-muted: #6E584A; --sx-soft: #FCE6CF; --tk-rad: 2.4cqw; --tk-shadow: 0 1cqw 3cqw rgba(170,80,20,.22); }
-.sx.tk-haze .sx-inner { background: color-mix(in srgb, #FFF7EC 86%, transparent); backdrop-filter: blur(6px); }
-.sx.tk-haze .sx-title { color: #C0561C; font-style: italic; font-weight: 700; }
-.sx.tk-haze .sx-acc { border-radius: 2.4cqw; box-shadow: 0 0 0 .5cqw rgba(255,240,220,.85), 0 1cqw 3cqw rgba(170,80,20,.3); }
-/* Ботаника */
-.sx.tk-botanic { --tk-frame: #F6EEDF; --sx-bg: #FBF6EC; --sx-ink: #2A1E1A; --sx-accent: #6B1E2A; --sx-muted: #5E5048; --sx-soft: #EFE4CF; --tk-shadow: 0 .3cqw 1.2cqw rgba(80,40,20,.14); }
-.sx.tk-botanic .sx-title { color: #6B1E2A; font-style: italic; }
-.sx.tk-botanic .sx-acc { box-shadow: 1.4cqw 1.4cqw 0 #5E6B4E; border-radius: 1cqw; }
-.sx.tk-botanic.lay-cards .sx-body li:nth-child(even) { border-top-color: #5E6B4E; }
-/* Салон XIX века */
-.sx.tk-salon { --tk-frame: #8FA58A; --sx-bg: #F7F1E2; --sx-ink: #22281F; --sx-accent: #3E5A3C; --sx-muted: #5A5C4E; --sx-soft: #ECE5D0; --tk-rad: .6cqw; }
-.sx.tk-salon .sx-inner { outline: .25cqw double #B8955A; outline-offset: -1.2cqw; border: .5cqw solid #C9AE72; }
-.sx.tk-salon .sx-title { color: #3E5A3C; font-style: italic; }
-.sx.tk-salon .sx-acc { border: 1.1cqw solid #C9A45C; border-image: linear-gradient(135deg, #F3DD9A, #A8792A 40%, #F1D489 60%, #8C611E) 1; box-shadow: 0 .6cqw 2cqw rgba(0,0,0,.35); }
-.sx.tk-salon.k-author .sx-acc, .sx.tk-salon.lay-title .sx-acc { border-radius: 50%; border-image: none; border-color: #C9A45C; }
-/* Плакат-ретро */
-.sx.tk-poster { --tk-frame: #D9A62E; --sx-bg: #F6EBCD; --sx-ink: #2A1414; --sx-accent: #7E1F23; --sx-muted: #5C3A2A; --sx-soft: #EFDDAE; --tk-rad: .4cqw; }
-.sx.tk-poster .sx-title { color: #7E1F23; text-transform: uppercase; letter-spacing: .02em; font-weight: 400; }
-.sx.tk-poster .sx-acc { background: #fff; padding: 1cqw 1cqw 3.6cqw; transform: rotate(2.2deg); box-shadow: 0 .8cqw 2cqw rgba(0,0,0,.35); border-radius: .3cqw; }
-.sx.tk-poster.acc-left .sx-acc { transform: rotate(-2.2deg); }
-.sx.tk-poster.lay-cards .sx-body li { background: #7E1F23; color: #FBF1D6; border-top-color: #F3D27A; }
-.sx.tk-poster.lay-cards .sx-body li strong { color: #F3D27A; }
-/* Скетч */
-.sx.tk-sketch { --tk-frame: #F2ECDD; --sx-bg: #FBF7EE; --sx-ink: #1F2A5A; --sx-accent: #E23B3B; --sx-muted: #4A5378; --sx-soft: #EFE8D6; --tk-rad: 1.8cqw 1cqw 2.2cqw 1.2cqw; --tk-shadow: none; }
-.sx.tk-sketch .sx-inner { border: .3cqw solid #1F2A5A; }
-.sx.tk-sketch .sx-title { color: #1F2A5A; font-size: calc(5.2cqw * var(--fs)); line-height: 1.05; }
-.sx.tk-sketch.lay-title .sx-title { font-size: calc(7.6cqw * var(--fs)); }
-.sx.tk-sketch .sx-acc { border: .4cqw solid #1F2A5A; border-radius: 2cqw 1cqw 2.4cqw 1.2cqw; }
-.sx.tk-sketch.lay-cards .sx-body li { background: transparent; border: .25cqw dashed #1F2A5A; border-top: .25cqw dashed #1F2A5A; box-shadow: none; }
-/* Коллаж */
-.sx.tk-collage { --tk-frame: #EDEAE4; --sx-bg: #FFFDF8; --sx-ink: #111111; --sx-accent: #C8202F; --sx-muted: #3C3C3C; --sx-soft: #F2E7E3; --tk-rad: .2cqw; --tk-shadow: 0 .6cqw 1.6cqw rgba(0,0,0,.22); }
-.sx.tk-collage .sx-title { text-transform: uppercase; color: #111; letter-spacing: .01em; }
-.sx.tk-collage .sx-title::after { content: ""; display: block; width: 9cqw; height: .7cqw; background: #C8202F; margin-top: .9cqw; }
-.sx.tk-collage.lay-title .sx-title::after { margin: 1.4cqw auto 0; }
-.sx.tk-collage .sx-acc { clip-path: polygon(0 2%, 6% 0, 14% 2.5%, 23% .5%, 33% 2%, 45% 0, 57% 2.5%, 68% .4%, 79% 2.2%, 90% 0, 100% 2%, 98.5% 14%, 100% 28%, 98% 42%, 100% 57%, 98.4% 71%, 100% 86%, 98.6% 100%, 87% 98%, 75% 100%, 62% 97.8%, 50% 100%, 37% 98%, 25% 100%, 12% 97.6%, 0 100%, 1.6% 85%, 0 70%, 1.8% 55%, 0 40%, 1.4% 25%, 0 12%); box-shadow: none; border-radius: 0; }
-.sx.tk-collage.lay-cards .sx-body li { border-top: 0; border-left: .7cqw solid #C8202F; border-radius: .2cqw; }
-.sx.tk-collage.lay-cards .sx-body li:nth-child(odd) { transform: rotate(-.6deg); } .sx.tk-collage.lay-cards .sx-body li:nth-child(even) { transform: rotate(.5deg); }
-/* Тёмный музей */
-.sx.tk-museum { --tk-frame: #141210; --sx-bg: #EFE6D2; --sx-ink: #1A1410; --sx-accent: #8E2A1C; --sx-muted: #4E4236; --sx-soft: #E2D6BC; --tk-rad: 0; --tk-shadow: 0 1cqw 3cqw rgba(0,0,0,.6); }
-.sx.tk-museum .sx-title { color: #8E2A1C; text-transform: uppercase; letter-spacing: .05em; font-weight: 400; }
-.sx.tk-museum .sx-inner { outline: .14cqw solid #B89A5E; outline-offset: -1cqw; }
-.sx.tk-museum .sx-acc { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 88%, 2.4% 80%, .6% 72%, 3% 63%, 1% 55%, 3.4% 46%, .8% 37%, 2.6% 28%, .4% 18%, 2% 9%); border-radius: 0; box-shadow: none; }
-.sx.tk-museum.acc-left .sx-acc { clip-path: polygon(0 0, 100% 0, 98% 9%, 99.6% 18%, 97.4% 28%, 99.2% 37%, 96.6% 46%, 99% 55%, 97% 63%, 99.4% 72%, 97.6% 80%, 100% 88%, 100% 100%, 0 100%); }
-/* Винтаж-мистика */
-.sx.tk-mystic { --tk-frame: #26301F; --sx-bg: #F3EBD8; --sx-ink: #1C2218; --sx-accent: #8C6A22; --sx-muted: #4C5244; --sx-soft: #E7DCC0; --tk-rad: 1cqw; }
-.sx.tk-mystic .sx-inner { outline: .2cqw solid #C9A85C; outline-offset: -1cqw; }
-.sx.tk-mystic .sx-title { color: #3D4B36; font-weight: 400; }
-.sx.tk-mystic .sx-acc { border-radius: 50% 50% 1cqw 1cqw / 26% 26% 1cqw 1cqw; outline: .35cqw solid #C9A85C; outline-offset: .5cqw; box-shadow: none; }
-/* Школьная доска */
-.sx.tk-board { --tk-frame: #6B4A2B; --sx-bg: transparent; --sx-ink: #F4F1E8; --sx-accent: #F2C94C; --sx-muted: #CFE3D6; --sx-soft: rgba(255,255,255,.08); --tk-shadow: none; }
-.sx.tk-board .sx-inner { background: transparent; inset: 5cqw; }
-.sx.tk-board .sx-title { color: #F4F1E8; }
-.sx.tk-board .sx-body strong { color: #F2C94C; }
-.sx.tk-board.lay-cards .sx-body li { background: rgba(255,255,255,.06); border: .2cqw solid rgba(244,241,232,.55); border-top: .2cqw solid rgba(244,241,232,.55); box-shadow: none; }
-.sx.tk-board .sx-acc { border: .5cqw solid #F4F1E8; transform: rotate(-1.5deg); border-radius: .3cqw; }
-.sx.tk-board.lay-steps .sx-body li::before { background: transparent; border: .2cqw solid #F2C94C; color: #F2C94C; }
-
 /* Слайд «На доске» — в любой теме выглядит как школьная доска */
 .sx.k-board .sx-inner { background: #24493A !important; box-shadow: inset 0 0 0 .7cqw #6B4A2B, 0 .5cqw 2cqw rgba(0,0,0,.3) !important; outline: none !important; border: 0 !important; border-radius: .6cqw !important; }
 .sx.k-board { --sx-ink: #F4F1E8; --sx-accent: #F2C94C; --sx-muted: #CFE3D6; --sx-soft: rgba(255,255,255,.08); }
@@ -812,11 +775,8 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .ps-pv { height: 120px; width: 100%; display: flex; align-items: center; justify-content: center; }
 .ps-pv img { max-width: 100%; max-height: 120px; }
 .ps-it small { font-weight: 700; font-size: 12px; text-align: center; }
-/* в «бумажных» темах картинки в тексте слайда выглядят вклеенными: белая кайма, тень, наклон, скотч */
-.sx:is(.tk-collage, .tk-poster, .tk-sketch, .tk-haze, .tk-botanic, .tk-board) .sx-body figure.pic:not(.free) { position: relative; }
-.sx:is(.tk-collage, .tk-poster, .tk-sketch, .tk-haze, .tk-botanic, .tk-board) .sx-body figure.pic img { background: #fff; padding: .7cqw; border-radius: .2cqw; box-shadow: 0 .5cqw 1.4cqw rgba(0,0,0,.28); transform: rotate(-1.6deg); }
-.sx:is(.tk-collage, .tk-poster, .tk-sketch, .tk-haze, .tk-botanic, .tk-board) .sx-body figure.pic:nth-of-type(even) img { transform: rotate(1.8deg); }
-.sx:is(.tk-collage, .tk-poster, .tk-sketch, .tk-haze, .tk-botanic, .tk-board) .sx-body figure.pic:has(img)::before { content: ""; position: absolute; z-index: 2; left: 50%; top: -.4cqw; width: 9cqw; height: 2.2cqw; transform: translateX(-50%) rotate(-3deg); background: rgba(244,227,161,.82); box-shadow: 0 .1cqw .3cqw rgba(0,0,0,.12); }
-.sx.tk-collage .sx-body figure.pic::before { background: rgba(30,30,30,.82) !important; }
-.sx.tk.lay-title.has-photo .sx-inner { inset: 14% 47% 14% 6%; align-items: flex-start; text-align: left; }
+/* картинки внутри текста — как вклеенные: белая кайма и мягкая тень */
+.sx.tk .sx-body figure.pic img { background: #fff; padding: .6cqw; border-radius: .2cqw; box-shadow: 0 .5cqw 1.4cqw rgba(0,0,0,.22); }
+.sx.tk.has-photo .sx-inner { inset: 12% 47% 11% 8%; align-items: flex-start; text-align: left; }
 .sx.tk.lay-title.has-photo .sx-title::after { margin-left: 0; }
+.sx.tk.k-board .sx-inner { padding: 2.4cqw 3.2cqw !important; }

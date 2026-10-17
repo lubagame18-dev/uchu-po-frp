@@ -54,7 +54,13 @@ const SlideEditor = (() => {
     russo: { name: "Russo One + Rubik (ретро-плакат)", h: "Russo One", b: "Rubik", g: ["Russo+One", "Rubik:wght@400;600;700"] },
     caveat: { name: "Caveat + PT Sans (от руки)", h: "Caveat", b: "PT Sans", g: ["Caveat:wght@600;700", "PT+Sans:wght@400;700"] },
     forum: { name: "Forum + PT Serif (музейный)", h: "Forum", b: "PT Serif", g: ["Forum", "PT+Serif:wght@400;700"] },
-    yeseva: { name: "Yeseva One + Lora (винтаж)", h: "Yeseva One", b: "Lora", g: ["Yeseva+One", "Lora:wght@400;600;700"] }
+    yeseva: { name: "Yeseva One + Lora (винтаж)", h: "Yeseva One", b: "Lora", g: ["Yeseva+One", "Lora:wght@400;600;700"] },
+    kurale: { name: "Kurale + PT Serif (галерея)", h: "Kurale", b: "PT Serif", g: ["Kurale", "PT+Serif:wght@400;700"] },
+    oranien: { name: "Oranienbaum + PT Serif (усадьба)", h: "Oranienbaum", b: "PT Serif", g: ["Oranienbaum", "PT+Serif:wght@400;700"] },
+    oldstd: { name: "Old Standard TT + PT Serif (хроника)", h: "Old Standard TT", b: "PT Serif", g: ["Old+Standard+TT:wght@400;700", "PT+Serif:wght@400;700"] },
+    prata: { name: "Prata + Lora (ночная)", h: "Prata", b: "Lora", g: ["Prata", "Lora:wght@400;600;700"] },
+    alice: { name: "Alice + PT Sans (акварель)", h: "Alice", b: "PT Sans", g: ["Alice", "PT+Sans:wght@400;700"] },
+    unbounded: { name: "Unbounded + Manrope (модерн)", h: "Unbounded", b: "Manrope", g: ["Unbounded:wght@500;700", "Manrope:wght@400;600;700"] }
   };
   const fontKey = () => FONTS[L()?.slideFonts] ? L().slideFonts : (window.ThemeKit?.META[theme()]?.font || "classic");
   const fontSet = () => FONTS[fontKey()] || FONTS.classic;
@@ -143,14 +149,15 @@ const SlideEditor = (() => {
     const parts = accPos ? splitAcc(sl.body) : { acc: "", rest: sl.body || "" };
     const acc = accPos && parts.acc ? accPos : "";
     const bg = st.bgimg ? "" : st.bg ? `background:${esc(st.bg)};` : "";
-    const style = `${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${bg}`;
+    const tkv = TK ? ThemeKit.vars(T, L()?.slidePalette) : "";
+    const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
     const body = vid + linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
     const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
-    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "") : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}
+    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${TK && st.kind !== "board" && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
       <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(sl.title)}</${H}>
       <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${body}</div></div>${window.ThemeKit && stk.length ? ThemeKit.stickersHtml(stk, edit) : ""}</div>`;
     return st.free ? applyFree(html, st) : html;
@@ -628,21 +635,33 @@ const SlideEditor = (() => {
       write(a); rerender(); toast("Наклейка вклеена. Перетащите её; колёсико — повернуть, +/− — размер.", 5000);
     } });
   }
-  /* При сборке: картинка титульного слайда — вклеенной наклейкой в стиле темы (как в журнальных презентациях) */
-  const AUTO_PS = { collage: "torn", museum: "torn", poster: "polaroid", sketch: "polaroid", haze: "polaroid", board: "tape", botanic: "tape", night: "stamp", salon: "circle", mystic: "circle" };
-  async function stickerize(md) {
-    const th = theme(), style = AUTO_PS[th]; if (!style || !window.PhotoStk) return md;
-    const head = headOf(md), arr = splitSlides(md).map(parse), sl = arr[0]; if (!sl || !sl.set.acc) return md;
-    const m = new RegExp(Media.RE.source).exec(sl.body); if (!m || !/^idb:/.test(m[2])) return md;
-    const b = await Store.get("images", m[2].slice(4)).catch(() => null); if (!b) return md;
-    try {
-      const r = await PhotoStk.make(b, style, { caption: style === "polaroid" ? String(sl.title).replace(/[«»]/g, "").slice(0, 30) : "" });
-      const id = "img-" + uid(); await Store.put("images", id, r.blob);
-      sl.body = sl.body.replace(m[0], "").trim(); sl.set.acc = undefined; sl.set.photo = 1;
-      const w = r.ar >= 1 ? 40 : 30;
-      sl.set.stk = [...(sl.set.stk || []), { img: "idb:" + id, ar: Math.round(r.ar * 1000) / 1000, x: 56, y: Math.max(4, Math.round(50 - (w * 16 / 9 / r.ar) / 2)), s: w, r: 3 }];
-      return (/marp\s*:/.test(head) ? head.trim() + "\n\n" : "") + arr.map(build).join("\n\n---\n\n") + "\n";
-    } catch { return md; }
+  /* После сборки: палитра «По картине» из главной иллюстрации и вырезанные портреты-наклейки (фон убран, белая обводка) */
+  const wantCut = () => { try { const v = localStorage.getItem("uchu:cutout"); if (v) return v === "1"; } catch { } return !/Mobi|Android/i.test(navigator.userAgent) && (navigator.deviceMemory || 8) >= 4; };
+  async function stickerize(md, { onStep } = {}) {
+    if (!window.ThemeKit) return md;
+    const head = headOf(md), arr = splitSlides(md).map(parse);
+    const idbOf = sl => { const m = new RegExp(Media.RE.source).exec(sl.body || ""); return m && /^idb:/.test(m[2]) ? { m, id: m[2].slice(4) } : null; };
+    // 1) палитра из первой найденной иллюстрации
+    const first = arr.map(idbOf).find(Boolean);
+    if (first) { const b = await Store.get("images", first.id).catch(() => null); if (b) { try { L().slidePalette = await ThemeKit.paletteFrom(b); } catch { } } }
+    // 2) портрет писателя — вырезанной наклейкой (если устройство тянет модель удаления фона)
+    let changed = false;
+    if (wantCut() && window.PhotoStk && ThemeKit.has(theme()) && theme() !== "board") {
+      for (const sl of arr.filter(x => x.set.kind === "author").slice(0, 1)) {
+        const hit = idbOf(sl); if (!hit) continue;
+        const b = await Store.get("images", hit.id).catch(() => null); if (!b) continue;
+        try {
+          onStep?.("Вырезаю портрет для наклейки…");
+          const r = await PhotoStk.make(b, "cut", { cut: true });
+          const id = "img-" + uid(); await Store.put("images", id, r.blob);
+          sl.body = sl.body.replace(hit.m[0], "").trim(); sl.set.acc = undefined; sl.set.photo = 1;
+          const w = r.ar >= 1 ? 44 : Math.min(40, 30 * r.ar + 12);
+          sl.set.stk = [...(sl.set.stk || []), { img: "idb:" + id, ar: Math.round(r.ar * 1000) / 1000, x: 54, y: Math.max(2, Math.round(50 - (w * 16 / 9 / r.ar) / 2)), s: Math.round(w), r: 2 }];
+          changed = true;
+        } catch (e) { console.warn("cutout", e); }
+      }
+    }
+    return changed ? (/marp\s*:/.test(head) ? head.trim() + "\n\n" : "") + arr.map(build).join("\n\n---\n\n") + "\n" : md;
   }
   function bindStickers(fr) {
     const sx = fr.querySelector(".sx"); if (!sx) return;
@@ -1096,7 +1115,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     s.background = { color: bgc };
     // художественный фон темы — картинкой под всем остальным (текст поверх остаётся редактируемым)
     if (sx.querySelector(".sx-deco") && window.ThemeKit) {
-      const lay = autoLayout(sl, i), bgData = await ThemeKit.rasterSvg(ThemeKit.svg(theme(), i, lay === "title" || lay === "section" ? lay : ""), 1280, 720, "image/jpeg");
+      const lay = autoLayout(sl, i), side = ThemeKit.sideOf(lay, sx.matches(".acc") ? (sl.set.acc || "") : sl.set.photo ? "right" : ""), bgData = await ThemeKit.rasterSvg(ThemeKit.svg(theme(), i, lay === "title" || lay === "section" ? lay : "", side, L()?.slidePalette, "bg"), 1280, 720, "image/jpeg");
       if (bgData) s.addImage({ data: bgData, x: 0, y: 0, w: PX / IN, h: PY / IN });
     }
     const addImg = async (img, fig) => {
@@ -1109,6 +1128,12 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     // фон-картинка слайда и картинка-акцент
     const bgImg = sx.querySelector("img.sx-bgimg"); if (bgImg && bgImg.dataset.src) await addImg(bgImg, null);
     for (const fig of sx.querySelectorAll(".sx-acc figure.pic")) { const img = fig.querySelector("img"); if (img) await addImg(img, fig); else { const b = box(fig); s.addShape(pptx.ShapeType.rect, { x: b.x, y: b.y, w: b.w, h: b.h, fill: { color: "EEEEEE" }, line: { color: "BBBBBB", dashType: "dash" } }); } }
+    // бумага под текст (рваный край поверх картинки) — прозрачной картинкой
+    if (sx.querySelector(".sx-paper") && window.ThemeKit) {
+      const lay = autoLayout(sl, i), side = ThemeKit.sideOf(lay, sx.matches(".acc") ? (sl.set.acc || "") : sl.set.photo ? "right" : "");
+      const pd = await ThemeKit.rasterSvg(ThemeKit.svg(theme(), i, lay === "title" || lay === "section" ? lay : "", side, L()?.slidePalette, "paperflat"), 1280, 720);
+      if (pd) s.addImage({ data: pd, x: 0, y: 0, w: PX / IN, h: PY / IN });
+    }
     // подложка текста (наложение на фоновую картинку)
     const inner = sx.querySelector(".sx-inner"), ib = getComputedStyle(inner).backgroundColor;
     if (hex(ib)) {
