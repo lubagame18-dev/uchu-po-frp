@@ -105,7 +105,7 @@ const SlideEditor = (() => {
     return pics ? "two" : "titleText";
   }
   const ANIMS = { soft: "Мягкая", bright: "Яркая", none: "Без анимации" };
-  const anim = () => ({ mode: "soft", cut: false, deco: true, ...(L()?.slideAnim || {}) });
+  const anim = () => ({ mode: "soft", cut: false, deco: true, ix: true, step: false, ...(L()?.slideAnim || {}) });
   const theme = () => (L()?.slideTheme && THEMES[L().slideTheme]) ? L().slideTheme : "bordo";
 
   /* ---------- отрисовка слайда ---------- */
@@ -522,11 +522,15 @@ const SlideEditor = (() => {
     p.insertAdjacentHTML("beforeend", `<div class="pm-h">Показ: анимация</div><div class="an-opts">${Object.entries(ANIMS).map(([k, n]) => `<button class="chip ${k === A.mode ? "on" : ""}" data-anim="${k}">${n}</button>`).join("")}</div>
       <label class="check"><input type="checkbox" id="anCut" ${A.cut ? "checked" : ""}> Заголовок титульного слайда — «вырезан» в картинке</label>
       <label class="check"><input type="checkbox" id="anDeco" ${A.deco ? "checked" : ""}> Полупрозрачные детали на фоне</label>
+      <label class="check"><input type="checkbox" id="anIx" ${A.ix ? "checked" : ""}> Интерактив: карточки-перевороты («термин — значение»), объём при наведении, подсветка за курсором, полоса прогресса</label>
+      <label class="check"><input type="checkbox" id="anStep" ${A.step ? "checked" : ""}> Пошагово: пункты появляются по щелчку (пробел / →)</label>
       <p class="hint">Анимация видна в «▶ Показ» и в HTML; в PowerPoint — плавные переходы между слайдами.</p>`);
     const saveA = ch => { L().slideAnim = { ...anim(), ...ch }; saveLesson(L()); };
     p.querySelectorAll("[data-anim]").forEach(b => b.onclick = () => { saveA({ mode: b.dataset.anim }); p.querySelectorAll("[data-anim]").forEach(x => x.classList.toggle("on", x === b)); });
     p.querySelector("#anCut").onchange = e => saveA({ cut: e.target.checked });
     p.querySelector("#anDeco").onchange = e => saveA({ deco: e.target.checked });
+    p.querySelector("#anIx").onchange = e => saveA({ ix: e.target.checked });
+    p.querySelector("#anStep").onchange = e => saveA({ step: e.target.checked });
     p.querySelectorAll(".lp-mini .sx-body, .lp-mini .sx-acc").forEach(decorate); hydrateBg(p);
     p.querySelectorAll("[data-lay]").forEach(b => b.onclick = () => { const all = p.querySelector("#lpAll").checked; closePop(); set({ layout: b.dataset.lay, afs: undefined }, { all }); L().slidesFitted = false; toast(`Шаблон «${LAYOUTS[b.dataset.lay]}» применён${all ? " ко всем слайдам" : ""}.`); });
   }
@@ -829,12 +833,20 @@ ${css}
 html,body{margin:0;height:100%;background:#222}body{font-family:Arial,"Segoe UI",sans-serif}
 .deck{height:100%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.deck-s{display:none;width:min(100vw,177.78vh)}.deck-s.on{display:block}.deck-s .sx{border-radius:0;box-shadow:none}
 ${anCss(anim())}
+${ixCss(anim())}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
-</style></head><body class="theme-${theme()} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения</div>
+</style></head><body class="theme-${theme()} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
 <script>const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.classList.add('t'+(j%4)));
 document.querySelectorAll('.lay-title').forEach(t=>{const im=t.closest('.deck-s').querySelector('figure.pic img,img.sx-bgimg');if(im&&im.src){t.classList.add('has-cut');t.style.setProperty('--cut','url("'+im.src+'")');}});
-const go=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});};go(${opts.open ? cur : 0});
+const IX=${anim().ix ? 1 : 0},STEP=${anim().step ? 1 : 0};
+const isTerm=li=>{if(li.querySelector('img,table,a'))return null;const t=li.textContent.trim(),k=t.indexOf(' — ');if(k<2||k>32||t.length-k<8)return null;const a=t.slice(0,k);if(a.split(' ').length>4||a!==a.replace(/[.!?:;]/g,''))return null;return [a,t.slice(k+3)];};
+if(IX){document.querySelectorAll('.deck-s .sx-body ul').forEach(ul=>{const items=[...ul.children].filter(x=>x.tagName==='LI');const ok=items.filter(isTerm);if(ok.length<2||ok.length<items.length*.6)return;ok.forEach(li=>{const [a,b]=isTerm(li);li.classList.add('ix-flip');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent=a;const bk=document.createElement('span');bk.className='ix-b';bk.textContent=b;li.append(f,bk);li.title='Щёлкните, чтобы перевернуть';li.addEventListener('click',e=>{e.stopPropagation();li.classList.toggle('flipped');});});});
+document.querySelectorAll('.deck-s .sx-body li:not(.ix-flip),.deck-s figure.pic,.deck-s .sx-body blockquote').forEach(el=>{el.classList.add('ix-tilt');el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*10+'deg');});el.addEventListener('pointerleave',()=>{el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});});
+const sp=document.querySelector('.ix-spot');addEventListener('pointermove',e=>{if(sp){sp.style.setProperty('--mx',e.clientX+'px');sp.style.setProperty('--my',e.clientY+'px');}});}
+const prep=x=>{if(!STEP)return;x.querySelectorAll('.sx-body li,.sx-body>p,.sx-body>blockquote').forEach((b,j)=>{if(j>0||b.tagName==='LI')b.classList.add('ix-hide');b.classList.remove('ix-show');});};
+const go0=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});const pg=document.querySelector('.ix-prog i');if(pg)pg.style.width=((i+1)/s.length*100)+'%';prep(s[i]);};
+const go=k=>{if(STEP&&k===i+1){const h=s[i].querySelector('.ix-hide');if(h){h.classList.remove('ix-hide');h.classList.add('ix-show');return;}}go0(k);};go0(${opts.open ? cur : 0});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});<\/script></body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     if (opts.open) { const w = window.open(URL.createObjectURL(blob), "_blank"); if (!w) { toast("Браузер не дал открыть окно показа — разрешите всплывающие окна или скачайте HTML."); } return; }
@@ -859,6 +871,22 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
 .an-deco .deck::after{width:26vmin;height:26vmin;right:-6vmin;bottom:-8vmin;background:radial-gradient(circle,rgba(255,215,120,.22),rgba(255,215,120,0) 70%);animation-delay:-4s}
 .an-cut .deck-s .lay-title.has-cut .sx-title{background:var(--cut) center/cover;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-stroke:.08cqw rgba(0,0,0,.35);font-weight:900;filter:saturate(1.25) contrast(1.15)}
 @media (prefers-reduced-motion:reduce){.deck-s.on,.deck-s.on *{animation:none!important}}`;
+  }
+  /* Интерактив в показе: карточки-перевороты, объём при наведении, подсветка за курсором, прогресс, пошаговый показ */
+  function ixCss(A) {
+    if (!A.ix && !A.step) return "";
+    return `.ix-on .ix-flip{position:relative;cursor:pointer;perspective:900px;list-style:none;min-height:3.2em}
+.ix-on .ix-flip .ix-f,.ix-on .ix-flip .ix-b{display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .6s cubic-bezier(.2,.8,.2,1);border-radius:.6em;padding:.45em .7em}
+.ix-on .ix-flip .ix-f{font-weight:800;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 2px currentColor}
+.ix-on .ix-flip .ix-b{position:absolute;inset:0;transform:rotateY(180deg);background:rgba(255,255,255,.92);color:#1a1a1a;overflow:auto;font-size:.9em}
+.ix-on .ix-flip.flipped .ix-f{transform:rotateY(-180deg)}.ix-on .ix-flip.flipped .ix-b{transform:rotateY(0)}
+.ix-on .ix-flip::after{content:"⟲";position:absolute;right:.4em;top:.2em;font-size:.7em;opacity:.55}
+.ix-on .ix-tilt{transition:transform .25s ease,box-shadow .25s ease;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
+.ix-on .ix-tilt:hover{box-shadow:0 14px 34px rgba(0,0,0,.22)}
+.ix-prog{position:fixed;left:0;top:0;right:0;height:4px;background:rgba(255,255,255,.12);z-index:8}.ix-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8a4bff,#f05aa6,#ffcf3f);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.ix-spot{position:fixed;inset:0;pointer-events:none;z-index:7;background:radial-gradient(circle 22vmin at var(--mx,-50vw) var(--my,-50vh),rgba(255,255,255,.13),transparent 70%);mix-blend-mode:soft-light}
+.ix-hide{opacity:0!important;transform:translateY(14px)!important;animation:none!important}.ix-show{animation:anBlock .55s cubic-bezier(.2,.8,.2,1) both!important}
+@media (prefers-reduced-motion:reduce){.ix-on .ix-tilt{transform:none}.ix-spot{display:none}}`;
   }
   /* Для PDF: те же слайды, что в редакторе */
   function stageHtml(md) { return `<div class="sx-print theme-${theme()}">${splitSlides(md).map((s, i) => `<div class="sx-frame print" style="page-break-after:always">${slideHtml(parse(s), i)}</div>`).join("")}</div>`; }
