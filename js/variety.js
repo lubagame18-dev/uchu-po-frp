@@ -368,6 +368,26 @@ const Variety = (() => {
   }
 
   /* ---------- 5. Подготовка урока: текст, анализ, образец, формат ---------- */
+  /* Википедия: полная статья о произведении — история создания, сюжет, анализ, тематика, критика */
+  async function wikiDeep(title, sur) {
+    if (!title) return null;
+    const api = q => fetch("https://ru.wikipedia.org/w/api.php?format=json&origin=*&" + q, { signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined }).then(r => r.json());
+    const s = await api(`action=query&list=search&srlimit=3&srsearch=${encodeURIComponent(`${title} ${sur || ""}`.trim())}`);
+    const hit = (s?.query?.search || []).find(h => !sur || (h.snippet || "").includes(sur.slice(0, 5)) || h.title.includes(title.slice(0, 10))); if (!hit) return null;
+    const j = await api(`action=query&prop=extracts&explaintext=1&exsectionformat=wiki&titles=${encodeURIComponent(hit.title)}`);
+    const full = String(Object.values(j?.query?.pages || {})[0]?.extract || ""); if (!full || (sur && !full.includes(sur.slice(0, 5)))) return null;
+    const parts = full.split(/\n(?===+ )/), intro = parts[0].trim();
+    const keep = parts.filter(x => /^==+ *(История|Создани|Сюжет|Содержани|Анализ|Тем|Проблем|Образ|Компози|Художествен|Особенност|Критик|Оценк|Интерпретац|Смысл|Символ)/i.test(x)).map(x => x.replace(/^==+ *([^=]+?) *==+/, "[$1]").trim());
+    return { title: hit.title, url: `https://ru.wikipedia.org/wiki/${encodeURIComponent(hit.title.replace(/ /g, "_"))}`, text: [intro, ...keep].join("\n\n").slice(0, 7000) };
+  }
+  /* Образовательные сайты (РЭШ, «Урок.рф», Инфоурок, nsportal, Мультиурок, «1 сентября»…) — через Яндекс-функцию сайта */
+  async function eduSearch(q, words) {
+    const fn = (window.UCHU_SITE || {}).yandexFunction || window.UCHU_AI_CFG?.yandexFn; if (!fn || !q) return null;
+    const base = fn.replace(/\/+$/, ""), qs = `q=${encodeURIComponent(q)}&w=${encodeURIComponent(words.join(","))}`;
+    const u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/edu")}&${qs}` : `${base}/edu?${qs}`;
+    const r = await fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined }); if (!r.ok) return null;
+    const j = await r.json(); return j?.ok ? j : null;
+  }
   async function findText(p, L) {
     if (p.textOverride?.text) return { text: p.textOverride.text, source: p.textOverride.source || "текст учителя" };
     // 1) текст, который учитель вставил в заметки
@@ -408,10 +428,20 @@ const Variety = (() => {
     const sample = samples[0] || null;
     const st = p.subject === "lit" ? adaptStages(type, p, A, sample, fmt) : { stages: type.stages.slice(), note: "" };
     const plan = { text: found ? String(found.text).slice(0, 40000) : null, analysis: A, format: fmt, sample: sample ? { topic: sample.topic, src: sample.src, num: sample.num, epigraph: sample.epigraph, questions: sample.questions.slice(0, 40).map(q => q.text) } : null, stages: st.stages, structureNote: st.note, textSource: found ? found.source : null, textUrl: found?.url || null, used: [] };
-    // открытые источники: статья о произведении (Википедия) — для проблемного вопроса и ориентира учителя
-    if (p.subject === "lit" && title && typeof Base !== "undefined" && Base.wikiSummary) {
-      try { const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : ""; const w = await Promise.race([Base.wikiSummary(`${title}${sur ? " (" + sur + ")" : ""}`), new Promise(r => setTimeout(() => r(null), 6000))]); const t = w?.extract || w?.text || (typeof w === "string" ? w : ""); if (t && (!sur || t.includes(sur.slice(0, 5)))) plan.workWiki = String(t).slice(0, 3000); } catch { }
+    // открытые и образовательные источники (параллельно, с ограничением по времени — урок не ждёт дольше 12 с)
+    if (p.subject === "lit" && (title || author)) {
+      const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
+      const [wk, edu] = await Promise.all([wikiDeep(title, sur).catch(() => null), eduSearch(`${title ? "«" + title + "» " : ""}${author || ""}`.trim(), [title, sur].filter(Boolean)).catch(() => null)]);
+      if (wk) { plan.workWiki = wk.text; plan.wikiUrl = wk.url; plan.wikiTitle = wk.title; }
+      if (edu?.results?.length) plan.edu = edu.results;
     }
+    if (p.subject === "ru") { // русский язык: разработки уроков и тренажёры по теме (РЭШ, «Урок.рф», Инфоурок…)
+      const core = String(p.topic).replace(/[«»]/g, "").slice(0, 120);
+      const edu = await eduSearch(`${core} ${p.grade} класс русский язык`, core.toLowerCase().split(/[\s,]+/).filter(w => w.length > 4).slice(0, 3)).catch(() => null);
+      if (edu?.results?.length) plan.edu = edu.results;
+    }
+    // все разработки уроков по произведению из встроенной базы — вопросы для поиска проблемного
+    plan.sampleQs = samples.flatMap(sm => (sm.questions || []).map(q => ({ q: q.text || String(q), src: sm.src, topic: sm.topic }))).slice(0, 120);
     // методический набор урока литературы: фрагменты, вопросы с ответами, словарь, термины, выводы
     if (p.subject === "lit" && typeof LitKit !== "undefined") { try { plan.kit = LitKit.build(p, plan); } catch (e) { console.warn("LitKit", e); } }
     // профиль урока русского языка: свой формат для орфографии, пунктуации, синтаксиса, лексики, стилей…

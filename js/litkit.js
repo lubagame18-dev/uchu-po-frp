@@ -315,7 +315,13 @@ const LitKit = (() => {
   function problemOf(p, A, plan) {
     const work = (p.topic.match(/«([^»]+)»/) || [])[1], wl = work ? work.toLowerCase().slice(0, 12) : "";
     problemOf.src = ""; problemOf.note = "";
-    // 2) образовательные материалы: проблемный вопрос из разработки урока именно по этому произведению
+    // 2а) образовательные сайты (найдено в интернете): проблемный вопрос из разработок учителей по этому произведению
+    const short = x => String(x).replace(/\s+/g, " ").trim();
+    const eduP = (plan?.edu || []).flatMap(r => (r.problem || []).map(q => ({ q: short(q), src: r.domain, url: r.url }))).filter(x => x.q.length > 20 && x.q.length < 220 && /\?/.test(x.q) && PROBLEMISH.test(x.q));
+    if (eduP.length) { const best = eduP.sort((x, y) => (/почему|противореч|парадокс|разве|если/i.test(y.q) ? 1 : 0) - (/почему|противореч|парадокс|разве|если/i.test(x.q) ? 1 : 0))[0]; problemOf.src = `образовательный сайт: ${best.src}`; problemOf.note = `Источник: ${best.url}`; return best.q; }
+    // 2б) все встроенные разработки уроков по произведению
+    const sqAll = (plan?.sampleQs || []).filter(x => (!x.topic || !wl || String(x.topic).toLowerCase().includes(wl)) && x.q.length > 25 && x.q.length < 220 && /\?/.test(x.q) && PROBLEMISH.test(x.q) && /почему|противореч|парадокс|разве|если|как совместить/i.test(x.q));
+    if (sqAll.length) { problemOf.src = `образовательный материал: ${sqAll[0].src || "разработка урока"}`; return sqAll[0].q.trim(); }
     const sq = (plan?.sample?.questions || []).map(String).filter(q => q.length > 25 && q.length < 220 && /\?/.test(q) && PROBLEMISH.test(q) && (!plan.sample.topic || !wl || String(plan.sample.topic).toLowerCase().includes(wl)));
     if (sq.length) { problemOf.src = `образовательный материал: ${plan.sample.src || "разработка урока"}`; return sq.sort((x, y) => (/почему|противореч|парадокс|разве/i.test(y) ? 1 : 0) - (/почему|противореч|парадокс|разве/i.test(x) ? 1 : 0))[0].trim(); }
     // 3) открытые источники: в статье о произведении названо противоречие (конфликт, протест, одиночество…)

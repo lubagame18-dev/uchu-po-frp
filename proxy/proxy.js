@@ -10,6 +10,7 @@
  *   POST /gigachat/v1/chat/completions    заголовок X-GigaChat-Key (если ключа нет на сервере)
  *   POST /yandex/v1/chat/completions      заголовки X-Yandex-Key, X-Yandex-Folder
  *   GET  /images?q=<запрос>               поиск картинок через Яндекс (Yandex Search API), для слайдов
+ *   GET  /edu?q=<запрос>&w=<слова>         поиск по образовательным сайтам: ссылки + короткие методические выдержки
  *   GET  /img?url=<адрес картинки>        скачать найденную картинку (чтобы её можно было обрезать и вставить в PowerPoint)
  *   POST /relay?url=<адрес>               «крайняя мера»: пересылка к зарубежным нейросетям
  *                                         (OpenRouter, Pollinations, DeepSeek, Gemini, Claude),
@@ -64,6 +65,53 @@ async function yandexImages(q, n) {
   })).filter(x => /^https?:\/\//.test(x.url));
   imgCache.set(ck, { at: Date.now(), items }); if (imgCache.size > 500) imgCache.delete(imgCache.keys().next().value);
   return items;
+}
+/* Поиск по образовательным сайтам (Yandex Search API, тот же ключ, что для картинок).
+   Возвращает ссылки и КОРОТКИЕ выдержки (вопросы, проблемные вопросы, тезисы анализа ≤ 300 знаков) с указанием источника. */
+const EDU = /(^|\.)(resh\.edu\.ru|урок\.рф|xn--j1ahfl\.xn--p1ai|infourok\.ru|nsportal\.ru|multiurok\.ru|urok\.1sept\.ru|kopilkaurokov\.ru|pedsovet\.su|uchitelya\.com|prodlenka\.org|videouroki\.net|interneturok\.ru|foxford\.ru|lit\.wikireading\.ru|feb-web\.ru|ruslit\.traumlibrary\.net|litra\.ru|obrazovaka\.ru|pishi-stihi\.ru|rustih\.ru|wikipedia\.org|ilibrary\.ru|gramota\.ru|rusyaz-online\.ru|licey\.net|ped-kopilka\.ru|1sept\.ru)$/i;
+const eduCache = new Map();
+async function yandexWeb(q, n = 10) {
+  const body = JSON.stringify({ query: { searchType: "SEARCH_TYPE_RU", queryText: q, familyMode: "FAMILY_MODE_STRICT", page: 0, fixTypoMode: "FIX_TYPO_MODE_ON" }, groupSpec: { groupMode: "GROUP_MODE_DEEP", groupsOnPage: n, docsInGroup: 1 }, folderId: YS.folder, responseFormat: "FORMAT_XML" });
+  const res = await request("https://searchapi.api.cloud.yandex.net/v2/web/search", { headers: { Authorization: "Api-Key " + YS.key, "Content-Type": "application/json" }, body, timeout: 20000 });
+  const text = await readAll(res);
+  if (res.statusCode !== 200) throw Object.assign(new Error("Поиск Яндекса ответил " + res.statusCode + ": " + text.slice(0, 200)), { status: res.statusCode === 401 || res.statusCode === 403 ? 401 : 502 });
+  const xml = Buffer.from(JSON.parse(text).rawData || "", "base64").toString("utf8");
+  const clean = s => String(s || "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
+  const tag = (d, t) => { const m = d.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)); return m ? clean(m[1]) : ""; };
+  return (xml.match(/<doc[\s>][\s\S]*?<\/doc>/g) || []).map(d => ({ url: tag(d, "url"), domain: tag(d, "domain"), title: tag(d, "title"), snippet: (d.match(/<passage>[\s\S]*?<\/passage>/g) || []).map(clean).join(" … ").slice(0, 400) })).filter(x => /^https?:\/\//.test(x.url));
+}
+async function fetchPageText(url, depth = 0) {
+  const u = new URL(url); if (!/^https?:$/.test(u.protocol) || /^(localhost|127\.|10\.|192\.168\.|169\.254\.)/.test(u.hostname)) return "";
+  const res = await request(u.href, { method: "GET", headers: { "User-Agent": "Mozilla/5.0 (uchu-po-frp)", Accept: "text/html" }, timeout: 9000 }).catch(() => null);
+  if (!res) return "";
+  if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && depth < 2) { res.resume(); return fetchPageText(new URL(res.headers.location, u).href, depth + 1); }
+  if (res.statusCode !== 200 || !/html|text/.test(String(res.headers["content-type"] || ""))) { res.resume(); return ""; }
+  const ch = []; let size = 0; for await (const c of res) { size += c.length; if (size > 1.5 * 1024 * 1024) break; ch.push(c); }
+  let html = Buffer.concat(ch).toString("utf8"); if ((html.match(/\uFFFD/g) || []).length > 50) html = new TextDecoder("windows-1251").decode(Buffer.concat(ch));
+  return html.replace(/<(script|style|nav|header|footer|aside|noscript)[\s\S]*?<\/\1>/gi, " ").replace(/<br\s*\/?>|<\/(p|li|h\d|div|tr)>/gi, "\n").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&quot;/g, '"').replace(/&laquo;/g, "«").replace(/&raquo;/g, "»").replace(/&mdash;/g, "—").replace(/&amp;/g, "&").replace(/[ \t]+/g, " ");
+}
+// из страницы — только короткие методические выдержки: проблемные вопросы, вопросы к тексту, тезисы о конфликте
+function eduExtract(text, words) {
+  const lines = text.split(/\n+/).map(x => x.trim()).filter(x => x.length > 20 && x.length < 300);
+  const on = l => !words.length || words.some(w => l.toLowerCase().includes(w));
+  const problem = lines.filter(l => /проблемн\S* вопрос/i.test(l) && /\?/.test(l)).map(l => l.replace(/^.*?проблемн\S* вопрос\S*\s*[:—–-]?\s*/i, "")).filter(l => l.length > 15);
+  const qs = lines.filter(l => /\?\s*$/.test(l) && /почему|зачем|как|чем|что|в ч[её]м|можно ли/i.test(l) && on(l)).slice(0, 12);
+  const theses = lines.filter(l => /противопостав|конфликт|контраст|противореч|антитез|символ|бунт|протест|одиночеств|свобод/i.test(l) && !/\?/.test(l) && on(l)).slice(0, 6);
+  return { problem: [...new Set(problem)].slice(0, 4), questions: [...new Set(qs)].slice(0, 8), theses: [...new Set(theses)].slice(0, 4) };
+}
+async function eduSearch(q, words) {
+  const ck = q; const hit = eduCache.get(ck); if (hit && Date.now() - hit.at < 24 * 3600e3) return hit.data;
+  const found = [];
+  for (const qq of [q + " урок литературы проблемный вопрос конспект", q + " анализ произведения", q + " разработка урока вопросы к тексту"]) {
+    try { for (const r of await yandexWeb(qq, 10)) if (EDU.test(r.domain || new URL(r.url).hostname) && !found.some(x => x.url === r.url)) found.push(r); } catch (e) { if (e.status === 401) throw e; }
+    if (found.length >= 8) break;
+  }
+  const top = found.slice(0, 5);
+  const pages = await Promise.all(top.map(r => Promise.race([fetchPageText(r.url).catch(() => ""), new Promise(res => setTimeout(() => res(""), 10000))])));
+  const results = found.slice(0, 8).map((r, i) => ({ url: r.url, domain: r.domain, title: r.title, snippet: r.snippet, ...(pages[i] ? eduExtract(pages[i], words) : {}) }));
+  const data = { ok: true, results };
+  eduCache.set(ck, { at: Date.now(), data }); if (eduCache.size > 300) eduCache.delete(eduCache.keys().next().value);
+  return data;
 }
 /* Скачивание картинки: только изображения, не больше 8 МБ */
 async function fetchImage(url, depth = 0) {
@@ -245,7 +293,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 10, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 11, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -254,6 +302,12 @@ async function handler(req, res) {
     if (limited(ip)) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
     try { return send(res, 200, { ok: true, items: await yandexImages(q, Math.min(30, Math.max(4, +u.searchParams.get("n") || 16))) }); }
     catch (e) { return send(res, 200, { ok: false, reason: e.reason || "search", message: e.message }); }
+  }
+  if (req.method === "GET" && route === "/edu") {
+    if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });
+    const q = String(u.searchParams.get("q") || "").slice(0, 200).trim(); if (!q) return send(res, 400, { error: "нужен q" });
+    const words = String(u.searchParams.get("w") || "").toLowerCase().split(/[,\s]+/).filter(w => w.length > 3).slice(0, 6);
+    try { return send(res, 200, await eduSearch(q, words)); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
   }
   if (req.method === "GET" && route === "/img") {
     try { const r = await fetchImage(String(u.searchParams.get("url") || "")); res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "public, max-age=86400" }); return res.end(r.buf); }

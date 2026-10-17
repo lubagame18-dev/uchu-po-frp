@@ -2288,6 +2288,7 @@ const Engine = (() => {
     const A5 = p.plan?.analysis;
     const obs = A5 ? [A5.anaphora && `анафора «${A5.anaphora.word}…»`, A5.pairs?.length && `антитеза «${A5.pairs.map(x => x.join(" — ")).slice(0, 2).join("», «")}»`, A5.similes?.length && `сравнение «${A5.similes[0]}»`, A5.epithets?.length && `эпитеты «${A5.epithets.slice(0, 2).join("», «")}»`, A5.turn && `композиционный перелом на строке «${A5.turn.line.replace(/[\s,;:—–-]+$/, "")}»`, A5.ring && "кольцевая композиция", A5.colors?.length && `цветопись: ${A5.colors.slice(0, 3).join(", ")}`, A5.sounds?.length && `звуковые образы: ${A5.sounds.slice(0, 3).join(", ")}`].filter(Boolean) : [];
     if (ru && window.RuKit && p.plan?.rukit) md += RuKit.conspectMd(p.plan.rukit) + "\n";
+    if (ru && p.plan?.edu?.length) { const ed = p.plan.edu.slice(0, 5); md += `\n## Опора из источников (для учителя)\n\n${ed.map(r => `- **${r.domain}** — [${(r.title || r.url).replace(/[\[\]]/g, "").slice(0, 90)}](${r.url})${r.questions?.[0] ? `  \n  Вопрос коллег: «${r.questions[0].slice(0, 160)}»` : r.snippet ? `  \n  ${r.snippet.slice(0, 180)}…` : ""}`).join("\n")}\n\n*Короткие выдержки — полные разработки и тренажёры по ссылкам.*\n\n`; }
     if (!ru && obs.length) md += `> 💡 ВАЖНО: наблюдения по тексту (${A5.source}) — ${obs.join("; ")}.\n\n`;
     md += rules.length ? rules.map(r => `> 💡 ВАЖНО: ${r.text} *(${r.source})*`).join("\n\n") : (!ru && obs.length ? "" : ru && p.plan?.rukit?.theory?.length ? "" : `> 💡 ВАЖНО: ⟦${ru ? "правило урока — сформулируйте по учебнику; справка — в разделе «Из открытых источников»" : "ключевой вывод урока"}⟧`);
     if (!ru) md += `\n\n> 🔍 ПОДТЕКСТ: ⟦главный скрытый смысл — сформулируйте после анализа текста⟧`;
@@ -2295,6 +2296,14 @@ const Engine = (() => {
     const kit = !ru ? p.plan?.kit : null;
     if (kit) {
       md += `\n\n## Проблемный вопрос урока\n\n> ${kit.problem}\n\n${kit.problemSrc ? `*Откуда вопрос:* ${kit.problemSrc}.${kit.problemNote ? ` ${kit.problemNote}` : ""}\n\n` : ""}*Ожидаемый ответ (для учителя, звучит в конце урока):* ${kit.answer || "ученики формулируют главную мысль с опорой на 2–3 цитаты из разных фрагментов."}\n`;
+      // опора из источников: статья о произведении и разработки учителей (короткие выдержки со ссылками)
+      { const pl = p.plan, ed = (pl.edu || []).filter(r => (r.problem?.length || r.questions?.length || r.theses?.length)).slice(0, 4);
+        if (pl.workWiki || ed.length) {
+          md += `\n## Опора из источников (для учителя)\n\n`;
+          if (pl.workWiki) { const sents = pl.workWiki.replace(/\[[^\]]+\]/g, "").split(/(?<=[.!?])\s+/); const pick = [sents[0], ...sents.filter(x => /противопостав|конфликт|контраст|противореч|символ|протест|бунт|одиночеств|свобод/i.test(x)).slice(0, 2), ...sents.filter(x => /создан|написан/i.test(x)).slice(1, 2)].filter(Boolean); md += `- **${esc(pl.wikiTitle || "Википедия")}** ([статья](${pl.wikiUrl})): ${[...new Set(pick)].map(x => x.trim()).join(" ").slice(0, 600)}\n`; }
+          for (const r of ed) md += `- **${r.domain}** — [${(r.title || r.url).replace(/[\[\]]/g, "").slice(0, 90)}](${r.url})${r.problem?.[0] ? `  \n  Проблемный вопрос коллег: «${r.problem[0].slice(0, 200)}»` : ""}${r.questions?.length ? `  \n  Вопросы к тексту: ${r.questions.slice(0, 2).map(x => `«${x.slice(0, 160)}»`).join("; ")}` : ""}${r.theses?.[0] ? `  \n  Тезис: «${r.theses[0].slice(0, 200)}»` : ""}\n`;
+          md += `\n*Выдержки короткие; полный материал — по ссылкам. Используйте как опору для своих вопросов, а не как готовые ответы.*\n`;
+        } }
       md += `\n## Фрагменты для работы\n\n*Текст — дословно${p.plan.textSource ? ` (${p.plan.textSource})` : ""}. Эти же фрагменты выводятся на слайды; в рабочем листе ссылки на них по номерам.*\n\n`;
       for (const f of kit.fragments) {
         const qa = (kit.qa.find(x => x.n === f.n) || { items: [] }).items;
@@ -3626,6 +3635,7 @@ function promptDesign(p) {
 5. Где ученики вероятно ошибутся или застрянут — и какой наводящий вопрос (не ответ!) поможет.
 6. Виды деятельности и как разнообразить урок (чтение, письмо, пары, группы, сопоставление, творческое задание), дифференциация для сильных и слабых.
 7. Как рефлексия вернёт учеников к проблемному вопросу.
+${p.plan?.workWiki ? `\nИз статьи о произведении (открытый источник): ${String(p.plan.workWiki).slice(0, 1500)}\n` : ""}${p.plan?.edu?.length ? `\nИз разработок учителей (образовательные сайты): ${p.plan.edu.flatMap(r => [...(r.problem || []), ...(r.questions || []).slice(0, 2)].map(x => `«${x}» (${r.domain})`)).slice(0, 12).join("; ")}\n` : ""}${p.plan?.kit?.problem ? `\nПроблемный вопрос, найденный сайтом: «${p.plan.kit.problem}» (${p.plan.kit.problemSrc || ""}). Если он слабый — предложи лучше, на конфликте.\n` : ""}
 Не пиши сам конспект — только замысел. Не выдумывай цитаты и факты: если не уверен в точной цитате, опиши место текста словами.`;
 }
 /* Общий промт — подходит для любого урока; его можно скопировать и переделать урок в любой нейросети */
@@ -4009,7 +4019,7 @@ async function preparePlan(L, p, type) {
     try {
       const K = p.plan.kit, txt = String(p.plan.text || "").slice(0, 3500);
       const prompt = `Ты — методист-словесник. Найди в произведении «${p.topic}» (${p.grade} класс) СМЫСЛОВОЙ КОНФЛИКТ — несостыковку, которая удивит ученика (герой хочет одного, а делает другое; картина спокойна, а герой ищет бури; слово противоречит ситуации). На нём построй проблемный вопрос урока: простой, живой, понятный ребёнку, без канцелярита, с опорой на конкретную строку.
-${txt ? `Текст:\n${txt}\n` : ""}Кандидаты, найденные сайтом: «${K.problem}»${p.plan.sample?.src ? ` (из материалов: ${p.plan.sample.src})` : ""}.${p.plan.workWiki ? `\nИз открытых источников: ${p.plan.workWiki.slice(0, 800)}` : ""}
+${txt ? `Текст:\n${txt}\n` : ""}Кандидаты, найденные сайтом: «${K.problem}»${p.plan.sample?.src ? ` (из материалов: ${p.plan.sample.src})` : ""}.${p.plan.workWiki ? `\nИз открытых источников: ${p.plan.workWiki.slice(0, 1200)}` : ""}${p.plan.edu?.length ? `\nИз разработок учителей: ${p.plan.edu.flatMap(r => [...(r.problem || []), ...(r.questions || []).slice(0, 2)]).slice(0, 10).map(x => `«${x}»`).join("; ")}` : ""}
 Верни JSON: {"problem":"вопрос","conflict":"в чём несостыковка (1 предложение, для учителя)","quotes":["строка 1","строка 2"]}. Цитаты — только дословно из текста.`;
       const r = await caps.sample(prompt, { modelTier: "default", cache: true });
       const j = JSON.parse((String(r.text).match(/\{[\s\S]*\}/) || ["{}"])[0]);
