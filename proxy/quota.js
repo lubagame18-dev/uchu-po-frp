@@ -44,8 +44,10 @@ async function promo(userToken, code, request, readAll) {
   if (!on() || !userToken) return { ok: true };
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
   if (u.status !== 200 || !u.json?.id) return { ok: false, status: 401, message: "войдите в кабинет" };
-  await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: u.json.id, plan: "promo", ai_left: 0 } }).catch(() => null);
-  await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { plan: "promo" } });
+  // промокод — отметка promo (скидка 50% на тарифы, своя нейросеть вместо ИИ сайта); тариф не меняется
+  await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: u.json.id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: 0 } }).catch(() => null);
+  const r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo: true } });
+  if (r.status >= 300) await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { plan: "promo" } }); // колонки promo ещё нет — по-старому
   return { ok: true };
 }
 /* Автор сайта: вошёл в кабинет почтой из таблицы site_admins */

@@ -56,3 +56,6 @@ insert into site_admins (email) select email from auth.users on conflict do noth
 -- ключи DeepSeek (ячейки 1–5 из режима разработчика): политик нет — читает и пишет только сервер секретным ключом
 create table if not exists ai_keys (slot int primary key check (slot between 1 and 5), label text, key text, base_url text, is_active boolean not null default true, updated_at timestamptz default now());
 alter table ai_keys enable row level security;
+
+-- промокод: отметка у учителя (скидка 50% на тарифы)
+alter table profiles add column if not exists promo boolean not null default false;

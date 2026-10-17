@@ -125,8 +125,16 @@ const Account = (() => {
   async function sharedGet(id) { await refresh(); return (await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}&select=*`))?.[0] || null; }
   async function sharedDel(id) { await refresh(); await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" }); }
 
-  const PLAN_NAMES = { free: "бесплатный", basic: "«Учитель» (без ИИ)", ai: "«Учитель + ИИ»", pro: "«Методист»" };
-  async function plan() { try { if (!(await refresh())) return null; const p = (await api(`/rest/v1/profiles?id=eq.${S.uid}&select=plan,ai_left,paid_until`))?.[0] || null; if (p && S) { S.plan = p.plan; save(); window.Access?.paint(); } return p; } catch { return null; } }
+  const PLAN_NAMES = { promo: "бесплатный", free: "бесплатный", basic: "«Учитель» (без ИИ)", ai: "«Учитель + ИИ»", pro: "«Методист»" };
+  async function plan() {
+    try {
+      if (!(await refresh())) return null;
+      const q = f => api(`/rest/v1/profiles?id=eq.${S.uid}&select=${f}`);
+      const p = (await q("plan,ai_left,paid_until,promo").catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // колонки promo может ещё не быть
+      if (p && S) { S.plan = p.plan; S.promo = !!p.promo || p.plan === "promo"; save(); window.Access?.paint(); }
+      return p;
+    } catch { return null; }
+  }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
   const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "разделы разработчика" : "вход для разработчика"}</button></div>`;
   function bindDev(m) { const b = m.querySelector("#acDev"); if (b) b.onclick = () => { closeModal(); if (window.Dev?.on) window.Dev.show("files"); else window.Dev?.openLogin(); }; }
@@ -155,7 +163,7 @@ const Account = (() => {
       m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; await saveInfo(fields()); pm.textContent = "Сохранено ✓"; };
       m.querySelector("#acPhoto").onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { pm.textContent = "Загружаю фото…"; await saveInfo({ ...fields(), avatar: await shrink(f) }); closeModal(); open(); } catch (er) { pm.textContent = "Не получилось: " + er.message; } };
       m.querySelector("#acNoPhoto")?.addEventListener("click", async () => { await saveInfo({ ...fields(), avatar: null }); closeModal(); open(); });
-      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}<br><b>Уроков с ИИ осталось:</b> ${p.ai_left ?? "—"}` : `<b>Тариф:</b> бесплатный`; });
+      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${S.promo ? " · промокод −50%" : ""}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}${S.promo ? "" : `<br><b>Уроков с ИИ осталось:</b> ${p.ai_left ?? "—"}`}` : `<b>Тариф:</b> бесплатный`; });
       if (m.querySelector("#acSync")) m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };
       return;
