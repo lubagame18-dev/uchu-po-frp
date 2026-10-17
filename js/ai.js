@@ -220,6 +220,8 @@ const AI = (() => {
     const prompt = (Array.isArray(input) ? input.map(t => (t.role === "assistant" ? "Ассистент: " : "") + t.content).join("\n\n") : String(input)) + (!opts.noRules && window.Rules ? Rules.aiSuffix() : "");
     const st = status(), now = Date.now();
     // провайдеры, упавшие по лимиту в последние 10 минут, — в конец очереди
+    // opts.only — конкретная нейросеть (например, Claude для «Обучения сайта»)
+    if (opts.only && list.includes(opts.only)) list.splice(0, list.length, opts.only);
     const order = [...list.filter(id => !(st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)), ...list.filter(id => st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)];
     let lastErr = null, prev = null;
     for (const id of order) {

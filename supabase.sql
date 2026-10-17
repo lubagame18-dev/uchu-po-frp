@@ -89,3 +89,6 @@ alter table profiles add column if not exists tokens_limit bigint not null defau
 -- бесплатный тариф: счёт уроков по кабинету, устройству и сети (только сервер)
 create table if not exists free_usage (key text not null, month text not null, n int not null default 0, updated_at timestamptz default now(), primary key (key, month));
 alter table free_usage enable row level security;
+
+-- общие ключи: любая нейросеть — модель для каждой ячейки
+alter table ai_keys add column if not exists model text;

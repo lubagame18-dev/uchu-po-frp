@@ -51,7 +51,7 @@ async function dbPool(request, readAll, force) {
 }
 /* Все аккаунты: сначала ячейки с сайта, потом из переменных функции */
 async function pool(request, readAll, force) {
-  const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, email: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), isActive: a.is_active !== false }));
+  const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, email: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.is_active !== false }));
   return db.concat(loadPool());
 }
 const isPlaceholder = k => !k || /^\.+$/.test(k) || /^(sk-)?\.{2,}/.test(k) || k.length < 10;
@@ -73,26 +73,57 @@ async function queue(request, readAll) {
 const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
 
 /* Запрос к DeepSeek с переключением аккаунтов. request — функция из proxy.js (Node https). */
-async function chat(body, request, readAll) {
-  const accounts = await queue(request, readAll);
-  if (!accounts.length) { const e = new Error("на сервере не настроен ни один аккаунт DeepSeek"); e.status = 503; e.reason = "no_key"; throw e; }
-  const payload = JSON.stringify({ ...body, model: body.model && !/^deepseek-(chat|reasoner)$/.test(body.model) ? body.model : MODEL, stream: false });
+/* ---------- любые нейросети: сервис узнаётся по ключу (или по адресу) ---------- */
+const PROVIDERS = [
+  { id: "anthropic", name: "Claude (Anthropic)", re: /^sk-ant-/, url: /anthropic\.com/, base: "https://api.anthropic.com/v1", model: "claude-sonnet-5-5", native: true },
+  { id: "openrouter", name: "OpenRouter", re: /^sk-or-/, url: /openrouter\.ai/, base: "https://openrouter.ai/api/v1", model: "openrouter/auto" },
+  { id: "gemini", name: "Gemini (Google)", re: /^AIza/, url: /generativelanguage/, base: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash" },
+  { id: "groq", name: "Groq", re: /^gsk_/, url: /groq\.com/, base: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" },
+  { id: "xai", name: "Grok (xAI)", re: /^xai-/, url: /x\.ai/, base: "https://api.x.ai/v1", model: "grok-3-mini" },
+  { id: "openai", name: "OpenAI", re: /^sk-(proj|svcacct|admin)-/, url: /openai\.com/, base: "https://api.openai.com/v1", model: "gpt-4o-mini" },
+  { id: "mistral", name: "Mistral", re: /^$/, url: /mistral\.ai/, base: "https://api.mistral.ai/v1", model: "mistral-small-latest" },
+  { id: "deepseek", name: "DeepSeek", re: /^sk-[0-9a-f]{20,}$/i, url: /deepseek\.com/, base: API, model: MODEL }
+];
+function providerOf(a) {
+  const p = (a.url && PROVIDERS.find(x => x.url.test(a.url))) || PROVIDERS.find(x => x.re.test(a.key || "")) || (a.url ? { id: "custom", name: "Свой сервис", base: a.url, model: "" } : PROVIDERS[PROVIDERS.length - 1]);
+  return { ...p, base: a.url || p.base, model: a.model || p.model };
+}
+/* Claude: свой формат (Messages API) → ответ приводится к виду OpenAI, чтобы сайт работал одинаково */
+async function claudeCall(a, P, body, request, readAll) {
+  const sys = (body.messages || []).filter(m => m.role === "system").map(m => String(m.content)).join("\n\n");
+  const msgs = []; for (const m of (body.messages || []).filter(m => m.role !== "system")) { const role = m.role === "assistant" ? "assistant" : "user", c = typeof m.content === "string" ? m.content : JSON.stringify(m.content); if (msgs.length && msgs[msgs.length - 1].role === role) msgs[msgs.length - 1].content += "\n\n" + c; else msgs.push({ role, content: c }); }
+  if (!msgs.length || msgs[0].role !== "user") msgs.unshift({ role: "user", content: "Начни." });
+  const res = await request(P.base.replace(/\/v1$/, "") + "/v1/messages", { headers: { "x-api-key": a.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ model: P.model, max_tokens: Math.min(+body.max_tokens || 8192, 32000), ...(sys ? { system: sys } : {}), messages: msgs, ...(body.temperature != null ? { temperature: body.temperature } : {}) }), timeout: 120000 });
+  const t = await readAll(res);
+  if (res.statusCode !== 200) return { statusCode: /credit balance/i.test(t) ? 402 : res.statusCode, text: t };
+  const j = JSON.parse(t || "{}"), text = (j.content || []).filter(x => x.type === "text").map(x => x.text).join("");
+  const u = j.usage || {};
+  return { statusCode: 200, text: JSON.stringify({ id: j.id, model: j.model, object: "chat.completion", choices: [{ index: 0, message: { role: "assistant", content: text }, finish_reason: j.stop_reason === "max_tokens" ? "length" : "stop" }], usage: { prompt_tokens: u.input_tokens || 0, completion_tokens: u.output_tokens || 0, total_tokens: (u.input_tokens || 0) + (u.output_tokens || 0) } }) };
+}
+async function chat(body, request, readAll, onlySlot) {
+  let accounts = await queue(request, readAll);
+  if (onlySlot) accounts = (await pool(request, readAll)).filter(a => a.slot === +onlySlot && !isPlaceholder(a.key));
+  if (!accounts.length) { const e = new Error("на сервере не настроен ни один общий ключ нейросети"); e.status = 503; e.reason = "no_key"; throw e; }
   let lastErr = null;
   for (const a of accounts) {
     try {
-      const res = await request((a.url || API) + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: payload, timeout: 120000 });
-      const text = await readAll(res);
+      const P = providerOf(a);
+      // модель — из ячейки (или по умолчанию для сервиса); у DeepSeek — то, что просит сайт
+      const model = a.model || (P.id === "deepseek" && body.model && !/^deepseek-(chat|reasoner)$/.test(body.model) ? body.model : P.model);
+      let res, text;
+      if (P.native) { const r = await claudeCall(a, { ...P, model }, body, request, readAll); res = { statusCode: r.statusCode }; text = r.text; }
+      else { res = await request(P.base + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json", ...(P.id === "openrouter" ? { "HTTP-Referer": "https://lubagame18-dev.github.io/uchu-po-frp/", "X-Title": "Uchu po FRP" } : {}) }, body: JSON.stringify({ ...body, model, stream: false }), timeout: 120000 }); text = await readAll(res); }
       if (res.statusCode === 200) { rest.delete(a.id); last.set(a.id, { at: Date.now(), status: 200 }); return { status: 200, text, account: mask(a.email) }; }
       last.set(a.id, { at: Date.now(), status: res.statusCode, error: String(text).slice(0, 160) });
       lastErr = { status: res.statusCode, text };
       // 401 — ключ неверный, 402 — нет денег: аккаунт отдыхает час; 429 — лимит: 5 минут; 5xx — 1 минута
-      const pause = res.statusCode === 401 || res.statusCode === 402 ? 3600e3 : res.statusCode === 429 ? 300e3 : res.statusCode >= 500 ? 60e3 : 0;
+      const pause = [401, 402, 403].includes(res.statusCode) ? 3600e3 : res.statusCode === 429 ? 300e3 : res.statusCode >= 500 ? 60e3 : 0;
       if (!pause) break; // ошибка в самом запросе (400) — другой аккаунт не поможет
       rest.set(a.id, Date.now() + pause);
-      console.warn(`DeepSeek: ${mask(a.email)} ответил ${res.statusCode}, переключаюсь на следующий аккаунт`);
+      console.warn(`ИИ: ${mask(a.email)} ответил ${res.statusCode}, переключаюсь на следующий аккаунт`);
     } catch (e) { lastErr = { status: 502, text: String(e.message || e) }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text.slice(0, 160) }); rest.set(a.id, Date.now() + 60e3); }
   }
-  const e = new Error("DeepSeek не ответил ни на одном аккаунте: " + (lastErr ? `HTTP ${lastErr.status} ${String(lastErr.text).slice(0, 160)}` : "нет ответа"));
+  const e = new Error("Нейросеть не ответила ни на одном общем ключе: " + (lastErr ? `HTTP ${lastErr.status} ${String(lastErr.text).slice(0, 160)}` : "нет ответа"));
   e.status = lastErr?.status === 400 ? 400 : 502; e.reason = lastErr?.status === 402 ? "payment" : lastErr?.status === 429 ? "rate" : "other"; throw e;
 }
 
@@ -124,12 +155,13 @@ async function admin(body, request, readAll) {
   const act = body.action || "list", slot = Math.round(+body.slot);
   if (act !== "list" && !(slot >= 1 && slot <= SLOTS)) return { status: 400, json: { error: "ячейка — от 1 до " + SLOTS } };
   if (act === "save") {
-    const row = { slot, label: String(body.label || "").slice(0, 80), base_url: String(body.url || "").trim().slice(0, 200), is_active: body.isActive !== false, updated_at: new Date().toISOString() };
+    const row = { slot, label: String(body.label || "").slice(0, 80), base_url: String(body.url || "").trim().slice(0, 200), model: String(body.model || "").trim().slice(0, 80), is_active: body.isActive !== false, updated_at: new Date().toISOString() };
     if (row.base_url && !/^https:\/\/[\w.-]+(\/[\w./-]*)?$/.test(row.base_url)) return { status: 400, json: { error: "адрес должен начинаться с https://" } };
     const k = String(body.key || "").trim(); if (k) row.key = k;
     const old = (await dbPool(request, readAll, true)).find(a => a.slot === slot);
     if (!old && !k) return { status: 400, json: { error: "вставьте ключ" } };
-    const r = await sb(request, readAll, "/rest/v1/ai_keys?on_conflict=slot", { method: "POST", body: { ...(old || {}), ...row } });
+    let r = await sb(request, readAll, "/rest/v1/ai_keys?on_conflict=slot", { method: "POST", body: { ...(old || {}), ...row } });
+    if (r.status >= 300 && /model/.test(JSON.stringify(r.json))) { const { model, ...noModel } = { ...(old || {}), ...row }; r = await sb(request, readAll, "/rest/v1/ai_keys?on_conflict=slot", { method: "POST", body: noModel }); } // колонки model ещё нет
     if (r.status >= 300) return { status: 502, json: { error: /ai_keys/.test(JSON.stringify(r.json)) ? "в облаке нет таблицы ai_keys — выполните SQL из инструкции" : "облако не сохранило: " + JSON.stringify(r.json).slice(0, 160) } };
     rest.delete("s" + slot); last.delete("s" + slot);
   }
@@ -138,12 +170,14 @@ async function admin(body, request, readAll) {
   let test = null;
   if (act === "test") {
     const a = (await pool(request, readAll)).find(x => x.slot === slot);
+    const P = a ? providerOf(a) : null;
     if (!a || isPlaceholder(a.key)) test = { ok: false, message: "в ячейке нет ключа" };
-    else { try { const b = await balance1(a, request, readAll); test = { ok: true, ...b, message: `ключ работает, баланс ${b.balance ?? "?"} ${b.currency || ""}`.trim() }; } catch (e) { test = { ok: false, message: e.message }; } }
+    else if (P.id === "deepseek") { try { const b = await balance1(a, request, readAll); test = { ok: true, ...b, message: `${P.name}: ключ работает, баланс ${b.balance ?? "?"} ${b.currency || ""}`.trim() }; } catch (e) { test = { ok: false, message: e.message }; } }
+    else { try { const r = await chat({ messages: [{ role: "user", content: "Ответь одним словом: готово" }], max_tokens: 20 }, request, readAll, slot); const j = JSON.parse(r.text); test = { ok: true, message: `${P.name} (${a.model || P.model}): ключ работает, ответ «${String(j.choices?.[0]?.message?.content || "").trim().slice(0, 40)}»` }; } catch (e) { test = { ok: false, message: `${P.name}: ${e.message}${/403|not allowed|unsupported_country|region/i.test(e.message) ? " — сервис не принимает запросы из России (сервер сайта в Яндекс Облаке)" : ""}` }; } }
   }
   const now = Date.now();
-  const slots = Array.from({ length: SLOTS }, (_, i) => { const n = i + 1, a = rows.find(r => r.slot === n), id = "s" + n, L = last.get(id); return a ? { slot: n, label: a.label || "", url: a.base_url || "", isActive: a.is_active !== false, key: tail(a.key), resting: rest.get(id) > now ? Math.ceil((rest.get(id) - now) / 60000) : 0, last: L || null } : { slot: n, empty: true }; });
+  const slots = Array.from({ length: SLOTS }, (_, i) => { const n = i + 1, a = rows.find(r => r.slot === n), id = "s" + n, L = last.get(id); return a ? { slot: n, label: a.label || "", url: a.base_url || "", model: a.model || "", provider: providerOf({ key: a.key, url: a.base_url, model: a.model }).name, isActive: a.is_active !== false, key: tail(a.key), resting: rest.get(id) > now ? Math.ceil((rest.get(id) - now) / 60000) : 0, last: L || null } : { slot: n, empty: true }; });
   const env = loadPool().filter(a => !isPlaceholder(a.key)).map(a => ({ label: mask(a.email), isActive: a.isActive, key: tail(a.key) }));
   return { status: 200, json: { ok: true, slots, env, test, table: rows !== null } };
 }
-module.exports = { chat, balances, loadPool, pool, admin, isPlaceholder, queue, ACCOUNT_POOL };
+module.exports = { PROVIDERS, providerOf, chat, balances, loadPool, pool, admin, isPlaceholder, queue, ACCOUNT_POOL };

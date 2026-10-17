@@ -52,8 +52,20 @@ const Rules = (() => {
     return L.length ? "\n\n# Правила сайта «Учу по ФРП» (обязательно соблюдай)\n" + L.map((x, i) => `${i + 1}. ${x}`).join("\n") : "";
   }
   /* «научить словами»: нейросеть превращает пожелание в изменения настроек */
-  async function teach(wish) {
-    if (!window.AI?.configured?.()) throw new Error("подключите личный ключ нейросети (раздел «Ключи ИИ» → «Личный ключ»)");
+  /* через какую нейросеть: личная (id из «⚙ ИИ») или общий ключ сайта (ячейка 1–5) */
+  async function ask(prompt, via) {
+    if (via && /^slot:\d$/.test(via)) {
+      const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
+      if (!fn || !tok) throw new Error("войдите в личный кабинет — общие ключи доступны разработчикам");
+      const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/deepseek/v1/chat/completions")}` : fn + "/deepseek/v1/chat/completions";
+      const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok, "X-Uchu-Slot": via.slice(5) }, body: JSON.stringify({ messages: [{ role: "user", content: prompt }], max_tokens: 1500 }) });
+      const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
+      return j.choices?.[0]?.message?.content || "";
+    }
+    if (!window.AI?.configured?.()) throw new Error("подключите личный ключ нейросети (раздел «Ключи ИИ» → «Личный ключ») или выберите общий ключ");
+    return (await window.AI.sample(prompt, { modelTier: "quick", noRules: true, ...(via && via !== "auto" ? { only: via } : {}) })).text;
+  }
+  async function teach(wish, via) {
     const prompt = `Ты настраиваешь сайт-конструктор уроков русского языка и литературы «Учу по ФРП».
 Пожелание разработчика: «${wish}»
 
@@ -65,7 +77,7 @@ ${(get("ai_rules") || []).map((x, i) => `${i}. ${x}`).join("\n") || "— нет"
 
 Ответь ТОЛЬКО JSON без пояснений вокруг:
 {"set": {ключ: значение — только те переключатели, которые надо поменять}, "add_rules": ["новое правило, коротко и конкретно, в повелительном наклонении"], "remove_rules": [номера правил, которые теперь противоречат пожеланию], "explain": "1–2 предложения: что изменится"}`;
-    const { text } = await window.AI.sample(prompt, { modelTier: "quick", noRules: true });
+    const text = await ask(prompt, via);
     const m = String(text).match(/\{[\s\S]*\}/); if (!m) throw new Error("нейросеть ответила не по форме — попробуйте сформулировать иначе");
     let j; try { j = JSON.parse(m[0]); } catch { throw new Error("нейросеть ответила не по форме — попробуйте ещё раз"); }
     const set = {};

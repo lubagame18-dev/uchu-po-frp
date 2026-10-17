@@ -163,20 +163,22 @@ const Dev = (() => {
     return j;
   }
   function secKeys(b) {
-    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card"><h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
+    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card"><h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
     ownKeyCard(b.querySelector("#dvOwn")); testPayCard(b.querySelector("#dvTest"));
     const box = b.children[1];
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
     const draw = (j, note) => {
-      box.innerHTML = `<h2>Общие ключи ИИ (DeepSeek) <span class="tag red">для всех учителей</span></h2>
-        <div class="key-warn"><b>Внимательно: это общий ключ.</b> Им пользуются все учителя на тарифах с ИИ, расход идёт с баланса этого аккаунта DeepSeek. Свой ключ для личной работы сюда не вставляйте — для него блок «Личный ключ» выше.</div>
+      box.innerHTML = `<h2>Общие ключи ИИ <span class="tag red">для всех учителей</span></h2>
+        <div class="key-warn"><b>Внимательно: это общий ключ.</b> Им пользуются все учителя на тарифах с ИИ, расход идёт с баланса этого аккаунта. Свой ключ для личной работы сюда не вставляйте — для него блок «Личный ключ» выше.</div>
+        <p class="small">Подойдёт ключ любой нейросети: Claude (<code>sk-ant-…</code>), DeepSeek, OpenRouter (<code>sk-or-…</code>), Gemini (<code>AIza…</code>), Groq, OpenAI, Grok, Mistral или свой сервис по адресу — сайт узнаёт сервис по ключу. Модель можно указать, иначе берётся подходящая по умолчанию. <b>Claude и OpenAI не принимают запросы из России</b>: с сервера в Яндекс Облаке они, скорее всего, ответят отказом — «Проверить» это покажет; тогда подключайте Claude через OpenRouter.</p>
         <p class="small">Заполните столько ячеек, сколько у вас аккаунтов. Запросы учителей идут по кругу; если аккаунт не отвечает (закончились деньги, лимит, сбой) — запрос сам переходит на следующий, учитель ошибки не видит. Ключ после сохранения хранится только на сервере — здесь видны лишь его начало и конец.</p>
         ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
         <div class="key-grid">${j.slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
-          <div class="key-h"><b>Аккаунт ${x.slot}</b>${st(x)}</div>
+          <div class="key-h"><b>Аккаунт ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
           <input type="text" name="label" placeholder="Название, например: почта аккаунта" value="${esc(x.label || "")}" autocomplete="off">
-          <input type="text" class="secret" name="key" placeholder="${x.empty ? "Ключ sk-…" : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
-          <details${x.url ? " open" : ""}><summary class="small">Свой адрес API (необязательно)</summary><input type="text" name="url" placeholder="https://api.deepseek.com" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
+          <input type="text" class="secret" name="key" placeholder="${x.empty ? "Ключ любой нейросети" : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
+          <input type="text" name="model" placeholder="Модель (необязательно), например claude-sonnet-5-5" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false">
+          <details${x.url ? " open" : ""}><summary class="small">Свой адрес API (необязательно)</summary><input type="text" name="url" placeholder="https://…/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
           <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>
           <div class="row-btn"><button class="btn sm flame" type="submit">Сохранить</button>${x.empty ? "" : `<button class="btn sm" type="button" data-k="test">Проверить</button><button class="btn sm ghost" type="button" data-k="delete">Очистить</button>`}</div>
         </form>`).join("")}</div>
@@ -184,11 +186,11 @@ const Dev = (() => {
       box.querySelectorAll(".key-slot").forEach(f => {
         const slot = +f.dataset.slot;
         const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await keysApi(body); draw(r, r.test ? { ...r.test, message: `Аккаунт ${slot}: ${r.test.message}` } : (body.action === "save" ? { ok: true, message: `Аккаунт ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Аккаунт ${slot} очищен.` } : null)); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
-        f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm("Это ОБЩИЙ ключ: им будут пользоваться все учителя на тарифах с ИИ, деньги спишутся с этого аккаунта. Сохранить?")) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
+        f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm("Это ОБЩИЙ ключ: им будут пользоваться все учителя на тарифах с ИИ, деньги спишутся с этого аккаунта. Сохранить?")) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), model: f.model.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
         f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить аккаунт ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
       });
     };
-    keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Общие ключи ИИ (DeepSeek)</h2><p class="small">${esc(e.message)}</p>`; });
+    keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Общие ключи ИИ</h2><p class="small">${esc(e.message)}</p>`; });
   }
   /* Тестовая оплата: тариф начисляется без денег — чтобы проверить ИИ сайта (общие ключи DeepSeek) и учёт токенов */
   function testPayCard(box) {
@@ -216,6 +218,7 @@ const Dev = (() => {
       b.innerHTML = `<section class="dev-card teach">
         <h2>Научить словами</h2>
         <p class="small">Напишите, что не нравится или как должно быть. ${aiOn ? "Нейросеть предложит изменения — вы посмотрите и примените." : "<b>Нейросеть не подключена</b> — пожелание добавится как правило для сборки с ИИ. Чтобы сайт сам переключал настройки, подключите личный ключ (раздел «Ключи ИИ»)."}</p>
+        <div class="row-btn"><label for="tcVia" class="small">Нейросеть:</label><select id="tcVia">${(window.AI ? AI.chain(AI.cfg()) : []).map(id => `<option value="${esc(id)}">личная: ${esc(AI.P[id]?.name || id)}</option>`).join("")}${[1, 2, 3, 4, 5].map(n => `<option value="slot:${n}">общий ключ ${n}</option>`).join("")}</select></div>
         <textarea class="inp" id="tcWish" rows="3" placeholder="Например: в рабочих листах не нужны предметные результаты; цель на слайде пишите для детей, интересно"></textarea>
         <div class="row-btn"><button class="btn flame" id="tcGo" type="button">${aiOn ? "Разобрать пожелание" : "Добавить как правило"}</button><span class="small" id="tcSt" role="status">${esc(msg || "")}</span></div>
         ${proposal ? `<div class="tc-prop"><b>Предложение нейросети</b>${proposal.explain ? `<p>${esc(proposal.explain)}</p>` : ""}<ul>
@@ -238,9 +241,10 @@ const Dev = (() => {
       const apply = async (data, note) => { try { await R.save(data, note); draft = R.all(); proposal = null; draw("Сохранено — действует для всех учителей."); } catch (e) { draw("Не сохранилось: " + (/site_rules|does not exist|schema cache/i.test(e.message) ? "в облаке нет таблицы site_rules — выполните SQL из инструкции" : e.message)); } };
       $b("#tcGo").onclick = async () => {
         const w = $b("#tcWish").value.trim(); if (!w) { st.textContent = "Напишите пожелание."; return; }
-        if (!aiOn) { collect(); draft.ai_rules.push(w); return apply({ ai_rules: draft.ai_rules }, "добавлено правило"); }
+        const via = $b("#tcVia")?.value || "auto";
+        if (!aiOn && !/^slot:/.test(via)) { collect(); draft.ai_rules.push(w); return apply({ ai_rules: draft.ai_rules }, "добавлено правило"); }
         $b("#tcGo").disabled = true; st.textContent = "Нейросеть думает…";
-        try { proposal = await R.teach(w); draw(); } catch (e) { $b("#tcGo").disabled = false; st.textContent = "✗ " + e.message; }
+        try { proposal = await R.teach(w, via); draw(); } catch (e) { $b("#tcGo").disabled = false; st.textContent = "✗ " + e.message; }
       };
       $b("#tcApply")?.addEventListener("click", () => { const rules = (R.get("ai_rules") || []).filter((_, i) => !proposal.remove.includes(i)).concat(proposal.add); apply({ ...proposal.set, ai_rules: rules }, "обучение словами"); });
       $b("#tcCancel")?.addEventListener("click", () => { proposal = null; draw(); });
@@ -256,7 +260,7 @@ const Dev = (() => {
     const draw = msg => {
       const c = window.AI ? AI.cfg() : null, list = c ? AI.chain(c) : [];
       box.innerHTML = `<h2>Личный ключ <span class="tag ok">только для вас</span></h2>
-        <p class="small">Хранится только в этом браузере, учителя им не пользуются. Нужен, чтобы вы сами собирали уроки с ИИ, проверяли и дорабатывали их. Подойдёт ключ DeepSeek, OpenRouter, Gemini и других — сайт сам узнает сервис.</p>
+        <p class="small">Хранится только в этом браузере, учителя им не пользуются. Нужен, чтобы вы сами собирали уроки с ИИ, проверяли и дорабатывали их и «обучали» сайт. Подойдёт ключ любой нейросети — Claude (<code>sk-ant-…</code>), DeepSeek, OpenRouter, Gemini, Groq, OpenAI и других: сайт сам узнает сервис.</p>
         ${list.length ? `<p><b>Подключено:</b> ${list.map(id => esc(AI.P[id]?.name || id)).join(" → ")}</p>` : `<p class="small"><b>Личный ключ ещё не подключён.</b></p>`}
         <div class="row-btn"><input type="text" class="secret" id="okKey" placeholder="Ваш личный ключ API" autocomplete="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true"><button class="btn sm flame" id="okGo" type="button">Подключить</button><button class="btn sm ghost" id="okAll" type="button">Все настройки нейросети</button></div>
         <p class="small" id="okSt" role="status">${esc(msg || "")}</p>`;

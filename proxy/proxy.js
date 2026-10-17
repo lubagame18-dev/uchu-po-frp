@@ -136,7 +136,7 @@ function cors(req, res) {
   if (allowed) res.setHeader("Access-Control-Allow-Origin", allowed);
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-GigaChat-Key, X-Yandex-Key, X-Yandex-Folder, X-Proxy-Auth, X-Api-Key, Anthropic-Version, Anthropic-Dangerous-Direct-Browser-Access, HTTP-Referer, X-Title, X-User-Token, X-Admin-Token");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-GigaChat-Key, X-Yandex-Key, X-Yandex-Folder, X-Proxy-Auth, X-Api-Key, Anthropic-Version, Anthropic-Dangerous-Direct-Browser-Access, HTTP-Referer, X-Title, X-User-Token, X-Admin-Token, X-Uchu-Slot");
   res.setHeader("Access-Control-Expose-Headers", "X-Uchu-Reason, X-Uchu-Tokens, X-Uchu-Account");
 }
 function send(res, status, obj) { if (obj && obj.reason) res.setHeader("X-Uchu-Reason", obj.reason); res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" }); res.end(JSON.stringify(obj)); }
@@ -245,7 +245,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 8, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 9, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -309,14 +309,17 @@ async function handler(req, res) {
     if (route === "/deepseek/v1/chat/completions") {
       // пул аккаунтов DeepSeek: ключи только на сервере; карусель и подстраховка — в deepseek-pool.js
       // если подключено облако кабинета — запрос только по входу и в пределах тарифа (списывается 1 запрос)
-      const quota = await Q.check(req.headers["x-user-token"], request, readAll);
+      // разработчик может выбрать конкретный общий ключ (заголовок X-Uchu-Slot) — без списания с тарифа
+      const slot = +req.headers["x-uchu-slot"] || 0, admin = slot ? await Q.isAdmin(req.headers["x-user-token"], request, readAll) : false;
+      if (slot && !admin) return send(res, 403, { error: "выбор общего ключа — только для разработчиков" });
+      const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll);
       if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
       // не дать потратить больше, чем осталось по тарифу: ответ ограничивается остатком токенов
       if (quota.tok) body.max_tokens = Math.max(256, Math.min(+body.max_tokens || 8192, quota.left));
-      const r = await DS.chat(body, request, readAll);
+      const r = await DS.chat(body, request, readAll, slot || 0);
       let used = 0; try { const u = JSON.parse(r.text).usage; used = u?.total_tokens || ((u?.prompt_tokens || 0) + (u?.completion_tokens || 0)); } catch { }
       if (!used) used = Math.round((JSON.stringify(body.messages || "").length + r.text.length) / 3); // оценка, если сервис не прислал расход
-      await Q.spend(quota, request, readAll, used).catch(e => console.warn("quota", e.message));
+      if (!quota.admin) await Q.spend(quota, request, readAll, used).catch(e => console.warn("quota", e.message));
       if (quota.tok) res.setHeader("X-Uchu-Tokens", `${quota.used + used}/${quota.limit}`);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "X-Uchu-Account": r.account });
       return res.end(r.text);
