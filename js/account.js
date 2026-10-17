@@ -14,8 +14,12 @@ const Account = (() => {
   const ready = () => !!(C().url && C().anonKey);
   let S = null; try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { }
   const save = () => { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch { } paint(); window.Access?.paint?.(); };
-  const api = async (path, opt = {}) => {
-    const r = await fetch(C().url.replace(/\/+$/, "") + path, { ...opt, headers: { apikey: C().anonKey, "Content-Type": "application/json", ...(S?.access ? { Authorization: "Bearer " + S.access } : {}), ...(opt.headers || {}) } });
+  const api = (path, opt = {}) => api0(path, opt).catch(e => { if (e.name === "AbortError") { const x = new Error("Сервер долго не отвечает. Проверьте интернет и попробуйте ещё раз."); x.status = 0; throw x; } if (e instanceof TypeError) { const x = new Error("Нет связи с сервером. Проверьте интернет или VPN и попробуйте ещё раз."); x.status = 0; throw x; } throw e; });
+  const api0 = async (path, opt = {}) => {
+    // без ответа сервера дольше 20 с — понятная ошибка, а не вечное «Вхожу…»
+    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), opt.timeout || 20000);
+    const r = await fetch(C().url.replace(/\/+$/, "") + path, { signal: ctl.signal, ...opt, headers: { apikey: C().anonKey, "Content-Type": "application/json", ...(S?.access ? { Authorization: "Bearer " + S.access } : {}), ...(opt.headers || {}) } });
+    clearTimeout(to);
     const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
     if (!r.ok) { const e = new Error(j?.msg || j?.error_description || j?.message || j?.error || ("HTTP " + r.status)); e.status = r.status; throw e; }
     return j;
@@ -44,7 +48,7 @@ const Account = (() => {
   async function phash(e, p) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("uchu-user:" + e.toLowerCase() + ":" + p)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
   async function localUp(email, password) { const u = lusers(), e = email.toLowerCase(); if (u[e]) throw new Error("already registered"); u[e] = { h: await phash(e, password), at: new Date().toISOString() }; localStorage.setItem(LKEY, JSON.stringify(u)); S = { email: e, local: true }; save(); return "ok"; }
   async function localIn(email, password) { const u = lusers()[email.toLowerCase()]; if (!u || u.h !== await phash(email, password)) throw new Error("Invalid login credentials"); S = { email: email.toLowerCase(), local: true }; save(); }
-  async function signIn(email, password) { if (!ready()) return localIn(email, password); setSession(await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }), email); await pull(); }
+  async function signIn(email, password) { if (!ready()) return localIn(email, password); setSession(await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }), email); pull().catch(e => console.warn("sync", e)); } // уроки подтягиваются фоном — вход не ждёт синхронизации
   // одноразовые почтовые ящики — не принимаем (защита бесплатного тарифа от многократных регистраций)
   const TEMP = /@(mailinator|guerrillamail|guerrillamailblock|sharklasers|10minutemail|10minemail|tempmail|temp-mail|tempmailo|tempr|tmpmail|tmpeml|yopmail|throwawaymail|trashmail|getnada|nada|dispostable|fakeinbox|maildrop|mintemail|mohmal|emailondeck|moakt|mail\.tm|mailnesia|burnermail|spamgourmet|dropmail|1secmail|minuteinbox|inboxkitten|tempail|luxusmail|emailfake|fakemail|crazymailing|mytemp|tempinbox|mailcatch|discard|33mail|harakirimail|getairmail|byom|vusra|wuuvo)\./i;
   async function signUp(email, password) {
@@ -53,7 +57,7 @@ const Account = (() => {
     // ссылка из письма должна вести обратно на сайт (а не на корень github.io)
     const back = location.origin + location.pathname;
     const j = await api("/auth/v1/signup?redirect_to=" + encodeURIComponent(back), { method: "POST", body: JSON.stringify({ email, password }) });
-    if (j.access_token) { setSession(j, email); await push(true); return "ok"; }
+    if (j.access_token) { setSession(j, email); push(true).catch(() => null); return "ok"; }
     return "confirm"; // в проекте включено подтверждение почты
   }
   async function refresh() {
@@ -219,18 +223,20 @@ const Account = (() => {
       e.preventDefault(); const email = m.querySelector("#acEmail").value.trim(), pass = m.querySelector("#acPass").value, msg = m.querySelector("#acMsg");
       if (pass.length < 6) { msg.textContent = "Пароль — не короче 6 знаков."; return; }
       msg.textContent = mode === "in" ? "Вхожу…" : "Создаю кабинет…";
+      const go = m.querySelector("#acGo"); if (go.disabled) return; go.disabled = true;
       try {
         if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.textContent = "Почти готово! Мы отправили письмо на " + email + ". Откройте его, нажмите ссылку подтверждения и войдите здесь."; return; } }
         else await signIn(email, pass);
-        if (window.PasswordCredential) { try { await navigator.credentials.store(new PasswordCredential({ id: email, password: pass })); } catch { } }
+        if (window.PasswordCredential) { try { navigator.credentials.store(new PasswordCredential({ id: email, password: pass })).catch(() => null); } catch { } } // не ждём: окно браузера «сохранить пароль» не должно держать вход
         closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
-        window.Access?.paint(); await plan().catch(() => null); loadInfo().catch(() => null);
+        window.Access?.paint(); plan().then(() => window.Access?.paint()).catch(() => null); loadInfo().catch(() => null);
         // выбранный тариф помним и после подтверждения почты (письмо открывает сайт заново)
         let want = window.Access?.wantBuy; try { want = want || localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
         if (want && window.Access) { Access.wantBuy = null; Access.checkout(want); }
         else if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
         else if (window.Dev?.wantDev) { Dev.wantDev = false; Dev.openLogin(); }
       } catch (er) { msg.textContent = RU(er.message); }
+      finally { go.disabled = false; }
     };
   }
   /* ---------- кнопка в шапке ---------- */

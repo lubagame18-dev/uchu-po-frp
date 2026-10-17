@@ -269,6 +269,14 @@ const LitKit = (() => {
     if (A.heroes?.length) out.push({ q: `Каким предстаёт ${A.heroes[0]} во фрагменте? Подтвердите словами текста.`, a: `характеристика героя по поступкам и словам; цитаты из фрагмента ${fr.from}–${fr.to} строк`, term: null });
     if (A.dialog) out.push({ q: "Кто говорит во фрагменте и как речь героя его характеризует?", a: "речевая характеристика героя: ученики приводят реплики и делают вывод о характере", term: "диалог" });
     if (!out.length) out.push({ q: "О чём этот фрагмент? Какая строка в нём главная и почему?", a: "ученики пересказывают фрагмент своими словами и выбирают ключевую строку", term: null });
+    // эвристическая беседа: приём не называется в вопросе — ученики замечают, сравнивают, называют сами, объясняют роль
+    const H = typeof Heur !== "undefined" ? Heur : window.Heur;
+    if (H) for (const x of out) {
+      const ch = x.term === "эпитет" ? H.device("epithet", x.ex) : x.term === "сравнение" ? H.device("simile", x.ex) : x.term === "анафора" ? H.device("anaphora", A.anaphora?.word) : x.term === "повтор" ? H.device("repeat", x.ex)
+        : x.term === "антитеза" ? H.device("antithesis", A.pairs[0]) : x.term === "риторический вопрос" ? H.device("rhetq", x.ex) : /цвет/.test(x.q) && A.colors?.length ? H.device("color", A.colors.slice(0, 3))
+        : x.term === "диалог" ? H.device("dialog") : /Каким предстаёт/.test(x.q) && A.heroes?.length ? H.device("hero", A.heroes[0]) : null;
+      if (ch) { x.q = ch.steps[0]; x.steps = ch.steps; x.hint = ch.hint; x.a = ch.a; }
+    }
     return out.slice(0, fr.qa?.length ? fr.qa.length + 1 : 3);
   }
 

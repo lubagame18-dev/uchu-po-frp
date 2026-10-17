@@ -33,7 +33,7 @@ const Dev = (() => {
   async function join(code) {
     const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
     if (!fn || !tok || !code) return;
-    try { const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join"; await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code }) }); } catch { }
+    try { const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join"; await fetch(u, { method: "POST", signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code }) }); } catch { }
   }
   /* полоска «вы смотрите как учитель» */
   function asTeacherBar() {

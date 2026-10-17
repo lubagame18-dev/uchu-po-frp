@@ -47,7 +47,7 @@ const LessonNotes = (() => {
   /* реплики учителя → вопросы с ожидаемыми ответами и пометки */
   function talk(cellText) {
     const qs = [], notes = [];
-    const ans = s => { const m = s.match(/\*\((?:Ожидаемый ответ:\s*)?([^)]*(?:\([^)]*\)[^)]*)*)\)\*\s*$/); return m ? [s.slice(0, m.index).trim(), clean(m[1])] : [s.trim(), ""]; };
+    const ans = s => { const m = s.match(/\*\((?:(?:Ожидаемый ответ|Ориентир для учителя|Ориентир):\s*)?([^)]*(?:\([^)]*\)[^)]*)*)\)\*\s*$/); return m ? [s.slice(0, m.index).trim(), clean(m[1])] : [s.trim(), ""]; };
     for (let line of String(cellText).split(/<br\s*\/?>/i)) {
       line = line.trim(); if (!line) continue;
       if (/^\*\(/.test(line) && qs.length) { qs[qs.length - 1].a = clean(ans(line)[1] || line.replace(/^\*\(|\)\*$/g, "")); continue; }
@@ -97,8 +97,8 @@ const LessonNotes = (() => {
   const box = (title, lines) => `| ${cell(title)} |\n|---|\n${lines.filter(Boolean).map(l => `| ${l} |`).join("\n")}\n\n`;
   function qaBox(title, qs, students, concl) {
     const lines = [];
-    qs.forEach((x, i) => { lines.push(`**❓ Вопрос учителя${qs.length > 1 ? " " + (i + 1) : ""}:** ${cell(x.q)}`); lines.push(`**💬 Ответ ученика:** ${x.a ? cell(x.a) : `<i>${cell(students || "свободные ответы; выслушать 2–3 мнения")}</i>`}`); });
-    if (concl) lines.push(`**✅ Вывод учителя:** ${cell(concl)}`);
+    qs.forEach((x, i) => { lines.push(`**❓ Вопрос учителя${qs.length > 1 ? " " + (i + 1) : ""}:** ${cell(x.q)}`); lines.push(`**💬 Ответы учеников (ориентир):** ${x.a ? cell(x.a) : `<i>${cell(students || "свободные ответы; выслушать 2–3 мнения, не оценивать сразу")}</i>`}`); });
+    if (concl) lines.push(`**✅ Вывод (формулируют ученики, учитель уточняет):** ${cell(concl)}`);
     return box(title, lines);
   }
   function exBox(n, t, p) {
@@ -131,7 +131,7 @@ const LessonNotes = (() => {
       if (notes.length) out += notes.map(n => `📌 ${n}`).join("  \n") + "\n\n";
       const concl = conclusion(name, p, ctx), short = name.split(/[(:]/)[0].trim().slice(0, 48);
       if (T.qs.length) out += qaBox(`Задание ${i + 1} · ${short}`, T.qs, students, concl);
-      else if (concl) out += box(`Задание ${i + 1} · ${short}`, [students ? `**👥 Ученики:** ${cell(students)}` : "", `**✅ Вывод учителя:** ${cell(concl)}`]);
+      else if (concl) out += box(`Задание ${i + 1} · ${short}`, [students ? `**👥 Ученики:** ${cell(students)}` : "", `**✅ Вывод (формулируют ученики, учитель уточняет):** ${cell(concl)}`]);
       const t = ru ? task(c[3] || "") : null;
       if (t && t.text && !/⟦/.test(t.text)) out += exBox(++ex, t, p);
       // литература: фрагменты текста — на первом аналитическом этапе
@@ -140,7 +140,7 @@ const LessonNotes = (() => {
         K.fragments.forEach((f, j) => {
           const qa = (K.qa.find(x => x.n === f.n) || { items: [] }).items;
           const quote = f.text.split("\n").filter(l => l.trim()).map(l => `<i>${cell(l)}</i>`).join("<br>");
-          out += box(`${f.part ? "Часть" : "Фрагмент"} ${f.n}. ${f.label}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}`, [quote, ...qa.flatMap(x => [`**❓ Вопрос учителя:** ${cell(x.q)}`, `**💬 Ответ ученика:** ${cell(x.a)}`]), K.conclusions?.[j] ? `**✅ Вывод учителя:** ${cell(K.conclusions[j])}` : ""]);
+          out += box(`${f.part ? "Часть" : "Фрагмент"} ${f.n}. ${f.label}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}`, [quote, ...qa.flatMap(x => x.steps ? [`**❓ Беседа (от наблюдения к выводу):** ${x.steps.map((st, k) => `${k + 1}) ${cell(st)}`).join(" ")}`, `**🧭 Если затрудняются:** ${cell(x.hint)}`, `**🔒 Ориентир для учителя (не озвучивать):** ${cell(x.a)}`] : [`**❓ Вопрос учителя:** ${cell(x.q)}`, `**🔒 Ориентир для учителя:** ${cell(x.a)}`]), K.conclusions?.[j] ? `**✅ Вывод (формулируют ученики, учитель уточняет):** ${cell(K.conclusions[j])}` : ""]);
         });
       }
     });

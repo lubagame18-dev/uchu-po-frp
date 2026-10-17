@@ -192,7 +192,18 @@ const Deck = (() => {
       } else add({ kind: "fragment", verse: false, mdBody: LitKit.markup(verbatimMd(f.text), kit), title: f.whole ? `«${shortWork || "Текст"}»` : `Фрагмент ${f.n}. ${f.label}`, text: f.text, by: "", notes: `Текст — дословно.` });
     }
     if (imgOn) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} иллюстрация`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) берётся с Викисклада. Если картинка подобрана из Яндекса — впишите подпись, щёлкнув по картинке." });
-    if (kit.terms.length) for (let i = 0; i < kit.terms.length; i += 2) add({ kind: "terms", title: "Работа с терминами" + (i ? " (продолжение)" : ""), items: kit.terms.slice(i, i + 2), notes: "Запишите в тетрадь: термин, определение, пример из текста." });
+    // понятия — в контексте анализа: сначала строка из текста и вопросы-наблюдения (термин не называется), потом запись
+    if (kit.terms.length && window.Heur) {
+      const DEV = { "эпитет": "epithet", "сравнение": "simile", "повтор": "repeat", "риторический вопрос": "rhetq" };
+      for (const t of kit.terms.slice(0, 4)) {
+        const ch = Heur.concept(t.term) || (t.ex && DEV[t.term] ? Heur.device(DEV[t.term], t.ex) : null); if (!ch) continue;
+        add({ kind: "big", title: "Наблюдаем за текстом", lead: t.ex ? `«${t.ex.replace(/[«»]/g, "")}»` : ch.steps[0], points: [], callout: "",
+          qs: t.ex ? Heur.slideQs(ch) : ch.steps.slice(1, 3), notes: `Беседа: ${ch.steps.map((x, k) => `${k + 1}) ${x}`).join(" ")} Если затрудняются: ${ch.hint} Понятие, к которому приходим: ${t.term} — ${t.def} (не называть до обсуждения).` });
+      }
+      add({ kind: "table", title: "Запишем в тетрадь", head: ["Понятие", "Пример из текста", "Роль в произведении"], rows: kit.terms.map(t => [`${t.term}${t.ex ? ` — «${t.ex.replace(/[«»]/g, "")}»` : ""}`]), notes: `Заполняется ПОСЛЕ беседы: ученики сами называют понятие, приводят пример и формулируют роль. Определения: ${kit.terms.map(t => `${t.term} — ${t.def}`).join("; ")}` });
+      const flip = kit.terms.filter(t => t.ex && t.ex.length <= 40);
+      if (flip.length >= 2) add({ kind: "list", title: "Проверь себя: что за приём?", points: flip.map(t => `«${t.ex.replace(/[«»]/g, "")}» — ${t.term}`), notes: "Карточки переворачиваются по щелчку: сначала ученики называют приём и его роль, потом открываем." });
+    } else if (kit.terms.length) for (let i = 0; i < kit.terms.length; i += 2) add({ kind: "terms", title: "Работа с понятиями" + (i ? " (продолжение)" : ""), items: kit.terms.slice(i, i + 2), notes: "Сначала пример из текста и вопрос, затем понятие." });
     const A = p.plan.analysis;
     const HH = kit.heroes?.length >= 2 ? kit.heroes : A?.heroes || [];
     if (HH.length >= 2) add({ kind: "table", title: "Сравним героев", head: ["", HH[0], HH[1]], rows: (kit.rows || ["Поступки", "Речь (цитата)", "Отношение автора"]).map(r => [r]), notes: "Таблица — та же, что в рабочем листе." });
@@ -211,10 +222,10 @@ const Deck = (() => {
     const lit = p.subject === "lit", core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
     const pts = [];
     if (lit) {
-      const prob = cards.find(c => c.kind === "big" && /проблемн/i.test(c.title)); if (prob?.lead) pts.push(`Вопрос урока: *${md1(prob.lead)}*`);
+      const prob = cards.find(c => c.kind === "big" && /проблемн/i.test(c.title)); if (prob?.lead) pts.push(`Вопрос урока: ${md1(prob.lead)}`);
       const terms = cards.flatMap(c => c.kind === "terms" ? c.items.map(t => t.term) : c.kind === "glossary" ? c.items.map(g => g.word) : []).slice(0, 5);
-      if (terms.length) pts.push(`Ключевые слова: **${terms.join(", ")}**`);
-      if (!prob) { const q = cards.find(c => c.kind === "big" && /\?$/.test(c.lead || "")); if (q) pts.push(`Вопрос урока: *${md1(q.lead)}*`); }
+      if (terms.length) pts.push(`Понятия урока: **${terms.join(", ")}** (определения — в тетради, с примерами из текста)`);
+      if (!prob) { const q = cards.find(c => c.kind === "big" && /\?$/.test(c.lead || "")); if (q) pts.push(`Вопрос урока: ${md1(q.lead)}`); }
       const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : ""; if (author) pts.unshift(`Автор: **${author}**`);
       const route = cards.find(c => c.kind === "steps" && /маршрут|план/i.test(c.title));
       if (route?.points?.length) pts.push("План: " + route.points.slice(0, 5).map(x => md1(x).replace(/\.$/, "")).join(" → "));
@@ -222,7 +233,7 @@ const Deck = (() => {
     } else {
       if (RK?.algo?.steps?.length) RK.algo.steps.slice(0, 5).forEach((x, k) => { let t = x.replace(/\s*\(.*?\)/g, "").trim(); if (t.length > 90) t = t.split(/[;:—]/)[0].trim(); pts.push(t); });
       else if (RK?.theory?.length) RK.theory.slice(0, 3).forEach(t => pts.push(plainMd(t).slice(0, 120)));
-      if (MN?.quiz?.length) pts.push("Примеры: " + MN.quiz.slice(0, 3).map(([, a]) => chalk(a.split(":")[0].trim())).join(", "));
+      { const exs = (MN?.quiz || []).slice(0, 4).map(([, a]) => chalk(a.split(":")[0].trim())).filter(x => /\*\*/.test(x)).slice(0, 3); if (exs.length) pts.push("Примеры (орфограмма выделена): " + exs.join(", ")); }
     }
     return { kind: "board", title: lit ? (p.topic.match(/«[^»]+»/) || [p.topic])[0] : capF(core), points: [`${dateWords()}.`, "Классная работа.", ...pts], notes: "Запись на доске и в тетради: число, «Классная работа», тема, опорная схема, примеры (орфограмма выделена). Дату поправьте под день урока." };
   }
@@ -413,7 +424,7 @@ const Deck = (() => {
       case "steps": set.layout = "steps"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n"); break;
       case "cards": set.layout = "cards"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
       case "list": set.layout = "list"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
-      case "big": set.layout = "big"; body = `${md1(card.lead || (card.points || [])[0] || "")}` + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
+      case "big": set.layout = "big"; body = `${md1(card.lead || (card.points || [])[0] || "")}` + (card.qs?.length ? "\n\n" + card.qs.map(x => `- ${md1(x)}`).join("\n") : "") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
       case "quote": set.layout = "quote"; set.vb = 1; body = `> ${verbatimMd(card.quote, { verse: true }).replace(/\n\n/g, "\n>\n> ").replace(/ {2}\n/g, "  \n> ")}` + (card.by ? `\n\n— ${md1(card.by)}` : ""); break;
       case "poem": set.layout = "poem"; set.vb = 1; body = verbatimMd(card.poem, { verse: true }) + (card.by ? `\n\n*${md1(card.by)}*` : ""); break;
       case "task": set.layout = "task"; set.vb = 1; body = verbatimMd(card.task); break;
@@ -504,7 +515,7 @@ ${JSON.stringify(payload)}`;
           <button class="btn sm ghost" id="dkRe" title="Заново составить план по конспекту с выбранными настройками">Составить план заново</button>
           <span class="small" id="dkCount"></span>
         </div>
-        ${window.ThemeKit ? `<details class="dk-theme" open><summary><b>Оформление</b> — <span id="dkThName"></span></summary><div class="th-pick" id="dkTh"></div></details>` : ""}
+        ${window.ThemeKit ? `<details class="dk-theme" open><summary><b>Оформление</b> — <span id="dkThName"></span></summary><div class="th-strip" id="dkThPrev" aria-label="Так будет выглядеть презентация"></div><div class="th-pick" id="dkTh"></div></details>` : ""}
         <ol class="deck-cards" id="dkList"></ol>
         <div class="mat-row"><button class="btn sm ghost" id="dkAdd">+ Карточка</button></div>
         <div class="pk-foot"><button class="btn flame" id="dkBuild">Собрать презентацию</button>${window.UCHU?.configured?.() ? `<label class="check"><input type="checkbox" id="dkAi"> Сжать формулировки нейросетью (дословные блоки не трогает)</label>` : ""}<label class="check" title="Портрет писателя станет наклейкой: фон убирается, по контуру — белая обводка. Первый раз загружается модель (~40 МБ)."><input type="checkbox" id="dkCut" ${(() => { try { const v = localStorage.getItem("uchu:cutout"); return v ? v === "1" : !/Mobi|Android/i.test(navigator.userAgent); } catch { return true; } })() ? "checked" : ""}> Вырезать портреты (наклейка без фона)</label><span class="small" id="dkMsg">Текущие слайды заменятся; вернуть их можно кнопкой ↶.</span></div>
@@ -556,6 +567,11 @@ ${JSON.stringify(payload)}`;
       box.innerHTML = opt("auto", "✨ Авто: " + ThemeKit.META[autoK].name, "по теме урока") + Object.entries(ThemeKit.META).map(([k, v]) => opt(k, v.name, v.desc)).join("") + Object.entries(SlideEditor.THEMES).filter(([k]) => !ThemeKit.has(k)).map(([k, v]) => opt(k, v, "строгая")).join("");
       $("#dkThName", m).textContent = thPick === "auto" ? `авто: ${ThemeKit.why(p)}` : (ThemeKit.META[thPick]?.name || SlideEditor.THEMES[thPick] || "");
       box.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { thPick = b.dataset.th; drawTh(); });
+      // лента: первые слайды ЭТОЙ презентации в выбранном оформлении — видно, что весь урок в одном стиле
+      const strip = $("#dkThPrev", m), k = thPick === "auto" ? autoK : thPick;
+      const sl = splitSlides(toMarkdown(cards.filter(c => c.on !== false).slice(0, 8))).map(SlideEditor.parse);
+      strip.innerHTML = sl.map((x, i) => `<div class="th-s">${SlideEditor.slideHtml({ ...x, set: { ...x.set, afs: .62 } }, i, { th: k })}</div>`).join("");
+      strip.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
     };
     drawTh();
     const cur = () => ({ amount: $("#dkAmt", m).value, images: $("#dkImg", m).value });

@@ -723,17 +723,16 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx .stk svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .sx-frame.big .sx .stk { pointer-events: auto; cursor: move; touch-action: none; }
 .sx-frame.big .sx .stk:hover, .sx-frame.big .sx .stk:focus-visible { outline: 2px dashed var(--sx-accent); outline-offset: 2px; }
-/* Слайд «На доске» — в любой теме выглядит как школьная доска */
-.sx.k-board .sx-inner { background: #24493A !important; box-shadow: inset 0 0 0 .7cqw #6B4A2B, 0 .5cqw 2cqw rgba(0,0,0,.3) !important; outline: none !important; border: 0 !important; border-radius: .6cqw !important; }
-.sx.k-board { --sx-ink: #F4F1E8; --sx-accent: #F2C94C; --sx-muted: #CFE3D6; --sx-soft: rgba(255,255,255,.08); }
-.sx.k-board .sx-title, .sx.k-board .sx-body { font-family: 'Caveat', 'Marck Script', cursive; color: #F4F1E8; }
-.sx.k-board .sx-title { text-align: center; font-size: calc(4.6cqw * var(--fs)); }
-.sx.k-board .sx-body { font-size: calc(3.7cqw * var(--fs)); }
-.sx.k-board .sx-body p:first-child { text-align: right; }
-.sx.k-board .sx-body strong { color: #F2C94C; }
-.sx.k-board .sx-body em { color: #A8E0C0; font-style: normal; text-decoration: underline wavy rgba(168,224,192,.7); text-underline-offset: .2em; }
-.sx.k-board .sx-body blockquote { background: rgba(255,255,255,.06); border-left-color: #F2C94C; font-style: normal; }
-.sx.k-board .sx-body li::marker { color: #F2C94C; }
+/* Слайд «На доске» — запись как в тетради, в стиле выбранной темы (зелёная доска — только в теме «Школьная доска») */
+.sx.k-board .sx-title { text-align: center; }
+.sx.k-board .sx-body { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.38em - 1px), color-mix(in srgb, var(--sx-accent) 22%, transparent) calc(1.38em - 1px), color-mix(in srgb, var(--sx-accent) 22%, transparent) 1.38em); line-height: 1.38em; }
+.sx.k-board .sx-body p, .sx.k-board .sx-body li { margin: 0; }
+.sx.k-board .sx-body p:first-child { text-align: right; font-style: italic; }
+.sx.k-board .sx-body ul { list-style: none; padding-left: 0; margin: 0; }
+.sx.k-board .sx-body strong { color: var(--sx-accent); }
+.sx.k-board .sx-body em { font-style: normal; text-decoration: none; }
+.sx.tk-board.k-board .sx-body { background-image: none; }
+.sx:not(.tk).k-board .sx-inner { border-left: .6cqw solid var(--sx-accent); }
 /* Видеофрагмент */
 .sx .sx-video { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 34cqw; background: #000; border-radius: 1cqw; overflow: hidden; margin: .2em 0 .5em; }
 .sx .sx-video iframe, .sx .sx-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -779,4 +778,17 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.tk .sx-body figure.pic img { background: #fff; padding: .6cqw; border-radius: .2cqw; box-shadow: 0 .5cqw 1.4cqw rgba(0,0,0,.22); }
 .sx.tk.has-photo .sx-inner { inset: 12% 47% 11% 8%; align-items: flex-start; text-align: left; }
 .sx.tk.lay-title.has-photo .sx-title::after { margin-left: 0; }
-.sx.tk.k-board .sx-inner { padding: 2.4cqw 3.2cqw !important; }
+/* выравнивание текста по горизонтали */
+.sx.ha-left .sx-inner { align-items: stretch; text-align: left; }
+.sx.ha-center .sx-inner { text-align: center; }
+.sx.ha-center .sx-body ul, .sx.ha-center .sx-body ol { display: inline-block; text-align: left; }
+.sx.ha-center .sx-body { display: flex; flex-direction: column; align-items: center; }
+.sx.ha-center .sx-title::after { margin-left: auto !important; margin-right: auto !important; }
+.sx.ha-right .sx-inner { text-align: right; }
+.sx.ha-right .sx-body ul, .sx.ha-right .sx-body ol { direction: rtl; }
+.sx.ha-right .sx-body li { direction: ltr; }
+.sx.ha-right .sx-title::after { margin-left: auto !important; margin-right: 0 !important; }
+.sx-ha { display: inline-flex; gap: 3px; align-items: center; }
+.th-strip { display: flex; gap: 8px; overflow-x: auto; padding: 6px 2px 10px; scroll-snap-type: x mandatory; }
+.th-strip .th-s { flex: 0 0 230px; scroll-snap-align: start; pointer-events: none; }
+.th-strip .sx { border-radius: 6px; box-shadow: 0 1px 5px rgba(0,0,0,.2); }

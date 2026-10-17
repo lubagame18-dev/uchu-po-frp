@@ -27,6 +27,7 @@ const SlideEditor = (() => {
   const ACC = { "": "Без картинки-акцента", left: "Картинка слева", right: "Картинка справа", top: "Картинка сверху", bg: "Картинка фоном" };
   const OV = { frosted: "Матовое стекло", faded: "Затемнение к тексту", clear: "Без наложения" };
   const VA = { top: "Текст сверху", center: "Текст по центру", bottom: "Текст снизу" };
+  const HA = { "": "По умолчанию", left: "⯇ По левому краю", center: "≡ По центру", right: "⯈ По правому краю" };
   const INSERT = [["text", "Т", "Текст"], ["head", "H", "Подзаголовок"], ["list", "•", "Список"], ["num", "1.", "Нумерация"], ["quote", "❝", "Цитата"], ["callout", "💡", "Выноска"], ["table", "▦", "Таблица"], ["button", "➜", "Кнопка-переход"], ["photo", "🖼", "Фото с компьютера"], ["yandex", "🔍", "Картинка из Яндекса"], ["video", "▶", "Видео"], ["sticker", "★", "Стикер"], ["hr", "—", "Разделитель"]];
   const NEWSLIDE = [["cards", "▤", "Карточки"], ["steps", "①", "Шаги"], ["big", "?", "Крупный вопрос"], ["quote", "❝", "Цитата"], ["two", "◫", "Две колонки"], ["image", "▣", "Фото на весь слайд"], ["title", "★", "Раздел / титул"], ["board", "▭", "На доске"], ["video", "▶", "Видеофрагмент"]];
   const SNIP = {
@@ -154,10 +155,10 @@ const SlideEditor = (() => {
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
     const body = vid + linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
-    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
+    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
-    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${TK && st.kind !== "board" && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
+    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
       <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(sl.title)}</${H}>
       <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${body}</div></div>${window.ThemeKit && stk.length ? ThemeKit.stickersHtml(stk, edit) : ""}</div>`;
     return st.free ? applyFree(html, st) : html;
@@ -337,6 +338,7 @@ const SlideEditor = (() => {
         <label class="sx-tl">Фон <input type="color" id="sxBg" value="${esc(sl.set.bg || "#ffffff")}"></label><button class="btn sm ghost" id="sxBgImg">Картинка-фон</button>${sl.set.bg || sl.set.bgimg ? `<button class="btn sm ghost" id="sxBgClr">Убрать фон</button>` : ""}
         <label class="sx-tl">Картинка <select id="sxAcc">${Object.entries(ACC).map(([k, n]) => `<option value="${k}" ${k === (sl.set.acc || "") ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         ${sl.set.acc === "bg" ? `<label class="sx-tl">Наложение <select id="sxOv">${Object.entries(OV).map(([k, n]) => `<option value="${k}" ${k === (sl.set.ov || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label><input type="range" id="sxOvi" min="0" max="100" step="5" value="${sl.set.ovi ?? 70}" title="Сила наложения" aria-label="Сила наложения">` : ""}
+        <span class="sx-ha" role="group" aria-label="Выравнивание текста">${[["left", "⯇", "По левому краю"], ["center", "≡", "По центру"], ["right", "⯈", "По правому краю"]].map(([k, ic, t]) => `<button type="button" class="btn sm ${sl.set.ha === k ? "flame" : "ghost"}" data-ha="${k}" title="${t}" aria-pressed="${sl.set.ha === k}">${ic}</button>`).join("")}<label class="check small"><input type="checkbox" id="sxHaAll"> на всех</label></span>
         <label class="sx-tl">Текст <select id="sxVa">${Object.entries(VA).map(([k, n]) => `<option value="${k}" ${k === (sl.set.va || "top") ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         <button class="btn sm ${sl.set.free ? "flame" : "ghost"}" id="sxFree" title="Блоки и заголовок можно ставить в любое место слайда и менять их ширину">${sl.set.free ? "Свободная вёрстка: вкл" : "Свободная вёрстка"}</button>
         <button class="btn sm teal" id="sxPic">+ Картинка</button><button class="btn sm ghost" id="sxYa" title="Открыть Яндекс Картинки по теме слайда">Яндекс Картинки ↗</button>
@@ -438,6 +440,7 @@ const SlideEditor = (() => {
     $s("#sxAcc").onchange = e => { const v = e.target.value; const a = slides(); const has = new RegExp(Media.RE.source).test(a[cur].body); a[cur].set.acc = v || undefined; a[cur].set.afs = undefined; write(a); if (v && !has) { toast("Выберите картинку ниже, в «Картинках Яндекса», — она встанет на это место."); } rerender(); };
     const ov = $s("#sxOv"); if (ov) ov.onchange = e => set({ ov: e.target.value });
     const ovi = $s("#sxOvi"); if (ovi) ovi.onchange = e => set({ ovi: +e.target.value });
+    sheet.querySelectorAll("[data-ha]").forEach(b => b.onclick = () => { const k = slides()[cur].set.ha === b.dataset.ha ? undefined : b.dataset.ha; set({ ha: k }, { all: $s("#sxHaAll")?.checked }); });
     $s("#sxVa").onchange = e => set({ va: e.target.value === "top" ? undefined : e.target.value });
     $s("#sxPlan").onclick = () => { if (window.Deck) Deck.openOutline(); };
     $s("#sxFree").onclick = () => {
@@ -1005,31 +1008,9 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
   }
   /* Переходы под характер темы: перелистывание страницы, падающий лист, диафрагма, туман, мел */
   const TRANS = { night: "dream", haze: "blur", botanic: "slide", salon: "page", poster: "push", sketch: "slide", collage: "drop", museum: "dark", mystic: "iris", board: "wipe" };
-  function trCss() {
+  function trCss() { // переходы простые и спокойные: мягкое растворение без перелистываний и сдвигов
     if (anim().mode === "none") return "";
-    const t = anim().mode === "bright" ? .9 : 1.1;
-    return `@keyframes trPage{from{opacity:.2;transform:perspective(1600px) rotateY(-70deg)}to{opacity:1;transform:none}}
-@keyframes trDrop{0%{opacity:0;transform:translateY(-6%) rotate(-3deg)}70%{opacity:1;transform:translateY(.6%) rotate(.6deg)}100%{transform:none}}
-@keyframes trIris{from{clip-path:circle(0% at 50% 50%)}to{clip-path:circle(75% at 50% 50%)}}
-@keyframes trBlur{from{opacity:0;filter:blur(18px) brightness(1.2)}to{opacity:1;filter:none}}
-@keyframes trDream{from{opacity:0;transform:scale(1.06);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
-@keyframes trWipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
-@keyframes trPush{from{transform:translateY(100%)}to{transform:none}}
-@keyframes trSlide{from{opacity:0;transform:translateX(8%)}to{opacity:1;transform:none}}
-@keyframes trDark{0%{opacity:0;filter:brightness(0)}100%{opacity:1;filter:none}}
-@keyframes stkPop{0%{scale:0;opacity:0}70%{scale:1.15;opacity:1}100%{scale:1}}
-.tr-page .deck-s.on{transform-origin:0 50%;animation:trPage ${t}s cubic-bezier(.2,.8,.2,1) both}
-.tr-drop .deck-s.on{animation:trDrop ${t}s cubic-bezier(.2,.8,.2,1) both}
-.tr-iris .deck-s.on{animation:trIris ${t * 1.1}s ease-in-out both}
-.tr-blur .deck-s.on{animation:trBlur ${t}s ease both}
-.tr-dream .deck-s.on{animation:trDream ${t * 1.2}s ease both}
-.tr-wipe .deck-s.on{animation:trWipe ${t}s cubic-bezier(.6,0,.2,1) both}
-.tr-push .deck-s.on{animation:trPush ${t * .8}s cubic-bezier(.2,.8,.2,1) both}
-.tr-slide .deck-s.on{animation:trSlide ${t}s cubic-bezier(.2,.8,.2,1) both}
-.tr-dark .deck-s.on{animation:trDark ${t * 1.2}s ease both}
-.deck-s.on .stk{animation:stkPop .7s ${t * .7}s cubic-bezier(.2,.8,.2,1.4) both}
-.deck-s.on .sx-deco{animation:anFade 1.2s ease both}
-@media (prefers-reduced-motion:reduce){.deck-s.on,.deck-s.on .stk{animation:none!important}}`;
+    return `.deck-s.on{animation:anFade .45s ease both!important}.deck-s.on .stk{animation:anFade .6s .2s ease both}`;
   }
   /* Интерактив в показе: карточки-перевороты, объём при наведении, подсветка за курсором, прогресс, пошаговый показ */
   function ixCss(A) {
@@ -1239,8 +1220,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
   async function addTransitions(blob) {
     if (!window.JSZip) await loadScript("jszip");
     const z = await window.JSZip.loadAsync(blob);
-    const byTheme = { night: ['<p:fade/>'], haze: ['<p:dissolve/>'], botanic: ['<p:cover dir="l"/>'], salon: ['<p:fade/>', '<p:cover dir="l"/>'], poster: ['<p:push dir="u"/>'], sketch: ['<p:wipe dir="r"/>', '<p:push dir="l"/>'], collage: ['<p:push dir="d"/>', '<p:cover dir="d"/>'], museum: ['<p:fade thruBlk="1"/>'], mystic: ['<p:circle/>', '<p:fade/>'], board: ['<p:wipe dir="r"/>'] };
-    const kinds = byTheme[theme()] || ['<p:fade/>', '<p:push dir="u"/>', '<p:wipe dir="r"/>', '<p:fade thruBlk="0"/>'];
+    const kinds = ['<p:fade/>'];
     const names = Object.keys(z.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n));
     for (const n of names) {
       let x = await z.file(n).async("string"); if (/<p:transition/.test(x)) continue;
