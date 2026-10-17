@@ -74,31 +74,16 @@ const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
 
 /* Запрос к DeepSeek с переключением аккаунтов. request — функция из proxy.js (Node https). */
 /* ---------- любые нейросети: сервис узнаётся по ключу (или по адресу) ---------- */
+/* Только сервисы, которые работают из России (иначе аккаунт могут заблокировать): DeepSeek и свой
+   OpenAI-совместимый сервис по адресу. Claude, OpenAI, Gemini, Grok, Groq — не принимаются. */
+const RU_BLOCKED_KEY = /^(sk-ant-|AIza|xai-|gsk_|sk-proj-|sk-svcacct-|sk-admin-)/, RU_BLOCKED_HOST = /anthropic\.com|openai\.com|googleapis\.com|(^|\.)x\.ai|groq\.com|claude\.ai/i;
+const ruBlocked = a => RU_BLOCKED_KEY.test(String(a.key || "")) || RU_BLOCKED_HOST.test(String(a.url || ""));
 const PROVIDERS = [
-  { id: "anthropic", name: "Claude (Anthropic)", re: /^sk-ant-/, url: /anthropic\.com/, base: "https://api.anthropic.com/v1", model: "claude-sonnet-5-5", native: true },
-  { id: "openrouter", name: "OpenRouter", re: /^sk-or-/, url: /openrouter\.ai/, base: "https://openrouter.ai/api/v1", model: "openrouter/auto" },
-  { id: "gemini", name: "Gemini (Google)", re: /^AIza/, url: /generativelanguage/, base: "https://generativelanguage.googleapis.com/v1beta/openai", model: "gemini-2.5-flash" },
-  { id: "groq", name: "Groq", re: /^gsk_/, url: /groq\.com/, base: "https://api.groq.com/openai/v1", model: "llama-3.3-70b-versatile" },
-  { id: "xai", name: "Grok (xAI)", re: /^xai-/, url: /x\.ai/, base: "https://api.x.ai/v1", model: "grok-3-mini" },
-  { id: "openai", name: "OpenAI", re: /^sk-(proj|svcacct|admin)-/, url: /openai\.com/, base: "https://api.openai.com/v1", model: "gpt-4o-mini" },
-  { id: "mistral", name: "Mistral", re: /^$/, url: /mistral\.ai/, base: "https://api.mistral.ai/v1", model: "mistral-small-latest" },
-  { id: "deepseek", name: "DeepSeek", re: /^sk-[0-9a-f]{20,}$/i, url: /deepseek\.com/, base: API, model: MODEL }
+  { id: "deepseek", name: "DeepSeek", re: /^sk-/, url: /deepseek\.com/, base: API, model: MODEL }
 ];
 function providerOf(a) {
-  const p = (a.url && PROVIDERS.find(x => x.url.test(a.url))) || PROVIDERS.find(x => x.re.test(a.key || "")) || (a.url ? { id: "custom", name: "Свой сервис", base: a.url, model: "" } : PROVIDERS[PROVIDERS.length - 1]);
+  const p = (a.url && PROVIDERS.find(x => x.url.test(a.url))) || (a.url ? { id: "custom", name: "Свой сервис", base: a.url, model: "" } : PROVIDERS[0]);
   return { ...p, base: a.url || p.base, model: a.model || p.model };
-}
-/* Claude: свой формат (Messages API) → ответ приводится к виду OpenAI, чтобы сайт работал одинаково */
-async function claudeCall(a, P, body, request, readAll) {
-  const sys = (body.messages || []).filter(m => m.role === "system").map(m => String(m.content)).join("\n\n");
-  const msgs = []; for (const m of (body.messages || []).filter(m => m.role !== "system")) { const role = m.role === "assistant" ? "assistant" : "user", c = typeof m.content === "string" ? m.content : JSON.stringify(m.content); if (msgs.length && msgs[msgs.length - 1].role === role) msgs[msgs.length - 1].content += "\n\n" + c; else msgs.push({ role, content: c }); }
-  if (!msgs.length || msgs[0].role !== "user") msgs.unshift({ role: "user", content: "Начни." });
-  const res = await request(P.base.replace(/\/v1$/, "") + "/v1/messages", { headers: { "x-api-key": a.key, "anthropic-version": "2023-06-01", "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ model: P.model, max_tokens: Math.min(+body.max_tokens || 8192, 32000), ...(sys ? { system: sys } : {}), messages: msgs, ...(body.temperature != null ? { temperature: body.temperature } : {}) }), timeout: 120000 });
-  const t = await readAll(res);
-  if (res.statusCode !== 200) return { statusCode: /credit balance/i.test(t) ? 402 : res.statusCode, text: t };
-  const j = JSON.parse(t || "{}"), text = (j.content || []).filter(x => x.type === "text").map(x => x.text).join("");
-  const u = j.usage || {};
-  return { statusCode: 200, text: JSON.stringify({ id: j.id, model: j.model, object: "chat.completion", choices: [{ index: 0, message: { role: "assistant", content: text }, finish_reason: j.stop_reason === "max_tokens" ? "length" : "stop" }], usage: { prompt_tokens: u.input_tokens || 0, completion_tokens: u.output_tokens || 0, total_tokens: (u.input_tokens || 0) + (u.output_tokens || 0) } }) };
 }
 async function chat(body, request, readAll, onlySlot) {
   let accounts = await queue(request, readAll);
@@ -111,8 +96,8 @@ async function chat(body, request, readAll, onlySlot) {
       // модель — из ячейки (или по умолчанию для сервиса); у DeepSeek — то, что просит сайт
       const model = a.model || (P.id === "deepseek" && body.model && !/^deepseek-(chat|reasoner)$/.test(body.model) ? body.model : P.model);
       let res, text;
-      if (P.native) { const r = await claudeCall(a, { ...P, model }, body, request, readAll); res = { statusCode: r.statusCode }; text = r.text; }
-      else { res = await request(P.base + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json", ...(P.id === "openrouter" ? { "HTTP-Referer": "https://lubagame18-dev.github.io/uchu-po-frp/", "X-Title": "Uchu po FRP" } : {}) }, body: JSON.stringify({ ...body, model, stream: false }), timeout: 120000 }); text = await readAll(res); }
+      if (ruBlocked(a)) continue; // сервис не работает из России — не обращаемся вовсе
+      res = await request(P.base + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ ...body, model, stream: false }), timeout: 120000 }); text = await readAll(res);
       if (res.statusCode === 200) { rest.delete(a.id); last.set(a.id, { at: Date.now(), status: 200 }); return { status: 200, text, account: mask(a.email) }; }
       last.set(a.id, { at: Date.now(), status: res.statusCode, error: String(text).slice(0, 160) });
       lastErr = { status: res.statusCode, text };
@@ -157,6 +142,7 @@ async function admin(body, request, readAll) {
   if (act === "save") {
     const row = { slot, label: String(body.label || "").slice(0, 80), base_url: String(body.url || "").trim().slice(0, 200), model: String(body.model || "").trim().slice(0, 80), is_active: body.isActive !== false, updated_at: new Date().toISOString() };
     if (row.base_url && !/^https:\/\/[\w.-]+(\/[\w./-]*)?$/.test(row.base_url)) return { status: 400, json: { error: "адрес должен начинаться с https://" } };
+    if (ruBlocked({ key: body.key, url: row.base_url })) return { status: 400, json: { error: "этот сервис (Claude, OpenAI, Gemini, Grok, Groq) не работает из России — подключать нельзя, чтобы аккаунт не заблокировали" } };
     const k = String(body.key || "").trim(); if (k) row.key = k;
     const old = (await dbPool(request, readAll, true)).find(a => a.slot === slot);
     if (!old && !k) return { status: 400, json: { error: "вставьте ключ" } };

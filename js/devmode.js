@@ -170,14 +170,14 @@ const Dev = (() => {
     const draw = (j, note) => {
       box.innerHTML = `<h2>Общие ключи ИИ <span class="tag red">для всех учителей</span></h2>
         <div class="key-warn"><b>Внимательно: это общий ключ.</b> Им пользуются все учителя на тарифах с ИИ, расход идёт с баланса этого аккаунта. Свой ключ для личной работы сюда не вставляйте — для него блок «Личный ключ» выше.</div>
-        <p class="small">Подойдёт ключ любой нейросети: Claude (<code>sk-ant-…</code>), DeepSeek, OpenRouter (<code>sk-or-…</code>), Gemini (<code>AIza…</code>), Groq, OpenAI, Grok, Mistral или свой сервис по адресу — сайт узнаёт сервис по ключу. Модель можно указать, иначе берётся подходящая по умолчанию. <b>Claude и OpenAI не принимают запросы из России</b>: с сервера в Яндекс Облаке они, скорее всего, ответят отказом — «Проверить» это покажет; тогда подключайте Claude через OpenRouter.</p>
+        <p class="small">Подходят DeepSeek и свой сервис по адресу (OpenAI-совместимый, работающий из России). Модель можно указать, иначе берётся подходящая по умолчанию. Claude, OpenAI, Gemini, Grok и Groq из России не работают — сайт их не принимает, чтобы аккаунты не заблокировали.</p>
         <p class="small">Заполните столько ячеек, сколько у вас аккаунтов. Запросы учителей идут по кругу; если аккаунт не отвечает (закончились деньги, лимит, сбой) — запрос сам переходит на следующий, учитель ошибки не видит. Ключ после сохранения хранится только на сервере — здесь видны лишь его начало и конец.</p>
         ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
         <div class="key-grid">${j.slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
           <div class="key-h"><b>Аккаунт ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
           <input type="text" name="label" placeholder="Название, например: почта аккаунта" value="${esc(x.label || "")}" autocomplete="off">
           <input type="text" class="secret" name="key" placeholder="${x.empty ? "Ключ любой нейросети" : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
-          <input type="text" name="model" placeholder="Модель (необязательно), например claude-sonnet-5-5" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false">
+          <input type="text" name="model" placeholder="Модель (необязательно), например deepseek-flash" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false">
           <details${x.url ? " open" : ""}><summary class="small">Свой адрес API (необязательно)</summary><input type="text" name="url" placeholder="https://…/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
           <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>
           <div class="row-btn"><button class="btn sm flame" type="submit">Сохранить</button>${x.empty ? "" : `<button class="btn sm" type="button" data-k="test">Проверить</button><button class="btn sm ghost" type="button" data-k="delete">Очистить</button>`}</div>
@@ -260,7 +260,7 @@ const Dev = (() => {
     const draw = msg => {
       const c = window.AI ? AI.cfg() : null, list = c ? AI.chain(c) : [];
       box.innerHTML = `<h2>Личный ключ <span class="tag ok">только для вас</span></h2>
-        <p class="small">Хранится только в этом браузере, учителя им не пользуются. Нужен, чтобы вы сами собирали уроки с ИИ, проверяли и дорабатывали их и «обучали» сайт. Подойдёт ключ любой нейросети — Claude (<code>sk-ant-…</code>), DeepSeek, OpenRouter, Gemini, Groq, OpenAI и других: сайт сам узнает сервис.</p>
+        <p class="small">Хранится только в этом браузере, учителя им не пользуются. Нужен, чтобы вы сами собирали уроки с ИИ, проверяли и дорабатывали их и «обучали» сайт. Подойдёт ключ нейросети, которая работает из России: DeepSeek, OpenRouter, GigaChat, YandexGPT, Qwen и другие — сайт сам узнает сервис. Claude, OpenAI, Gemini, Grok и Groq из России не работают, их подключать нельзя: аккаунт могут заблокировать.</p>
         ${list.length ? `<p><b>Подключено:</b> ${list.map(id => esc(AI.P[id]?.name || id)).join(" → ")}</p>` : `<p class="small"><b>Личный ключ ещё не подключён.</b></p>`}
         <div class="row-btn"><input type="text" class="secret" id="okKey" placeholder="Ваш личный ключ API" autocomplete="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true"><button class="btn sm flame" id="okGo" type="button">Подключить</button><button class="btn sm ghost" id="okAll" type="button">Все настройки нейросети</button></div>
         <p class="small" id="okSt" role="status">${esc(msg || "")}</p>`;

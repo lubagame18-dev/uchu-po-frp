@@ -78,7 +78,7 @@ async function fetchImage(url, depth = 0) {
 }
 
 /* Куда разрешено пересылать через /relay (чтобы прокси не стал открытым для всего интернета) */
-const RELAY_HOSTS = (process.env.RELAY_HOSTS || "openrouter.ai,gen.pollinations.ai,text.pollinations.ai,api.deepseek.com,generativelanguage.googleapis.com,api.anthropic.com,api.mistral.ai,api.groq.com").split(",").map(s => s.trim()).filter(Boolean);
+const RELAY_HOSTS = (process.env.RELAY_HOSTS || "openrouter.ai,gen.pollinations.ai,text.pollinations.ai,api.deepseek.com").split(",").map(s => s.trim()).filter(Boolean);
 
 /* ---------- сертификат НУЦ Минцифры ---------- */
 const CA_URLS = (process.env.GIGACHAT_CA_URL ? [process.env.GIGACHAT_CA_URL] : []).concat([
@@ -245,7 +245,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 9, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 10, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
