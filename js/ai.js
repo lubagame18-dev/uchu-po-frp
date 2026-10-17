@@ -78,7 +78,7 @@ const AI = (() => {
   /* Подключить по ключу (и, если нужно, адресу): найти сервис, модели, проверить — одним нажатием */
   /* Сервисы, которые не работают из России: не подключаем (риск блокировки аккаунта) */
   const RU_BLOCKED_KEY = /^(sk-ant-|AIza|xai-|gsk_|sk-proj-|sk-svcacct-|sk-admin-)/, RU_BLOCKED_HOST = /anthropic\.com|openai\.com|googleapis\.com|(^|\.)x\.ai|groq\.com|claude\.ai/i;
-  const ruBlocked = (key, base) => RU_BLOCKED_KEY.test(String(key || "").trim()) || RU_BLOCKED_HOST.test(String(base || ""));
+  const ruBlocked = (key, base) => RU_BLOCKED_HOST.test(String(base || "")) || (!String(base || "").trim() && RU_BLOCKED_KEY.test(String(key || "").trim())); // через сторонний сервис по адресу — можно (на риск пользователя)
   async function connectKey(key, baseHint = "", onStep = () => { }) {
     key = String(key || "").trim(); baseHint = String(baseHint || "").trim();
     if (ruBlocked(key, baseHint)) throw new Error("этот сервис (Claude, OpenAI, Gemini, Grok, Groq) не работает из России — подключать его нельзя, чтобы аккаунт не заблокировали. Подойдут DeepSeek, OpenRouter, GigaChat, YandexGPT");

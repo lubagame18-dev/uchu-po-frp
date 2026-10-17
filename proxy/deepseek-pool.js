@@ -77,7 +77,7 @@ const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
 /* Только сервисы, которые работают из России (иначе аккаунт могут заблокировать): DeepSeek и свой
    OpenAI-совместимый сервис по адресу. Claude, OpenAI, Gemini, Grok, Groq — не принимаются. */
 const RU_BLOCKED_KEY = /^(sk-ant-|AIza|xai-|gsk_|sk-proj-|sk-svcacct-|sk-admin-)/, RU_BLOCKED_HOST = /anthropic\.com|openai\.com|googleapis\.com|(^|\.)x\.ai|groq\.com|claude\.ai/i;
-const ruBlocked = a => RU_BLOCKED_KEY.test(String(a.key || "")) || RU_BLOCKED_HOST.test(String(a.url || ""));
+const ruBlocked = a => RU_BLOCKED_HOST.test(String(a.url || "")) || (!String(a.url || "").trim() && RU_BLOCKED_KEY.test(String(a.key || ""))); // сторонний сервис по своему адресу — можно, на риск владельца
 const PROVIDERS = [
   { id: "deepseek", name: "DeepSeek", re: /^sk-/, url: /deepseek\.com/, base: API, model: MODEL }
 ];
