@@ -4106,11 +4106,18 @@ function openPrompts(L) {
   let own = L.prompts?.conspect || ""; if (!own) { try { own = promptConspect(p); } catch { own = ""; } }
   // урок собран без нейросети — промт урока = общий промт, заполненный данными этого урока
   if (!own) own = GENERAL_PROMPT.replace(/Тема урока: …[^\n]*$/, `Тема урока: «${L.params.topic}». Класс: ${L.params.grade}. Предмет: ${L.params.subject === "ru" ? "русский язык" : "литература"}. Тип урока: ${ty.name || "—"}. Длительность: ${L.params.duration || 45} мин.${L.params.mode === "tutor" ? " Индивидуальное занятие (репетитор)." : ""}`) + (L.docs?.lesson || L.docs?.conspect ? `\n\nЧерновик конспекта, собранный сайтом (углуби его по требованиям выше, сохрани верные цитаты и задания):\n\n${String(L.docs.conspect || L.tech || L.docs.lesson).slice(0, 6000)}` : "");
-  const parts = [["Промт конспекта этого урока", own], ...(L.prompts?.design || L.design ? [["Методический замысел (составлен нейросетью)", L.prompts?.design || L.design]] : []), ...(L.prompts?.slides ? [["Промт презентации", L.prompts.slides]] : []), ...(L.prompts?.worksheet ? [["Промт рабочего листа", L.prompts.worksheet]] : []), ["Общий промт (для любого урока)", GENERAL_PROMPT]];
+  const parts = [["Промт конспекта этого урока", own], ...(L.prompts?.design || L.design ? [["Методический замысел (составлен нейросетью)", L.prompts?.design || L.design]] : []), ...(L.prompts?.slides ? [["Промт презентации", L.prompts.slides]] : []), ...(L.prompts?.worksheet ? [["Промт рабочего листа", L.prompts.worksheet]] : []), ["Общий промт (для любого урока)", GENERAL_PROMPT], ...(window.LayoutSpec ? [["Макет первых 3 слайдов (стили №3 и №4) + промты Midjourney", L.layoutSpec || LayoutSpec.build(L)], ["Запрос к нейросети: рассчитать макет", LayoutSpec.aiPrompt(L)]] : [])];
   const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Промты урока</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
     <p class="hint">Скопируйте промт в любую нейросеть, чтобы переделать урок, или поправьте его здесь и нажмите «Пересобрать конспект по промту» (нужна подключённая нейросеть).</p>
     ${parts.map(([t, v], i) => `<details class="pr-box" ${i === 0 ? "open" : ""}><summary><b>${esc(t)}</b> <button type="button" class="btn sm ghost" data-copy="${i}">Копировать</button></summary><textarea rows="14" data-pr="${i}" spellcheck="false">${esc(v || "")}</textarea></details>`).join("")}
-    <div class="pk-foot"><button class="btn flame" id="prRun">Пересобрать конспект по промту</button><span class="small" id="prMsg"></span></div></div></div>`);
+    <div class="pk-foot"><button class="btn flame" id="prRun">Пересобрать конспект по промту</button>${window.LayoutSpec ? `<button class="btn ghost" id="prLay">Рассчитать макет слайдов нейросетью</button>` : ""}<span class="small" id="prMsg"></span></div></div></div>`);
+  const lay = m.querySelector("#prLay"); if (lay) lay.onclick = async () => {
+    const msg = m.querySelector("#prMsg"), i = parts.findIndex(x => /^Макет первых/.test(x[0])), ta = m.querySelector(`[data-pr="${i}"]`);
+    if (!(window.AI ? AI.configured() : caps.sample)) { msg.textContent = "Нейросеть не подключена: скопируйте «Запрос к нейросети» в любую нейросеть."; return; }
+    lay.disabled = true; msg.textContent = "Рассчитываю макет…";
+    try { const r = await caps.sample(LayoutSpec.aiPrompt(L), { modelTier: "default", cache: false }); L.layoutSpec = String(r.text || "").trim(); ta.value = L.layoutSpec; ta.closest("details").open = true; await saveLesson(L); msg.textContent = "Готово."; }
+    catch (e) { msg.textContent = "Не получилось: " + (e.message || e); } finally { lay.disabled = false; }
+  };
   m.querySelectorAll("[data-copy]").forEach(b => b.onclick = async e => { e.preventDefault(); const t = m.querySelector(`[data-pr="${b.dataset.copy}"]`).value; try { await navigator.clipboard.writeText(t); toast("Промт скопирован."); } catch { m.querySelector(`[data-pr="${b.dataset.copy}"]`).select(); toast("Выделено — скопируйте Ctrl+C."); } });
   m.querySelector("#prRun").onclick = async () => {
     const msg = m.querySelector("#prMsg"), text = m.querySelector('[data-pr="0"]').value.trim();
@@ -4246,7 +4253,7 @@ const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; s
    =================================================================== */
 async function saveLesson(L) {
   if (!L || L.sample) return;
-  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null };
+  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, design: L.design || null, layoutSpec: L.layoutSpec || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null };
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }
@@ -4626,6 +4633,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/themes.js"></script>
 <script src="js/video.js"></script>
 <script src="js/photostk.js"></script>
+<script src="js/layoutspec.js"></script>
 <script src="data/promo.js"></script>
 <script src="js/access.js"></script>
 <script src="js/deck.js"></script>

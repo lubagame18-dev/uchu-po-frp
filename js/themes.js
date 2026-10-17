@@ -19,6 +19,9 @@ const ThemeKit = (() => {
      • картинка «в обрез» (на всю высоту) и бумага с рваным краем поверх неё — глубина без пёстрых узоров;
      • единый язык: те же фактуры, шрифты и цвета на каждом слайде. */
   const META = {
+    brutal:  { name: "Журнальный радикализм", desc: "крафт, фото в обрез справа, белая и чёрная наклейки с жёсткой тенью", font: "mblack", frame: "D7C49E" },
+    mix34:   { name: "Радикализм ⇄ брендбук", desc: "стили №3 и №4 чередуются по слайдам", font: "mblack", frame: "D7C49E" },
+    brandbook: { name: "Минималистичный брендбук", desc: "молочный фон, линер, лимонный стикер-нотатка", font: "jost", frame: "FDFBF7" },
     renaissance: { name: "Ренессанс", desc: "чёрный, живопись крупно, красный круг, рваные края", font: "playcorm", frame: "161412" },
     glow:    { name: "Сияние", desc: "ночное сияние, стекло, мерцание и свет", font: "cormorant", frame: "120E2E" },
     art:     { name: "По картине", desc: "цвета берутся из иллюстрации урока", font: "kurale", frame: "26292C" },
@@ -38,6 +41,8 @@ const ThemeKit = (() => {
   };
   // палитры: base/base2 — фон (60 %), l1/l2 — слои того же семейства (30 %), acc — акцент (10 %), paper/ink — бумага и текст
   const PAL = {
+    brutal:  { base: "#D7C49E", base2: "#CDB88E", l1: "#1A1A1A", l2: "#FFFFFF", acc: "#1A1A1A", paper: "#FFFFFF", ink: "#1A1A1A", line: "#1A1A1A", torn: 8 },
+    brandbook: { base: "#FDFBF7", base2: "#FAF6EE", l1: "#333333", l2: "#FFF2CC", acc: "#333333", paper: "#FFF2CC", ink: "#555555", line: "#333333", torn: 9 },
     renaissance: { base: "#161412", base2: "#1E1B18", l1: "#4B5D6E", l2: "#5B5E3A", acc: "#B5432A", paper: "#D8CBB0", ink: "#EDE4D3", line: "#C08A2E", torn: 6 },
     glow:    { base: "#120E2E", base2: "#2A1650", l1: "#6C4BD8", l2: "#E07AC8", acc: "#F6D77C", paper: "rgba(255,255,255,.1)", ink: "#F5F1FF", line: "#CDB8FF", torn: 7 },
     museum:  { base: "#23262A", base2: "#30353B", l1: "#3C4856", l2: "#525240", acc: "#8C1C2B", paper: "#EAE3D2", ink: "#1B1714", line: "#B69B62", torn: 1 },
@@ -72,6 +77,7 @@ const ThemeKit = (() => {
     return { base: hsl(H, S, .15), base2: hsl(H, S, .21), l1: hsl(H, S * 1.1, .28), l2: hsl((H + 25) % 360, S * .8, .24), acc: hsl(vivid.h, Math.min(.65, vivid.s + .1), .3), paper: hsl(vivid.h, .28, .91), ink: hsl(H, .3, .1), line: hsl(vivid.h, .35, .6), torn: 1 };
   }
   const palOf = (key, pal) => key === "art" ? (pal || PAL.museum) : PAL[key];
+  const resolve = (key, i) => key === "mix34" ? (i % 2 ? "brandbook" : "brutal") : key; // чередование стилей №3 и №4
 
   /* ---------- утилиты рисования ---------- */
   const rnd = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -111,7 +117,7 @@ const ThemeKit = (() => {
 
   /* ---------- фон (60 + 30 %) ---------- */
   function bgSvg(key, v, kind, side, P, R) {
-    let s = `<defs>${grain("g", key === "modern" || key === "aqua" ? .05 : .12)}<linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${P.base}"/><stop offset="1" stop-color="${P.base2}"/></linearGradient><radialGradient id="vg" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${/museum|sepia|night|mystic|art|renaissance|glow/.test(key) ? .5 : .08}"/></radialGradient><filter id="bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="80"/></filter></defs>`;
+    let s = `<defs>${grain("g", key === "modern" || key === "aqua" || key === "brandbook" ? .04 : key === "brutal" ? .18 : .12)}<linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${P.base}"/><stop offset="1" stop-color="${P.base2}"/></linearGradient><radialGradient id="vg" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${/museum|sepia|night|mystic|art|renaissance|glow/.test(key) ? .5 : /brutal|brandbook/.test(key) ? 0 : .08}"/></radialGradient><filter id="bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="80"/></filter></defs>`;
     s += `<rect width="${W}" height="${H}" fill="url(#b)"/>`;
     const L = v % 2 === 0; // сторона крупного слоя чередуется — ритм без повторов
     const tornLayer = (x, y, w, h, col, op, amp = 26) => `<polygon points="${tornRect(x, y, w, h, [amp, amp, amp, amp], 22, R)}" fill="${col}" opacity="${op}"/>`;
@@ -120,6 +126,18 @@ const ThemeKit = (() => {
       for (let k = 0; k < 6; k++) { const x = 80 + R() * (W - 300), y = 80 + R() * (H - 200); s += `<path d="M${f1(x)} ${f1(y)}q${f1(80 + R() * 120)} ${f1(-20 + R() * 40)} ${f1(200 + R() * 140)} ${f1(-10 + R() * 20)}" stroke="#fff" stroke-width="${f1(18 + R() * 30)}" opacity=".035" fill="none" stroke-linecap="round"/>`; }
       s += `<rect x="34" y="${H - 34}" width="${W - 68}" height="20" fill="#4E351D"/><rect x="${W - 360}" y="${H - 46}" width="70" height="12" rx="4" fill="#F4F1E8"/>`;
       return s + `<rect width="${W}" height="${H}" filter="url(#g)"/>`;
+    }
+    if (key === "brutal") { // плотный крафт + зерно; фото и наклейки — поверх (HTML), без скруглений
+      s += `<rect x="0" y="${H - 12}" width="${W}" height="12" fill="#1A1A1A"/>`;
+      return s + `<rect width="${W}" height="${H}" filter="url(#g)"/>`;
+    }
+    if (key === "brandbook") { // воздух ≥ 50 %, тонкий линер: стрелка от стикера к картинке, зарисовки-кружки, точечная сетка
+      const ink = "#333333";
+      s += `<path d="M${W * .36} ${H * .34}C${W * .44} ${H * .22} ${W * .5} ${H * .3} ${W * .56} ${H * .4}" stroke="${ink}" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M${W * .556 - 14} ${H * .4 - 6}l14 6l-3 -15" stroke="${ink}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+      s += `<circle cx="${L ? W * .86 : W * .8}" cy="${H * .82}" r="46" stroke="${ink}" stroke-width="1.2" fill="none"/><circle cx="${L ? W * .86 + 10 : W * .8 + 8}" cy="${H * .82 - 6}" r="44" stroke="${ink}" stroke-width=".8" fill="none" opacity=".6"/>`;
+      s += `<path d="M${W * .08} ${H * .9}h${W * .18}" stroke="${ink}" stroke-width="1.2"/><path d="M${W * .08} ${H * .92}h${W * .11}" stroke="${ink}" stroke-width=".8" opacity=".6"/>`;
+      for (let x = W * .62; x < W * .96; x += 28) for (let y = H * .08; y < H * .2; y += 28) s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="1.1" fill="${ink}" opacity=".35"/>`;
+      return s;
     }
     if (key === "renaissance") {
       // строгий чёрный, тонкие линейки, номер, лилия, красный круг у края картины, лёгкие «наброски» сангиной
@@ -178,7 +196,7 @@ const ThemeKit = (() => {
 
   /* ---------- бумага под текст: рваный край к картинке, фактура, тень ---------- */
   function paperSvg(key, v, kind, side, P, R, flat = false) {
-    const pr = panelRect(side, kind); if (!pr || key === "board" || key === "renaissance" || key === "glow") return "";
+    const pr = panelRect(side, kind); if (!pr || /^(board|renaissance|glow|brutal|brandbook)$/.test(key)) return "";
     const [px, py, pw, ph] = [pr[0] / 100 * W, pr[1] / 100 * H, pr[2] / 100 * W, pr[3] / 100 * H];
     const T = P.torn, big = 30, small = T === 2 ? 7 : 5;
     // сторона к картинке рвётся сильно, остальные — едва заметно (или ровно — «Модерн», «Усадьба», «Ночь»)
@@ -292,6 +310,6 @@ const ThemeKit = (() => {
   }
   function why(p) { const k = auto(p); return `${META[k].name} — ${META[k].desc}`; }
 
-  return { META, PAL, has, svg, decoHtml, paperHtml, vars, paletteFrom, sideOf, panelRect, dataUrl, STK, stkSvg, stickersHtml, autoStickers, rasterSvg, auto, why };
+  return { META, PAL, resolve, has, svg, decoHtml, paperHtml, vars, paletteFrom, sideOf, panelRect, dataUrl, STK, stkSvg, stickersHtml, autoStickers, rasterSvg, auto, why };
 })();
 window.ThemeKit = ThemeKit;
