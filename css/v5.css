@@ -636,3 +636,9 @@ input.secret.keep.shown, input.secret.keep.shown:focus { -webkit-text-security: 
 .tok-bar span { display: block; height: 100%; background: linear-gradient(90deg, #8a4bff, #f05aa6); }
 .ac-dev { justify-content: flex-start; margin: 14px 0 -4px; padding-top: 10px; border-top: 1px dashed rgba(0,0,0,.15); }
 .ac-dev .foot-dev { font-size: 12px; opacity: .75; text-decoration: underline dotted; text-underline-offset: 3px; }
+figure.pic .pic-empty.need { background: #fff8e6; border-color: #e0a100; }
+figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
+.co-test { display: grid; gap: 6px; margin: 10px 0; padding: 12px 14px; border: 2px dashed #2f8f5b; border-radius: 14px; background: #f1fbf5; }
+.co-test .row-btn { flex-wrap: wrap; gap: 6px; } .co-test input { flex: 1 1 160px; min-width: 0; }
+.tr-reset { text-align: center; margin: 8px 0 0; }
+.as-teacher { position: sticky; top: 0; z-index: 50; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 8px 12px; background: #2f8f5b; color: #fff; font-weight: 700; }

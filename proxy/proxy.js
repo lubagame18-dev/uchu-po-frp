@@ -297,7 +297,8 @@ async function handler(req, res) {
     if (route === "/pay/test") {
       // тестовая оплата — только разработчики (почта в site_admins) или X-Admin-Token
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
-      if (!tokOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "тестовая оплата — только для разработчиков" });
+      // код разработчика — тот же, что для входа разработчика (без него тест недоступен)
+      if (!tokOk && !Q.devCodeOk(body.code) && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "неверный код разработчика" });
       const r = await PAY.test(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json);
     }
     if (route === "/pay/create") { const r = await PAY.create(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json); }

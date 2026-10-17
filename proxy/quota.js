@@ -110,4 +110,5 @@ async function freeUse(userToken, body, ip, request, readAll) {
   for (const [k] of keys) await sb(request, readAll, "/rest/v1/free_usage?on_conflict=key,month", { method: "POST", body: { key: k, month, n: n(k) + 1, updated_at: new Date().toISOString() }, prefer: "resolution=merge-duplicates" });
   return { ok: true, left: Math.min(...keys.map(([k, lim]) => lim - n(k) - 1)) };
 }
-module.exports = { check, spend, on, promo, isAdmin, join, freeUse };
+const devCodeOk = code => !!code && require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code)).digest("hex") === DEV_HASH();
+module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk };

@@ -35,7 +35,18 @@ const Dev = (() => {
     if (!fn || !tok || !code) return;
     try { const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join"; await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code }) }); } catch { }
   }
+  /* полоска «вы смотрите как учитель» */
+  function asTeacherBar() {
+    document.getElementById("asTeacher")?.remove();
+    let f = false; try { f = sessionStorage.getItem("uchu:as-teacher") === "1"; } catch { } if (!f) return;
+    const b = document.createElement("div"); b.id = "asTeacher"; b.className = "as-teacher";
+    b.innerHTML = `👁 Вы смотрите сайт как учитель (${esc(window.Access?.label?.() || "")}) <button class="btn sm" type="button">Вернуться к разработчику</button>`;
+    b.querySelector("button").onclick = () => { try { sessionStorage.removeItem("uchu:as-teacher"); } catch { } b.remove(); window.Access?.paint(); openLogin(); };
+    document.body.prepend(b);
+  }
+  document.addEventListener("uchu:ready", asTeacherBar); document.addEventListener("uchu:access", () => { const b = document.getElementById("asTeacher"); if (b) { const t = b.firstChild; t.textContent = `👁 Вы смотрите сайт как учитель (${window.Access?.label?.() || ""}) `; } });
   function openLogin() {
+    try { sessionStorage.removeItem("uchu:as-teacher"); document.getElementById("asTeacher")?.remove(); } catch { }
     if (on) return show("files");
     if (needAcc()) { Dev.wantDev = true; toast("Сначала войдите в личный кабинет своей почтой — потом откроется вход разработчика.", 6000); window.Account.open(); return; }
     // вход запомнен на этом устройстве (для этой почты) — сразу входим, без кода
@@ -66,10 +77,11 @@ const Dev = (() => {
     on = true;
     document.body.classList.add("dev-on");
     const root = document.createElement("div"); root.id = "devRoot";
-    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button><button class="btn sm ghost" id="devForget" title="Выйти и больше не входить автоматически на этом устройстве">Выйти и забыть</button></div>
+    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button><button class="btn sm ghost" id="devTeacher" title="Посмотреть сайт так, как его видит учитель на своём тарифе">👁 Как учитель</button><button class="btn sm ghost" id="devForget" title="Выйти и больше не входить автоматически на этом устройстве">Выйти и забыть</button></div>
       <main id="view-dev" class="wrap page" hidden></main>`;
     document.body.prepend(root);
     root.querySelector("#devExit").onclick = exit;
+    root.querySelector("#devTeacher").onclick = () => { try { sessionStorage.setItem("uchu:as-teacher", "1"); } catch { } exit(); window.Access?.paint(); asTeacherBar(); toast("Сейчас вы видите сайт как учитель на своём тарифе. Вернуться — кнопка «Вернуться к разработчику» вверху.", 7000); };
     root.querySelector("#devForget").onclick = () => { try { localStorage.removeItem(SESSION); localStorage.removeItem(SAVED); } catch { } exit(); window.Access?.paint(); };
     root.querySelector("#devOpen").onclick = () => show(section);
     if (window.Log) Log.add("вход", "включён режим разработчика");

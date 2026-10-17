@@ -492,7 +492,7 @@ window.UCHU_SITE = {
      Пока поля пустые, кабинет работает в этом браузере, а вход недоступен. Инструкция — ЛИЧНЫЙ_КАБИНЕТ_И_ОПЛАТА.md */
   cloud: { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj" },
   /* ИИ сайта: true — когда в Яндекс-функции настроен пул аккаунтов DeepSeek (DEEPSEEK_POOL); учителям свой ключ не нужен */
-  siteAi: false,
+  siteAi: true,
   /* Коммерческая версия: тарифы и промокод. Промокод открывает «свободную зону» (всё бесплатно, ИИ — свой).
      payUrl — страница оплаты (появится после подключения платёжного сервиса). */
   commercial: true,
@@ -2275,7 +2275,9 @@ const Engine = (() => {
     if (LB?.chunks.length) {
       const st = FRP.stems(p.topic);
       const best = LB.chunks.map(c => ({ c, s: FRP.score(c.text, st) })).sort((a, b) => b.s - a.s)[0].c;
-      md += `\n\n## Опорный материал\n\n**Из учебника** *(${best.source})*:\n\n> ${short(best.text, 700)}`;
+      // отрывок — с начала предложения (не с середины и не с маленькой буквы)
+      let bt = String(best.text).trim(); if (/^[«"(—–-]*\s*[а-яёa-z]/.test(bt)) { const k = bt.search(/[.!?…]\s+[«"(—–-]*\s*[А-ЯЁ]/); if (k > 0 && k < 400) bt = bt.slice(k + 1).trim(); }
+      md += `\n\n## Опорный материал\n\n**Из учебника** *(${best.source})*:\n\n> ${short(bt, 700)}`;
     }
     md += `\n\n<!--WEB-->`;
     if (p.control !== "school" && KB.exams[p.control]) md += `\n\n> ⚠️ ЛОВУШКА ЭКЗАМЕНА: ${KB.exams[p.control].label}: ${ru ? "отвечайте строго на вопрос задания и проверяйте каждое слово по правилу" : "каждое утверждение подтверждайте цитатой, не пересказывайте текст"}.`;
@@ -2612,7 +2614,7 @@ const Media = (() => {
     const o = f.o, q = o.q || (/^(search|commons):/.test(f.src) ? decodeURIComponent(f.src.replace(/^(search|commons):/, "")) : f.cap);
     const empty = /^(search|commons):/.test(f.src) || !f.src;
     return `<figure class="pic${empty ? " empty" : ""}" contenteditable="false" data-i="${i}" data-src="${esc(f.src)}" data-q="${esc(q)}" data-z="${esc(o.z || "1")}" data-x="${esc(o.x || "50")}" data-y="${esc(o.y || "50")}" data-cap="${esc(f.cap)}"${o.px ? ` data-px="${esc(o.px)}" data-py="${esc(o.py)}" data-pw="${esc(o.pw)}"` : ""}>`
-      + (empty ? `<div class="pic-empty"><b>Нет картинки</b><span>Нажмите, чтобы подобрать</span></div>` : `<img alt="${esc(f.cap)}" crossorigin="anonymous" style="transform:scale(${+o.z || 1});object-position:${+o.x || 50}% ${+o.y || 50}%;transform-origin:${+o.x || 50}% ${+o.y || 50}%">`)
+      + (empty ? (o.need ? `<div class="pic-empty need"><b>🖼 Картинку подобрать не удалось</b><span>${esc(o.need)}</span><span class="small">Нажмите, чтобы подобрать самим</span></div>` : `<div class="pic-empty"><b>Нет картинки</b><span>Нажмите, чтобы подобрать</span></div>`) : `<img alt="${esc(f.cap)}" crossorigin="anonymous" style="transform:scale(${+o.z || 1});object-position:${+o.x || 50}% ${+o.y || 50}%;transform-origin:${+o.x || 50}% ${+o.y || 50}%">`)
       + `<figcaption>${esc(f.cap)}</figcaption></figure>`;
   }
   function postprocess(html, figs) {
@@ -2739,6 +2741,12 @@ const Media = (() => {
       let found = pickBest(q, fresh(await search(q, 12)), P.must);
       if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12)), P.must);
       if (found) usedUrl.add(found.url);
+      else { // не нашлось: пустое место с подсказкой — о чём слайд и какую картинку подобрать
+        const sl = slideOf(out, out.indexOf(m[0])), title = ((sl.match(/^#{1,2}\s+(.+)$/m) || [])[1] || "").replace(/[🖼🎯💬📖🔍✍️🪞🏠🧩📝*_]/gu, "").trim();
+        const kw = P.must?.[0] && P.must[0] !== "\u0000" ? P.must[0] : "", lit = /«|портрет|иллюстрац/i.test(q0);
+        const need = `На слайде — «${title || m[1] || q0}». Подходящую картинку сайт не нашёл, искал «${kw || q0}». Подберите сами: ${/портрет/i.test(q0) ? "портрет писателя с подписью — художник, год" : lit ? "иллюстрацию к этой сцене или герою — художник, название" : kw ? `фото или рисунок, где есть «${kw}» — как в примере на слайде` : "картинку к примеру или тексту на слайде"}.`;
+        out = out.replace(m[0], mdImage(m[1], m[2].split(" ")[0] === m[2] ? m[2] : m[2], { ...Media_parse(m[3]), q: q0, need }));
+      }
       if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(m[1], src, { q, from: found.src })); }
       onProgress && onProgress(++done, todo.length);
     }
@@ -2747,6 +2755,7 @@ const Media = (() => {
   /* Умный подбор: для каждого слайда — его этап и главное ключевое слово; ищем строго по нему,
      найденную картинку проверяем по названию и описанию. С нейросетью — она выбирает слово сама. */
   const STOPW = new Set("язык языка русский литература урок урока тема темы правило правила предложение предложения слово слова определение определения оборот оборота причастие причастный причастного деепричастие член члены члена задание задания упражнение текст текста пример примеры вопрос вопросы ответ ответы алгоритм схема таблица класс классе учебник работа ученики учитель иллюстрация картина портрет обособление обособленные обособленный знаки знак запятая запятые препинания сегодня рефлексия мотивация закрепление домашнее итог вывод выводы цель часть части автор стихотворение произведение герой героя".split(" "));
+  const Media_parse = s => parseOpts(s);
   function slideOf(md, idx) { const a = md.lastIndexOf("\n---\n", idx), b = md.indexOf("\n---\n", idx); return md.slice(a < 0 ? 0 : a, b < 0 ? md.length : b); }
   function guessKey(slide, q, all) {
     if (/портрет|иллюстрац|картин|«/.test(q) || /^[А-ЯЁ]\.\s?[А-ЯЁ]?/.test(q)) return { query: q, must: null }; // портрет, произведение — как есть (там своя проверка по фамилии)

@@ -164,12 +164,26 @@ const LitKit = (() => {
       ] }
   ];
   function workOf(topic) { const t = lowe(topic); return WORKS.find(w => w.re.test(t)) || null; }
+  /* Отрывок всегда начинается с начала предложения: если строка — продолжение (предыдущая не закончена
+     точкой, ! ? … или строка с маленькой буквы), отступаем назад до начала предложения (не дальше min) */
+  const ENDS = /[.!?…]["»”)]*\s*$/;
+  function sentStart(lines, i, min = 0) {
+    let a = i, k = 0;
+    while (a > min && k < 8) {
+      const prev = lines[a - 1] || "", cur = (lines[a] || "").trim();
+      if (!prev.trim()) break; // новая строфа / абзац — начало
+      const lower = /^[«"(—–-]*\s*[а-яё]/.test(cur);
+      if (ENDS.test(prev) && !lower) break;
+      a--; k++;
+    }
+    return a;
+  }
   function anchoredFragments(lines, W) {
     const found = (W.anchors || []).map(an => { const k = lowe(an.find).slice(0, 26); return { an, i: lines.findIndex(l => lowe(l).includes(k)) }; }).filter(x => x.i >= 0).sort((x, y) => x.i - y.i);
     const out = [];
     found.forEach(({ an, i }, n) => {
       const lim = n + 1 < found.length ? found[n + 1].i - 1 : lines.length - 1; // фрагмент не заходит на следующий якорь
-      const a = i; let b = i;
+      const a = sentStart(lines, i, n ? Math.max(found[n - 1].i + 1, out[n - 1] ? out[n - 1].b + 1 : 0) : 0); let b = i;
       while (b < lim && b - a < 13) { if (!lines[b + 1].trim()) { if (b - a >= 5) break; b++; continue; } b++; }
       while (b > a && !lines[b].trim()) b--;
       let e = b; while (e < lim && e - a < 16 && !/[.!?…»]\s*$/.test(lines[e]) && lines[e + 1].trim()) e++;
@@ -183,6 +197,7 @@ const LitKit = (() => {
     let a = idx, b = idx;
     while (a > 0 && lines[a - 1].trim() && idx - a < size / 2) a--;
     while (b < lines.length - 1 && lines[b + 1].trim() && b - a < size - 1) b++;
+    a = sentStart(lines, a);
     // не обрывать предложение: заканчиваем на строке с точкой, ! ? или …
     let e = b; while (e < lines.length - 1 && e - a < size + 3 && !/[.!?…»]\s*$/.test(lines[e]) && lines[e + 1].trim()) e++;
     return [a, e];

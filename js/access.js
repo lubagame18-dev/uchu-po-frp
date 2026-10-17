@@ -38,7 +38,9 @@ const Access = (() => {
 
   /* Текущий уровень: промокод > тариф кабинета > бесплатный. В некоммерческой версии — всё открыто. */
   /* Разработчик (вход по паролю разработчика, в том числе запомненный) — всё открыто без промокодов */
-  const isDev = () => !!(window.Dev?.on || window.Dev?.remembered?.());
+  // «Посмотреть как учитель»: разработчик временно видит сайт как обычный учитель (до закрытия вкладки)
+  const asTeacher = () => { try { return sessionStorage.getItem("uchu:as-teacher") === "1"; } catch { return false; } };
+  const isDev = () => !asTeacher() && !!(window.Dev?.on || window.Dev?.remembered?.());
   const me = () => (window.Account?.session?.email || "").toLowerCase();
   /* Уровень = тариф (промокод — отдельная отметка: скидка 50% и своя нейросеть вместо ИИ сайта) */
   function level() {
@@ -111,11 +113,13 @@ const Access = (() => {
       ${reason ? `<p class="tr-reason">${esc(reason)}</p>` : ""}
       ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой 50%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L !== "dev" && PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
       <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur ? `<span class="tr-badge">ваш тариф</span>` : k === "ai" ? `<span class="tr-badge hot">${p.tag}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div><h3>${p.name}</h3><div class="tr-price">${p.price ? (pr ? `<s>${p.price}</s> ${priceOf(k)} ₽<small>/мес</small>` : `${p.price} ₽<small>/мес</small>`) : "0 ₽"}</div><ul class="tr-feats">${featsOf(k, p).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">Подключён сейчас</span>` : k === "free" ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && PLANS[cur].price && p.price > PLANS[cur].price ? "Повысить" : cur && PLANS[cur].price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
+      ${!site().payments && me() && cur && cur !== "free" ? `<p class="small tr-reset"><button type="button" class="btn plain" id="trReset">🧪 Тест: вернуть бесплатный тариф</button></p>` : ""}
       ${cur && PLANS[cur].ai && !pr ? `<div class="tr-packs"><b>Не хватает уроков с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}</div>` : ""}
       ${!me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : pr ? "" : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>Промокод</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
     m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
     m.querySelectorAll("[data-pack]").forEach(b => b.onclick = () => buy(b.dataset.pack));
+    m.querySelector("#trReset")?.addEventListener("click", () => { closeModal(); const mm = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Вернуть бесплатный тариф</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${testBox("Вернуть бесплатный")}</div></div>`); bindTest(mm, "free"); });
     const lg = m.querySelector("#trLogin"); if (lg) lg.onclick = () => { closeModal(); Access.wantPromo = true; window.Account?.open(); };
     if (m.querySelector("#trPromo")) m.querySelector("#trPromo").onsubmit = async e => {
       e.preventDefault(); const msg = m.querySelector("#trMsg"), code = m.querySelector("#trCode").value;
@@ -140,10 +144,11 @@ const Access = (() => {
       ${P ? `<ul class="tr-feats">${feats.map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>` : `<p>Уроки с ИИ добавятся к вашему тарифу и не сгорают до конца оплаченного периода.</p>`}
       ${P && !up && site().autopay && !pr ? `<label class="check"><input type="checkbox" id="coAuto" checked> Автоплатёж каждый месяц (отключить можно в любой момент по ссылке в письме)</label>` : ""}
       ${up ? `<p class="small">При повышении тарифа вы доплачиваете только разницу за оставшиеся дни текущего месяца.</p>` : ""}
-      <p class="small">Оплата картой или по СБП. Чек придёт на почту ${esc(me())}.</p>
-      <div class="mat-row"><button class="btn flame" id="coPay" ${needKey ? "disabled" : ""}>Перейти к оплате</button><span class="small" id="coMsg" role="status"></span></div></div></div>`);
+      ${site().payments ? `<p class="small">Оплата картой или по СБП. Чек придёт на почту ${esc(me())}.</p>
+      <div class="mat-row"><button class="btn flame" id="coPay" ${needKey ? "disabled" : ""}>Перейти к оплате</button><span class="small" id="coMsg" role="status"></span></div>` : testBox()}</div></div>`);
+    bindTest(m, item);
     m.querySelector("#coKey")?.addEventListener("click", () => { closeModal(); Access.afterKey = item; window.AI?.openLite?.(); });
-    m.querySelector("#coPay").onclick = async () => {
+    if (m.querySelector("#coPay")) m.querySelector("#coPay").onclick = async () => {
       const msg = m.querySelector("#coMsg"), fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
       if (!site().payments || !fn) { msg.textContent = "Оплата открывается совсем скоро. Пока можно пользоваться бесплатным тарифом."; return; }
       if (!tok) { msg.textContent = "Войдите в личный кабинет заново."; return; }
@@ -155,6 +160,31 @@ const Access = (() => {
         if (!r.ok || !j.url) throw new Error(j.error || "оплата недоступна");
         location.href = j.url;
       } catch (e) { msg.textContent = "Не получилось: " + (e.message || e); }
+    };
+  }
+  /* Пока оплата не подключена — тестовая оплата по коду разработчика: тариф включается без денег,
+     чтобы посмотреть, что открывается на каждом тарифе */
+  const testBox = (label = "🧪 Смоделировать оплату") => `<div class="co-test"><b>Оплата ещё не подключена — тестовый режим</b><span class="small">Только для разработчиков: введите код разработчика — тариф включится без денег, чтобы проверить, как всё работает.</span>
+      <div class="row-btn"><input type="text" class="secret keep" id="coCode" placeholder="Код разработчика" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true"><button class="btn flame" type="button" id="coTest">${label}</button></div><span class="small" id="coTMsg" role="status"></span></div>`;
+  function bindTest(m, item) {
+    const b = m.querySelector("#coTest"); if (!b) return;
+    b.onclick = async () => {
+      const msg = m.querySelector("#coTMsg"), code = m.querySelector("#coCode").value.trim(), fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
+      if (!code) { msg.textContent = "Введите код."; return; }
+      if (!fn || !tok) { msg.textContent = "Войдите в личный кабинет."; return; }
+      b.disabled = true; msg.textContent = "Включаю тариф…";
+      try {
+        await window.Account?.refreshPlan?.().catch(() => null);
+        const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/pay/test")}` : base + "/pay/test";
+        const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify({ item, code }) });
+        const j = await r.json().catch(() => ({}));
+        if (r.status === 404 || /нужен массив messages|нет такого тарифа/.test(j.error || "") && item === "free") throw new Error("на сервере старая версия функции — загрузите новый архив");
+        if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
+        await window.Account?.refreshPlan?.();
+        closeModal();
+        const nm = PLANS[item]?.name || PACKS[item]?.name || "Бесплатный";
+        toast(`🧪 Тест: «${nm}» включён.${isDev() ? " Вы видите сайт как разработчик — чтобы увидеть, что видит учитель, нажмите «Посмотреть как учитель» в режиме разработчика." : ""}`, 8000);
+      } catch (e) { b.disabled = false; msg.textContent = "Не получилось: " + (e.message || e); }
     };
   }
   /* Возврат с оплаты: ?pay=ok — обновить тариф из кабинета */
@@ -176,6 +206,6 @@ const Access = (() => {
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);
-  return { canBuildAsync, techAllowed, level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
+  return { asTeacher, canBuildAsync, techAllowed, level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
 })();
 window.Access = Access;

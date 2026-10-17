@@ -125,11 +125,18 @@ async function apply(uid, p, type, item, promo, request, readAll) {
 async function test(body, userToken, request, readAll) {
   const user = await userOf(userToken, request, readAll);
   if (!user) return { status: 401, json: { error: "войдите в личный кабинет" } };
-  const item = String(body.item || ""), type = PLANS[item] ? "plan" : PACKS[item] ? "pack" : "";
+  const item = String(body.item || ""), type = PLANS[item] ? "plan" : PACKS[item] ? "pack" : item === "free" ? "free" : "";
   if (!type) return { status: 400, json: { error: "нет такого тарифа" } };
   let uid = user.id;
   if (body.email && String(body.email).toLowerCase() !== String(user.email).toLowerCase()) { const pr = (await sb(request, readAll, `/rest/v1/profiles?email=eq.${encodeURIComponent(String(body.email).toLowerCase())}&select=id`)).json?.[0]; if (!pr) return { status: 404, json: { error: "учитель с такой почтой ещё не заходил на сайт" } }; uid = pr.id; }
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
+  if (type === "free") { // вернуть бесплатный тариф (для проверки)
+    const b = { plan: "free", ai_left: 0, paid_until: null, tokens_limit: 0, tokens_used: 0 };
+    await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: uid, plan: "free", ai_left: 0 } }).catch(() => null);
+    const r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${uid}`, { method: "PATCH", body: b });
+    if (r.status >= 300) { const { tokens_limit, tokens_used, ...old } = b; await sb(request, readAll, `/rest/v1/profiles?id=eq.${uid}`, { method: "PATCH", body: old }); }
+    return { status: 200, json: { ok: true, patch: b } };
+  }
   const patch = await apply(uid, p, type, item, !!p.promo, request, readAll);
   await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: `test.${uid}.${type}_${item}.${Date.now()}`, user_id: uid, kind: `${type}_${item}`, amount: 0, status: "test" } }).catch(() => null);
   return { status: 200, json: { ok: true, patch } };
