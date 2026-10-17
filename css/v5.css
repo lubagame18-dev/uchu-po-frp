@@ -619,3 +619,9 @@ input.secret.shown { -webkit-text-security: none; text-security: none; }
 input.secret.keep:focus { -webkit-text-security: disc; text-security: disc; }
 input.secret.keep.shown, input.secret.keep.shown:focus { -webkit-text-security: none; text-security: none; }
 .rec-card.done { border-color: #2f8f5b; background: #f1fbf5; }
+#chkTech.locked { opacity: .6; }
+.pro-lock { margin-left: 2px; }
+/* конспект для печати: рамки заданий — обычный шрифт, жирные только подписи */
+.sheet table:has(th:only-child) td:first-child, .sheet .nw { font-weight: 400; }
+.sheet table:has(th:only-child) { width: 100%; }
+@media print { .sheet table { break-inside: avoid; } }

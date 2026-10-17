@@ -550,7 +550,8 @@ window.UCHU_SITE = {
         <div class="type-box" id="typeBox" aria-live="polite"></div>
         <div class="field"><span class="lbl">Что сделать</span>
           <div class="checks" id="formats">
-            <label class="check"><input type="checkbox" value="conspect" checked> Техкарта</label>
+            <label class="check"><input type="checkbox" value="lesson" checked> Конспект</label>
+            <label class="check" id="chkTech" title="Технологическая карта по ФРП — для проверки оформления и сдачи"><input type="checkbox" value="conspect"> Техкарта <span class="pro-lock" hidden>🔒</span></label>
             <label class="check"><input type="checkbox" value="slides" checked> Презентация</label>
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
           </div>
@@ -2951,7 +2952,8 @@ const HELP_MD = "# Как работать с сайтом\n\n## Создать 
    =================================================================== */
 "use strict";
 const DOCS = {
-  conspect: { label: "Конспект-техкарта", short: "Техкарта", file: "konspekt", expect: 12000 },
+  lesson: { label: "Конспект урока", short: "Конспект", file: "konspekt-uroka", expect: 9000 },
+  conspect: { label: "Технологическая карта", short: "Техкарта", file: "tehkarta", expect: 12000 },
   slides: { label: "Презентация", short: "Презентация", file: "prezentaciya", expect: 4500 },
   worksheet: { label: "Рабочий лист", short: "Рабочий лист", file: "rabochiy-list", expect: 5500 }
 };
@@ -2999,7 +3001,7 @@ const lessonLabel = n => Engine.lessonLabel(n);
 /* ---------- состояние ---------- */
 const state = {
   subject: "ru", grade: 8, duration: 45, mode: "school", lessonNo: 1, control: "school", topic: "", wishes: "",
-  formats: { conspect: true, slides: true, worksheet: true }, deep: false, build: "noai",
+  formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "noai",
   type: null, lesson: null, active: "conspect",
   gen: null,            // {lessonId, doc, pct, ctl}
   view: "builder", materials: []
@@ -3305,6 +3307,12 @@ function updateType() {
     : `<div class="type-name"><span class="lbl">Тип урока</span><b class="muted">определится по теме и номеру урока</b></div>`;
 }
 function fillGrades() { $("#grade").innerHTML = [5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}">${g} класс</option>`).join(""); $("#grade").value = state.grade; }
+/* техкарта — только методистам (тариф «Методист») и разработчикам */
+function syncTechCheck() {
+  const ok = !window.Access || Access.techAllowed(), lab = document.getElementById("chkTech"); if (!lab) return;
+  lab.classList.toggle("locked", !ok); lab.querySelector(".pro-lock").hidden = ok;
+  if (!ok) { lab.querySelector("input").checked = false; state.formats.conspect = false; }
+}
 function controlAllowed(c, g) { return c === "school" || (KB.exams[c]?.grades || []).includes(Number(g)) || (c === "oge" && state.mode === "tutor" && g >= 7) || (c === "ege" && state.mode === "tutor" && g >= 9); }
 function syncControls() {
   $$("#control option").forEach(o => { const ok = controlAllowed(o.value, state.grade); o.disabled = !ok; o.textContent = { school: "Текущий школьный контроль", vpr: "ВПР", oge: "ОГЭ", ege: "ЕГЭ" }[o.value] + (ok ? "" : " — не для этого класса"); });
@@ -3333,7 +3341,7 @@ function readForm() {
 }
 function restoreForm() {
   const f = local.get("form", null);
-  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats || state.formats, build: f.build || "noai" });
+  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: f.build || "noai" });
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; $("#wishes").value = state.wishes;
   $$("#formats input").forEach(i => (i.checked = !!state.formats[i.value]));
@@ -3605,6 +3613,7 @@ const cleanMd = t => String(t || "").replace(/^\s*```(?:markdown|md)?\s*\n/, "")
 async function createLesson() {
   readForm(); await Base.ready();
   if (!state.topic) { $("#topic").focus(); $("#createHint").textContent = "Введите тему урока или выберите её из списка."; return; }
+  if (state.formats.conspect && window.Access && !Access.techAllowed()) { state.formats.conspect = false; syncTechCheck(); }
   const formats = Object.keys(state.formats).filter(k => state.formats[k]);
   if (!formats.length) { $("#createHint").textContent = "Отметьте хотя бы один документ."; return; }
   if (state.gen) { $("#createHint").textContent = "Дождитесь окончания текущей генерации или остановите её."; return; }
@@ -3624,11 +3633,15 @@ async function createLesson() {
   // файлы из заметок участвуют в сборке только этого урока
   const noteMats = window.Notes ? Notes.lessonMaterials(p.notes) : [];
   if (noteMats.length) { const keep = state.materials; state.materials = [...noteMats, ...keep]; L._restoreMaterials = keep; }
+  // техкарта нужна для сборки конспекта, презентации и листа; если её не выбрали — собираем «за кадром»
+  const gen = ["conspect", ...formats.filter(f => f !== "conspect")];
+  if (!formats.includes("conspect")) L.hideTech = true;
   formats.forEach(f => (L.status[f] = "wait"));
   openLesson(L, formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
-  if (!useAi) { try { return await buildWithoutAi(L, p, type, formats); } finally { restore(); } }
-  try { await buildWithAi(L, p, type, formats); } finally { restore(); }
+  const done = () => { if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
+  if (!useAi) { try { return await buildWithoutAi(L, p, type, gen); } finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); } }
+  try { await buildWithAi(L, p, type, gen); } finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }
 async function buildWithAi(L, p, type, formats) {
   const lessonMaterialsNote = relevantMaterials(p.topic, p.grade, p.subject).length;
@@ -3638,10 +3651,11 @@ async function buildWithAi(L, p, type, formats) {
     state.gen = { lessonId: L.id, doc: f, pct: 0, ctl: new AbortController() };
     // остаёмся на том листе, где учитель (обычно — первый готовый конспект); вкладки сами показывают, что готово
     if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = f; renderLesson(); }
+    if (f === "lesson") { L.docs.lesson = LessonNotes.build(techOf(L, p, type), p); L.status.lesson = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
     if (f === "slides" && window.Deck) {
       // v5.4: презентация «как в Gamma» — план по конспекту; нейросеть только сжимает формулировки, дословные блоки не трогает
       try {
-        const cmd = L.docs.conspect || injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
+        const cmd = techOf(L, p, type);
         rememberVerbatim(L, p);
         state.gen.pct = 20; updateProgress();
         const r = await Deck.build(cmd, p, type, { ai: true, signal: state.gen.ctl.signal });
@@ -3652,7 +3666,7 @@ async function buildWithAi(L, p, type, formats) {
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
       continue;
     }
-    const prompt = f === "conspect" ? promptConspect(p) : f === "slides" ? promptSlides(p, L.docs.conspect || Engine.conspect(p, type, state.materials)) : promptWorksheet(p, L.docs.conspect);
+    const prompt = f === "conspect" ? promptConspect(p) : f === "slides" ? promptSlides(p, techOf(L, p, type)) : promptWorksheet(p, L.docs.conspect || L.tech);
     const paint = throttle(text => { if (state.lesson?.id === L.id && state.active === f) { $("#md").value = text; renderPreview(); } }, 300);
     try {
       window.UCHU_CTX = { params: { subject: p.subject, grade: p.grade, mode: p.mode, control: p.control, formats: p.formats, topic: p.topic }, countUsage: true };
@@ -3721,10 +3735,12 @@ function applyWeb(md, f, web) {
   if (f === "worksheet") return md.replace("<!--TEXT-->", web.text ? `### 📖 Текст для работы\n\n${web.text.text.split("\n").slice(0, 40).map(l => "> " + l).join("\n")}\n\n*Источник: ${web.text.source}*\n\n` : "");
   return md;
 }
+function techOf(L, p, type) { return L.docs.conspect || L.tech || (L.tech = injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect")); }
 function buildDocNoAi(f, L, p, type) {
   if (f === "conspect") return injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
+  if (f === "lesson") return LessonNotes.build(techOf(L, p, type), p);
   if (f === "worksheet") return Engine.worksheet(p, type, state.materials);
-  const cmd = L.docs.conspect || injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
+  const cmd = techOf(L, p, type);
   rememberVerbatim(L, p);
   if (window.Deck) { const cards = Deck.outline(cmd, p, type); L.deckOutline = cards; return Deck.toMarkdown(cards); }
   return Engine.slidesFromConspect(cmd, p, type);
@@ -3792,7 +3808,9 @@ function updateProgress() {
 function revealWorkspace() { if (innerWidth < 900) setTimeout(() => $("#workspace").scrollIntoView({ behavior: "smooth", block: "start" }), 60); }
 function openLesson(L, doc, push = true) {
   if (window.SlideEditor && state.lesson?.id !== L.id) SlideEditor.reset();
-  state.lesson = L; state.active = doc || Object.keys(DOCS).find(k => L.docs[k] || L.status?.[k]) || "conspect";
+  // старые уроки и образцы: конспект для печати собирается из их техкарты
+  if (!L.docs.lesson && L.docs.conspect && window.LessonNotes && state.gen?.lessonId !== L.id) { try { L.docs.lesson = LessonNotes.build(L.docs.conspect, { ...L.params, plan: L.plan }); } catch (e) { console.warn(e); } }
+  state.lesson = L; state.active = doc || Object.keys(DOCS).find(k => L.docs[k] || L.status?.[k]) || "lesson";
   if (state.view !== "builder") go("builder", { push: false });
   if (push) navPush({ view: "builder", lessonId: L.id });
   renderLesson();
@@ -3801,7 +3819,7 @@ function renderLesson() {
   const L = state.lesson, tabs = $("#docTabs");
   $(".ws-head").hidden = !L;
   if (!L) { tabs.innerHTML = ""; $("#lessonTitle").hidden = true; $("#refineBar").hidden = true; $("#editHint").hidden = true; $("#progress").hidden = true; renderEmpty(); syncTools(); return; }
-  const docs = Object.keys(DOCS).filter(k => (L.status && k in L.status) || L.docs[k]);
+  const docs = Object.keys(DOCS).filter(k => ((L.status && k in L.status) || L.docs[k]) && !(k === "conspect" && L.hideTech));
   tabs.innerHTML = docs.map(d => { const s = isGenerating(L, d) ? "run" : L.status?.[d] === "wait" && state.gen?.lessonId === L.id ? "wait" : L.docs[d] ? (L.status?.[d] === "err" ? "err" : "ok") : "wait"; return `<button class="doc-tab" role="tab" aria-selected="${d === state.active}" data-doc="${d}"><span class="st" data-s="${s}"></span>${DOCS[d].label}<span class="pct"></span></button>`; }).join("");
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
@@ -4270,7 +4288,8 @@ function bind() {
   $("#topic").addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); openTopicPanel(); $("#topicPanel button")?.focus(); } if (e.key === "Escape") $("#topicPanel").hidden = true; });
   $("#topicBtn").onclick = () => { if ($("#topicPanel").hidden) openTopicPanel(); else { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } };
   document.addEventListener("click", e => { if (!e.target.closest(".combo")) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } });
-  $$("#formats input").forEach(i => i.onchange = readForm);
+  $$("#formats input").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП — в тарифе «Методист»: для проверки оформления и сдачи."); } readForm(); });
+  syncTechCheck(); document.addEventListener("uchu:access", syncTechCheck);
   $("#btnCreate").onclick = createLesson;
   $("#btnStop").onclick = () => state.gen?.ctl?.abort();
   $("#md").addEventListener("input", onMdEdit);
@@ -4335,6 +4354,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/account.js"></script>
 <script src="js/cloudbase.js"></script>
 <script src="js/rules.js"></script>
+<script src="js/lessonnotes.js"></script>
 <script src="data/promo.js"></script>
 <script src="js/access.js"></script>
 <script src="js/deck.js"></script>

@@ -22,7 +22,7 @@ const Access = (() => {
   const hashes = () => [].concat(window.UCHU_PROMO || []);
   /* Привилегии тарифов: иконка + текст (иконки — яркие плоские значки в цветных кругах) */
   const F = {
-    lesson: ["📘", "#6b2bd9", "Технологическая карта урока по ФРП"], slides: ["🖥️", "#f05aa6", "Презентация — красивая, с анимацией"], sheet: ["📝", "#ff9f1c", "Рабочий лист, памятка, самостоятельная и д/з"],
+    lesson: ["📘", "#6b2bd9", "Конспект урока — удобно печатать"], tech: ["📋", "#2f8f5b", "Технологическая карта по ФРП — для проверки и сдачи"], slides: ["🖥️", "#f05aa6", "Презентация — красивая, с анимацией"], sheet: ["📝", "#ff9f1c", "Рабочий лист, памятка, самостоятельная и д/з"],
     cloud: ["☁️", "#2fa6e8", "Все уроки — в личном кабинете"], download: ["⬇️", "#2f8f5b", "Скачивание: Word, PDF, PowerPoint"], unlim: ["♾️", "#6b2bd9", "Уроки без ограничений"],
     ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai50: ["🤖", "#a43fd0", "50 уроков с ИИ в месяц"], ai120: ["🚀", "#a43fd0", "120 уроков с ИИ в месяц"],
     more: ["➕", "#ff9f1c", "Можно докупить уроки с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "3 урока в месяц — попробовать"]
@@ -31,7 +31,7 @@ const Access = (() => {
     free: { name: "Бесплатный", price: 0, lessons: 3, ai: false, art: "🎁", tag: "попробовать", feats: ["three", "lesson", "slides", "sheet", "cloud"] },
     basic: { name: "Учитель", price: 300, lessons: Infinity, ai: false, art: "📚", tag: "для каждого урока", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
     ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai50", "more", "download", "cloud"] },
-    pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, art: "🚀", tag: "максимум", feats: ["unlim", "ai", "ai120", "more", "help", "cloud"] }
+    pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai120", "more", "help", "cloud"] }
   };
   const PACKS = { ai10: { name: "+10 уроков с ИИ", price: 50 }, ai30: { name: "+30 уроков с ИИ", price: 140 } };
 
@@ -55,6 +55,7 @@ const Access = (() => {
   // свои ключи: разработчику — любые; по промокоду — одна своя нейросеть на тарифе с ИИ
   const ownAi = () => free() || (isPromo() && !!PLANS[level()]?.ai);
   const aiAllowed = () => free() || !!PLANS[level()].ai;
+  const techAllowed = () => free() || level() === "pro";
   const month = () => new Date().toISOString().slice(0, 7);
   function lessonsLeft() { const L = level(); if (free()) return Infinity; const lim = PLANS[L].lessons; if (lim === Infinity) return Infinity; const used = A.month === month() ? A.used || 0 : 0; return Math.max(0, lim - used); }
   function countLesson() { if (free() || PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
@@ -146,10 +147,11 @@ const Access = (() => {
     let b = document.getElementById("btnPlan");
     if (!b && commercial()) { b = document.createElement("button"); b.type = "button"; b.id = "btnPlan"; b.className = "btn sm ghost"; b.onclick = () => open(); document.querySelector(".account")?.prepend(b); }
     // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
+    document.dispatchEvent(new Event("uchu:access"));
     if (b) { const L = level(); b.textContent = `💳 ${PLANS[L]?.name || "Тарифы"}`; b.title = "Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);
-  return { level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
+  return { techAllowed, level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
 })();
 window.Access = Access;
