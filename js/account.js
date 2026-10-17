@@ -20,7 +20,23 @@ const Account = (() => {
     if (!r.ok) { const e = new Error(j?.msg || j?.error_description || j?.message || j?.error || ("HTTP " + r.status)); e.status = r.status; throw e; }
     return j;
   };
-  const RU = m => /invalid login|invalid_grant|credentials/i.test(m) ? "Неверная почта или пароль." : /already registered|exists/i.test(m) ? "Эта почта уже зарегистрирована — войдите." : /password.*(6|short)/i.test(m) ? "Пароль — не короче 6 знаков." : /email.*(invalid|valid)/i.test(m) ? "Проверьте адрес почты." : /confirm/i.test(m) ? "Подтвердите почту по ссылке из письма (или владелец может отключить подтверждение)." : m;
+  const RU0 = m => /invalid login|invalid_grant|credentials/i.test(m) ? "Неверная почта или пароль." : /already registered|exists/i.test(m) ? "Эта почта уже зарегистрирована — войдите." : /password.*(6|short)/i.test(m) ? "Пароль — не короче 6 знаков." : /email.*(invalid|valid)/i.test(m) ? "Проверьте адрес почты." : /confirm/i.test(m) ? "Подтвердите почту по ссылке из письма (или владелец может отключить подтверждение)." : m;
+  const RU = m => /rate limit|too many/i.test(m) ? "Слишком много писем за короткое время. Если вы уже нажимали ссылку в письме — просто войдите. Иначе попробуйте через час." : /not confirmed/i.test(m) ? "Почта ещё не подтверждена: откройте письмо и нажмите ссылку." : RU0(m);
+  /* Вход по ссылке из письма: Supabase возвращает на сайт с #access_token=…&refresh_token=… */
+  async function fromLink() {
+    const h = new URLSearchParams(location.hash.replace(/^#/, ""));
+    if (h.get("error_description")) { history.replaceState(null, "", location.pathname + location.search); toast("Ссылка из письма устарела или уже использована. Просто войдите с почтой и паролем.", 8000); return; }
+    const at = h.get("access_token"), rt = h.get("refresh_token"); if (!at || !rt || !ready()) return;
+    history.replaceState(null, "", location.pathname + location.search);
+    try {
+      const u = await api("/auth/v1/user", { headers: { Authorization: "Bearer " + at } });
+      setSession({ access_token: at, refresh_token: rt, expires_in: +h.get("expires_in") || 3600, user: u }, u.email);
+      toast("Почта подтверждена — вы вошли в личный кабинет.", 6000);
+      await pull().catch(() => null); await plan().catch(() => null);
+      let want = null; try { want = localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
+      if (want && window.Access) Access.checkout(want);
+    } catch (e) { toast("Не удалось войти по ссылке: " + RU(e.message) + " Войдите с почтой и паролем.", 8000); }
+  }
   function setSession(j, email) { S = { email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000 }; save(); }
   /* Пока облако не подключено — учётная запись в этом браузере (почта + отпечаток пароля); уроки — тоже здесь */
   const LKEY = "uchu:local-users";
@@ -31,7 +47,9 @@ const Account = (() => {
   async function signIn(email, password) { if (!ready()) return localIn(email, password); setSession(await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }), email); await pull(); }
   async function signUp(email, password) {
     if (!ready()) return localUp(email, password);
-    const j = await api("/auth/v1/signup", { method: "POST", body: JSON.stringify({ email, password }) });
+    // ссылка из письма должна вести обратно на сайт (а не на корень github.io)
+    const back = location.origin + location.pathname;
+    const j = await api("/auth/v1/signup?redirect_to=" + encodeURIComponent(back), { method: "POST", body: JSON.stringify({ email, password }) });
     if (j.access_token) { setSession(j, email); await push(true); return "ok"; }
     return "confirm"; // в проекте включено подтверждение почты
   }
@@ -118,7 +136,7 @@ const Account = (() => {
   const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn sm"; btn.id = "btnAccount"; btn.onclick = open;
   function paint() { btn.textContent = S ? "👤 " + (S.email || "").split("@")[0] : "👤 Войти"; btn.title = S ? "Личный кабинет: " + S.email : "Личный кабинет: вход по почте"; }
   document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); });
-  document.addEventListener("uchu:ready", () => { if (S && ready()) pull().catch(() => null); });
+  document.addEventListener("uchu:ready", () => { if (/access_token|error_description/.test(location.hash)) fromLink(); else if (S && ready()) pull().catch(() => null); });
   paint();
   return { open, refreshPlan: () => plan(), signIn, signUp, signOut, push, pull, remove, ready, get session() { return S; } };
 })();
