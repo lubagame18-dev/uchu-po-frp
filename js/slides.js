@@ -840,8 +840,8 @@ ${ixCss(anim())}
 <script>const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.classList.add('t'+(j%4)));
 document.querySelectorAll('.lay-title').forEach(t=>{const im=t.closest('.deck-s').querySelector('figure.pic img,img.sx-bgimg');if(im&&im.src){t.classList.add('has-cut');t.style.setProperty('--cut','url("'+im.src+'")');}});
 const IX=${anim().ix ? 1 : 0},STEP=${anim().step ? 1 : 0};
-const isTerm=li=>{if(li.querySelector('img,table,a'))return null;const t=li.textContent.trim(),k=t.indexOf(' — ');if(k<2||k>32||t.length-k<8)return null;const a=t.slice(0,k);if(a.split(' ').length>4||a!==a.replace(/[.!?:;]/g,''))return null;return [a,t.slice(k+3)];};
-if(IX){document.querySelectorAll('.deck-s .sx-body ul').forEach(ul=>{const items=[...ul.children].filter(x=>x.tagName==='LI');const ok=items.filter(isTerm);if(ok.length<2||ok.length<items.length*.6)return;ok.forEach(li=>{const [a,b]=isTerm(li);li.classList.add('ix-flip');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent=a;const bk=document.createElement('span');bk.className='ix-b';bk.textContent=b;li.append(f,bk);li.title='Щёлкните, чтобы перевернуть';li.addEventListener('click',e=>{e.stopPropagation();li.classList.toggle('flipped');});});});
+const isTerm=li=>{if(li.querySelector('img,table,a'))return null;const t=li.textContent.trim(),k=t.indexOf(' — ');if(k<2||k>44||t.length-k<3)return null;const a=t.slice(0,k);if(a.split(' ').length>6||a!==a.replace(/[.!?:;]/g,''))return null;return [a,t.slice(k+3)];};
+if(IX){document.querySelectorAll('.deck-s .sx-body ul').forEach(ul=>{const items=[...ul.children].filter(x=>x.tagName==='LI');const ok=items.filter(isTerm),ttl=(ul.closest('.deck-s')?.querySelector('.sx-title')?.textContent||'').toLowerCase(),quiz=/переверни|проверь себя|термин/.test(ttl);if(ok.length<2||(!quiz&&ok.length<items.length))return;ok.forEach(li=>{const [a,b]=isTerm(li);li.classList.add('ix-flip');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent=a;const bk=document.createElement('span');bk.className='ix-b';bk.textContent=b;li.append(f,bk);li.title='Щёлкните, чтобы перевернуть';li.addEventListener('click',e=>{e.stopPropagation();li.classList.toggle('flipped');});});});
 document.querySelectorAll('.deck-s .sx-body li:not(.ix-flip),.deck-s figure.pic,.deck-s .sx-body blockquote').forEach(el=>{el.classList.add('ix-tilt');el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*10+'deg');});el.addEventListener('pointerleave',()=>{el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});});
 const sp=document.querySelector('.ix-spot');addEventListener('pointermove',e=>{if(sp){sp.style.setProperty('--mx',e.clientX+'px');sp.style.setProperty('--my',e.clientY+'px');}});}
 const prep=x=>{if(!STEP)return;x.querySelectorAll('.sx-body li,.sx-body>p,.sx-body>blockquote').forEach((b,j)=>{if(j>0||b.tagName==='LI')b.classList.add('ix-hide');b.classList.remove('ix-show');});};
@@ -875,8 +875,10 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
   /* Интерактив в показе: карточки-перевороты, объём при наведении, подсветка за курсором, прогресс, пошаговый показ */
   function ixCss(A) {
     if (!A.ix && !A.step) return "";
-    return `.ix-on .ix-flip{position:relative;cursor:pointer;perspective:900px;list-style:none;min-height:3.2em}
-.ix-on .ix-flip .ix-f,.ix-on .ix-flip .ix-b{display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .6s cubic-bezier(.2,.8,.2,1);border-radius:.6em;padding:.45em .7em}
+    return `.ix-on ul:has(.ix-flip){display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,30%),1fr));gap:.5em .6em;padding:0;margin:0;font-size:1em}
+.ix-on .ix-flip{position:relative;cursor:pointer;perspective:900px;list-style:none;min-height:2.4em;margin:0!important}
+.ix-on .ix-flip::before{display:none!important}
+.ix-on .ix-flip .ix-f,.ix-on .ix-flip .ix-b{display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .6s cubic-bezier(.2,.8,.2,1);border-radius:.6em;padding:.6em .7em;font-size:.9em}
 .ix-on .ix-flip .ix-f{font-weight:800;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 2px currentColor}
 .ix-on .ix-flip .ix-b{position:absolute;inset:0;transform:rotateY(180deg);background:rgba(255,255,255,.92);color:#1a1a1a;overflow:auto;font-size:.9em}
 .ix-on .ix-flip.flipped .ix-f{transform:rotateY(-180deg)}.ix-on .ix-flip.flipped .ix-b{transform:rotateY(0)}

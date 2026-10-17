@@ -2716,7 +2716,8 @@ const Media = (() => {
       if (!items.length) return null;
     }
     const st = FRP.stems(q.replace(/иллюстрац\S*|картин\S*|портрет\S*|фото\S*/gi, ""));
-    const names = (q.match(/(?:^|\s)[А-ЯЁ][а-яё]{3,}/g) || []).slice(1).map(w => w.trim().toLowerCase().replace(/ё/g, "е").slice(0, 5)); // фамилии и имена (кроме первого слова)
+    // фамилии, имена и название произведения: в названии картинки должно быть хоть одно из них (статья «Мцыри» — подходит)
+    const names = (q.match(/(?:^|\s)[А-ЯЁ][а-яё]{3,}/g) || []).map(w => w.trim().toLowerCase().replace(/ё/g, "е").slice(0, 5));
     const scored = items.map((it, i) => {
       const t = String((it.title || "") + " " + (it.cap || "")).toLowerCase().replace(/ё/g, "е");
       if (!t.trim()) return { it, s: 1 - i * 0.05 }; // без названия — только по месту в выдаче
@@ -4509,6 +4510,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/rules.js"></script>
 <script src="js/lessonnotes.js"></script>
 <script src="js/tutor.js"></script>
+<script src="js/mnemo.js"></script>
 <script src="data/promo.js"></script>
 <script src="js/access.js"></script>
 <script src="js/deck.js"></script>

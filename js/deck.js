@@ -244,6 +244,14 @@ const Deck = (() => {
       (RK.handouts || []).forEach(h => add({ kind: "quote", title: h.title, quote: h.text, by: "", notes: h.key ? "Для учителя: " + h.key : "" }));
       if (RK.table) add({ kind: "table", title: RK.table.title, head: RK.table.head, rows: RK.table.rows.map(r => [r[0]]), notes: "Таблица — та же, что в рабочем листе." });
     }
+    // 5б. Запоминалки и интерактивные примеры (в показе — карточки-перевороты: пропуск → ответ)
+    if (!lit && window.Mnemo) {
+      const MN = Mnemo.find(p.topic, RK?.algo?.name || "");
+      if (MN) {
+        add({ kind: "list", title: "Как запомнить", points: MN.tips.map(plainMd), notes: "Приёмы запоминания: проговорите с классом, попросите придумать свой пример." });
+        add({ kind: "list", title: "Проверь себя: переверни карточку", points: MN.quiz.map(([g, a]) => `${g} — ${a}`), notes: "В показе каждая карточка переворачивается по щелчку: сначала ученики отвечают, потом открываем ответ." });
+      }
+    }
     // 6. Этапы техкарты
     const poem = lit && p.plan?.analysis?.verse && p.plan.analysis.stanzas?.length ? p.plan.analysis.stanzas : null;
     let poemDone = false;
