@@ -2652,7 +2652,7 @@ const Media = (() => {
       const j = await (await fetch(u, { signal: ctl.signal })).json(); clearTimeout(t);
       if (!j.ok) { yandexState = j.message || "поиск Яндекса недоступен"; return []; }
       yandexState = "ok";
-      return (j.items || []).map(x => ({ url: x.url, thumb: x.thumb || x.url, title: x.title || x.domain || q, src: "Яндекс", domain: x.domain }));
+      return (j.items || []).map(x => ({ url: x.url, thumb: x.thumb || x.url, title: x.title || "", noTitle: !x.title, src: "Яндекс", domain: x.domain }));
     } catch { yandexState = "прокси с поиском Яндекса не отвечает"; return []; }
   }
   /* Скачать картинку к себе (в память браузера), чтобы её можно было обрезать и выгрузить в PowerPoint/PDF */
@@ -2700,8 +2700,14 @@ const Media = (() => {
      картинки «с текстом» (презентации, плакаты с правилами, цитаты, схемы) и чужие люди отсеиваются.
      Если ничего подходящего нет — место остаётся пустым для ручного выбора (лучше пусто, чем не в тему). */
   const TEXTY = /презентац|слайд|плакат|правил|таблиц|схем|кроссворд|тест\b|ответ|цитат|надпис|текст|открытк|рамк|шаблон|фон для|обои|демотиватор|мем\b|конспект|урок\b|памятк|ребус|раскраск|скачать|pptx?|docx?|pdf/i;
-  function pickBest(q, items) {
+  function pickBest(q, items, must) {
     if (!items?.length) return null;
+    // проверка по названию и описанию картинки: главное слово слайда обязано там быть
+    if (must?.length) {
+      const st = must.map(w => String(w).toLowerCase().replace(/ё/g, "е").slice(0, Math.max(4, Math.min(6, String(w).length - 1))));
+      items = items.filter(it => { const t = String((it.title || "") + " " + (it.cap || "") + " " + (it.artist || "")).toLowerCase().replace(/ё/g, "е"); return !it.noTitle && !TEXTY.test(t) && st.some(s => t.includes(s)); });
+      if (!items.length) return null;
+    }
     const st = FRP.stems(q.replace(/иллюстрац\S*|картин\S*|портрет\S*|фото\S*/gi, ""));
     const names = (q.match(/(?:^|\s)[А-ЯЁ][а-яё]{3,}/g) || []).slice(1).map(w => w.trim().toLowerCase().replace(/ё/g, "е").slice(0, 5)); // фамилии и имена (кроме первого слова)
     const scored = items.map((it, i) => {
@@ -2726,13 +2732,47 @@ const Media = (() => {
     }
     const todo = [...md.matchAll(RE)].filter(m => m[2].startsWith("search:"));
     let out = md, done = 0;
-    for (const m of todo) {
-      const q = decodeURIComponent(m[2].slice(7));
-      const found = pickBest(q, await search(q, 12));
+    const plan = await planImages(md, todo).catch(e => { console.warn("planImages", e); return []; });
+    const usedUrl = new Set(), fresh = list => list.filter(x => !usedUrl.has(x.url)); // одна и та же картинка не повторяется на разных слайдах
+    for (const [k, m] of todo.entries()) {
+      const P = plan[k] || {}, q0 = decodeURIComponent(m[2].slice(7)), q = P.query || q0;
+      let found = pickBest(q, fresh(await search(q, 12)), P.must);
+      if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12)), P.must);
+      if (found) usedUrl.add(found.url);
       if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(m[1], src, { q, from: found.src })); }
       onProgress && onProgress(++done, todo.length);
     }
     return out;
+  }
+  /* Умный подбор: для каждого слайда — его этап и главное ключевое слово; ищем строго по нему,
+     найденную картинку проверяем по названию и описанию. С нейросетью — она выбирает слово сама. */
+  const STOPW = new Set("язык языка русский литература урок урока тема темы правило правила предложение предложения слово слова определение определения оборот оборота причастие причастный причастного деепричастие член члены члена задание задания упражнение текст текста пример примеры вопрос вопросы ответ ответы алгоритм схема таблица класс классе учебник работа ученики учитель иллюстрация картина портрет обособление обособленные обособленный знаки знак запятая запятые препинания сегодня рефлексия мотивация закрепление домашнее итог вывод выводы цель часть части автор стихотворение произведение герой героя".split(" "));
+  function slideOf(md, idx) { const a = md.lastIndexOf("\n---\n", idx), b = md.indexOf("\n---\n", idx); return md.slice(a < 0 ? 0 : a, b < 0 ? md.length : b); }
+  function guessKey(slide, q, all) {
+    if (/портрет|иллюстрац|картин|«/.test(q) || /^[А-ЯЁ]\.\s?[А-ЯЁ]?/.test(q)) return { query: q, must: null }; // портрет, произведение — как есть (там своя проверка по фамилии)
+    const txt = slide.replace(/!\[[^\]]*\]\([^)]*\)|<!-{2}[\s\S]*?-{2}>|[#*_>`|\-]/g, " ");
+    // главное слово — из примера на слайде (а если его нет — из первого примера урока), а не из термина
+    const quoted = (txt.match(/«[^»]{6,120}»/g) || []).join(" ") || ((all || "").replace(/<!-{2}[\s\S]*?-{2}>/g, "").match(/«[^»]{6,120}»/g) || []).slice(0, 2).join(" ");
+    if (!quoted) return { query: q, must: ["\u0000"], strict: true }; // нечего искать — место остаётся для ручного выбора
+    const words = (quoted.toLowerCase().match(/[а-яё]{4,}/g) || []).filter(w => !STOPW.has(w) && !/(ть|ться|ешь|ет|ут|ют|ит|ат|ят|ал|ала|ли|ый|ий|ой|ая|ое|ее|ые|ие|ого|ему|ыми|ими|ом|ем|ся|ась|ось)$/.test(w));
+    const freq = {}; words.forEach(w => freq[w] = (freq[w] || 0) + 1);
+    const key = Object.keys(freq).sort((a, b) => freq[b] - freq[a] || b.length - a.length)[0];
+    return key ? { query: key, must: [key], strict: true } : { query: q, must: null };
+  }
+  async function planImages(md, todo) {
+    if (!todo.length) return [];
+    const slides = todo.map(m => slideOf(md, m.index).replace(/\s+/g, " ").trim().slice(0, 500));
+    const base = todo.map((m, i) => guessKey(slides[i], decodeURIComponent(m[2].slice(7)), md));
+    const aiOk = window.AI?.configured?.() && (!window.Access || Access.aiAllowed());
+    if (!aiOk) return base;
+    const prompt = `Подбираешь картинки к слайдам школьного урока. Для каждого слайда: определи этап урока, главное ключевое слово (конкретный предмет, который можно сфотографировать или нарисовать) и короткий поисковый запрос по-русски (2–4 слова), строго по этому слову. Для литературы — герой, сцена или место из произведения; для портрета — фамилия писателя. Для правил русского языка — предмет из примера на слайде, не термин.
+${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
+Ответ — ТОЛЬКО JSON-массив: [{"n":1,"stage":"этап","keyword":"слово","query":"запрос","must":["слово, которое обязано быть в названии картинки"]}]`;
+    try {
+      const { text } = await window.AI.sample(prompt, { modelTier: "quick", noRules: true });
+      const arr = JSON.parse((String(text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
+      return base.map((b, i) => { const a = arr.find(x => +x.n === i + 1); if (!a?.query) return b; const keep = /портрет|«/.test(decodeURIComponent(todo[i][2].slice(7))); return { query: keep ? b.query : String(a.query).slice(0, 80), must: [].concat(a.must || a.keyword || []).map(String).filter(Boolean).slice(0, 3), stage: a.stage }; });
+    } catch { return base; }
   }
   const yandexUrl = q => `https://yandex.ru/images/search?text=${encodeURIComponent(q)}`;
 
