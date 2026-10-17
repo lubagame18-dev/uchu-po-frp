@@ -68,10 +68,11 @@ const Access = (() => {
   async function applyPromo(code) {
     const h = await sha(SALT + norm(code));
     let ok = hashes().includes(h);
-    // при входе в кабинет — проверка и на сервере (там промокод закрепляется за учётной записью)
+    // при входе в кабинет — проверка только на сервере: коды хранятся в облаке, там же промокод закрепляется за почтой
     const fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
-    if (fn && tok) { try { const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/promo")}` : base + "/promo"; const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code: norm(code), messages: [] }) }); if (r.ok) ok = true; } catch { } }
+    if (fn && tok) { ok = false; try { const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/promo")}` : base + "/promo"; const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code: norm(code), messages: [] }) }); if (r.ok) ok = true; } catch { } }
     if (!ok) return false;
+    window.Account?.refreshPlan?.();
     A.promo = { at: new Date().toISOString(), h: h.slice(0, 12), email: me() }; save();
     return true;
   }

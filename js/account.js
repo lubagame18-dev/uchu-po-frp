@@ -210,6 +210,8 @@ const Account = (() => {
   document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); });
   document.addEventListener("uchu:ready", () => { if (/access_token|error_description/.test(location.hash)) fromLink(); else if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); } });
   paint();
-  return { open, refreshPlan: () => plan(), shareMaterial, sharedList, sharedGet, sharedDel, loadInfo, saveInfo, signIn, signUp, signOut, push, pull, remove, ready, get session() { return S; } };
+  // запрос к облаку от имени вошедшего (права — по правилам таблиц)
+  async function db(path, opt = {}) { if (!ready() || !S || S.local) throw new Error("войдите в личный кабинет"); if (!(await refresh())) throw new Error("войдите в личный кабинет заново"); return api(path, opt); }
+  return { open, db, refreshPlan: () => plan(), shareMaterial, sharedList, sharedGet, sharedDel, loadInfo, saveInfo, signIn, signUp, signOut, push, pull, remove, ready, get session() { return S; } };
 })();
 window.Account = Account;

@@ -137,7 +137,7 @@ const Dev = (() => {
       <section class="dev-card"><h2>Загружено вами (${mine.length})</h2>${mine.length ? `<ul class="fl-list">${mine.map(row).join("")}</ul>` : `<p class="small">Пока ничего. Загрузите файлы кнопкой выше.</p>`}
         <div class="mat-row"><button class="btn sm ghost" id="dvEmbed">${window.Publish?.ready() ? "Опубликовать для всех учителей" : "Скачать базу (extra.js) для владельца сайта"}</button></div></section>
       <section class="dev-card"><h2>Уже встроено в сайт (${built.length + base.length})</h2><ul class="fl-list">${base.map(x => `<li><span class="fl-n">${esc(x.title || x.short)}</span><span class="fl-t">${x.grade ? `<span class="tag">${x.grade} кл.</span>` : ""}<span class="tag ok">в базе</span></span></li>`).join("")}${built.map(row).join("")}</ul></section>`;
-    if (OWNER() && window.Access) promoCard(b);
+    if (window.Access) promoCard(b);
     sharedCard(b);
     DevCover.bindUpload(b, () => show("files"));
     b.querySelector("#dvEmbed").onclick = () => embedAll();
@@ -211,7 +211,36 @@ const Dev = (() => {
     draw();
   }
   /* Промокоды свободной зоны — только у владельца. Хранятся хэши (data/promo.js), сами коды нигде не видны. */
+  /* Промокоды (скидка 50%): хранятся в облаке, в таблице promo_codes; видят и меняют только разработчики */
   function promoCard(b) {
+    const box = document.createElement("section"); box.className = "dev-card"; box.id = "dvPromo";
+    box.innerHTML = `<h2>Промокоды (скидка 50%)</h2><p class="small">Загружаю…</p>`;
+    b.prepend(box);
+    const gen = () => { const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", r = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), x => A[x % A.length]).join(""); return `FRP-${r(4)}-${r(4)}`; };
+    const N = c => String(c || "").toUpperCase().replace(/\s+/g, "").replace(/^ФРП/, "FRP").replace(/[–—]/g, "-");
+    const draw = async () => {
+      let rows;
+      try { rows = await window.Account.db("/rest/v1/promo_codes?select=*&order=created_at.asc"); }
+      catch (e) { box.innerHTML = `<h2>Промокоды (скидка 50%)</h2><p class="small">${esc(/promo_codes|does not exist|schema cache|404/i.test(e.message) ? "В облаке ещё нет таблицы промокодов — выполните в Supabase команду из инструкции." : e.message)}</p>`; return; }
+      const on = rows.filter(r => r.active).length;
+      box.innerHTML = `<h2>Промокоды (скидка 50%)</h2><p class="small">Действующих: ${on} из ${rows.length}. Человек входит в личный кабинет и вводит код в окне тарифов — тарифы для него вдвое дешевле, в тарифах с ИИ работает его нейросеть.</p>
+        <div class="row-btn"><input type="text" id="pcNew" placeholder="Новый код, например ШКОЛА-2026" autocomplete="off" spellcheck="false"><input type="text" id="pcNote" placeholder="Для кого (необязательно)" autocomplete="off"><button class="btn sm" id="pcGen" type="button">Придумать</button><button class="btn sm flame" id="pcAdd" type="button">Добавить</button></div>
+        <ul class="fl-list pc-list">${rows.map(r => `<li class="${r.active ? "" : "off"}"><span class="fl-n"><b class="pc-code">${esc(r.code)}</b> <button class="btn plain" data-pcopy="${esc(r.code)}" title="Скопировать">⧉</button>${r.note ? ` <span class="small">· ${esc(r.note)}</span>` : ""}<br><span class="small">${r.used_by?.length ? "ввели: " + esc(r.used_by.join(", ")) : "ещё никто не ввёл"}</span></span><span class="fl-t"><span class="tag ${r.active ? "ok" : ""}">${r.active ? "действует" : "отключён"}</span><button class="btn sm ghost" data-ptog="${esc(r.code)}" data-on="${r.active ? 1 : 0}">${r.active ? "Отключить" : "Включить"}</button><button class="btn sm ghost" data-pdel="${esc(r.code)}" aria-label="Удалить">×</button></span></li>`).join("")}</ul>`;
+      const $b = q => box.querySelector(q);
+      $b("#pcGen").onclick = () => { $b("#pcNew").value = gen(); };
+      $b("#pcAdd").onclick = async () => {
+        const code = N($b("#pcNew").value); if (code.length < 4) { toast("Код — не короче 4 знаков."); return; }
+        if (rows.some(r => N(r.code) === code)) { toast("Такой код уже есть."); return; }
+        try { await window.Account.db("/rest/v1/promo_codes", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ code, note: $b("#pcNote").value.trim() || null }) }); toast("Код добавлен и уже работает."); draw(); } catch (e) { toast("Не получилось: " + e.message); }
+      };
+      box.querySelectorAll("[data-pcopy]").forEach(x => x.onclick = async () => { try { await navigator.clipboard.writeText(x.dataset.pcopy); toast("Скопировано: " + x.dataset.pcopy); } catch { prompt("Скопируйте код:", x.dataset.pcopy); } });
+      box.querySelectorAll("[data-ptog]").forEach(x => x.onclick = async () => { try { await window.Account.db(`/rest/v1/promo_codes?code=eq.${encodeURIComponent(x.dataset.ptog)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ active: x.dataset.on !== "1" }) }); draw(); } catch (e) { toast("Не получилось: " + e.message); } });
+      box.querySelectorAll("[data-pdel]").forEach(x => x.onclick = async () => { if (!confirm(`Удалить код ${x.dataset.pdel}? Те, кто уже ввёл его, скидку сохранят.`)) return; try { await window.Account.db(`/rest/v1/promo_codes?code=eq.${encodeURIComponent(x.dataset.pdel)}`, { method: "DELETE" }); draw(); } catch (e) { toast("Не получилось: " + e.message); } });
+    };
+    draw();
+  }
+  /* прежний вариант: отпечатки кодов в data/promo.js (запасной, когда облако не подключено) */
+  function promoCardOld(b) {
     const box = document.createElement("section"); box.className = "dev-card";
     const list = () => [].concat(window.UCHU_PROMO || []);
     const draw = () => {

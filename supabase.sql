@@ -59,3 +59,10 @@ alter table ai_keys enable row level security;
 
 -- промокод: отметка у учителя (скидка 50% на тарифы)
 alter table profiles add column if not exists promo boolean not null default false;
+
+-- промокоды (скидка 50%): видят и меняют только разработчики (site_admins), сервер проверяет секретным ключом
+create table if not exists promo_codes (code text primary key, note text, active boolean not null default true, used_by text[] not null default '{}', created_at timestamptz not null default now());
+alter table promo_codes enable row level security;
+drop policy if exists promo_admin on promo_codes;
+create policy promo_admin on promo_codes for all using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email')) with check (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
+insert into promo_codes (code) values ('FRP-D6D3-3DGP'),('FRP-8WRU-M5N4'),('FRP-5FGB-VKRZ'),('FRP-4PFR-FN8B'),('FRP-KKVX-B5GE'),('FRP-ADBR-GZSM'),('FRP-AJW9-LR47'),('FRP-7HZZ-B2BA'),('FRP-LZ82-4JQK'),('FRP-387R-BK3F') on conflict do nothing;
