@@ -212,7 +212,8 @@ const ThemeKit = (() => {
     return out;
   }
   function stickersHtml(list, edit) {
-    return (list || []).filter(x => STK[x.n]).map((x, k) => `<div class="stk${x.auto ? " auto" : ""}" data-k="${k}" data-n="${x.n}" style="left:${x.x}%;top:${x.y}%;width:${x.s}%;transform:rotate(${x.r || 0}deg)" ${edit ? 'tabindex="0" title="Перетащите; двойной щелчок — убрать"' : 'aria-hidden="true"'}>${stkSvg(x.n)}</div>`).join("");
+    const q = s => String(s).replace(/"/g, "&quot;");
+    return (list || []).filter(x => STK[x.n] || x.img).map((x, k) => `<div class="stk${x.auto ? " auto" : ""}${x.img ? " ph" : ""}" data-k="${k}" data-n="${x.n || "photo"}" style="left:${x.x}%;top:${x.y}%;width:${x.s}%;transform:rotate(${x.r || 0}deg)${x.img ? `;aspect-ratio:${x.ar || 1}` : ""}" ${edit ? 'tabindex="0" title="Перетащите; колёсико — повернуть; +/− — размер; двойной щелчок — убрать"' : 'aria-hidden="true"'}>${x.img ? `<img class="stk-img" data-src="${q(x.img)}" alt="">` : stkSvg(x.n)}</div>`).join("");
   }
   const rcache = new Map();
   async function rasterSvg(svgStr, w, h, type = "image/png") {

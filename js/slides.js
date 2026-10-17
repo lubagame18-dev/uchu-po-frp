@@ -147,7 +147,7 @@ const SlideEditor = (() => {
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
     const body = vid + linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
-    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
+    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
     const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "") : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}
@@ -173,7 +173,7 @@ const SlideEditor = (() => {
     return out;
   }
   async function hydrateBg(root) {
-    for (const img of root.querySelectorAll("img.sx-bgimg")) { const s = img.dataset.src; img.src = s.startsWith("idb:") ? (await idbUrl(s.slice(4))) || "" : s; }
+    for (const img of root.querySelectorAll("img.sx-bgimg, img.stk-img")) { const s = img.dataset.src; img.src = s.startsWith("idb:") ? (await idbUrl(s.slice(4))) || "" : s; }
   }
   const urlCache = new Map();
   async function idbUrl(id) { if (urlCache.has(id)) return urlCache.get(id); const b = await Store.get("images", id).catch(() => null); if (!b) return null; const u = URL.createObjectURL(b); urlCache.set(id, u); return u; }
@@ -605,9 +605,44 @@ const SlideEditor = (() => {
   function stickerPicker(anchor) {
     const sl = slides()[cur];
     const p = popover(anchor, `<div class="pm-h">Стикеры поверх слайда</div><div class="stk-grid">${Object.entries(ThemeKit.STK).map(([k, v]) => `<button class="stk-it" data-stk="${k}" title="${v.n}">${ThemeKit.stkSvg(k)}<small>${v.n}</small></button>`).join("")}</div>
+      <div class="pm-h">Фото-наклейка (вырезка, рваная бумага, полароид, скотч, марка)</div>
+      <div class="pm-row"><button class="btn sm teal" id="psFile">📷 Своё фото</button><button class="btn sm ghost" id="psSlide">🖼 Картинка со слайда</button><button class="btn sm ghost" id="psYa">🔍 Найти картинку</button></div>
       <div class="pm-row"><label class="check"><input type="checkbox" id="stkAuto" ${sl.set.nostk ? "" : "checked"}> Стикеры темы на ключевых слайдах</label></div><p class="small" style="padding:0 6px">Стикер можно перетащить; колёсико или Shift+стрелки — повернуть; +/− — размер; двойной щелчок — убрать.</p>`, "pm wide");
     p.querySelectorAll("[data-stk]").forEach(b => b.onclick = () => { const a = slides(); a[cur].set.stk = [...(a[cur].set.stk || []), { n: b.dataset.stk, x: 70 + Math.round(Math.random() * 12), y: 8 + Math.round(Math.random() * 10), s: 11, r: Math.round(Math.random() * 16 - 8) }]; write(a); closePop(); rerender(); });
+    p.querySelector("#psFile").onclick = () => { closePop(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = () => { const f = inp.files[0]; if (f) photoSticker(f, ""); }; inp.click(); };
+    p.querySelector("#psSlide").onclick = async () => {
+      closePop(); const m = (sl.body.match(Media.RE) || []).map(x => x.match(/\]\(\s*([^)\s"]+)/)?.[1]).filter(x => x && !/^(search|commons):/.test(x)); Media.RE.lastIndex = 0;
+      const src = sl.set.bgimg || m[0]; if (!src) { toast("На этом слайде нет картинки. Выберите «Своё фото» или «Найти картинку»."); return; }
+      const b = src.startsWith("idb:") ? await Store.get("images", src.slice(4)) : await Media.toBlob(src).catch(() => null);
+      if (b) photoSticker(b, sl.title); else toast("Не получилось взять картинку.");
+    };
+    p.querySelector("#psYa").onclick = () => { closePop(); pickImage(async res => { const b = res.src.startsWith("idb:") ? await Store.get("images", res.src.slice(4)) : await Media.toBlob(res.src).catch(() => null); if (b) photoSticker(b, res.cap || ""); else toast("Не получилось скачать картинку — попробуйте другую."); }); };
     p.querySelector("#stkAuto").onchange = e => { const a = slides(); a[cur].set.nostk = e.target.checked ? undefined : 1; write(a); rerender(); };
+  }
+  /* Фото-наклейка: окно выбора вида → PNG в хранилище → стикер на текущем слайде */
+  function photoSticker(blob, caption = "") {
+    PhotoStk.openDialog(blob, { caption: String(caption).slice(0, 40), onDone: async r => {
+      const id = "img-" + uid(); await Store.put("images", id, r.blob);
+      const a = slides(); const s0 = r.ar >= 1 ? 30 : 22;
+      a[cur].set.stk = [...(a[cur].set.stk || []), { img: "idb:" + id, ar: Math.round(r.ar * 1000) / 1000, x: 62 - Math.round(Math.random() * 8), y: 18 + Math.round(Math.random() * 10), s: s0, r: Math.round(Math.random() * 10 - 5) }];
+      write(a); rerender(); toast("Наклейка вклеена. Перетащите её; колёсико — повернуть, +/− — размер.", 5000);
+    } });
+  }
+  /* При сборке: картинка титульного слайда — вклеенной наклейкой в стиле темы (как в журнальных презентациях) */
+  const AUTO_PS = { collage: "torn", museum: "torn", poster: "polaroid", sketch: "polaroid", haze: "polaroid", board: "tape", botanic: "tape", night: "stamp", salon: "circle", mystic: "circle" };
+  async function stickerize(md) {
+    const th = theme(), style = AUTO_PS[th]; if (!style || !window.PhotoStk) return md;
+    const head = headOf(md), arr = splitSlides(md).map(parse), sl = arr[0]; if (!sl || !sl.set.acc) return md;
+    const m = new RegExp(Media.RE.source).exec(sl.body); if (!m || !/^idb:/.test(m[2])) return md;
+    const b = await Store.get("images", m[2].slice(4)).catch(() => null); if (!b) return md;
+    try {
+      const r = await PhotoStk.make(b, style, { caption: style === "polaroid" ? String(sl.title).replace(/[«»]/g, "").slice(0, 30) : "" });
+      const id = "img-" + uid(); await Store.put("images", id, r.blob);
+      sl.body = sl.body.replace(m[0], "").trim(); sl.set.acc = undefined; sl.set.photo = 1;
+      const w = r.ar >= 1 ? 40 : 30;
+      sl.set.stk = [...(sl.set.stk || []), { img: "idb:" + id, ar: Math.round(r.ar * 1000) / 1000, x: 56, y: Math.max(4, Math.round(50 - (w * 16 / 9 / r.ar) / 2)), s: w, r: 3 }];
+      return (/marp\s*:/.test(head) ? head.trim() + "\n\n" : "") + arr.map(build).join("\n\n---\n\n") + "\n";
+    } catch { return md; }
   }
   function bindStickers(fr) {
     const sx = fr.querySelector(".sx"); if (!sx) return;
@@ -813,7 +848,7 @@ const SlideEditor = (() => {
     const a0 = slides(), st0 = a0[cur].set, isAcc = !!fig.closest(".sx-acc");
     const q0 = fig.dataset.q || suggestQuery(a0[cur]);
     const m = openModal(`<div class="dialog"><div class="dlg-h"><h2>Картинка</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-      <div class="mat-row"><button class="btn sm" id="pmEdit">Обрезать или заменить</button><button class="btn sm ghost" id="pmCut">Убрать фон</button><button class="btn sm ghost" id="pmBg">Сделать фоном слайда</button>${isAcc ? "" : `<button class="btn sm ghost" id="pmReset">Вернуть на место (по сетке)</button>`}<button class="btn sm ghost" id="pmDel">Удалить картинку</button></div>
+      <div class="mat-row"><button class="btn sm" id="pmEdit">Обрезать или заменить</button><button class="btn sm ghost" id="pmCut">Убрать фон</button><button class="btn sm ghost" id="pmBg">Сделать фоном слайда</button><button class="btn sm ghost" id="pmStk">Сделать наклейкой</button>${isAcc ? "" : `<button class="btn sm ghost" id="pmReset">Вернуть на место (по сетке)</button>`}<button class="btn sm ghost" id="pmDel">Удалить картинку</button></div>
       <div class="mat-row"><span class="small"><b>Положение:</b></span>${Object.entries(ACC).filter(([k]) => k).map(([k, n]) => `<button class="btn sm ${st0.acc === k ? "flame" : "ghost"}" data-acc="${k}">${n.replace("Картинка ", "")}</button>`).join("")}<button class="btn sm ${!st0.acc ? "flame" : "ghost"}" data-acc="">в тексте</button></div>
       <div class="sx-sugg-h"><b>Другая картинка из Яндекса</b><input type="text" id="pmQ" class="mini-q" value="${esc(q0)}"><button class="btn sm ghost" id="pmGo">Найти</button></div>
       <div class="sx-sugg-grid" id="pmSugg"><p class="small">Ищу…</p></div>
@@ -832,6 +867,12 @@ const SlideEditor = (() => {
         const out = await lib.removeBackground(blob);
         await replaceWith(out); toast("Фон убран.");
       } catch (e) { msg.textContent = "Не получилось убрать фон: " + (e.message || e); }
+    };
+    m.querySelector("#pmStk").onclick = async () => {
+      const src = fig.dataset.src; if (!src || src.startsWith("search:")) { toast("Сначала выберите картинку."); return; }
+      const b = src.startsWith("idb:") ? await Store.get("images", src.slice(4)) : await Media.toBlob(src).catch(() => null);
+      if (!b) { toast("Не получилось взять картинку."); return; }
+      closeModal(); photoSticker(b, fig.dataset.cap || "");
     };
     m.querySelector("#pmEdit").onclick = () => { closeModal(); Media.openPicker(fig, res => { const a = slides(); let k = -1; a[cur].body = a[cur].body.replace(Media.RE, (mm, cap, src, opt) => { if (++k !== idx) return mm; const old = Media.parseOpts(opt); const o = { q: res.q, ...(old.px ? { px: old.px, py: old.py, pw: old.pw } : {}) }; if (res.z && +res.z !== 1) { o.z = (+res.z).toFixed(2); o.x = res.x; o.y = res.y; } return Media.mdImage(res.cap, res.src, o); }); write(a); rerender(); }); };
     m.querySelector("#pmBg").onclick = () => { const src = fig.dataset.src; closeModal(); if (!src || src.startsWith("search:")) { toast("Сначала выберите картинку."); return; } const a = slides(); let k = -1; a[cur].body = a[cur].body.replace(Media.RE, mm => ++k === idx ? "" : mm).trim(); a[cur].set.bgimg = src; write(a); rerender(); };
@@ -895,7 +936,7 @@ const SlideEditor = (() => {
     // в показе пустых мест «Нет картинки» не бывает: незаполненная картинка убирается
     box.querySelectorAll("figure.pic").forEach(f => { if (/^(search|commons):/.test(f.dataset.src || "") || !f.querySelector("img")) { const acc = f.closest(".sx-acc"); (acc || f).remove(); } });
     for (const fig of box.querySelectorAll("figure.pic")) { const img = fig.querySelector("img"); if (img) img.src = await toData(fig.dataset.src); }
-    for (const img of box.querySelectorAll("img.sx-bgimg")) img.src = await toData(img.dataset.src);
+    for (const img of box.querySelectorAll("img.sx-bgimg, img.stk-img")) img.src = await toData(img.dataset.src);
     box.querySelectorAll("[contenteditable]").forEach(e => e.removeAttribute("contenteditable"));
     const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(L().title)}</title>${fontLinks}<style>
 ${css}
@@ -1148,6 +1189,8 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     }
     // стикеры — картинками (в PowerPoint их можно двигать и поворачивать)
     if (window.ThemeKit) for (const el of sx.querySelectorAll(".stk")) {
+      const pim = el.querySelector("img.stk-img");
+      if (pim) { const st1 = el.style.transform; el.style.transform = "none"; const b = box(el); el.style.transform = st1; const bl = await (pim.dataset.src.startsWith("idb:") ? Store.get("images", pim.dataset.src.slice(4)) : Media.toBlob(pim.dataset.src)).catch(() => null); if (bl) { const d = await new Promise(r => { const fr2 = new FileReader(); fr2.onload = () => r(fr2.result); fr2.readAsDataURL(bl); }); s.addImage({ data: d, x: b.x, y: b.y, w: b.w, h: b.h, rotate: parseFloat((st1.match(/-?[\d.]+/) || [0])[0]) || 0 }); } continue; }
       const svgEl = el.querySelector("svg"); if (!svgEl) continue;
       const st0 = el.style.transform; el.style.transform = "none"; const b = box(el); el.style.transform = st0;
       const xml = new XMLSerializer().serializeToString(svgEl).replace("<svg ", '<svg width="400" height="400" ');
@@ -1189,6 +1232,6 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     Ls.docs.slides = md; Ls.slidesFitted = false; cur = 0;
     $("#md").value = md; saveLesson(Ls); rerender();
   }
-  return { render, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;

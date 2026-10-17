@@ -3812,6 +3812,7 @@ async function buildWithAi(L, p, type, formats) {
         const r = await Deck.build(cmd, p, type, { ai: true, signal: state.gen.ctl.signal });
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
         L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => r.md);
+        if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
         L.status.slides = "ok";
       } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); L.status.slides = "ok"; }
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
@@ -3920,7 +3921,7 @@ async function buildWithoutAi(L, p, type, formats) {
     await new Promise(r => setTimeout(r, 30));
     let md = buildDocNoAi(f, L, p, type);
     if (f !== "slides") { state.gen.pct = 55; updateProgress(); md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
-    if (f === "slides") { state.gen.pct = 60; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => md); }
+    if (f === "slides") { state.gen.pct = 60; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => md); if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; md = await SlideEditor.stickerize(md).catch(() => md); state.lesson = prev; } }
     L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
     if (state.lesson?.id === L.id) renderLesson();
   }
@@ -4531,6 +4532,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/mnemo.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/video.js"></script>
+<script src="js/photostk.js"></script>
 <script src="data/promo.js"></script>
 <script src="js/access.js"></script>
 <script src="js/deck.js"></script>

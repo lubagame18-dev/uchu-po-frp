@@ -571,6 +571,7 @@ ${JSON.stringify(payload)}`;
       L.deckOutline = cards;
       let md = toMarkdown(cards);
       md = await Media.autoFill(md).catch(() => md);
+      if (window.SlideEditor?.stickerize) md = await SlideEditor.stickerize(md).catch(() => md);
       if (window.SlideEditor) SlideEditor.replaceAll(md);
       closeModal(); toast("Презентация собрана по плану. Картинки можно заменить: щёлкните по картинке на слайде.", 6000);
     };
