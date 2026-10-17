@@ -286,6 +286,7 @@ async function handler(req, res) {
     }
     if (route === "/pay/notify") { const r = await PAY.notify(raw, req.headers, request, readAll); res.writeHead(r.status, { "Content-Type": "text/plain; charset=utf-8" }); return res.end(r.text); }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
+    if (route === "/admin/join") { const r = await Q.join(req.headers["x-user-token"], body.code, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? { ok: true } : { error: r.message }); }
     if (route === "/admin/keys") {
       // ячейки ключей DeepSeek — только автору сайта (вход в кабинет почтой из site_admins или X-Admin-Token)
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;

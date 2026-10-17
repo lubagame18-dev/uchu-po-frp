@@ -58,4 +58,16 @@ async function isAdmin(userToken, request, readAll) {
   const r = await sb(request, readAll, `/rest/v1/site_admins?email=eq.${encodeURIComponent(email)}&select=email`);
   return Array.isArray(r.json) && r.json.length > 0;
 }
-module.exports = { check, spend, on, promo, isAdmin };
+/* Разработчик ввёл код на сайте (уже войдя в кабинет) — вносим его почту в site_admins.
+   Сверяется отпечаток кода, как на сайте; свой код — переменная DEV_CODE_HASH (SHA-256 от "uchu-po-frp:dev:v5" + код). */
+const DEV_HASH = () => process.env.DEV_CODE_HASH || "7c22fbd5e2f15b7e42bc033064a7e36016d49d7e6f1300dab2bb1fdd3dd31c1e";
+async function join(userToken, code, request, readAll) {
+  if (!on()) return { ok: false, status: 503, message: "облако не подключено" };
+  const h = require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code || "")).digest("hex");
+  if (h !== DEV_HASH()) return { ok: false, status: 403, message: "неверный код" };
+  const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
+  const email = (u.json?.email || "").toLowerCase(); if (u.status !== 200 || !email) return { ok: false, status: 401, message: "войдите в кабинет" };
+  await sb(request, readAll, "/rest/v1/site_admins?on_conflict=email", { method: "POST", body: { email } });
+  return { ok: true, email };
+}
+module.exports = { check, spend, on, promo, isAdmin, join };

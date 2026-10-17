@@ -25,14 +25,25 @@ const Dev = (() => {
   const deob = s => { try { return [...decodeURIComponent(escape(atob(s.split("").reverse().join(""))))].reverse().join(""); } catch { return ""; } };
 
   /* ---------- вход ---------- */
+  /* Разработчиков несколько: каждый сначала входит в личный кабинет своей почтой, потом вводит код разработчика */
+  const email = () => (window.Account?.session?.email || "").toLowerCase();
+  const needAcc = () => !!window.Account?.ready?.() && !email();
+  const mark = () => HASH.slice(0, 16) + ":" + email();
+  /* сервер вносит почту в список разработчиков (site_admins) — тогда видны ключи ИИ и присланные материалы */
+  async function join(code) {
+    const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
+    if (!fn || !tok || !code) return;
+    try { const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join"; await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code }) }); } catch { }
+  }
   function openLogin() {
     if (on) return show("files");
-    // вход запомнен на этом устройстве — сразу входим, без пароля
-    try { if (localStorage.getItem(SESSION) === HASH.slice(0, 16)) { enter(); return; } } catch { }
+    if (needAcc()) { Dev.wantDev = true; toast("Сначала войдите в личный кабинет своей почтой — потом откроется вход разработчика.", 6000); window.Account.open(); return; }
+    // вход запомнен на этом устройстве (для этой почты) — сразу входим, без кода
+    try { if (remembered()) { enter(); join(deob(localStorage.getItem(SAVED) || "")); return; } } catch { }
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Режим разработчика</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <form class="dlg-b" id="devForm" autocomplete="on">
-        <input type="text" name="username" value="разработчик" autocomplete="username" hidden>
-        <div class="field"><label for="devPass">Пароль</label><div class="row-btn"><input type="password" id="devPass" name="password" autocomplete="current-password" required><button type="button" class="btn sm ghost" id="devFill">Заполнить вход</button></div></div>
+        ${email() ? `<p class="small">Кабинет: ${esc(email())}</p>` : ""}<input type="text" name="username" value="разработчик" autocomplete="username" hidden>
+        <div class="field"><label for="devPass">Код разработчика</label><div class="row-btn"><input type="password" id="devPass" name="password" autocomplete="current-password" required><button type="button" class="btn sm ghost" id="devFill">Заполнить вход</button></div></div>
         <label class="check"><input type="checkbox" id="devRemember" checked> Запомнить вход на этом устройстве (пароль больше не спросится; забыть — кнопка «Выйти и забыть»)</label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit">Войти</button><span class="small" id="devMsg" role="status"></span></div>
       </form></div>`);
@@ -46,10 +57,10 @@ const Dev = (() => {
     m.querySelector("#devForm").onsubmit = async e => {
       e.preventDefault();
       const ok = (await sha(SALT + pass.value)) === HASH;
-      if (!ok) { msg.textContent = "Неверный пароль."; pass.select(); if (window.Log) Log.add("вход", "неверный пароль разработчика"); return; }
-      try { if (m.querySelector("#devRemember").checked) { localStorage.setItem(SAVED, ob(pass.value)); localStorage.setItem(SESSION, HASH.slice(0, 16)); } else { localStorage.removeItem(SAVED); localStorage.removeItem(SESSION); } } catch { }
+      if (!ok) { msg.textContent = "Неверный код."; pass.select(); if (window.Log) Log.add("вход", "неверный пароль разработчика"); return; }
+      try { if (m.querySelector("#devRemember").checked) { localStorage.setItem(SAVED, ob(pass.value)); localStorage.setItem(SESSION, mark()); } else { localStorage.removeItem(SAVED); localStorage.removeItem(SESSION); } } catch { }
       if (window.PasswordCredential && m.querySelector("#devRemember").checked) { try { await navigator.credentials.store(new PasswordCredential({ id: "разработчик", password: pass.value })); } catch { } }
-      closeModal(); enter();
+      join(pass.value); closeModal(); enter();
     };
   }
   function enter() {
@@ -387,13 +398,14 @@ const Dev = (() => {
     if (document.getElementById("devEntry")) return;
     const f = document.createElement("footer"); f.className = "site-foot";
     // внизу — только неприметные серые ссылки: инструкция, источники, вход разработчика
-    f.innerHTML = `<div class="wrap foot-links"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button></span><button type="button" class="foot-dev" id="devEntry" title="Режим разработчика">для разработчика</button></div>`;
+    f.innerHTML = `<div class="wrap foot-links"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button></span><button type="button" class="foot-dev" id="devEntry" title="Вход для разработчиков: сначала личный кабинет, потом код">Я разработчик</button></div>`;
     document.body.appendChild(f);
     f.querySelector("#devEntry").onclick = openLogin;
     f.querySelector("#helpLink").onclick = () => { if (typeof go === "function") go("help"); window.scrollTo(0, 0); };
   }
   document.addEventListener("DOMContentLoaded", mountEntry);
-  const remembered = () => { try { return localStorage.getItem(SESSION) === HASH.slice(0, 16); } catch { return false; } };
-  return { openLogin, enter, exit, show, publishBase: embedAll, remembered, get on() { return on; } };
+  // запомненный вход действует только вместе с кабинетом той же почты (если облако подключено)
+  const remembered = () => { try { const v = localStorage.getItem(SESSION) || ""; return window.Account?.ready?.() ? !!email() && v === mark() : v.startsWith(HASH.slice(0, 16)); } catch { return false; } };
+  return { wantDev: false, openLogin, enter, exit, show, publishBase: embedAll, remembered, get on() { return on; } };
 })();
 window.Dev = Dev;

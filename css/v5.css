@@ -449,7 +449,7 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .site-foot .foot-link { flex: 0 0 auto; }
 .site-foot .foot-links { justify-content: center; gap: 4px 18px; }
 .foot-q { font: 12px/1.4 Arial, sans-serif; color: #9a9590; }
-.foot-dev { order: 9; flex: 1 0 100%; background: none; border: 0; padding: 6px; margin-top: 4px; font: 10px/1 Arial, sans-serif; color: #9a9590; opacity: .35; cursor: pointer; }
+.foot-dev { order: 9; flex: 1 0 100%; text-align: right; background: none; border: 0; padding: 6px 2px; margin-top: 4px; font: 11px/1 Arial, sans-serif; color: #9a9590; opacity: .6; cursor: pointer; }
 .foot-dev:hover, .foot-dev:focus-visible { opacity: .9; }
 .foot-link { background: none; border: 0; padding: 4px 6px; font: 12px/1.4 Arial, sans-serif; color: #9a9590; cursor: pointer; letter-spacing: .02em; text-decoration: underline dotted rgba(154,149,144,.6); text-underline-offset: 3px; }
 .foot-link:hover, .foot-link:focus-visible { color: #7A0F1C; }

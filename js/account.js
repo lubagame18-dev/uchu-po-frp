@@ -60,7 +60,7 @@ const Account = (() => {
     try { setSession(await api("/auth/v1/token?grant_type=refresh_token", { method: "POST", body: JSON.stringify({ refresh_token: S.refresh }) }), S.email); return true; }
     catch (e) { if (e.status === 400 || e.status === 401) { S = null; save(); } return false; }
   }
-  function signOut() { const local = S?.local; S = null; save(); window.Access?.paint(); toast(local ? "Вы вышли из кабинета." : "Вы вышли из кабинета. Уроки в облаке сохранены."); }
+  function signOut() { const local = S?.local; S = null; if (window.Dev?.on) try { Dev.exit(); } catch { } save(); window.Access?.paint(); toast(local ? "Вы вышли из кабинета." : "Вы вышли из кабинета. Уроки в облаке сохранены."); }
   /* ---------- синхронизация уроков ---------- */
   let pushT = null, busy = false;
   async function upsert(rows) { if (!rows.length) return; await api("/rest/v1/lessons", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows) }); }
@@ -136,7 +136,7 @@ const Account = (() => {
     } catch { return null; }
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
-  const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "разделы разработчика" : "вход для разработчика"}</button></div>`;
+  const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "разделы разработчика" : "Я разработчик"}</button></div>`;
   function bindDev(m) { const b = m.querySelector("#acDev"); if (b) b.onclick = () => { closeModal(); if (window.Dev?.on) window.Dev.show("files"); else window.Dev?.openLogin(); }; }
   /* ---------- окно кабинета ---------- */
   function open() {
@@ -194,6 +194,7 @@ const Account = (() => {
         let want = window.Access?.wantBuy; try { want = want || localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
         if (want && window.Access) { Access.wantBuy = null; Access.checkout(want); }
         else if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
+        else if (window.Dev?.wantDev) { Dev.wantDev = false; Dev.openLogin(); }
       } catch (er) { msg.textContent = RU(er.message); }
     };
   }
