@@ -317,6 +317,12 @@ const LitKit = (() => {
       if (turn) return `Почему после строки «${turn}» всё меняется?`;
       if (first && last && first !== last) return `Начало — «${first.replace(/[.!…,]+$/, "")}», финал — «${lastQ}». Что случилось между этими строками?`;
     }
+    // проза: начало и финал текста — что произошло с героем между ними
+    if (A && !A.verse && A.__text) {
+      const sents = A.__text.replace(/\s+/g, " ").split(/(?<=[.!?…])\s+/).map(x => x.trim()).filter(x => x.length > 8);
+      const f = sents[0], l = sents[sents.length - 1];
+      if (f && l && f !== l && sents.length >= 4) return `В начале: «${f.replace(/[.!…]+$/, "")}». В конце: «${l.replace(/[.!…]+$/, "")}». Что произошло между этими строками — и почему автор заканчивает именно так?`;
+    }
     if (A?.heroes?.length >= 2) return `Кто прав в столкновении героев — ${A.heroes[0]} или ${A.heroes[1]}? И на чьей стороне автор?`;
     if (A?.pairs?.length) return `Что важнее для автора: «${A.pairs[0][0]}» или «${A.pairs[0][1]}»? Можно ли их примирить?`;
     if (A?.title || work) return `О чём на самом деле ${A?.verse ? "это стихотворение" : "это произведение"} — «${A?.title || work}»?`;

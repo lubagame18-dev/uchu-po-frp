@@ -840,3 +840,6 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.tk-glow.lay-title .sx-title { background: linear-gradient(100deg, #FFF6DA 30%, #FFFFFF 45%, #F6D77C 55%, #FFF6DA 70%) 0 0 / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 6s linear infinite; }
 .sx-mini .sx.tk-glow .sx-glow, .lp-mini .sx.tk-glow .sx-glow, .th-strip .sx.tk-glow .sx-glow { display: none; }
 @media (prefers-reduced-motion: reduce) { .sx.tk-glow .sx-glow::before, .sx.tk-glow .sx-glow::after, .sx.tk-glow .sx-glow i, .sx.tk-glow.lay-title .sx-title { animation-duration: 40s; } }
+.need-text { background: #FFF4D6; border: 2px solid #E8B54A; border-radius: 12px; padding: 10px 12px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.at-steps { padding-left: 1.2em; display: flex; flex-direction: column; gap: 12px; }
+.at-steps textarea { width: 100%; margin-top: 6px; }

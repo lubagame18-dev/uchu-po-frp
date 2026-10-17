@@ -369,6 +369,7 @@ const Variety = (() => {
 
   /* ---------- 5. Подготовка урока: текст, анализ, образец, формат ---------- */
   async function findText(p, L) {
+    if (p.textOverride?.text) return { text: p.textOverride.text, source: p.textOverride.source || "текст учителя" };
     // 1) текст, который учитель вставил в заметки
     const own = p.notes?.text && p.notes.text.trim().length > 80 ? p.notes.text : null;
     if (own) return { text: own, source: "текст из заметок учителя" };

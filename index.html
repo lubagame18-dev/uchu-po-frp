@@ -2196,7 +2196,7 @@ const Engine = (() => {
           const slow = Heur.slowRead(txt, A);
           const dev = kit.qa.flatMap(x => x.items).filter(x => x.steps).slice(0, 2).map(x => ({ t: `${x.steps[0]} ${x.steps[1] || ""}`.trim(), a: x.a, h: x.hint }));
           const head = r.teacher.split("<br>").filter(l => /^\*\*Работа/.test(l)).map(l => l.replace(/:\s*$/, ""));
-          teacher = [...head.slice(0, 1), "Медленное чтение (текст на слайде):", ...Heur.rows(slow.length ? slow : []), ...(dev.length ? ["Как автор этого добивается:", ...Heur.rows(dev)] : [])].join("<br>");
+          teacher = [...head.slice(0, 1), "Медленное чтение (текст на слайде):", ...Heur.rows(slow.length ? slow : []), ...(dev.length ? ["Как автор этого добивается:", ...Heur.rows(dev)] : []), "**Работа в парах — задания трёх уровней (на выбор, по тексту):**", ...Heur.levels(A.verse !== false)].join("<br>");
         } else if (H && !(kit && /словар/i.test(stage) && kit.glossary?.length)) {
           // проблемный вопрос не объявляется готовым: он — в ориентире учителя, ученики формулируют сами
           const keep = r.teacher.split("<br>").filter(l => /^Эпиграф:|Вернёмся к проблемному|Читаем (текст|фрагменты)/.test(l));
@@ -2212,7 +2212,7 @@ const Engine = (() => {
   }
   function splitMinutes(stages, total) {
     // вес этапа — по его названию (до двоеточия): аналитические и практические этапы длиннее, организационные короче
-    const w = stages.map(st => { const s = st.split(":")[0]; return /реализац|анализ|аналит|информацион|закреплен|контрольн|комментари|чтени[A-Za-z0-9_А-Яа-яЁё]* эпизод|работа над темой|создание собственного/i.test(s) ? 3 : /рефлекс|организац|построен|домашн|постановк|словарн/i.test(s) ? 1 : 2; });
+    const w = stages.map(st => { const s = st.split(":")[0]; return /реализац|анализ|аналит|информацион|закреплен|контрольн|комментари|чтени[A-Za-z0-9_А-Яа-яЁё]* эпизод|работа над темой|создание собственного/i.test(s) ? 5 : /^творческ/i.test(s) ? 1.5 : /рефлекс|организац|построен|домашн|постановк|словарн/i.test(s) ? 1 : 2; });
     const sum = w.reduce((a, b) => a + b, 0);
     const mins = w.map(x => Math.max(1, Math.round(x / sum * total)));
     let diff = total - mins.reduce((a, b) => a + b, 0), i = mins.indexOf(Math.max(...mins));
@@ -3858,6 +3858,7 @@ async function createLesson() {
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   p.notes = window.Notes ? Notes.snapshot() : null;
+  if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   const useAi = state.build === "ai";
   if (window.Access && !(await Access.canBuildAsync(useAi))) return; // тариф, промокод, бесплатный лимит (сервер)
@@ -3941,6 +3942,7 @@ async function buildWithAi(L, p, type, formats) {
   if (window.Sync) Sync.inspect(L);
   state.gen = null; await saveLesson(L);
   if (state.lesson?.id === L.id) renderLesson();
+  if (p.subject === "lit" && !p.plan?.kit && !L.sample) toast("Текст произведения не найден. Нажмите «Добавить текст» над уроком — и вопросы пойдут по самому тексту.", 8000);
   if (!lessonMaterialsNote && p.subject === "ru") toast("Совет: загрузите рабочие тетради в «Материалы» — задания будут браться из них.", 6000);
 }
 /* ---------- открытые образовательные источники ---------- */
@@ -4068,8 +4070,9 @@ function renderLesson() {
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
-  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${L.verify && window.Verify ? `<p class="verify-line">${esc(Verify.line(L.verify))} <button class="btn sm ghost" id="btnVerify">Отчёт сверки</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
+  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${L.verify && window.Verify ? `<p class="verify-line">${esc(Verify.line(L.verify))} <button class="btn sm ghost" id="btnVerify">Отчёт сверки</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
   { const bp = $("#btnPrompts"); if (bp) bp.onclick = () => openPrompts(L); }
+  { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
   const busy = isGenerating(L, state.active);
   $("#refineBar").hidden = busy || !L.docs[state.active] || !!state.gen;
@@ -4119,6 +4122,31 @@ function autoTheme(L, p) {
   if (!window.ThemeKit || (L.slideTheme && L.slideThemeAuto === false)) return;
   let want = "auto"; try { want = localStorage.getItem("uchu:theme") || "auto"; } catch { }
   L.slideTheme = want !== "auto" ? want : ThemeKit.auto(p); L.slideThemeAuto = want === "auto"; L.slideFonts = null;
+}
+/* Текст не найден: попросить помощи — поиск в Яндексе и Викитеке, вставка или файл, пересборка одной кнопкой */
+function openAddText(L) {
+  const P = L.params, work = (P.topic.match(/«([^»]+)»/) || [])[1] || P.topic, author = Engine.authorOf(P.topic) || "";
+  const q = `${work} ${author}`.trim(), e = encodeURIComponent;
+  const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Добавить текст произведения</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+    <p class="hint">Сайт не нашёл текст «${esc(work)}». С текстом урок станет точным: медленное чтение по строфам (эпизодам), перелом, финал, проблемный вопрос из самого произведения, понятия в контексте.</p>
+    <ol class="at-steps"><li><b>Найдите текст</b> — одна кнопка:
+      <div class="mat-row"><a class="btn sm teal" target="_blank" rel="noopener" href="https://yandex.ru/search/?text=${e(q + " текст читать полностью")}">🔎 Найти в Яндексе</a><a class="btn sm ghost" target="_blank" rel="noopener" href="https://ru.wikisource.org/w/index.php?search=${e(q)}">📚 Викитека</a><a class="btn sm ghost" target="_blank" rel="noopener" href="https://rusneb.ru/search/?q=${e(q)}">🏛 НЭБ</a></div></li>
+      <li><b>Скопируйте текст</b> (или нужный фрагмент) и вставьте сюда — либо загрузите файл (.txt, .docx, .pdf из учебника):
+      <textarea id="atText" rows="10" placeholder="Вставьте текст произведения или фрагмента…"></textarea>
+      <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="atFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="atMsg"></span></div></li>
+      <li><b>Пересоберите урок</b> — те же параметры, но по вашему тексту.</li></ol>
+    <div class="pk-foot"><button class="btn flame" id="atGo">Пересобрать урок с этим текстом</button><span class="small">Текст используется только для этого урока.</span></div></div></div>`);
+  const ta = m.querySelector("#atText"), msg = m.querySelector("#atMsg");
+  m.querySelector("#atFile").onchange = async ev => { const f = ev.target.files[0]; if (!f) return; msg.textContent = "Читаю файл…"; try { const r = await readFile(f); ta.value = String(r.text || "").trim(); msg.textContent = ta.value ? `Готово: ${ta.value.length} знаков.` : "В файле не нашлось текста — вставьте вручную."; } catch (er) { msg.textContent = "Не получилось прочитать: " + (er.message || er); } };
+  m.querySelector("#atGo").onclick = async () => {
+    const t = ta.value.trim(); if (t.length < 80) { msg.textContent = "Нужен текст подлиннее (хотя бы одна строфа или абзац)."; return; }
+    closeModal();
+    Object.assign(state, { subject: P.subject, grade: P.grade, duration: P.duration || 45, mode: P.mode || "school", lessonNo: P.lessonNo || 1, control: P.control || "school", topic: P.topic });
+    try { setSeg("segSubject", state.subject); $("#grade").value = state.grade; $("#topic").value = state.topic; } catch { }
+    state.textOverride = { text: t, source: "текст, добавленный учителем" };
+    const oldId = L.id; await createLesson();
+    try { await Store.del("lessons", oldId); if (window.Account) Account.remove(oldId); } catch { }
+  };
 }
 /* Окно «Промты»: промт этого урока (замысел + конспект + слайды + лист) и общий промт; копировать, править, пересобрать */
 function openPrompts(L) {
