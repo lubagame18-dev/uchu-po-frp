@@ -76,6 +76,8 @@ const Dev = (() => {
     if (window.Log) Log.add("вход", "включён режим разработчика");
     rerenderCurrent();
     show("files"); window.Access?.paint();
+    // всё, что разработчик загружал раньше только у себя, — в общую базу сайта
+    setTimeout(() => window.CloudBase?.pushPending().then(n => { if (n && section === "files") show("files"); }), 500);
     toast("Режим разработчика включён. Выход — кнопка «Выйти» вверху.");
   }
   /* Выход: убираем всё, что добавил режим, и перерисовываем текущий раздел */
@@ -132,15 +134,19 @@ const Dev = (() => {
     const mine = state.materials.filter(m => !m.builtin && !m.fromNotes && (m.subject || "ru") === subj);
     const built = state.materials.filter(m => m.builtin && (m.subject || "ru") === subj);
     const base = (Base.summary() || []).filter(x => (x.subject || "ru") === subj);
-    const row = m => { const st = m.ocr?.status === "run" || m.ocr?.status === "queue" ? "распознаётся" : !(m.text || "").trim() ? (m.unreadable ? "текст не извлечён" : "скан без текста") : (n => n >= 1000 ? `${Math.round(n / 1000)} тыс. знаков` : `${n} знаков`)(m.chars || m.text.length); return `<li><span class="fl-n">${esc(String(m.title || m.name).slice(0, 110))}</span><span class="fl-t">${m.grade ? `<span class="tag">${m.grade} кл.</span>` : ""}<span class="tag">${esc(Materials?.TYPES?.[m.type]?.label || m.kind || "материал")}</span><span class="tag ${/текст не|скан/.test(st) ? "red" : st === "распознаётся" ? "" : "ok"}">${st}</span></span></li>`; };
+    const row = m => { const st = m.ocr?.status === "run" || m.ocr?.status === "queue" ? "распознаётся" : !(m.text || "").trim() ? (m.unreadable ? "текст не извлечён" : "скан без текста") : (n => n >= 1000 ? `${Math.round(n / 1000)} тыс. знаков` : `${n} знаков`)(m.chars || m.text.length); return `<li><span class="fl-n">${esc(String(m.title || m.name).slice(0, 110))}</span><span class="fl-t">${m.grade ? `<span class="tag">${m.grade} кл.</span>` : ""}<span class="tag">${esc(Materials?.TYPES?.[m.type]?.label || m.kind || "материал")}</span><span class="tag ${/текст не|скан/.test(st) ? "red" : st === "распознаётся" ? "" : "ok"}">${st}</span>${m.cloud ? `<span class="tag ok">у всех учителей</span><button class="btn sm ghost" data-cbdel="${esc(m.id)}" title="Убрать из общей базы">×</button>` : m.cloudAt ? `<span class="tag ok">у всех учителей</span>` : m.devEmbed && (m.text || "").trim() ? `<span class="tag">отправится в общую базу</span>` : ""}</span></li>`; };
+    const pending = mine.filter(m => m.devEmbed && !m.cloudAt && (m.text || "").trim()).length;
     b.innerHTML = `<section class="dev-card">${DevCover.upload("dvAny")}</section>
       <section class="dev-card"><h2>Загружено вами (${mine.length})</h2>${mine.length ? `<ul class="fl-list">${mine.map(row).join("")}</ul>` : `<p class="small">Пока ничего. Загрузите файлы кнопкой выше.</p>`}
-        <div class="mat-row"><button class="btn sm ghost" id="dvEmbed">${window.Publish?.ready() ? "Опубликовать для всех учителей" : "Скачать базу (extra.js) для владельца сайта"}</button></div></section>
+        <p class="small">Загруженное здесь сразу попадает в общую базу сайта — у всех учителей, без одобрения.${window.Account?.session ? "" : " <b>Войдите в личный кабинет</b>, иначе материал останется только у вас."}</p>
+        <div class="mat-row">${pending ? `<button class="btn sm flame" id="dvPush">Отправить в общую базу (${pending})</button>` : ""}<button class="btn plain" id="dvEmbed">${window.Publish?.ready() ? "Запасной вариант: записать в файлы сайта на GitHub" : "Запасной вариант: скачать файл базы (extra.js)"}</button></div></section>
       <section class="dev-card"><h2>Уже встроено в сайт (${built.length + base.length})</h2><ul class="fl-list">${base.map(x => `<li><span class="fl-n">${esc(x.title || x.short)}</span><span class="fl-t">${x.grade ? `<span class="tag">${x.grade} кл.</span>` : ""}<span class="tag ok">в базе</span></span></li>`).join("")}${built.map(row).join("")}</ul></section>`;
     if (window.Access) promoCard(b);
     sharedCard(b);
     DevCover.bindUpload(b, () => show("files"));
     b.querySelector("#dvEmbed").onclick = () => embedAll();
+    b.querySelector("#dvPush")?.addEventListener("click", async e => { e.target.disabled = true; await window.CloudBase?.pushPending(); show("files"); });
+    b.querySelectorAll("[data-cbdel]").forEach(x => x.onclick = async () => { if (!confirm("Убрать материал из общей базы? У учителей он исчезнет.")) return; try { await window.CloudBase.unpublish(x.dataset.cbdel); show("files"); } catch (e) { toast("Не получилось: " + e.message); } });
   }
   /* Ключи DeepSeek: 5 ячеек. Ключ уходит на сервер (Яндекс-функция) и хранится в облаке,
      сайт видит только начало и конец ключа. Запросы идут по кругу; если аккаунт ответил ошибкой
@@ -217,7 +223,7 @@ const Dev = (() => {
       catch (e) { box.innerHTML = `<h2>Присланные учителями</h2><p class="small">${esc(/does not exist|relation|404|schema cache/i.test(e.message) ? "В облаке ещё нет таблицы для присланных материалов — выполните в Supabase SQL из инструкции." : e.message)}</p>`; return; }
       rows = rows.filter(r => (r.subject || "ru") === subj);
       const have = new Set(state.materials.map(m => m.sharedId).filter(Boolean));
-      box.innerHTML = `<h2>Присланные учителями (${rows.length})</h2><p class="small">Учителя прикрепили это у себя. Решите, что встроить для всех: «Встроить» добавляет материал в «Загружено вами», затем — «Опубликовать для всех учителей».</p>
+      box.innerHTML = `<h2>Присланные учителями (${rows.length})</h2><p class="small">Учителя прикрепили это у себя. «Встроить» — материал сразу появляется у всех учителей.</p>
         ${rows.length ? `<ul class="fl-list">${rows.map(r => `<li><span class="fl-n">${esc(String(r.title || r.name).slice(0, 110))}<br><span class="small">${esc(r.email || "")} · ${new Date(r.created_at).toLocaleDateString("ru-RU")} · ${Math.round((r.chars || 0) / 1000)} тыс. знаков</span></span><span class="fl-t">${r.grade ? `<span class="tag">${r.grade} кл.</span>` : ""}<span class="tag">${esc(window.Materials?.TYPES?.[r.type]?.label || r.kind || "материал")}</span>${have.has(r.id) ? `<span class="tag ok">встроен</span>` : `<button class="btn sm flame" data-sin="${esc(r.id)}">Встроить</button>`}<button class="btn sm ghost" data-sdel="${esc(r.id)}">Убрать</button></span></li>`).join("")}</ul>` : `<p class="small">Пока ничего не прислано.</p>`}`;
       box.querySelectorAll("[data-sin]").forEach(x => x.onclick = async () => {
         x.disabled = true; x.textContent = "Встраиваю…";
@@ -225,7 +231,9 @@ const Dev = (() => {
           const r = await window.Account.sharedGet(x.dataset.sin); if (!r) throw new Error("материал не найден");
           const m = { id: uid(), name: r.name, title: r.title || undefined, kind: r.kind || "other", type: r.type || undefined, subject: r.subject || "ru", grade: r.grade || null, topic: r.topic || null, text: r.text || "", chars: (r.text || "").length, addedAt: new Date().toISOString(), hash: window.Materials ? Materials.hashText(r.text || "") : null, devEmbed: true, sharedId: r.id, from: r.email };
           if (window.Materials && !m.type) Object.assign(m, Materials.classify(m));
-          await Store.put("materials", m.id, m); await loadMaterials(); toast("Встроено. Чтобы появилось у всех учителей — «Опубликовать для всех учителей».", 6000); show("files");
+          let shared = false; try { shared = await window.CloudBase?.publish(m); } catch (e) { toast("В общую базу не отправилось: " + e.message, 7000); }
+          if (shared) m.cloudAt = new Date().toISOString();
+          await Store.put("materials", m.id, m); await loadMaterials(); toast(shared ? "Встроено — уже у всех учителей." : "Встроено у вас; в общую базу отправится при следующем входе.", 6000); show("files");
         } catch (e) { toast("Не получилось: " + (e.message || e)); x.disabled = false; x.textContent = "Встроить"; }
       });
       box.querySelectorAll("[data-sdel]").forEach(x => x.onclick = async () => { if (!confirm("Убрать материал из присланных? У учителя он останется.")) return; try { await window.Account.sharedDel(x.dataset.sdel); draw(); } catch (e) { toast("Не получилось: " + (e.message || e)); } });

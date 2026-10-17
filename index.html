@@ -3120,6 +3120,8 @@ async function loadMaterials() {
   // материалы, встроенные владельцем сайта (data/extra.js): видны всем учителям
   const extra = [].concat((window.UCHU_EXTRA && window.UCHU_EXTRA.items) || []).map(m => ({ ...m, builtin: true }));
   state.materials = [...state.materials, ...extra.filter(e => !state.materials.some(m => m.id === e.id))];
+  // общая база в облаке: всё, что загрузили разработчики, — сразу у всех учителей
+  if (window.CloudBase) { const hs = new Set(state.materials.map(m => m.hash).filter(Boolean)); state.materials = [...state.materials, ...CloudBase.items().filter(c => !(c.hash && hs.has(c.hash)))]; }
   // v5: после изменения набора материалов система переобучается (новые вопросы, структуры уроков)
   if (window.Learn && state.learnReady) Learn.update().catch(e => console.warn("Learn", e));
 }
@@ -3141,7 +3143,7 @@ async function embedMaterials() {
 }
 async function addMaterials(list, forceKind) {
   // v5: пакетная загрузка без дублей, автоочистка текста, автосортировка, OCR для сканов
-  let added = 0, dup = 0, ocrN = 0; const cleanedSum = [];
+  let added = 0, dup = 0, ocrN = 0, cloudN = 0, cloudErr = ""; const cleanedSum = [];
   const known = new Set(state.materials.filter(m => !m.builtin).map(m => m.hash).filter(Boolean));
   // архивы распаковываются: каждый файл внутри встраивается отдельно
   const files = [];
@@ -3170,15 +3172,16 @@ async function addMaterials(list, forceKind) {
       if (window.Materials) Object.assign(m, Materials.classify(m));
       if (r.note) m.note = r.note;
       if (r.unknown) m.unreadable = true;
-      if (window.Dev?.on) m.devEmbed = true; // загружено разработчиком — идёт в общую базу
+      if (window.Dev?.on) m.devEmbed = true; // загружено разработчиком — сразу в общую базу (облако), см. ниже
       await Store.put("materials", m.id, m); added++; if (hash) known.add(hash);
       if (!window.Dev?.on) window.Account?.shareMaterial?.(m); // учительский материал — автору сайта (раздел разработчика «Присланные учителями»)
+      else if (window.CloudBase && (m.text || "").trim()) { try { if (await CloudBase.publish(m)) { m.cloudAt = new Date().toISOString(); await Store.put("materials", m.id, m); cloudN++; } } catch (e) { cloudErr = e.message; } }
       if (m.scanned && window.OCR && (/\.pdf$/i.test(f.name) || r.image)) { if (await OCR.keepFile(m.id, f)) { await OCR.enqueue(m); ocrN++; } }
     } catch (e) { toast(`Не удалось прочитать «${f.name}»: ${e.message || e}`, 6000); }
   }
   await loadMaterials();
   const msg = [added ? `Встроено материалов: ${added}` : "", dup ? `уже были (не дублируются): ${dup}` : "", ocrN ? `сканов на распознавании: ${ocrN}` : "", cleanedSum.length === 1 ? `очищено: ${cleanedSum[0]}` : cleanedSum.length ? `очищено файлов: ${cleanedSum.length}` : ""].filter(Boolean).join("; ");
-  if (msg) toast(msg + ".", 7000);
+  if (msg) toast(msg + "." + (cloudN ? ` В общей базе сайта — сразу у всех учителей: ${cloudN}.` : "") + (cloudErr ? ` В общую базу не отправилось (${cloudErr}) — повторится при следующем входе разработчика.` : ""), 8000);
   renderMaterials(); refreshTopics();
 }
 async function loadFrpFrom(name, text, html, quiet) {
@@ -4321,6 +4324,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/devcover.js"></script>
 <script src="js/credits.js"></script>
 <script src="js/account.js"></script>
+<script src="js/cloudbase.js"></script>
 <script src="data/promo.js"></script>
 <script src="js/access.js"></script>
 <script src="js/deck.js"></script>

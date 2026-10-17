@@ -66,3 +66,11 @@ alter table promo_codes enable row level security;
 drop policy if exists promo_admin on promo_codes;
 create policy promo_admin on promo_codes for all using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email')) with check (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
 insert into promo_codes (code) values ('FRP-D6D3-3DGP'),('FRP-8WRU-M5N4'),('FRP-5FGB-VKRZ'),('FRP-4PFR-FN8B'),('FRP-KKVX-B5GE'),('FRP-ADBR-GZSM'),('FRP-AJW9-LR47'),('FRP-7HZZ-B2BA'),('FRP-LZ82-4JQK'),('FRP-387R-BK3F') on conflict do nothing;
+
+-- общая база материалов: загруженное разработчиками сразу видно всем учителям; читать может любой, менять — только разработчики
+create table if not exists base_materials (id text primary key, name text, title text, kind text, type text, subject text, grade int, topic text, tags jsonb, text text, chars int, hash text, added_by text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());
+alter table base_materials enable row level security;
+drop policy if exists base_read on base_materials;
+create policy base_read on base_materials for select using (true);
+drop policy if exists base_admin on base_materials;
+create policy base_admin on base_materials for all using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email')) with check (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
