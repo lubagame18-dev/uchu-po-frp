@@ -39,7 +39,7 @@ const AI = (() => {
     yandexfn: { name: "GigaChat через Яндекс-функцию", sub: "неприоритетный вариант", limits: "по ключу GigaChat, который лежит в функции", foreign: false },
     anthropic: { name: "Claude", sub: "свой ключ Anthropic", limits: "по тарифу Anthropic; из России недоступен", foreign: true },
     custom: { name: "Свой сервис", sub: "любой OpenAI-совместимый", limits: "по условиям сервиса", foreign: true },
-    site: { name: "ИИ сайта", sub: "DeepSeek через сервер сайта, свой ключ не нужен", limits: "по тарифу кабинета", foreign: false }
+    site: { name: "ИИ", sub: "по тарифу", limits: "по тарифу", foreign: false }
   };
   const ORDER = ["site", "openrouter", "pollinations", "deepseek", "gemini", "yandexfn", "anthropic", "custom"];
   /* Любая нейросеть по одному ключу: провайдер узнаётся по виду ключа, модели — из списка сервиса */

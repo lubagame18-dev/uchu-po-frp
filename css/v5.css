@@ -549,3 +549,21 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 @media (prefers-reduced-motion: reduce) { .tr-card, .tr-in::after { animation: none; } }
 .tr-in > * { position: relative; z-index: 1; }
 .tr-in::after { z-index: 0; opacity: .7; }
+/* v5.15: тарифы — картинка-эмблема, привилегии с иконками, докупка, оформление */
+.tr-art { position: relative; width: 74px; height: 74px; margin: 2px 0 4px; }
+.tr-art span { position: relative; z-index: 2; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 20px; font-size: 34px; background: linear-gradient(135deg, #7b3fe4, #f05aa6); box-shadow: 0 8px 18px rgba(123,63,228,.35); }
+.tr-art i { position: absolute; border-radius: 50%; z-index: 1; }
+.tr-art i:nth-child(2) { width: 26px; height: 26px; right: 0; top: -4px; background: #ffd84d; }
+.tr-art i:nth-child(3) { width: 16px; height: 16px; left: -4px; bottom: 4px; background: #5ad1ff; }
+.tr-card:nth-child(1) .tr-art span { background: linear-gradient(135deg, #2fbf8f, #5ad1ff); }
+.tr-card:nth-child(2) .tr-art span { background: linear-gradient(135deg, #ff9f1c, #f05aa6); }
+.tr-card:nth-child(4) .tr-art span { background: linear-gradient(135deg, #3b2bd9, #a43fd0); }
+.tr-feats { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; flex: 1; }
+.tr-feats li { display: flex; gap: 9px; align-items: flex-start; line-height: 1.3; }
+.tr-ic { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; background: color-mix(in srgb, var(--c) 16%, white); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 35%, white); }
+.tr-badge.hot { background: #ffd84d; color: #3a2a00; }
+.tr-card.hot:not(.on) { box-shadow: 0 12px 30px rgba(240,90,166,.25); }
+.tr-packs { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #fff7e0; border-radius: 14px; padding: 10px 14px; }
+.co-item { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; }
+.co-art { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; font-size: 30px; background: linear-gradient(135deg, #7b3fe4, #f05aa6); }
+.co-price { font-family: var(--f-display); font-weight: 800; font-size: 20px; color: #6b2bd9; }

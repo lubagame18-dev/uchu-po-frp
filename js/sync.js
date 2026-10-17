@@ -80,7 +80,7 @@ const Sync = (() => {
         if (done.length) { n++; note(`«${L.title}»: ${done.join(", ")}`); }
         if (state.lesson?.id === L.id) { Object.assign(state.lesson, L); renderLesson(); }
       }
-      if (n) toast(`Интернет появился — доработано уроков: ${n}. Подробности: «⟳» в шапке.`, 7000);
+      if (n) toast(`Уроки дополнены материалами из интернета: ${n}.`, 6000);
       else if (manual) toast("Дорабатывать нечего: всё уже собрано.");
     } finally { busy = false; paint(); }
   }
@@ -120,9 +120,10 @@ const Sync = (() => {
   if ("serviceWorker" in navigator && (location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) && !/[?&]nosw/.test(location.search)) {
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(e => console.warn("SW", e)));
   }
-  window.addEventListener("online", () => { paint(); toast("Интернет появился — дорабатываю уроки…", 3500); setTimeout(() => run(), 1500); });
+  window.addEventListener("online", () => { paint(); setTimeout(() => run(), 1500); });
   window.addEventListener("offline", () => { paint(); toast("Нет интернета. Уроки продолжают собираться по встроенной базе; источники и картинки добавятся при подключении.", 7000); });
-  document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.prepend(chip); paint(); });
+  // кнопка доработки видна только в режиме разработчика; учителям доработка идёт сама, незаметно
+  document.addEventListener("DOMContentLoaded", () => { chip.hidden = true; document.querySelector(".account")?.prepend(chip); paint(); setInterval(() => { chip.hidden = !window.Dev?.on; }, 1500); });
   document.addEventListener("uchu:ready", () => { paint(); if (navigator.onLine !== false) setTimeout(() => run(), 4000); });
   setInterval(() => { if (navigator.onLine !== false) run(); }, 10 * 60 * 1000);
   return { inspect, run, cfg, open, prepareOffline, RULES };

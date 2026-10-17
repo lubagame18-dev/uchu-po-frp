@@ -82,7 +82,7 @@ const Account = (() => {
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
         <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div></div></div>`);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
-      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}<br><b>Запросов к ИИ сайта осталось:</b> ${p.ai_left ?? "—"}` : `<b>Тариф:</b> бесплатный`; });
+      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el && !p && window.Access) { el.innerHTML = `<b>Доступ:</b> ${esc(Access.label())}`; return; } if (el) el.innerHTML = p ? `<b>Тариф:</b> ${esc(PLAN_NAMES[p.plan] || p.plan)}${p.paid_until && p.plan !== "free" ? ` до ${new Date(p.paid_until).toLocaleDateString("ru-RU")}` : ""}<br><b>Уроков с ИИ осталось:</b> ${p.ai_left ?? "—"}` : `<b>Тариф:</b> бесплатный`; });
       if (m.querySelector("#acSync")) m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };
       return;
@@ -106,7 +106,9 @@ const Account = (() => {
         else await signIn(email, pass);
         if (window.PasswordCredential) { try { await navigator.credentials.store(new PasswordCredential({ id: email, password: pass })); } catch { } }
         closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
-        window.Access?.paint(); if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
+        window.Access?.paint(); await plan().catch(() => null);
+        if (window.Access?.wantBuy) { const it = Access.wantBuy; Access.wantBuy = null; Access.checkout(it); }
+        else if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
       } catch (er) { msg.textContent = RU(er.message); }
     };
   }
@@ -116,6 +118,6 @@ const Account = (() => {
   document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); });
   document.addEventListener("uchu:ready", () => { if (S && ready()) pull().catch(() => null); });
   paint();
-  return { open, signIn, signUp, signOut, push, pull, remove, ready, get session() { return S; } };
+  return { open, refreshPlan: () => plan(), signIn, signUp, signOut, push, pull, remove, ready, get session() { return S; } };
 })();
 window.Account = Account;

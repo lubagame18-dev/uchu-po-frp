@@ -23,7 +23,8 @@ async function check(userToken, request, readAll) {
   const id = u.json.id;
   let p = (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0];
   const month = new Date().toISOString().slice(0, 7);
-  if (!p) p = (await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id, plan: "free", ai_left: FREE(), free_month: month } })).json?.[0] || { id, plan: "free", ai_left: FREE(), free_month: month };
+  if (!p) p = (await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: FREE(), free_month: month } })).json?.[0] || { id, plan: "free", ai_left: FREE(), free_month: month };
+  else if (!p.email && u.json.email) await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: { email: u.json.email.toLowerCase() } });
   // бесплатный лимит обновляется раз в месяц; у платного — пока не кончился срок
   if (p.plan === "free" && p.free_month !== month) { p.ai_left = FREE(); p.free_month = month; await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: { ai_left: p.ai_left, free_month: month } }); }
   if (p.plan !== "free" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = FREE(); await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: { plan: "free", ai_left: p.ai_left, free_month: month } }); }

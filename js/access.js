@@ -20,12 +20,21 @@ const Access = (() => {
   const norm = c => String(c || "").toUpperCase().replace(/\s+/g, "").replace(/^ФРП/, "FRP").replace(/[АВЕЁКМНОРСТХУ]/g, ch => LOOK[ch]).replace(/[–—]/g, "-");
   async function sha(t) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
   const hashes = () => [].concat(window.UCHU_PROMO || []);
-  const PLANS = {
-    free: { name: "Бесплатный", price: 0, lessons: 3, ai: false, list: ["3 урока в месяц", "техкарта, презентация, рабочий лист", "уроки сохраняются в личном кабинете"] },
-    basic: { name: "Учитель", price: 300, lessons: Infinity, ai: false, list: ["уроки без ограничений", "скачивание в Word, PDF, PowerPoint", "все уроки — в личном кабинете"] },
-    ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, list: ["всё из тарифа «Учитель»", "50 уроков с ИИ в месяц", "подробные конспекты и правки по запросу"] },
-    pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, list: ["всё из тарифа «Учитель + ИИ»", "120 уроков с ИИ в месяц", "приоритетная поддержка"] }
+  /* Привилегии тарифов: иконка + текст (иконки — яркие плоские значки в цветных кругах) */
+  const F = {
+    lesson: ["📘", "#6b2bd9", "Технологическая карта урока по ФРП"], slides: ["🖥️", "#f05aa6", "Презентация — красивая, с анимацией"], sheet: ["📝", "#ff9f1c", "Рабочий лист, памятка, самостоятельная и д/з"],
+    cloud: ["☁️", "#2fa6e8", "Все уроки — в личном кабинете"], download: ["⬇️", "#2f8f5b", "Скачивание: Word, PDF, PowerPoint"], unlim: ["♾️", "#6b2bd9", "Уроки без ограничений"],
+    ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai50: ["🤖", "#a43fd0", "50 уроков с ИИ в месяц"], ai120: ["🚀", "#a43fd0", "120 уроков с ИИ в месяц"],
+    more: ["➕", "#ff9f1c", "Можно докупить уроки с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], three: ["🎁", "#2f8f5b", "3 урока в месяц — попробовать"]
   };
+  const PLANS = {
+    free: { name: "Бесплатный", price: 0, lessons: 3, ai: false, art: "🎁", tag: "попробовать", feats: ["three", "lesson", "slides", "sheet", "cloud"] },
+    basic: { name: "Учитель", price: 300, lessons: Infinity, ai: false, art: "📚", tag: "для каждого урока", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
+    ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai50", "more", "download", "cloud"] },
+    pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, art: "🚀", tag: "максимум", feats: ["unlim", "ai", "ai120", "more", "help", "cloud"] }
+  };
+  const PACKS = { ai10: { name: "+10 уроков с ИИ", price: 50 }, ai30: { name: "+30 уроков с ИИ", price: 140 } };
+
 
   /* Текущий уровень: промокод > тариф кабинета > бесплатный. В некоммерческой версии — всё открыто. */
   /* Разработчик (вход по паролю разработчика, в том числе запомненный) — всё открыто без промокодов */
@@ -68,10 +77,12 @@ const Access = (() => {
     const m = openModal(`<div class="dialog wide tr-dlg"><div class="dlg-h"><h2>Тарифы</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       ${reason ? `<p class="tr-reason">${esc(reason)}</p>` : ""}
       ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : L === "promo" ? `<p class="tr-now ok">Доступ по промокоду.</p>` : PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
-      <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""}">${k === cur ? `<span class="tr-badge">ваш тариф</span>` : ""}<div class="tr-in"><h3>${p.name}</h3><div class="tr-price">${p.price ? `${p.price} ₽<small>/мес</small>` : "0 ₽"}</div><ul>${p.list.map(x => `<li>${esc(x)}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">Подключён сейчас</span>` : k === "free" ? "" : `<button class="btn sm flame" data-buy="${k}">Выбрать</button>`}</div></article>`).join("")}</div>
+      <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur ? `<span class="tr-badge">ваш тариф</span>` : k === "ai" ? `<span class="tr-badge hot">${p.tag}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div><h3>${p.name}</h3><div class="tr-price">${p.price ? `${p.price} ₽<small>/мес</small>` : "0 ₽"}</div><ul class="tr-feats">${p.feats.map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">Подключён сейчас</span>` : k === "free" ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && PLANS[cur].price && p.price > PLANS[cur].price ? "Повысить" : cur && PLANS[cur].price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
+      ${cur && PLANS[cur].ai ? `<div class="tr-packs"><b>Не хватает уроков с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}</div>` : ""}
       ${!me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : L === "dev" || L === "promo" ? "" : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>Промокод</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
-    m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy, m));
+    m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
+    m.querySelectorAll("[data-pack]").forEach(b => b.onclick = () => buy(b.dataset.pack));
     const lg = m.querySelector("#trLogin"); if (lg) lg.onclick = () => { closeModal(); Access.wantPromo = true; window.Account?.open(); };
     if (m.querySelector("#trPromo")) m.querySelector("#trPromo").onsubmit = async e => {
       e.preventDefault(); const msg = m.querySelector("#trMsg"), code = m.querySelector("#trCode").value;
@@ -80,13 +91,43 @@ const Access = (() => {
       else msg.textContent = "Такого промокода нет. Проверьте написание.";
     };
   }
-  function buy(plan, m) {
-    if (!window.Account?.ready()) { toast("Оплата появится, когда будет подключён личный кабинет. Пока можно пользоваться бесплатно или по промокоду.", 7000); return; }
-    if (!window.Account.session) { closeModal(); window.Account.open(); toast("Сначала войдите в личный кабинет — тариф закрепляется за вашей почтой.", 6000); return; }
-    const url = site().payUrl;
-    if (!url) { toast("Оплата скоро появится. Пока можно пользоваться бесплатно или по промокоду.", 7000); return; }
-    location.href = `${url}${url.includes("?") ? "&" : "?"}plan=${encodeURIComponent(plan)}&email=${encodeURIComponent(window.Account.session.email)}`;
+  /* Покупка: сначала вход в кабинет → сразу после входа — оформление выбранного тарифа → оплата */
+  function buy(item) {
+    if (!me()) { closeModal(); Access.wantBuy = item; toast("Войдите или зарегистрируйтесь — после этого сразу перейдёте к оплате.", 5000); window.Account?.open(); return; }
+    checkout(item);
   }
+  function checkout(item) {
+    const P = PLANS[item], K = PACKS[item], L = level();
+    const up = P && PLANS[L]?.price && P.price > PLANS[L].price;
+    const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Оформление</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+      <div class="co-item"><span class="co-art">${P ? P.art : "✨"}</span><div><b>${P ? `Тариф «${P.name}»` : K.name}</b><div class="co-price">${P ? (up ? "доплата за оставшиеся дни" : `${P.price} ₽ в месяц`) : `${K.price} ₽`}</div></div></div>
+      ${P ? `<ul class="tr-feats">${P.feats.map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>` : `<p>Уроки с ИИ добавятся к вашему тарифу и не сгорают до конца оплаченного периода.</p>`}
+      ${P && !up && site().autopay ? `<label class="check"><input type="checkbox" id="coAuto" checked> Автоплатёж каждый месяц (отключить можно в любой момент по ссылке в письме)</label>` : ""}
+      ${up ? `<p class="small">При повышении тарифа вы доплачиваете только разницу за оставшиеся дни текущего месяца.</p>` : ""}
+      <p class="small">Оплата картой или по СБП. Чек придёт на почту ${esc(me())}.</p>
+      <div class="mat-row"><button class="btn flame" id="coPay">Перейти к оплате</button><span class="small" id="coMsg" role="status"></span></div></div></div>`);
+    m.querySelector("#coPay").onclick = async () => {
+      const msg = m.querySelector("#coMsg"), fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
+      if (!site().payments || !fn) { msg.textContent = "Оплата открывается совсем скоро. Пока можно пользоваться бесплатным тарифом."; return; }
+      if (!tok) { msg.textContent = "Войдите в личный кабинет заново."; return; }
+      msg.textContent = "Готовлю оплату…";
+      try {
+        const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/pay/create")}` : base + "/pay/create";
+        const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ item, autopay: !!m.querySelector("#coAuto")?.checked }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.url) throw new Error(j.error || "оплата недоступна");
+        location.href = j.url;
+      } catch (e) { msg.textContent = "Не получилось: " + (e.message || e); }
+    };
+  }
+  /* Возврат с оплаты: ?pay=ok — обновить тариф из кабинета */
+  function afterPay() {
+    const q = new URLSearchParams(location.search).get("pay"); if (!q) return;
+    history.replaceState(null, "", location.pathname + location.hash);
+    if (q === "ok") { toast("Оплата прошла! Тариф подключается — это занимает несколько секунд.", 7000); setTimeout(() => window.Account?.refreshPlan?.(), 2500); setTimeout(() => window.Account?.refreshPlan?.(), 8000); }
+    else toast("Оплата не завершена. Можно попробовать ещё раз в «Тарифах».", 6000);
+  }
+  document.addEventListener("uchu:ready", afterPay);
   /* ---------- шапка: кнопка «⚙ ИИ» только в свободной зоне; метка тарифа ---------- */
   function paint() {
     const ai = document.getElementById("btnAi"); if (ai) ai.hidden = commercial() && !ownAi();
@@ -96,6 +137,6 @@ const Access = (() => {
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);
-  return { level, label, isDev, wantPromo: false, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
+  return { level, label, isDev, wantPromo: false, wantBuy: null, checkout, PACKS, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
 })();
 window.Access = Access;
