@@ -5,7 +5,7 @@
    конспект, рабочий лист, доп. листы, презентация, задание для ИИ.
    =================================================================== */
 const Subjects = (() => {
-  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }];
+  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }];
   const plugin = id => { const s = list.find(x => x.id === id); return s?.kit ? s.kit() || null : null; };
   const name = id => list.find(x => x.id === id)?.name || id;
   return { list, plugin, name };

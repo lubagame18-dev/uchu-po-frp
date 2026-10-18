@@ -536,8 +536,8 @@ window.UCHU_SITE = {
       <section class="card params" aria-labelledby="z2">
         <div class="card-h"><span class="n">1</span><h2 id="z2">Параметры урока</h2></div>
         <div class="field"><label for="subjectSel">Предмет</label>
-          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option></select>
-          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button></div>
+          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option></select>
+          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button></div>
         </div>
         <div class="row2">
           <div class="field"><label for="grade">Класс</label><select id="grade"></select></div>
@@ -636,7 +636,7 @@ window.UCHU_SITE = {
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
   <section class="own-card"><h2>Мои материалы</h2><p class="agent-lead"><b>🧠 Ваш личный ИИ-агент.</b> Прикрепите свои конспекты, задания и тексты — сайт будет опираться на них и собирать уроки по вашей методике.</p><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
-    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option></select></label><input type="file" id="matInput" multiple hidden></div>
+    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option></select></label><input type="file" id="matInput" multiple hidden></div>
     <p class="hint" data-dev>При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
     
     <div class="mat-row" data-dev><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
@@ -3218,6 +3218,7 @@ function guessGrade(name, text) { const m = (name + " " + text.slice(0, 3000)).m
 function guessSubject(name, text) { const t = (name + " " + text.slice(0, 4000)).toLowerCase();
   // выбранный разработчиком предмет при загрузке — главнее догадки
   const forced = document.getElementById("matSubject")?.value; if (forced) return forced;
+  if (/истори[яи] (россии|древнего мира|средних веков|нового времени|новейшего)|всеобщая история/.test(t.slice(0, 1500)) && !/литератур|русск[а-я]* язык/.test(t.slice(0, 1500))) return "hist";
   if (/математ|алгебр|геометри|вероятност[а-я]* и статист/.test(t.slice(0, 1500)) || (t.match(/уравнени|дроб[ьи]|вычислите|найдите значение|корень|функци|треугольник/g) || []).length >= 6) return "math";
   return /литератур/.test(t) && !/русск[A-Za-z0-9_А-Яа-яЁё]* язык/.test(t.slice(0, 1500)) ? "lit" : "ru"; }
 /* Чтение файла любого формата. Ничего не отклоняется: что не читается как текст,
@@ -3440,7 +3441,7 @@ function renderMaterials() {
   const box = $("#matList"); if (!box) return;
   const ms = state.materials;
   box.innerHTML = ms.length ? ms.map(m => `<article class="lcard mat"><h3 title="${esc(m.name)}">${esc(m.name)}</h3>
-    <div class="tags"><span class="tag">${esc(KINDS[m.kind] || m.kind)}</span>${m.grade ? `<span class="tag">${m.grade} класс</span>` : ""}<span class="tag">${m.subject === "lit" ? "Литература" : "Русский"}</span>${m.scanned ? '<span class="tag red">скан без текста</span>' : ""}</div>
+    <div class="tags"><span class="tag">${esc(KINDS[m.kind] || m.kind)}</span>${m.grade ? `<span class="tag">${m.grade} класс</span>` : ""}<span class="tag">${window.Subjects && m.subject && !["ru", "lit"].includes(m.subject) ? Subjects.name(m.subject) : m.subject === "lit" ? "Литература" : "Русский"}</span>${m.scanned ? '<span class="tag red">скан без текста</span>' : ""}</div>
     <p class="small" style="margin:0">${(m.chars || 0).toLocaleString("ru-RU")} знаков${m.pages ? ` · ${m.pages} стр.` : ""}</p>
     ${m.builtin ? `<div class="acts"><span class="tag">встроен в сайт</span></div>` : `<div class="acts"><select data-kind="${m.id}" aria-label="Тип материала">${Object.entries(KINDS).filter(([k]) => k !== "frp").map(([k, v]) => `<option value="${k}" ${k === m.kind ? "selected" : ""}>${v}</option>`).join("")}</select><select data-grade="${m.id}" aria-label="Класс"><option value="">класс?</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option ${g === m.grade ? "selected" : ""}>${g}</option>`).join("")}</select><button class="btn sm ghost" data-delmat="${m.id}">Удалить</button></div>`}</article>`).join("")
     : `<div class="lcard"><h3>Своих материалов пока нет</h3></div>`;
@@ -4524,7 +4525,7 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-const wsOpts = (L, d) => WS_DOCS.includes(d) ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+const wsOpts = (L, d) => WS_DOCS.includes(d) ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
 async function mdToDocxBlob(md, title, opts = {}) {
   const ws = !!opts.worksheet, wsTag = opts.tag || ""; let h1n = 0;
   await Promise.all([ensureMarked(), loadScript("docx")]);
@@ -4841,7 +4842,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/publish.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/worksearch.js"></script>
-<script src="js/mathkit.js"></script>
+<script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histkit.js"></script>
 <script src="js/subjects.js"></script>
 <script src="js/usage.js"></script>
 <script src="js/ai.js"></script>
