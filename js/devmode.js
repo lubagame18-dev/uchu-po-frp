@@ -317,31 +317,46 @@ const Dev = (() => {
     draw();
   }
   /* Промокоды свободной зоны — только у владельца. Хранятся хэши (data/promo.js), сами коды нигде не видны. */
-  /* Промокоды (скидка 50%): хранятся в облаке, в таблице promo_codes; видят и меняют только разработчики */
+  /* Промокоды: хранятся в облаке, в таблице promo_codes; видят и меняют только разработчики.
+     У каждого кода скидки — свой процент. Код бесплатного доступа — один: все возможности без оплаты, пока код не удалён. */
   function promoCard(b) {
     const box = document.createElement("section"); box.className = "dev-card"; box.id = "dvPromo";
-    box.innerHTML = `<h2>Промокоды (скидка 50%)</h2><p class="small">Загружаю…</p>`;
+    const H = `<h2>Промокоды</h2>`;
+    box.innerHTML = `${H}<p class="small">Загружаю…</p>`;
     b.prepend(box);
     const gen = () => { const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", r = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), x => A[x % A.length]).join(""); return `FRP-${r(4)}-${r(4)}`; };
     const N = c => String(c || "").toUpperCase().replace(/\s+/g, "").replace(/^ФРП/, "FRP").replace(/[–—]/g, "-");
+    const PCT = v => Math.max(1, Math.min(99, Math.round(+v || 50)));
     const draw = async () => {
       let rows;
       try { rows = await window.Account.db("/rest/v1/promo_codes?select=*&order=created_at.asc"); }
-      catch (e) { box.innerHTML = `<h2>Промокоды (скидка 50%)</h2><p class="small">${esc(/promo_codes|does not exist|schema cache|404/i.test(e.message) ? "В облаке ещё нет таблицы промокодов — выполните в Supabase команду из инструкции." : e.message)}</p>`; return; }
-      const on = rows.filter(r => r.active).length;
-      box.innerHTML = `<h2>Промокоды (скидка 50%)</h2><p class="small">Действующих: ${on} из ${rows.length}. Человек входит в личный кабинет и вводит код в окне тарифов — тарифы для него вдвое дешевле, в тарифах с ИИ работает его нейросеть.</p>
-        <div class="row-btn"><input type="text" id="pcNew" placeholder="Новый код, например ШКОЛА-2026" autocomplete="off" spellcheck="false"><input type="text" id="pcNote" placeholder="Для кого (необязательно)" autocomplete="off"><button class="btn sm" id="pcGen" type="button">Придумать</button><button class="btn sm flame" id="pcAdd" type="button">Добавить</button></div>
-        <ul class="fl-list pc-list">${rows.map(r => `<li class="${r.active ? "" : "off"}"><span class="fl-n"><b class="pc-code">${esc(r.code)}</b> <button class="btn plain" data-pcopy="${esc(r.code)}" title="Скопировать">⧉</button>${r.note ? ` <span class="small">· ${esc(r.note)}</span>` : ""}<br><span class="small">${r.used_by?.length ? "ввели: " + esc(r.used_by.join(", ")) : "ещё никто не ввёл"}</span></span><span class="fl-t"><span class="tag ${r.active ? "ok" : ""}">${r.active ? "действует" : "отключён"}</span><button class="btn sm ghost" data-ptog="${esc(r.code)}" data-on="${r.active ? 1 : 0}">${r.active ? "Отключить" : "Включить"}</button><button class="btn sm ghost" data-pdel="${esc(r.code)}" aria-label="Удалить">×</button></span></li>`).join("")}</ul>`;
+      catch (e) { box.innerHTML = `${H}<p class="small">${esc(/promo_codes|does not exist|schema cache|404/i.test(e.message) ? "В облаке ещё нет таблицы промокодов — выполните в Supabase команду из инструкции." : e.message)}</p>`; return; }
+      const upgraded = !rows.length || "discount" in rows[0];
+      const freeRow = rows.find(r => r.free), list = rows.filter(r => !r.free), on = list.filter(r => r.active).length;
+      const used = r => r.used_by?.length ? "ввели: " + esc(r.used_by.join(", ")) : "ещё никто не ввёл";
+      box.innerHTML = `${H}
+        ${upgraded ? "" : `<p class="small need-text">Чтобы задавать свой процент и код бесплатного доступа, обновите облако: выполните в Supabase (SQL Editor) последний блок из файла supabase.sql.</p>`}
+        <h3 class="pc-h">🎁 Бесплатный доступ</h3>
+        ${freeRow ? `<ul class="fl-list pc-list"><li class="${freeRow.active ? "" : "off"}"><span class="fl-n"><b class="pc-code">${esc(freeRow.code)}</b> <button class="btn plain" data-pcopy="${esc(freeRow.code)}" title="Скопировать">⧉</button>${freeRow.note ? ` <span class="small">· ${esc(freeRow.note)}</span>` : ""}<br><span class="small">Все возможности сайта без оплаты. ${used(freeRow)}</span></span><span class="fl-t"><span class="tag ${freeRow.active ? "ok" : ""}">${freeRow.active ? "действует" : "отключён"}</span><button class="btn sm ghost" data-ptog="${esc(freeRow.code)}" data-on="${freeRow.active ? 1 : 0}">${freeRow.active ? "Отключить" : "Включить"}</button><button class="btn sm ghost" data-pdel="${esc(freeRow.code)}" data-free="1" aria-label="Удалить">×</button></span></li></ul>`
+          : `<p class="small">Такой код может быть только один. Кто его введёт, получит все возможности сайта без оплаты; удалите код — доступ закончится.</p><div class="row-btn"><input type="text" id="pfNew" placeholder="Код, например ДРУЗЬЯ-ФРП" autocomplete="off" spellcheck="false"${upgraded ? "" : " disabled"}><input type="text" id="pfNote" placeholder="Для кого (необязательно)" autocomplete="off"${upgraded ? "" : " disabled"}><button class="btn sm" id="pfGen" type="button"${upgraded ? "" : " disabled"}>Придумать</button><button class="btn sm flame" id="pfAdd" type="button"${upgraded ? "" : " disabled"}>Создать</button></div>`}
+        <h3 class="pc-h">🏷 Скидка на тарифы</h3>
+        <p class="small">Действующих: ${on} из ${list.length}. Процент скидки задаёте вы. В тарифах с ИИ по коду скидки работает своя нейросеть человека.</p>
+        <div class="row-btn"><input type="text" id="pcNew" placeholder="Новый код, например ШКОЛА-2026" autocomplete="off" spellcheck="false"><label class="pc-pct">Скидка <input type="number" id="pcPct" min="1" max="99" value="50"${upgraded ? "" : " disabled"}> %</label><input type="text" id="pcNote" placeholder="Для кого (необязательно)" autocomplete="off"><button class="btn sm" id="pcGen" type="button">Придумать</button><button class="btn sm flame" id="pcAdd" type="button">Добавить</button></div>
+        <ul class="fl-list pc-list">${list.map(r => `<li class="${r.active ? "" : "off"}"><span class="fl-n"><b class="pc-code">${esc(r.code)}</b> <button class="btn plain" data-pcopy="${esc(r.code)}" title="Скопировать">⧉</button>${r.note ? ` <span class="small">· ${esc(r.note)}</span>` : ""}<br><span class="small">${used(r)}</span></span><span class="fl-t">${upgraded ? `<label class="pc-pct">−<input type="number" min="1" max="99" value="${PCT(r.discount)}" data-ppct="${esc(r.code)}">%</label>` : `<span class="tag">−50%</span>`}<span class="tag ${r.active ? "ok" : ""}">${r.active ? "действует" : "отключён"}</span><button class="btn sm ghost" data-ptog="${esc(r.code)}" data-on="${r.active ? 1 : 0}">${r.active ? "Отключить" : "Включить"}</button><button class="btn sm ghost" data-pdel="${esc(r.code)}" aria-label="Удалить">×</button></span></li>`).join("")}</ul>`;
       const $b = q => box.querySelector(q);
-      $b("#pcGen").onclick = () => { $b("#pcNew").value = gen(); };
-      $b("#pcAdd").onclick = async () => {
-        const code = N($b("#pcNew").value); if (code.length < 4) { toast("Код — не короче 4 знаков."); return; }
+      const add = async (code, body) => {
+        code = N(code); if (code.length < 4) { toast("Код — не короче 4 знаков."); return; }
         if (rows.some(r => N(r.code) === code)) { toast("Такой код уже есть."); return; }
-        try { await window.Account.db("/rest/v1/promo_codes", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ code, note: $b("#pcNote").value.trim() || null }) }); toast("Код добавлен и уже работает."); draw(); } catch (e) { toast("Не получилось: " + e.message); }
+        try { await window.Account.db("/rest/v1/promo_codes", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ code, ...body }) }); toast("Код добавлен и уже работает."); draw(); } catch (e) { toast(/promo_one_free|duplicate/i.test(e.message) ? "Код бесплатного доступа уже есть — он может быть только один." : "Не получилось: " + e.message); }
       };
+      $b("#pcGen").onclick = () => { $b("#pcNew").value = gen(); };
+      $b("#pcAdd").onclick = () => add($b("#pcNew").value, { note: $b("#pcNote").value.trim() || null, ...(upgraded ? { discount: PCT($b("#pcPct").value) } : {}) });
+      if ($b("#pfGen")) $b("#pfGen").onclick = () => { $b("#pfNew").value = gen(); };
+      if ($b("#pfAdd")) $b("#pfAdd").onclick = () => add($b("#pfNew").value, { note: $b("#pfNote").value.trim() || null, free: true });
+      box.querySelectorAll("[data-ppct]").forEach(x => x.onchange = async () => { const v = PCT(x.value); x.value = v; try { await window.Account.db(`/rest/v1/promo_codes?code=eq.${encodeURIComponent(x.dataset.ppct)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ discount: v }) }); toast(`Скидка по коду ${x.dataset.ppct}: ${v}%. Для тех, кто введёт код теперь.`); } catch (e) { toast("Не получилось: " + e.message); } });
       box.querySelectorAll("[data-pcopy]").forEach(x => x.onclick = async () => { try { await navigator.clipboard.writeText(x.dataset.pcopy); toast("Скопировано: " + x.dataset.pcopy); } catch { prompt("Скопируйте код:", x.dataset.pcopy); } });
       box.querySelectorAll("[data-ptog]").forEach(x => x.onclick = async () => { try { await window.Account.db(`/rest/v1/promo_codes?code=eq.${encodeURIComponent(x.dataset.ptog)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ active: x.dataset.on !== "1" }) }); draw(); } catch (e) { toast("Не получилось: " + e.message); } });
-      box.querySelectorAll("[data-pdel]").forEach(x => x.onclick = async () => { if (!confirm(`Удалить код ${x.dataset.pdel}? Те, кто уже ввёл его, скидку сохранят.`)) return; try { await window.Account.db(`/rest/v1/promo_codes?code=eq.${encodeURIComponent(x.dataset.pdel)}`, { method: "DELETE" }); draw(); } catch (e) { toast("Не получилось: " + e.message); } });
+      box.querySelectorAll("[data-pdel]").forEach(x => x.onclick = async () => { if (!confirm(x.dataset.free ? `Удалить код бесплатного доступа ${x.dataset.pdel}? Бесплатный доступ закончится у всех, кто его ввёл.` : `Удалить код ${x.dataset.pdel}? Те, кто уже ввёл его, скидку сохранят.`)) return; try { await window.Account.db(`/rest/v1/promo_codes?code=eq.${encodeURIComponent(x.dataset.pdel)}`, { method: "DELETE" }); draw(); } catch (e) { toast("Не получилось: " + e.message); } });
     };
     draw();
   }

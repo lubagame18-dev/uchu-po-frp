@@ -27,6 +27,8 @@ async function check(userToken, request, readAll) {
   const month = new Date().toISOString().slice(0, 7);
   if (!p) p = (await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: FREE(), free_month: month } })).json?.[0] || { id, plan: "free", ai_left: FREE(), free_month: month };
   else if (!p.email && u.json.email) await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: { email: u.json.email.toLowerCase() } });
+  // бесплатный доступ по промокоду: без лимитов, пока код существует и включён (удалили код — доступ закончился)
+  if (await freeOk(p, request, readAll)) return { ok: true, promoFree: true };
   // бесплатный лимит обновляется раз в месяц; у платного — пока не кончился срок
   const tok = typeof p.tokens_limit === "number"; // учёт в токенах (если в облаке есть колонки tokens_limit / tokens_used)
   const patch = b => sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: b });
@@ -53,7 +55,7 @@ async function promo(userToken, code, request, readAll) {
   const N = x => String(x || "").toUpperCase().replace(/\s+/g, "").replace(/^ФРП/, "FRP").replace(/[АВЕЁКМНОРСТХУ]/g, ch => LOOK[ch]).replace(/[–—]/g, "-");
   // коды: таблица promo_codes в облаке (меняются в режиме разработчика) + переменная PROMO_CODES
   let table = [];
-  if (on()) { const t = await sb(request, readAll, "/rest/v1/promo_codes?select=code,active,used_by").catch(() => null); if (t?.status === 200 && Array.isArray(t.json)) table = t.json; }
+  if (on()) { let t = await sb(request, readAll, "/rest/v1/promo_codes?select=code,active,used_by,discount,free").catch(() => null); if (t?.status !== 200) t = await sb(request, readAll, "/rest/v1/promo_codes?select=code,active,used_by").catch(() => null); if (t?.status === 200 && Array.isArray(t.json)) table = t.json; }
   const row = table.find(r => N(r.code) === N(code));
   const envCodes = String(process.env.PROMO_CODES || "").split(",").map(N).filter(Boolean);
   const valid = row ? row.active !== false : envCodes.includes(N(code)); // отключённый в таблице код не действует, даже если он есть в переменной
@@ -63,11 +65,25 @@ async function promo(userToken, code, request, readAll) {
   if (u.status !== 200 || !u.json?.id) return { ok: false, status: 401, message: "войдите в кабинет" };
   const em = (u.json.email || "").toLowerCase();
   if (row && em && !(row.used_by || []).includes(em)) await sb(request, readAll, `/rest/v1/promo_codes?code=eq.${encodeURIComponent(row.code)}`, { method: "PATCH", body: { used_by: [...(row.used_by || []), em] } }).catch(() => null);
-  // промокод — отметка promo (скидка 50% на тарифы, своя нейросеть вместо ИИ сайта); тариф не меняется
   await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: u.json.id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: 0 } }).catch(() => null);
-  const r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo: true } });
+  // код бесплатного доступа (он один): все возможности сайта без оплаты, пока код существует и включён
+  if (row?.free) {
+    const r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo_free_code: row.code } });
+    if (r.status >= 300) return { ok: false, status: 500, message: "в облаке нет колонки для бесплатного доступа — выполните обновление из supabase.sql" };
+    return { ok: true, free: true };
+  }
+  // код скидки: процент задаёт тот, кто выдаёт промокоды (по умолчанию 50%); в тарифах с ИИ — своя нейросеть
+  const pct = Math.max(1, Math.min(99, Math.round(+row?.discount || 50)));
+  let r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo: true, promo_pct: pct } });
+  if (r.status >= 300) r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo: true } });
   if (r.status >= 300) await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { plan: "promo" } }); // колонки promo ещё нет — по-старому
-  return { ok: true };
+  return { ok: true, pct };
+}
+/* Действует ли у человека код бесплатного доступа */
+async function freeOk(p, request, readAll) {
+  if (!p?.promo_free_code || !on()) return false;
+  const c = (await sb(request, readAll, `/rest/v1/promo_codes?code=eq.${encodeURIComponent(p.promo_free_code)}&select=free,active`).catch(() => null))?.json?.[0];
+  return !!(c && c.free && c.active !== false);
 }
 /* Автор сайта: вошёл в кабинет почтой из таблицы site_admins */
 async function isAdmin(userToken, request, readAll) {
@@ -111,4 +127,4 @@ async function freeUse(userToken, body, ip, request, readAll) {
   return { ok: true, left: Math.min(...keys.map(([k, lim]) => lim - n(k) - 1)) };
 }
 const devCodeOk = code => !!code && require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code)).digest("hex") === DEV_HASH();
-module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk };
+module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk, freeOk };

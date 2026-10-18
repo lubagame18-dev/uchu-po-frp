@@ -3463,6 +3463,11 @@ function topicList() {
   const base = state.subject === "ru" ? KB.ru.topics[state.grade] : KB.lit.works[state.grade];
   return { frp: false, items: (base || []).map((t, i) => ({ n: i + 1, title: t, lesson: null, section: "" })) };
 }
+/* Недавние темы — отдельно для каждого предмета и класса: при смене класса поле темы очищается, а свои прошлые темы остаются в списке ▾ */
+const RECENT_KEY = "uchu:recent-topics";
+function recentTopics() { try { return (JSON.parse(localStorage.getItem(RECENT_KEY)) || {})[`${state.subject}:${state.grade}`] || []; } catch { return []; } }
+function rememberTopic(t) { t = String(t || "").trim(); if (!t) return; try { const all = JSON.parse(localStorage.getItem(RECENT_KEY)) || {}, k = `${state.subject}:${state.grade}`; all[k] = [t, ...(all[k] || []).filter(x => x.toLowerCase() !== t.toLowerCase())].slice(0, 6); localStorage.setItem(RECENT_KEY, JSON.stringify(all)); } catch { } }
+function clearTopic() { $("#topic").value = ""; state.topic = ""; state.lessonNo = 1; setSeg("segLesson", 1); readForm(); updateType(); }
 function refreshTopics() { if ($("#topicPanel") && !$("#topicPanel").hidden) renderTopicPanel(); }
 const cleanTopic = t => String(t).replace(/\s*\((?:\d\s*-?\s*(?:й\s*)?урок|урок\s*\d|продолжени[^)]*)\)\s*$/i, "").replace(/[.,;]?\s*Продолжение( изучения)?( темы)?\.?\s*$/i, "").trim();
 function renderTopicPanel() {
@@ -3474,9 +3479,12 @@ function renderTopicPanel() {
     const mark = i.lesson ? (typeof i.lesson === "number" ? `${i.lesson} урок` : i.lesson) : "";
     return head + `<li><button type="button" data-n="${i.n}"><span class="tp-n">${frp ? esc(i.num || i.n) : "•"}</span><span class="tp-t">${esc(cleanTopic(i.title))}</span>${mark ? `<span class="tp-l">${esc(mark)}</span>` : ""}</button></li>`;
   }).join("");
-  $("#topicPanel").innerHTML = `<div class="tp-note">${frp ? `Темы ${state.grade} класса по ФРП, по порядку` : `Примерный список тем ${state.grade} класса (текст ФРП для этого класса в сайт пока не встроен)`}</div><ul>${rows || `<li class="tp-sec">Ничего не найдено — тему можно ввести вручную</li>`}</ul>`;
-  if (q && !list.length) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); }
+  const rec = recentTopics().filter(t => !q || t.toLowerCase().includes(q)).filter(t => t.toLowerCase() !== q);
+  const recHtml = rec.length ? `<li class="tp-sec">Недавние</li>${rec.map((t, k) => `<li><button type="button" data-rec="${k}"><span class="tp-n">↺</span><span class="tp-t">${esc(t)}</span></button></li>`).join("")}<li class="tp-sec">Все темы</li>` : "";
+  $("#topicPanel").innerHTML = `<div class="tp-note">${frp ? `Темы ${state.grade} класса по ФРП, по порядку` : `Примерный список тем ${state.grade} класса (текст ФРП для этого класса в сайт пока не встроен)`}</div><ul>${recHtml}${rows || `<li class="tp-sec">Ничего не найдено — тему можно ввести вручную</li>`}</ul>`;
+  if (q && !list.length && !rec.length) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); }
   $$("#topicPanel button[data-n]").forEach(b => b.onclick = () => { const it = items.find(x => String(x.n) === b.dataset.n); pickTopic(it); });
+  $$("#topicPanel button[data-rec]").forEach(b => b.onclick = () => { $("#topic").value = rec[+b.dataset.rec]; $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); readForm(); updateType(); });
 }
 function pickTopic(it) {
   $("#topic").value = cleanTopic(it.title);
@@ -3877,6 +3885,7 @@ async function createLesson() {
   const type = state.type;
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
+  rememberTopic(state.topic);
   p.notes = window.Notes ? Notes.snapshot() : null;
   if (window.Notes?.reset) Notes.reset(); // пожелания и файлы — только для этого урока, к следующему не переходят
   if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } // текст, который учитель добавил сам
@@ -4611,7 +4620,7 @@ function openAiSettings() {
 function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });
   $("#btnBack").onclick = () => history.back();
-  $$("#segSubject button").forEach(b => b.onclick = () => { state.subject = b.dataset.v; setSeg("segSubject", state.subject); readForm(); updateType(); refreshTopics(); });
+  $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); if (ch) clearTopic(); else { readForm(); updateType(); } refreshTopics(); });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
@@ -4622,7 +4631,7 @@ function bind() {
     sel.onchange = () => { try { localStorage.setItem("uchu:theme", sel.value); } catch { } why(); };
     $("#topic")?.addEventListener("input", why); why();
   } }
-  $("#grade").onchange = () => { state.grade = +$("#grade").value; syncControls(); readForm(); refreshTopics(); };
+  $("#grade").onchange = () => { state.grade = +$("#grade").value; syncControls(); clearTopic(); refreshTopics(); };
   $("#control").onchange = () => { state.control = $("#control").value; syncControls(); readForm(); };
   ["#wishes", "#duration", "#deep"].forEach(s => $(s).addEventListener("change", readForm));
   $("#topic").addEventListener("input", debounce(() => { readForm(); updateType(); if (!$("#topicPanel").hidden) renderTopicPanel(); }, 250));

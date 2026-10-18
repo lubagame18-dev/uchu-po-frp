@@ -92,3 +92,15 @@ alter table free_usage enable row level security;
 
 -- общие ключи: любая нейросеть — модель для каждой ячейки
 alter table ai_keys add column if not exists model text;
+
+-- ===== Промокоды: свой процент скидки у каждого кода и один код бесплатного доступа =====
+alter table promo_codes add column if not exists discount int not null default 50;
+alter table promo_codes add column if not exists free boolean not null default false;
+create unique index if not exists promo_one_free on promo_codes (free) where free;
+alter table profiles add column if not exists promo_pct int;
+alter table profiles add column if not exists promo_free_code text;
+-- кабинет узнаёт, действует ли бесплатный доступ, не видя самих кодов
+create or replace function promo_free_ok() returns boolean language sql security definer set search_path = public stable as $$
+  select exists (select 1 from profiles p join promo_codes c on c.code = p.promo_free_code where p.id = auth.uid() and c.free and c.active);
+$$;
+grant execute on function promo_free_ok() to authenticated;

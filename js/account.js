@@ -137,22 +137,25 @@ const Account = (() => {
     try {
       if (!(await refresh())) return null;
       const q = f => api(`/rest/v1/profiles?id=eq.${S.uid}&select=${f}`);
-      const p = (await q("plan,ai_left,paid_until,promo,tokens_used,tokens_limit").catch(() => q("plan,ai_left,paid_until,promo")).catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // новых колонок может ещё не быть
-      if (p && S) { S.plan = p.plan; S.promo = !!p.promo || p.plan === "promo"; S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
+      const p = (await q("plan,ai_left,paid_until,promo,promo_pct,promo_free_code,tokens_used,tokens_limit").catch(() => q("plan,ai_left,paid_until,promo,tokens_used,tokens_limit")).catch(() => q("plan,ai_left,paid_until,promo")).catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // новых колонок может ещё не быть
+      // бесплатный доступ по промокоду — только пока код существует и включён (проверяет облако, сами коды не видны)
+      const freeOk = p?.promo_free_code ? !!(await api("/rest/v1/rpc/promo_free_ok", { method: "POST", body: "{}" }).catch(() => false)) : false;
+      if (p && S) { S.plan = p.plan; S.promoFree = freeOk; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
       return p;
     } catch { return null; }
   }
   /* Карточка тарифа в кабинете: всё, что оплачено и сколько осталось — с самого начала */
   const TOK = { free: 0, basic: 0, ai: 2000000, pro: 4800000 };
   function planCard(p) {
-    const plan = p ? (p.plan === "promo" ? "free" : p.plan) : "free";
+    const plan = S?.promoFree ? "pro" : p ? (p.plan === "promo" ? "free" : p.plan) : "free";
     const name = PLAN_NAMES[plan] || plan, dev = window.Access?.isDev?.();
     const until = p?.paid_until && plan !== "free" ? new Date(p.paid_until) : null, days = until ? Math.max(0, Math.ceil((until - Date.now()) / 864e5)) : null;
     const hasTok = typeof p?.tokens_limit === "number";
     const lim = hasTok ? p.tokens_limit : TOK[plan] || 0, used = hasTok ? Math.min(p.tokens_used || 0, Math.max(lim, p.tokens_used || 0)) : 0, left = Math.max(0, lim - used);
     const pct = lim ? Math.round(used / lim * 100) : 0;
     const row = (k, v) => `<div class="pc-row"><span>${k}</span><b>${v}</b></div>`;
-    let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promo ? `<span class="tag ok">промокод −50%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
+    let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promoFree ? `<span class="tag ok">бесплатный доступ по промокоду</span>` : S.promo ? `<span class="tag ok">промокод −${S.promoPct || 50}%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
+    if (S?.promoFree) { h += row("Доступ", "все возможности сайта, без оплаты и без срока") + "</div>"; return h; }
     h += row("Оплачено до", until ? `${until.toLocaleDateString("ru-RU")} (ещё ${days} дн.)` : plan === "free" ? "бесплатно, без срока" : "—");
     h += row("Уроки без ИИ", plan === "free" ? `3 в месяц (осталось ${window.Access?.lessonsLeft?.() === Infinity ? "∞" : window.Access?.lessonsLeft?.() ?? 3})` : "без ограничений");
     if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");

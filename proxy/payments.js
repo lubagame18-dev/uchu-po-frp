@@ -12,7 +12,8 @@
 const crypto = require("crypto");
 /* tokens — сколько токенов ИИ сайта (DeepSeek) входит в тариф на месяц: ≈ 40 тыс. на урок с ИИ */
 const PLANS = { basic: { name: "Учитель", price: 300, ai: 0, tokens: 0 }, ai: { name: "Учитель + ИИ", price: 500, ai: 50, tokens: 2000000 }, pro: { name: "Методист", price: 900, ai: 120, tokens: 4800000 } };
-const PROMO_K = 0.5; // скидка по промокоду
+const PROMO_K = 0.5; // скидка по промокоду, если у кода не задан свой процент
+const kOf = p => (!!p.promo || p.plan === "promo") ? (p.promo_pct ? 1 - Math.max(1, Math.min(99, +p.promo_pct)) / 100 : PROMO_K) : 1;
 const PACKS = { ai10: { name: "10 уроков с ИИ", price: 50, ai: 10, tokens: 400000 }, ai30: { name: "30 уроков с ИИ", price: 140, ai: 30, tokens: 1200000 } };
 const DAY = 864e5;
 const env = k => process.env[k] || "";
@@ -49,7 +50,8 @@ async function create(body, userToken, request, readAll) {
   const user = await userOf(userToken, request, readAll);
   if (!user) return { status: 401, json: { error: "войдите в личный кабинет" } };
   const p = (await profile(user.id, request, readAll)) || { plan: "free" };
-  const promo = !!p.promo || p.plan === "promo", k = promo ? PROMO_K : 1; // по промокоду — скидка 50%
+  if (p.promo_free_code && await require("./quota.js").freeOk(p, request, readAll)) return { status: 400, json: { error: "у вас бесплатный доступ по промокоду — оплачивать ничего не нужно" } };
+  const promo = !!p.promo || p.plan === "promo", k = kOf(p), pct = Math.round((1 - k) * 100); // по промокоду — скидка, которую задал выдавший код
   if (p.plan === "promo") p.plan = "free";
   const item = String(body.item || "");
   let kind, price, name, sub = "";
@@ -63,7 +65,7 @@ async function create(body, userToken, request, readAll) {
       // повышение тарифа: доплата разницы только за оставшиеся дни
       kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / (30 * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
     } else {
-      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», 1 месяц${promo ? " (промокод −50%)" : ""}`;
+      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», 1 месяц${promo ? ` (промокод −${pct}%)` : ""}`;
       if (body.autopay && !promo) sub = env("PRODAMUS_SUB_" + item.toUpperCase());
     }
   } else return { status: 400, json: { error: "нет такого тарифа" } };
@@ -98,7 +100,7 @@ async function notify(raw, headers, request, readAll) {
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
   const [type, item] = kind.split("_");
   const promo = !!p.promo || p.plan === "promo";
-  const expect = type === "pack" ? PACKS[item]?.price : type === "plan" ? Math.round((PLANS[item]?.price || 0) * (promo ? PROMO_K : 1)) || undefined : 10;
+  const expect = type === "pack" ? PACKS[item]?.price : type === "plan" ? Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined : 10;
   if (!expect || sum + 0.01 < expect) return { status: 200, text: "success" }; // сумма меньше цены — тариф не выдаём
   await apply(uid, p, type, item, promo, request, readAll);
   await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(String(data.order_id || ""))}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);

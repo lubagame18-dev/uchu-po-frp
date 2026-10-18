@@ -885,3 +885,6 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx-audio .aud b { font-size: 6cqw; line-height: 1; }
 .sx-audio .aud span { font-size: 2cqw; text-align: center; }
 .sx-audio audio { width: 80%; }
+.pc-h { font-size: 15px; margin: 14px 0 4px; }
+.pc-pct { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; white-space: nowrap; }
+.pc-pct input { width: 4.2em; }
