@@ -477,6 +477,7 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 .dl-panel .btn{font-size:13px}
 .base-card,.own-card{margin-top:22px}
 .own-frp{margin-top:10px}.own-frp summary{cursor:pointer;font-weight:700}
+.site-foot{border-top:2.5px solid var(--ink);margin-top:40px;padding:18px 0 26px;font-size:13.5px;color:var(--muted)}.site-foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}.site-foot a{color:inherit;font-weight:700}.site-foot p{margin:0}
 </style>
 <link rel="stylesheet" href="css/v5.css">
 </head>
@@ -647,6 +648,9 @@ window.UCHU_SITE = {
 <!-- ===================== ИНСТРУКЦИЯ ===================== -->
 <main id="view-help" class="wrap page help" hidden><div class="sheet" id="helpBody"></div></main>
 
+<footer class="site-foot"><div class="wrap"><nav><a href="legal/oferta.html">Договор-оферта</a><a href="legal/privacy.html">Политика конфиденциальности</a><a href="legal/contacts.html">Контакты и реквизиты</a></nav><p id="footLegal">© «Учу по ФРП»</p></div></footer>
+<script src="data/legal.js"></script>
+<script>(function(){var L=window.UCHU_LEGAL||{},el=document.getElementById("footLegal");if(el&&L.name)el.textContent="© «Учу по ФРП» · "+L.name+", "+(L.status||"").split(" (")[0]+(L.inn&&!/_/.test(L.inn)?", ИНН "+L.inn:"")+(L.email?" · "+L.email:"");})();</script>
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
