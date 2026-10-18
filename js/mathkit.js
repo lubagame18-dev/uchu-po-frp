@@ -221,7 +221,7 @@ const MathKit = (() => {
     10: [["Алгебра и начала анализа", ["Степень с рациональным показателем", "Тригонометрические функции", "Тригонометрические уравнения"]], ["Геометрия", ["Аксиомы стереометрии", "Параллельность прямых и плоскостей", "Перпендикулярность в пространстве"]], ["Вероятность и статистика", ["Классическая вероятность"]]],
     11: [["Алгебра и начала анализа", ["Производная", "Показательная функция", "Логарифмы", "Первообразная и интеграл"]], ["Геометрия", ["Многогранники", "Тела вращения", "Объёмы тел"]], ["Подготовка к ЕГЭ", ["Повторение: проценты", "Повторение: уравнения", "Повторение: теория вероятностей"]]]
   };
-  function topics(grade) { let n = 0; return (TOPICS[grade] || []).flatMap(([section, list]) => list.map(title => ({ n: ++n, title, section }))); }
+  function topics(grade) { const P = window.Subjects?.planTopics?.("math", grade); if (P) return P; let n = 0; return (TOPICS[grade] || []).flatMap(([section, list]) => list.map(title => ({ n: ++n, title, section }))); }
   // сначала узкие темы («Квадратные уравнения»), потом общие («уравнения», «действия с числами»)
   const GENERIC = new Set(["linEq", "order", "signed"]);
   const family = topic => F.find(f => !GENERIC.has(f.id) && f.re.test(topic)) || F.find(f => f.re.test(topic)) || null;
@@ -423,6 +423,12 @@ const MathKit = (() => {
     return `${base}${fixed}\n\n${fmt}\nВерни только документ.${draft ? `\n\nЧерновик сайта (улучши его, структуру сохрани):\n${draft.slice(0, 6000)}` : ""}`;
   }
 
-  return { id: "math", name: "Математика", topics, detectType, conspect, lesson, worksheet, extra, cards, prompt, family, TYPES, families: F };
+  // тема без готового набора у сайта → урок строится по ФРП (задания, понятия, содержание программы)
+  const ownData = p => !!family(p.topic);
+  const viaFrp = p => ownData(p) ? null : window.Subjects?.frp?.("math", p);
+  const W = (kind, fn) => (p, type, ...r) => { const F = viaFrp(p); return F ? Subjects.frpDoc(kind, p, type, F, "Математика") : fn(p, type, ...r); };
+  const WX = (k, p, type, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, type, F, "Математика") : extra(k, p, type, o); };
+  const WP = (k, p, type, d) => { const F = viaFrp(p), x = prompt(k, p, type, d); return F ? x + `\nПо ФРП (тема «${F.theme}»): задания — ${F.tasks.join("; ")}${F.terms.length ? `; понятия — ${F.terms.join(", ")}` : ""}${F.content.length ? `; содержание — ${F.content.join("; ")}` : ""}. Факты бери только из учебника и ФРП.` : x; };
+  return { id: "math", name: "Математика", topics, detectType, conspect: W("conspect", conspect), lesson: W("lesson", lesson), worksheet: W("worksheet", worksheet), extra: WX, cards: W("cards", cards), prompt: WP, family, TYPES, families: F };
 })();
 window.MathKit = MathKit;

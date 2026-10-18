@@ -280,9 +280,11 @@ const EngKit = (() => {
   /* ---------- темы по классам (грамматика + лексика) ---------- */
   const GR = { 5: ["Глагол to be", "Конструкция have got", "Множественное число существительных", "Конструкция there is / there are", "Модальный глагол can", "Present Simple", "Present Continuous"], 6: ["Present Simple и Present Continuous", "Past Simple: правильные глаголы", "Past Simple: неправильные глаголы", "Притяжательный падеж существительных", "Степени сравнения прилагательных", "Модальные глаголы must / mustn't, should"], 7: ["Past Continuous", "Future Simple (will)", "Конструкция to be going to", "Present Perfect", "Степени сравнения прилагательных"], 8: ["Present Perfect и Past Simple", "Страдательный залог: Present Simple Passive", "Страдательный залог: Past Simple Passive", "Условные предложения первого типа (First Conditional)", "Модальные глаголы must / mustn't, should"], 9: ["Условные предложения второго типа (Second Conditional)", "Косвенная речь (Reported speech)", "Страдательный залог: Past Simple Passive", "Present Perfect и Past Simple"], 10: ["Условные предложения первого типа (First Conditional)", "Условные предложения второго типа (Second Conditional)", "Страдательный залог: Present Simple Passive", "Косвенная речь (Reported speech)"], 11: ["Условные предложения второго типа (Second Conditional)", "Косвенная речь (Reported speech)", "Страдательный залог: Past Simple Passive", "Present Perfect и Past Simple"] };
   const VOC = () => window.EngVocab || [];
-  function topics(grade) { let n = 0; const g = +grade; return [...VOC().filter(x => x.g.includes(g)).map(x => ({ n: ++n, title: x.t, section: "Лексика" })), ...(GR[g] || []).map(t => ({ n: ++n, title: t, section: "Грамматика" }))]; }
+  function topics(grade) { const P = window.Subjects?.planTopics?.("eng", grade); if (P) return P; let n = 0; const g = +grade; return [...VOC().filter(x => x.g.includes(g)).map(x => ({ n: ++n, title: x.t, section: "Лексика" })), ...(GR[g] || []).map(t => ({ n: ++n, title: t, section: "Грамматика" }))]; }
   const family = topic => F.find(f => f.re.test(topic)) || null;
-  const vocab = topic => { const t = String(topic || "").toLowerCase(); return VOC().find(x => x.t.toLowerCase() === t) || (family(topic) ? null : VOC().find(x => x.re.test(t))) || null; };
+  // лексическая тема: сначала — подходящая этому классу (семья в 5-м и «взаимоотношения» в 8-м — разные наборы)
+  const vocab = (topic, grade) => { const t = String(topic || "").toLowerCase(); if (family(topic)) return null; const ex = VOC().find(x => x.t.toLowerCase() === t); if (ex) return ex; const hits = VOC().filter(x => x.re.test(t)); return hits.find(x => x.g.includes(+grade)) || hits[0] || null; };
+  const KIND = t => /лексика \(закреплени|чтение|аудирование|диалогическ|монологическ|письмо|проектн/i.test(t) ? "read" : null;
 
   /* ---------- типы уроков ---------- */
   const TYPES = {
@@ -298,6 +300,8 @@ const EngKit = (() => {
     if (/контрольн|проверочн|test\b/.test(t)) return TYPES.ctrl;
     if (/повторени|обобщени|систематизац|подготовк[а-я]* к (огэ|егэ|впр)/.test(t)) return TYPES.gen;
     const isVoc = !!vocab(topic) && !family(topic);
+    if (KIND(t) && !family(topic)) return TYPES.read;
+    if (/: лексика$/i.test(t)) return TYPES.lex;
     if (lessonNo === 1) return isVoc ? TYPES.lex : TYPES.gram;
     return isVoc ? TYPES.read : TYPES.refl;
   }
@@ -305,7 +309,7 @@ const EngKit = (() => {
   /* ---------- материал урока ---------- */
   function material(p) {
     const r = rngOf(p.topic + "|" + p.grade + "|" + new Date().toISOString().slice(0, 10) + "|" + (p.lessonNo || 1));
-    const f = family(p.topic), W = f ? null : vocab(p.topic);
+    const f = family(p.topic), W = f ? null : vocab(p.topic, p.grade);
     // сначала — задания, которых ещё не было на уроке; если набор маленький, повторы допускаются, но не внутри одного упражнения
     const used = new Set(), T = (lvl, n) => { const out = []; if (!f) return out; for (let i = 0; i < n * 10 && out.length < n; i++) { const x = f.task(r, lvl); if (!x || used.has(x.q)) continue; used.add(x.q); out.push(x); } for (let i = 0; i < n * 10 && out.length < n; i++) { const x = f.task(r, lvl); if (x && !out.some(y => y.q === x.q)) out.push(x); } return out; };
     const uniq = (g, n) => { const out = [], s = new Set(); for (let i = 0; i < n * 8 && out.length < n; i++) { const x = g(r); if (!x || s.has(x.q)) continue; s.add(x.q); out.push(x); } return out; };
@@ -492,6 +496,9 @@ const EngKit = (() => {
     return `${base}${fx}\n\n${fmt}\nВерни только документ.${draft ? `\n\nЧерновик сайта (улучши его, структуру и проверенные ответы сохрани):\n${draft.slice(0, 6000)}` : ""}`;
   }
 
-  return { id: "eng", name: "Английский язык", topics, detectType, conspect, lesson, worksheet, extra, cards, prompt, family, vocab, TYPES, families: F };
+  const KTASK = { "чтение": ["Прочитайте текст учебника по теме и определите основную мысль", "Найдите в тексте ответы на вопросы учителя", "Выпишите из текста новые слова и выражения"], "аудирование": ["Прослушайте текст (аудиозапись учебника) и определите основную тему", "Прослушайте ещё раз и найдите запрашиваемую информацию", "Ответьте на вопросы по прослушанному"], "диалогическ": ["Составьте диалог-расспрос по теме урока (4–5 реплик с каждой стороны)", "Разыграйте диалог в парах", "Используйте речевые клише темы"], "монологическ": ["Составьте план устного высказывания по теме урока", "Подготовьте сообщение (8–10 предложений) с опорой на план и ключевые слова", "Выступите перед классом"], "письмо": ["Напишите электронное письмо другу по теме урока (по образцу учебника)", "Проверьте письмо по памятке: обращение, вопросы, завершающая фраза, подпись"], "проектн": ["Распределите роли в группе и выберите формат проекта", "Подготовьте и представьте проект по теме", "Оцените проекты одноклассников по критериям"], "лексика": ["Познакомьтесь с новыми словами темы по учебнику (картинка, пример, перевод)", "Выполните упражнения учебника на употребление новых слов", "Составьте предложения с новыми словами"] };
+  const viaFrp = p => { if (family(p.topic) || vocab(p.topic, p.grade)) return null; const t = String(p.topic), k = Object.keys(KTASK).find(x => t.toLowerCase().includes(x)) || "лексика"; return { theme: t.split(":")[0], tasks: KTASK[k], terms: [], content: [] }; };
+  const Wr = (kind, fn) => (p, type, ...r) => { const F = viaFrp(p); return F ? Subjects.frpDoc(kind, p, type, F, "Английский язык") : fn(p, type, ...r); };
+  return { id: "eng", name: "Английский язык", topics, detectType, conspect: Wr("conspect", conspect), lesson: Wr("lesson", lesson), worksheet: Wr("worksheet", worksheet), extra: (k, p, type, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, type, F, "Английский язык") : extra(k, p, type, o); }, cards: Wr("cards", cards), prompt, family, vocab, TYPES, families: F };
 })();
 window.EngKit = EngKit;

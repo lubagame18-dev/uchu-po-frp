@@ -15,16 +15,18 @@ const HistKit = (() => {
   const low1 = s => String(s || "").replace(/^./, c => c.toLowerCase());
 
   /* ---------- темы ---------- */
-  function topics(grade) { let n = 0; return D().filter(x => x.g === +grade).map(x => ({ n: ++n, title: x.t, section: x.s })); }
+  function topics(grade) { const P = window.Subjects?.planTopics?.("hist", grade); if (P) return P; let n = 0; return D().filter(x => x.g === +grade).map(x => ({ n: ++n, title: x.t, section: x.s })); }
+  // тема урока → готовый материал: только своего класса; в уроке обобщения — по теме в кавычках
+  const STOP = new Set(["урок", "повт", "обоб", "конт", "тема", "теме", "итог", "введ", "разв", "госу", "войн", "внут", "внеш", "поли", "импе", "рево", "стра", "мира", "росс", "исто", "XVII", "нача", "конц", "перв", "втор", "веко", "века", "годы", "обще", "куль", "эпох", "экон", "соци", "рефо", "ссср", "отно", "вели", "отеч", "наци"]);
   function find(topic, grade) {
-    const t = String(topic || "").trim().toLowerCase(); if (!t) return null;
-    const all = D(), mine = all.filter(x => x.g === +grade);
-    const exact = mine.find(x => x.t.toLowerCase() === t) || all.find(x => x.t.toLowerCase() === t) || mine.find(x => x.re.test(t)) || all.find(x => x.re.test(t));
+    const t0 = String(topic || "").trim().toLowerCase(); if (!t0) return null;
+    const t = /^(урок|повторительно|уроки)/.test(t0) ? ((t0.match(/«([^»]+)»/) || [])[1] || t0) : t0;
+    const all = D(), mine = all.filter(x => x.g === +grade), pool = mine.length ? mine : all;
+    const exact = all.find(x => x.t.toLowerCase() === t0 || x.t.toLowerCase() === t) || pool.find(x => x.re.test(t));
     if (exact) return exact;
-    // похожее название темы: общие основы слов («Петр 1 реформы» → «Реформы Петра I»)
-    const st = s => new Set(String(s).toLowerCase().replace(/ё/g, "е").split(/[^а-яa-z0-9]+/).filter(w => w.length > 3).map(w => w.slice(0, 4)));
-    const q = st(t); if (!q.size) return null;
-    let best = null, bs = 0; for (const x of all) { const a = st(x.t + " " + (x.p || []).map(y => y[0]).join(" ")); let n = 0; for (const w of q) if (a.has(w)) n++; const sc = n + (x.g === +grade ? 0.5 : 0); if (n >= Math.min(2, q.size) && sc > bs) { bs = sc; best = x; } }
+    const st = s => new Set(String(s).toLowerCase().replace(/ё/g, "е").split(/[^а-яa-z0-9]+/).filter(w => w.length > 3 && !/^\d/.test(w)).map(w => w.slice(0, 4)).filter(w => !STOP.has(w)));
+    const q = st(t); if (q.size < 2) return null;
+    let best = null, bs = 1; for (const x of pool) { const a = st(x.t); let n = 0; for (const w of q) if (a.has(w)) n++; if (n > bs) { bs = n; best = x; } }
     return best;
   }
   function prevOf(T) { const L = D().filter(x => x.g === T.g), i = L.indexOf(T); return i > 0 ? L[i - 1] : null; }
@@ -251,6 +253,12 @@ const HistKit = (() => {
 
   // «1240 г.» в конце фразы: без двойной точки
   const fin = f => (...a) => { const x = f(...a); return typeof x === "string" ? x.replace(/(\s(?:г|гг|в|вв|э))\.\.(?!\.)/g, "$1.") : x; };
-  return { id: "hist", name: "История", topics, detectType, conspect: fin(conspect), lesson: fin(lesson), worksheet: fin(worksheet), extra: fin(extra), cards, prompt, find, TYPES };
+  // тема без готового набора у сайта → урок строится по ФРП (задания, понятия, содержание программы)
+  const ownData = p => !!find(p.topic, p.grade);
+  const viaFrp = p => ownData(p) ? null : window.Subjects?.frp?.("hist", p);
+  const W = (kind, fn) => (p, type, ...r) => { const F = viaFrp(p); return F ? Subjects.frpDoc(kind, p, type, F, "История") : fn(p, type, ...r); };
+  const WX = (k, p, type, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, type, F, "История") : extra(k, p, type, o); };
+  const WP = (k, p, type, d) => { const F = viaFrp(p), x = prompt(k, p, type, d); return F ? x + `\nПо ФРП (тема «${F.theme}»): задания — ${F.tasks.join("; ")}${F.terms.length ? `; понятия — ${F.terms.join(", ")}` : ""}${F.content.length ? `; содержание — ${F.content.join("; ")}` : ""}. Факты бери только из учебника и ФРП.` : x; };
+  return { id: "hist", name: "История", topics, detectType, conspect: W("conspect", fin(conspect)), lesson: W("lesson", fin(lesson)), worksheet: W("worksheet", fin(worksheet)), extra: (k, p, t, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, t, F, "История") : fin(extra)(k, p, t, o); }, cards: W("cards", cards), prompt: WP, find, TYPES };
 })();
 window.HistKit = HistKit;
