@@ -888,3 +888,16 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .pc-h { font-size: 15px; margin: 14px 0 4px; }
 .pc-pct { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; white-space: nowrap; }
 .pc-pct input { width: 4.2em; }
+/* «Контроль» и «Запоминание» — кнопки как «Конспект», раскрываются */
+.xopt { position: relative; padding: 0 !important; }
+.xopt > summary { list-style: none; cursor: pointer; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px; }
+.xopt > summary::-webkit-details-marker { display: none; }
+.xopt > summary::after { content: "▾"; font-size: 12px; opacity: .7; }
+.xopt[open] > summary::after { content: "▴"; }
+.xopt.on { background: var(--sun); }
+.xopt .xv { font-weight: 600; opacity: .8; }
+.xopt[open] { flex-basis: 100%; border-radius: 18px; display: block; }
+.xopt .xpop { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 12px; cursor: default; }
+.xopt .xpop select { flex: 1 1 100%; }
+.xopt .xpop .check { justify-content: flex-start; }
+.check.locked .xpop { display: none; }

@@ -26,7 +26,7 @@ const Notes = (() => {
       <div hidden><textarea id="nbObserve"></textarea><textarea id="nbLinks"></textarea><textarea id="nbText"></textarea><div id="nbCheck"></div><input id="nbCheckIn"><button type="button" id="nbCheckAdd"></button></div>`;
     btn.parentNode.insertBefore(box, btn);
     // старое поле «Пожелания» (было только для ИИ) теперь живёт в заметках
-    const w = document.getElementById("wishes"); if (w) { if (w.value && !draft.prompt) draft.prompt = w.value; w.closest(".field").hidden = true; }
+    const w = document.getElementById("wishes"); if (w) { w.value = ""; w.closest(".field").hidden = true; } // старое поле больше не используется: пожелания — только здесь
     const $n = id => document.getElementById(id);
     $n("nbPrompt").value = draft.prompt; $n("nbObserve").value = draft.observe; $n("nbLinks").value = draft.links; $n("nbText").value = draft.text;
     [["nbPrompt", "prompt"], ["nbObserve", "observe"], ["nbLinks", "links"], ["nbText", "text"]].forEach(([id, k]) => $n(id).addEventListener("input", e => { draft[k] = e.target.value; save(); }));

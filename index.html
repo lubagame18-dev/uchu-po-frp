@@ -555,25 +555,22 @@ window.UCHU_SITE = {
             <label class="check" id="chkTech" title="Технологическая карта по ФРП — для проверки оформления и сдачи"><input type="checkbox" value="conspect"> Техкарта <span class="pro-lock" hidden>🔒</span></label>
             <label class="check"><input type="checkbox" value="slides" checked> Презентация</label>
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
+            <details class="check xopt" id="optCtrl"><summary>🧪 Контроль <span class="xv" id="ctrlVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
+              <div class="xpop"><select id="xCtrl" aria-label="Вид контроля"><option value="">не нужен</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select>
+              <label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> Ключи и критерии</label></div></details>
+            <details class="check xopt" id="optMemo"><summary>🧠 Запоминание <span class="xv" id="memoVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
+              <div class="xpop"><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div></details>
+            <label class="check" id="chkHw"><input type="checkbox" id="xHw"> 🏠 Домашняя работа <span class="pro-lock xlock" hidden>🔒</span></label>
+            <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
         </div>
         <div class="field th-field" id="thField"><span class="lbl">Оформление презентации</span>
           <select id="slTheme" aria-label="Оформление презентации"><option value="auto">✨ Авто — по теме урока</option></select>
           <span class="small" id="slThemeWhy"></span>
         </div>
-        <details class="field method-blocks" id="methodBlocks"><summary><span class="lbl">Методические блоки</span> <span class="small" id="mbLock">для методистов</span></summary>
-          <div class="mb-row"><label for="xCtrl">🧪 Контроль</label><select id="xCtrl"><option value="">не нужен</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select></div>
-          <div class="mb-row mb-sub"><label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> ключи и критерии</label></div>
-          <div class="mb-row mb-sub"><label class="btn sm file-btn">📎 Доп. материалы<input type="file" id="xExtraFile" accept=".docx,.pdf,.txt,.odt,.rtf,.doc" hidden></label><button type="button" class="btn sm file-btn" data-write="xExtraTxt">✍️ Вписать задания</button><span class="small" id="xExtraName"></span></div>
-          <textarea class="inp mb-txt" id="xExtraTxt" rows="3" placeholder="Свои задания к контролю — каждое с новой строки" hidden></textarea>
-          <div class="mb-row"><span>🧠 Запоминание</span><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div>
-          <div class="mb-row"><label class="check"><input type="checkbox" id="xHw"> 🏠 Домашняя работа отдельным листом</label></div>
-          <div class="mb-row mb-sub"><label class="btn sm file-btn">📎 Своё д/з<input type="file" id="xHwFile" accept=".docx,.pdf,.txt,.odt,.rtf,.doc" hidden></label><button type="button" class="btn sm file-btn" data-write="xHwTxt">✍️ Вписать задания</button><span class="small" id="xHwName"></span></div>
-          <textarea class="inp mb-txt" id="xHwTxt" rows="3" placeholder="Задания на дом — каждое с новой строки" hidden></textarea>
-        </details>
         <div class="row2">
           <div class="field"><span class="lbl">Режим</span><div class="seg" id="segMode"><button data-v="school" aria-pressed="true">Школа</button><button data-v="tutor" aria-pressed="false">Репетитор</button></div></div>
-          <div class="field"><label for="control">Контроль</label><select id="control"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select></div>
+          <div class="field"><label for="control">Формат заданий</label><select id="control"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select></div>
         </div>
         <p class="hint" id="controlHint"></p>
         <div class="field"><span class="lbl">Как собирать</span>
@@ -3512,9 +3509,17 @@ function readExtra() {
   const tx = id => ($(id)?.value || "").trim(); X.extraText = [X.extraFile || "", tx("#xExtraTxt")].filter(Boolean).join("\n\n"); X.hwText = [X.hwFile || "", tx("#xHwTxt")].filter(Boolean).join("\n\n"); if (tx("#xHwTxt")) $("#xHw").checked = true; if (tx("#xExtraTxt") && !$("#xCtrl").value) $("#xCtrl").value = "self";
   X.ctrl = $("#xCtrl").value; X.variants = $("#xVar").checked; X.keys = $("#xKeys").checked; X.memoSheet = $("#xMemoSheet").checked; X.memo = $("#xMemo").checked; X.hw = $("#xHw").checked;
 }
+/* Контроль и запоминание — такие же кнопки, как «Конспект» и «Презентация»: раскрываются, внутри выбор */
+function paintExtra() {
+  const c = $("#xCtrl"); if (!c) return;
+  const ctrl = c.value ? c.options[c.selectedIndex].text.replace(" работа", "") : "", memo = [$("#xMemoSheet").checked && "лист", $("#xMemo").checked && "памятка"].filter(Boolean).join(", ");
+  $("#ctrlVal").textContent = ctrl ? `· ${ctrl.toLowerCase()}` : ""; $("#memoVal").textContent = memo ? `· ${memo}` : "";
+  $("#optCtrl").classList.toggle("on", !!ctrl); $("#optMemo").classList.toggle("on", !!memo);
+}
 function syncTechCheck() {
-  const okX = !window.Access || Access.techAllowed(), mb = document.getElementById("methodBlocks");
-  if (mb) { mb.classList.toggle("locked", !okX); $("#mbLock").textContent = okX ? "контроль, запоминание, д/з" : "🔒 тариф «Методист»"; mb.querySelectorAll("input,select").forEach(x => x.disabled = !okX); }
+  const okX = !window.Access || Access.techAllowed();
+  ["#optCtrl", "#optMemo", "#chkHw"].forEach(id => { const el = $(id); if (!el) return; el.classList.toggle("locked", !okX); el.querySelector(".xlock").hidden = okX; el.querySelectorAll("input,select").forEach(x => x.disabled = !okX); if (!okX && el.open) el.open = false; });
+  paintExtra();
   const ok = !window.Access || Access.techAllowed(), lab = document.getElementById("chkTech"); if (!lab) return;
   lab.classList.toggle("locked", !ok); lab.querySelector(".pro-lock").hidden = ok;
   if (!ok) { lab.querySelector("input").checked = false; state.formats.conspect = false; }
@@ -3542,15 +3547,15 @@ function readForm() {
   state.grade = +$("#grade").value; state.duration = +$("#duration").value;
   state.control = $("#control").value; state.topic = $("#topic").value.trim(); state.wishes = $("#wishes").value.trim();
   state.deep = $("#deep").checked;
-  $$("#formats input").forEach(i => state.formats[i.value] = i.checked);
+  $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
   local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: state.build });
 }
 function restoreForm() {
   const f = local.get("form", null);
   if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: f.build || "noai" });
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
-  fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; $("#wishes").value = state.wishes;
-  $$("#formats input").forEach(i => (i.checked = !!state.formats[i.value]));
+  fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; $("#wishes").value = ""; state.wishes = "";
+  $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
   syncControls(); updateType();
 }
 
@@ -3887,7 +3892,10 @@ async function createLesson() {
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   rememberTopic(state.topic);
   p.notes = window.Notes ? Notes.snapshot() : null;
-  if (window.Notes?.reset) Notes.reset(); // пожелания и файлы — только для этого урока, к следующему не переходят
+  if (window.Notes?.reset) Notes.reset();
+  // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
+  p.extra = { ...state.extra };
+  state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
   if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   const useAi = state.build === "ai";
@@ -4015,7 +4023,7 @@ function buildDocNoAi(f, L, p, type) {
   if (f === "conspect") return injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
   if (f === "lesson") return LessonNotes.build(techOf(L, p, type), p);
   if (f === "worksheet") return Engine.worksheet(p, type, state.materials);
-  if (EXTRA_DOCS.includes(f)) { techOf(L, p, type); return Engine.extra(f, p, type, state.materials, { ...state.extra, ctrl: state.extra.ctrl || "self" }); }
+  if (EXTRA_DOCS.includes(f)) { techOf(L, p, type); return Engine.extra(f, p, type, state.materials, { ...(p.extra || state.extra), ctrl: (p.extra || state.extra).ctrl || "self" }); }
   const cmd = techOf(L, p, type);
   rememberVerbatim(L, p);
   if (window.Deck) { autoTheme(L, p); const cards = Deck.outline(cmd, p, type); L.deckOutline = cards; return Deck.toMarkdown(cards); }
@@ -4639,12 +4647,16 @@ function bind() {
   $("#topic").addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); openTopicPanel(); $("#topicPanel button")?.focus(); } if (e.key === "Escape") $("#topicPanel").hidden = true; });
   $("#topicBtn").onclick = () => { if ($("#topicPanel").hidden) openTopicPanel(); else { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } };
   document.addEventListener("click", e => { if (!e.target.closest(".combo")) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } });
-  $$("#formats input").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП — в тарифе «Методист»: для проверки оформления и сдачи."); } readForm(); });
+  $$("#formats > .check > input:not([id])").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП — в тарифе «Методист»: для проверки оформления и сдачи."); } readForm(); });
   syncTechCheck(); document.addEventListener("uchu:access", syncTechCheck);
   // подсветка в шапке следует за курсором (пальцем)
   const hero = document.querySelector(".hero"), gd = hero?.querySelector(".glow-dot");
   if (hero && gd) hero.addEventListener("pointermove", e => { const r = hero.getBoundingClientRect(); gd.style.setProperty("--gx", ((e.clientX - r.left) / r.width * 100) + "%"); gd.style.setProperty("--gy", ((e.clientY - r.top) / r.height * 100) + "%"); });
-  $("#methodBlocks").addEventListener("click", e => { if (window.Access && !Access.techAllowed() && e.target.closest(".mb-row")) { e.preventDefault(); Access.open("Методические блоки (контроль, листы для запоминания, домашняя работа) — в тарифе «Методист»."); } });
+  ["#optCtrl", "#optMemo", "#chkHw"].forEach(id => $(id).addEventListener("click", e => { if (window.Access && !Access.techAllowed()) { e.preventDefault(); Access.open("Контроль, листы для запоминания и домашняя работа — в тарифе «Методист»."); } }));
+  ["#xCtrl", "#xVar", "#xKeys", "#xMemoSheet", "#xMemo", "#xHw"].forEach(id => $(id).addEventListener("change", () => { paintExtra(); readExtra(); }));
+  // раскрыт один список за раз; щелчок мимо — закрыть
+  $$(".xopt").forEach(d => d.addEventListener("toggle", () => { if (d.open) $$(".xopt").forEach(x => { if (x !== d) x.open = false; }); }));
+  document.addEventListener("click", e => { if (!e.target.closest(".xopt")) $$(".xopt[open]").forEach(x => x.open = false); });
   const attach = (inp, out, key) => $(inp).onchange = async e => { const f = e.target.files?.[0]; if (!f) return; $(out).textContent = "читаю…"; try { const r = await readFile(f); state.extra[key] = (r.text || "").trim().slice(0, 20000); $(out).textContent = state.extra[key] ? `✓ ${f.name}` : "текст не извлёкся"; if (key === "hwFile" && state.extra[key]) $("#xHw").checked = true; } catch (er) { $(out).textContent = "не прочиталось: " + (er.message || er); } };
   attach("#xExtraFile", "#xExtraName", "extraFile"); attach("#xHwFile", "#xHwName", "hwFile");
   $$("[data-write]").forEach(b => b.onclick = () => { const t = $("#" + b.dataset.write); t.hidden = !t.hidden; if (!t.hidden) t.focus(); });
