@@ -843,3 +843,45 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .need-text { background: #FFF4D6; border: 2px solid #E8B54A; border-radius: 12px; padding: 10px 12px; font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .at-steps { padding-left: 1.2em; display: flex; flex-direction: column; gap: 12px; }
 .at-steps textarea { width: 100%; margin-top: 6px; }
+
+/* ---------- ширина картинки-акцента и сдвиг текста (ручки работают и пальцем) ---------- */
+.sx.aw.acc-right .sx-acc { width: var(--aw) !important; left: auto !important; }
+.sx.aw.acc-right .sx-inner { right: calc(var(--aw) + 3.5%) !important; left: 6% !important; }
+.sx.aw.acc-left .sx-acc { width: var(--aw) !important; right: auto !important; }
+.sx.aw.acc-left .sx-inner { left: calc(var(--aw) + 3.5%) !important; right: 6% !important; }
+.sx.aw.acc-top .sx-acc { height: var(--aw) !important; bottom: auto !important; }
+.sx.aw.acc-top .sx-inner { top: calc(var(--aw) + 3%) !important; }
+.sx.ixy .sx-inner { translate: var(--ix, 0) var(--iy, 0); }
+/* бумажная подложка темы рассчитана на стандартное место текста — при ручной вёрстке подложка идёт за текстом */
+.sx.tk.aw .sx-paper, .sx.tk.ixy .sx-paper { display: none; }
+.sx.tk.aw:not(.tk-glow):not(.tk-renaissance):not(.tk-board) .sx-inner, .sx.tk.ixy:not(.tk-glow):not(.tk-renaissance):not(.tk-board) .sx-inner { background: var(--sx-bg); box-shadow: 0 .6cqw 2.2cqw rgba(0,0,0,.28); border-radius: .4cqw; padding: 2.4cqw 3cqw; }
+.acc-edge { position: absolute; z-index: 6; display: none; touch-action: none; cursor: ew-resize; }
+.acc-edge::before { content: ""; position: absolute; border-radius: 99px; background: #fff; box-shadow: 0 0 0 .25cqw var(--sx-accent, #c0392b), 0 .3cqw 1cqw rgba(0,0,0,.35); }
+.acc-edge.e-right { top: 0; bottom: 0; right: calc(var(--aw, 50%) - 2cqw); width: 4cqw; }
+.acc-edge.e-left { top: 0; bottom: 0; left: calc(var(--aw, 50%) - 2cqw); width: 4cqw; }
+.acc-edge.e-right::before, .acc-edge.e-left::before { left: 50%; top: 50%; width: 1.1cqw; height: 9cqw; transform: translate(-50%, -50%); }
+.acc-edge.e-top { left: 0; right: 0; top: calc(var(--aw, 44%) - 2cqw); height: 4cqw; cursor: ns-resize; }
+.acc-edge.e-top::before { left: 50%; top: 50%; height: 1.1cqw; width: 9cqw; transform: translate(-50%, -50%); }
+.inner-move { position: absolute; left: -.2cqw; top: -.2cqw; z-index: 6; display: none; touch-action: none; cursor: move; user-select: none; font-size: 2.2cqw; line-height: 1; padding: .5cqw .7cqw; border-radius: .6cqw; background: var(--sx-accent, #c0392b); color: #fff; box-shadow: 0 .2cqw .8cqw rgba(0,0,0,.3); }
+.sx-frame.big .sx:hover .acc-edge, .sx-frame.big .sx:hover .inner-move, .sx-frame.big .sx:focus-within .acc-edge, .sx-frame.big .sx:focus-within .inner-move { display: block; }
+.sx-mini .acc-edge, .sx-mini .inner-move, .sx-view .acc-edge, .sx-view .inner-move { display: none !important; }
+/* планшет и телефон: наведения нет — ручки видны всегда и крупнее */
+@media (hover: none), (pointer: coarse) {
+  .sx-frame.big .acc-edge, .sx-frame.big .inner-move { display: block; }
+  .sx-frame.big .inner-move { font-size: 3cqw; padding: .8cqw 1cqw; }
+  .sx-frame.big figure.pic .sx-resize { opacity: 1; width: 22px; height: 22px; right: -10px; bottom: -10px; }
+  .sx-frame.big figure.pic, .sx-frame.big .sx-resize, .fx-move, .fx-size { touch-action: none; }
+  .sx-frame.big .sx.free .fx > .fx-move, .sx-frame.big .sx.free .fx > .fx-size { display: block; }
+  .fx-move { font-size: 1em; padding: .2em .4em; }
+  .fx-size { width: 16px; right: -9px; }
+  .sx-frame.big .sx-body > * > .sx-grip { opacity: .7; }
+}
+.vk-auto { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; margin: 6px 0 10px; }
+.vk-found { flex-basis: 100%; display: grid; gap: 6px; }
+.vk-hit { text-align: left; border: 1px solid var(--line, #ddd); background: var(--card, #fff); border-radius: 10px; padding: 8px 10px; cursor: pointer; font: inherit; display: block; }
+.vk-hit small { display: block; opacity: .65; }
+.vk-hit.on { border-color: var(--flame, #e4572e); box-shadow: 0 0 0 2px color-mix(in srgb, var(--flame, #e4572e) 30%, transparent); }
+.sx-audio .aud { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2cqw; padding: 3cqw; border-radius: 1.4cqw; background: color-mix(in srgb, var(--sx-accent, #7A0F1C) 10%, transparent); }
+.sx-audio .aud b { font-size: 6cqw; line-height: 1; }
+.sx-audio .aud span { font-size: 2cqw; text-align: center; }
+.sx-audio audio { width: 80%; }

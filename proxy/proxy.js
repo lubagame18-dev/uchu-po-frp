@@ -10,6 +10,7 @@
  *   POST /gigachat/v1/chat/completions    заголовок X-GigaChat-Key (если ключа нет на сервере)
  *   POST /yandex/v1/chat/completions      заголовки X-Yandex-Key, X-Yandex-Folder
  *   GET  /images?q=<запрос>               поиск картинок через Яндекс (Yandex Search API), для слайдов
+ *   GET  /media?q=<запрос>&k=audio|video  чтение артистами, экранизации, спектакли (ссылки на видеохостинги)
  *   GET  /edu?q=<запрос>&w=<слова>         поиск по образовательным сайтам: ссылки + короткие методические выдержки
  *   GET  /img?url=<адрес картинки>        скачать найденную картинку (чтобы её можно было обрезать и вставить в PowerPoint)
  *   POST /relay?url=<адрес>               «крайняя мера»: пересылка к зарубежным нейросетям
@@ -111,6 +112,22 @@ async function eduSearch(q, words) {
   const results = found.slice(0, 8).map((r, i) => ({ url: r.url, domain: r.domain, title: r.title, snippet: r.snippet, ...(pages[i] ? eduExtract(pages[i], words) : {}) }));
   const data = { ok: true, results };
   eduCache.set(ck, { at: Date.now(), data }); if (eduCache.size > 300) eduCache.delete(eduCache.keys().next().value);
+  return data;
+}
+/* Аудио и видео к уроку: чтение стихов артистами, экранизации, спектакли — только страницы видеохостингов */
+const MEDIA = /(^|\.)(rutube\.ru|vkvideo\.ru|vk\.com|vk\.ru|smotrim\.ru|culture\.ru|youtube\.com|youtu\.be|ok\.ru)$/i;
+const MEDIA_PAGE = /rutube\.ru\/video\/|vkvideo\.ru\/video-?\d|vk\.(com|ru)\/video-?\d|youtube\.com\/watch|youtu\.be\/|smotrim\.ru\/(video|brand)|culture\.ru\/(movies|watch|s\/|audio)|ok\.ru\/video\//i;
+const mediaCache = new Map();
+async function mediaSearch(q, kind) {
+  const ck = kind + ":" + q; const hit = mediaCache.get(ck); if (hit && Date.now() - hit.at < 24 * 3600e3) return hit.data;
+  const qs = kind === "audio" ? [q + " читает народный артист", q + " читает актёр", q + " стихотворение читает"] : [q + " фильм фрагмент", q + " экранизация сцена", q + " спектакль"];
+  const found = [];
+  for (const qq of qs) {
+    try { for (const r of await yandexWeb(qq, 15)) { let host = r.domain; try { host = new URL(r.url).hostname; } catch { } if (MEDIA.test(host) && MEDIA_PAGE.test(r.url) && !found.some(x => x.url === r.url)) found.push(r); } } catch (e) { if (e.status === 401) throw e; }
+    if (found.length >= 12) break;
+  }
+  const data = { ok: true, results: found.slice(0, 16).map(r => ({ url: r.url, domain: r.domain, title: r.title, snippet: r.snippet })) };
+  mediaCache.set(ck, { at: Date.now(), data }); if (mediaCache.size > 300) mediaCache.delete(mediaCache.keys().next().value);
   return data;
 }
 /* Скачивание картинки: только изображения, не больше 8 МБ */
@@ -293,7 +310,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 11, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 12, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "pay"], pay: PAY.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -302,6 +319,13 @@ async function handler(req, res) {
     if (limited(ip)) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
     try { return send(res, 200, { ok: true, items: await yandexImages(q, Math.min(30, Math.max(4, +u.searchParams.get("n") || 16))) }); }
     catch (e) { return send(res, 200, { ok: false, reason: e.reason || "search", message: e.message }); }
+  }
+  if (req.method === "GET" && route === "/media") {
+    if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });
+    const q = String(u.searchParams.get("q") || "").slice(0, 200).trim(); if (!q) return send(res, 400, { error: "нужен q" });
+    const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+    if (limited(ip)) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
+    try { return send(res, 200, await mediaSearch(q, u.searchParams.get("k") === "video" ? "video" : "audio")); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
   }
   if (req.method === "GET" && route === "/edu") {
     if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });

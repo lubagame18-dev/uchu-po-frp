@@ -522,7 +522,7 @@ window.UCHU_SITE = {
     <div class="wrap">
       <h1>Урок по ФРП <em>за пару минут</em></h1>
       <p>Технологическая карта, презентация и рабочий лист по теме урока. Тип урока определяется сам, результаты — дословно из ФРП. Работает и без нейросети.</p>
-      <div class="chips"><span class="chip">русский язык</span><span class="chip">литература</span><span class="chip">5–11 классы</span><span class="chip">бесплатно</span></div>
+      <div class="chips"><span class="chip">русский язык</span><span class="chip">литература</span><span class="chip">5–11 классы</span></div>
     </div>
   </section>
   <div class="marquee" aria-hidden="true"><div class="marquee-track">
@@ -4048,6 +4048,7 @@ async function buildWithoutAi(L, p, type, formats) {
     await new Promise(r => setTimeout(r, 30));
     let md = buildDocNoAi(f, L, p, type);
     if (f !== "slides") { state.gen.pct = 55; updateProgress(); md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
+    if (f === "slides" && window.Deck?.mediaFill && L.deckOutline?.some(c => c.auto && c.kind === "video")) { state.gen.pct = 58; updateProgress(); L.deckOutline = await Deck.mediaFill(L.deckOutline).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline); }
     if (f === "slides") { state.gen.pct = 60; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => md); if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; md = await SlideEditor.stickerize(md).catch(() => md); state.lesson = prev; } }
     L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
     if (state.lesson?.id === L.id) renderLesson();

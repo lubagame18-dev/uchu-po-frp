@@ -138,7 +138,7 @@ const Deck = (() => {
       const terms = (kit?.terms || []).slice(0, 3).map(t => t.term);
       if (terms.length) pts.push(`узнаем, что такое ${terms.join(", ")}, и найдём их в тексте`);
       if (kit?.heroes?.length >= 2) pts.push(`сравним героев: ${kit.heroes[0]} и ${kit.heroes[1]}`);
-      if (kit?.problem) pts.push(`ответим на главный вопрос: ${short(kit.problem.replace(/\?$/, ""), 80)}?`);
+      if (kit?.problem) pts.push("ответим на главный вопрос урока");
     } else {
       const T = short(p.topic.replace(/^\s*(Повторение\.?\s*)/i, ""), 60);
       if (RK?.kind === "styles") pts.push("прочитаем настоящие тексты и узнаем, чем они отличаются", "научимся определять жанр (стиль) по признакам", "напишем свой текст");
@@ -176,7 +176,7 @@ const Deck = (() => {
     }
     if (kit.glossary.length) {
       const per = Math.ceil(kit.glossary.length / Math.ceil(kit.glossary.length / 4));
-      for (let i = 0; i < kit.glossary.length; i += per) add({ kind: "glossary", title: "Словарная работа" + (i ? " (продолжение)" : ""), items: kit.glossary.slice(i, i + per) });
+      for (let i = 0; i < kit.glossary.length; i += per) add({ kind: "glossary", title: "Словарная работа", items: kit.glossary.slice(i, i + per) });
     }
     // текст: фрагменты дословно; слова из словаря и примеры терминов — с подсказкой по щелчку
     const verse = !!p.plan.analysis?.verse;
@@ -184,12 +184,21 @@ const Deck = (() => {
     for (const f of kit.fragments) {
       if (imgOn && f.n === mid + 1 && kit.fragments.length >= 4) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} ${kit.fragments[mid - 1].label.replace(/^[^:]*:\s*/, "")}`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) — с Викисклада." });
       if (verse) {
-        const lines = f.text.split("\n"); const chunks = []; let cur = [];
-        const total = lines.filter(x => x.trim()).length, target = Math.ceil(total / Math.ceil(total / 8));
-        for (const l of lines) { cur.push(l); const k = cur.filter(x => x.trim()).length; if ((k >= target && (!l.trim() || /[.!?…;:,—]\s*$/.test(l))) || k >= target + 2) { chunks.push(cur.join("\n")); cur = []; } }
-        if (cur.join("").trim()) chunks.push(cur.join("\n"));
-        chunks.forEach((ch, k) => add({ kind: "fragment", verse: true, mdBody: LitKit.markup(verbatimMd(ch.trim(), { verse: true }), kit), title: f.whole ? `«${shortWork || "Текст"}»${k ? " (продолжение)" : ""}` : f.part ? `«${shortWork || "Текст"}». Часть ${f.n}${k ? " (продолжение)" : ""}` : `Фрагмент ${f.n}${k ? " (продолжение)" : `. ${f.label}`}`, text: ch.trim(), by: f.whole && k === chunks.length - 1 ? author || "" : f.whole ? "" : `строки ${f.from}–${f.to}`, notes: k ? "" : `Текст — дословно${p.plan.textSource ? ` (${p.plan.textSource})` : ""}.` }));
-      } else add({ kind: "fragment", verse: false, mdBody: LitKit.markup(verbatimMd(f.text), kit), title: f.whole ? `«${shortWork || "Текст"}»` : `Фрагмент ${f.n}. ${f.label}`, text: f.text, by: "", notes: `Текст — дословно.` });
+        // текст перед глазами класса: строфы целиком, не больше ~12 строк на слайд; вопросы — в конспекте, не на слайде
+        const stz = f.text.split(/\n\s*\n/).map(x => x.replace(/^\n+|\n+$/g, "")).filter(x => x.trim());
+        const chunks = [], spans = []; let cur = [], from = 1;
+        const nl = x => x.split("\n").filter(l => l.trim()).length;
+        if (stz.length >= 2 && stz.every(x => nl(x) <= 12)) {
+          stz.forEach((x, k) => { if (cur.length && nl(cur.join("\n")) + nl(x) > 12) { chunks.push(cur.join("\n\n")); spans.push([from, k]); cur = []; from = k + 1; } cur.push(x); });
+          if (cur.length) { chunks.push(cur.join("\n\n")); spans.push([from, stz.length]); }
+        } else {
+          const lines = f.text.split("\n"); const total = lines.filter(x => x.trim()).length, target = Math.ceil(total / Math.ceil(total / 12));
+          for (const l of lines) { cur.push(l); const k = cur.filter(x => x.trim()).length; if ((k >= target && (!l.trim() || /[.!?…;:,—]\s*$/.test(l))) || k >= target + 2) { chunks.push(cur.join("\n")); cur = []; } }
+          if (cur.join("").trim()) chunks.push(cur.join("\n"));
+        }
+        const extra = (ch, k) => chunks.length < 2 ? "" : spans[k] ? `, ${spans[k][0] === spans[k][1] ? "строфа " + spans[k][0] : "строфы " + spans[k][0] + "–" + spans[k][1]}` : `, ${k + 1}/${chunks.length}`;
+        chunks.forEach((ch, k) => add({ kind: "fragment", verse: true, fn: f.n, mdBody: LitKit.markup(verbatimMd(ch.trim(), { verse: true }), kit), title: (f.whole ? `«${shortWork || "Текст"}»` : f.part ? `«${shortWork || "Текст"}». Часть ${f.n}` : `Фрагмент ${f.n}. ${f.label}`) + extra(ch, k), text: ch.trim(), by: f.whole && k === chunks.length - 1 ? author || "" : f.whole ? "" : `строки ${f.from}–${f.to}`, notes: (k ? "" : `Текст — дословно${p.plan.textSource ? ` (${p.plan.textSource})` : ""}. `) + "Вопросы к этому тексту — в конспекте; на слайде только текст. Подчёркнутые слова нажимаются: появляется пояснение." }));
+      } else add({ kind: "fragment", verse: false, fn: f.n, mdBody: LitKit.markup(verbatimMd(f.text), kit), title: f.whole ? `«${shortWork || "Текст"}»` : `Фрагмент ${f.n}. ${f.label}`, text: f.text, by: "", notes: `Текст — дословно.` });
     }
     if (imgOn) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} иллюстрация`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) берётся с Викисклада. Если картинка подобрана из Яндекса — впишите подпись, щёлкнув по картинке." });
     // понятия — в контексте анализа: сначала строка из текста и вопросы-наблюдения (термин не называется), потом запись
@@ -197,13 +206,13 @@ const Deck = (() => {
       const DEV = { "эпитет": "epithet", "сравнение": "simile", "повтор": "repeat", "риторический вопрос": "rhetq" };
       for (const t of kit.terms.slice(0, 4)) {
         const ch = Heur.concept(t.term) || (t.ex && DEV[t.term] ? Heur.device(DEV[t.term], t.ex) : null); if (!ch) continue;
-        add({ kind: "big", title: "Наблюдаем за текстом", lead: t.ex ? `«${t.ex.replace(/[«»]/g, "")}»` : ch.steps[0], points: [], callout: "",
-          qs: t.ex ? Heur.slideQs(ch) : ch.steps.slice(1, 3), notes: `Беседа: ${ch.steps.map((x, k) => `${k + 1}) ${x}`).join(" ")} Если затрудняются: ${ch.hint} Понятие, к которому приходим: ${t.term} — ${t.def} (не называть до обсуждения).` });
+        if (verse || !t.ex) continue; // стихи: наблюдение идёт по тексту на слайде со строфами, вопросы — в конспекте
+        add({ kind: "big", title: "Наблюдаем за текстом", lead: `«${t.ex.replace(/[«»]/g, "")}»`, points: [], callout: "", notes: `Беседа: ${ch.steps.map((x, k) => `${k + 1}) ${x}`).join(" ")} Если затрудняются: ${ch.hint} Понятие, к которому приходим: ${t.term} — ${t.def} (не называть до обсуждения).` });
       }
       add({ kind: "table", title: "Запишем в тетрадь", head: ["Понятие", "Пример из текста", "Роль в произведении"], rows: kit.terms.map(t => [`${t.term}${t.ex ? ` — «${t.ex.replace(/[«»]/g, "")}»` : ""}`]), notes: `Заполняется ПОСЛЕ беседы: ученики сами называют понятие, приводят пример и формулируют роль. Определения: ${kit.terms.map(t => `${t.term} — ${t.def}`).join("; ")}` });
       const flip = kit.terms.filter(t => t.ex && t.ex.length <= 40);
       if (flip.length >= 2) add({ kind: "list", title: "Проверь себя: что за приём?", points: flip.map(t => `«${t.ex.replace(/[«»]/g, "")}» — ${t.term}`), notes: "Карточки переворачиваются по щелчку: сначала ученики называют приём и его роль, потом открываем." });
-    } else if (kit.terms.length) for (let i = 0; i < kit.terms.length; i += 2) add({ kind: "terms", title: "Работа с понятиями" + (i ? " (продолжение)" : ""), items: kit.terms.slice(i, i + 2), notes: "Сначала пример из текста и вопрос, затем понятие." });
+    } else if (kit.terms.length) for (let i = 0; i < kit.terms.length; i += 2) add({ kind: "terms", title: "Работа с понятиями", items: kit.terms.slice(i, i + 2), notes: "Сначала пример из текста и вопрос, затем понятие." });
     const A = p.plan.analysis;
     const HH = kit.heroes?.length >= 2 ? kit.heroes : A?.heroes || [];
     if (HH.length >= 2) add({ kind: "table", title: "Сравним героев", head: ["", HH[0], HH[1]], rows: (kit.rows || ["Поступки", "Речь (цитата)", "Отношение автора"]).map(r => [r]), notes: "Таблица — та же, что в рабочем листе." });
@@ -252,18 +261,21 @@ const Deck = (() => {
     // доска — сразу после цели
     const g = idx("goal");
     at(g >= 0 ? g + 1 : 1, boardCard(p, cards, RK, MN));
-    // видео — для литературы: экранизация, спектакль или чтение актёром; место — после текста, перед выводами
+    // аудио и видео — только там, где это работает на урок; ссылку ищет сайт (Яндекс), не нашёл — слайд выключается
     if (lit) {
       const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "", author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "";
-      const last = cards.map(c => c.kind).lastIndexOf("fragment"), pos = last >= 0 ? last + 1 : [idx("concl"), cards.findIndex(c => /^(итог|выводы|творческ)/i.test(c.title || "")), idx("hw")].find(x => x >= 0) ?? cards.length;
-      const verse = !!p.plan?.analysis?.verse;
-      at(pos, { kind: "video", title: verse ? "Слушаем: читает актёр" : "Смотрим фрагмент", vq: `${work || p.topic} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} ${verse ? "читает актёр" : "экранизация фрагмент"}`.replace(/\s+/g, " ").trim(),
-        points: verse ? ["Совпало ли прочтение актёра с вашим?", "Какие слова он выделил голосом? Почему?"] : ["Что режиссёр показал иначе, чем вы представляли при чтении?", "Какие детали стали главными в кадре?"],
-        notes: "Найдите фрагмент: щёлкните по плееру → кнопки поиска RuTube / VK / YouTube / Культура.РФ; вставьте ссылку, начало и конец. Без ссылки слайд в показ не попадёт." });
+      const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
+      const verse = !!p.plan?.analysis?.verse, frs = cards.map(c => c.kind).indexOf("fragment"), last = cards.map(c => c.kind).lastIndexOf("fragment");
+      if (work && verse && frs >= 0) // первое восприятие: слушаем мастера художественного слова до разбора
+        at(frs, { kind: "video", auto: true, mk: "audio", mq: `${work} ${sur}`.trim(), work, author, title: "Слушаем стихотворение",
+          notes: "Первое восприятие: слушаем до разбора, текст можно не показывать. После прослушивания — вопросы по конспекту: какое настроение? совпало ли прочтение с вашим? какие слова чтец выделил голосом и почему?" });
+      else if (work && !verse && last >= 0) // интерпретация: сцена в кино или театре — сравниваем с текстом
+        at(last + 1, { kind: "video", auto: true, mk: "video", mq: `${work} ${sur}`.trim(), work, author, title: "Смотрим: сцена на экране",
+          notes: "Творческое прочтение: сравниваем сцену с текстом. Вопросы по конспекту: что режиссёр и актёр передали так же, как в тексте, а что иначе? как это соотносится с авторской позицией? Укажите начало и конец фрагмента: «⋯» → «Видео»." });
     }
     // разделители между большими частями (если слайдов много) — дают паузу и ритм
     if (cards.length >= 12) {
-      const first = cards.findIndex(c => ["fragment", "task", "poem"].includes(c.kind));
+      const first = cards.findIndex(c => ["fragment", "task", "poem"].includes(c.kind) || (c.kind === "video" && c.mk === "audio"));
       if (first > 2) at(first, { kind: "section", title: lit ? "Читаем и думаем" : "Практика", points: [lit ? "Работа с текстом" : "Применяем правило"] });
       const fin = idx("concl") >= 0 ? idx("concl") : idx("hw");
       if (fin > 4 && cards[fin - 1]?.kind !== "section") at(fin, { kind: "section", title: "Подведём итоги", points: [] });
@@ -437,7 +449,7 @@ const Deck = (() => {
       case "concl": set.layout = "list"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "image": set.layout = "image"; break;
       case "board": { set.layout = "one"; const pp = card.points || []; body = `${md1(pp[0] || "")}  \n${md1(pp[1] || "")}` + (pp.length > 2 ? "\n\n" + pp.slice(2).map(x => `- ${md1(x)}`).join("\n") : ""); break; }
-      case "video": set.layout = "video"; set.vq = card.vq || card.title; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
+      case "video": set.layout = "video"; set.vq = card.vq || card.mq || card.title; if (card.video) set.video = card.video; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "section": level = 1; set.layout = "section"; body = (card.points || []).join("\n\n"); break;
       default: body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
     }
@@ -492,10 +504,50 @@ ${JSON.stringify(payload)}`;
     if (MN.quiz.length) add.push({ id: "m2", on: true, kind: "list", title: "Проверь себя: переверни карточку", points: MN.quiz.map(([g, a]) => `${g} — ${a}`), notes: "В показе карточки переворачиваются по щелчку." });
     cards.splice(pos, 0, ...add); return cards;
   }
+  /* Аудио и видео: сайт ищет чтение артистов и экранизации; не нашёл — слайд остаётся в плане выключенным */
+  async function mediaFill(cards) {
+    for (const c of cards.filter(x => x.kind === "video" && x.auto && !x.video && x.on !== false)) {
+      const r = window.VideoKit?.find ? await VideoKit.find(c.mq, c.mk, { author: c.author, work: c.work }).catch(() => []) : [];
+      if (!r.length) { c.on = false; c.notes = "Запись не нашлась автоматически — найдите её сами: «⋯» → «Видео». " + (c.notes || ""); continue; }
+      const b = r[0];
+      c.video = { u: b.u, c: b.cap, th: b.th || "" };
+      if (c.mk === "audio") c.title = b.reader ? `Слушаем: читает ${b.reader}` : "Слушаем стихотворение";
+      const alt = r.slice(1, 4).map(x => `${x.cap} — ${x.u}`).join("; ");
+      if (alt) c.notes = `${c.notes} Другие записи: ${alt}`;
+    }
+    return cards;
+  }
+  /* Нейросеть (если подключена): пояснения к словам и реалиям в тексте + короткие выводы после работы с частью текста */
+  async function aiLit(cards, p, signal) {
+    const kit = p.plan?.kit; if (p.subject !== "lit" || !kit?.fragments?.length || !window.UCHU?.configured?.() || typeof caps === "undefined") return cards;
+    const work = (p.topic.match(/«([^»]+)»/) || [])[1] || p.topic, author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "";
+    const frs = kit.fragments.slice(0, 8).map(f => ({ n: f.n, text: String(f.text).slice(0, 1800) }));
+    const prompt = `Ты — методист-словесник. Урок: «${work}»${author ? ", " + author : ""}, ${p.grade} класс. Ниже фрагменты текста, с которыми класс работает на уроке.
+1) notes: слова и выражения из текста, которые ученику ${p.grade} класса непонятны или несут историко-культурный смысл (реалии, имена, устаревшие слова, исторические события). Не больше 8. "w" — ровно как в тексте (1–3 слова), "tip" — пояснение до 160 знаков: словарное значение или историческая справка. Очевидное не толковать.
+2) concl: для каждого фрагмента — вывод, который класс записывает после работы с ним (1–2 предложения, с литературоведческими терминами, опора на конкретные слова текста, без пустых абстракций и без готовой трактовки всего произведения).
+Верни только JSON: {"notes":[{"w":"…","tip":"…"}],"concl":[{"n":1,"t":"…"}]}
+${JSON.stringify(frs)}`;
+    try {
+      const res = await caps.sample(prompt, { modelTier: "default", cache: false, signal });
+      const j = JSON.parse((res.text.match(/\{[\s\S]*\}/) || ["{}"])[0]);
+      const all = kit.fragments.map(f => f.text).join("\n").toLowerCase();
+      const notes = (j.notes || []).filter(x => x?.w && x?.tip && all.includes(String(x.w).toLowerCase())).slice(0, 8).map(x => ({ w: String(x.w), tip: String(x.tip).slice(0, 200) }));
+      if (notes.length) { kit.extraTips = [...(kit.extraTips || []), ...notes]; for (const c of cards) if (c.kind === "fragment" && c.text) c.mdBody = LitKit.markup(verbatimMd(c.text, { verse: c.verse }), kit); }
+      const concl = new Map((j.concl || []).filter(x => x?.t && String(x.t).length > 15).map(x => [+x.n, String(x.t).slice(0, 260)]));
+      if (concl.size && kit.fragments.length >= 2 || concl.size && cards.filter(c => c.kind === "fragment").length >= 2) {
+        for (const n of [...concl.keys()].sort((a, b) => b - a)) {
+          const last = cards.map(c => c.kind === "fragment" && c.fn === n).lastIndexOf(true); if (last < 0) continue;
+          cards.splice(last + 1, 0, { id: "v" + n, on: true, kind: "concl", title: "Вывод", points: [concl.get(n)], notes: "Показывайте после обсуждения: вывод сначала формулируют ученики, слайд — для записи. Слайд можно выключить." });
+        }
+      }
+    } catch (e) { console.warn("Deck AI lit", e); }
+    return cards;
+  }
   /* ---------- сборка ---------- */
   async function build(md, p, type, { ai = false, signal, o = opts() } = {}) {
     let cards = outline(md, p, type, o);
-    if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); }
+    if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); }
+    cards = await mediaFill(cards).catch(() => cards);
     return { cards, md: toMarkdown(cards) };
   }
 
@@ -584,6 +636,8 @@ ${JSON.stringify(payload)}`;
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Нейросеть сжимает формулировки…"; cards = await condenseAi(cards, p, cur().amount); }
       if (window.ThemeKit && window.SlideEditor) { const k = thPick === "auto" ? ThemeKit.auto(p) : thPick; SlideEditor.applyTheme(k, { auto: thPick === "auto" }); }
       if ($("#dkAi", m)?.checked) cards = await aiMnemo(cards, p).catch(() => cards);
+      if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Пояснения к словам и выводы…"; cards = await aiLit(cards, p).catch(() => cards); }
+      $("#dkMsg", m).textContent = "Ищу чтение артистов и фрагменты фильмов…"; cards = await mediaFill(cards).catch(() => cards);
       L.deckOutline = cards;
       let md = toMarkdown(cards);
       md = await Media.autoFill(md).catch(() => md);
@@ -594,6 +648,6 @@ ${JSON.stringify(payload)}`;
     };
   }
 
-  return { childGoal, outline, toMarkdown, build, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { childGoal, outline, toMarkdown, build, mediaFill, aiLit, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
 })();
 window.Deck = Deck;

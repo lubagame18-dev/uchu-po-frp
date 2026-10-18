@@ -80,7 +80,7 @@ const Access = (() => {
   async function canBuildAsync(useAi) {
     if (!canBuild(useAi)) return false;
     if (useAi || !commercial() || free() || PLANS[level()].lessons === Infinity) return true;
-    if (!me()) { toast("Чтобы собрать урок бесплатно, войдите или зарегистрируйтесь — это минута.", 6000); window.Account?.open(); return false; }
+    if (!me()) { toast("Чтобы собрать урок, войдите или зарегистрируйтесь — это минута.", 6000); window.Account?.open(); return false; }
     const fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
     if (!fn || !tok || window.Account?.session?.local) return true;
     try {

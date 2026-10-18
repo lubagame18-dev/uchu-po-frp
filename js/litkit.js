@@ -376,6 +376,9 @@ const LitKit = (() => {
     if (!kit) return md;
     const tips = [];
     for (const g of kit.glossary || []) tips.push({ w: g.form, tip: `${g.word} — ${g.def}` });
+    for (const t of kit.extraTips || []) tips.push({ w: t.w, tip: t.tip });
+    const H = typeof Heur !== "undefined" ? Heur : window.Heur;
+    if (H?.archaic) for (const a of H.archaic(md.replace(/\[[^\]]*\]\(#g "[^"]*"\)/g, ""))) if (!/старое|старая/.test(a.def)) tips.push({ w: a.w, tip: `${a.w} — устар.: ${a.def}` });
     for (const t of kit.terms || []) if (t.ex && t.ex.split(/\s+/).length <= 3 && !/…$/.test(t.ex)) tips.push({ w: t.ex.replace(/[«»]/g, ""), tip: `${t.term.charAt(0).toUpperCase() + t.term.slice(1)}: ${t.def}` });
     let out = md; const done = new Set();
     for (const { w, tip } of tips) {

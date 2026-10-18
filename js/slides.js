@@ -152,11 +152,11 @@ const SlideEditor = (() => {
     const acc = accPos && parts.acc ? accPos : "";
     const bg = st.bgimg ? "" : st.bg ? `background:${esc(st.bg)};` : "";
     const tkv = TK ? ThemeKit.vars(T, L()?.slidePalette) : "";
-    const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${bg}`;
+    const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${st.aw ? `--aw:${+st.aw}%;` : ""}${st.ix || st.iy ? `--ix:${+st.ix || 0}%;--iy:${+st.iy || 0}%;` : ""}${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
     const body = vid + linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
-    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : ""].filter(Boolean).join(" ");
+    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
     const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
@@ -246,7 +246,7 @@ const SlideEditor = (() => {
     if (curB.length) parts.push(curB);
     if (parts.length < 2) return null;
     const base = sl.title.replace(/\s*\(продолжение(?: \d)?\)$/, "");
-    return parts.map((p, k) => ({ ...sl, title: k ? `${base} (продолжение${parts.length > 2 ? " " + k : ""})` : sl.title, body: p.join("\n\n"), notes: k ? "" : sl.notes, set: { ...sl.set, afs: undefined } }));
+    return parts.map((p, k) => ({ ...sl, title: k ? base : sl.title, body: p.join("\n\n"), notes: k ? "" : sl.notes, set: { ...sl.set, afs: undefined } }));
   }
   /* Дословный текст делим только по границам: пункты, абзацы, строфы, строки — слова не меняются и не теряются */
   function splitVerbatim(sl, i, accMd) {
@@ -283,7 +283,7 @@ const SlideEditor = (() => {
     if (acc.length) bal.push(acc);
     if (bal.length === K && bal.every(b => test(b))) parts = bal;
     const base = sl.title.replace(/\s*\(продолжение(?: \d)?\)$/, "");
-    return parts.map((p, k) => ({ ...sl, title: k ? `${base} (продолжение)` : sl.title, body: (k === 0 && accMd ? accMd + "\n\n" : "") + p.join("\n\n"), notes: k ? "" : sl.notes, set: { ...sl.set, afs: undefined, acc: k === 0 ? sl.set.acc : undefined } }));
+    return parts.map((p, k) => ({ ...sl, title: k ? base : sl.title, body: (k === 0 && accMd ? accMd + "\n\n" : "") + p.join("\n\n"), notes: k ? "" : sl.notes, set: { ...sl.set, afs: undefined, acc: k === 0 ? sl.set.acc : undefined } }));
   }
   /* Проход по всем слайдам: подобрать шрифт, разделить непомещающиеся (без обрезки текста) */
   function fitAll({ allowSplit = true } = {}) {
@@ -293,7 +293,7 @@ const SlideEditor = (() => {
       if (sl.set.fs || sl.set.free) { out.push(sl); return; } // шрифт или вёрстка заданы вручную — не трогаем
       const r = autoScale(sl, i);
       const vbSmall = (sl.set.vb || ["task", "poem"].includes(autoLayout(sl, i))) && r.fs < 0.7;
-      const noSplit = ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, i)); // титульный и крупный вопрос не делим — только уменьшаем шрифт
+      const noSplit = ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, i)) || ["goal", "video", "hw"].includes(sl.set.kind); // титульный и крупный вопрос не делим — только уменьшаем шрифт
       if ((!r.ok || vbSmall) && allowSplit && !noSplit && sl.set.fit !== "off") {
         const parts = splitSlide(sl, i);
         if (parts) { parts.forEach(p => { const rr = autoScale(p, i); out.push({ ...p, set: { ...p.set, afs: rr.fs } }); }); changed = true; splits++; return; }
@@ -841,7 +841,46 @@ const SlideEditor = (() => {
   }
 
   /* ---------- картинки ---------- */
+  /* Ручки для планшета и мыши: граница картинки-акцента (ширина) и рамка текста (сдвиг) */
+  function dragHandle(el, { onMove, onUp, onTap }) {
+    let d = null;
+    el.addEventListener("pointerdown", e => { e.preventDefault(); e.stopPropagation(); const B = el.closest(".sx").getBoundingClientRect(); d = { sx: e.clientX, sy: e.clientY, bw: B.width, bh: B.height, B, moved: false }; el.setPointerCapture(e.pointerId); });
+    el.addEventListener("pointermove", e => { if (!d) return; const dx = (e.clientX - d.sx) / d.bw * 100, dy = (e.clientY - d.sy) / d.bh * 100; if (!d.moved && Math.abs(dx) + Math.abs(dy) < 0.8) return; d.moved = true; onMove(dx, dy, d, e); });
+    const up = () => { if (!d) return; const m = d.moved; d = null; m ? onUp() : onTap?.(); };
+    el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  }
+  function layoutHandles(fr) {
+    const a0 = slides(), sl = a0[cur]; if (!sl) return;
+    const sx = fr.classList.contains("sx") ? fr : fr.querySelector(".sx"); if (!sx) return;
+    const acc = ["left", "right", "top"].find(k => sx.classList.contains("acc-" + k));
+    if (acc && sx.querySelector(".sx-acc")) {
+      const edge = document.createElement("span"); edge.className = `acc-edge e-${acc}`; edge.title = "Потяните, чтобы сделать картинку шире или уже"; edge.setAttribute("aria-label", "Размер картинки");
+      const cur0 = () => { const r = sx.querySelector(".sx-acc").getBoundingClientRect(), B = sx.getBoundingClientRect(); return acc === "top" ? r.height / B.height * 100 : r.width / B.width * 100; };
+      let start = 0, val = 0;
+      const place = v => { sx.classList.add("aw"); sx.style.setProperty("--aw", v + "%"); edge.style.setProperty("--aw", v + "%"); };
+      edge.style.setProperty("--aw", cur0() + "%");
+      edge.addEventListener("pointerdown", () => { start = cur0(); }, true);
+      dragHandle(edge, {
+        onMove: (dx, dy) => { val = Math.round(Math.max(18, Math.min(72, start + (acc === "right" ? -dx : acc === "left" ? dx : dy)))); place(val); },
+        onUp: () => { const a = slides(); a[cur].set.aw = val; a[cur].set.afs = undefined; write(a); rerender(); }
+      });
+      sx.appendChild(edge);
+    }
+    if (!sl.set.free) {
+      const inner = sx.querySelector(".sx-inner"); if (!inner) return;
+      const mv = document.createElement("span"); mv.className = "inner-move"; mv.contentEditable = "false"; mv.textContent = "✥"; mv.title = "Потяните, чтобы сдвинуть текст. Нажмите — вернуть на место";
+      let x0 = 0, y0 = 0, nx = 0, ny = 0;
+      mv.addEventListener("pointerdown", () => { x0 = +sl.set.ix || 0; y0 = +sl.set.iy || 0; }, true);
+      dragHandle(mv, {
+        onMove: (dx, dy) => { nx = Math.round(Math.max(-40, Math.min(40, x0 + dx)) * 2) / 2; ny = Math.round(Math.max(-40, Math.min(40, y0 + dy)) * 2) / 2; sx.classList.add("ixy"); sx.style.setProperty("--ix", nx + "%"); sx.style.setProperty("--iy", ny + "%"); },
+        onUp: () => { const a = slides(); a[cur].set.ix = nx || undefined; a[cur].set.iy = ny || undefined; write(a); rerender(); },
+        onTap: () => { if (!sl.set.ix && !sl.set.iy) { toast("Потяните значок ✥, чтобы сдвинуть текст; выравнивание — кнопками ⯇ ≡ ⯈ сверху."); return; } const a = slides(); a[cur].set.ix = a[cur].set.iy = undefined; write(a); rerender(); toast("Текст вернулся на место."); }
+      });
+      inner.appendChild(mv);
+    }
+  }
   function imageTools(fr) {
+    layoutHandles(fr);
     fr.querySelectorAll("figure.pic").forEach((fig, idx) => {
       const d = fig.dataset;
       if (fig.closest(".sx-acc")) { fig.style.cursor = "pointer"; fig.title = "Щёлкните: заменить, обрезать, убрать фон, переставить"; fig.onclick = e => { e.preventDefault(); pictureMenu(fig, idx); }; return; }
@@ -1064,7 +1103,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const walk = (n, f) => {
       if (n.nodeType === 3) { let t = n.textContent.replace(/\s+/g, " "); if (f.upper) t = t.toUpperCase(); if (t) out.push({ text: t, options: { ...f, upper: undefined } }); return; }
       if (n.nodeType !== 1) return;
-      if (n.matches(".sx-grip,.fx-move,.fx-size,.sx-resize,figure,script,style,a.sx-btn")) return;
+      if (n.matches(".sx-grip,.fx-move,.fx-size,.sx-resize,.inner-move,.acc-edge,figure,script,style,a.sx-btn")) return;
       if (n.matches("a.sx-gl")) { const g = { ...f, underline: { style: "dotted" }, hyperlink: { slide: (glSlide ?? pxCur) + 1, tooltip: (n.dataset.tip || n.title || "").slice(0, 250) } }; n.childNodes.forEach(c => walk(c, g)); return; }
       if (n.tagName === "A" && /^https?:/.test(n.getAttribute("href") || "")) { const g = { ...f, hyperlink: { url: n.href } }; n.childNodes.forEach(c => walk(c, g)); return; }
       if (n.tagName === "BR") { if (out.length) out[out.length - 1].options.breakLine = true; else out.push({ text: "", options: { ...f, breakLine: true } }); return; }
