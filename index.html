@@ -5,7 +5,7 @@
 <meta name="robots" content="index, follow, noai, noimageai">
 <meta name="CCBot" content="nofollow">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Бесплатный конструктор уроков русского языка и литературы по ФРП: техкарта, презентация, рабочий лист.">
+<meta name="description" content="Бесплатный конструктор уроков по ФРП по ФРП: техкарта, презентация, рабочий лист.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFC93C' stroke='%231B1330' stroke-width='5'/%3E%3Cpath d='M20 12v40' stroke='%23FF5A36' stroke-width='4'/%3E%3Ctext x='39' y='45' font-family='Arial' font-size='30' font-weight='900' fill='%231B1330' text-anchor='middle'%3EФ%3C/text%3E%3C/svg%3E">
 <title>Учу по ФРП</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -507,7 +507,7 @@ window.UCHU_SITE = {
 <header class="topbar">
   <div class="wrap">
     <button class="btn sm ghost back" id="btnBack" hidden aria-label="Назад" title="Назад">←</button>
-    <div class="brand"><b>Учу по <i>ФРП</i></b><span>конструктор уроков русского языка и литературы</span></div>
+    <div class="brand"><b>Учу по <i>ФРП</i></b><span>конструктор уроков по ФРП</span></div>
     <nav class="nav" aria-label="Разделы">
       <button class="chip" id="nav-builder" aria-current="page">Конструктор</button>
       <button class="chip" id="nav-library">Мои уроки</button>
@@ -536,7 +536,7 @@ window.UCHU_SITE = {
       <section class="card params" aria-labelledby="z2">
         <div class="card-h"><span class="n">1</span><h2 id="z2">Параметры урока</h2></div>
         <div class="field"><span class="lbl">Предмет</span>
-          <div class="seg" id="segSubject"><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button></div>
+          <div class="seg" id="segSubject"><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button></div>
         </div>
         <div class="row2">
           <div class="field"><label for="grade">Класс</label><select id="grade"></select></div>
@@ -635,7 +635,7 @@ window.UCHU_SITE = {
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
   <section class="own-card"><h2>Мои материалы</h2><p class="agent-lead"><b>🧠 Ваш личный ИИ-агент.</b> Прикрепите свои конспекты, задания и тексты — сайт будет опираться на них и собирать уроки по вашей методике.</p><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
-    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><input type="file" id="matInput" multiple hidden></div>
+    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option></select></label><input type="file" id="matInput" multiple hidden></div>
     <p class="hint" data-dev>При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
     
     <div class="mat-row" data-dev><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
@@ -3214,7 +3214,11 @@ function guessKind(name, text) {
   return "other";
 }
 function guessGrade(name, text) { const m = (name + " " + text.slice(0, 3000)).match(/(\d{1,2})\s*(?:-?\s*(?:й|го)?\s*)?(?:класс|кл(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))|kl|klass)/i); const g = m ? +m[1] : null; return g >= 5 && g <= 11 ? g : null; }
-function guessSubject(name, text) { const t = (name + " " + text.slice(0, 4000)).toLowerCase(); return /литератур/.test(t) && !/русск[A-Za-z0-9_А-Яа-яЁё]* язык/.test(t.slice(0, 1500)) ? "lit" : "ru"; }
+function guessSubject(name, text) { const t = (name + " " + text.slice(0, 4000)).toLowerCase();
+  // выбранный разработчиком предмет при загрузке — главнее догадки
+  const forced = document.getElementById("matSubject")?.value; if (forced) return forced;
+  if (/математ|алгебр|геометри|вероятност[а-я]* и статист/.test(t.slice(0, 1500)) || (t.match(/уравнени|дроб[ьи]|вычислите|найдите значение|корень|функци|треугольник/g) || []).length >= 6) return "math";
+  return /литератур/.test(t) && !/русск[A-Za-z0-9_А-Яа-яЁё]* язык/.test(t.slice(0, 1500)) ? "lit" : "ru"; }
 /* Чтение файла любого формата. Ничего не отклоняется: что не читается как текст,
    сохраняется как скан (картинки и PDF без текста — на распознавание OCR). */
 const IMG_EXT = ["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff", "heic"];
@@ -3459,6 +3463,7 @@ function renderMaterials() {
    =================================================================== */
 function setSeg(id, v) { $$(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(String(b.dataset.v) === String(v)))); }
 function topicList() {
+  const PL = window.Subjects?.plugin(state.subject); if (PL) return { frp: true, items: PL.topics(state.grade) }; // другие предметы — темы из своего модуля
   const frp = FRP.topicsFor(state.subject, state.grade);
   if (frp && frp.length) return { frp: true, items: frp };
   const base = state.subject === "ru" ? KB.ru.topics[state.grade] : KB.lit.works[state.grade];
@@ -3500,7 +3505,8 @@ function pickTopic(it) {
 }
 function updateType() {
   const topic = $("#topic").value.trim();
-  state.type = Engine.detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade });
+  const PL = window.Subjects?.plugin(state.subject);
+  state.type = (PL || Engine).detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade });
   const t = state.type;
   $("#typeBox").innerHTML = topic ? `<div class="type-name"><span class="lbl">Тип урока — определён автоматически</span><b>${esc(t.name)}</b></div><details><summary>Этапы урока</summary><p class="hint">${esc(t.stages.join(" → "))}</p></details>`
     : `<div class="type-name"><span class="lbl">Тип урока</span><b class="muted">определится по теме и номеру урока</b></div>`;
@@ -3932,6 +3938,7 @@ function saveJob(J) { try { localStorage.setItem(JOB_KEY, JSON.stringify(J)); } 
 function loadJob() { try { return JSON.parse(localStorage.getItem(JOB_KEY)); } catch { return null; } }
 function clearJob(id) { const J = loadJob(); if (!J || !id || J.id === id) try { localStorage.removeItem(JOB_KEY); } catch { } }
 async function runJob(L, p, type, gen, formats, useAi, hideTech) {
+  const PL = window.Subjects?.plugin(p.subject); if (PL) return runPlugin(L, p, type, gen, formats, useAi, hideTech, PL);
   // файлы из заметок участвуют в сборке только этого урока
   const noteMats = window.Notes ? Notes.lessonMaterials(p.notes) : [];
   if (noteMats.length) { const keep = state.materials; state.materials = [...noteMats, ...keep]; L._restoreMaterials = keep; }
@@ -3942,6 +3949,35 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); clearJob(L.id); }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
+}
+/* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
+async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
+  openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
+  const draft = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? PL.lesson(p, type) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : PL.extra(f, p, type, p.extra || {});
+  try {
+    for (const f of gen) {
+      if (L.docs[f] && L.status[f] !== "wait") continue;
+      state.gen = { lessonId: L.id, doc: f, pct: 20, ctl: new AbortController() }; L.status[f] = "run"; updateProgress();
+      if (state.lesson?.id === L.id) renderLesson();
+      let md = draft(f);
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = PL.cards(p, type); }
+      else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
+        try {
+          const res = await caps.sample(PL.prompt(f, p, type, md), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          if (res.text && res.text.length > 400) md = cleanMd(res.text);
+        } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
+      }
+      L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
+      await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
+    }
+    clearJob(L.id);
+  } catch (e) { if (e?.code === "cancelled") clearJob(L.id); formats.forEach(x => { if (L.status[x] === "wait" || L.status[x] === "run") L.status[x] = L.docs[x] ? "ok" : "err"; }); }
+  finally {
+    state.gen = null;
+    if (hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; }
+    await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
+    toast("Урок готов.", 3500);
+  }
 }
 async function resumeJob() {
   const J = loadJob(); if (!J) return;
@@ -4170,7 +4206,7 @@ function renderLesson() {
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
-  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${L.verify && window.Verify && window.Access?.isDev?.() ? `<p class="verify-line">${esc(Verify.line(L.verify))} <button class="btn sm ghost" id="btnVerify">Отчёт сверки</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
+  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${L.verify && window.Verify && window.Access?.isDev?.() ? `<p class="verify-line">${esc(Verify.line(L.verify))} <button class="btn sm ghost" id="btnVerify">Отчёт сверки</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
   { const bp = $("#btnPrompts"); if (bp) bp.onclick = () => openPrompts(L); }
   { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
@@ -4414,7 +4450,7 @@ async function saveLesson(L) {
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }
 function lessonCard(L, sample) {
   const P = L.params || {}, docs = Object.keys(DOCS).filter(k => L.docs?.[k]).map(k => DOCS[k].short);
-  return `<article class="lcard"><h3>${esc(L.title)}</h3><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject === "ru" ? "Русский" : "Литература"}</span><span class="tag">${esc(P.type?.name || "")}</span></div>
+  return `<article class="lcard"><h3>${esc(L.title)}</h3><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский" : "Литература"}</span><span class="tag">${esc(P.type?.name || "")}</span></div>
   <p class="small" style="margin:0">${esc(docs.join(" · "))}${L.updatedAt ? " · " + new Date(L.updatedAt).toLocaleDateString("ru-RU") : ""}</p>
   <div class="acts"><button class="btn sm flame" data-open="${esc(L.id)}">Открыть</button>${sample ? "" : `<button class="btn sm ghost" data-zip="${esc(L.id)}">Всё в .zip</button><button class="btn sm ghost" data-delete="${esc(L.id)}">Удалить</button>`}</div></article>`;
 }
@@ -4621,7 +4657,7 @@ async function exportPptx() { const L = state.lesson; toast("Готовлю пр
    жёлтая плашка-тег, крупный белый заголовок, плоская иконка и цветные круги */
 const WS_ICON = [[/памятк/i, "💡"], [/самостоят|контрольн/i, "✅"], [/домашн/i, "🏠"], [/ответ/i, "🔑"], [/./, "📝"]];
 function wsDecorate(root, L) {
-  const P = L?.params || {}, tag = `${P.grade || ""} класс · ${P.subject === "lit" ? "Литература" : "Русский язык"}`;
+  const P = L?.params || {}, tag = `${P.grade || ""} класс · ${window.Subjects && P.subject && !["ru", "lit"].includes(P.subject) ? Subjects.name(P.subject) : P.subject === "lit" ? "Литература" : "Русский язык"}`;
   [...root.querySelectorAll("h1")].forEach((h, i) => {
     const icon = (WS_ICON.find(([re]) => re.test(h.textContent)) || [0, "📝"])[1];
     const b = document.createElement("div"); b.className = "ws-banner" + (i ? " pb" : "") + (/ответ/i.test(h.textContent) ? " teacher" : "");
@@ -4803,6 +4839,8 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/publish.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/worksearch.js"></script>
+<script src="js/mathkit.js"></script>
+<script src="js/subjects.js"></script>
 <script src="js/usage.js"></script>
 <script src="js/ai.js"></script>
 </body>
