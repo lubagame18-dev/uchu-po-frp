@@ -35,7 +35,6 @@ const OCR = (() => {
   async function afterText(m) {
     try {
       if (m.devEmbed && window.CloudBase && window.Account?.session) { if (await CloudBase.publish(m)) { m.cloudAt = new Date().toISOString(); await Store.put("materials", m.id, m); } }
-      else if (!m.devEmbed) window.Account?.shareMaterial?.(m);
     } catch (e) { console.warn("ocr after", e); }
   }
   async function enqueue(m) {

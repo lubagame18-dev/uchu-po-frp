@@ -3373,7 +3373,7 @@ async function addMaterials(list, forceKind) {
       if (r.unknown) m.unreadable = true;
       if (window.Dev?.on) m.devEmbed = true; // загружено разработчиком — сразу в общую базу (облако), см. ниже
       await Store.put("materials", m.id, m); added++; if (hash) known.add(hash);
-      if (!window.Dev?.on) window.Account?.shareMaterial?.(m); // учительский материал — автору сайта (раздел разработчика «Присланные учителями»)
+      if (!window.Dev?.on) { /* материал учителя — только у него: никуда не отправляется и в базу сайта не встраивается */ }
       else if (window.CloudBase && (m.text || "").trim()) { try { if (await CloudBase.publish(m)) { m.cloudAt = new Date().toISOString(); await Store.put("materials", m.id, m); cloudN++; } } catch (e) { cloudErr = e.message; } }
       if (m.scanned && window.OCR && (/\.pdf$/i.test(f.name) || r.image)) { if (await OCR.keepFile(m.id, f)) { await OCR.enqueue(m); ocrN++; } }
     } catch (e) { toast(`Не удалось прочитать «${f.name}»: ${e.message || e}`, 6000); }

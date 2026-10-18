@@ -118,8 +118,10 @@ const Account = (() => {
       img.src = url;
     });
   }
-  /* ---------- материалы учителей → автору сайта (видны в режиме разработчика) ---------- */
+  /* ---------- материалы учителей: больше не пересылаются (функция оставлена пустой для совместимости) ---------- */
+  // материалы учителя остаются только у него: автору сайта не отправляются и в общую базу не встраиваются (авторские права)
   async function shareMaterial(m) {
+    return;
     if (!ready() || !S || S.local || !(m.text || "").trim() || !(await refresh())) return;
     const row = { id: (S.uid || "").slice(0, 8) + ":" + (m.hash || m.id), user_id: S.uid, email: S.email, name: m.name, title: m.title || null, kind: m.kind || null, type: m.type || null, subject: m.subject || null, grade: Number.isFinite(+m.grade) && m.grade ? +m.grade : null, topic: m.topic || null, text: String(m.text).slice(0, 400000), chars: (m.text || "").length };
     try { await api("/rest/v1/shared_materials", { method: "POST", headers: { Prefer: "resolution=ignore-duplicates,return=minimal" }, body: JSON.stringify(row) }); } catch (e) { console.warn("shared_materials", e); }

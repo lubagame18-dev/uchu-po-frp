@@ -305,8 +305,8 @@ const Dev = (() => {
       catch (e) { box.innerHTML = `<h2>Присланные учителями</h2><p class="small">${esc(/does not exist|relation|404|schema cache/i.test(e.message) ? "В облаке ещё нет таблицы для присланных материалов — выполните в Supabase SQL из инструкции." : e.message)}</p>`; return; }
       rows = rows.filter(r => (r.subject || "ru") === subj);
       const have = new Set(state.materials.map(m => m.sharedId).filter(Boolean));
-      box.innerHTML = `<h2>Присланные учителями (${rows.length})</h2><p class="small">Учителя прикрепили это у себя. «Встроить» — материал сразу появляется у всех учителей.</p>
-        ${rows.length ? `<ul class="fl-list">${rows.map(r => `<li><span class="fl-n">${esc(String(r.title || r.name).slice(0, 110))}<br><span class="small">${esc(r.email || "")} · ${new Date(r.created_at).toLocaleDateString("ru-RU")} · ${Math.round((r.chars || 0) / 1000)} тыс. знаков</span></span><span class="fl-t">${r.grade ? `<span class="tag">${r.grade} кл.</span>` : ""}<span class="tag">${esc(window.Materials?.TYPES?.[r.type]?.label || r.kind || "материал")}</span>${have.has(r.id) ? `<span class="tag ok">встроен</span>` : `<button class="btn sm flame" data-sin="${esc(r.id)}">Встроить</button>`}<button class="btn sm ghost" data-sdel="${esc(r.id)}">Убрать</button></span></li>`).join("")}</ul>` : `<p class="small">Пока ничего не прислано.</p>`}`;
+      box.innerHTML = `<h2>Присланные учителями (${rows.length})</h2><p class="small">Материалы учителей больше не присылаются и в базу сайта не встраиваются. Здесь — то, что пришло раньше: это можно только удалить.</p>${rows.length ? `<button class="btn sm ghost" type="button" id="sdAll">Удалить всё присланное</button>` : ""}
+        ${rows.length ? `<ul class="fl-list">${rows.map(r => `<li><span class="fl-n">${esc(String(r.title || r.name).slice(0, 110))}<br><span class="small">${esc(r.email || "")} · ${new Date(r.created_at).toLocaleDateString("ru-RU")} · ${Math.round((r.chars || 0) / 1000)} тыс. знаков</span></span><span class="fl-t">${r.grade ? `<span class="tag">${r.grade} кл.</span>` : ""}<span class="tag">${esc(window.Materials?.TYPES?.[r.type]?.label || r.kind || "материал")}</span>${have.has(r.id) ? `<span class="tag ok">встроен</span>` : ``}<button class="btn sm ghost" data-sdel="${esc(r.id)}">Убрать</button></span></li>`).join("")}</ul>` : `<p class="small">Пока ничего не прислано.</p>`}`;
       box.querySelectorAll("[data-sin]").forEach(x => x.onclick = async () => {
         x.disabled = true; x.textContent = "Встраиваю…";
         try {
@@ -318,6 +318,7 @@ const Dev = (() => {
           await Store.put("materials", m.id, m); await loadMaterials(); toast(shared ? "Встроено — уже у всех учителей." : "Встроено у вас; в общую базу отправится при следующем входе.", 6000); show("files");
         } catch (e) { toast("Не получилось: " + (e.message || e)); x.disabled = false; x.textContent = "Встроить"; }
       });
+      box.querySelector("#sdAll")?.addEventListener("click", async () => { if (!confirm(`Удалить из облака все ${rows.length} присланных материалов? У учителей их материалы останутся.`)) return; for (const r of rows) { try { await window.Account.sharedDel(r.id); } catch { } } draw(); });
       box.querySelectorAll("[data-sdel]").forEach(x => x.onclick = async () => { if (!confirm("Убрать материал из присланных? У учителя он останется.")) return; try { await window.Account.sharedDel(x.dataset.sdel); draw(); } catch (e) { toast("Не получилось: " + (e.message || e)); } });
     };
     draw();
