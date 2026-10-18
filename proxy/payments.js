@@ -17,7 +17,9 @@ const kOf = p => (!!p.promo || p.plan === "promo") ? (p.promo_pct ? 1 - Math.max
 const PACKS = { ai10: { name: "10 уроков с ИИ", price: 50, ai: 10, tokens: 400000 }, ai30: { name: "30 уроков с ИИ", price: 140, ai: 30, tokens: 1200000 } };
 const DAY = 864e5;
 const env = k => process.env[k] || "";
-const on = () => !!(env("PRODAMUS_URL") && env("PRODAMUS_KEY"));
+/* ЮKassa (самозанятые): YOOKASSA_SHOP_ID и YOOKASSA_KEY — если заданы, оплата идёт через неё (основной способ — СБП) */
+const yk = () => !!(env("YOOKASSA_SHOP_ID") && env("YOOKASSA_KEY"));
+const on = () => yk() || !!(env("PRODAMUS_URL") && env("PRODAMUS_KEY"));
 
 /* Подпись Продамуса: все значения — строки, ключи отсортированы (вложенно), JSON без экранирования кириллицы, HMAC-SHA256 */
 function sortDeep(v) { if (Array.isArray(v)) return v.map(sortDeep); if (v && typeof v === "object") return Object.keys(v).sort().reduce((o, k) => (o[k] = sortDeep(v[k]), o), {}); return v == null ? "" : String(v); }
@@ -71,6 +73,7 @@ async function create(body, userToken, request, readAll) {
   } else return { status: 400, json: { error: "нет такого тарифа" } };
   const order = `${user.id}.${kind}.${Date.now()}`;
   const site = env("SITE_URL") || "https://lubagame18-dev.github.io/uchu-po-frp/";
+  if (yk()) return ykCreate({ order, user, kind, price, name, site, method: body.method === "any" ? "" : "sbp" }, request, readAll);
   const data = { do: "pay", order_id: order, customer_email: user.email, urlReturn: site + "?pay=cancel", urlSuccess: site + "?pay=ok", sys: "", npd_income_type: "FROM_INDIVIDUAL" };
   if (sub) { data.subscription = sub; } else { data.products = [{ name, price: String(price), quantity: "1" }]; }
   data.signature = sign(data, env("PRODAMUS_KEY"));
@@ -79,6 +82,48 @@ async function create(body, userToken, request, readAll) {
   add(data, "");
   await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: price, status: "created" } }).catch(() => null);
   return { status: 200, json: { url: env("PRODAMUS_URL").replace(/\/+$/, "") + "/?" + q.toString(), price, name } };
+}
+
+/* ---------- ЮKassa: платёж (сразу СБП; если СБП недоступна — все способы) и проверка уведомлений ---------- */
+async function ykApi(method, path, body, idem, request, readAll) {
+  const res = await request("https://api.yookassa.ru/v3" + path, { method, headers: { Authorization: "Basic " + Buffer.from(env("YOOKASSA_SHOP_ID") + ":" + env("YOOKASSA_KEY")).toString("base64"), "Content-Type": "application/json", ...(idem ? { "Idempotence-Key": idem } : {}) }, body: body ? JSON.stringify(body) : undefined, timeout: 20000 });
+  const t = await readAll(res); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
+  return { status: res.statusCode, json: j };
+}
+async function ykCreate({ order, user, kind, price, name, site, method }, request, readAll) {
+  const amount = { value: Number(price).toFixed(2), currency: "RUB" };
+  const base = { amount, capture: true, confirmation: { type: "redirect", return_url: site + "?pay=ok" }, description: String(name).slice(0, 128), metadata: { order, uid: user.id, kind } };
+  const receipt = { customer: { email: user.email }, items: [{ description: String(name).slice(0, 128), quantity: "1.00", amount, vat_code: 1, payment_subject: "service", payment_mode: "full_payment" }] };
+  // по порядку: СБП с чеком → СБП без чека → все способы с чеком → все способы без чека
+  const tries = [];
+  if (method === "sbp") tries.push({ ...base, payment_method_data: { type: "sbp" }, receipt }, { ...base, payment_method_data: { type: "sbp" } });
+  tries.push({ ...base, receipt }, { ...base });
+  let r = null, used = "";
+  for (const [i, b] of tries.entries()) {
+    r = await ykApi("POST", "/payments", b, `${order}.${i}`, request, readAll);
+    if (r.status < 300 && r.json?.confirmation?.confirmation_url) { used = b.payment_method_data ? "sbp" : "any"; break; }
+    if (r.status === 401 || r.status === 403) return { status: 503, json: { error: "ЮKassa не приняла ключи магазина — проверьте YOOKASSA_SHOP_ID и YOOKASSA_KEY" } };
+  }
+  if (!used) return { status: 502, json: { error: "ЮKassa не создала платёж: " + (r?.json?.description || r?.status || "нет ответа") } };
+  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: Number(price), status: "created" } }).catch(() => null);
+  return { status: 200, json: { url: r.json.confirmation.confirmation_url, price, name, method: used } };
+}
+// уведомлению не верим на слово: статус платежа запрашиваем у ЮKassa по его номеру
+async function ykNotify(raw, request, readAll) {
+  let id = ""; try { id = String(JSON.parse(raw)?.object?.id || ""); } catch { }
+  if (!id || !yk()) return { status: 200 };
+  const r = await ykApi("GET", "/payments/" + encodeURIComponent(id), null, "", request, readAll);
+  const pay = r.json; if (r.status !== 200 || pay?.status !== "succeeded" || !pay.paid) return { status: 200 };
+  const { order, uid, kind } = pay.metadata || {}; if (!uid || !/^(plan|up|pack)_/.test(kind || "")) return { status: 200 };
+  const row = (await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order || "")}&select=status`)).json?.[0];
+  if (row?.status === "paid") return { status: 200 }; // уже начислено (ЮKassa может прислать уведомление повторно)
+  const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
+  const [type, item] = kind.split("_"), sum = parseFloat(pay.amount?.value || "0");
+  const expect = type === "pack" ? PACKS[item]?.price : type === "plan" ? Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined : 10;
+  if (!expect || sum + 0.01 < expect) return { status: 200 };
+  await apply(uid, p, type, item, !!p.promo || p.plan === "promo", request, readAll);
+  await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order)}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
+  return { status: 200 };
 }
 
 /* ---------- 2. Уведомление об оплате (в том числе автосписание по подписке) ---------- */
@@ -143,4 +188,4 @@ async function test(body, userToken, request, readAll) {
   await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: `test.${uid}.${type}_${item}.${Date.now()}`, user_id: uid, kind: `${type}_${item}`, amount: 0, status: "test" } }).catch(() => null);
   return { status: 200, json: { ok: true, patch } };
 }
-module.exports = { create, notify, test, patchFor, sign, verify, parseForm, PLANS, PACKS, on };
+module.exports = { provider: () => yk() ? "yookassa" : on() ? "prodamus" : "", create, notify, ykNotify, test, patchFor, sign, verify, parseForm, PLANS, PACKS, on };

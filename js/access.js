@@ -151,23 +151,26 @@ const Access = (() => {
       ${P ? `<ul class="tr-feats">${feats.map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>` : `<p>Уроки с ИИ добавятся к вашему тарифу и не сгорают до конца оплаченного периода.</p>`}
       ${P && !up && site().autopay && !pr ? `<label class="check"><input type="checkbox" id="coAuto" checked> Автоплатёж каждый месяц (отключить можно в любой момент по ссылке в письме)</label>` : ""}
       ${up ? `` : ""}
-      ${site().payments ? `<p class="small">Оплата картой или по СБП. Чек придёт на почту ${esc(me())}.</p>
-      <div class="mat-row"><button class="btn flame" id="coPay" ${needKey ? "disabled" : ""}>Перейти к оплате</button><span class="small" id="coMsg" role="status"></span></div>` : testBox()}</div></div>`);
+      ${site().payments ? `<p class="small">Оплата по СБП — через приложение вашего банка. Чек придёт на почту ${esc(me())}.</p>
+      <div class="mat-row"><button class="btn flame" id="coPay" data-method="sbp" ${needKey ? "disabled" : ""}>Оплатить по СБП</button><button type="button" class="btn plain" id="coPayAny" data-method="any" ${needKey ? "disabled" : ""}>Картой или SberPay</button></div><span class="small" id="coMsg" role="status"></span>` : testBox()}</div></div>`);
     bindTest(m, item);
     m.querySelector("#coKey")?.addEventListener("click", () => { closeModal(); Access.afterKey = item; window.AI?.openLite?.(); });
-    if (m.querySelector("#coPay")) m.querySelector("#coPay").onclick = async () => {
+    const payBtns = [m.querySelector("#coPay"), m.querySelector("#coPayAny")].filter(Boolean);
+    payBtns.forEach(btn => btn.onclick = async () => {
+      const method = btn.dataset.method;
       const msg = m.querySelector("#coMsg"), fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
       if (!site().payments || !fn) { msg.textContent = "Оплата открывается совсем скоро. Пока можно пользоваться бесплатным тарифом."; return; }
       if (!tok) { msg.textContent = "Войдите в личный кабинет заново."; return; }
       msg.textContent = "Готовлю оплату…";
       try {
         const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/pay/create")}` : base + "/pay/create";
-        const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ item, autopay: !!m.querySelector("#coAuto")?.checked }) });
+        payBtns.forEach(b => b.disabled = true);
+        const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ item, method, autopay: !!m.querySelector("#coAuto")?.checked }) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.url) throw new Error(j.error || "оплата недоступна");
         location.href = j.url;
-      } catch (e) { msg.textContent = "Не получилось: " + (e.message || e); }
-    };
+      } catch (e) { payBtns.forEach(b => b.disabled = false); msg.textContent = "Не получилось: " + (e.message || e) + (method === "sbp" ? " Попробуйте «Картой или SberPay»." : ""); }
+    });
   }
   /* Пока оплата не подключена — тестовая оплата по коду разработчика: тариф включается без денег,
      чтобы посмотреть, что открывается на каждом тарифе */
