@@ -104,7 +104,7 @@ a{color:inherit}
 @keyframes float1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-12px,14px) rotate(8deg)}}
 @keyframes float2{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(14px,-12px) rotate(-6deg)}}
 .marquee{background:var(--ink);color:var(--paper);overflow:hidden;border-block:var(--line) solid var(--ink);padding-block:11px}
-.marquee-track{display:flex;width:max-content;animation:scroll 34s linear infinite}
+.marquee-track{display:flex;width:max-content;animation:scroll 34s linear infinite;-webkit-animation:scroll 34s linear infinite;will-change:transform;animation-play-state:running!important}
 .marquee-track span{font-family:var(--f-display);font-weight:600;font-size:15px;padding-inline:20px;white-space:nowrap}
 .marquee-track b{color:var(--sun)}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -370,7 +370,7 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:700}
   .dlg-h{padding:14px 16px}
   .dlg-b{padding:16px}
 }
-@media (prefers-reduced-motion:reduce){*:not(.marquee-track):not(.glow-anim){animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.marquee-track{animation-duration:70s!important}}
+@media (prefers-reduced-motion:reduce){*:not(.marquee-track):not(.glow-anim){animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.marquee-track{animation-duration:40s!important}}
 
 /* ---------- скрытая сцена для PDF ---------- */
 #pdfstage{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111}
@@ -521,13 +521,12 @@ window.UCHU_SITE = {
     <div class="blob b1" aria-hidden="true"></div><div class="blob b2" aria-hidden="true"></div><div class="blob b3" aria-hidden="true"></div>
     <div class="wrap">
       <h1>Урок по ФРП <em>за пару минут</em></h1>
-      <div class="chips"><span class="chip">🧠 ваш личный ИИ-агент</span><span class="chip">🎯 по вашей методике</span><span class="chip">📚 учится на ваших материалах</span><span class="chip">📋 конспект · презентация · рабочий лист</span><span class="chip">✅ строго по ФРП</span></div>
       <div class="chips"><span class="chip">русский язык</span><span class="chip">литература</span><span class="chip">5–11 классы</span></div>
     </div>
   </section>
   <div class="marquee" aria-hidden="true"><div class="marquee-track">
-    <span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
-    <span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
+    <span>🧠 ваш личный ИИ-агент <b>·</b></span><span>🎯 по вашей методике <b>·</b></span><span>📚 учится на ваших материалах <b>·</b></span><span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
+    <span>🧠 ваш личный ИИ-агент <b>·</b></span><span>🎯 по вашей методике <b>·</b></span><span>📚 учится на ваших материалах <b>·</b></span><span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
   </div></div>
 
   <main class="wrap builder">
