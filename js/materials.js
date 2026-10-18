@@ -90,23 +90,25 @@ const Materials = (() => {
       </div></article>`;
   }
   function renderLib(box, scope) {
+    // обычному учителю — только поиск по своим материалам (без фильтров по классу, теме и типу); разработчику — всё
+    const D = DEV(); if (!D) Object.assign(F, { grade: "", topic: "", type: "", date: "", view: "groups" });
     const all = list(scope), arr = applyFilters(all);
     const topics = [...new Set(all.flatMap(m => [m.topic, ...(m.tags || [])]).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ru"));
     box.innerHTML = `<div class="mat-tools">
-      <input type="search" class="inp" id="mfQ" placeholder="Поиск по тексту всех материалов" value="${esc(F.q)}" aria-label="Поиск по материалам">
-      <select id="mfGrade" aria-label="Класс"><option value="">все классы</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}" ${F.grade === String(g) ? "selected" : ""}>${g} класс</option>`).join("")}<option value="all" ${F.grade === "all" ? "selected" : ""}>для всех классов</option></select>
+      <input type="search" class="inp" id="mfQ" placeholder="${D ? "Поиск по тексту всех материалов" : "🔍 Поиск по моим материалам"}" value="${esc(F.q)}" aria-label="Поиск по материалам">
+      ${D ? `<select id="mfGrade" aria-label="Класс"><option value="">все классы</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}" ${F.grade === String(g) ? "selected" : ""}>${g} класс</option>`).join("")}<option value="all" ${F.grade === "all" ? "selected" : ""}>для всех классов</option></select>
       <select id="mfTopic" aria-label="Тема"><option value="">все темы</option>${topics.map(t => `<option ${F.topic === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
       <select id="mfType" aria-label="Тип"><option value="">все типы</option>${Object.entries(TYPES).map(([k, v]) => `<option value="${k}" ${F.type === k ? "selected" : ""}>${v.label}</option>`).join("")}</select>
       <select id="mfDate" aria-label="Дата"><option value="">за всё время</option><option value="week" ${F.date === "week" ? "selected" : ""}>за неделю</option><option value="month" ${F.date === "month" ? "selected" : ""}>за месяц</option><option value="year" ${F.date === "year" ? "selected" : ""}>за год</option></select>
       <select id="mfSort" aria-label="Сортировка"><option value="date" ${F.sort === "date" ? "selected" : ""}>сначала новые</option><option value="name" ${F.sort === "name" ? "selected" : ""}>по названию</option><option value="grade" ${F.sort === "grade" ? "selected" : ""}>по классу</option></select>
-      <div class="seg mini" role="group" aria-label="Вид"><button type="button" data-view="groups" aria-pressed="${F.view === "groups"}">По группам</button><button type="button" data-view="flat" aria-pressed="${F.view === "flat"}">Списком</button></div>
+      <div class="seg mini" role="group" aria-label="Вид"><button type="button" data-view="groups" aria-pressed="${F.view === "groups"}">По группам</button><button type="button" data-view="flat" aria-pressed="${F.view === "flat"}">Списком</button></div>` : ""}
     </div>
-    <p class="small mat-count">${arr.length === all.length ? `Материалов: ${all.length}` : `Найдено ${arr.length} из ${all.length}`}${F.q || F.grade || F.topic || F.type || F.date ? ` · <button type="button" class="btn plain" id="mfReset">сбросить фильтры</button>` : ""}</p>
+    <p class="small mat-count">${arr.length === all.length ? `Материалов: ${all.length}` : `Найдено ${arr.length} из ${all.length}`}${F.q || F.grade || F.topic || F.type || F.date ? ` · <button type="button" class="btn plain" id="mfReset">${D ? "сбросить фильтры" : "очистить поиск"}</button>` : ""}</p>
     <div class="mat-groups">${!arr.length ? `<div class="lcard"><h3>${all.length ? "Ничего не найдено" : scope === "all" ? "Материалов нет" : "Своих материалов пока нет"}</h3><p class="small" style="margin:0">${all.length ? "Измените запрос или фильтры." : "Это необязательно: сайт работает на встроенной базе."}</p></div>` : F.view === "flat" ? `<div class="mcards">${arr.map(card).join("")}</div>` : groups(arr)}</div>`;
     const re = () => { saveF(); renderLib(box, scope); };
     const q = box.querySelector("#mfQ");
     q.addEventListener("input", (() => { let t; return () => { clearTimeout(t); t = setTimeout(() => { F.q = q.value; saveF(); const pos = q.selectionStart; renderLib(box, scope); const nq = box.querySelector("#mfQ"); nq.focus(); try { nq.setSelectionRange(pos, pos); } catch { } }, 300); }; })());
-    [["mfGrade", "grade"], ["mfTopic", "topic"], ["mfType", "type"], ["mfDate", "date"], ["mfSort", "sort"]].forEach(([id, k]) => box.querySelector("#" + id).onchange = e => { F[k] = e.target.value; re(); });
+    [["mfGrade", "grade"], ["mfTopic", "topic"], ["mfType", "type"], ["mfDate", "date"], ["mfSort", "sort"]].filter(([id]) => box.querySelector("#" + id)).forEach(([id, k]) => box.querySelector("#" + id).onchange = e => { F[k] = e.target.value; re(); });
     box.querySelectorAll("[data-view]").forEach(b => b.onclick = () => { F.view = b.dataset.view; re(); });
     const rs = box.querySelector("#mfReset"); if (rs) rs.onclick = () => { Object.assign(F, { q: "", grade: "", topic: "", type: "", date: "" }); re(); };
     box.querySelectorAll(".mcard [data-mact]").forEach(b => b.onclick = () => action(b.dataset.mact, b.closest(".mcard").dataset.id, b, () => renderLib(box, scope)));

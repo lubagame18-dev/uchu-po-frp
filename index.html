@@ -521,7 +521,7 @@ window.UCHU_SITE = {
     <div class="blob b1" aria-hidden="true"></div><div class="blob b2" aria-hidden="true"></div><div class="blob b3" aria-hidden="true"></div>
     <div class="wrap">
       <h1>Урок по ФРП <em>за пару минут</em></h1>
-      <p>Технологическая карта, презентация и рабочий лист по теме урока. Тип урока определяется сам, результаты — дословно из ФРП. Работает и без нейросети.</p>
+      <div class="chips"><span class="chip">🧠 ваш личный ИИ-агент</span><span class="chip">🎯 по вашей методике</span><span class="chip">📚 учится на ваших материалах</span><span class="chip">📋 конспект · презентация · рабочий лист</span><span class="chip">✅ строго по ФРП</span></div>
       <div class="chips"><span class="chip">русский язык</span><span class="chip">литература</span><span class="chip">5–11 классы</span></div>
     </div>
   </section>
@@ -618,8 +618,8 @@ window.UCHU_SITE = {
 <!-- ===================== МОИ УРОКИ ===================== -->
 <main id="view-library" class="wrap page" hidden>
   <h1>Мои уроки</h1>
-  <p class="lead">Каждый созданный комплект сохраняется в этом браузере. Откройте его, чтобы продолжить правку или скачать.</p>
-  <div class="mat-row lib-tools"><button class="btn sm ghost" id="libExport">⬇ Скачать все уроки (файл)</button><label class="btn sm ghost">⬆ Загрузить уроки из файла<input type="file" id="libImport" accept=".json" hidden></label><span class="small">Чтобы уроки не пропали при очистке браузера — войдите в личный кабинет («👤 Войти» вверху) или храните этот файл.</span></div>
+  
+  <div class="mat-row lib-tools"><button class="btn sm ghost" id="libExport">⬇ Скачать все уроки (файл)</button><label class="btn sm ghost">⬆ Загрузить уроки из файла<input type="file" id="libImport" accept=".json" hidden></label></div>
   <div class="cards" id="libCards"></div>
   <h2 class="sec">Образцы</h2>
   <p class="lead">Готовые комплекты — по ним видно, что выдаёт сервис.</p>
@@ -633,7 +633,7 @@ window.UCHU_SITE = {
   <section class="frp-card" data-dev><h2>ФРП</h2><div id="frpBox"></div>
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
-  <section class="own-card"><h2>Мои материалы</h2><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
+  <section class="own-card"><h2>Мои материалы</h2><p class="agent-lead"><b>🧠 Ваш личный ИИ-агент.</b> Прикрепите свои конспекты, задания и тексты — сайт будет опираться на них и собирать уроки по вашей методике.</p><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
     <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><input type="file" id="matInput" multiple hidden></div>
     <p class="hint" data-dev>При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
     <p class="small mat-note">Прикреплённые материалы видит и автор сайта — чтобы делать базу уроков лучше.</p>
@@ -3899,7 +3899,8 @@ async function createLesson() {
   if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   const useAi = state.build === "ai";
-  if (window.Access && !(await Access.canBuildAsync(useAi))) return; // тариф, промокод, бесплатный лимит (сервер)
+  if (window.Access && !(await Access.canBuildAsync(useAi))) return;
+  window.Usage?.begin("Сборка урока", state.topic); // тариф, промокод, бесплатный лимит (сервер)
   if (useAi && window.UCHU && !window.UCHU.configured()) { openAiSettings(); return; }
   if (window.Access) Access.countLesson();
   const { notes: _n, ...pParams } = p;
@@ -4081,6 +4082,7 @@ async function refineDoc() {
   if (window.UCHU && !window.UCHU.configured()) { openAiSettings(); return; }
   const L = state.lesson, f = state.active, before = L.docs[f];
   state.gen = { lessonId: L.id, doc: f, pct: 0, ctl: new AbortController() }; renderLesson();
+  window.Usage?.begin("Правка по просьбе", L.params?.topic || "");
   const paint = throttle(t => { if (state.lesson?.id === L.id && state.active === f) { $("#md").value = t; renderPreview(); } }, 300);
   try {
     const res = await caps.sample(promptRefine(f, before, instr), { modelTier: "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { state.gen.pct = Math.min(95, Math.round(text.length / Math.max(before.length, 1000) * 100)); updateProgress(); paint(cleanMd(text)); } });
@@ -4216,7 +4218,7 @@ function openPrompts(L) {
   m.querySelector("#prRun").onclick = async () => {
     const msg = m.querySelector("#prMsg"), text = m.querySelector('[data-pr="0"]').value.trim();
     if (!(window.AI ? AI.configured() : caps.sample)) { msg.textContent = "Нейросеть не подключена: скопируйте промт и вставьте в любую нейросеть."; return; }
-    msg.textContent = "Пишу конспект по промту…"; m.querySelector("#prRun").disabled = true;
+    msg.textContent = "Пишу конспект по промту…"; m.querySelector("#prRun").disabled = true; window.Usage?.begin("Пересборка по промту", L.params?.topic || "");
     try { const res = await caps.sample(text, { modelTier: "default", cache: false }); let md = cleanMd(res.text); md = injectResults(md, L.params, L.params.type || {}, "conspect"); L.docs.conspect = md; L.prompts = { ...(L.prompts || {}), conspect: text }; await saveLesson(L); closeModal(); state.active = "conspect"; renderLesson(); toast("Конспект пересобран по промту."); }
     catch (e) { msg.textContent = "Не получилось: " + (e.message || e); m.querySelector("#prRun").disabled = false; }
   };
@@ -4739,6 +4741,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/publish.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/worksearch.js"></script>
+<script src="js/usage.js"></script>
 <script src="js/ai.js"></script>
 </body>
 </html>

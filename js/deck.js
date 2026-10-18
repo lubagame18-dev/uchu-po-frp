@@ -631,6 +631,7 @@ ${JSON.stringify(frs)}`;
     $("#dkRe", m).onclick = () => { saveOpts(cur()); cards = outline(L.docs.conspect || "", p, type, cur()); draw(); };
     $("#dkAdd", m).onclick = () => { cards.push({ id: "c" + Date.now(), on: true, kind: "cards", title: "Новый слайд", points: ["Тезис"] }); draw(); list.lastElementChild?.scrollIntoView({ block: "nearest" }); };
     $("#dkBuild", m).onclick = async () => {
+      window.Usage?.begin("Пересборка презентации", p.topic);
       const btn = $("#dkBuild", m); btn.disabled = true; $("#dkMsg", m).textContent = "Собираю слайды и подбираю картинки в Яндексе…";
       saveOpts(cur());
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Нейросеть сжимает формулировки…"; cards = await condenseAi(cards, p, cur().amount); }

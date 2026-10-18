@@ -56,6 +56,7 @@ const Sync = (() => {
     if (c.verify && todo.has("verify") && window.Verify && !todo.has("web")) { await Verify.run(L, p).catch(() => null); todo.delete("verify"); done.push("сверка фактов"); }
     if (c.ai && todo.has("ai") && window.UCHU?.configured?.()) {
       try {
+        window.Usage?.begin("Доработка урока", p.topic);
         const res = await caps.sample(promptConspect(p), { modelTier: "default", cache: false });
         let md = cleanMd(res.text); md = injectResults(md, p, type, "conspect");
         const copy = { ...JSON.parse(JSON.stringify(L)), id: L.id + "-ai" + Date.now().toString(36), title: L.title + " (доработано ИИ)", built: "ai", wantAi: false, pending: [], docs: { ...L.docs, conspect: md } };

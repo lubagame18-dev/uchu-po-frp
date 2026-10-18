@@ -155,17 +155,15 @@ const Account = (() => {
     const pct = lim ? Math.round(used / lim * 100) : 0;
     const row = (k, v) => `<div class="pc-row"><span>${k}</span><b>${v}</b></div>`;
     let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promoFree ? `<span class="tag ok">бесплатный доступ по промокоду</span>` : S.promo ? `<span class="tag ok">промокод −${S.promoPct || 50}%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
-    if (S?.promoFree) { h += row("Доступ", "все возможности сайта, без оплаты и без срока") + "</div>"; return h; }
+    if (S?.promoFree) { h += row("Доступ", "все возможности сайта, без оплаты и без срока") + (window.Usage ? Usage.html({}) : "") + "</div>"; return h; }
     h += row("Оплачено до", until ? `${until.toLocaleDateString("ru-RU")} (ещё ${days} дн.)` : plan === "free" ? "бесплатно, без срока" : "—");
     h += row("Уроки без ИИ", plan === "free" ? `3 в месяц (осталось ${window.Access?.lessonsLeft?.() === Infinity ? "∞" : window.Access?.lessonsLeft?.() ?? 3})` : "без ограничений");
     if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");
-    else if (!lim) h += row("ИИ сайта", "не входит в тариф");
-    else {
-      h += row("Токенов ИИ в тарифе", kTok(lim)) + row("Потрачено", kTok(used)) + row("Доступно", `${kTok(left)} · ≈ ${Math.floor(left / 40000)} уроков с ИИ`);
-      h += `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div>`;
-      if (!hasTok) h += `<p class="small">Учёт расхода включится после команды в облаке (колонки tokens_used, tokens_limit) — пока показан объём тарифа.</p>`;
-    }
-    h += `<details class="pc-how"><summary class="small">Как распределяются токены</summary><table class="pc-t"><tr><th>Тариф</th><th>Токенов в месяц</th><th>≈ уроков с ИИ</th></tr><tr><td>Бесплатный</td><td>—</td><td>—</td></tr><tr><td>Учитель</td><td>—</td><td>—</td></tr><tr><td>Учитель + ИИ</td><td>2 млн</td><td>50</td></tr><tr><td>Методист</td><td>4,8 млн</td><td>120</td></tr><tr><td>+10 уроков</td><td>+400 тыс.</td><td>+10</td></tr><tr><td>+30 уроков</td><td>+1,2 млн</td><td>+30</td></tr></table><p class="small">Один урок с ИИ (конспект, презентация, лист) ≈ 40 тыс. токенов; правка листа ≈ 10 тыс. Списывается точный расход каждого запроса. Новый месяц тарифа — новый объём; неистраченное при продлении того же тарифа переносится.</p></details></div>`;
+    else if (!lim && !dev) h += row("ИИ сайта", "не входит в тариф");
+    // расход в ⚡ (1 ⚡ = 4 000 токенов): по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера
+    if (window.Usage && (lim || dev || S.promo || Usage.stats().ops.length)) h += Usage.html({ dev, planTok: !dev && !S.promo && lim ? lim : 0, usedTok: !dev && !S.promo && lim && hasTok ? used : null });
+    h += `<details class="pc-how"><summary class="small">Сколько ⚡ в тарифах</summary><table class="pc-t"><tr><th>Тариф</th><th>⚡ в месяц</th><th>≈ уроков с ИИ</th></tr><tr><td>Бесплатный</td><td>—</td><td>—</td></tr><tr><td>Учитель</td><td>—</td><td>—</td></tr><tr><td>Учитель + ИИ</td><td>500 ⚡</td><td>50</td></tr><tr><td>Методист</td><td>1 200 ⚡</td><td>120</td></tr><tr><td>+10 уроков</td><td>+100 ⚡</td><td>+10</td></tr><tr><td>+30 уроков</td><td>+300 ⚡</td><td>+30</td></tr></table><p class="small">Урок с ИИ (конспект, презентация, лист) ≈ 10 ⚡, пересборка одного документа ≈ 3 ⚡, правка по просьбе ≈ 1 ⚡. Списывается точный расход каждого запроса; новый месяц — новый запас.</p></details>`;
+    h += "</div>";
     return h;
   }
   /* Расход ИИ по тарифу: полоска «потрачено из доступного» */
@@ -174,7 +172,7 @@ const Account = (() => {
     const lim = p.tokens_limit || 0, used = Math.min(p.tokens_used || 0, lim || p.tokens_used || 0), left = Math.max(0, lim - used);
     if (!lim) return "<br><b>ИИ сайта:</b> не входит в тариф";
     const pct = Math.round(used / lim * 100);
-    return `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div><span class="small"><b>ИИ:</b> потрачено ${kTok(used)} из ${kTok(lim)} токенов · осталось ≈ ${Math.floor(left / 40000)} уроков с ИИ</span>`;
+    const U = n => window.Usage ? Usage.fmt(n) : kTok(n); return `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div><span class="small"><b>ИИ:</b> потрачено ${U(used)} из ${U(lim)} · осталось ≈ ${Math.floor(left / 40000)} уроков с ИИ</span>`;
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
   const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "🛠 Разделы разработчика" : "🛠 Вход разработчика"}</button></div>`;

@@ -156,7 +156,7 @@ const AI = (() => {
   }
   async function readSSE(res, onData, signal) {
     const ct = res.headers.get("content-type") || "";
-    if (ct.includes("application/json")) { const j = await res.json(); if (j.error) throw { code: "upstream_error", message: j.error.message || String(j.error) }; const t = j.choices?.[0]?.message?.content || j.content?.map?.(x => x.text).join("") || ""; if (t) onData({ text: t, finish: j.choices?.[0]?.finish_reason }); return; }
+    if (ct.includes("application/json")) { const j = await res.json(); if (j.error) throw { code: "upstream_error", message: j.error.message || String(j.error) }; const t = j.choices?.[0]?.message?.content || j.content?.map?.(x => x.text).join("") || ""; if (t) onData({ text: t, finish: j.choices?.[0]?.finish_reason, usage: j.usage || null }); return; }
     const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
     const handle = block => { let ev = "message", data = ""; for (const line of block.split("\n")) { if (line.startsWith("event:")) ev = line.slice(6).trim(); else if (line.startsWith("data:")) data += line.slice(5).trim(); } if (data && data !== "[DONE]") onData({ ev, data }); };
     while (true) {
@@ -177,16 +177,17 @@ const AI = (() => {
   }
   async function openaiCompat(id, url, headers, model, prompt, opts, emit) {
     const c = cfg();
-    const [u, init] = viaRelay(c, id, url, { method: "POST", signal: opts.signal, headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ model, stream: true, messages: [{ role: "user", content: prompt }] }) });
+    const [u, init] = viaRelay(c, id, url, { method: "POST", signal: opts.signal, headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ model, stream: true, ...(id === "deepseek" ? { stream_options: { include_usage: true } } : {}), messages: [{ role: "user", content: prompt }] }) });
     const res = await fetch(u, init);
     if (!res.ok) throw httpErr(res.status, await res.text());
-    let stop = null;
+    let stop = null, usage = null;
     await readSSE(res, x => {
-      if (x.text) { emit(x.text); stop = x.finish; return; }
+      if (x.text) { emit(x.text); stop = x.finish; usage = x.usage || usage; return; }
       const j = JSON.parse(x.data); if (j.error) throw { code: "upstream_error", message: j.error.message || String(j.error) };
+      if (j.usage) usage = j.usage; // расход токенов — для «⚡ Расход ИИ» в кабинете
       const ch = j.choices?.[0]; if (ch?.delta?.content) emit(ch.delta.content); if (ch?.finish_reason) stop = ch.finish_reason;
     }, opts.signal);
-    return { truncated: stop === "length" };
+    return { truncated: stop === "length", usage };
   }
   const RUN = {
     openrouter: (c, p, o, e) => openaiCompat("openrouter", "https://openrouter.ai/api/v1/chat/completions", { Authorization: "Bearer " + c.keys.openrouter, "HTTP-Referer": location.origin, "X-Title": "Uchu po FRP" }, o.modelTier === "complex" ? c.models.openrouterDeep : c.models.openrouter, p, o, e),
@@ -236,6 +237,7 @@ const AI = (() => {
         const r = await (RUN[id] || runExtra(id))(c, prompt, opts, emit);
         if (!text.trim()) throw { code: "empty_completion" };
         setStatus(id, { ok: true }); active = id; paint();
+        try { window.Usage?.add({ prompt, text, usage: r.usage || null, provider: id }); } catch { }
         return { text, truncated: !!r.truncated, modelTierApplied: opts.modelTier || "default", provider: id };
       } catch (e) {
         if (e?.name === "AbortError" || opts.signal?.aborted || e?.code === "cancelled") throw { code: "cancelled", text };
