@@ -46,17 +46,19 @@ const Usage = (() => {
   /* Блок для личного кабинета */
   function html({ dev = false, planTok = 0, usedTok = null } = {}) {
     const s = stats();
-    const price = (t, dflt) => t ? fmt(t) : `≈ ${dflt} ⚡`;
-    let h = `<div class="use-box"><h3>⚡ Расход ИИ</h3>`;
+    let h = `<div class="use-box"><h3>⚡ ИИ</h3>`;
     if (planTok) {
       const used = usedTok ?? s.monthTok, left = Math.max(0, planTok - used), pct = Math.min(100, Math.round(used / planTok * 100));
-      h += `<div class="use-big"><b>${fmt(left)}</b><span>осталось из ${fmt(planTok)} в этом месяце · хватит ≈ на ${Math.floor(left / (s.avgLesson || 40000))} ур. с ИИ</span></div><div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div>`;
+      h += `<div class="use-big"><b>${fmt(left)}</b><span>из ${fmt(planTok)}</span></div><div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div>`;
     } else h += `<div class="use-big"><b>${fmt(s.monthTok)}</b><span>потрачено в этом месяце${dev ? ` · себестоимость ≈ ${fmtRub(s.monthRub)}` : ""}</span></div>`;
-    h += `<div class="use-price"><span class="use-pill">📘 Урок с ИИ <b>${price(s.avgLesson, 10)}</b></span><span class="use-pill">🔄 Пересборка документа <b>${price(s.avgRedo, 3)}</b></span><span class="use-pill">✏️ Правка по просьбе <b>${price(s.avgEdit, 1)}</b></span></div>`;
-    h += `<p class="small">1 ⚡ — это 4 000 токенов, примерно 2–3 страницы текста. ${s.avgLesson ? "Цены — средние по вашим урокам." : "Цены уточнятся по вашим первым урокам."}</p>`;
-    if (s.ops.length) h += `<details class="use-log"><summary class="small">Журнал (${Math.min(s.ops.length, 30)})</summary><ul>${s.ops.slice(0, 30).map(x => `<li><span>${new Date(x.at).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })} · ${esc(x.label)}${x.topic ? ` «${esc(x.topic)}»` : ""}</span><b>${fmt(x.in + x.out)}${dev ? ` · ${fmtRub(rub(x))}` : ""}</b></li>`).join("")}</ul></details>`;
-    if (dev) h += `<details class="use-log"><summary class="small">Себестоимость и тарифы (видно только разработчику)</summary>${econ(s)}</details>`;
+    if (s.ops.length) h += `<details class="use-log"><summary class="small">История</summary><ul>${s.ops.slice(0, 30).map(x => `<li><span>${new Date(x.at).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })} · ${esc(x.label)}${x.topic ? ` «${esc(x.topic)}»` : ""}</span><b>${fmt(x.in + x.out)}${dev ? ` · ${fmtRub(rub(x))}` : ""}</b></li>`).join("")}</ul></details>`;
+    if (dev) h += `<details class="use-log"><summary class="small">Себестоимость и тарифы (только разработчику)</summary>${econ(s)}</details>`;
     return h + `</div>`;
+  }
+  /* Сколько ⚡ уйдёт на действие — для подписи на кнопках («Создать урок · ≈ 10 ⚡») */
+  function cost(kind) {
+    const s = stats(), v = kind === "lesson" ? s.avgLesson || 40000 : kind === "redo" ? s.avgRedo || 12000 : s.avgEdit || 4000;
+    return "≈ " + fmt(v);
   }
   /* Экономика тарифа: сколько стоит ИИ при полном расходе и что остаётся после комиссии и налога */
   function econ(s) {
@@ -66,6 +68,6 @@ const Usage = (() => {
       <p class="small">Расчёт: DeepSeek flash днём $0,30 / $1,20 за 1 млн токенов (ночью вдвое дешевле), курс ${RUB} ₽ за $. 1 ⚡ ≈ ${fmtRub(PER * perTok)}. Урок с ИИ ≈ ${fmtRub((s.avgLesson || 40000) * perTok)}${s.avgLesson ? " (по вашим урокам)" : ""}. $2 на балансе DeepSeek ≈ ${Math.round(2 * RUB / ((s.avgLesson || 40000) * perTok))} уроков с ИИ.</p>`;
   }
   const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  return { begin, add, stats, html, fmt, credits, PER };
+  return { begin, add, stats, html, cost, fmt, credits, PER };
 })();
 window.Usage = Usage;

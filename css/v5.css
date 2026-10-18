@@ -915,3 +915,4 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .use-log li { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 4px 0; border-bottom: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent); }
 .use-log li b { white-space: nowrap; }
 .use-log .pc-t { font-size: 12px; }
+.btn-cost { font-size: .78em; font-weight: 700; opacity: .8; margin-left: 4px; }

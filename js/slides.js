@@ -362,9 +362,9 @@ const SlideEditor = (() => {
           <div class="sx-frame big" id="sxFrame"><button type="button" class="sx-dots" id="sxDots" title="Действия со слайдом: шаблон, картинка, оформление, дублировать, удалить" aria-label="Меню слайда">⋯</button>${slideHtml(sl, cur, { edit: true })}</div>
           <p class="sx-warn" id="sxWarn" hidden>Текст не помещается даже при минимальном шрифте. Нажмите «Разделить» — слайд разделится на 2–3, весь текст останется.</p>
           <div class="sx-slidebar"><button class="btn sm ghost" id="sxAdd">+ Слайд после</button><button class="btn sm ghost" id="sxDup">Дублировать</button><button class="btn sm ghost" id="sxCopy">Копировать</button><button class="btn sm ghost" id="sxPaste" ${clipboard ? "" : "disabled"}>Вставить</button><button class="btn sm ghost" id="sxUp" ${cur ? "" : "disabled"}>↑</button><button class="btn sm ghost" id="sxDown" ${cur < arr.length - 1 ? "" : "disabled"}>↓</button><button class="btn sm ghost" id="sxDel" ${arr.length > 1 ? "" : "disabled"}>Удалить слайд</button></div>
-          <section class="sx-sugg" aria-label="Картинки к слайду"><div class="sx-sugg-h"><b>Картинки Яндекса к этому слайду</b><input type="text" id="sxQ" class="mini-q" value="${esc(suggestQuery(sl))}" aria-label="Запрос для поиска картинок"><button class="btn sm ghost" id="sxQGo">Найти</button><button class="btn sm ghost" id="sxQYa">Открыть в Яндексе ↗</button></div><div class="sx-sugg-grid" id="sxSugg"><p class="small">Ищу…</p></div><p class="small" id="sxSuggNote">Щёлкните по картинке, чтобы вставить её на слайд. Потом по ней можно щёлкнуть ещё раз: обрезать, заменить, сделать фоном.</p></section>
-          <details class="slide-notes"><summary><b>Заметки для учителя</b> — на слайде не показываются, в PowerPoint попадают в заметки докладчика</summary><span class="nt" contenteditable="true" id="sxNotes">${esc(sl.notes)}</span></details>
-          <p class="hint">Картинку можно вставить из буфера (Ctrl+V) или перетащить файл на слайд. Блоки текста перетаскиваются за значок ⠿ слева; «Свободная вёрстка» позволяет ставить заголовок и блоки в любое место слайда (значок ✥) и менять их ширину (правый край). Щёлкните по картинке, чтобы заменить, обрезать или сделать фоном; потяните за картинку, чтобы передвинуть, за уголок — чтобы изменить размер.</p>
+          <section class="sx-sugg" aria-label="Картинки к слайду"><div class="sx-sugg-h"><b>Картинки Яндекса к этому слайду</b><input type="text" id="sxQ" class="mini-q" value="${esc(suggestQuery(sl))}" aria-label="Запрос для поиска картинок"><button class="btn sm ghost" id="sxQGo">Найти</button><button class="btn sm ghost" id="sxQYa">Открыть в Яндексе ↗</button></div><div class="sx-sugg-grid" id="sxSugg"><p class="small">Ищу…</p></div></section>
+          <details class="slide-notes"><summary><b>Заметки для учителя</b></summary><span class="nt" contenteditable="true" id="sxNotes">${esc(sl.notes)}</span></details>
+
         </div></div>`;
     sheet.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
     hydrateBg(sheet);
@@ -552,7 +552,7 @@ const SlideEditor = (() => {
       <label class="check"><input type="checkbox" id="anDeco" ${A.deco ? "checked" : ""}> Полупрозрачные детали на фоне</label>
       <label class="check"><input type="checkbox" id="anIx" ${A.ix ? "checked" : ""}> Интерактив: карточки-перевороты («термин — значение»), объём при наведении, подсветка за курсором, полоса прогресса</label>
       <label class="check"><input type="checkbox" id="anStep" ${A.step ? "checked" : ""}> Пошагово: пункты появляются по щелчку (пробел / →)</label>
-      <p class="hint">Анимация видна в «▶ Показ» и в HTML; в PowerPoint — плавные переходы между слайдами.</p>`);
+`);
     const saveA = ch => { L().slideAnim = { ...anim(), ...ch }; saveLesson(L()); };
     p.querySelectorAll("[data-anim]").forEach(b => b.onclick = () => { saveA({ mode: b.dataset.anim }); p.querySelectorAll("[data-anim]").forEach(x => x.classList.toggle("on", x === b)); });
     p.querySelector("#anCut").onchange = e => saveA({ cut: e.target.checked });
@@ -618,7 +618,7 @@ const SlideEditor = (() => {
     const p = popover(anchor, `<div class="pm-h">Стикеры поверх слайда</div><div class="stk-grid">${Object.entries(ThemeKit.STK).map(([k, v]) => `<button class="stk-it" data-stk="${k}" title="${v.n}">${ThemeKit.stkSvg(k)}<small>${v.n}</small></button>`).join("")}</div>
       <div class="pm-h">Фото-наклейка (вырезка, рваная бумага, полароид, скотч, марка)</div>
       <div class="pm-row"><button class="btn sm teal" id="psFile">📷 Своё фото</button><button class="btn sm ghost" id="psSlide">🖼 Картинка со слайда</button><button class="btn sm ghost" id="psYa">🔍 Найти картинку</button></div>
-      <div class="pm-row"><label class="check"><input type="checkbox" id="stkAuto" ${sl.set.nostk ? "" : "checked"}> Стикеры темы на ключевых слайдах</label></div><p class="small" style="padding:0 6px">Стикер можно перетащить; колёсико или Shift+стрелки — повернуть; +/− — размер; двойной щелчок — убрать.</p>`, "pm wide");
+      <div class="pm-row"><label class="check"><input type="checkbox" id="stkAuto" ${sl.set.nostk ? "" : "checked"}> Стикеры темы на ключевых слайдах</label></div>`, "pm wide");
     p.querySelectorAll("[data-stk]").forEach(b => b.onclick = () => { const a = slides(); a[cur].set.stk = [...(a[cur].set.stk || []), { n: b.dataset.stk, x: 70 + Math.round(Math.random() * 12), y: 8 + Math.round(Math.random() * 10), s: 11, r: Math.round(Math.random() * 16 - 8) }]; write(a); closePop(); rerender(); });
     p.querySelector("#psFile").onclick = () => { closePop(); const inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.onchange = () => { const f = inp.files[0]; if (f) photoSticker(f, ""); }; inp.click(); };
     p.querySelector("#psSlide").onclick = async () => {
@@ -769,7 +769,7 @@ const SlideEditor = (() => {
       <div class="field"><label for="lkT">Текст на кнопке</label><input type="text" id="lkT" value="${esc(t0)}"></div>
       <div class="field"><label for="lkTo">Куда ведёт</label><select id="lkTo"><option value="#next">Следующий слайд</option><option value="#prev">Предыдущий слайд (кнопка «Вернуться»)</option><option value="#first">Первый слайд</option><option value="#last">Последний слайд</option>${arr.map((x, i) => `<option value="#slide-${i + 1}">Слайд ${i + 1}: ${esc((x.title || "без заголовка").slice(0, 50))}</option>`).join("")}<option value="url">Ссылка на сайт…</option></select></div>
       <div class="field" id="lkUrlF" hidden><label for="lkUrl">Адрес</label><input type="url" id="lkUrl" placeholder="https://…"></div>
-      <p class="hint">В режиме «Показ», в HTML и в PowerPoint кнопка работает: щелчок переводит на выбранный слайд. Так можно собрать квест или игру-тренажёр.</p>
+
       <div class="mat-row"><button class="btn flame" id="lkOk">Готово</button>${aEl ? `<button class="btn ghost" id="lkDel">Убрать кнопку (оставить текст)</button>` : ""}</div></div></div>`);
     const to = m.querySelector("#lkTo"); if (href0) { if ([...to.options].some(o => o.value === href0)) to.value = href0; else if (/^https?:/.test(href0)) { to.value = "url"; m.querySelector("#lkUrlF").hidden = false; m.querySelector("#lkUrl").value = href0; } }
     to.onchange = () => { m.querySelector("#lkUrlF").hidden = to.value !== "url"; };
@@ -920,7 +920,7 @@ const SlideEditor = (() => {
       <div class="mat-row"><span class="small"><b>Положение:</b></span>${Object.entries(ACC).filter(([k]) => k).map(([k, n]) => `<button class="btn sm ${st0.acc === k ? "flame" : "ghost"}" data-acc="${k}">${n.replace("Картинка ", "")}</button>`).join("")}<button class="btn sm ${!st0.acc ? "flame" : "ghost"}" data-acc="">в тексте</button></div>
       <div class="sx-sugg-h"><b>Другая картинка из Яндекса</b><input type="text" id="pmQ" class="mini-q" value="${esc(q0)}"><button class="btn sm ghost" id="pmGo">Найти</button></div>
       <div class="sx-sugg-grid" id="pmSugg"><p class="small">Ищу…</p></div>
-      <p class="small" id="pmMsg">Щёлкните по картинке — она сразу заменит текущую.</p></div></div>`);
+      <p class="small" id="pmMsg"></p></div></div>`);
     m.querySelectorAll("[data-acc]").forEach(b => b.onclick = () => { closeModal(); const a = slides(); let body = a[cur].body; const k = idx; let n = -1, picked = "";
       body = body.replace(Media.RE, mm => (++n === k ? (picked = mm, "") : mm)); a[cur].body = b.dataset.acc ? `${picked}\n\n${body.trim()}`.trim() : `${body.trim()}\n\n${picked}`.trim(); a[cur].set.acc = b.dataset.acc || undefined; a[cur].set.afs = undefined; write(a); rerender(); });
     const replaceWith = async (blob, r) => { const id = "img-" + uid(); await Store.put("images", id, blob); patchImage(idx, () => ({ q: m.querySelector("#pmQ").value.trim() }), `idb:${id}`, r?.title); closeModal(); toast("Картинка заменена."); };

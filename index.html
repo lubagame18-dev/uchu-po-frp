@@ -621,7 +621,7 @@ window.UCHU_SITE = {
   <div class="mat-row lib-tools"><button class="btn sm ghost" id="libExport">⬇ Скачать все уроки (файл)</button><label class="btn sm ghost">⬆ Загрузить уроки из файла<input type="file" id="libImport" accept=".json" hidden></label></div>
   <div class="cards" id="libCards"></div>
   <h2 class="sec">Образцы</h2>
-  <p class="lead">Готовые комплекты — по ним видно, что выдаёт сервис.</p>
+  
   <div class="cards" id="sampleCards"></div>
 </main>
 
@@ -2855,14 +2855,14 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
           <button class="btn sm ghost" id="pkCenter">Выровнять по центру</button>
           <button class="btn sm ghost" id="pkBg">Убрать фон</button>
         </div>
-        <p class="hint">Перетащите картинку мышкой или пальцем, чтобы выбрать нужный фрагмент.</p>
+        
         <div class="field"><label for="pkCap">Подпись (художник, название, год)</label><input type="text" id="pkCap" value="${esc(st.cap)}"></div>
       </div>
       <div class="pk-right">
         <div class="field"><label for="pkQ">Что ищем</label><div style="display:flex;gap:8px"><input type="text" id="pkQ" value="${esc(st.q)}"><button class="btn sm" id="pkFind">Найти</button></div></div>
         <div class="pk-grid" id="pkGrid"><p class="hint">Ищу в Яндекс Картинках…</p></div><p class="hint" id="pkSrcNote"></p>
         <a class="btn sm teal" id="pkYa" href="${yandexUrl(st.q)}" target="_blank" rel="noopener">Открыть Яндекс Картинки ↗</a>
-        <p class="hint">В Яндексе: откройте картинку → правой кнопкой «Копировать изображение» → вернитесь сюда и нажмите Ctrl+V. На телефоне: сохраните картинку и нажмите «Загрузить файл».</p>
+        
         <label class="btn sm ghost" style="align-self:flex-start">Загрузить файл<input type="file" id="pkFile" accept="image/*" hidden></label>
       </div>
       <div class="pk-foot"><button class="btn flame" id="pkSave">Вставить на слайд</button><button class="btn ghost" id="pkClear">Убрать картинку</button><span class="small" id="pkMsg"></span></div>
@@ -3433,7 +3433,7 @@ function renderMaterials() {
     <div class="tags"><span class="tag">${esc(KINDS[m.kind] || m.kind)}</span>${m.grade ? `<span class="tag">${m.grade} класс</span>` : ""}<span class="tag">${m.subject === "lit" ? "Литература" : "Русский"}</span>${m.scanned ? '<span class="tag red">скан без текста</span>' : ""}</div>
     <p class="small" style="margin:0">${(m.chars || 0).toLocaleString("ru-RU")} знаков${m.pages ? ` · ${m.pages} стр.` : ""}</p>
     ${m.builtin ? `<div class="acts"><span class="tag">встроен в сайт</span></div>` : `<div class="acts"><select data-kind="${m.id}" aria-label="Тип материала">${Object.entries(KINDS).filter(([k]) => k !== "frp").map(([k, v]) => `<option value="${k}" ${k === m.kind ? "selected" : ""}>${v}</option>`).join("")}</select><select data-grade="${m.id}" aria-label="Класс"><option value="">класс?</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option ${g === m.grade ? "selected" : ""}>${g}</option>`).join("")}</select><button class="btn sm ghost" data-delmat="${m.id}">Удалить</button></div>`}</article>`).join("")
-    : `<div class="lcard"><h3>Своих материалов пока нет</h3><p class="small" style="margin:0">Это необязательно: сайт работает на встроенной базе.</p></div>`;
+    : `<div class="lcard"><h3>Своих материалов пока нет</h3></div>`;
   $$("[data-delmat]", box).forEach(b => b.onclick = async () => { if (b.dataset.sure) { await Store.del("materials", b.dataset.delmat); await loadMaterials(); renderMaterials(); } else { b.dataset.sure = 1; b.textContent = "Точно удалить?"; } });
   $$("[data-kind]", box).forEach(s => s.onchange = async () => { const m = ms.find(x => x.id === s.dataset.kind); m.kind = s.value; await Store.put("materials", m.id, m); });
   $$("[data-grade]", box).forEach(s => s.onchange = async () => { const m = ms.find(x => x.id === s.dataset.grade); m.grade = s.value ? +s.value : null; await Store.put("materials", m.id, m); });
@@ -3532,6 +3532,13 @@ function syncControls() {
   $("#controlHint").textContent = ex ? ex.verify : ""; $("#controlHint").hidden = !ex;
   syncBuild();
 }
+/* Сколько ⚡ уйдёт — прямо на кнопках: «Создать урок · ≈ 10 ⚡», «Доработать · ≈ 1 ⚡» */
+function paintCosts() {
+  const U = window.Usage, ai = state.build === "ai";
+  $("#btnCreate").innerHTML = "Создать урок" + (U && ai ? ` <small class="btn-cost">${U.cost("lesson")}</small>` : "");
+  const r = $("#btnRefine"); if (r) r.innerHTML = "Доработать" + (U ? ` <small class="btn-cost">${U.cost("edit")}</small>` : "");
+}
+window.addEventListener("uchu:usage", () => { try { paintCosts(); } catch { } });
 function syncBuild() {
   const U = window.UCHU, ok = window.AI ? AI.configured() : U ? U.configured() : !!caps.sample;
   const name = window.AI ? (AI.label() || "") : "Claude";
@@ -3541,6 +3548,7 @@ function syncBuild() {
   setSeg("segBuild", state.build);
   $("#aiOnly").hidden = state.build !== "ai";
   $("#buildHint").hidden = true;
+  paintCosts();
 }
 function readForm() {
   state.grade = +$("#grade").value; state.duration = +$("#duration").value;
@@ -4074,7 +4082,7 @@ async function buildWithoutAi(L, p, type, formats) {
   if (window.Verify) await Verify.run(L, p).catch(e => console.warn("Verify", e));
   if (window.Sync) Sync.inspect(L); // без сети — что доработать при подключении
   state.gen = null; await saveLesson(L); renderLesson();
-  toast("Урок готов. Проверьте листы, поправьте при желании и скачайте: кнопки «Скачать» вверху.", 6500);
+  toast("Урок готов.", 3500);
 }
 async function refineDoc() {
   const instr = $("#refineInput").value.trim(); if (!instr || !state.lesson || state.gen) return;
@@ -4181,7 +4189,7 @@ function openAddText(L) {
   const P = L.params, work = (P.topic.match(/«([^»]+)»/) || [])[1] || P.topic, author = Engine.authorOf(P.topic) || "";
   const q = `${work} ${author}`.trim(), e = encodeURIComponent;
   const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Добавить текст произведения</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-    <p class="hint">Сайт не нашёл текст «${esc(work)}». С текстом урок станет точным: медленное чтение по строфам (эпизодам), перелом, финал, проблемный вопрос из самого произведения, понятия в контексте.</p>
+    <p class="hint">Текст «${esc(work)}» не нашёлся. Добавьте его — урок станет точнее.</p>
     <ol class="at-steps"><li><b>Найдите текст</b> — одна кнопка:
       <div class="mat-row"><a class="btn sm teal" target="_blank" rel="noopener" href="https://yandex.ru/search/?text=${e(q + " текст читать полностью")}">🔎 Найти в Яндексе</a><a class="btn sm ghost" target="_blank" rel="noopener" href="https://ru.wikisource.org/w/index.php?search=${e(q)}">📚 Викитека</a><a class="btn sm ghost" target="_blank" rel="noopener" href="https://rusneb.ru/search/?q=${e(q)}">🏛 НЭБ</a></div></li>
       <li><b>Скопируйте текст</b> (или нужный фрагмент) и вставьте сюда — либо загрузите файл (.txt, .docx, .pdf из учебника):
@@ -4210,9 +4218,9 @@ function openPrompts(L) {
   if (!own) own = genPrompt().replace(/Тема урока: …[^\n]*$/, `Тема урока: «${L.params.topic}». Класс: ${L.params.grade}. Предмет: ${L.params.subject === "ru" ? "русский язык" : "литература"}. Тип урока: ${ty.name || "—"}. Длительность: ${L.params.duration || 45} мин.${L.params.mode === "tutor" ? " Индивидуальное занятие (репетитор)." : ""}`) + (L.docs?.lesson || L.docs?.conspect ? `\n\nЧерновик конспекта, собранный сайтом (углуби его по требованиям выше, сохрани верные цитаты и задания):\n\n${String(L.docs.conspect || L.tech || L.docs.lesson).slice(0, 6000)}` : "");
   const parts = [["Промт конспекта этого урока", own], ...(L.prompts?.design || L.design ? [["Методический замысел (составлен нейросетью)", L.prompts?.design || L.design]] : []), ...(L.prompts?.slides ? [["Промт презентации", L.prompts.slides]] : []), ...(L.prompts?.worksheet ? [["Промт рабочего листа", L.prompts.worksheet]] : []), ["Общий промт (для любого урока)", genPrompt()]];
   const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Промты урока</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-    <p class="hint">Скопируйте промт в любую нейросеть, чтобы переделать урок, или поправьте его здесь и нажмите «Пересобрать конспект по промту» (нужна подключённая нейросеть).</p>
+    
     ${parts.map(([t, v], i) => `<details class="pr-box" ${i === 0 ? "open" : ""}><summary><b>${esc(t)}</b> <button type="button" class="btn sm ghost" data-copy="${i}">Копировать</button></summary><textarea rows="14" data-pr="${i}" spellcheck="false">${esc(v || "")}</textarea></details>`).join("")}
-    <div class="pk-foot"><button class="btn flame" id="prRun">Пересобрать конспект по промту</button><span class="small" id="prMsg"></span></div></div></div>`);
+    <div class="pk-foot"><button class="btn flame" id="prRun">Пересобрать конспект по промту${window.Usage ? ` <small class="btn-cost">${Usage.cost("redo")}</small>` : ""}</button><span class="small" id="prMsg"></span></div></div></div>`);
   m.querySelectorAll("[data-copy]").forEach(b => b.onclick = async e => { e.preventDefault(); const t = m.querySelector(`[data-pr="${b.dataset.copy}"]`).value; try { await navigator.clipboard.writeText(t); toast("Промт скопирован."); } catch { m.querySelector(`[data-pr="${b.dataset.copy}"]`).select(); toast("Выделено — скопируйте Ctrl+C."); } });
   m.querySelector("#prRun").onclick = async () => {
     const msg = m.querySelector("#prMsg"), text = m.querySelector('[data-pr="0"]').value.trim();

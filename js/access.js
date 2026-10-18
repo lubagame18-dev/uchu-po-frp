@@ -145,10 +145,10 @@ const Access = (() => {
     const feats = P ? (pr && P.ai ? P.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : P.feats) : [];
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Оформление</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       <div class="co-item"><span class="co-art">${P ? P.art : "✨"}</span><div><b>${P ? `Тариф «${P.name}»` : K.name}</b><div class="co-price">${P ? (up ? "доплата за оставшиеся дни" : `${priceOf(item)} ₽ в месяц${pr ? ` <s>${P.price} ₽</s> · промокод −${pct()}%` : ""}`) : `${K.price} ₽`}</div></div></div>
-      ${needKey ? `<div class="co-key"><b>Чтобы этот тариф работал, подключите ключ своей нейросети.</b><span class="small">Подойдёт ключ DeepSeek, OpenRouter, Gemini и других — сайт сам узнает сервис.</span><button type="button" class="btn sm flame" id="coKey">Подключить ключ</button></div>` : ""}
+      ${needKey ? `<div class="co-key"><b>Чтобы этот тариф работал, подключите ключ своей нейросети.</b><button type="button" class="btn sm flame" id="coKey">Подключить ключ</button></div>` : ""}
       ${P ? `<ul class="tr-feats">${feats.map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>` : `<p>Уроки с ИИ добавятся к вашему тарифу и не сгорают до конца оплаченного периода.</p>`}
       ${P && !up && site().autopay && !pr ? `<label class="check"><input type="checkbox" id="coAuto" checked> Автоплатёж каждый месяц (отключить можно в любой момент по ссылке в письме)</label>` : ""}
-      ${up ? `<p class="small">При повышении тарифа вы доплачиваете только разницу за оставшиеся дни текущего месяца.</p>` : ""}
+      ${up ? `` : ""}
       ${site().payments ? `<p class="small">Оплата картой или по СБП. Чек придёт на почту ${esc(me())}.</p>
       <div class="mat-row"><button class="btn flame" id="coPay" ${needKey ? "disabled" : ""}>Перейти к оплате</button><span class="small" id="coMsg" role="status"></span></div>` : testBox()}</div></div>`);
     bindTest(m, item);

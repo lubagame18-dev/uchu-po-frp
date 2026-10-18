@@ -162,7 +162,6 @@ const Account = (() => {
     else if (!lim && !dev) h += row("ИИ сайта", "не входит в тариф");
     // расход в ⚡ (1 ⚡ = 4 000 токенов): по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера
     if (window.Usage && (lim || dev || S.promo || Usage.stats().ops.length)) h += Usage.html({ dev, planTok: !dev && !S.promo && lim ? lim : 0, usedTok: !dev && !S.promo && lim && hasTok ? used : null });
-    h += `<details class="pc-how"><summary class="small">Сколько ⚡ в тарифах</summary><table class="pc-t"><tr><th>Тариф</th><th>⚡ в месяц</th><th>≈ уроков с ИИ</th></tr><tr><td>Бесплатный</td><td>—</td><td>—</td></tr><tr><td>Учитель</td><td>—</td><td>—</td></tr><tr><td>Учитель + ИИ</td><td>500 ⚡</td><td>50</td></tr><tr><td>Методист</td><td>1 200 ⚡</td><td>120</td></tr><tr><td>+10 уроков</td><td>+100 ⚡</td><td>+10</td></tr><tr><td>+30 уроков</td><td>+300 ⚡</td><td>+30</td></tr></table><p class="small">Урок с ИИ (конспект, презентация, лист) ≈ 10 ⚡, пересборка одного документа ≈ 3 ⚡, правка по просьбе ≈ 1 ⚡. Списывается точный расход каждого запроса; новый месяц — новый запас.</p></details>`;
     h += "</div>";
     return h;
   }
@@ -191,8 +190,6 @@ const Account = (() => {
             <div class="row-btn"><button class="btn sm" type="submit">Сохранить</button>${I.avatar ? `<button class="btn sm ghost" type="button" id="acNoPhoto">Убрать фото</button>` : ""}<span class="small" id="acPMsg" role="status"></span></div>
           </div>
         </form>
-        <p class="small">Почта для входа: ${esc(S.email)}</p>
-        ${S.local ? `<p class="small">Ваши уроки сохраняются в личном кабинете. Для надёжности можно сохранить их и в файл: «Мои уроки» → «Скачать все уроки».</p>` : `<p class="small">Уроки сохраняются в облаке автоматически${S.syncedAt ? `; последняя синхронизация — ${new Date(S.syncedAt).toLocaleString("ru-RU")}` : ""}. Они не пропадут при очистке браузера и появятся на любом устройстве после входа.</p>`}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
         <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
       bindDev(m);
@@ -211,9 +208,8 @@ const Account = (() => {
       <form class="dlg-b" id="acForm" autocomplete="on">
         <div class="seg mini" role="tablist"><button type="button" data-mode="in" aria-pressed="true">Вход</button><button type="button" data-mode="up" aria-pressed="false">Регистрация</button></div>
         <div class="field"><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
-        <div class="field"><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div><span class="small">Любой, от 6 знаков — без требований к символам.</span></div>
+        <div class="field"><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
-        <p class="hint">Вход запоминается на этом устройстве. Уроки из этого браузера тоже перенесутся в облако.</p>
         ${devLink()}
       </form></div>`);
     bindDev(m);
