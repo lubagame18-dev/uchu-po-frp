@@ -104,7 +104,7 @@ a{color:inherit}
 @keyframes float1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-12px,14px) rotate(8deg)}}
 @keyframes float2{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(14px,-12px) rotate(-6deg)}}
 .marquee{background:var(--ink);color:var(--paper);overflow:hidden;border-block:var(--line) solid var(--ink);padding-block:11px}
-.marquee-track{display:flex;width:max-content;animation:scroll 34s linear infinite;-webkit-animation:scroll 34s linear infinite;will-change:transform;animation-play-state:running!important}
+.marquee-track{display:flex;width:max-content;animation:scroll 70s linear infinite;-webkit-animation:scroll 70s linear infinite;will-change:transform;animation-play-state:running!important}
 .marquee-track span{font-family:var(--f-display);font-weight:600;font-size:15px;padding-inline:20px;white-space:nowrap}
 .marquee-track b{color:var(--sun)}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -227,7 +227,9 @@ textarea.inp{resize:vertical;min-height:64px}
 .sheet h3.task.lvl2{color:var(--teal)}
 .sheet h3.answers{color:var(--flame)}
 
-.empty{padding:32px 28px 40px 70px}
+.empty{padding:22px 24px 24px 56px}
+.sheetwrap:has(.empty){min-height:0;flex:0 0 auto}
+.empty .steps{margin-bottom:12px}
 .empty h2{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,2.6vw,30px);margin:0 0 18px}
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 22px;padding:0;list-style:none}
 .steps li{border:2.5px solid var(--ink);border-radius:16px;padding:14px;background:var(--paper)}
@@ -370,7 +372,7 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:700}
   .dlg-h{padding:14px 16px}
   .dlg-b{padding:16px}
 }
-@media (prefers-reduced-motion:reduce){*:not(.marquee-track):not(.glow-anim){animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.marquee-track{animation-duration:40s!important}}
+@media (prefers-reduced-motion:reduce){*:not(.marquee-track):not(.glow-anim){animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.marquee-track{animation-duration:80s!important}}
 
 /* ---------- скрытая сцена для PDF ---------- */
 #pdfstage{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111}
@@ -4159,7 +4161,9 @@ function renderLesson() {
   $(".ws-head").hidden = !L;
   if (!L) { tabs.innerHTML = ""; $("#lessonTitle").hidden = true; $("#refineBar").hidden = true; $("#editHint").hidden = true; $("#progress").hidden = true; renderEmpty(); syncTools(); return; }
   const docs = Object.keys(DOCS).filter(k => ((L.status && k in L.status) || L.docs[k]) && !(k === "conspect" && L.hideTech));
+  const tabsX = tabs.scrollLeft; // вкладки, сдвинутые вбок, не возвращаются в начало при обновлении во время сборки
   tabs.innerHTML = docs.map(d => { const s = isGenerating(L, d) ? "run" : L.status?.[d] === "wait" && state.gen?.lessonId === L.id ? "wait" : L.docs[d] ? (L.status?.[d] === "err" ? "err" : "ok") : "wait"; return `<button class="doc-tab" role="tab" aria-selected="${d === state.active}" data-doc="${d}"><span class="st" data-s="${s}"></span>${DOCS[d].label}<span class="pct"></span></button>`; }).join("");
+  tabs.scrollLeft = tabsX;
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
@@ -4290,7 +4294,12 @@ async function renderPreview() {
   const busy = isGenerating(L, state.active), editable = !busy;
   if (!md.trim()) { sheet.className = "sheet"; sheet.removeAttribute("contenteditable"); sheet.innerHTML = `<p class="small">${busy ? "Готовлю документ… Первые строки появятся через 10–60 секунд." : L.status?.[state.active] === "wait" ? "Этот лист в очереди: он начнётся после предыдущего." : "Документ пуст."}</p>`; return; }
   // v5: презентация — в редакторе слайдов (шаблоны, автоподбор шрифта, миниатюры, картинки)
-  if (state.active === "slides" && window.SlideEditor) { SlideEditor.render(sheet, md, editable); if (editable) ensureTurndown(); return; }
+  if (state.active === "slides" && window.SlideEditor) {
+    const same = state.lastDoc === "slides:" + L.id, wrap = $("#sheetwrap"), k = { t: wrap.scrollTop, l: wrap.scrollLeft, y: window.scrollY, th: $(".sx-thumbs", sheet) ? [$(".sx-thumbs", sheet).scrollLeft, $(".sx-thumbs", sheet).scrollTop] : null };
+    SlideEditor.render(sheet, md, editable); if (editable) ensureTurndown();
+    if (same) { wrap.scrollTop = k.t; wrap.scrollLeft = k.l; const th = $(".sx-thumbs", sheet); if (th && k.th) { th.scrollLeft = k.th[0]; th.scrollTop = k.th[1]; } if (Math.abs(window.scrollY - k.y) > 2) window.scrollTo(window.scrollX, k.y); }
+    state.lastDoc = "slides:" + L.id; return;
+  }
   if (state.active === "slides") {
     sheet.className = "slides"; sheet.removeAttribute("contenteditable");
     const slides = splitSlides(md);
@@ -4308,8 +4317,12 @@ async function renderPreview() {
     $$("[data-del]", sheet).forEach(b => b.onclick = () => moveSlide(+b.dataset.del, 0));
     $$("[data-addpic]", sheet).forEach(b => b.onclick = () => addPicture(+b.dataset.addpic));
   } else {
+    // пока документ дописывается, перерисовка не сбрасывает то, куда учитель прокрутил (таблицы вбок, лист вниз)
+    const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
     sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : ""); sheet.innerHTML = mdToHtml(md); decorate(sheet);
     if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
+    if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
+    state.lastDoc = state.active + ":" + L.id;
     if (editable) sheet.setAttribute("contenteditable", "true"); else sheet.removeAttribute("contenteditable");
   }
   $$("figure.pic", sheet).forEach(fig => fig.onclick = e => { if (!editable) return; e.preventDefault(); pictureClick(fig); });
