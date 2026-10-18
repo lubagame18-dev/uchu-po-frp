@@ -4,7 +4,9 @@
    ученики описывают явление по карте, тексту, источнику — учитель называет понятие. Проверка д/з — по прошлой теме.
    Содержание тем — js/histdata.js. */
 const HistKit = (() => {
-  const D = () => window.HistData || [];
+  // готовые материалы: темы (histdata.js) и уроки поурочного планирования ФРП (histlessons.js); у урока ФРП название = тема урока
+  let _D = null, _n = 0;
+  const D = () => { const a = window.HistData || [], b = window.HistLessons || []; if (!_D || _n !== a.length + b.length) { _D = [...b, ...a].map(x => (x.re ? x : { ...x, re: /(?!)/ })); _n = a.length + b.length; } return _D; };
   /* ---------- случайность с семенем (урок одинаков в течение дня) ---------- */
   function rngOf(seed) { let h = 2166136261; for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 1e6) / 1e6; }; }
   const pick = (r, a) => a[Math.floor(r() * a.length)];
@@ -22,7 +24,7 @@ const HistKit = (() => {
     const t0 = String(topic || "").trim().toLowerCase(); if (!t0) return null;
     const t = /^(урок|повторительно|уроки)/.test(t0) ? ((t0.match(/«([^»]+)»/) || [])[1] || t0) : t0;
     const all = D(), mine = all.filter(x => x.g === +grade), pool = mine.length ? mine : all;
-    const exact = all.find(x => x.t.toLowerCase() === t0 || x.t.toLowerCase() === t) || pool.find(x => x.re.test(t));
+    const exact = mine.find(x => x.t.toLowerCase() === t0) || all.find(x => x.t.toLowerCase() === t0 || x.t.toLowerCase() === t) || pool.find(x => x.re.test(t));
     if (exact) return exact;
     const st = s => new Set(String(s).toLowerCase().replace(/ё/g, "е").split(/[^а-яa-z0-9]+/).filter(w => w.length > 3 && !/^\d/.test(w)).map(w => w.slice(0, 4)).filter(w => !STOP.has(w)));
     const q = st(t); if (q.size < 2) return null;
@@ -40,8 +42,8 @@ const HistKit = (() => {
   };
   function detectType({ topic, lessonNo }) {
     const t = String(topic).toLowerCase();
-    if (/контрольн|проверочн/.test(t)) return TYPES.ctrl;
     if (/повторени|обобщени|систематизац|подготовк[а-я]* к (огэ|егэ)/.test(t)) return TYPES.gen;
+    if (/контрол|проверочн/.test(t)) return TYPES.ctrl;
     return lessonNo === 1 ? TYPES.onz : TYPES.refl;
   }
 
@@ -79,10 +81,33 @@ const HistKit = (() => {
     }
     return out.sort((a, b) => b.sc - a.sc).slice(0, n);
   }
+  const REVIEW = /^(урок|уроки|повторительно|итогов)/i;
+  function planOf(p) { const P = window.FRPPlans?.hist?.[p.grade]; if (!P) return null; const low = x => String(x).toLowerCase().trim(); const i = P.l.findIndex(r => low(r[0]) === low(p.topic)); return i < 0 ? null : { P, i }; }
+  function review(p) {
+    if (!REVIEW.test(String(p.topic).trim())) return null;
+    const pl = planOf(p); if (!pl) return null;
+    const { P, i } = pl, th = P.l[i][2], q = (String(p.topic).match(/«([^»]+)»/g) || []).map(x => x.slice(1, -1).toLowerCase());
+    // уроки той же темы ФРП (а для итоговых — всего курса до этого урока)
+    const span = /итогов/i.test(p.topic) ? P.l.slice(0, i) : P.l.slice(0, i).filter(r => r[2] === th || q.some(x => (P.th[r[2]]?.[0] || "").toLowerCase().includes(x.slice(0, 12))));
+    const got = []; for (const r of span) { if (REVIEW.test(r[0])) continue; const x = find(r[0], p.grade); if (x && !got.includes(x)) got.push(x); }
+    if (!got.length) return null;
+    const name = q[0] ? (String(p.topic).match(/«([^»]+)»/) || [])[1] : (P.th[th]?.[0] || p.topic);
+    const uniq = (arr, key) => { const seen = new Set(); return arr.filter(x => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; }); };
+    return { g: +p.grade, t: p.topic, s: name, re: /(?!)/, review: true,
+      prob: [`Мы изучили тему «${name}»: ${got.slice(0, 6).map(x => x.t).join("; ")}.`, `Какое событие (явление) темы «${name}» было самым важным для дальнейшей истории? Почему?`],
+      ans: uniq(got.flatMap(x => x.ans.slice(0, 1)), x => x).slice(0, 6),
+      plan: got.slice(0, 4).map(x => [x.t, x.src ? "src" : x.map ? "map" : "text", x.plan[x.plan.length - 1][2]]),
+      d: uniq(got.flatMap(x => x.d || []), x => x[0] + x[1]).sort((a, b) => a[2] - b[2]).slice(0, 10),
+      k: uniq(got.flatMap(x => x.k || []), x => x[0]).slice(0, 12),
+      p: uniq(got.flatMap(x => x.p || []), x => x[0]).slice(0, 8),
+      c: uniq(got.flatMap(x => x.c || []), x => x).slice(0, 5), r: uniq(got.flatMap(x => x.r || []), x => x).slice(0, 5),
+      src: got.find(x => x.src)?.src || null, map: got.map(x => x.map).filter(Boolean).join("; ").slice(0, 200) };
+  }
   function material(p) {
-    const T = find(p.topic, p.grade), r = rngOf(p.topic + "|" + p.grade + "|" + new Date().toISOString().slice(0, 10) + "|" + (p.lessonNo || 1));
+    const T = find(p.topic, p.grade) || review(p), r = rngOf(p.topic + "|" + p.grade + "|" + new Date().toISOString().slice(0, 10) + "|" + (p.lessonNo || 1));
     if (!T) return { T: null, r, plan: [], prev: null, warm: [], v1: [], v2: [], hw: [], trap: null, book: bookTasks(p), creative: "" };
-    const P = (p.lessonNo || 1) === 1 ? prevOf(T) : T, P2 = P ? prevOf(P) : null;
+    const pl = planOf(p), prevPlan = () => { if (!pl) return null; for (let k = pl.i - 1; k >= 0; k--) { const t = pl.P.l[k][0]; if (t === p.topic || REVIEW.test(t)) continue; const x = find(t, p.grade); if (x && x !== T) return x; } return null; };
+    const P = (p.lessonNo || 1) === 1 ? (pl ? prevPlan() : prevOf(T)) : T, P2 = P ? prevOf(P) : null;
     // понятия и даты — по пунктам плана: где они упомянуты, там и вводятся
     const plan = T.plan.map(([h, w, c]) => ({ h, w, c, k: [], d: [], p: [] })), hay = i => (plan[i].h + " " + plan[i].c).toLowerCase();
     const place = (arr, key, txt) => arr.forEach((x, j) => { const s = txt(x).toLowerCase().slice(0, 6); let i = plan.findIndex((_, k) => hay(k).includes(s)); if (i < 0) i = key === "d" ? Math.min(plan.length - 1, Math.floor(j * plan.length / arr.length)) : key === "k" ? plan.reduce((b, q, k) => q.k.length < plan[b].k.length ? k : b, plan.length > 1 ? 1 : 0) : Math.min(plan.length - 1, 1); plan[i][key].push(x); });
@@ -254,7 +279,7 @@ const HistKit = (() => {
   // «1240 г.» в конце фразы: без двойной точки
   const fin = f => (...a) => { const x = f(...a); return typeof x === "string" ? x.replace(/(\s(?:г|гг|в|вв|э))\.\.(?!\.)/g, "$1.") : x; };
   // тема без готового набора у сайта → урок строится по ФРП (задания, понятия, содержание программы)
-  const ownData = p => !!find(p.topic, p.grade);
+  const ownData = p => !!(find(p.topic, p.grade) || review(p));
   const viaFrp = p => ownData(p) ? null : window.Subjects?.frp?.("hist", p);
   const W = (kind, fn) => (p, type, ...r) => { const F = viaFrp(p); return F ? Subjects.frpDoc(kind, p, type, F, "История") : fn(p, type, ...r); };
   const WX = (k, p, type, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, type, F, "История") : extra(k, p, type, o); };
