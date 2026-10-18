@@ -3912,18 +3912,49 @@ async function createLesson() {
   if (window.Access) Access.countLesson();
   const { notes: _n, ...pParams } = p;
   const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason } }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
+  // техкарта нужна для сборки конспекта, презентации и листа; если её не выбрали — собираем «за кадром»
+  const gen = ["conspect", ...formats.filter(f => f !== "conspect")];
+  const hideTech = !formats.includes("conspect");
+  // сборка переживает обновление страницы: задание запоминается, после перезагрузки сайт продолжит с того листа, где остановился
+  saveJob({ id: L.id, at: Date.now(), useAi, gen, formats, hideTech, p: { ...pParams, extra: p.extra, textOverride: p.textOverride || null }, notes: p.notes });
+  await saveLesson(L);
+  formats.forEach(f => (L.status[f] = "wait"));
+  return runJob(L, p, type, gen, formats, useAi, hideTech);
+}
+/* ---------- незаконченная сборка: запоминаем и продолжаем после обновления страницы ---------- */
+const JOB_KEY = "uchu:job";
+function saveJob(J) { try { localStorage.setItem(JOB_KEY, JSON.stringify(J)); } catch { try { localStorage.setItem(JOB_KEY, JSON.stringify({ ...J, notes: J.notes ? { ...J.notes, files: [] } : null })); } catch { } } }
+function loadJob() { try { return JSON.parse(localStorage.getItem(JOB_KEY)); } catch { return null; } }
+function clearJob(id) { const J = loadJob(); if (!J || !id || J.id === id) try { localStorage.removeItem(JOB_KEY); } catch { } }
+async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   // файлы из заметок участвуют в сборке только этого урока
   const noteMats = window.Notes ? Notes.lessonMaterials(p.notes) : [];
   if (noteMats.length) { const keep = state.materials; state.materials = [...noteMats, ...keep]; L._restoreMaterials = keep; }
-  // техкарта нужна для сборки конспекта, презентации и листа; если её не выбрали — собираем «за кадром»
-  const gen = ["conspect", ...formats.filter(f => f !== "conspect")];
-  if (!formats.includes("conspect")) L.hideTech = true;
-  formats.forEach(f => (L.status[f] = "wait"));
-  openLesson(L, formats[0]); revealWorkspace();
+  if (hideTech) L.hideTech = true;
+  openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
   const done = () => { if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
-  if (!useAi) { try { return await buildWithoutAi(L, p, type, gen); } finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); } }
-  try { await buildWithAi(L, p, type, gen); } finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
+  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); clearJob(L.id); }
+  catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
+  finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
+}
+async function resumeJob() {
+  const J = loadJob(); if (!J) return;
+  if (Date.now() - (J.at || 0) > 3 * 3600e3) { clearJob(); return; } // старше трёх часов — не продолжаем
+  const rec = (await listLessons()).find(x => x.id === J.id); if (!rec) { clearJob(); return; }
+  const L = { ...rec, docs: { ...(rec.docs || {}) }, status: {} };
+  if (J.hideTech && rec.tech && !L.docs.conspect) L.docs.conspect = rec.tech; // техкарта «за кадром» уже готова
+  // уже готовые листы не пересобираются — только недостающие
+  const gen = J.gen.filter(f => !L.docs[f]);
+  if (!gen.length) { clearJob(); return; }
+  J.formats.forEach(f => (L.status[f] = L.docs[f] ? "ok" : "wait"));
+  const type = Engine.detectType({ subject: J.p.subject, topic: J.p.topic, lessonNo: J.p.lessonNo, grade: J.p.grade });
+  const p = { ...J.p, type, notes: J.notes || null };
+  if (p.notes?.prompt) p.wishes = p.notes.prompt;
+  J.at = Date.now(); saveJob(J);
+  toast(`Продолжаю сборку урока «${J.p.topic}»…`, 4000);
+  if (J.useAi) window.Usage?.begin("Сборка урока", J.p.topic);
+  return runJob(L, p, type, gen, J.formats, J.useAi, J.hideTech).catch(e => console.warn("resume", e));
 }
 async function buildWithAi(L, p, type, formats) {
   const lessonMaterialsNote = relevantMaterials(p.topic, p.grade, p.subject).length;
@@ -4076,6 +4107,7 @@ async function buildWithoutAi(L, p, type, formats) {
     if (f === "slides" && window.Deck?.mediaFill && L.deckOutline?.some(c => c.auto && c.kind === "video")) { state.gen.pct = 58; updateProgress(); L.deckOutline = await Deck.mediaFill(L.deckOutline).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline); }
     if (f === "slides") { state.gen.pct = 60; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => md); if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; md = await SlideEditor.stickerize(md).catch(() => md); state.lesson = prev; } }
     L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
+    await saveLesson(L); // готовый лист сохраняется сразу: после обновления страницы сборка продолжится со следующего
     if (state.lesson?.id === L.id) renderLesson();
   }
   if (window.Variety) Variety.commit(p.plan);
@@ -4710,6 +4742,7 @@ async function start() {
   await FRP.load();
   Store.persist();
   syncBuild(); updateType(); refreshTopics();
+  resumeJob().catch(e => console.warn("resumeJob", e)); // сборка, прерванная обновлением страницы, продолжается
   const h = (location.hash || "").slice(1);
   if (["library", "materials", "help"].includes(h)) go(h, { push: false });
   try { history.replaceState({ view: state.view }, ""); } catch { }
