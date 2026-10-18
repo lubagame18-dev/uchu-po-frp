@@ -555,7 +555,7 @@ window.UCHU_SITE = {
             <label class="check"><input type="checkbox" value="slides" checked> Презентация</label>
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
             <details class="check xopt" id="optCtrl"><summary>🧪 Контроль <span class="xv" id="ctrlVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
-              <div class="xpop"><select id="xCtrl" aria-label="Вид контроля"><option value="">не нужен</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select>
+              <div class="xpop"><select id="xCtrl" aria-label="Вид контроля"><option value="">выберите вид…</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select>
               <label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> Ключи и критерии</label></div></details>
             <details class="check xopt" id="optMemo"><summary>🧠 Запоминание <span class="xv" id="memoVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div></details>
@@ -4172,9 +4172,13 @@ function renderEmpty() {
     <li><span class="num">2</span><b>«Создать урок»</b><span>Без ИИ — мгновенно по алгоритму и вашим материалам. С ИИ — подробнее.</span></li>
     <li><span class="num">3</span><b>Правка и выгрузка</b><span>Правьте прямо на листе, скачивайте Word, PowerPoint, PDF.</span></li>
   </ol>
-  <p style="font-weight:700;margin:0 0 10px">Или откройте готовый образец:</p>
-  <div class="ex">${SAMPLES.map(s => `<button class="btn sm ghost" data-sample="${s.id}">${esc(s.title)} · ${s.params.grade} кл.</button>`).join("")}</div></div>`;
-  $$("[data-sample]", sh).forEach(b => b.onclick = () => openSample(b.dataset.sample));
+  <div id="emptySamples"></div></div>`;
+  // готовые образцы — только новичку, у кого ещё нет своих уроков
+  listLessons().then(ls => {
+    const box = $("#emptySamples"); if (!box || ls.length) return;
+    box.innerHTML = `<p style="font-weight:700;margin:0 0 10px">Или откройте готовый образец:</p><div class="ex">${SAMPLES.map(s => `<button class="btn sm ghost" data-sample="${s.id}">${esc(s.title)} · ${s.params.grade} кл.</button>`).join("")}</div>`;
+    $$("[data-sample]", box).forEach(b => b.onclick = () => openSample(b.dataset.sample));
+  }).catch(() => { });
 }
 let markedReady = null;
 function ensureMarked() { return markedReady || (markedReady = Promise.all([loadScript("marked"), loadScript("purify")]).then(() => window.marked.setOptions({ gfm: true, breaks: true }))); }
@@ -4370,7 +4374,9 @@ let libCache = [];
 async function renderLibrary() {
   libCache = await listLessons();
   $("#libCards").innerHTML = libCache.length ? libCache.map(L => lessonCard(L)).join("") : `<div class="lcard"><h3>Пока пусто</h3><p class="small" style="margin:0">Первый созданный урок появится здесь сам.</p><div class="acts"><button class="btn sm" data-go="builder">К конструктору</button></div></div>`;
-  $("#sampleCards").innerHTML = SAMPLES.map(s => lessonCard(s, true)).join("");
+  // образцы — только пока своих уроков нет
+  $("#sampleCards").innerHTML = libCache.length ? "" : SAMPLES.map(s => lessonCard(s, true)).join("");
+  $("#sampleCards").previousElementSibling.hidden = !!libCache.length;
   $$("[data-open]").forEach(b => b.onclick = () => { const id = b.dataset.open; if (SAMPLES.some(x => x.id === id)) openSample(id); else { const L = libCache.find(x => x.id === id); if (L) openLesson({ ...L, status: {} }); } });
   $$("[data-delete]").forEach(b => b.onclick = async () => { if (b.dataset.sure) { await Store.del("lessons", b.dataset.delete); if (window.Account) Account.remove(b.dataset.delete); renderLibrary(); } else { b.dataset.sure = 1; b.textContent = "Точно удалить?"; } });
   $$("[data-zip]").forEach(b => b.onclick = async () => { const L = libCache.find(x => x.id === b.dataset.zip); if (!L) return; b.disabled = true; try { await exportZip(L); } catch (e) { toast("Не удалось собрать архив: " + (e.message || e)); } finally { b.disabled = false; } });

@@ -916,3 +916,8 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .use-log li b { white-space: nowrap; }
 .use-log .pc-t { font-size: 12px; }
 .btn-cost { font-size: .78em; font-weight: 700; opacity: .8; margin-left: 4px; }
+/* «Контроль» и «Запоминание» жёлтые только когда выбран конкретный вид (галочки внутри не подсвечивают кнопку) */
+.check.xopt:has(input:checked):not(.on) { background: var(--card); }
+.check.xopt.on { background: var(--sun); }
+.xopt .xpop .check { background: var(--card); }
+.xopt .xpop .check:has(input:checked) { background: var(--sun); }
