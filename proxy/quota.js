@@ -68,8 +68,10 @@ async function promo(userToken, code, request, readAll) {
   await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id: u.json.id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: 0 } }).catch(() => null);
   // код бесплатного доступа (он один): все возможности сайта без оплаты, пока код существует и включён
   if (row?.free) {
-    const r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo_free_code: row.code } });
-    if (r.status >= 300) return { ok: false, status: 500, message: "в облаке нет колонки для бесплатного доступа — выполните обновление из supabase.sql" };
+    let r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo_free_code: row.code, promo: false } });
+    // облако ещё не обновлено (нет колонки) — открываем всё через самый полный тариф без срока
+    const FULL = { plan: "pro", paid_until: "2099-12-31T00:00:00Z", ai_left: 100000 };
+    if (r.status >= 300) { r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { ...FULL, tokens_limit: 1e12, tokens_used: 0 } }); if (r.status >= 300) await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: FULL }); }
     return { ok: true, free: true };
   }
   // код скидки: процент задаёт тот, кто выдаёт промокоды (по умолчанию 50%); в тарифах с ИИ — своя нейросеть

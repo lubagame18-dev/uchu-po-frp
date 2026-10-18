@@ -102,7 +102,7 @@ const Access = (() => {
     if (fn && tok) { ok = false; try { const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/promo")}` : base + "/promo"; const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code: norm(code), messages: [] }) }); if (r.ok) { ok = true; info = await r.json().catch(() => ({})); } } catch { } }
     if (!ok) return false;
     window.Account?.refreshPlan?.();
-    if (info.free) { if (window.Account?.session) window.Account.session.promoFree = true; save(); return { free: true }; }
+    if (info.free) { if (window.Account?.session) Object.assign(window.Account.session, { promoFree: true, promo: false }); delete A.promo; save(); window.Account?.refreshPlan?.(); return { free: true }; }
     A.promo = { at: new Date().toISOString(), h: h.slice(0, 12), email: me(), pct: info.pct || 50 }; save();
     return { pct: info.pct || 50 };
   }
@@ -118,7 +118,7 @@ const Access = (() => {
       <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur ? `<span class="tr-badge">${promoFree() ? "ваш доступ по промокоду" : "ваш тариф"}</span>` : k === "ai" ? `<span class="tr-badge hot">${p.tag}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div><h3>${p.name}</h3><div class="tr-price">${promoFree() && k === cur ? `<s>${p.price}</s> 0 ₽` : p.price ? (pr ? `<s>${p.price}</s> ${priceOf(k)} ₽<small>/мес</small>` : `${p.price} ₽<small>/мес</small>`) : "0 ₽"}</div><ul class="tr-feats">${featsOf(k, p).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">${promoFree() ? "Всё открыто бесплатно" : "Подключён сейчас"}</span>` : k === "free" || promoFree() ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && PLANS[cur].price && p.price > PLANS[cur].price ? "Повысить" : cur && PLANS[cur].price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
       ${!site().payments && me() && cur && cur !== "free" && !promoFree() ? `<p class="small tr-reset"><button type="button" class="btn plain" id="trReset">🧪 Тест: вернуть бесплатный тариф</button></p>` : ""}
       ${cur && PLANS[cur].ai && !pr ? `<div class="tr-packs"><b>Не хватает уроков с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}</div>` : ""}
-      ${promoFree() ? "" : !me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : pr ? "" : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>Промокод</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
+      ${promoFree() ? "" : !me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>${pr ? "Другой промокод" : "Промокод"}</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
     m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
     m.querySelectorAll("[data-pack]").forEach(b => b.onclick = () => buy(b.dataset.pack));
@@ -135,10 +135,12 @@ const Access = (() => {
   }
   /* Покупка: сначала вход в кабинет → сразу после входа — оформление выбранного тарифа → оплата */
   function buy(item) {
+    if (promoFree()) { closeModal(); toast("У вас бесплатный доступ по промокоду: все тарифы и функции уже открыты.", 5000); return; }
     if (!me()) { closeModal(); Access.wantBuy = item; try { localStorage.setItem("uchu:want-buy", item); } catch { } toast("Войдите или зарегистрируйтесь — после этого сразу перейдёте к оплате.", 5000); window.Account?.open(); return; }
     checkout(item);
   }
   function checkout(item) {
+    if (promoFree()) { toast("У вас бесплатный доступ по промокоду: все тарифы и функции уже открыты.", 5000); return; }
     const P = PLANS[item], K = PACKS[item], L = level(), pr = isPromo();
     const up = P && PLANS[L]?.price && P.price > PLANS[L].price;
     const needKey = pr && P?.ai && !window.AI?.ownConfigured?.();

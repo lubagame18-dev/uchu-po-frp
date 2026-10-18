@@ -140,7 +140,8 @@ const Account = (() => {
       const p = (await q("plan,ai_left,paid_until,promo,promo_pct,promo_free_code,tokens_used,tokens_limit").catch(() => q("plan,ai_left,paid_until,promo,tokens_used,tokens_limit")).catch(() => q("plan,ai_left,paid_until,promo")).catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // новых колонок может ещё не быть
       // бесплатный доступ по промокоду — только пока код существует и включён (проверяет облако, сами коды не видны)
       const freeOk = p?.promo_free_code ? !!(await api("/rest/v1/rpc/promo_free_ok", { method: "POST", body: "{}" }).catch(() => false)) : false;
-      if (p && S) { S.plan = p.plan; S.promoFree = freeOk; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
+      const forever = p?.plan === "pro" && p?.paid_until && new Date(p.paid_until).getFullYear() >= 2090; // бесплатный доступ, открытый через тариф без срока
+      if (p && S) { S.plan = p.plan; S.promoFree = freeOk || forever; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
       return p;
     } catch { return null; }
   }
