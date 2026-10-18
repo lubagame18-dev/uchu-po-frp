@@ -42,7 +42,7 @@ const HistKit = (() => {
   };
   function detectType({ topic, lessonNo }) {
     const t = String(topic).toLowerCase();
-    if (/повторени|обобщени|систематизац|подготовк[а-я]* к (огэ|егэ)/.test(t)) return TYPES.gen;
+    if (/повторени|повторит|обобщени|обобща|систематизац|подготовк[а-я]* к (огэ|егэ)/.test(t)) return TYPES.gen;
     if (/контрол|проверочн/.test(t)) return TYPES.ctrl;
     return lessonNo === 1 ? TYPES.onz : TYPES.refl;
   }
@@ -81,7 +81,7 @@ const HistKit = (() => {
     }
     return out.sort((a, b) => b.sc - a.sc).slice(0, n);
   }
-  const REVIEW = /^(урок|уроки|повторительно|итогов)/i;
+  const REVIEW = /^(урок|уроки|повторительно|итогов|контрольная работа$)/i;
   function planOf(p) { const P = window.FRPPlans?.hist?.[p.grade]; if (!P) return null; const low = x => String(x).toLowerCase().trim(); const i = P.l.findIndex(r => low(r[0]) === low(p.topic)); return i < 0 ? null : { P, i }; }
   function review(p) {
     if (!REVIEW.test(String(p.topic).trim())) return null;
@@ -89,7 +89,10 @@ const HistKit = (() => {
     const { P, i } = pl, th = P.l[i][2], q = (String(p.topic).match(/«([^»]+)»/g) || []).map(x => x.slice(1, -1).toLowerCase());
     // уроки той же темы ФРП (а для итоговых — всего курса до этого урока)
     const span = /итогов/i.test(p.topic) ? P.l.slice(0, i) : P.l.slice(0, i).filter(r => r[2] === th || q.some(x => (P.th[r[2]]?.[0] || "").toLowerCase().includes(x.slice(0, 12))));
-    const got = []; for (const r of span) { if (REVIEW.test(r[0])) continue; const x = find(r[0], p.grade); if (x && !got.includes(x)) got.push(x); }
+    const got = []; const take = arr => { for (const r of arr) { if (REVIEW.test(r[0])) continue; const x = find(r[0], p.grade); if (x && !got.includes(x)) got.push(x); } };
+    take(span);
+    // мало материала по теме — берём уроки после предыдущего урока повторения
+    if (got.length < 2) { let k = i - 1, end = i; for (let pass = 0; pass < 3 && got.length < 2; pass++) { while (k >= 0 && REVIEW.test(P.l[k][0])) k--; while (k >= 0 && !REVIEW.test(P.l[k][0])) k--; take(P.l.slice(k + 1, end)); end = k + 1; } }
     if (!got.length) return null;
     const name = q[0] ? (String(p.topic).match(/«([^»]+)»/) || [])[1] : (P.th[th]?.[0] || p.topic);
     const uniq = (arr, key) => { const seen = new Set(); return arr.filter(x => { const k = key(x); if (seen.has(k)) return false; seen.add(k); return true; }); };
