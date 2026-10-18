@@ -921,3 +921,11 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .check.xopt.on { background: var(--sun); }
 .xopt .xpop .check { background: var(--card); }
 .xopt .xpop .check:has(input:checked) { background: var(--sun); }
+
+/* Д/з прошлого урока (для проверки) */
+.prevhw { margin-top: 10px; border: 2px dashed var(--line, #d9d4c7); border-radius: 14px; padding: 8px 12px; }
+.prevhw summary { cursor: pointer; font-weight: 700; list-style: none; }
+.prevhw summary::before { content: "▸ "; }
+.prevhw[open] summary::before { content: "▾ "; }
+.prevhw textarea { margin-top: 8px; min-height: 64px; }
+.prevhw-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }

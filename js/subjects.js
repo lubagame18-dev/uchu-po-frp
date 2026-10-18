@@ -5,9 +5,28 @@
    конспект, рабочий лист, доп. листы, презентация, задание для ИИ.
    =================================================================== */
 const Subjects = (() => {
-  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }];
+  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }];
   const plugin = id => { const s = list.find(x => x.id === id); return s?.kit ? s.kit() || null : null; };
   const name = id => list.find(x => x.id === id)?.name || id;
-  return { list, plugin, name };
+  /* Проверка домашнего задания — только по тому, что действительно задавали:
+     текст/файл учителя или д/з прошлого урока из «Моих уроков» (p.prevHw = { text, src }).
+     Нет сведений — проверка формальная, без выдуманных заданий и ответов. */
+  function hw(p) {
+    const t = String(p?.prevHw?.text || "").replace(/\r/g, "").trim(); if (!t) return null;
+    const clean = x => x.split("\n").map(l => l.replace(/^#+\s*/, "").replace(/^\*\*(Тема|Класс)[^\n]*$/i, "").replace(/^[-–—]{3,}$/, "").trim()).filter(l => l && !/^[*_\s]+$/.test(l) && !/^домашнее задание$/i.test(l.replace(/[*:]/g, "").trim())).join("\n").trim();
+    const parts = t.split(/\n?\s*\**\s*(?:🔑)?\s*\**\s*(?:Ключ|Ответы)(?:\s*\(для учителя\))?\s*\**\s*:\s*\**/i);
+    return { what: clean(parts[0]).slice(0, 1500), key: clean(parts.slice(1).join("\n")).slice(0, 800), src: p.prevHw.src || "" };
+  }
+  function hwCheck(p, br = "<br>") {
+    const H = hw(p), nl = s => s.replace(/\n/g, br);
+    if (!H) return { has: false, teacher: "Проверка выполнения домашнего задания: выборочно проверяет тетради.<br>— Какие вопросы возникли при выполнении домашнего задания?".replace(/<br>/g, br), students: "Показывают тетради, задают вопросы по домашнему заданию.", box: ["**❓ Учитель:** Какие вопросы возникли при выполнении домашнего задания? *(Выборочная проверка тетрадей.)*"] };
+    const what = `**Было задано${H.src ? ` (${H.src})` : ""}:**${br}${nl(H.what)}`;
+    const how = H.key ? `Взаимопроверка в парах по ключу на доске (слайде): «Сверьте ответы, отметьте «+» и «−»».` : "Фронтальная проверка: ученики называют ответы, одноклассники проверяют и дополняют.";
+    return { has: true, key: H.key, what: H.what,
+      teacher: `${what}${br}${how}${br}— Какое задание вызвало трудность? Разберём его у доски.`,
+      students: `Проверяют${H.key ? " по ключу" : ""}; ученик у доски объясняет задание, вызвавшее трудность.${H.key ? `${br}**Ключ:** ${nl(H.key)}` : ""}`,
+      box: [what, `**❓ Учитель:** ${how}`, H.key ? `**🔑 Ключ:** ${nl(H.key)}` : "", "**❓ Учитель:** Какое задание вызвало трудность? Разберём у доски."].filter(Boolean) };
+  }
+  return { list, plugin, name, hw, hwCheck };
 })();
 window.Subjects = Subjects;

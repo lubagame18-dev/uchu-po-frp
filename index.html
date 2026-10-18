@@ -536,8 +536,8 @@ window.UCHU_SITE = {
       <section class="card params" aria-labelledby="z2">
         <div class="card-h"><span class="n">1</span><h2 id="z2">Параметры урока</h2></div>
         <div class="field"><label for="subjectSel">Предмет</label>
-          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option></select>
-          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button></div>
+          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option></select>
+          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button><button data-v="eng" aria-pressed="false">Английский язык</button></div>
         </div>
         <div class="row2">
           <div class="field"><label for="grade">Класс</label><select id="grade"></select></div>
@@ -583,6 +583,11 @@ window.UCHU_SITE = {
           <div class="field"><label for="wishes">Пожелания <span class="small">(необязательно)</span></label><textarea class="inp" id="wishes" placeholder="Класс слабый, нужна групповая работа; связать с «Тарасом Бульбой»"></textarea></div>
           <label class="check" style="align-self:flex-start;margin-top:10px"><input type="checkbox" id="deep"> Глубокая проработка</label>
         </div>
+        <details class="field prevhw" id="prevHwBox"><summary>Д/з прошлого урока — для проверки</summary>
+          <textarea class="inp" id="prevHw" placeholder="Что задавали: упр. 245 или № 312, 315 (можно с ответами)"></textarea>
+          <div class="prevhw-btns"><button class="btn sm" type="button" id="prevHwPick">📎 Файл</button><button class="btn sm" type="button" id="prevHwFind">🔎 Найти в «Моих уроках»</button><input type="file" id="prevHwFile" hidden></div>
+          <p class="hint" id="prevHwHint"></p>
+        </details>
         <button class="btn flame cta" id="btnCreate">Создать урок</button>
         <p class="hint" id="createHint"></p>
       </section>
@@ -636,7 +641,7 @@ window.UCHU_SITE = {
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
   <section class="own-card"><h2>Мои материалы</h2><p class="agent-lead"><b>🧠 Ваш личный ИИ-агент.</b> Прикрепите свои конспекты, задания и тексты — сайт будет опираться на них и собирать уроки по вашей методике.</p><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
-    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option></select></label><input type="file" id="matInput" multiple hidden></div>
+    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option></select></label><input type="file" id="matInput" multiple hidden></div>
     <p class="hint" data-dev>При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
     
     <div class="mat-row" data-dev><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
@@ -3218,6 +3223,7 @@ function guessGrade(name, text) { const m = (name + " " + text.slice(0, 3000)).m
 function guessSubject(name, text) { const t = (name + " " + text.slice(0, 4000)).toLowerCase();
   // выбранный разработчиком предмет при загрузке — главнее догадки
   const forced = document.getElementById("matSubject")?.value; if (forced) return forced;
+  if (/английск[а-я]* язык|english|spotlight|forward|rainbow english/i.test(t.slice(0, 1500)) && !/литератур/.test(t.slice(0, 600))) return "eng";
   if (/истори[яи] (россии|древнего мира|средних веков|нового времени|новейшего)|всеобщая история/.test(t.slice(0, 1500)) && !/литератур|русск[а-я]* язык/.test(t.slice(0, 1500))) return "hist";
   if (/математ|алгебр|геометри|вероятност[а-я]* и статист/.test(t.slice(0, 1500)) || (t.match(/уравнени|дроб[ьи]|вычислите|найдите значение|корень|функци|треугольник/g) || []).length >= 6) return "math";
   return /литератур/.test(t) && !/русск[A-Za-z0-9_А-Яа-яЁё]* язык/.test(t.slice(0, 1500)) ? "lit" : "ru"; }
@@ -3911,6 +3917,8 @@ async function createLesson() {
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   rememberTopic(state.topic);
+  p.prevHw = await resolvePrevHw(p); // проверка д/з — только по тому, что действительно задавали
+  if ($("#prevHw")) { $("#prevHw").value = ""; $("#prevHwHint").textContent = ""; }
   p.notes = window.Notes ? Notes.snapshot() : null;
   if (window.Notes?.reset) Notes.reset();
   // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
@@ -3934,6 +3942,39 @@ async function createLesson() {
   formats.forEach(f => (L.status[f] = "wait"));
   return runJob(L, p, type, gen, formats, useAi, hideTech);
 }
+/* ---------- проверка домашнего задания прошлого урока ----------
+   Источник: поле «Д/з прошлого урока» (текст или файл) или прошлый урок этой темы (этого класса и предмета) в «Моих уроках».
+   Ничего не нашлось — проверка формальная, без выдуманных заданий. */
+function hwFromLesson(L) {
+  const d = L?.docs || {};
+  if (d.homework) return String(d.homework);
+  for (const md of [d.lesson, d.conspect, L.tech]) {
+    if (!md) continue;
+    const m = String(md).match(/\n#{2,4}[^\n]*Домашн[^\n]*\n([\s\S]*?)(?=\n#{1,4} |$)/g); if (!m) continue;
+    const t = m[m.length - 1].replace(/^\n#{2,4}[^\n]*\n/, "").trim().replace(/^\|[^\n]*\|\n\|---\|\n/, "").replace(/^\|-{3}\|$/gm, "").replace(/^\|?\s*\**Инструктаж[^\n]*$/gm, "").replace(/^\| (.*) \|$/gm, "$1").replace(/<br>/g, "\n").trim();
+    if (t.length > 10) return t;
+  }
+  return "";
+}
+async function findPrevHw(p) {
+  const low = s => String(s || "").trim().toLowerCase(), all = (await listLessons()).filter(L => L.params && L.params.subject === p.subject && +L.params.grade === +p.grade);
+  let prev = [];
+  if ((p.lessonNo || 1) > 1) prev = all.filter(L => low(L.params.topic) === low(p.topic) && (L.params.lessonNo || 1) < p.lessonNo);
+  if (!prev.length) { const items = topicList().items || [], i = items.findIndex(x => low(x.title) === low(p.topic)); if (i > 0) prev = all.filter(L => low(L.params.topic) === low(items[i - 1].title)); }
+  for (const L of prev.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))) { const t = hwFromLesson(L); if (t) return { text: t.slice(0, 2500), src: `урок «${L.params.topic}» из «Моих уроков»` }; }
+  return null;
+}
+async function resolvePrevHw(p) {
+  const own = ($("#prevHw")?.value || "").trim(); if (own) return { text: own, src: "" };
+  const f = await findPrevHw(p).catch(() => null); if (f) toast(`Проверка д/з — по ${f.src}.`, 5000);
+  return f;
+}
+function addPrevHw(L, p) {
+  if (!p.prevHw || !["ru", "lit"].includes(p.subject) || !window.Subjects) return;
+  const H = Subjects.hwCheck(p); if (!H.has) return;
+  const block = `### Проверка домашнего задания · 3–5 мин\n\n| Проверка домашнего задания |\n|---|\n${H.box.map(l => `| ${l.replace(/\|/g, "∣").replace(/\n/g, "<br>")} |`).join("\n")}\n\n`;
+  for (const k of ["lesson", "conspect"]) { const md = L.docs[k]; if (!md || /### Проверка домашнего задания/.test(md)) continue; const i = md.search(/\n#{2,3} /); L.docs[k] = i < 0 ? md + "\n\n" + block : md.slice(0, i + 1) + block + md.slice(i + 1); }
+}
 /* ---------- незаконченная сборка: запоминаем и продолжаем после обновления страницы ---------- */
 const JOB_KEY = "uchu:job";
 function saveJob(J) { try { localStorage.setItem(JOB_KEY, JSON.stringify(J)); } catch { try { localStorage.setItem(JOB_KEY, JSON.stringify({ ...J, notes: J.notes ? { ...J.notes, files: [] } : null })); } catch { } } }
@@ -3947,7 +3988,7 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   if (hideTech) L.hideTech = true;
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
-  const done = () => { if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
+  const done = () => { addPrevHw(L, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
   try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); clearJob(L.id); }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
@@ -4730,6 +4771,9 @@ function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });
   $("#btnBack").onclick = () => history.back();
   $("#subjectSel").onchange = e => $(`#segSubject button[data-v="${e.target.value}"]`)?.click();
+  $("#prevHwPick").onclick = () => $("#prevHwFile").click();
+  $("#prevHwFile").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const r = await readFile(f); const t = String(r?.text || "").trim(); if (!t) throw new Error("в файле не найден текст"); $("#prevHw").value = t.slice(0, 2500); $("#prevHwHint").textContent = `Из файла «${f.name}».`; } catch (er) { toast("Не получилось прочитать файл: " + (er.message || er)); } };
+  $("#prevHwFind").onclick = async () => { readForm(); const f = await findPrevHw({ subject: state.subject, grade: state.grade, topic: state.topic, lessonNo: state.lessonNo }); if (f) { $("#prevHw").value = f.text; $("#prevHwHint").textContent = `Найдено: ${f.src}.`; } else $("#prevHwHint").textContent = "Прошлого урока этой темы в «Моих уроках» нет — впишите задание или прикрепите файл. Без этого проверка будет формальной."; };
   $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); if (ch) clearTopic(); else { readForm(); updateType(); } refreshTopics(); });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
@@ -4842,7 +4886,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/publish.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/worksearch.js"></script>
-<script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histkit.js"></script>
+<script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histkit.js"></script><script src="js/engdata.js"></script><script src="js/engkit.js"></script>
 <script src="js/subjects.js"></script>
 <script src="js/usage.js"></script>
 <script src="js/ai.js"></script>
