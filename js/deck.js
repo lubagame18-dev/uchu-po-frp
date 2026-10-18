@@ -24,7 +24,7 @@ const Deck = (() => {
   const KEY = "uchu:deck";
   const AMOUNT = {
     brief: { label: "Минимум текста", max: 2, paren: false, len: 90 },
-    medium: { label: "Кратко (как в Gamma)", max: 3, paren: false, len: 130 },
+    medium: { label: "Кратко", max: 3, paren: false, len: 130 },
     detailed: { label: "Подробнее", max: 4, paren: true, len: 220 }
   };
   const IMAGES = { key: "Картинки на ключевых слайдах", all: "Картинка почти на каждом слайде", none: "Без картинок" };
@@ -508,7 +508,7 @@ ${JSON.stringify(payload)}`;
     let cards = L.deckOutline ? JSON.parse(JSON.stringify(L.deckOutline)) : outline(L.docs.conspect || "", p, type, o);
     const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>План презентации</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <div class="dlg-b deck-ol">
-        <p class="hint">Как в Gamma: сначала план, потом слайды. Поправьте заголовки и тезисы, выключите лишнее, перетащите карточки. Упражнения, цитаты, правила и стихи переносятся <b>дословно</b> — их текст здесь не меняется; если он длинный, шрифт станет меньше или слайд разделится на 2–3.</p>
+        <p class="hint">Поправьте заголовки, выключите лишнее, перетащите карточки.</p>
         <div class="deck-opts">
           <label class="sx-tl">Объём текста <select id="dkAmt">${Object.entries(AMOUNT).map(([k, v]) => `<option value="${k}" ${k === o.amount ? "selected" : ""}>${v.label}</option>`).join("")}</select></label>
           <label class="sx-tl">Картинки (Яндекс) <select id="dkImg">${Object.entries(IMAGES).map(([k, v]) => `<option value="${k}" ${k === o.images ? "selected" : ""}>${v}</option>`).join("")}</select></label>

@@ -19,23 +19,11 @@ const Notes = (() => {
     const btn = document.getElementById("btnCreate"); if (!btn || document.getElementById("notesBox")) return;
     const box = document.createElement("details");
     box.className = "notes-box"; box.id = "notesBox";
-    box.innerHTML = `<summary><span class="nb-t">Заметки к уроку</span> <span class="nb-opt">необязательно</span> <span class="nb-count" id="nbCount"></span></summary>
-      <p class="hint">Всё, что вы напишете здесь, сайт учтёт в первую очередь — вместе со встроенной базой и интернетом. Пустые поля ничему не мешают: урок соберётся как обычно.</p>
-      <div class="nb-tabs" role="tablist">
-        <button type="button" data-nb="prompt" aria-selected="true">Промт и пожелания</button>
-        <button type="button" data-nb="observe" aria-selected="false">Заметки</button>
-        <button type="button" data-nb="links" aria-selected="false">Ссылки</button>
-        <button type="button" data-nb="check" aria-selected="false">Чек-лист</button>
-        <button type="button" data-nb="text" aria-selected="false">Текст произведения</button>
-        <button type="button" data-nb="files" aria-selected="false">Файлы</button>
-      </div>
-      <div class="nb-pane" data-pane="prompt"><textarea class="inp" id="nbPrompt" placeholder="Прямое указание: «класс слабый, нужна работа в группах», «сделать акцент на средствах выразительности», «сравнить с Тютчевым», «формат — суд над героем»"></textarea></div>
-      <div class="nb-pane" data-pane="observe" hidden><textarea class="inp" id="nbObserve" placeholder="Рабочие пометки и наблюдения: что заметили в классе, какие мысли встроить в урок"></textarea></div>
-      <div class="nb-pane" data-pane="links" hidden><textarea class="inp" id="nbLinks" placeholder="По одной ссылке в строке: статьи, видео, презентации, которые нашли сами"></textarea></div>
-      <div class="nb-pane" data-pane="check" hidden><div class="nb-check" id="nbCheck"></div><div class="row-btn"><input type="text" class="inp" id="nbCheckIn" placeholder="Акцент или пункт, который обязательно должен быть в уроке"><button type="button" class="btn sm" id="nbCheckAdd">Добавить</button></div></div>
-      <div class="nb-pane" data-pane="text" hidden><textarea class="inp tall" id="nbText" placeholder="Вставьте текст стихотворения или эпизода — вопросы и задания будут опираться на цитаты именно из него"></textarea></div>
-      <div class="nb-pane" data-pane="files" hidden><div class="nb-files" id="nbFiles"></div><label class="btn sm ghost">Прикрепить файл к уроку<input type="file" id="nbFileIn" multiple hidden></label><p class="hint">Файлы используются только для этого урока (упражнения и тексты из них идут первыми). В общие материалы они не попадают.</p></div>
-      <div class="nb-foot"><button type="button" class="btn plain" id="nbClear">Очистить заметки</button><span class="small">Черновик сохраняется сам.</span></div>`;
+    box.innerHTML = `<summary><span class="nb-t">Пожелания к уроку</span> <span class="nb-count" id="nbCount"></span></summary>
+      <textarea class="inp" id="nbPrompt" rows="3" placeholder="Например: класс слабый — больше работы в группах; сравнить с Тютчевым"></textarea>
+      <div class="nb-files" id="nbFiles"></div>
+      <div class="nb-foot"><label class="btn sm ghost file-btn">📎 Прикрепить файлы<input type="file" id="nbFileIn" multiple hidden></label><button type="button" class="btn plain" id="nbClear">Очистить</button></div>
+      <div hidden><textarea id="nbObserve"></textarea><textarea id="nbLinks"></textarea><textarea id="nbText"></textarea><div id="nbCheck"></div><input id="nbCheckIn"><button type="button" id="nbCheckAdd"></button></div>`;
     btn.parentNode.insertBefore(box, btn);
     // старое поле «Пожелания» (было только для ИИ) теперь живёт в заметках
     const w = document.getElementById("wishes"); if (w) { if (w.value && !draft.prompt) draft.prompt = w.value; w.closest(".field").hidden = true; }
@@ -59,6 +47,8 @@ const Notes = (() => {
     renderCheck(); renderFiles(); paintCount();
     if (filled()) box.open = true;
   }
+  // после сборки урока пожелания и файлы обнуляются — к следующему уроку они не переходят
+  function reset() { draft = empty(); try { localStorage.removeItem(KEY); } catch { } const $n = id => document.getElementById(id); ["nbPrompt", "nbObserve", "nbLinks", "nbText"].forEach(id => { if ($n(id)) $n(id).value = ""; }); if ($n("nbCheck")) renderCheck(); if ($n("nbFiles")) renderFiles(); paintCount(); const box = $n("notesBox"); if (box) box.open = false; }
   function renderCheck() {
     const el = document.getElementById("nbCheck"); if (!el) return;
     el.innerHTML = draft.checklist.length ? draft.checklist.map((c, i) => `<label class="check"><input type="checkbox" data-ci="${i}" ${c.on ? "checked" : ""}> <span>${esc(c.t)}</span> <button type="button" class="btn plain" data-cdel="${i}" aria-label="Удалить пункт">×</button></label>`).join("") : `<p class="small">Пунктов пока нет.</p>`;
@@ -67,13 +57,13 @@ const Notes = (() => {
   }
   function renderFiles() {
     const el = document.getElementById("nbFiles"); if (!el) return;
-    el.innerHTML = draft.files.map((f, i) => `<div class="nb-file"><b>${esc(f.name)}</b> <span class="small">${f.scanned ? "скан без текста" : (f.chars || 0).toLocaleString("ru-RU") + " знаков"}</span> <button type="button" class="btn plain" data-fdel="${i}">Убрать</button></div>`).join("");
+    el.innerHTML = draft.files.map((f, i) => `<div class="nb-file"><b>${esc(f.name)}</b> ${f.scanned ? ' <span class="small">(скан — текст не читается)</span>' : ""} <button type="button" class="btn plain" data-fdel="${i}">Убрать</button></div>`).join("");
     el.querySelectorAll("[data-fdel]").forEach(b => b.onclick = () => { draft.files.splice(+b.dataset.fdel, 1); renderFiles(); save(); });
   }
   function paintCount() {
     const el = document.getElementById("nbCount"); if (!el) return;
     const n = [draft.prompt.trim(), draft.observe.trim(), draft.links.trim(), draft.text.trim()].filter(Boolean).length + (draft.checklist.length ? 1 : 0) + (draft.files.length ? 1 : 0);
-    el.textContent = n ? `заполнено: ${n}` : "";
+    el.textContent = n ? "✓" : "";
   }
 
   /* Снимок заметок для урока + разбор подсказок (какие типы вопросов и форматы просит учитель) */
@@ -112,7 +102,7 @@ const Notes = (() => {
     return `## Заметки учителя (приоритет выше базы и интернета; учти всё)
 ${n.prompt ? `Промт: ${n.prompt}\n` : ""}${n.observe ? `Заметки и наблюдения (встрой в урок): ${n.observe}\n` : ""}${n.checklist.length ? `Обязательные акценты: ${n.checklist.join("; ")}\n` : ""}${n.links.length ? `Ссылки учителя (укажи в источниках): ${n.links.join(" ")}\n` : ""}${n.text ? `Текст произведения (цитируй только его):\n<text>\n${n.text.slice(0, 12000)}\n</text>\n` : ""}${n.files.length ? `Файлы к уроку: ${n.files.map(f => f.name).join(", ")} (выдержки — в опорных материалах)\n` : ""}`;
   }
-  return { mount, snapshot, lessonMaterials, conspectBlock, promptBlock, get draft() { return draft; } };
+  return { mount, reset, snapshot, lessonMaterials, conspectBlock, promptBlock, get draft() { return draft; } };
 })();
 window.Notes = Notes;
 document.addEventListener("DOMContentLoaded", () => Notes.mount());

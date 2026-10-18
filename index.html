@@ -600,7 +600,7 @@ window.UCHU_SITE = {
         </div>
       </div>
       <div class="lesson-title" id="lessonTitle" hidden></div>
-      <p class="edit-hint" id="editHint" hidden><b>✎ Правьте прямо на листе</b> — щёлкните в любое место и пишите. На слайдах щёлкните по картинке, чтобы подобрать другую. Всё сохраняется само.</p>
+      <p class="edit-hint" id="editHint" hidden>✎ Правьте прямо на листе — всё сохраняется само.</p>
       <div class="dl-panel" id="dlPanel" hidden></div>
       <div class="progress" id="progress" hidden><span id="progressText"></span><span class="bar"><i id="progressBar"></i></span><button class="btn sm ghost" id="btnStop">Остановить</button></div>
       <div class="split" id="split">
@@ -2299,7 +2299,7 @@ const Engine = (() => {
     // v5.8: методический набор (фрагменты, словарь, термины, выводы) — то же самое будет на слайдах и в рабочем листе
     const kit = !ru ? p.plan?.kit : null;
     if (kit) {
-      md += `\n\n## Проблемный вопрос урока\n\n> ${kit.problem}\n\n${kit.problemSrc ? `*Откуда вопрос:* ${kit.problemSrc}.${kit.problemNote ? ` ${kit.problemNote}` : ""}\n\n` : ""}*Ожидаемый ответ (для учителя, звучит в конце урока):* ${kit.answer || "ученики формулируют главную мысль с опорой на 2–3 цитаты из разных фрагментов."}\n`;
+      md += `\n\n## Проблемный вопрос урока\n\n> ${kit.problem}\n\n${kit.problemNote && /https?:|Опорные строки/.test(kit.problemNote) ? `*Опора:* ${kit.problemNote}\n\n` : ""}*Ожидаемый ответ (для учителя, звучит в конце урока):* ${kit.answer || "ученики формулируют главную мысль с опорой на 2–3 цитаты из разных фрагментов."}\n`;
       if (window.MethodBase) { const M = MethodBase.forLesson(p, p.plan?.analysis); md += `\n## Методическая основа урока\n\n**${M.name}.** ${M.logic.charAt(0).toUpperCase() + M.logic.slice(1)}.\n\nПриёмы урока: ${M.tricks.slice(0, 4).join(", ")}.\n`; }
       // опора из источников: статья о произведении и разработки учителей (короткие выдержки со ссылками)
       { const pl = p.plan, ed = (pl.edu || []).filter(r => (r.problem?.length || r.questions?.length || r.theses?.length)).slice(0, 4);
@@ -3493,7 +3493,7 @@ function updateType() {
   const topic = $("#topic").value.trim();
   state.type = Engine.detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade });
   const t = state.type;
-  $("#typeBox").innerHTML = topic ? `<div class="type-name"><span class="lbl">Тип урока — определён автоматически</span><b>${esc(t.name)}</b></div><p class="hint">Почему: ${esc(t.reason)}.</p><details><summary>Этапы урока</summary><p class="hint">${esc(t.stages.join(" → "))}</p></details>`
+  $("#typeBox").innerHTML = topic ? `<div class="type-name"><span class="lbl">Тип урока — определён автоматически</span><b>${esc(t.name)}</b></div><details><summary>Этапы урока</summary><p class="hint">${esc(t.stages.join(" → "))}</p></details>`
     : `<div class="type-name"><span class="lbl">Тип урока</span><b class="muted">определится по теме и номеру урока</b></div>`;
 }
 function fillGrades() { $("#grade").innerHTML = [5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}">${g} класс</option>`).join(""); $("#grade").value = state.grade; }
@@ -3878,6 +3878,7 @@ async function createLesson() {
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   p.notes = window.Notes ? Notes.snapshot() : null;
+  if (window.Notes?.reset) Notes.reset(); // пожелания и файлы — только для этого урока, к следующему не переходят
   if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   const useAi = state.build === "ai";
@@ -4103,7 +4104,7 @@ function renderLesson() {
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
-  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${L.verify && window.Verify ? `<p class="verify-line">${esc(Verify.line(L.verify))} <button class="btn sm ghost" id="btnVerify">Отчёт сверки</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
+  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${L.verify && window.Verify && window.Access?.isDev?.() ? `<p class="verify-line">${esc(Verify.line(L.verify))} <button class="btn sm ghost" id="btnVerify">Отчёт сверки</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
   { const bp = $("#btnPrompts"); if (bp) bp.onclick = () => openPrompts(L); }
   { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);

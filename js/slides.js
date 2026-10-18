@@ -323,7 +323,7 @@ const SlideEditor = (() => {
         <button class="btn sm flame" id="sxDesign" title="Тема оформления и шрифты всей презентации">🎨 Оформление</button>
         <button class="btn sm" id="sxLayPick" title="Шаблон этого слайда">▦ Шаблон слайда</button>
         <button class="btn sm" id="sxMenuTop" title="Все действия со слайдом">⋯ Слайд</button>
-        <button class="btn sm" id="sxPlan2" title="Как в Gamma: план слайдов по конспекту и пересборка">☰ План презентации</button>
+        <button class="btn sm" id="sxPlan2" title="План слайдов">☰ План презентации</button>
         <button class="btn sm teal" id="sxPlay2" title="Показ на весь экран, кнопки-переходы работают">▶ Показ</button>
         <span class="sx-grp"><button class="btn sm ghost" id="sxUndo2" ${undo.length ? "" : "disabled"} title="Отменить (Ctrl+Z)">↶</button><button class="btn sm ghost" id="sxRedo2" ${redo.length ? "" : "disabled"} title="Повторить (Ctrl+Y)">↷</button></span>
         <button class="btn sm ghost" id="sxMoreBtn" aria-expanded="${moreOpen}" title="Тонкие настройки: размер шрифта, поля, интервал, фон, свободная вёрстка">⚙ Ещё настройки</button>
@@ -346,7 +346,7 @@ const SlideEditor = (() => {
         <button class="btn sm ghost" id="sxSplit">Разделить</button><button class="btn sm ghost" id="sxMerge" ${cur >= arr.length - 1 ? "disabled" : ""}>Объединить со следующим</button>
         <button class="btn sm ghost" id="sxUndo" ${undo.length ? "" : "disabled"} title="Отменить (Ctrl+Z)">↶</button><button class="btn sm ghost" id="sxRedo" ${redo.length ? "" : "disabled"} title="Повторить (Ctrl+Y)">↷</button>
         <button class="btn sm ghost" id="sxHtml">Скачать HTML</button>
-        <button class="btn sm flame" id="sxPlan" title="Как в Gamma: план слайдов по конспекту, объём текста, картинки — и пересборка">План презентации</button>
+        <button class="btn sm flame" id="sxPlan" title="План слайдов">План презентации</button>
       </div>
       ${sl.set.vb ? `<p class="sx-vbnote">🔒 Дословный текст (упражнение, цитата, правило или стихи): слова не сокращаются. Если не помещается — шрифт меньше, затем деление на слайды.</p>` : ""}
       <div class="sx-main has-rail">
