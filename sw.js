@@ -5,7 +5,7 @@
    • Библиотеки (Word, PowerPoint, PDF, шрифты): из кэша, если уже были загружены.
    • Ответы Википедии и Викитеки запоминаются: урок по той же теме без сети соберётся с ними.
    • Ключи нейросетей, запросы к нейросетям и к GitHub в кэш не попадают. */
-const VERSION = "uchu-v5.75";
+const VERSION = "uchu-v5.76";
 const SHELL = ["./", "index.html", "css/v5.css", "data/base.js", "data/extra.js", "data/frp.js", "data/promo.js", "data/legal.js",
   "vendor/marked.umd.js", "vendor/purify.min.js", "vendor/turndown.js", "vendor/turndown-plugin-gfm.js", "vendor/pptxgen.bundle.js", "vendor/jszip.min.js", "vendor/docx.umd.js",
   ...["log", "cleaner", "learn", "variety", "methodbase", "mathkit", "subjects", "usage", "heur", "litkit", "notes", "verify", "ocr", "materials", "collect", "devmode", "devcover", "account", "cloudbase", "rules", "lessonnotes", "tutor", "mnemo", "themes", "video", "photostk", "access", "rukit", "deck", "slides", "publish", "sync", "worksearch", "ai"].map(n => `js/${n}.js`)];

@@ -535,8 +535,9 @@ window.UCHU_SITE = {
     <aside class="panel">
       <section class="card params" aria-labelledby="z2">
         <div class="card-h"><span class="n">1</span><h2 id="z2">Параметры урока</h2></div>
-        <div class="field"><span class="lbl">Предмет</span>
-          <div class="seg" id="segSubject"><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button></div>
+        <div class="field"><label for="subjectSel">Предмет</label>
+          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option></select>
+          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button></div>
         </div>
         <div class="row2">
           <div class="field"><label for="grade">Класс</label><select id="grade"></select></div>
@@ -3461,7 +3462,7 @@ function renderMaterials() {
 /* ===================================================================
    ПАРАМЕТРЫ: класс, тема (список по ФРП), номер урока, тип урока (авто)
    =================================================================== */
-function setSeg(id, v) { $$(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(String(b.dataset.v) === String(v)))); }
+function setSeg(id, v) { $$(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(String(b.dataset.v) === String(v)))); if (id === "segSubject" && $("#subjectSel")) $("#subjectSel").value = v; }
 function topicList() {
   const PL = window.Subjects?.plugin(state.subject); if (PL) return { frp: true, items: PL.topics(state.grade) }; // другие предметы — темы из своего модуля
   const frp = FRP.topicsFor(state.subject, state.grade);
@@ -4727,6 +4728,7 @@ function openAiSettings() {
 function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });
   $("#btnBack").onclick = () => history.back();
+  $("#subjectSel").onchange = e => $(`#segSubject button[data-v="${e.target.value}"]`)?.click();
   $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); if (ch) clearTopic(); else { readForm(); updateType(); } refreshTopics(); });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
