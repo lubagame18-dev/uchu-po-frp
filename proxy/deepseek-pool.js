@@ -97,7 +97,7 @@ async function chat(body, request, readAll, onlySlot) {
       const model = a.model || (P.id === "deepseek" && body.model && !/^deepseek-(chat|reasoner)$/.test(body.model) ? body.model : P.model);
       let res, text;
       if (ruBlocked(a)) continue; // сервис не работает из России — не обращаемся вовсе
-      res = await request(P.base + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ ...body, model, stream: false }), timeout: 120000 }); text = await readAll(res);
+      res = await request(P.base + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ ...body, model, stream: false }), timeout: 280000 }); text = await readAll(res);
       if (res.statusCode === 200) { rest.delete(a.id); last.set(a.id, { at: Date.now(), status: 200 }); return { status: 200, text, account: mask(a.email) }; }
       last.set(a.id, { at: Date.now(), status: res.statusCode, error: String(text).slice(0, 160) });
       lastErr = { status: res.statusCode, text };

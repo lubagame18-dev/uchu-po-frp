@@ -4060,11 +4060,13 @@ async function resumeJob() {
 async function buildWithAi(L, p, type, formats) {
   const lessonMaterialsNote = relevantMaterials(p.topic, p.grade, p.subject).length;
   await preparePlan(L, p, type);
+  // техкарта не выбрана, но нужна как основа: собирается «за кадром», а прогресс идёт на вкладке того листа, что учитель ждёт первым
+  const shown = f => (L.hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   for (const f of formats) {
-    L.status[f] = "run";
-    state.gen = { lessonId: L.id, doc: f, pct: 0, ctl: new AbortController() };
+    L.status[f] = "run"; if (shown(f) !== f && L.status[shown(f)] === "wait") L.status[shown(f)] = "run";
+    state.gen = { lessonId: L.id, doc: shown(f), pct: 0, ctl: new AbortController() };
     // остаёмся на том листе, где учитель (обычно — первый готовый конспект); вкладки сами показывают, что готово
-    if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = f; renderLesson(); }
+    if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = shown(f); renderLesson(); }
     if (EXTRA_DOCS.includes(f)) { L.docs[f] = buildDocNoAi(f, L, p, type); L.status[f] = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
     if (f === "lesson") { L.docs.lesson = LessonNotes.build(techOf(L, p, type), p); L.status.lesson = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
     if (f === "slides" && window.Deck) {
@@ -4092,15 +4094,26 @@ async function buildWithAi(L, p, type, formats) {
     const paint = throttle(text => { if (state.lesson?.id === L.id && state.active === f) { $("#md").value = text; renderPreview(); } }, 300);
     try {
       window.UCHU_CTX = { params: { subject: p.subject, grade: p.grade, mode: p.mode, control: p.control, formats: p.formats, topic: p.topic }, countUsage: true };
-      const res = await caps.sample(prompt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); state.gen.pct = Math.min(95, Math.round(text.length / DOCS[f].expect * 100)); updateProgress(); paint(L.docs[f]); } });
-      let md = cleanMd(res.text);
+      const onText = base => ({ text }) => { L.docs[f] = cleanMd(base + text); state.gen.pct = Math.min(95, Math.round((base.length + text.length) / DOCS[f].expect * 100)); updateProgress(); paint(L.docs[f]); };
+      let res, raw = "";
+      try { res = await caps.sample(prompt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: onText("") }); raw = res.text; }
+      catch (e) { if (e?.code === "cancelled" || !(e?.text && e.text.length > 400)) throw e; raw = e.text; res = { text: raw, truncated: true }; } // оборвалось на середине — допишем
+      // документ оборван (лимит длины, таймаут сервера) — просим нейросеть продолжить с места обрыва, до двух раз
+      for (let k = 0; k < 2 && (res.truncated || !finished(f, raw)); k++) {
+        state.gen.pct = Math.max(state.gen.pct || 0, 80); updateProgress();
+        try { const more = await caps.sample(`${prompt}\n\n---\nТы уже написал начало документа, оно оборвалось. Вот его конец:\n${raw.slice(-2500)}\n---\nПродолжи документ ровно с места обрыва (с той же строки таблицы или того же абзаца). Не повторяй написанное, не начинай заново, без вступлений. Доведи документ до конца (рефлексия, домашнее задание).`, { modelTier: "default", cache: false, signal: state.gen.ctl.signal, onText: onText(raw + "\n") }); raw = joinCont(raw, more.text); res = { text: raw, truncated: more.truncated }; }
+        catch (e) { if (e?.code === "cancelled") throw e; if (e?.text) raw = joinCont(raw, e.text); break; }
+      }
+      let md = cleanMd(raw);
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
       else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md).catch(() => md); }
-      L.docs[f] = md; L.status[f] = res.truncated ? "err" : "ok";
-      if (res.truncated) toast("Документ получился длинным и обрезан. Попросите ИИ: «допиши окончание».");
+      L.docs[f] = md; L.status[f] = "ok";
+      if (!finished(f, raw)) toast("Документ получился длинным: проверьте окончание. Если оно оборвано, попросите ИИ: «допиши окончание».", 7000);
     } catch (e) {
       if (e?.text) L.docs[f] = cleanMd(e.text);
       L.status[f] = "err";
+      // техкарта — основа для конспекта и презентации: если нейросеть не ответила, собираем её без ИИ, чтобы урок доделался
+      if (f === "conspect" && e?.code !== "cancelled" && (!L.docs.conspect || L.docs.conspect.length < 1500)) { L.docs.conspect = buildDocNoAi("conspect", L, p, type); L.status.conspect = "ok"; toast("Нейросеть не успела ответить — техкарта собрана без ИИ, остальное доделываю.", 7000); }
       if (e?.code === "cancelled") { formats.forEach(x => { if (L.status[x] === "wait") L.status[x] = "err"; }); state.gen = null; break; }
       toast(sampleErr(e), 6000);
       if (["not_configured", "auth_failed", "network", "rate_limited"].includes(e?.code)) {
@@ -4158,6 +4171,10 @@ function applyWeb(md, f, web) {
   if (f === "worksheet") return md.replace("<!--TEXT-->", web.text ? `### 📖 Текст для работы\n\n${web.text.text.split("\n").slice(0, 40).map(l => "> " + l).join("\n")}\n\n*Источник: ${web.text.source}*\n\n` : "");
   return md;
 }
+// документ доведён до конца: у техкарты и конспекта есть заключительные этапы (рефлексия, д/з)
+function finished(f, text) { const t = String(text || ""); if (t.length < 600) return false; if (!["conspect", "lesson"].includes(f)) return true; const tail = t.slice(-Math.max(1500, Math.round(t.length * 0.35))); return /домашн|рефлекси|итог урока/i.test(tail); }
+// склейка продолжения: убираем повтор, если нейросеть начала с уже написанной строки
+function joinCont(a, b) { b = String(b || "").replace(/^\s*(```\w*\s*)?/, ""); const last = a.trimEnd().split("\n").pop(); if (last && last.length > 20 && b.startsWith(last)) b = b.slice(last.length); else if (last && b.startsWith(last.slice(0, 40)) && last.length > 40) b = b.slice(b.indexOf("\n") + 1); return a.trimEnd() + (/^\|/.test(b.trimStart()) || /\|$/.test(a.trimEnd()) ? "\n" : "\n") + b.trimStart(); }
 function techOf(L, p, type) { return L.docs.conspect || L.tech || (L.tech = injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect")); }
 function buildDocNoAi(f, L, p, type) {
   if (f === "conspect") return injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
