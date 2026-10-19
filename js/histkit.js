@@ -283,10 +283,10 @@ const HistKit = (() => {
   const fin = f => (...a) => { const x = f(...a); return typeof x === "string" ? x.replace(/(\s(?:г|гг|в|вв|э))\.\.(?!\.)/g, "$1.") : x; };
   // тема без готового набора у сайта → урок строится по ФРП (задания, понятия, содержание программы)
   const ownData = p => !!(find(p.topic, p.grade) || review(p));
-  const viaFrp = p => ownData(p) ? null : window.Subjects?.frp?.("hist", p);
+  const viaFrp = p => ownData(p) ? null : (window.Subjects?.frp?.("hist", p) || (p.web?.items?.length ? { theme: p.topic, goal: "", tasks: [], terms: [], content: [] } : null));
   const W = (kind, fn) => (p, type, ...r) => { const F = viaFrp(p); return F ? Subjects.frpDoc(kind, p, type, F, "История") : fn(p, type, ...r); };
   const WX = (k, p, type, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, type, F, "История") : extra(k, p, type, o); };
   const WP = (k, p, type, d) => { const F = viaFrp(p), x = prompt(k, p, type, d); return F ? x + `\nПо ФРП (тема «${F.theme}»): задания — ${F.tasks.join("; ")}${F.terms.length ? `; понятия — ${F.terms.join(", ")}` : ""}${F.content.length ? `; содержание — ${F.content.join("; ")}` : ""}. Факты бери только из учебника и ФРП.` : x; };
-  return { id: "hist", name: "История", topics, detectType, conspect: W("conspect", fin(conspect)), lesson: W("lesson", fin(lesson)), worksheet: W("worksheet", fin(worksheet)), extra: (k, p, t, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, t, F, "История") : fin(extra)(k, p, t, o); }, cards: W("cards", cards), prompt: WP, find, TYPES };
+  return { id: "hist", name: "История", hasOwn: ownData, topics, detectType, conspect: W("conspect", fin(conspect)), lesson: W("lesson", fin(lesson)), worksheet: W("worksheet", fin(worksheet)), extra: (k, p, t, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, t, F, "История") : fin(extra)(k, p, t, o); }, cards: W("cards", cards), prompt: WP, find, TYPES };
 })();
 window.HistKit = HistKit;

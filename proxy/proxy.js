@@ -114,6 +114,36 @@ async function eduSearch(q, words) {
   eduCache.set(ck, { at: Date.now(), data }); if (eduCache.size > 300) eduCache.delete(eduCache.keys().next().value);
   return data;
 }
+/* Факты к уроку по российским образовательным и научно-справочным сайтам (история и другие предметы):
+   РЭШ, Российское историческое общество (histrf.ru), Большая российская энциклопедия, Президентская библиотека,
+   «Урок.рф», Инфоурок, nsportal, Мультиурок, «1 сентября», Фоксфорд, ИнтернетУрок, Видеоуроки и др.
+   Из страниц берутся только короткие предложения по теме (даты, определения, факты) — каждое с адресом источника. */
+const FACT_HOSTS = /(^|\.)(resh\.edu\.ru|histrf\.ru|bigenc\.ru|prlib\.ru|runivers\.ru|xn--j1ahfl\.xn--p1ai|infourok\.ru|nsportal\.ru|multiurok\.ru|urok\.1sept\.ru|1sept\.ru|kopilkaurokov\.ru|foxford\.ru|interneturok\.ru|videouroki\.net|uchitelya\.com|pedsovet\.su|obrazovaka\.ru|historyrussia\.org|rusempire\.ru|encyclopedia\.mil\.ru|mil\.ru|9may\.ru|pobeda\.elar\.ru|cyberleninka\.ru|rvio\.histrf\.ru|xn--h1aagokeh\.xn--p1ai|znanierussia\.ru|kulturologia\.ru|culture\.ru|rgo\.ru|ras\.ru|mos\.ru|chel-portal\.ru|chelreglib\.ru|cspu\.ru|csu\.ru|gramota\.ru|ya-uchitel\.ru|uchi\.ru|skysmart\.ru)$/i;
+const factCache = new Map();
+function factExtract(text, words) {
+  const sents = text.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[А-ЯЁ«])/).map(x => x.trim()).filter(x => x.length > 30 && x.length < 320 && !/(cookie|javascript|©|скачать|зарегистр|войти|реклам|подпис|оплат|курс повышения|вебинар|http)/i.test(x));
+  const score = l => { const t = l.toLowerCase(); return words.reduce((n, w) => n + (t.includes(w) ? 1 : 0), 0); };
+  const rel = sents.filter(l => score(l) > 0);
+  const dates = rel.filter(l => /\b(1[0-9]{3}|[5-9][0-9]{2})\s*(г\.|год|–|-)|\b[IVX]{1,5}\s*в(\.|ек)|до н\.\s*э\./.test(l)).slice(0, 8);
+  const defs = sents.filter(l => /^[А-ЯЁ][а-яё\- ]{2,40}\s+[—–-]\s+(это\s+)?[а-яё]/.test(l) && l.length < 220).slice(0, 6);
+  const facts = rel.filter(l => !dates.includes(l) && !defs.includes(l)).sort((a, b) => score(b) - score(a)).slice(0, 8);
+  return { dates, defs, facts };
+}
+async function factSearch(q, words, subj) {
+  const ck = subj + ":" + q; const hit = factCache.get(ck); if (hit && Date.now() - hit.at < 24 * 3600e3) return hit.data;
+  const add = subj === "hist" ? [" история урок", " кратко", " РЭШ"] : [" урок", " конспект", ""];
+  const found = [];
+  for (const tail of add) {
+    try { for (const r of await yandexWeb(q + tail, 15)) { let host = r.domain; try { host = new URL(r.url).hostname; } catch { } if (FACT_HOSTS.test(host) && !found.some(x => x.url === r.url)) found.push(r); } } catch (e) { if (e.status === 401) throw e; }
+    if (found.length >= 8) break;
+  }
+  const top = found.slice(0, 6);
+  const pages = await Promise.all(top.map(r => Promise.race([fetchPageText(r.url).catch(() => ""), new Promise(res => setTimeout(() => res(""), 10000))])));
+  const results = top.map((r, i) => ({ url: r.url, domain: r.domain, title: r.title, snippet: r.snippet, ...(pages[i] ? factExtract(pages[i], words) : { dates: [], defs: [], facts: [] }) }));
+  const data = { ok: true, results };
+  factCache.set(ck, { at: Date.now(), data }); if (factCache.size > 300) factCache.delete(factCache.keys().next().value);
+  return data;
+}
 /* Аудио и видео к уроку: чтение стихов артистами, экранизации, спектакли — только страницы видеохостингов */
 const MEDIA = /(^|\.)(rutube\.ru|vkvideo\.ru|vk\.com|vk\.ru|smotrim\.ru|culture\.ru|youtube\.com|youtu\.be|ok\.ru)$/i;
 const MEDIA_PAGE = /rutube\.ru\/video\/|vkvideo\.ru\/video-?\d|vk\.(com|ru)\/video-?\d|youtube\.com\/watch|youtu\.be\/|smotrim\.ru\/(video|brand)|culture\.ru\/(movies|watch|s\/|audio)|ok\.ru\/video\//i;
@@ -310,7 +340,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 14, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "pay"], pay: PAY.on(), payBy: PAY.provider(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 15, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "facts", "pay"], pay: PAY.on(), payBy: PAY.provider(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -332,6 +362,14 @@ async function handler(req, res) {
     const q = String(u.searchParams.get("q") || "").slice(0, 200).trim(); if (!q) return send(res, 400, { error: "нужен q" });
     const words = String(u.searchParams.get("w") || "").toLowerCase().split(/[,\s]+/).filter(w => w.length > 3).slice(0, 6);
     try { return send(res, 200, await eduSearch(q, words)); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
+  }
+  if (req.method === "GET" && route === "/facts") {
+    if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });
+    const q = String(u.searchParams.get("q") || "").slice(0, 240).trim(); if (!q) return send(res, 400, { error: "нужен q" });
+    const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+    if (limited(ip)) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
+    const words = String(u.searchParams.get("w") || "").toLowerCase().split(/[,\s]+/).filter(w => w.length > 3).map(w => w.slice(0, 6)).slice(0, 8);
+    try { return send(res, 200, await factSearch(q, words, String(u.searchParams.get("s") || "hist").slice(0, 10))); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
   }
   if (req.method === "GET" && route === "/img") {
     try { const r = await fetchImage(String(u.searchParams.get("url") || "")); res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "public, max-age=86400" }); return res.end(r.buf); }

@@ -425,10 +425,10 @@ const MathKit = (() => {
 
   // тема без готового набора у сайта → урок строится по ФРП (задания, понятия, содержание программы)
   const ownData = p => !!family(p.topic);
-  const viaFrp = p => ownData(p) ? null : window.Subjects?.frp?.("math", p);
+  const viaFrp = p => ownData(p) ? null : (window.Subjects?.frp?.("math", p) || (p.web?.items?.length ? { theme: p.topic, goal: "", tasks: [], terms: [], content: [] } : null));
   const W = (kind, fn) => (p, type, ...r) => { const F = viaFrp(p); return F ? Subjects.frpDoc(kind, p, type, F, "Математика") : fn(p, type, ...r); };
   const WX = (k, p, type, o) => { const F = viaFrp(p); return F ? Subjects.frpDoc(k, p, type, F, "Математика") : extra(k, p, type, o); };
   const WP = (k, p, type, d) => { const F = viaFrp(p), x = prompt(k, p, type, d); return F ? x + `\nПо ФРП (тема «${F.theme}»): задания — ${F.tasks.join("; ")}${F.terms.length ? `; понятия — ${F.terms.join(", ")}` : ""}${F.content.length ? `; содержание — ${F.content.join("; ")}` : ""}. Факты бери только из учебника и ФРП.` : x; };
-  return { id: "math", name: "Математика", topics, detectType, conspect: W("conspect", conspect), lesson: W("lesson", lesson), worksheet: W("worksheet", worksheet), extra: WX, cards: W("cards", cards), prompt: WP, family, TYPES, families: F };
+  return { id: "math", name: "Математика", hasOwn: ownData, topics, detectType, conspect: W("conspect", conspect), lesson: W("lesson", lesson), worksheet: W("worksheet", worksheet), extra: WX, cards: W("cards", cards), prompt: WP, family, TYPES, families: F };
 })();
 window.MathKit = MathKit;

@@ -60,7 +60,8 @@ const Subjects = (() => {
   function frpDoc(kind, p, type, F, subj) {
     const cell = x => String(x || "").replace(/\|/g, "∣").replace(/\n/g, "<br>");
     const T = F.tasks.length ? F.tasks : [`Изучите материал параграфа по теме «${p.topic}» и составьте план ответа`];
-    const terms = F.terms, cont = F.content, H = hwCheck(p);
+    const Wb = p.web?.items || [], wDef = Wb.filter(x => x.kind === "def").map(x => x.text), wDate = Wb.filter(x => x.kind === "date").map(x => x.text), wFact = Wb.filter(x => x.kind === "fact").map(x => x.text);
+    const terms = F.terms, cont = [...F.content, ...wFact.slice(0, 4)], H = hwCheck(p);
     const lst = (a, br = "<br>") => a.map((x, i) => `${i + 1}) ${x}`).join(br);
     const isHist = subj === "История", isEng = subj === "Английский язык";
     const parts = st => {
@@ -68,7 +69,7 @@ const Subjects = (() => {
       if (/Проверка домашнего/.test(st)) return { t: H.teacher, s: H.students, u: "Регулятивные: контроль и коррекция." };
       if (/Актуализация|устный счёт|разминка|Повторение лексики/.test(st)) return { t: `Повторение опорных знаний по теме «${F.theme}»: — Что мы уже знаем об этом? Что изучали на прошлых уроках?${isHist ? "<br>— Найдите на ленте времени место темы урока." : ""}`, s: "Отвечают, вспоминают изученное.", u: "Познавательные: актуализация." };
       if (/Мотивация/.test(st)) return { t: `Тема урока на доске: «${p.topic}».<br>— Что вы уже знаете об этом? Какие вопросы у вас возникают?<br>— Сформулируйте вопрос (цель) урока. *(Вопросы учеников записываются на доске — к ним вернёмся в конце урока.)*`, s: "Высказывают предположения, задают вопросы, формулируют цель урока.", u: "Регулятивные: целеполагание; познавательные: постановка проблемы." };
-      if (/Открытие|Изучение нового|Введение новой лексики|грамматического правила|Чтение текста/.test(st)) return { t: `Работа по плану (задания по ФРП):<br>${lst(T.slice(0, 4))}${terms.length ? `<br>Понятия урока (учитель называет понятие, когда ученики описали явление): ${terms.join(", ")}.` : ""}${cont.length ? `<br>**Содержание по ФРП:** ${cont.join("; ")}.` : ""}<br>Источник фактов и заданий — учебник: параграф и задания к нему.`, s: "Работают с учебником, картой, источником; выполняют задания, формулируют выводы, записывают понятия.", u: "Познавательные: смысловое чтение, анализ, вывод." };
+      if (/Открытие|Изучение нового|Введение новой лексики|грамматического правила|Чтение текста/.test(st)) return { t: `Работа по плану (задания по ФРП):<br>${lst(T.slice(0, 4))}${terms.length ? `<br>Понятия урока (учитель называет понятие, когда ученики описали явление): ${terms.join(", ")}.` : ""}${F.content.length ? `<br>**Содержание по ФРП:** ${F.content.join("; ")}.` : ""}${wDate.length ? `<br>**Лента времени (по источникам):**<br>${wDate.slice(0, 5).join("<br>")}` : ""}${wDef.length ? `<br>**Понятия (по источникам):**<br>${wDef.slice(0, 4).join("<br>")}` : ""}${wFact.length ? `<br>**Факты (по источникам):**<br>${wFact.slice(0, 4).join("<br>")}` : ""}<br>Источник фактов и заданий — учебник${Wb.length ? " и образовательные сайты (список в конце)" : ""}.`, s: "Работают с учебником, картой, источником; выполняют задания, формулируют выводы, записывают понятия.", u: "Познавательные: смысловое чтение, анализ, вывод." };
       if (/Первичное закрепление|Тренировочные|Практикум|Причины и последствия|Речевые упражнения|изменённых условиях|Работа с текстом|Фонетическая/.test(st)) return { t: `Закрепление: ${T[T.length - 1]}.<br>Упражнения учебника к теме урока (№ ____).<br>— Вернёмся к вопросам, которые мы поставили в начале урока. На какие уже можем ответить?`, s: "Выполняют задания, отвечают на поставленные вопросы с опорой на факты.", u: "Познавательные: применение знаний; коммуникативные: аргументация." };
       if (/Речевая практика|группах|Обобщение:/.test(st)) return { t: `Работа в парах (группах): ${T.slice(0, 2).join("; ")}.<br>Представление результатов, взаимооценка.`, s: "Работают в парах (группах), представляют результат.", u: "Коммуникативные: сотрудничество." };
       if (/Самостоятельная|Проверочная|Контрольная работа/.test(st)) return { t: `Задания:<br>${lst([terms.length ? `Объясните значение понятий: ${terms.slice(0, 4).join(", ")}` : "", ...T.slice(0, 2)].filter(Boolean))}<br>Ответы — по учебнику.`, s: "Выполняют задания, проверяют по учебнику.", u: "Регулятивные: самоконтроль." };
@@ -81,12 +82,12 @@ const Subjects = (() => {
     if (kind === "conspect") {
       let md = `# ${p.topic}\n\n${head}\n\n**Тема по ФРП:** ${F.theme}\n\n**Цель:** ${F.goal ? `формирование умения ${F.goal}` : `освоение темы «${p.topic}»`}.\n\n**Оборудование:** учебник, презентация, рабочий лист${isHist ? ", историческая карта" : ""}.\n\n---\n\n## План урока\n\n${type.stages.map((x, i) => `${i + 1}. ${x} (${type.mins[i]} мин)`).join("\n")}\n\n---\n\n## Технологическая карта урока\n\n| Этап урока | Деятельность учителя | Деятельность учащихся | Задания / УУД |\n|---|---|---|---|\n`;
       type.stages.forEach((st, i) => { const r = parts(st); md += `| ${st} (${type.mins[i]} мин) | ${cell(r.t)} | ${cell(r.s)} | ${cell(r.u)} |\n`; });
-      return md + "\n";
+      return md + "\n" + webBlock(p);
     }
     if (kind === "lesson") {
       let md = `# ${p.topic}\n\n${head}\n\n---\n\n## Ход урока\n\n`;
       type.stages.forEach((st, i) => { const r = parts(st); if (!r.t) return; md += `### ${i + 1}. ${st} · ${type.mins[i]} мин\n\n| ${st.split(":")[0]} |\n|---|\n| ${cell(r.t)} |\n| **💬 Ученики:** ${cell(r.s)} |\n\n`; });
-      return md;
+      return md + webBlock(p);
     }
     if (kind === "worksheet") {
       let md = `# ${isEng ? "Worksheet" : "Рабочий лист урока"}\n\n**Тема:** ${p.topic}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n### ❓ Мои вопросы к теме урока\n\n1. ________________________________________\n\n2. ________________________________________\n\n`;
@@ -105,12 +106,41 @@ const Subjects = (() => {
       add({ kind: "steps", title: "План работы", points: T.slice(0, 4).map(x => x.length > 120 ? x.slice(0, 118).replace(/\s+\S*$/, "") + "…" : x) });
       if (terms.length) add({ kind: "list", title: "Понятия урока", points: terms });
       if (cont.length) add({ kind: "list", title: "Главное по теме", points: cont });
+      if (wDate.length) add({ kind: "list", title: "Лента времени", points: wDate.slice(0, 6) });
       add({ kind: "list", title: "Рефлексия", points: ["На какие вопросы мы ответили?", "Могу объяснить сам(а) / понял(а) с подсказкой / остались вопросы"] });
       add({ kind: "hw", title: "Домашнее задание", points: [`Параграф учебника по теме урока`, T[Math.min(1, T.length - 1)]] });
       return c;
     }
     return "";
   }
-  return { list, plugin, name, hw, hwCheck, planTopics, frp, frpDoc };
+  /* Поиск материала к уроку по российским образовательным сайтам (через функцию сайта, маршрут /facts).
+     Запрос — «Что найти к уроку» (если учитель написал) или тема урока. Результат — короткие предложения
+     с указанием источника: даты, определения, факты. Сайт ничего не дописывает от себя. */
+  async function webFacts(p) {
+    const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""); if (!fn) return null;
+    const ask = String(p.find || "").trim(), q = (ask ? `${ask} ${ask.toLowerCase().includes(String(p.topic).toLowerCase().slice(0, 12)) ? "" : p.topic}` : p.topic).replace(/\s+/g, " ").trim().slice(0, 230);
+    const words = [...new Set(String(ask + " " + p.topic).toLowerCase().replace(/ё/g, "е").split(/[^а-яa-z0-9]+/).filter(w => w.length > 4 && !/^(урок|повтор|обобщ|контрол|тема|какие|который|найти|нужно|пожалуйста)/.test(w)).map(w => w.slice(0, 6)))].slice(0, 8);
+    const qs = `q=${encodeURIComponent(q)}&w=${encodeURIComponent(words.join(","))}&s=${encodeURIComponent(p.subject || "hist")}`;
+    const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/facts")}&${qs}` : `${fn}/facts?${qs}`;
+    try {
+      const r = await fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined }); if (!r.ok) return { ok: false, items: [], sources: [] };
+      const j = await r.json(); if (!j?.ok) return { ok: false, reason: j?.reason, items: [], sources: [] };
+      const items = [], seen = new Set(), sources = [];
+      for (const x of j.results || []) {
+        const src = { title: x.title || x.domain, url: x.url, domain: x.domain }; let used = false;
+        for (const [kind, arr] of [["date", x.dates], ["def", x.defs], ["fact", x.facts]]) for (const t of arr || []) { const k = t.slice(0, 60).toLowerCase(); if (seen.has(k)) continue; seen.add(k); items.push({ kind, text: t, src }); used = true; }
+        if (used) sources.push(src);
+      }
+      return { ok: true, query: q, items: items.slice(0, 24), sources };
+    } catch { return { ok: false, items: [], sources: [] }; }
+  }
+  // блок «найдено в источниках» для конспекта и техкарты
+  function webBlock(p, br = "\n") {
+    const W = p.web; if (!W?.items?.length) return "";
+    const n = new Map(W.sources.map((x, i) => [x.url, i + 1])), ref = x => ` [${n.get(x.src.url) || ""}]`;
+    const part = (kind, title) => { const a = W.items.filter(x => x.kind === kind); return a.length ? `**${title}:**${br}${a.map(x => `- ${x.text}${ref(x)}`).join(br)}${br}${br}` : ""; };
+    return `## 📚 Найдено в образовательных источниках${br}${br}*Запрос: «${W.query}». Каждое предложение взято из источника, номер — в списке ниже. Перед уроком сверьте с учебником.*${br}${br}${part("date", "Даты и события")}${part("def", "Понятия")}${part("fact", "Факты")}**Источники:**${br}${W.sources.map((x, i) => `${i + 1}. [${x.title}](${x.url}) — ${x.domain}`).join(br)}${br}`;
+  }
+  return { list, plugin, name, hw, hwCheck, planTopics, frp, frpDoc, webFacts, webBlock };
 })();
 window.Subjects = Subjects;

@@ -583,6 +583,9 @@ window.UCHU_SITE = {
           <div class="field"><label for="wishes">Пожелания <span class="small">(необязательно)</span></label><textarea class="inp" id="wishes" placeholder="Класс слабый, нужна групповая работа; связать с «Тарасом Бульбой»"></textarea></div>
           <label class="check" style="align-self:flex-start;margin-top:10px"><input type="checkbox" id="deep"> Глубокая проработка</label>
         </div>
+        <details class="field prevhw" id="findBox"><summary>Что найти к уроку в источниках</summary>
+          <textarea class="inp" id="findWhat" placeholder="Например: Челябинск в годы войны — Танкоград, эвакуированные заводы, даты. Сайт найдёт это на российских образовательных сайтах и вставит в урок со ссылками."></textarea>
+        </details>
         <details class="field prevhw" id="prevHwBox"><summary>Д/з прошлого урока — для проверки</summary>
           <textarea class="inp" id="prevHw" placeholder="Что задавали: упр. 245 или № 312, 315 (можно с ответами)"></textarea>
           <div class="prevhw-btns"><button class="btn sm" type="button" id="prevHwPick">📎 Файл</button><button class="btn sm" type="button" id="prevHwFind">🔎 Найти в «Моих уроках»</button><input type="file" id="prevHwFile" hidden></div>
@@ -3919,6 +3922,7 @@ async function createLesson() {
   rememberTopic(state.topic);
   p.prevHw = await resolvePrevHw(p); // проверка д/з — только по тому, что действительно задавали
   if ($("#prevHw")) { $("#prevHw").value = ""; $("#prevHwHint").textContent = ""; }
+  p.find = ($("#findWhat")?.value || "").trim(); if ($("#findWhat")) $("#findWhat").value = ""; // что найти — только для этого урока
   p.notes = window.Notes ? Notes.snapshot() : null;
   if (window.Notes?.reset) Notes.reset();
   // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
@@ -3996,7 +4000,18 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
 /* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
 async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
-  const draft = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? PL.lesson(p, type) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : PL.extra(f, p, type, p.extra || {});
+  // материал из образовательных источников: по запросу учителя или, если у сайта нет своего набора по теме, — по теме урока
+  if (p.find || (PL.hasOwn && !PL.hasOwn(p))) {
+    state.gen = { lessonId: L.id, doc: gen[0], pct: 5, ctl: new AbortController() }; updateProgress();
+    toast("Ищу материал к уроку в образовательных источниках…", 4000);
+    p.web = window.Subjects?.webFacts ? await Subjects.webFacts(p) : null;
+    if (p.web?.items?.length) toast(`Найдено в источниках: ${p.web.items.length} выдержек (${p.web.sources.length} сайтов).`, 5000);
+    else if (p.find) toast(p.web?.reason === "no_keys" ? "Поиск по источникам не настроен на сервере (нужен ключ Яндекс-поиска)." : "По запросу в образовательных источниках ничего не нашлось.", 7000);
+    state.gen = null;
+  }
+  const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? PL.lesson(p, type) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : PL.extra(f, p, type, p.extra || {});
+  const draft = f => withWeb(f, draft0(f));
   try {
     for (const f of gen) {
       if (L.docs[f] && L.status[f] !== "wait") continue;
@@ -4006,7 +4021,8 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       if (f === "slides") { autoTheme(L, p); L.deckOutline = PL.cards(p, type); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
-          const res = await caps.sample(PL.prompt(f, p, type, md), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const webTxt = p.web?.items?.length ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
+          const res = await caps.sample(PL.prompt(f, p, type, md) + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
       }
