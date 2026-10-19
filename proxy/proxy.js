@@ -138,7 +138,7 @@ const tierOf = h => TIER1.test(h) ? 1 : TIER2.test(h) ? 2 : FACT_HOSTS.test(h) ?
 async function factSearch(q, words, subj) {
   const ck = subj + ":" + q; const hit = factCache.get(ck); if (hit && Date.now() - hit.at < 24 * 3600e3) return hit.data;
   // запросы прямо на надёжные сайты + общий запрос с отбором по списку
-  const qs = subj === "hist" ? [q + " site:resh.edu.ru", q + " site:histrf.ru", q + " site:bigenc.ru", q + " история урок"] : [q + " site:resh.edu.ru", q + " site:lesson.edu.ru", q + " урок", q + " конспект"];
+  const qs = subj === "hist" ? [q + " site:resh.edu.ru", q + " site:histrf.ru", q + " site:bigenc.ru", q + " история урок"] : subj === "bio" ? [q + " site:resh.edu.ru", q + " site:bigenc.ru", q + " site:lesson.edu.ru", q + " биология урок"] : [q + " site:resh.edu.ru", q + " site:lesson.edu.ru", q + " урок", q + " конспект"];
   const found = [];
   const lists = await Promise.all(qs.map(qq => yandexWeb(qq, 10).catch(e => { if (e.status === 401) throw e; return []; })));
   for (const list of lists) for (const r of list) { let host = r.domain; try { host = new URL(r.url).hostname; } catch { } const t = tierOf(host); if (t && !found.some(x => x.url === r.url)) found.push({ ...r, tier: t }); }

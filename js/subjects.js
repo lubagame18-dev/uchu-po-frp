@@ -5,7 +5,7 @@
    конспект, рабочий лист, доп. листы, презентация, задание для ИИ.
    =================================================================== */
 const Subjects = (() => {
-  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }];
+  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }, { id: "bio", name: "Биология", kit: () => window.BioKit }];
   const plugin = id => { const s = list.find(x => x.id === id); return s?.kit ? s.kit() || null : null; };
   const name = id => list.find(x => x.id === id)?.name || id;
   /* Проверка домашнего задания — только по тому, что действительно задавали:
@@ -118,8 +118,8 @@ const Subjects = (() => {
      с указанием источника: даты, определения, факты. Сайт ничего не дописывает от себя. */
   async function webFacts(p) {
     const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""); if (!fn) return null;
-    const ask = String(p.find || "").trim(), q = (ask ? `${ask} ${ask.toLowerCase().includes(String(p.topic).toLowerCase().slice(0, 12)) ? "" : p.topic}` : p.topic).replace(/\s+/g, " ").trim().slice(0, 230);
-    const words = [...new Set(String(ask + " " + p.topic).toLowerCase().replace(/ё/g, "е").split(/[^а-яa-z0-9]+/).filter(w => w.length > 4 && !/^(урок|повтор|обобщ|контрол|тема|какие|который|найти|нужно|пожалуйста)/.test(w)).map(w => w.slice(0, 6)))].slice(0, 8);
+    const ask = String(p.find || "").trim(), topic0 = String(p.topic).split(/\.?\s*(?:Лабораторная|Практическая) работа/)[0].trim(), q = (ask ? `${ask} ${ask.toLowerCase().includes(String(topic0).toLowerCase().slice(0, 12)) ? "" : topic0}` : topic0).replace(/\s+/g, " ").trim().slice(0, 230);
+    const words = [...new Set(String(ask + " " + topic0).toLowerCase().replace(/ё/g, "е").split(/[^а-яa-z0-9]+/).filter(w => w.length > 4 && !/^(урок|повтор|обобщ|контрол|тема|какие|который|найти|нужно|пожалуйста)/.test(w)).map(w => w.slice(0, 6)))].slice(0, 8);
     const qs = `q=${encodeURIComponent(q)}&w=${encodeURIComponent(words.join(","))}&s=${encodeURIComponent(p.subject || "hist")}`;
     const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/facts")}&${qs}` : `${fn}/facts?${qs}`;
     try {
