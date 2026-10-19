@@ -3921,6 +3921,10 @@ async function createLesson() {
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   rememberTopic(state.topic);
+  // литература: текст произведения нужен до сборки — если сайт его не нашёл, спрашиваем учителя сейчас, а не после генерации
+  if (p.subject === "lit" && window.Variety && !state.textOverride) {
+    const r = await checkWorkText(p, type); if (r === null) return;
+  }
   p.prevHw = await resolvePrevHw(p); // проверка д/з — только по тому, что действительно задавали
   if ($("#prevHw")) { $("#prevHw").value = ""; $("#prevHwHint").textContent = ""; }
   p.find = ($("#findWhat")?.value || "").trim(); if ($("#findWhat")) $("#findWhat").value = ""; // что найти — только для этого урока
@@ -3946,6 +3950,45 @@ async function createLesson() {
   await saveLesson(L);
   formats.forEach(f => (L.status[f] = "wait"));
   return runJob(L, p, type, gen, formats, useAi, hideTech);
+}
+/* ---------- текст произведения до сборки урока литературы ---------- */
+let pendingPlan = null; // план урока, найденный при проверке текста, — чтобы не искать второй раз
+const planKey = p => [p.subject, p.grade, p.lessonNo || 1, p.topic].join("|");
+async function checkWorkText(p, type) {
+  const work = (p.topic.match(/«([^»]+)»/) || [])[1], author = Engine.authorOf(p.topic);
+  if (!work && !author) return true; // обзорная тема — тексту произведения взяться неоткуда
+  const own = window.Notes?.snapshot?.()?.text; if (own && own.trim().length > 80) return true;
+  $("#createHint").textContent = "Ищу текст произведения…";
+  let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, type); } catch { }
+  $("#createHint").textContent = "";
+  if (plan && (plan.kit || plan.textSource)) { pendingPlan = { key: planKey(p), plan }; return true; }
+  const ans = await askWorkText(p, work || p.topic, author || "");
+  if (ans === null) return null; // учитель закрыл окно — урок не собираем
+  if (ans.text) state.textOverride = { text: ans.text, source: "текст, добавленный учителем" };
+  else if (plan) pendingPlan = { key: planKey(p), plan };
+  return true;
+}
+function askWorkText(p, work, author) {
+  const q = `${work} ${author}`.trim(), e = encodeURIComponent;
+  const L = [["🔎 Яндекс", `https://yandex.ru/search/?text=${e(q + " текст читать полностью")}`], ["📚 Викитека", `https://ru.wikisource.org/w/index.php?search=${e(q)}`], ["🏛 НЭБ", `https://rusneb.ru/search/?q=${e(q)}`], ["📖 ФЭБ «Русская литература и фольклор»", `https://feb-web.ru/feb/search.htm?query=${e(q)}`], ["📗 Русская виртуальная библиотека", `https://rvb.ru/`], ["📘 Ilibrary", `https://ilibrary.ru/`]];
+  return new Promise(resolve => {
+    let done = false; const fin = v => { if (done) return; done = true; obs.disconnect(); resolve(v); };
+    const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Нужен текст произведения</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+      <p>Сайт не нашёл текст «${esc(work)}»${author ? ` (${esc(author)})` : ""}. С текстом вопросы урока пойдут по строфам и эпизодам именно этого произведения.</p>
+      <ol class="at-steps"><li><b>Найдите текст</b>:<div class="mat-row">${L.map(([t, u]) => `<a class="btn sm ghost" target="_blank" rel="noopener" href="${u}">${t}</a>`).join("")}</div></li>
+        <li><b>Вставьте текст</b> (или нужный фрагмент) — либо загрузите файл (.txt, .docx, .pdf):
+        <textarea id="awText" rows="9" placeholder="Вставьте текст произведения или фрагмента…"></textarea>
+        <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div></li></ol>
+      <div class="pk-foot"><button class="btn flame" id="awGo">Собрать урок с этим текстом</button></div>
+      <label class="check" style="margin-top:12px"><input type="checkbox" id="awSkip"> Продолжить без добавления текста</label>
+      <div class="pk-foot"><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
+    const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
+    const obs = new MutationObserver(() => { if (!$("#modalRoot").firstElementChild) fin(null); }); obs.observe($("#modalRoot"), { childList: true });
+    m.querySelector("#awFile").onchange = async ev => { const f = ev.target.files[0]; if (!f) return; msg.textContent = "Читаю файл…"; try { const r = await readFile(f); ta.value = String(r.text || "").trim(); msg.textContent = ta.value ? `Готово: ${ta.value.length} знаков.` : "В файле не нашлось текста — вставьте вручную."; } catch (er) { msg.textContent = "Не получилось прочитать: " + (er.message || er); } };
+    sk.onchange = () => { skGo.disabled = !sk.checked; };
+    m.querySelector("#awGo").onclick = () => { const t = ta.value.trim(); if (t.length < 80) { msg.textContent = "Нужен текст подлиннее (хотя бы одна строфа или абзац) — или отметьте «Продолжить без добавления текста»."; return; } done || (fin({ text: t }), closeModal()); };
+    skGo.onclick = () => { if (!sk.checked) return; fin({ skip: true }); closeModal(); };
+  });
 }
 /* ---------- проверка домашнего задания прошлого урока ----------
    Источник: поле «Д/з прошлого урока» (текст или файл) или прошлый урок этой темы (этого класса и предмета) в «Моих уроках».
@@ -4003,7 +4046,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   // материал из российских образовательных источников — к каждому уроку (по теме урока или по запросу учителя)
   {
-    state.gen = { lessonId: L.id, doc: gen[0], pct: 5, ctl: new AbortController() }; updateProgress();
+    { const d0 = hideTech && gen[0] === "conspect" ? (formats.find(x => x !== "conspect") || gen[0]) : gen[0]; state.gen = { lessonId: L.id, doc: d0, pct: 5, fake: true, ctl: new AbortController() }; if (L.status[d0] === "wait") L.status[d0] = "run"; updateProgress(); }
     toast("Ищу материал к уроку в образовательных источниках…", 4000);
     p.web = window.Subjects?.webFacts ? await Subjects.webFacts(p) : null;
     if (p.web?.items?.length) toast(`Найдено в источниках: ${p.web.items.length} выдержек (${p.web.sources.length} сайтов).`, 5000);
@@ -4013,17 +4056,18 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
   const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? PL.lesson(p, type) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : PL.extra(f, p, type, p.extra || {});
   const draft = f => withWeb(f, draft0(f));
+  const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
     for (const f of gen) {
       if (L.docs[f] && L.status[f] !== "wait") continue;
-      state.gen = { lessonId: L.id, doc: f, pct: 20, ctl: new AbortController() }; L.status[f] = "run"; updateProgress();
+      state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
       if (f === "slides") { autoTheme(L, p); L.deckOutline = PL.cards(p, type); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
           const webTxt = p.web?.items?.length ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample(PL.prompt(f, p, type, md) + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample(PL.prompt(f, p, type, md) + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
       }
@@ -4059,12 +4103,15 @@ async function resumeJob() {
 }
 async function buildWithAi(L, p, type, formats) {
   const lessonMaterialsNote = relevantMaterials(p.topic, p.grade, p.subject).length;
-  await preparePlan(L, p, type);
-  // техкарта не выбрана, но нужна как основа: собирается «за кадром», а прогресс идёт на вкладке того листа, что учитель ждёт первым
+  // техкарта не выбрана, но нужна как основа: собирается «за кадром», а прогресс плавно идёт на вкладке того листа, что учитель ждёт первым
   const shown = f => (L.hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
+  const first = shown(formats[0]); if (L.status[first] === "wait") L.status[first] = "run";
+  state.gen = { lessonId: L.id, doc: first, pct: 2, fake: true, ctl: new AbortController() }; state.active = first; updateProgress(); if (state.lesson?.id === L.id) renderLesson();
+  await preparePlan(L, p, type);
   for (const f of formats) {
     L.status[f] = "run"; if (shown(f) !== f && L.status[shown(f)] === "wait") L.status[shown(f)] = "run";
-    state.gen = { lessonId: L.id, doc: shown(f), pct: 0, ctl: new AbortController() };
+    const carry = state.gen?.doc === shown(f) ? state.gen.pct : 0;
+    state.gen = { lessonId: L.id, doc: shown(f), pct: carry, fake: shown(f) !== f || carry > 0, ctl: new AbortController() };
     // остаёмся на том листе, где учитель (обычно — первый готовый конспект); вкладки сами показывают, что готово
     if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = shown(f); renderLesson(); }
     if (EXTRA_DOCS.includes(f)) { L.docs[f] = buildDocNoAi(f, L, p, type); L.status[f] = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
@@ -4086,7 +4133,7 @@ async function buildWithAi(L, p, type, formats) {
       continue;
     }
     if (f === "conspect" && !p.design) {
-      try { state.gen.pct = 3; updateProgress(); const d = await caps.sample(promptDesign(p), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal }); p.design = String(d.text || "").trim(); L.design = p.design; }
+      try { state.gen.pct = Math.max(state.gen.pct, 3); updateProgress(); const d = await caps.sample(promptDesign(p), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal }); p.design = String(d.text || "").trim(); L.design = p.design; }
       catch (e) { if (e?.code === "cancelled") throw e; }
     }
     const prompt = f === "conspect" ? promptConspect(p) : f === "slides" ? promptSlides(p, techOf(L, p, type)) : promptWorksheet(p, L.docs.conspect || L.tech);
@@ -4094,13 +4141,13 @@ async function buildWithAi(L, p, type, formats) {
     const paint = throttle(text => { if (state.lesson?.id === L.id && state.active === f) { $("#md").value = text; renderPreview(); } }, 300);
     try {
       window.UCHU_CTX = { params: { subject: p.subject, grade: p.grade, mode: p.mode, control: p.control, formats: p.formats, topic: p.topic }, countUsage: true };
-      const onText = base => ({ text }) => { L.docs[f] = cleanMd(base + text); state.gen.pct = Math.min(95, Math.round((base.length + text.length) / DOCS[f].expect * 100)); updateProgress(); paint(L.docs[f]); };
+      const onText = base => ({ text }) => { L.docs[f] = cleanMd(base + text); if (!state.gen.fake || shown(f) === f) { const v = Math.min(95, Math.round((base.length + text.length) / DOCS[f].expect * 100)); state.gen.pct = Math.max(state.gen.fake ? state.gen.pct : 0, v); } updateProgress(); paint(L.docs[f]); };
       let res, raw = "";
       try { res = await caps.sample(prompt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: onText("") }); raw = res.text; }
       catch (e) { if (e?.code === "cancelled" || !(e?.text && e.text.length > 400)) throw e; raw = e.text; res = { text: raw, truncated: true }; } // оборвалось на середине — допишем
       // документ оборван (лимит длины, таймаут сервера) — просим нейросеть продолжить с места обрыва, до двух раз
       for (let k = 0; k < 2 && (res.truncated || !finished(f, raw)); k++) {
-        state.gen.pct = Math.max(state.gen.pct || 0, 80); updateProgress();
+        if (!state.gen.fake) { state.gen.pct = Math.max(state.gen.pct || 0, 80); updateProgress(); }
         try { const more = await caps.sample(`${prompt}\n\n---\nТы уже написал начало документа, оно оборвалось. Вот его конец:\n${raw.slice(-2500)}\n---\nПродолжи документ ровно с места обрыва (с той же строки таблицы или того же абзаца). Не повторяй написанное, не начинай заново, без вступлений. Доведи документ до конца (рефлексия, домашнее задание).`, { modelTier: "default", cache: false, signal: state.gen.ctl.signal, onText: onText(raw + "\n") }); raw = joinCont(raw, more.text); res = { text: raw, truncated: more.truncated }; }
         catch (e) { if (e?.code === "cancelled") throw e; if (e?.text) raw = joinCont(raw, e.text); break; }
       }
@@ -4172,7 +4219,13 @@ function applyWeb(md, f, web) {
   return md;
 }
 // документ доведён до конца: у техкарты и конспекта есть заключительные этапы (рефлексия, д/з)
-function finished(f, text) { const t = String(text || ""); if (t.length < 600) return false; if (!["conspect", "lesson"].includes(f)) return true; const tail = t.slice(-Math.max(1500, Math.round(t.length * 0.35))); return /домашн|рефлекси|итог урока/i.test(tail); }
+function finished(f, text) {
+  const t = String(text || "").trimEnd(); if (t.length < 600) return false;
+  if (!["conspect", "lesson"].includes(f)) return true;
+  if (/домашн|д\/з/i.test(t.slice(-Math.round(t.length * 0.5)))) return true; // заключительный этап есть
+  const last = t.split("\n").pop().trim();
+  return !(/^\|/.test(last) && !/\|$/.test(last)) && /[.!?»)|*]$/.test(last); // оборвано на середине строки — не закончено
+}
 // склейка продолжения: убираем повтор, если нейросеть начала с уже написанной строки
 function joinCont(a, b) { b = String(b || "").replace(/^\s*(```\w*\s*)?/, ""); const last = a.trimEnd().split("\n").pop(); if (last && last.length > 20 && b.startsWith(last)) b = b.slice(last.length); else if (last && b.startsWith(last.slice(0, 40)) && last.length > 40) b = b.slice(b.indexOf("\n") + 1); return a.trimEnd() + (/^\|/.test(b.trimStart()) || /\|$/.test(a.trimEnd()) ? "\n" : "\n") + b.trimStart(); }
 function techOf(L, p, type) { return L.docs.conspect || L.tech || (L.tech = injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect")); }
@@ -4196,7 +4249,8 @@ function rememberVerbatim(L, p) {
 /* v5: план урока (текст произведения, анализ, образцовый урок, необычный формат) — до сборки листов */
 async function preparePlan(L, p, type) {
   if (!window.Variety) return null;
-  try { p.plan = await Variety.prepare(p, type); }
+  const pre = pendingPlan && pendingPlan.key === planKey(p) && !p.textOverride ? pendingPlan.plan : null; pendingPlan = null;
+  try { p.plan = pre || await Variety.prepare(p, type); }
   catch (e) { console.warn("Variety.prepare", e); p.plan = null; }
   // нейросеть (урок «с ИИ»): проблемный вопрос — из смыслового конфликта текста, с опорой на найденные источники
   if (p.plan?.kit && L.built === "ai" && p.subject === "lit" && (window.AI ? AI.configured() : false)) {
@@ -4250,13 +4304,15 @@ async function refineDoc() {
   } catch (e) { L.docs[f] = before; toast(sampleErr(e)); }
   finally { state.gen = null; await saveLesson(L); renderLesson(); }
 }
+// плавный прогресс, пока лист собирается «за кадром» (нейросеть продумывает замысел и техкарту)
+setInterval(() => { const g = state.gen; if (!g?.fake) return; g.pct = Math.min(92, Math.round((g.pct + Math.max(0.4, (92 - g.pct) * 0.02)) * 10) / 10); updateProgress(); }, 1000);
 function updateProgress() {
   const g = state.gen, L = state.lesson;
   const mine = g && L && g.lessonId === L.id;
-  $$(".doc-tab").forEach(b => { const d = b.dataset.doc, pct = $(".pct", b); if (!pct) return; pct.textContent = mine && g.doc === d ? ` ${g.pct}%` : ""; });
+  $$(".doc-tab").forEach(b => { const d = b.dataset.doc, pct = $(".pct", b); if (!pct) return; pct.textContent = mine && g.doc === d ? ` ${Math.round(g.pct)}%` : ""; });
   const show = mine && g.doc === state.active;
   $("#progress").hidden = !show;
-  if (show) { $("#progressText").textContent = `${DOCS[g.doc].label}: ${g.pct}%`; $("#progressBar").style.width = g.pct + "%"; }
+  if (show) { $("#progressText").textContent = `${DOCS[g.doc].label}: ${Math.round(g.pct)}%`; $("#progressBar").style.width = g.pct + "%"; }
 }
 
 /* ===================================================================
@@ -4408,7 +4464,7 @@ async function renderPreview() {
   const md = $("#md").value, sheet = $("#sheet"), L = state.lesson;
   if (!L) return;
   const busy = isGenerating(L, state.active), editable = !busy;
-  if (!md.trim()) { sheet.className = "sheet"; sheet.removeAttribute("contenteditable"); sheet.innerHTML = `<p class="small">${busy ? "Готовлю документ… Первые строки появятся через 10–60 секунд." : L.status?.[state.active] === "wait" ? "Этот лист в очереди: он начнётся после предыдущего." : "Документ пуст."}</p>`; return; }
+  if (!md.trim()) { sheet.className = "sheet"; sheet.removeAttribute("contenteditable"); sheet.innerHTML = `<p class="small">${busy ? (state.gen?.fake ? "Собираю урок: нейросеть продумывает замысел и ход урока. Лист появится, как только будет готов." : "Готовлю документ… Первые строки появятся через 10–60 секунд.") : L.status?.[state.active] === "wait" ? "Этот лист в очереди: он начнётся после предыдущего." : "Документ пуст."}</p>`; return; }
   // v5: презентация — в редакторе слайдов (шаблоны, автоподбор шрифта, миниатюры, картинки)
   if (state.active === "slides" && window.SlideEditor) {
     const same = state.lastDoc === "slides:" + L.id, wrap = $("#sheetwrap"), k = { t: wrap.scrollTop, l: wrap.scrollLeft, y: window.scrollY, th: $(".sx-thumbs", sheet) ? [$(".sx-thumbs", sheet).scrollLeft, $(".sx-thumbs", sheet).scrollTop] : null };
