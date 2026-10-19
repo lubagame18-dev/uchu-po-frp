@@ -129,17 +129,23 @@ function factExtract(text, words) {
   const facts = rel.filter(l => !dates.includes(l) && !defs.includes(l)).sort((a, b) => score(b) - score(a)).slice(0, 8);
   return { dates, defs, facts };
 }
+/* Надёжность источников: 1 — государственные и научные (РЭШ, Библиотека ЦОК, ЕСОО, РИО, БРЭ, Президентская библиотека,
+   архивы Минобороны); 2 — образовательные платформы (Фоксфорд, ИнтернетУрок, Видеоуроки, «Урок.рф», МЭШ);
+   3 — разработки учителей (Инфоурок, nsportal, Мультиурок, «Копилка уроков») — берутся, только если первых мало. */
+const TIER1 = /(^|\.)(resh\.edu\.ru|lesson\.edu\.ru|edsoo\.ru|histrf\.ru|rvio\.histrf\.ru|bigenc\.ru|prlib\.ru|rusneb\.ru|runivers\.ru|encyclopedia\.mil\.ru|mil\.ru|pamyat-naroda\.ru|podvignaroda\.ru|rgo\.ru|ras\.ru|cyberleninka\.ru|historyrussia\.org)$/i;
+const TIER2 = /(^|\.)(foxford\.ru|interneturok\.ru|videouroki\.net|xn--j1ahfl\.xn--p1ai|uchebnik\.mos\.ru|znanierussia\.ru|culture\.ru|1sept\.ru|urok\.1sept\.ru|uchi\.ru|skysmart\.ru|obrazovaka\.ru|gramota\.ru|chelreglib\.ru|cspu\.ru|csu\.ru|chel-portal\.ru|9may\.ru|pobeda\.elar\.ru)$/i;
+const tierOf = h => TIER1.test(h) ? 1 : TIER2.test(h) ? 2 : FACT_HOSTS.test(h) ? 3 : 0;
 async function factSearch(q, words, subj) {
   const ck = subj + ":" + q; const hit = factCache.get(ck); if (hit && Date.now() - hit.at < 24 * 3600e3) return hit.data;
-  const add = subj === "hist" ? [" история урок", " кратко", " РЭШ"] : [" урок", " конспект", ""];
+  // запросы прямо на надёжные сайты + общий запрос с отбором по списку
+  const qs = subj === "hist" ? [q + " site:resh.edu.ru", q + " site:histrf.ru", q + " site:bigenc.ru", q + " история урок"] : [q + " site:resh.edu.ru", q + " site:lesson.edu.ru", q + " урок", q + " конспект"];
   const found = [];
-  for (const tail of add) {
-    try { for (const r of await yandexWeb(q + tail, 15)) { let host = r.domain; try { host = new URL(r.url).hostname; } catch { } if (FACT_HOSTS.test(host) && !found.some(x => x.url === r.url)) found.push(r); } } catch (e) { if (e.status === 401) throw e; }
-    if (found.length >= 8) break;
-  }
-  const top = found.slice(0, 6);
+  const lists = await Promise.all(qs.map(qq => yandexWeb(qq, 10).catch(e => { if (e.status === 401) throw e; return []; })));
+  for (const list of lists) for (const r of list) { let host = r.domain; try { host = new URL(r.url).hostname; } catch { } const t = tierOf(host); if (t && !found.some(x => x.url === r.url)) found.push({ ...r, tier: t }); }
+  found.sort((a, b) => a.tier - b.tier);
+  const good = found.filter(x => x.tier < 3), top = (good.length >= 3 ? good : found).slice(0, 6);
   const pages = await Promise.all(top.map(r => Promise.race([fetchPageText(r.url).catch(() => ""), new Promise(res => setTimeout(() => res(""), 10000))])));
-  const results = top.map((r, i) => ({ url: r.url, domain: r.domain, title: r.title, snippet: r.snippet, ...(pages[i] ? factExtract(pages[i], words) : { dates: [], defs: [], facts: [] }) }));
+  const results = top.map((r, i) => ({ url: r.url, domain: r.domain, title: r.title, tier: r.tier, snippet: r.snippet, ...(pages[i] ? factExtract(pages[i], words) : { dates: [], defs: [], facts: [] }) }));
   const data = { ok: true, results };
   factCache.set(ck, { at: Date.now(), data }); if (factCache.size > 300) factCache.delete(factCache.keys().next().value);
   return data;
@@ -340,7 +346,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 15, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "facts", "pay"], pay: PAY.on(), payBy: PAY.provider(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 16, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "facts", "pay"], pay: PAY.on(), payBy: PAY.provider(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });

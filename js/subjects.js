@@ -127,19 +127,21 @@ const Subjects = (() => {
       const j = await r.json(); if (!j?.ok) return { ok: false, reason: j?.reason, items: [], sources: [] };
       const items = [], seen = new Set(), sources = [];
       for (const x of j.results || []) {
-        const src = { title: x.title || x.domain, url: x.url, domain: x.domain }; let used = false;
+        const src = { title: x.title || x.domain, url: x.url, domain: x.domain, tier: x.tier || 3 }; let used = false;
         for (const [kind, arr] of [["date", x.dates], ["def", x.defs], ["fact", x.facts]]) for (const t of arr || []) { const k = t.slice(0, 60).toLowerCase(); if (seen.has(k)) continue; seen.add(k); items.push({ kind, text: t, src }); used = true; }
         if (used) sources.push(src);
       }
+      sources.sort((a, b) => a.tier - b.tier); items.sort((a, b) => a.src.tier - b.src.tier);
       return { ok: true, query: q, items: items.slice(0, 24), sources };
     } catch { return { ok: false, items: [], sources: [] }; }
   }
   // блок «найдено в источниках» для конспекта и техкарты
+  const TIERS = { 1: "официальный или научный источник", 2: "образовательная платформа", 3: "разработка учителя — проверьте" };
   function webBlock(p, br = "\n") {
     const W = p.web; if (!W?.items?.length) return "";
     const n = new Map(W.sources.map((x, i) => [x.url, i + 1])), ref = x => ` [${n.get(x.src.url) || ""}]`;
     const part = (kind, title) => { const a = W.items.filter(x => x.kind === kind); return a.length ? `**${title}:**${br}${a.map(x => `- ${x.text}${ref(x)}`).join(br)}${br}${br}` : ""; };
-    return `## 📚 Найдено в образовательных источниках${br}${br}*Запрос: «${W.query}». Каждое предложение взято из источника, номер — в списке ниже. Перед уроком сверьте с учебником.*${br}${br}${part("date", "Даты и события")}${part("def", "Понятия")}${part("fact", "Факты")}**Источники:**${br}${W.sources.map((x, i) => `${i + 1}. [${x.title}](${x.url}) — ${x.domain}`).join(br)}${br}`;
+    return `## 📚 Найдено в образовательных источниках${br}${br}*Запрос: «${W.query}». Каждое предложение взято из источника, номер — в списке ниже. Перед уроком сверьте с учебником.*${br}${br}${part("date", "Даты и события")}${part("def", "Понятия")}${part("fact", "Факты")}**Источники:**${br}${W.sources.map((x, i) => `${i + 1}. [${x.title}](${x.url}) — ${x.domain}, ${TIERS[x.tier] || TIERS[3]}`).join(br)}${br}`;
   }
   return { list, plugin, name, hw, hwCheck, planTopics, frp, frpDoc, webFacts, webBlock };
 })();

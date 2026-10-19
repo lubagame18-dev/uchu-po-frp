@@ -4000,8 +4000,8 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
 /* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
 async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
-  // материал из образовательных источников: по запросу учителя или, если у сайта нет своего набора по теме, — по теме урока
-  if (p.find || (PL.hasOwn && !PL.hasOwn(p))) {
+  // материал из российских образовательных источников — к каждому уроку (по теме урока или по запросу учителя)
+  {
     state.gen = { lessonId: L.id, doc: gen[0], pct: 5, ctl: new AbortController() }; updateProgress();
     toast("Ищу материал к уроку в образовательных источниках…", 4000);
     p.web = window.Subjects?.webFacts ? await Subjects.webFacts(p) : null;
