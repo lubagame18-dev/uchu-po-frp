@@ -2131,18 +2131,28 @@ const Engine = (() => {
     if (!r.loaded) {
       return `## Планируемые результаты (по ФРП)\n\n> ⚠️ ВАЖНО: текст ФРП ещё не загружен. Откройте «Материалы» → «Загрузить ФРП», и результаты будут подставляться дословно.\n`;
     }
+    // в карту урока берём только то, что относится к его теме, и коротко: отдельные фрагменты ФРП, не весь раздел
+    const st = FRP.stems(String(p.topic).replace(/практикум|повторени[ея]|обобщени[ея]|систематизаци[яи]|закреплени[ея]|\([^)]*\)/gi, " ")), need = Math.min(2, st.size);
+    const segs = t => String(t || "").split(/;\s+|(?<=[.!?])\s+(?=[А-ЯЁ])/).map(x => x.trim()).filter(Boolean);
+    const pick = (t, max = 2) => st.size ? segs(t).filter(x => FRP.score(x, st) >= need).slice(0, max).map(x => x.replace(/[.;]+$/, "")).join("; ") : "";
+    const shorten = (t, n = 190) => { t = String(t || "").trim(); if (t.length <= n) return t; const c = t.slice(0, n), i = Math.max(c.lastIndexOf(","), c.lastIndexOf(";")); return (i > 80 ? c.slice(0, i) : c.replace(/\s\S*$/, "")) + " …"; };
     const rows = (arr, f) => arr.map(f).join("\n");
-    let md = `## Планируемые результаты (по ФРП)\n\n*Формулировки перенесены из ФРП без изменений (${r.source}).*\n\n### Личностные\n\n| Направление воспитания | Планируемые результаты |\n|---|---|\n`;
-    md += r.personal.length ? rows(r.personal, x => `| ${cap(x.group)} | ${x.text} |`) : "| — | ⟦в загруженной ФРП не найден раздел личностных результатов⟧ |";
+    let md = `## Планируемые результаты (по ФРП)\n\n*Отобрано из ФРП только то, что относится к теме урока (${r.source}); формулировки не менялись.*\n\n### Личностные\n\n| Направление воспитания | Планируемые результаты |\n|---|---|\n`;
+    const pers = [...r.personal].sort((x, y) => (FRP.score(y.text, st) + (/научного познания/i.test(y.group) ? 0.5 : 0)) - (FRP.score(x.text, st) + (/научного познания/i.test(x.group) ? 0.5 : 0))).slice(0, 1);
+    md += pers.length ? rows(pers, x => `| ${cap(x.group)} | ${shorten(x.text)} |`) : "| — | ⟦в загруженной ФРП не найден раздел личностных результатов⟧ |";
     md += `\n\n### Метапредметные\n\n| Группа УУД | Планируемые результаты |\n|---|---|\n`;
-    md += r.meta.length ? rows(r.meta, x => `| ${x.group}: ${low(x.sub)} | ${x.text} |`) : "| — | ⟦не найдены метапредметные результаты⟧ |";
+    const mrel = r.meta.filter(x => FRP.score(x.text, st) > 0), mets = (mrel.length ? mrel : r.meta).slice(0, 2);
+    md += mets.length ? rows(mets, x => `| ${x.group}: ${low(x.sub)} | ${shorten(x.text, 170)} |`) : "| — | ⟦не найдены метапредметные результаты⟧ |";
     md += `\n\n### Предметные\n\n| Раздел ФРП | Планируемые результаты |\n|---|---|\n`;
-    md += r.subject.length ? rows(r.subject, x => `| ${x.section} | ${x.text} |`) : `| — | ⟦в предметных результатах ${p.grade} класса не найдено совпадений с темой; выберите вручную⟧ |`;
+    const subj = r.subject.map(x => ({ section: x.section, text: pick(x.text) })).filter(x => x.text).slice(0, 3);
+    const subjAny = subj.length ? subj : r.subject.slice(0, 1).map(x => ({ section: x.section, text: shorten(x.text, 200) }));
+    md += subjAny.length ? rows(subjAny, x => `| ${x.section} | ${x.text} |`) : `| — | ⟦в предметных результатах ${p.grade} класса не найдено совпадений с темой; выберите вручную⟧ |`;
     const pl = FRP.planFor(p.subject, p.grade, p.topic);
     if (pl) {
-      md += `\n\n### Тематическое планирование ФРП\n\n*${pl.num}. ${pl.title}${pl.hours ? ` (${pl.hours} ч)` : ""}. Раздел: ${pl.section || "—"}.*\n\n`;
-      if (pl.content) md += `**Программное содержание.** ${pl.content}\n\n`;
-      if (pl.activity) md += `**Основные виды деятельности обучающихся.** ${pl.activity}\n`;
+      const c = pick(pl.content, 3), act = pick(pl.activity, 2);
+      md += `\n\n### По тематическому планированию ФРП\n\n*${pl.num}. ${pl.title}${pl.hours ? ` (${pl.hours} ч)` : ""}. Раздел: ${pl.section || "—"}.*\n\n`;
+      if (c || pl.content) md += `**Содержание по теме урока.** ${c || shorten(pl.content, 220)}\n\n`;
+      if (act) md += `**Виды деятельности.** ${act}\n`;
     }
     return md + "\n";
   }
@@ -4191,6 +4201,8 @@ async function buildWithAi(L, p, type, formats) {
       // техкарта — основа для конспекта и презентации: если нейросеть не ответила, собираем её без ИИ, чтобы урок доделался
       if (f === "conspect" && e?.code !== "cancelled" && (!L.docs.conspect || L.docs.conspect.length < 1500)) { L.docs.conspect = buildDocNoAi("conspect", L, p, type); L.status.conspect = "ok"; toast("Нейросеть не успела ответить — техкарта собрана без ИИ, остальное доделываю.", 7000); }
       if (e?.code === "cancelled") { formats.forEach(x => { if (L.status[x] === "wait") L.status[x] = "err"; }); state.gen = null; break; }
+      // любой другой сбой (таймаут, ответ сервера, обрыв): лист не остаётся пустым — собираем его без нейросети
+      if (f !== "conspect" && (!L.docs[f] || String(L.docs[f]).length < 400)) { try { L.docs[f] = buildDocNoAi(f, L, p, type); L.status[f] = "ok"; toast(`Нейросеть не ответила — «${DOCS[f]?.label || f}» собран без неё.`, 7000); state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; } catch (e2) { console.warn("fallback", e2); } }
       toast(sampleErr(e), 6000);
       if (["not_configured", "auth_failed", "network", "rate_limited"].includes(e?.code)) {
         toast(sampleErr(e) + " Недостающие листы собраны без ИИ." + (e?.code === "network" ? " Когда появится интернет, нейросеть доработает урок сама (копией)." : ""), 7000);
