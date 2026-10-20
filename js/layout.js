@@ -23,20 +23,57 @@ const Layout = (() => {
   const kindOf = label => (KINDS.find(([, re]) => re.test(clean(label).replace(/^[^\wА-Яа-яЁё▸❓🔑]+/u, ""))) || ["box"])[0];
   const MARK = { search: "▸ ПОИСК", word: "▸ СЛОВО УЧИТЕЛЯ", self: "▸ САМОСТОЯТЕЛЬНАЯ РАБОТА", pairs: "▸ РАБОТА В ПАРАХ", group: "▸ РАБОТА В ГРУППАХ" };
 
+  /* ---------- метки слева (как в конспекте учителя: УЧИТЕЛЬ, В ТЕТРАДЬ, СЛОВАРЬ, ОТВЕТЫ…) ---------- */
+  const LABEL = { word: "УЧИТЕЛЬ", self: "САМОСТОЯТЕЛЬНО", pairs: "В ПАРАХ", group: "В ГРУППАХ", answers: "ОТВЕТЫ", notebook: "В ТЕТРАДЬ", vocab: "СЛОВАРЬ", aloud: "ПРОГОВАРИВАЕМ", ws: "РАБОЧИЙ ЛИСТ", hw: "ДОМАШНЕЕ ЗАДАНИЕ", problem: "ПРОБЛЕМНЫЙ ВОПРОС", reading: "ПЕРЕД ЧТЕНИЕМ", fragment: "ЧИТАЕМ", safety: "ТЕХНИКА БЕЗОПАСНОСТИ", lab: "РАБОТА" };
+  const isLabel = s => { const t = clean(s); return !!t && /[А-ЯЁ]/.test(t) && !/[а-яё]/.test(t) && t.length <= 40; };
+  function labelOf(title) {
+    const t = clean(title).replace(/^[▸❓🔑📝🧭✅📌\s]+/u, ""), k = kindOf(t);
+    if (k === "hint") return null;
+    if (LABEL[k]) return { label: LABEL[k], lead: ["fragment", "lab"].includes(k) || (["self", "pairs", "group"].includes(k) && !/^(самостоятельная работа|работа в (парах|группах))$/i.test(t)) ? t : "" };
+    if (k === "board") return /^(на доске|запись на доске)/i.test(t) ? { label: "НА ДОСКЕ", lead: "" } : { label: "НА ДОСКЕ", lead: t };
+    if (k === "concl") { const m = t.match(/^(понятие|правило)\s*(.*)$/i); return m ? { label: m[1].toUpperCase(), lead: m[2] } : { label: "ВЫВОД", lead: "" }; }
+    if (t.length <= 22) return { label: t.toUpperCase(), lead: "" };
+    return { label: "ХОД РАБОТЫ", lead: t };
+  }
+  const LEGEND = "Метки слева: УЧИТЕЛЬ — что сказать; НА ДОСКЕ и В ТЕТРАДЬ — что записать; СЛОВАРЬ — непонятные слова; ОТВЕТЫ — ключ для учителя. В таблице «Вопрос учителя — Ответ учеников» ответ стоит рядом с вопросом; в таблице «Упражнение — Алгоритм» рядом с заданием порядок его выполнения.";
+
+  const short = n => { const t = clean(n).replace(/[:,(].*$/, "").trim(); if (t.length <= 30) return t; const w = t.split(" "); let o = ""; for (const x of w) { if ((o + " " + x).trim().length > 28) break; o = (o + " " + x).trim(); } return o + "…"; };
   /* ---------- кирпичики Markdown ---------- */
   const md = {
     kicker: (p, kind = "Конспект урока") => `*${kind} ${SUBJ[p.subject] || ""} · ${p.grade} класс*\n\n`,
-    passport: rows => { const R = rows.filter(r => r && clean(r[1])); if (!R.length) return ""; return `| ${cell(R[0][0])} | ${cell(R[0][1])} |\n|---|---|\n${R.slice(1).map(r => `| ${cell(r[0])} | ${cell(r[1])} |`).join("\n")}\n\n`; },
-    plan: (rows, withMat = true) => `## План урока\n\n| № | Блок | Время${withMat ? " | Материал" : ""} |\n|---|---|---${withMat ? "|---" : ""}|\n${rows.map((r, i) => `| ${i + 1} | ${cell(r.name)} | ${r.min ? r.min + " мин" : "—"}${withMat ? ` | ${cell(r.mat || "—")}` : ""} |`).join("\n")}\n${rows.some(r => r.min) ? `|  | **Итого** | **${rows.reduce((s, r) => s + (+r.min || 0), 0)} мин**${withMat ? " | " : ""} |\n` : ""}\n`,
-    legend: () => `*Как читать конспект: ▸ ПОИСК — ученики ищут ответ сами (слева вопрос учителя, справа ожидаемый ответ); ▸ СЛОВО УЧИТЕЛЯ — учитель объясняет сам; ▸ САМОСТОЯТЕЛЬНАЯ РАБОТА — ученики работают одни. «На доске» — что записать на доске, «Ответы» — эталон для учителя.*\n\n`,
-    block: (n, title, min, word = "БЛОК") => `## ${word} ${n}. ${clean(title).toUpperCase()}${min ? ` · ${min} мин` : ""}\n\n`,
+    passport: rows => { const R = rows.filter(r => r && clean(r[1])); R.push(["Как читать конспект", LEGEND]); return `| ${cell(R[0][0])} | ${cell(R[0][1])} |\n|---|---|\n${R.slice(1).map(r => `| ${cell(r[0])} | ${cell(r[1])} |`).join("\n")}\n\n`; },
+    // полоска этапов вместо плана: «Этап 1 · 5 мин» / название
+    plan: rows => rows.length ? `| ${rows.map((r, i) => `Этап ${i + 1}${r.min ? ` · ${r.min} мин` : ""}`).join(" | ")} |\n|${rows.map(() => "---").join("|")}|\n| ${rows.map(r => cell(short(r.name))).join(" | ")} |\n\n` : "",
+    legend: () => "",
+    block: (n, title, min) => `## ЭТАП ${n}. ${clean(title).replace(/^./, c => c.toUpperCase())}${min ? ` · ${min} мин` : ""}\n\n`,
     sub: (num, title, min) => `### ${num}. ${clean(title)}${min ? ` (${min} мин)` : ""}\n\n`,
-    meta: (mat, writes) => (mat ? `**Материал:** ${clean(mat)}  \n` : "") + (writes ? `**Записывают:** ${clean(writes)}` : "") + (mat || writes ? "\n\n" : ""),
-    marker: k => `**${MARK[k] || k}**\n\n`,
-    qa: (pairs, head = ["Учитель", "Ученики"]) => { const P = pairs.filter(x => clean(x[0])); if (!P.length) return ""; return `${md.marker("search")}| ${head[0]} | ${head[1]} |\n|---|---|\n${P.map(([q, a]) => `| ${cell(q)} | ${a ? `*${cell(a).replace(/\*/g, "")}*` : "*свободные ответы: выслушать 2–3 мнения*"} |`).join("\n")}\n\n`; },
-    box: (label, lines) => { const L = (Array.isArray(lines) ? lines : [lines]).map(x => cell(x)).filter(Boolean); if (!L.length) return ""; return `| ${cell(label)} |\n|---|\n${L.map(l => `| ${l} |`).join("\n")}\n\n`; },
-    result: t => t ? `*Результат блока: ${clean(t).replace(/^результат блока:\s*/i, "")}*\n\n` : ""
+    meta: (mat, writes) => (mat ? md.row("Материал", mat) : "") + (writes ? md.row("В тетрадь", writes) : ""),
+    marker: () => "",
+    // строка с меткой слева; соседние строки потом сливаются в одну таблицу
+    row: (label, text) => { const t = Array.isArray(text) ? text.map(x => cell(x)).filter(Boolean).join("<br>") : cell(text); if (!t) return ""; return `| ${clean(label).toUpperCase()} | ${t} |\n|---|---|\n\n`; },
+    qa: (pairs, head = ["Вопрос учителя", "Ответ учеников"]) => { const P = pairs.filter(x => clean(x[0])); if (!P.length) return ""; return `| ${head[0]} | ${head[1]} |\n|---|---|\n${P.map(([q, a], i) => `| ${P.length > 1 ? `${i + 1}) ` : ""}${cell(q)} | ${a ? `*${cell(a).replace(/\*/g, "")}*` : "*высказывают своё мнение*"} |`).join("\n")}\n\n`; },
+    // упражнение и рядом алгоритм его выполнения
+    ex: (title, lines, steps, algoName) => `| ${cell(title)} | Алгоритм выполнения${algoName ? ` «${cell(algoName)}»` : ""} |\n|---|---|\n| ${lines.map(x => cell(x)).filter(Boolean).join("<br>")} | ${steps.map((s, i) => `${i + 1}) ${cell(String(s).replace(/^\d+[.)]\s*/, ""))}`).join("<br>")} |\n\n`,
+    box: (label, lines) => {
+      const L = (Array.isArray(lines) ? lines : [lines]).map(x => cell(x)).filter(Boolean); if (!L.length) return "";
+      const lb = labelOf(label); if (!lb) return "";
+      const body = (lb.lead ? [`**${cell(lb.lead)}**`] : []).concat(L);
+      // длинные пункты — отдельными строками, короткие — в одной клетке
+      if (body.some(x => /<br>/.test(x)) && body.length > 1) return `| ${lb.label} | ${body[0]} |\n|---|---|\n${body.slice(1).map(x => `|  | ${x} |`).join("\n")}\n\n`;
+      return `| ${lb.label} | ${body.join("<br>")} |\n|---|---|\n\n`;
+    },
+    result: t => t ? `*Результат этапа: ${clean(t).replace(/^результат (блока|этапа):\s*/i, "")}*\n\n` : ""
   };
+  // соседние таблицы с метками слева → одна таблица этапа
+  function merge(text) {
+    const B = String(text).split(/\n{2,}/), out = [];
+    const isRows = b => { const L = b.split("\n"); if (L.length < 2 || L[1] !== "|---|---|") return false; const c = L[0].replace(/^\|/, "").replace(/\|\s*$/, "").split("|"); return c.length === 2 && isLabel(c[0]); };
+    for (const b of B) {
+      if (isRows(b) && out.length && isRows(out[out.length - 1])) { const L = b.split("\n"); out[out.length - 1] += "\n" + [L[0], ...L.slice(2)].filter(Boolean).join("\n"); }
+      else out.push(b);
+    }
+    return out.join("\n\n").replace(/\n{3,}/g, "\n\n");
+  }
 
   /* ---------- конспект предметных модулей (история, математика, английский, биология): пересборка в блоки ---------- */
   // строки рамки «**❓ Учитель:** …», «**💬 Ученики:** …», «**🔑 Ответы:** …», «**✅ Вывод:** …» → поиск, ответы, вывод
@@ -47,7 +84,7 @@ const Layout = (() => {
   function convertBox(title, body) {
     let out = ""; const qa = []; const rest = []; let keys = [], concl = [], plan = [];
     for (const l of body) {
-      if (isQ(l)) { const q = strip(l); if (/^Вопрос урока/i.test(l.replace(/\*\*/g, "").replace(/^❓\s*/, ""))) { out += md.box("Проблемный вопрос (записать на доске)", [q]); continue; } qa.push([q, ""]); }
+      if (isQ(l)) { const q = strip(l); if (/^Вопрос урока/i.test(l.replace(/\*\*/g, "").replace(/^❓\s*/, ""))) { out += md.box("Проблемный вопрос", [`**${q}** (записать на доске)`]); continue; } qa.push([q, ""]); }
       else if (isA(l)) { if (qa.length && !qa[qa.length - 1][1]) qa[qa.length - 1][1] = strip(l); else qa.push(["", strip(l)]); }
       else if (isKey(l)) keys.push(strip(l));
       else if (isConcl(l)) concl.push(strip(l));
@@ -85,13 +122,13 @@ const Layout = (() => {
     if (!st.length) return text;
     const mat = s => { const t = s.parts.map(x => x.table ? x.table.join(" ") : x.line).join(" ").toLowerCase(); return [/учебник|параграф/.test(t) && "учебник", /карт[аеуы]/.test(t) && /истор/.test(p.subject) && "карта", /источник/.test(t) && "источник", /микроскоп|микропрепарат/.test(t) && "микроскоп", /рабочий лист|листе/.test(t) && "рабочий лист", /слайд|доск/.test(t) && "доска"].filter(Boolean).join(", ") || "беседа"; };
     let out = md.kicker(p) + `# ${title}\n\n`;
-    out += md.passport([["Тип урока", typeName + (p.duration ? `. ${p.duration} минут` : "")], ["Проблемный вопрос", prob], ["Оборудование", equip]]);
+    out += md.passport([["Тип урока", typeName + (p.duration ? `. ${p.duration} минут` : "")], ["Проблемный вопрос", prob], ["Что нужно", equip]]);
     out += md.plan(st.map(s => ({ name: s.name, min: s.min, mat: mat(s) })));
     out += md.legend();
     st.forEach((s, i) => {
       out += md.block(i + 1, s.name, s.min);
       for (const part of s.parts) {
-        if (part.line) { out += /^📌/.test(part.line) || /^✅|^\*\(|^—/.test(part.line) ? `${part.line.replace(/^📌\s*/, "")}\n\n` : `${part.line}\n\n`; continue; }
+        if (part.line) { const L0 = part.line.replace(/^📌\s*/, ""); if (/если затрудня/i.test(L0)) continue; out += /^✅/.test(L0) ? md.row("Вывод", L0.replace(/^✅\s*(\*?Вывод[^:]*:\*?\s*)?/, "")) : md.row("Учитель", L0); continue; }
         const T = part.table, head = rowCells(T[0]);
         if (head.length !== 1) { out += T.join("\n") + "\n\n"; continue; }
         const body = T.slice(2).map(r => rowCells(r)[0]).flatMap(c => c.split(/<br>(?=\*\*[❓💬🔑✅🧭])/)).filter(Boolean);
@@ -99,28 +136,40 @@ const Layout = (() => {
       }
     });
     if (tail.length) out += "\n" + tail.join("\n").replace(/^---\s*$/gm, "") + "\n";
-    return out.replace(/\n{3,}/g, "\n\n");
+    return merge(out);
   }
 
-  /* ---------- оформление на сайте и в PDF: классы по содержимому ---------- */
+  /* ---------- оформление на сайте и в PDF: классы по содержимому (текст не меняется) ---------- */
   function decorate(root) {
     const first = root.firstElementChild;
     if (first && first.tagName === "P" && /^Конспект урока/.test(first.textContent.trim())) first.classList.add("lx-kicker");
-    root.querySelectorAll("h2").forEach(h => { if (/^(БЛОК|ЭТАП)\s+\d/.test(h.textContent.trim())) { h.classList.add("lx-block"); const m = h.textContent.match(/·\s*(\d+\s*мин)\s*$/); if (m && !h.querySelector(".lx-min")) { h.innerHTML = h.innerHTML.replace(/\s*·\s*\d+\s*мин\s*$/, ""); const s = document.createElement("span"); s.className = "lx-min"; s.textContent = m[1]; h.appendChild(s); } } else if (/^План урока|^Ход урока/.test(h.textContent.trim())) h.classList.add("lx-h"); });
+    root.querySelectorAll("h2").forEach(h => {
+      const t = h.textContent.trim();
+      if (/^(БЛОК|ЭТАП)\s+\d/.test(t)) {
+        h.classList.add("lx-block");
+        if (!h.querySelector(".lx-no") && h.childNodes.length === 1 && h.firstChild.nodeType === 3) {
+          const m = t.match(/^((?:БЛОК|ЭТАП)\s+\d+\.?)\s*(.*?)(\s*·\s*\d+\s*мин)?$/);
+          if (m) { h.textContent = ""; const a = document.createElement("span"); a.className = "lx-no"; a.textContent = m[1]; const b = document.createElement("span"); b.className = "lx-t"; b.textContent = " " + m[2]; h.append(a, b); if (m[3]) { const c = document.createElement("span"); c.className = "lx-min"; c.textContent = m[3]; h.append(c); } }
+        }
+      } else if (/^План урока|^Ход урока/.test(t)) h.classList.add("lx-h");
+    });
     root.querySelectorAll("p").forEach(p => {
       const t = p.textContent.trim();
-      if (/^▸\s*(ПОИСК|СЛОВО УЧИТЕЛЯ|САМОСТОЯТЕЛЬНАЯ РАБОТА|РАБОТА В ПАРАХ|РАБОТА В ГРУППАХ)$/.test(t)) { p.classList.add("lx-mark", "lx-" + ({ "ПОИСК": "search", "СЛОВО УЧИТЕЛЯ": "word", "САМОСТОЯТЕЛЬНАЯ РАБОТА": "self", "РАБОТА В ПАРАХ": "pairs", "РАБОТА В ГРУППАХ": "pairs" }[t.replace(/^▸\s*/, "")])); }
-      else if (/^(Материал|Записывают):/.test(t)) p.classList.add("lx-meta");
+      if (/^(Материал|Записывают):/.test(t)) p.classList.add("lx-meta");
       else if (/^Как читать конспект/.test(t)) p.classList.add("lx-legend");
-      else if (/^Результат блока:/.test(t)) p.classList.add("lx-result");
+      else if (/^Результат (блока|этапа):/.test(t)) p.classList.add("lx-result");
     });
     root.querySelectorAll("table").forEach(tb => {
       const th = [...tb.querySelectorAll("thead th")].map(x => x.textContent.trim());
-      const wrap = tb.closest(".tblwrap");
-      if (th.length === 1) { const k = kindOf(th[0]); tb.classList.add("lx-box", "lx-" + k); wrap?.classList.add("lx-boxwrap"); }
-      else if (th.length === 2 && (/^(учитель|вопрос)/i.test(th[0]) && /^(ученики|ответ)/i.test(th[1]))) { tb.classList.add("lx-qa"); wrap?.classList.add("lx-boxwrap"); }
+      const wrap = tb.closest(".tblwrap"); wrap?.classList.add("lx-boxwrap");
+      if (th.length === 1) tb.classList.add("lx-box", "lx-" + kindOf(th[0]));
+      else if (th.length === 2 && isLabel(th[0])) { tb.classList.add("lx-rows"); tb.querySelectorAll("tr").forEach(tr => { const c = tr.firstElementChild; const k = clean(c?.textContent); if (/^(В ТЕТРАДЬ|НА ДОСКЕ)$/.test(k)) tr.classList.add("lx-write"); if (!k) tr.classList.add("lx-cont"); }); }
+      else if (th.length === 2 && /^(учитель|вопрос)/i.test(th[0]) && /^(ученики|ответ)/i.test(th[1])) tb.classList.add("lx-qa");
+      else if (th.length === 2 && /^(упражнение|задание)/i.test(th[0]) && /^алгоритм/i.test(th[1])) tb.classList.add("lx-ex");
+      else if (/^Этап 1\b/.test(th[0] || "")) tb.classList.add("lx-strip");
       else if (th[0] === "№" && /блок|этап/i.test(th[1] || "")) tb.classList.add("lx-plan");
-      else if (th.length === 2 && /^(учебник|тип урока|класс|место урока|тема|предмет)$/i.test(th[0])) { tb.classList.add("lx-pass"); wrap?.classList.add("lx-boxwrap"); }
+      else if (th.length === 2 && /^(цель|учебник|тип урока|класс|место урока|тема|предмет|что нужно|проблемный вопрос)$/i.test(th[0])) tb.classList.add("lx-pass");
+      else wrap?.classList.remove("lx-boxwrap");
     });
   }
 
@@ -135,6 +184,6 @@ const Layout = (() => {
   };
   const docxKind = label => DOCX[kindOf(label)] || DOCX.box;
 
-  return { md, restyle, decorate, kindOf, docxKind, cell, clean, KINDS };
+  return { md, merge, restyle, decorate, kindOf, docxKind, cell, clean, isLabel, KINDS, LEGEND };
 })();
 window.Layout = Layout;

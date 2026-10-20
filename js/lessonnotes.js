@@ -49,7 +49,8 @@ const LessonNotes = (() => {
     const qs = [], notes = [];
     const ans = s => { const m = s.match(/\*\((?:(?:Ожидаемый ответ|Ориентир для учителя|Ориентир):\s*)?([^)]*(?:\([^)]*\)[^)]*)*)\)\*\s*$/); return m ? [s.slice(0, m.index).trim(), clean(m[1])] : [s.trim(), ""]; };
     for (let line of String(cellText).split(/<br\s*\/?>/i)) {
-      line = line.trim(); if (!line) continue;
+      line = line.replace(/\*?\((?:Наводящий вопрос|Если затрудняются)[^)]*\)\*?/gi, "").trim(); if (!line) continue;
+      if (/^[^\wА-Яа-яЁё]*(↳\s*)?(Если (ученики )?затрудня|Если не (ответ|справ)|Наводящий вопрос)/i.test(line)) continue;
       if (/^\*\(/.test(line) && qs.length) { qs[qs.length - 1].a = clean(ans(line)[1] || line.replace(/^\*\(|\)\*$/g, "")); continue; }
       let pre = "";
       const k = line.indexOf(" — "); if (!/^—/.test(line) && k > 0 && /\?/.test(line.slice(k))) { pre = line.slice(0, k).trim(); line = line.slice(k + 1).trim(); }
@@ -119,7 +120,7 @@ const LessonNotes = (() => {
     const typeName = (H.meta.match(/Тип урока:\*\*\s*([^·]+)/) || [])[1] || p.type?.name || "";
     const prob = !ru && K?.problem ? K.problem : (md.match(/Проблемный вопрос[^:\n]*:\**\s*([^\n]+)/) || [])[1] || "";
     let out = X.kicker(p) + `# ${H.title || p.topic}\n\n`;
-    out += X.passport([["Учебник", H.book], ["Тип урока", clean(typeName) + `. ${p.duration || 45} минут`], ["Цель", H.goal], ["Проблемный вопрос", strip(prob)], ["Понятия урока", !ru && K?.terms?.length ? "вводятся по ходу работы с текстом: " + K.terms.map(t => t.term).join(", ") : ""], ["Текст", H.text], ["Оборудование", H.equip]]);
+    out += X.passport([["Учебник", H.book], ["Тип урока", clean(typeName) + `. ${p.duration || 45} минут`], ["Цель", H.goal], ["Проблемный вопрос", strip(prob)], ["Понятия урока", !ru && K?.terms?.length ? "вводятся по ходу работы с текстом: " + K.terms.map(t => t.term).join(", ") : ""], ["Текст", H.text], ["Что нужно", H.equip]]);
     // план урока
     const st = R.map((c, i) => {
       const stage = c[0] || `Этап ${i + 1}`, name = stage.replace(/\s*\(\d+\s*мин\)\s*$/, ""), min = (stage.match(/\((\d+)\s*мин\)/) || [])[1] || "";
@@ -137,26 +138,26 @@ const LessonNotes = (() => {
       out += X.block(i + 1, short, min);
       const writes = (strip(c[1]).match(/[Зз]апиш(?:ите|ем)\s+([^.?!]{4,80})/) || [])[1] || "";
       out += X.meta(S.mat !== "беседа" ? S.mat : "", writes);
-      // слово учителя: переходы, пояснения
-      const word = [], hints = [];
+      // слово учителя: переходы, пояснения (без вариантов «если не ответили…»)
+      const word = [];
       for (const n of T.notes) {
-        if (/^Алгоритм «.*на слайде/.test(n)) continue;
-        if (/^↳?\s*Если затрудняются/i.test(n.replace(/^[^\wА-Яа-яЁё↳]+/u, ""))) { hints.push(n.replace(/^.*?Если затрудняются:?\s*/i, "")); continue; }
+        if (/^Алгоритм «.*на слайде/.test(n) || /если затрудня|если не (ответ|справ)|наводящ/i.test(n)) continue;
         word.push(n.replace(/^🔗\s*\*?Переход:\*?\s*/, "").replace(/^📌\s*/, ""));
       }
-      if (word.length) out += X.box("▸ Слово учителя", word);
-      // поиск: вопросы учителя — ожидаемые ответы
+      if (word.length) out += X.row("Учитель", word);
+      // вопрос учителя — рядом ответ учеников
       if (T.qs.length) out += X.qa(T.qs.map((x, k) => [x.q, x.a || (k === 0 && students ? students : "")]));
-      if (hints.length) out += X.box("Если затрудняются", hints);
       // рабочий лист
-      if (/рабоч[а-я]* лист/i.test(side)) out += X.box("Рабочий лист", [side.replace(/^.*?(рабоч[а-я]* лист)/i, (m, a) => a.replace(/^./, ch => ch.toUpperCase()))]);
-      // упражнение: самостоятельная работа, алгоритм, ответы
+      if (/рабоч[а-я]* лист/i.test(side)) out += X.row("Рабочий лист", side.replace(/^.*?(рабоч[а-я]* лист)/i, (m, a) => a.replace(/^./, ch => ch.toUpperCase())));
+      // упражнение — рядом алгоритм его выполнения, ниже ответы
       if (t && t.text && !/⟦/.test(t.text)) {
         ex++;
         const algo = rk?.algo;
-        out += X.box("▸ Самостоятельная работа", [`**Упражнение ${ex}${t.src ? ` · ${t.src}` : ""}.**`, ...(L0 => L0.length > 9 ? [...L0.slice(0, 8), "*…полностью — в пособии и на рабочем листе*"] : L0)(String(t.text).split("<br>").map(x => clean(x)).filter(Boolean))]);
-        if (algo) out += X.box(`Алгоритм «${algo.name}»`, algo.steps.map((s2, k) => `${k + 1}) ${s2}`));
-        out += X.box("Ответы", [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""]);
+        const L0 = String(t.text).split("<br>").map(x => clean(x)).filter(Boolean);
+        const lines = L0.length > 9 ? [...L0.slice(0, 8), "*…полностью — в учебнике и на рабочем листе*"] : L0;
+        const steps = algo ? algo.steps : ["Прочитай задание, найди, что нужно сделать.", ctx.rule ? `Вспомни правило: ${ctx.rule}` : "Вспомни правило урока.", "Выполни задание по правилу для каждого примера.", "Обозначь графически то, что требует задание.", "Проверь себя: перечитай и сверь с правилом."];
+        out += X.ex(`Упражнение ${ex}${t.src ? ` · ${t.src}` : ""}`, lines, steps, algo?.name);
+        out += X.row("Ответы", [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""].filter(Boolean).join("; "));
       }
       // литература: работа с фрагментами текста — по блокам: установка на чтение → отрывок → словарная работа → вопросы → вывод
       if (!ru && K?.fragments?.length && !fragDone && /аналит|анализ|комментар|беседа/.test(low(name))) {
@@ -171,7 +172,6 @@ const LessonNotes = (() => {
           if (gl.length) out += X.box("Словарная работа", gl.map(g => `**${g.word}** — ${g.def}`));
           const pairs = qa.flatMap(x => x.steps ? x.steps.map((q, k) => [q, k === x.steps.length - 1 ? x.a : ""]) : [[x.q, x.a]]);
           out += X.qa(pairs, ["Вопрос, задание учителя", "Ответ учеников"]);
-          const hint = qa.map(x => x.hint).filter(Boolean); if (hint.length) out += X.box("Если затрудняются", hint);
           if (K.conclusions?.[j]) out += X.box("Вывод", [`Учитель: «${clean(K.conclusions[j])}»`]);
         });
         // понятия — после наблюдения над текстом, с проговариванием вслух
@@ -186,7 +186,7 @@ const LessonNotes = (() => {
     if (!ru && K?.conclusions?.length) out += X.box("Тетрадь · выводы урока", K.conclusions);
     const hw = section(md, "Домашнее задание");
     if (hw) out += X.box("Домашнее задание", hw.split("\n").map(x => x.replace(/^[-*]\s*/, "").trim()).filter(Boolean));
-    return out.replace(/\n{3,}/g, "\n\n");
+    return Layout.merge(out);
   }
   return { build, rows, talk };
 })();

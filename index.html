@@ -2323,7 +2323,7 @@ const Engine = (() => {
       for (const f of kit.fragments) {
         const qa = (kit.qa.find(x => x.n === f.n) || { items: [] }).items;
         md += `### ${f.part ? `Часть ${f.n}. ${f.label}` : `Фрагмент ${f.n}. ${f.label}`}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}\n\n${f.text.split("\n").map(l => "> " + (l.trim() ? l.replace(/^\s+/, "") + "  " : "")).join("\n")}\n\n`;
-        if (qa.length) md += qa.map(x => x.steps ? `**Беседа${x.term ? "" : ""}:**\n\n${x.steps.map((st, k) => `${k + 1}. ${st}`).join("\n")}\n\n*Если затрудняются (наводящий вопрос, не ответ):* ${x.hint}  \n*Ориентир для учителя (не озвучивать — ученики приходят сами):* ${x.a}\n` : `- **Вопрос:** ${x.q}  \n  *Ориентир для учителя:* ${x.a}`).join("\n") + "\n\n";
+        if (qa.length) md += qa.map(x => x.steps ? `**Беседа${x.term ? "" : ""}:**\n\n${x.steps.map((st, k) => `${k + 1}. ${st}`).join("\n")}\n\n*Ориентир для учителя (не озвучивать — ученики приходят сами):* ${x.a}\n` : `- **Вопрос:** ${x.q}  \n  *Ориентир для учителя:* ${x.a}`).join("\n") + "\n\n";
       }
       if (kit.glossary.length) md += `## Словарная работа\n\n| Слово | Значение |\n|---|---|\n${kit.glossary.map(g => `| ${g.word} | ${g.def} |`).join("\n")}\n\n`;
       if (kit.terms.length) {
@@ -2461,7 +2461,7 @@ const Engine = (() => {
     // 1) Памятка
     let memo = "";
     if (ru) {
-      if (RK?.algo) memo += `## Алгоритм: ${RK.algo.name}\n\n${RK.algo.steps.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n${RK.algo.ex?.length ? `**Примеры:** ${RK.algo.ex.join("; ")}.\n\n` : ""}`;
+      if (RK?.algo) memo += `## Алгоритм: ${RK.algo.name}\n\n${RK.algo.steps.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n${RK.algo.ex?.length ? `**Примеры:** ${RK.algo.ex.join("; ").replace(/\.$/, "")}.\n\n` : ""}`;
       if (RK?.theory?.length && !RK.algo) memo += `## Главное\n\n${RK.theory.map(x => "- " + x).join("\n")}\n\n`;
       const rules = typeof Base !== "undefined" ? Base.rules(p.topic, p.grade, 1) : [];
       if (rules.length) memo += `## Правило из пособия\n\n> ${rules[0].text}\n\n*${rules[0].source}*\n\n`;
@@ -3654,7 +3654,7 @@ const QUESTIONS = `## Методика (главное требование к �
 2. Цепочки вопросов, а не одиночные вопросы: наблюдение («что заметили в строке…?») → сравнение или эксперимент («что изменится, если убрать / заменить…?») → обобщение («как назвать…?») → функция («зачем автору это именно здесь?») → вывод. 3–5 шагов на ключевой эпизод.
 3. Понятия (литературоведческие и лингвистические) — только изнутри анализа, никогда «а что значит этот термин?»: учитель предлагает сравнить (например, первую и вторую строфу: «в чём разница? как отличается настроение?»), ученики замечают («они резко противоположны»), и только тогда учитель называет: «Да, этот приём называется антитеза — вспомним…». Затем — роль приёма в ЭТОМ тексте; определение записывается после обсуждения. Словарная работа — только если слова непонятны или играют на смысл. Не «вспомним, что такое лиро-эпическое произведение», а «Что в тексте рассказывается? Что переживается? Как назвать произведение, где есть и то и другое? Что это даёт нашей поэме?».
 4. Анализ произведения — от целого к детали и обратно к целому: первое впечатление → ключевые эпизоды (медленное, комментированное чтение) → образы, композиция, язык → авторская позиция → личное отношение.
-5. После каждого вопроса — *(Ориентир для учителя: …)* — что должны увидеть ученики; это НЕ озвучивается. Если ученики затрудняются — *(Наводящий вопрос: …)*, а не ответ.
+5. После каждого вопроса — *(Ориентир для учителя: …)* — что должны увидеть ученики; это НЕ озвучивается. Без вариантов «если не ответили / если затрудняются» — один ясный ход урока.
 6. Разные виды деятельности: выразительное чтение, работа с цитатами, сопоставление (с другим текстом, иллюстрацией, экранизацией), работа в парах и группах, письменное высказывание, дифференцированные задания.
 7. Рефлексия связана с проблемным вопросом: «Как изменился ваш ответ на вопрос урока?», а не «понравился ли урок».
 8. Мостики между этапами: каждый этап начинается с реплики-перехода, которая опирается на то, к чему пришли на предыдущем этапе, и ведёт к вопросу урока («Вопрос мы записали — но без текста на него не ответить. Послушаем…»). Урок — одна линия, а не набор блоков.
@@ -3683,7 +3683,7 @@ ${window.MethodBase ? MethodBase.promptBlock(p, p.plan?.analysis) + "\n" : ""}
 2. Противоречие, из которого вырастает проблемный вопрос урока (удивление, «ловушка», спор мнений). Сам проблемный вопрос.
 3. ${ru ? "3–4 языковых наблюдения (пары примеров), из которых ученики сами выведут правило; для каждого — цепочка из 3–5 вопросов от наблюдения к выводу." : "3–4 ключевых эпизода (строфы, детали) текста; для каждого — цепочка из 3–5 вопросов: наблюдение → сравнение/эксперимент со словом → обобщение → роль в тексте."}
 4. Понятия урока — где именно в ${ru ? "языковом материале" : "тексте"} ученики их «откроют» и как назовут сами.
-5. Где ученики вероятно ошибутся или застрянут — и какой наводящий вопрос (не ответ!) поможет.
+5. Где ученики вероятно ошибутся — и как построить вопросы так, чтобы они пришли к ответу сами.
 6. Виды деятельности и как разнообразить урок (чтение, письмо, пары, группы, сопоставление, творческое задание), дифференциация для сильных и слабых.
 7. Как рефлексия вернёт учеников к проблемному вопросу.
 ${p.plan?.workWiki ? `\nИз статьи о произведении (открытый источник): ${String(p.plan.workWiki).slice(0, 1500)}\n` : ""}${p.plan?.edu?.length ? `\nИз разработок учителей (образовательные сайты): ${p.plan.edu.flatMap(r => [...(r.problem || []), ...(r.questions || []).slice(0, 2)].map(x => `«${x}» (${r.domain})`)).slice(0, 12).join("; ")}\n` : ""}${p.plan?.kit?.problem ? `\nПроблемный вопрос, найденный сайтом: «${p.plan.kit.problem}» (${p.plan.kit.problemSrc || ""}). Если он слабый — предложи лучше, на конфликте.\n` : ""}
@@ -3698,7 +3698,7 @@ const GENERAL_PROMPT = `Ты — ведущий методист по русск
 • Сначала продумай замысел: зерно урока, противоречие и проблемный вопрос, ключевые эпизоды (языковые явления), где ученики застрянут.
 • Вопросы — цепочками: наблюдение → сравнение или эксперимент («что изменится, если убрать слово?») → обобщение → функция («зачем автору это именно здесь?») → вывод.
 • Понятия — только в контексте анализа: ученики находят явление в строках, сами называют, объясняют роль; определение записывают после обсуждения.
-• После каждого вопроса — *(Ориентир для учителя: …)*, не озвучивается; если затрудняются — *(Наводящий вопрос: …)*, а не ответ.
+• После каждого вопроса — *(Ориентир для учителя: …)*, не озвучивается. Без вариантов «если не ответили / если затрудняются» — один ясный ход урока.
 • Разные виды деятельности, дифференциация, рефлексия через проблемный вопрос.
 • Структура: тема, цель, задачи, оборудование, планируемые результаты (дословно из ФРП), таблица «Этап урока | Деятельность учителя (реплики, вопросы, ориентиры) | Деятельность учеников | УУД», домашнее задание двух уровней, источники.
 • Не выдумывай цитаты, даты и факты; если не уверен — пометь ⟦проверить⟧.
@@ -3708,7 +3708,7 @@ const genPrompt = () => window.MethodBase ? GENERAL_PROMPT.replace("\n\nГлав
 const SELFCHECK = `## Перед тем как выдать — проверь себя (молча, в ответ не пиши)
 - Есть ли проблемный вопрос, и возвращаемся ли к нему в конце?
 - Нет ли вопросов «Что такое…?» и готовых ответов в репликах учителя?
-- У каждого ключевого эпизода — цепочка вопросов, у каждого вопроса — ориентир, у трудных — наводящий вопрос?
+- У каждого ключевого эпизода — цепочка вопросов, у каждого вопроса — ориентир?
 - Каждое понятие вводится через наблюдение над текстом (языковым материалом), а не определением?
 - Конспект написан именно про эту тему и этот текст — его нельзя подставить к другому уроку?`;
 function promptConspect(p) {
@@ -4495,7 +4495,7 @@ async function renderPreview() {
     const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
     sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : ""); sheet.innerHTML = mdToHtml(md); decorate(sheet);
     if (state.active === "lesson" && window.Layout) Layout.decorate(sheet);
-    if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
+    if (state.active === "memo") { sheet.classList.add("memo-sheet"); memoDecorate(sheet); } else if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
     state.lastDoc = state.active + ":" + L.id;
     if (editable) sheet.setAttribute("contenteditable", "true"); else sheet.removeAttribute("contenteditable");
@@ -4659,23 +4659,64 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : WS_DOCS.includes(d) ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : d === "memo" ? { memo: true } : WS_DOCS.includes(d) ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+/* конспект: чёрно-белые таблицы по образцу учителя — метки слева, вопрос | ответ, упражнение | алгоритм, полоска этапов */
+function lxDocxTable(t, D) {
+  const head = t.header.map(c => (c.text || "").trim()), n = head.length, L = window.Layout;
+  const bk = { style: D.BorderStyle.SINGLE, size: 4, color: "555555" }, thick = { style: D.BorderStyle.SINGLE, size: 14, color: "111111" };
+  const kind = n === 1 ? "box" : n === 2 && L.isLabel(head[0]) ? "rows" : /^Этап 1\b/.test(head[0]) ? "strip" : n === 2 && /^(цель|учебник|тип урока|что нужно|проблемный вопрос|тема|класс)$/i.test(head[0]) ? "pass" : n === 2 && /^(учитель|вопрос|упражнение|задание)/i.test(head[0]) ? "pair" : "grid";
+  const W = kind === "rows" ? [17, 83] : kind === "pass" ? [22, 78] : kind === "pair" ? [52, 48] : head.map(() => Math.floor(100 / n));
+  const cellOf = (c, i, hd, rowLabel) => {
+    const label = (kind === "rows" || kind === "pass") && i === 0, strip = kind === "strip";
+    const base = label ? { bold: true, size: kind === "rows" ? 15 : 18, font: "Arial" } : strip ? { size: 15, font: "Arial", bold: hd } : hd && kind !== "rows" && kind !== "pass" ? { bold: true, size: kind === "pair" || kind === "box" ? 16 : 20, font: kind === "pair" || kind === "box" ? "Arial" : undefined } : { size: 21 };
+    const write = kind === "rows" && /^(В ТЕТРАДЬ|НА ДОСКЕ)$/.test(rowLabel);
+    const fill = label ? (write ? "BFBFBF" : "F2F2F2") : strip ? (hd ? "D9D9D9" : "F2F2F2") : hd && kind !== "rows" && kind !== "pass" ? "F2F2F2" : kind === "pair" && i === 1 ? "F7F7F7" : undefined;
+    return new D.TableCell({ width: { size: Math.round(9900 * (W[i] || 10) / 100), type: D.WidthType.DXA }, shading: fill ? { type: D.ShadingType.CLEAR, fill } : undefined, borders: write && i === 1 ? { top: thick, bottom: thick, left: thick, right: thick } : undefined, margins: { top: 50, bottom: 50, left: 90, right: 90 }, children: [new D.Paragraph({ alignment: strip ? D.AlignmentType.CENTER : undefined, children: inlineRuns(c.tokens, D, base), spacing: { after: 20, line: 264 } })] });
+  };
+  const rowLab = r => (r[0]?.text || "").trim();
+  const rows = [new D.TableRow({ tableHeader: kind === "pair" || kind === "grid", cantSplit: true, children: t.header.map((c, i) => cellOf(c, i, true, head[0])) }), ...t.rows.map(r => new D.TableRow({ cantSplit: kind !== "pair", children: r.map((c, i) => cellOf(c, i, false, rowLab(r))) }))];
+  return new D.Table({ width: { size: 9900, type: D.WidthType.DXA }, columnWidths: W.map(w => Math.round(9900 * w / 100)), layout: D.TableLayoutType.FIXED, borders: { top: bk, bottom: bk, left: bk, right: bk, insideHorizontal: bk, insideVertical: bk }, rows });
+}
+/* памятка: по образцу учителя — на листе несколько экземпляров для разрезания, внутри две колонки */
+function memoDocx(toks, D, emit, swap, out) {
+  const parts = []; let cur = null;
+  for (const t of toks) { if (t.type === "heading" && t.depth === 1) { cur = { head: t, sub: null, items: [] }; parts.push(cur); continue; } if (!cur) { cur = { head: null, sub: null, items: [] }; parts.push(cur); } if (t.type === "space") continue; if (!cur.sub && !cur.items.length && t.type === "paragraph" && /^\*\*Тема:\*\*/.test(t.text || "")) { cur.sub = t; continue; } cur.items.push(t); }
+  const dash = { style: D.BorderStyle.DASHED, size: 6, color: "777777" }, none = { style: D.BorderStyle.NONE, size: 0, color: "FFFFFF" }, thin = { style: D.BorderStyle.SINGLE, size: 6, color: "111111" };
+  const render = list => { const box = []; const prev = swap(box); list.forEach(t => emit(t)); swap(prev); return box.length ? box : [new D.Paragraph({ text: "" })]; };
+  const len = list => list.reduce((s, t) => s + String(t.raw || "").length, 0);
+  parts.forEach((pt, pi) => {
+    // делим разделы (## …) на две колонки примерно поровну
+    const secs = []; let sc = null; for (const t of pt.items) { if (t.type === "heading" && t.depth === 2 || !sc) { sc = []; secs.push(sc); } sc.push(t); }
+    const total = len(pt.items); let acc = 0, cut = secs.length; for (let i = 0; i < secs.length; i++) { if (acc >= total / 2 && i > 0) { cut = i; break; } acc += len(secs[i]); }
+    const L = secs.slice(0, cut).flat(), R = secs.slice(cut).flat();
+    const copies = total < 700 ? 3 : total < 1300 ? 2 : 1;
+    const headTxt = (pt.head?.text || "Памятка").replace(/[*#]/g, "").trim().toUpperCase(), subTxt = (pt.sub?.text || "").replace(/\*\*Тема:\*\*\s*/, "").replace(/\*/g, "").trim();
+    for (let c = 0; c < copies; c++) {
+      const headP = new D.Paragraph({ children: [new D.TextRun({ text: headTxt, bold: true, size: 22, font: "Arial" }), ...(subTxt ? [new D.TextRun({ text: "   " + subTxt, bold: true, italics: true, size: 19 })] : [])], spacing: { after: 60 }, keepNext: true });
+      const inner = R.length ? new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: none, bottom: none, left: none, right: none, insideHorizontal: none, insideVertical: none }, rows: [new D.TableRow({ cantSplit: true, children: [new D.TableCell({ width: { size: 50, type: D.WidthType.PERCENTAGE }, margins: { right: 120 }, children: render(L) }), new D.TableCell({ width: { size: 50, type: D.WidthType.PERCENTAGE }, borders: { left: thin }, margins: { left: 140 }, children: render(R) })] })] }) : null;
+      out.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: dash, bottom: dash, left: dash, right: dash, insideHorizontal: none, insideVertical: none }, rows: [new D.TableRow({ cantSplit: copies > 1, children: [new D.TableCell({ margins: { top: 100, bottom: 100, left: 140, right: 140 }, children: [headP, ...(inner ? [inner] : render(L))] })] })] }));
+      out.push(new D.Paragraph({ text: "", spacing: { after: 120 }, pageBreakBefore: false }));
+    }
+    if (pi < parts.length - 1) out.push(new D.Paragraph({ text: "", pageBreakBefore: true }));
+  });
+}
 async function mdToDocxBlob(md, title, opts = {}) {
-  const ws = !!opts.worksheet, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
+  const memo = !!opts.memo, ws = !!opts.worksheet && !memo, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx, toks = window.marked.lexer(md.replace(Media.RE, (m, cap) => cap ? `*Иллюстрация: ${cap}*` : "").replace(/<!--[\s\S]*?-->/g, ""));
-  const children = [];
-  const border = { style: D.BorderStyle.SINGLE, size: 4, color: "9AA3B2" };
-  const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: { after: 120, line: 300 }, ...opt });
+  let children = [];
+  const border = { style: D.BorderStyle.SINGLE, size: 4, color: memo ? "555555" : "9AA3B2" };
+  const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: memo ? { after: 40, line: 252 } : { after: 120, line: 300 }, ...opt });
   let wide = false;
   const emit = (t, ctx = {}) => {
     switch (t.type) {
       case "heading": if (t.depth === 1 && ws) { const first = !h1n++; const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 4 }; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag.toUpperCase() + " ", bold: true, size: 18, color: "111111" })], border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 0, after: 100 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "111111", size: 40 }), border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: "111111", space: 4 } }, spacing: { before: 0, after: 200 } })); break; }
         if (t.depth === 3 && ws) { const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 3 }; const noEmo = tk => (tk || []).map(x => ({ ...x, text: String(x.text || "").replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^\s+/, ""), tokens: x.tokens ? noEmo(x.tokens) : x.tokens })); children.push(new D.Paragraph({ children: inlineRuns(noEmo(t.tokens), D, { bold: true, size: 26 }), border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 240, after: 120 } })); break; }
-        if (t.depth === 2 && lx && /^(БЛОК|ЭТАП)\s+\d/.test(t.text)) { const m = t.text.match(/^(.*?)\s*·\s*(\d+\s*мин)\s*$/); children.push(new D.Paragraph({ children: [new D.TextRun({ text: (m ? m[1] : t.text).replace(/\*/g, ""), bold: true, color: "6B4FBB", size: 24 }), ...(m ? [new D.TextRun({ text: "  ·  " + m[2], bold: true, color: "C2185B", size: 22 })] : [])], shading: { type: D.ShadingType.CLEAR, fill: "ECE7FA" }, border: { left: { style: D.BorderStyle.SINGLE, size: 36, color: "6B4FBB", space: 6 } }, spacing: { before: 320, after: 120 }, keepNext: true })); break; }
+        if (t.depth === 2 && lx && /^(БЛОК|ЭТАП)\s+\d/.test(t.text)) { const m = t.text.replace(/\*/g, "").match(/^((?:БЛОК|ЭТАП)\s+\d+\.?)\s*(.*?)(?:\s*·\s*(\d+\s*мин))?\s*$/) || [, t.text, "", ""]; const bk = { style: D.BorderStyle.SINGLE, size: 6, color: "111111" }; const C = (txt, fill, w, o = {}) => new D.TableCell({ width: { size: Math.round(99 * w), type: D.WidthType.DXA }, shading: { type: D.ShadingType.CLEAR, fill }, margins: { top: 70, bottom: 70, left: 110, right: 110 }, verticalAlign: D.VerticalAlign.CENTER, children: [new D.Paragraph({ keepNext: true, children: [new D.TextRun({ text: txt, bold: !o.thin, size: o.size || 24, font: o.font })] })] }); children.push(new D.Paragraph({ text: "", spacing: { before: 200, after: 0 }, keepNext: true })); children.push(new D.Table({ width: { size: 9900, type: D.WidthType.DXA }, columnWidths: (m[3] ? [16, 70, 14] : [16, 84]).map(w => Math.round(99 * w)), layout: D.TableLayoutType.FIXED, borders: { top: bk, bottom: bk, left: bk, right: bk, insideVertical: bk, insideHorizontal: bk }, rows: [new D.TableRow({ cantSplit: true, children: [C(m[1].toUpperCase(), "A6A6A6", 16, { size: 19, font: "Arial" }), C(m[2], "D9D9D9", m[3] ? 70 : 84), ...(m[3] ? [C(m[3], "D9D9D9", 14, { thin: true, size: 21 })] : [])] })] })); children.push(new D.Paragraph({ text: "", spacing: { after: 60 }, keepNext: true })); break; }
+        if (memo && t.depth >= 2) { children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, size: 19, font: "Arial" }), spacing: { before: 80, after: 40 }, keepNext: true })); break; }
         if (t.depth === 1 && lx) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { bold: true, size: 30 }), spacing: { before: 0, after: 200 } })); break; }
         children.push(new D.Paragraph({ heading: [D.HeadingLevel.HEADING_1, D.HeadingLevel.HEADING_2, D.HeadingLevel.HEADING_3, D.HeadingLevel.HEADING_4][Math.min(t.depth, 4) - 1], children: inlineRuns(t.tokens, D), spacing: { before: 240, after: 120 } })); break;
-      case "paragraph": if (lx && !ctx.quote) { const tx = t.text || ""; const mk = tx.match(/^\*\*▸\s*(ПОИСК|СЛОВО УЧИТЕЛЯ|САМОСТОЯТЕЛЬНАЯ РАБОТА|РАБОТА В ПАРАХ|РАБОТА В ГРУППАХ)\*\*$/); if (mk) { children.push(new D.Paragraph({ children: [new D.TextRun({ text: "▸ " + mk[1], bold: true, size: 18, color: mk[1] === "ПОИСК" ? "C2185B" : mk[1] === "СЛОВО УЧИТЕЛЯ" ? "2448C4" : "277A4D" })], spacing: { before: 120, after: 40 }, keepNext: true })); break; } if (/^\*(Как читать конспект|Результат блока)/.test(tx)) { children.push(P(inlineRuns(t.tokens, D, { size: 19, color: "6B6F80" }))); break; } if (/^\*Конспект урока/.test(tx)) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { color: "6B4FBB", italics: false }), spacing: { after: 40 } })); break; } }
+      case "paragraph": if (lx && !ctx.quote) { const tx = t.text || ""; const mk = tx.match(/^\*\*▸\s*(ПОИСК|СЛОВО УЧИТЕЛЯ|САМОСТОЯТЕЛЬНАЯ РАБОТА|РАБОТА В ПАРАХ|РАБОТА В ГРУППАХ)\*\*$/); if (mk) { children.push(new D.Paragraph({ children: [new D.TextRun({ text: "▸ " + mk[1], bold: true, size: 18, font: "Arial" })], spacing: { before: 120, after: 40 }, keepNext: true })); break; } if (/^\*(Как читать конспект|Результат (блока|этапа))/.test(tx)) { children.push(P(inlineRuns(t.tokens, D, { size: 19, color: "444444" }))); break; } if (/^\*Конспект урока/.test(tx)) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { color: "333333" }), spacing: { after: 40 } })); break; } }
         children.push(P(inlineRuns(t.tokens, D, ctx.quote ? { italics: false } : {}), ctx.quote ? { indent: { left: 360 }, shading: { type: D.ShadingType.CLEAR, fill: ctx.fill || "EEF1F7" }, border: { left: { style: D.BorderStyle.SINGLE, size: 18, color: ctx.color || "2448C4", space: 6 } } } : {})); break;
       case "text": children.push(P(inlineRuns(t.tokens || [t], D))); break;
       case "list": t.items.forEach((it, i) => { const inl = it.tokens.flatMap(x => x.type === "text" || x.type === "paragraph" ? (x.tokens || [x]) : []); children.push(new D.Paragraph({ children: [new D.TextRun({ text: t.ordered ? `${(t.start || 1) + i}. ` : "• " }), ...inlineRuns(inl, D)], indent: { left: 360, hanging: 260 }, spacing: { after: 60 } })); }); break;
@@ -4683,11 +4724,9 @@ async function mdToDocxBlob(md, title, opts = {}) {
       case "hr": children.push(new D.Paragraph({ border: { bottom: { style: D.BorderStyle.SINGLE, size: 6, color: "C9D1DE", space: 1 } }, spacing: { after: 160 } })); break;
       case "code": children.push(P([new D.TextRun({ text: t.text, font: "Consolas", size: 20 })])); break;
       case "table": {
-        if (lx && t.header.length === 1) { const K = Layout.docxKind(t.header[0].text || ""), bd = { style: K.dash ? D.BorderStyle.DASHED : D.BorderStyle.SINGLE, size: K.line === "333333" ? 10 : 6, color: K.line }, nb = { style: D.BorderStyle.NONE, size: 0, color: "FFFFFF" };
-          const rowsX = [new D.TableRow({ children: [new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(t.header[0].tokens, D, { bold: true, size: 19, color: K.label }), spacing: { after: 20 } })], shading: { type: D.ShadingType.CLEAR, fill: K.fill }, margins: { top: 60, bottom: 0, left: 110, right: 110 } })] }), ...t.rows.map(r => new D.TableRow({ children: [new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(r[0].tokens, D), spacing: { after: 20 } })], shading: { type: D.ShadingType.CLEAR, fill: K.fill }, margins: { top: 20, bottom: 50, left: 110, right: 110 } })] }))];
-          children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: bd, bottom: bd, left: { ...bd, size: 18 }, right: bd, insideHorizontal: nb, insideVertical: nb }, rows: rowsX })); children.push(new D.Paragraph({ text: "", spacing: { after: 60 } })); break; }
+        if (lx) { children.push(lxDocxTable(t, D)); children.push(new D.Paragraph({ text: "", spacing: { after: 80 } })); break; }
         if (t.header.length >= 3 && !lx) wide = true;
-        const mk = (cell, head) => new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(cell.tokens, D, head ? { bold: true } : {}), spacing: { after: 40 } })], shading: head ? { type: D.ShadingType.CLEAR, fill: lx ? "ECE7FA" : "EEF1F7" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 } });
+        const mk = (cell, head) => new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(cell.tokens, D, head ? { bold: true } : {}), spacing: { after: 40 } })], shading: head ? { type: D.ShadingType.CLEAR, fill: memo ? "D9D9D9" : "EEF1F7" } : undefined, margins: memo ? { top: 30, bottom: 30, left: 60, right: 60 } : { top: 60, bottom: 60, left: 90, right: 90 } });
         children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border }, rows: [new D.TableRow({ tableHeader: true, children: t.header.map(c => mk(c, true)) }), ...t.rows.map(r => new D.TableRow({ children: r.map(c => mk(c, false)) }))] }));
         children.push(new D.Paragraph({ text: "" })); break;
       }
@@ -4696,10 +4735,11 @@ async function mdToDocxBlob(md, title, opts = {}) {
       default: if (t.tokens) children.push(P(inlineRuns(t.tokens, D)));
     }
   };
-  toks.forEach(t => emit(t));
+  if (memo) memoDocx(toks, D, emit, c => { const prev = children; children = c; return prev; }, children);
+  else toks.forEach(t => emit(t));
   const doc = new D.Document({
     creator: "Учу по ФРП", title,
-    styles: { default: { document: { run: { font: "Times New Roman", size: 24 } }, heading1: { run: { font: "Times New Roman", size: 32, bold: true } }, heading2: { run: { font: "Times New Roman", size: 28, bold: true } }, heading3: { run: { font: "Times New Roman", size: 26, bold: true } } } },
+    styles: { default: { document: { run: { font: "Times New Roman", size: memo ? 19 : 24 } }, heading1: { run: { font: "Times New Roman", size: 32, bold: true } }, heading2: { run: { font: "Times New Roman", size: 28, bold: true } }, heading3: { run: { font: "Times New Roman", size: 26, bold: true } } } },
     sections: [{ properties: { page: { size: wide ? { orientation: D.PageOrientation.LANDSCAPE, width: D.convertMillimetersToTwip(210), height: D.convertMillimetersToTwip(297) } : {}, margin: { top: 1000, bottom: 1000, left: 1100, right: 900 } } }, children }]
   });
   return D.Packer.toBlob(doc);
@@ -4799,6 +4839,19 @@ async function exportPptx() { const L = state.lesson; toast("Готовлю пр
 /* Рабочий лист: каждый лист (заголовок первого уровня) — обложка-баннер: фиолетово-розовый градиент,
    жёлтая плашка-тег, крупный белый заголовок, плоская иконка и цветные круги */
 const WS_ICON = [[/памятк/i, "💡"], [/самостоят|контрольн/i, "✅"], [/домашн/i, "🏠"], [/ответ/i, "🔑"], [/./, "📝"]];
+/* памятка: карточка с пунктиром для разрезания, шапка «ПАМЯТКА · тема», разделы в две колонки (текст не меняется) */
+function memoDecorate(root) {
+  const host = root.classList.contains("sheet") ? root : root.querySelector(".sheet") || root;
+  [...host.querySelectorAll("h1")].forEach(h => {
+    const card = document.createElement("section"); card.className = "memo-card"; h.before(card);
+    const head = document.createElement("div"); head.className = "memo-head"; card.appendChild(head); head.appendChild(h);
+    let n = card.nextElementSibling;
+    if (n && n.tagName === "P" && /^Тема:/.test(n.textContent.trim())) { n.classList.add("memo-sub"); head.appendChild(n); n = card.nextElementSibling; }
+    const cols = document.createElement("div"); cols.className = "memo-cols"; card.appendChild(cols);
+    let sec = null;
+    while (n && n.tagName !== "H1") { const nx = n.nextElementSibling; if (n.tagName === "H2" || !sec) { sec = document.createElement("div"); sec.className = "memo-sec"; cols.appendChild(sec); } sec.appendChild(n); n = nx; }
+  });
+}
 function wsDecorate(root, L) {
   const P = L?.params || {}, tag = `${P.grade || ""} класс · ${window.Subjects && P.subject && !["ru", "lit"].includes(P.subject) ? Subjects.name(P.subject) : P.subject === "lit" ? "Литература" : "Русский язык"}`;
   [...root.querySelectorAll("h1")].forEach((h, i) => {
@@ -4827,7 +4880,7 @@ async function docToPdfBlob(L, doc) {
   else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}">${mdToHtml(md)}</div>`;
   decorate(stage);
   if (doc === "lesson" && window.Layout) Layout.decorate(stage.firstElementChild);
-  if (WS_DOCS.includes(doc)) wsDecorate(stage, L);
+  if (doc === "memo") { stage.firstElementChild?.classList.add("memo-sheet"); memoDecorate(stage); } else if (WS_DOCS.includes(doc)) wsDecorate(stage, L);
   await new Promise(r => setTimeout(r, 400));
   await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
   const wide = doc === "conspect" && /\|.*\|.*\|.*\|/.test(md);
