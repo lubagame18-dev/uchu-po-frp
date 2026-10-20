@@ -1870,14 +1870,14 @@ const Base = (() => {
   /* Упражнения по теме: раздел тетради весит втрое больше, чем совпадение в тексте */
   function exercises(topic, grade, max = 8) {
     const base = B(); if (!base) return [];
-    const st = FRP.stems(topic); if (!st.size) return [];
+    const st = FRP.stems(topic);
     const need = Math.min(2, st.size);
     // общие слова темы («член», «предложение», «слово», «правописание»…) не должны сами по себе тянуть упражнение:
     // если в теме есть особые слова (например, «подлежащее»), хотя бы одно из них должно встретиться
     const GEN = /^(член|предл|слов|текст|право|напис|част|реч|язык|русск|основ|главн|втор|прост|сложн|групп|вид|прав|случ)/;
     const spec = new Set([...st].filter(x => !GEN.test(x)));
     const out = [];
-    for (const it of base.ru) {
+    for (const it of st.size ? base.ru : []) {
       if (it.k !== "ex") continue;
       if (spec.size && spec.size < st.size && !FRP.score((it.sec || "") + " " + it.t.slice(0, 400), spec)) continue;
       const sec = FRP.score(it.sec || "", st);
@@ -1889,9 +1889,9 @@ const Base = (() => {
     }
     // свои тетради «Учу по ФРП»: тема урока ФРП + свои примеры, ключи для учителя, без ссылки на источник
     const st2 = FRP.stems(String(topic).replace(/практикум|повторени[ея]|обобщени[ея]|систематизаци[яи]|закреплени[ея]|по тем[еа]|тем[аы]\b|\([^)]*\)/gi, " ")), need2 = Math.min(2, st2.size);
-    for (const T of st2.size ? own() : []) {
+    for (const T of own()) {
       const tt = FRP.score(T.t + " " + (T.sec || ""), st2), g = (T.g === +grade ? 4 : Math.abs(T.g - grade) === 1 ? 1 : -4) + exact7(topic, T.t) * 2;
-      if (tt < need2) continue;
+      if (st2.size ? tt < need2 : exact7(topic, T.t) < 1) continue;
       T.ex.forEach((e, i) => { const head = FRP.score(e.t.slice(0, 300), st2); out.push({ text: e.t, key: e.a, source: "", sec: T.t, s: tt * 3 + head + g + 4 - i * 0.1, hard: /мини-сочинение|сочинени|творческ|по схем/i.test(e.t), own: true }); });
     }
     return out.sort((a, b) => b.s - a.s).slice(0, max);
