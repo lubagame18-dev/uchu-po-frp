@@ -109,48 +109,83 @@ const LessonNotes = (() => {
     return `| 📝 Упражнение ${n}${t.src ? ` · ${cell(t.src)}` : ""} | 🧭 Алгоритм решения${algo ? ` «${cell(algo.name)}»` : ""} |\n|---|---|\n| <span class="nw">${text}</span> | ${steps} |\n| **🔑 Ключи:** ${keys || "проверить по правилу; ответы — на листе «Ответы» рабочего листа"} |  |\n\n`;
   }
 
-  /* ---------- сборка ---------- */
+  /* ---------- сборка: вёрстка по образцу конспектов учителя (Layout) ---------- */
+  const strip = s => String(s || "").replace(/<br\s*\/?>/gi, " ").replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
   function build(techMd, p) {
-    const md = String(techMd || ""), H = head(md), R = rows(md), ru = p.subject === "ru", K = p.plan?.kit;
+    const md = String(techMd || ""), H = head(md), R = rows(md), ru = p.subject === "ru", K = p.plan?.kit, X = Layout.md;
     const ctx = { lc: 0, rule: "" };
     const rk = ru && p.plan?.rukit; if (rk?.algo) ctx.rule = rk.algo.steps.slice(1).join(" ");
     const imp = md.match(/> 💡 ВАЖНО:\s*([^\n]+)/); if (ru && !ctx.rule && imp && !/⟦/.test(imp[1])) ctx.rule = clean(imp[1].replace(/\*\([^)]*\)\*/g, ""));
-    let out = `# ${H.title || p.topic}\n\n*Конспект урока для учителя*\n\n${H.meta ? H.meta + "\n\n" : ""}`;
-    if (H.goal) out += `**Цель:** ${H.goal}\n\n`;
-    if (H.equip) out += `**Оборудование:** ${H.equip}\n\n`;
-    if (H.text) out += `**Текст для анализа:** ${H.text}\n\n`;
-    if (H.book) out += `**Опора в учебнике:** ${H.book}\n\n`;
-    if (!ru && K?.problem) out += `> ❓ **Проблемный вопрос урока:** ${K.problem}\n>\n> *Ответ, к которому приходим в конце:* ${K.answer || "главная мысль с опорой на 2–3 цитаты"}\n\n`;
-    out += `---\n\n## Ход урока\n\n`;
-    let ex = 0, fragDone = false;
-    R.forEach((c, i) => {
-      const stage = c[0] || `Этап ${i + 1}`, name = stage.replace(/\s*\(\d+\s*мин\)\s*$/, ""), min = (stage.match(/\((\d+)\s*мин\)/) || [])[1];
-      const T = talk(c[1] || ""), students = ru ? c[2] : "";
-      out += `### ${i + 1}. ${name}${min ? ` · ${min} мин` : ""}\n\n`;
-      const notes = T.notes.filter(n => !/^Алгоритм «.*на слайде/.test(n));
-      if (notes.length) out += notes.map(n => `📌 ${n}`).join("  \n") + "\n\n";
-      const concl = conclusion(name, p, ctx), short = name.split(/[(:]/)[0].trim().slice(0, 48);
-      if (T.qs.length) out += qaBox(`Задание ${i + 1} · ${short}`, T.qs, students, concl);
-      else if (concl) out += box(`Задание ${i + 1} · ${short}`, [students ? `**👥 Ученики:** ${cell(students)}` : "", `**✅ Вывод (формулируют ученики, учитель уточняет):** ${cell(concl)}`]);
+    const typeName = (H.meta.match(/Тип урока:\*\*\s*([^·]+)/) || [])[1] || p.type?.name || "";
+    const prob = !ru && K?.problem ? K.problem : (md.match(/Проблемный вопрос[^:\n]*:\**\s*([^\n]+)/) || [])[1] || "";
+    let out = X.kicker(p) + `# ${H.title || p.topic}\n\n`;
+    out += X.passport([["Учебник", H.book], ["Тип урока", clean(typeName) + `. ${p.duration || 45} минут`], ["Цель", H.goal], ["Проблемный вопрос", strip(prob)], ["Понятия урока", !ru && K?.terms?.length ? "вводятся по ходу работы с текстом: " + K.terms.map(t => t.term).join(", ") : ""], ["Текст", H.text], ["Оборудование", H.equip]]);
+    // план урока
+    const st = R.map((c, i) => {
+      const stage = c[0] || `Этап ${i + 1}`, name = stage.replace(/\s*\(\d+\s*мин\)\s*$/, ""), min = (stage.match(/\((\d+)\s*мин\)/) || [])[1] || "";
       const t = ru ? task(c[3] || "") : null;
-      if (t && t.text && !/⟦/.test(t.text)) out += exBox(++ex, t, p);
-      // литература: фрагменты текста — на первом аналитическом этапе
+      const side = strip(ru ? c[3] : c[2]);
+      const mat = t?.src ? t.src : /рабоч[а-я]* лист/i.test(side) ? "рабочий лист" : /слайд|доск/i.test(side + c[1]) ? "доска, слайд" : !ru && K?.fragments?.length && /аналит|анализ|комментар|беседа/i.test(name) ? "текст произведения" : "беседа";
+      return { c, name, min, t, side, mat };
+    });
+    if (st.length) out += X.plan(st.map(s => ({ name: s.name.split(/[(:]/)[0].trim(), min: s.min, mat: s.mat })));
+    out += X.legend();
+    let ex = 0, fragDone = false;
+    st.forEach((S, i) => {
+      const { c, name, min, t, side } = S, T = talk(c[1] || ""), students = ru ? strip(c[2]) : "";
+      const short = name.split(/[(]/)[0].trim();
+      out += X.block(i + 1, short, min);
+      const writes = (strip(c[1]).match(/[Зз]апиш(?:ите|ем)\s+([^.?!]{4,80})/) || [])[1] || "";
+      out += X.meta(S.mat !== "беседа" ? S.mat : "", writes);
+      // слово учителя: переходы, пояснения
+      const word = [], hints = [];
+      for (const n of T.notes) {
+        if (/^Алгоритм «.*на слайде/.test(n)) continue;
+        if (/^↳?\s*Если затрудняются/i.test(n.replace(/^[^\wА-Яа-яЁё↳]+/u, ""))) { hints.push(n.replace(/^.*?Если затрудняются:?\s*/i, "")); continue; }
+        word.push(n.replace(/^🔗\s*\*?Переход:\*?\s*/, "").replace(/^📌\s*/, ""));
+      }
+      if (word.length) out += X.box("▸ Слово учителя", word);
+      // поиск: вопросы учителя — ожидаемые ответы
+      if (T.qs.length) out += X.qa(T.qs.map((x, k) => [x.q, x.a || (k === 0 && students ? students : "")]));
+      if (hints.length) out += X.box("Если затрудняются", hints);
+      // рабочий лист
+      if (/рабоч[а-я]* лист/i.test(side)) out += X.box("Рабочий лист", [side.replace(/^.*?(рабоч[а-я]* лист)/i, (m, a) => a.replace(/^./, ch => ch.toUpperCase()))]);
+      // упражнение: самостоятельная работа, алгоритм, ответы
+      if (t && t.text && !/⟦/.test(t.text)) {
+        ex++;
+        const algo = rk?.algo;
+        out += X.box("▸ Самостоятельная работа", [`**Упражнение ${ex}${t.src ? ` · ${t.src}` : ""}.**`, ...(L0 => L0.length > 9 ? [...L0.slice(0, 8), "*…полностью — в пособии и на рабочем листе*"] : L0)(String(t.text).split("<br>").map(x => clean(x)).filter(Boolean))]);
+        if (algo) out += X.box(`Алгоритм «${algo.name}»`, algo.steps.map((s2, k) => `${k + 1}) ${s2}`));
+        out += X.box("Ответы", [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""]);
+      }
+      // литература: работа с фрагментами текста — по блокам: установка на чтение → отрывок → словарная работа → вопросы → вывод
       if (!ru && K?.fragments?.length && !fragDone && /аналит|анализ|комментар|беседа/.test(low(name))) {
         fragDone = true;
         K.fragments.forEach((f, j) => {
           const qa = (K.qa.find(x => x.n === f.n) || { items: [] }).items;
-          const quote = f.text.split("\n").filter(l => l.trim()).map(l => `<i>${cell(l)}</i>`).join("<br>");
-          out += box(`${f.part ? "Часть" : "Фрагмент"} ${f.n}. ${f.label}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}`, [quote, ...qa.flatMap(x => x.steps ? [`**❓ Беседа (от наблюдения к выводу):** ${x.steps.map((st, k) => `${k + 1}) ${cell(st)}`).join(" ")}`, `**🧭 Если затрудняются:** ${cell(x.hint)}`, `**🔒 Ориентир для учителя (не озвучивать):** ${cell(x.a)}`] : [`**❓ Вопрос учителя:** ${cell(x.q)}`, `**🔒 Ориентир для учителя:** ${cell(x.a)}`]), K.conclusions?.[j] ? `**✅ Вывод (формулируют ученики, учитель уточняет):** ${cell(K.conclusions[j])}` : ""]);
+          out += X.sub(`${i + 1}.${j + 1}`, `${f.part ? "Часть" : "Фрагмент"} ${f.n}. ${f.label}`);
+          const firstQ = qa[0] ? (qa[0].steps ? qa[0].steps[0] : qa[0].q) : "";
+          out += X.box("Установка на чтение", [`Прочитаем ${f.part ? "эту часть" : "фрагмент"}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}.${firstQ ? ` Обратите внимание, чтобы потом ответить: ${clean(firstQ)}` : ""}`]);
+          out += X.box(`Отрывок ${f.n}. ${f.label}`, f.text.split("\n").filter(l => l.trim()).map(l => `*${clean(l)}*`));
+          const gl = (K.glossary || []).filter(g => low(f.text).includes(low(g.word).slice(0, Math.max(4, g.word.length - 2))));
+          if (gl.length) out += X.box("Словарная работа", gl.map(g => `**${g.word}** — ${g.def}`));
+          const pairs = qa.flatMap(x => x.steps ? x.steps.map((q, k) => [q, k === x.steps.length - 1 ? x.a : ""]) : [[x.q, x.a]]);
+          out += X.qa(pairs, ["Вопрос, задание учителя", "Ответ учеников"]);
+          const hint = qa.map(x => x.hint).filter(Boolean); if (hint.length) out += X.box("Если затрудняются", hint);
+          if (K.conclusions?.[j]) out += X.box("Вывод", [`Учитель: «${clean(K.conclusions[j])}»`]);
         });
+        // понятия — после наблюдения над текстом, с проговариванием вслух
+        (K.terms || []).slice(0, 4).forEach(tm => { out += X.box(`Понятие «${tm.term}»`, [`Учитель: «${tm.def.replace(/^./, ch => ch.toUpperCase())}${tm.ex ? `. Вспомним строки: «${tm.ex.replace(/[«»]/g, "")}»` : ""}»`]); out += X.box("Проговариваем вслух", [`Учитель: «Как называется этот приём?» — Класс: «${tm.term}».`]); });
       }
+      const concl = conclusion(name, p, ctx);
+      if (concl && !(fragDone && /аналит|анализ|комментар|беседа/.test(low(name)))) out += X.box("Вывод", [concl]);
     });
     if (!R.length) out += "*Этапы урока не найдены — откройте технологическую карту.*\n\n";
-    if (!ru && K?.glossary?.length) out += `## Словарная работа\n\n${K.glossary.map(g => `- **${g.word}** — ${g.def}`).join("\n")}\n\n`;
-    if (!ru && K?.terms?.length) out += `## Термины (запись в тетрадь)\n\n${K.terms.map(t => `- **${t.term}** — ${t.def}${t.ex ? ` *(пример: «${t.ex.replace(/[«»]/g, "")}»)*` : ""}`).join("\n")}\n\n`;
-    if (ru && rk?.theory?.length) out += `## Запись в тетрадь\n\n${rk.theory.map(x => "- " + x).join("\n")}\n\n`;
-    if (!ru && K?.conclusions?.length) out += `## Выводы урока (запись в тетрадь)\n\n${K.conclusions.map(c => "- " + c).join("\n")}\n\n`;
+    if (!ru && K?.glossary?.length && !K?.fragments?.length) out += X.box("Словарная работа", K.glossary.map(g => `**${g.word}** — ${g.def}`));
+    if (ru && rk?.theory?.length) out += X.box("Тетрадь · запись на уроке", rk.theory);
+    if (!ru && K?.conclusions?.length) out += X.box("Тетрадь · выводы урока", K.conclusions);
     const hw = section(md, "Домашнее задание");
-    if (hw) out += `## Домашнее задание\n\n${hw}\n`;
+    if (hw) out += X.box("Домашнее задание", hw.split("\n").map(x => x.replace(/^[-*]\s*/, "").trim()).filter(Boolean));
     return out.replace(/\n{3,}/g, "\n\n");
   }
   return { build, rows, talk };

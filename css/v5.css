@@ -929,3 +929,97 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .prevhw[open] summary::before { content: "▾ "; }
 .prevhw textarea { margin-top: 8px; min-height: 64px; }
 .prevhw-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ===== Конспект урока: вёрстка по образцу конспектов учителя (Layout) ===== */
+.sheet.lx-sheet { padding: 34px 40px 48px; font: 15px/1.55 "Times New Roman", "PT Serif", Georgia, serif; color: #1d1d27; background: #fff; }
+.sheet.lx-sheet::before { display: none; }
+.lx-sheet p { max-width: none; }
+.lx-sheet .lx-kicker { text-align: center; color: #6b4fbb; margin: 0 0 2px; font-size: 15px; }
+.lx-sheet .lx-kicker em { font-style: normal; font-weight: 700; }
+.lx-sheet h1 { text-align: center; font: 700 21px/1.3 "Times New Roman", "PT Serif", Georgia, serif; margin: 0 0 14px; }
+.lx-sheet h2.lx-h { font: 700 16px/1.3 "Times New Roman", serif; color: #6b4fbb; margin: 18px 0 6px; }
+.lx-sheet h2.lx-block { display: flex; align-items: baseline; gap: 10px; font: 700 15px/1.3 "Times New Roman", serif; color: #6b4fbb; text-transform: uppercase; letter-spacing: .01em; background: #ece7fa; border-left: 5px solid #6b4fbb; padding: 4px 10px; margin: 26px 0 8px; break-after: avoid; }
+.lx-sheet h2.lx-block .lx-min { color: #c2185b; font-size: 14px; white-space: nowrap; }
+.lx-sheet h2.lx-block .lx-min::before { content: "· "; color: #6b4fbb; }
+.lx-sheet h3 { font: 700 15px/1.35 "Times New Roman", serif; margin: 16px 0 4px; }
+.lx-sheet .lx-meta { margin: 0 0 2px; font-size: 13.5px; }
+.lx-sheet .lx-meta strong { color: #c2185b; font-weight: 700; }
+.lx-sheet .lx-legend { font-style: italic; font-size: 12.5px; color: #6b6f80; }
+.lx-sheet .lx-result { font-size: 12.5px; color: #6b6f80; font-style: italic; }
+.lx-sheet .lx-mark { margin: 10px 0 2px; font-size: 12px; letter-spacing: .03em; }
+.lx-sheet .lx-mark strong { font-weight: 700; }
+.lx-sheet .lx-search strong { color: #c2185b; }
+.lx-sheet .lx-word strong { color: #2448c4; }
+.lx-sheet .lx-self strong, .lx-sheet .lx-pairs strong { color: #277a4d; }
+/* таблицы: тонкие линии, как в документе */
+.lx-sheet .tblwrap { border: 0; border-radius: 0; margin: 6px 0 12px; overflow-x: auto; }
+.lx-sheet table { font: 14px/1.45 "Times New Roman", serif; border: 1px solid #b9b2d6; }
+.lx-sheet th { background: #ece7fa; border-bottom: 1px solid #b9b2d6; padding: 5px 8px; font-weight: 700; color: #2b2540; vertical-align: top; }
+.lx-sheet td { border-top: 1px solid #d9d4ea; border-left: 1px solid #d9d4ea; padding: 5px 8px; min-width: 0; font-weight: 400; }
+.lx-sheet td:first-child { font-weight: 400; min-width: 0; border-left: 0; }
+.lx-sheet table.lx-pass td:first-child, .lx-sheet table.lx-pass th:first-child { width: 22%; background: #f3f0fb; font-weight: 700; }
+.lx-sheet table.lx-pass th { background: #f3f0fb; }
+.lx-sheet table.lx-pass th:last-child { background: #fff; font-weight: 400; }
+.lx-sheet table.lx-plan td:first-child, .lx-sheet table.lx-plan th:first-child { width: 34px; text-align: center; }
+.lx-sheet table.lx-qa td:first-child { width: 50%; }
+.lx-sheet table.lx-qa td:last-child em { color: #5c5f70; }
+/* рамки: таблица из одного столбца; заголовок — подпись рамки */
+.lx-sheet table.lx-box { border: 1px solid #9aa3b2; background: #fff; }
+.lx-sheet table.lx-box th { background: transparent; border: 0; padding: 6px 10px 0; font-size: 12.5px; font-weight: 700; color: #4a4f63; }
+.lx-sheet table.lx-box td { border: 0; padding: 2px 10px 6px; }
+.lx-sheet table.lx-box tr + tr td { padding-top: 0; }
+.lx-sheet table.lx-word th { color: #2448c4; text-transform: uppercase; font-size: 11.5px; letter-spacing: .03em; }
+.lx-sheet table.lx-self th, .lx-sheet table.lx-pairs th, .lx-sheet table.lx-group th, .lx-sheet table.lx-lab th { color: #277a4d; text-transform: uppercase; font-size: 11.5px; letter-spacing: .03em; }
+.lx-sheet table.lx-board { background: #f1eefb; border: 0; border-left: 4px solid #6b4fbb; }
+.lx-sheet table.lx-board th { color: #6b4fbb; }
+.lx-sheet table.lx-answers, .lx-sheet table.lx-concl { background: #fff6d6; border: 0; border-left: 4px solid #e2c25a; }
+.lx-sheet table.lx-answers th, .lx-sheet table.lx-concl th { color: #9a6b00; }
+.lx-sheet table.lx-problem { background: #fdecf1; border: 0; border-left: 4px solid #c2185b; }
+.lx-sheet table.lx-problem th { color: #c2185b; }
+.lx-sheet table.lx-problem td { font-weight: 700; }
+.lx-sheet table.lx-reading { background: #eef4fd; border: 1px solid #9db7e6; }
+.lx-sheet table.lx-reading th { color: #2448c4; }
+.lx-sheet table.lx-fragment { background: #f6f6f8; border: 0; border-left: 4px solid #6b4fbb; }
+.lx-sheet table.lx-fragment th { color: #6b6f80; font-weight: 400; }
+.lx-sheet table.lx-fragment td { font-style: italic; padding-left: 16px; }
+.lx-sheet table.lx-vocab { background: #eef8f0; border: 1px solid #9bcfa6; }
+.lx-sheet table.lx-vocab th { color: #277a4d; }
+.lx-sheet table.lx-aloud { background: #f4eefc; border: 1px solid #9c7bd6; }
+.lx-sheet table.lx-aloud th { color: #6b4fbb; text-transform: uppercase; font-size: 11.5px; }
+.lx-sheet table.lx-ws { background: #f2f2f2; border: 1.5px solid #333; }
+.lx-sheet table.lx-ws th { color: #222; text-transform: uppercase; font-size: 11.5px; letter-spacing: .03em; }
+.lx-sheet table.lx-notebook { border: 1.5px dashed #777; }
+.lx-sheet table.lx-notebook th { color: #333; text-transform: uppercase; font-size: 11.5px; }
+.lx-sheet table.lx-hw { background: #f1eefb; border: 1px solid #b9b2d6; }
+.lx-sheet table.lx-hw th { color: #6b4fbb; }
+.lx-sheet table.lx-hint { border: 1px dashed #bbb; }
+.lx-sheet table.lx-hint th { color: #6b6f80; font-weight: 400; font-style: italic; }
+.lx-sheet table.lx-safety { background: #fdecec; border: 0; border-left: 4px solid #c63a2f; }
+.lx-sheet table.lx-safety th { color: #c63a2f; }
+@media (max-width: 600px) { .sheet.lx-sheet { padding: 20px 14px 30px; } }
+@media print { .lx-sheet table { break-inside: avoid; } .lx-sheet h2.lx-block { break-after: avoid; } }
+
+/* ===== Рабочий лист: чёрно-белая вёрстка для печати, задания — карточками ===== */
+.ws-sheet .ws-banner { background: #fff; color: #111; box-shadow: none; border: 2px solid #111; border-radius: 16px; padding: 14px 18px 14px 88px; margin: 0 0 16px; }
+.ws-sheet .ws-banner.teacher { background: #fff; border-style: dashed; }
+.ws-sheet .ws-banner .wc { display: none; }
+.ws-sheet .ws-banner h1 { color: #111; font-size: 26px; margin: 6px 0 0; max-width: 100%; }
+.ws-sheet .ws-tag { background: #fff; color: #111; border: 1.5px solid #111; font-size: 11.5px; padding: 3px 10px; }
+.ws-sheet .ws-ico { left: 18px; right: auto; width: 54px; height: 54px; font-size: 26px; background: #fff; border: 2px solid #111; box-shadow: none; filter: grayscale(1); }
+.ws-sheet .ws-sub { margin: 4px 0 0; font-size: 13px; color: #333; }
+.ws-sheet .ws-head { background: #fff; border: 0; border-bottom: 1.5px solid #111; border-radius: 0; padding: 4px 0; font-weight: 400; font-size: 14px; }
+.ws-sheet .ws-card { border: 1.5px solid #111; border-radius: 14px; padding: 10px 14px 6px; margin: 0 0 12px; break-inside: avoid; }
+.ws-sheet .ws-card > h3, .ws-sheet h3.task { display: flex; align-items: center; gap: 10px; border: 0; background: none; border-radius: 0; padding: 0; margin: 0 0 8px; font-size: 16px; color: #111; }
+.ws-sheet .ws-num { flex: none; width: 26px; height: 26px; border: 1.5px solid #111; border-radius: 50%; display: grid; place-items: center; font-size: 14px; font-weight: 800; }
+.ws-sheet .ws-card .tblwrap { border: 1px solid #111; border-radius: 6px; }
+.ws-sheet .ws-card th { background: #f1f1f1; border-bottom: 1px solid #111; color: #111; }
+.ws-sheet .ws-card td { border-top: 1px solid #777; }
+.ws-sheet h2 { color: #111; }
+.ws-sheet blockquote { background: #fff; border: 1.5px solid #111; }
+.ws-sheet blockquote.imp, .ws-sheet blockquote.sub, .ws-sheet blockquote.trap { background: #fff; }
+.ws-sheet .ws-emo { display: none; }
+.ws-sheet .ws-card > h3 .ws-num { font-size: 0; }
+.ws-sheet .ws-card > h3 .ws-num::before { content: attr(data-n); font-size: 14px; }
+.ws-sheet .ws-card > h3:not(:has(.ws-num))::before { content: ""; }
+.ws-sheet .ws-card ol, .ws-sheet .ws-card ul { padding-left: 30px; }
+.ws-sheet .ws-card > p, .ws-sheet .ws-card li { max-width: none; }

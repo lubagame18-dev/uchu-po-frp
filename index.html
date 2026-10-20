@@ -2812,6 +2812,8 @@ const Media = (() => {
       const P = plan[k] || {}, q0 = decodeURIComponent(m[2].slice(7)), q = P.query || q0;
       let found = pickBest(q, fresh(await search(q, 12)), P.must);
       if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12)), P.must);
+      // строгий подбор не нашёл — берём первую подходящую картинку из выдачи Яндекса (без плакатов, схем и текста)
+      if (!found) { const ya = fresh(await yandexSearch(q, 12)); found = ya.find(x => !TEXTY.test(String(x.title || "").toLowerCase())) || null; if (!found && q !== q0) { const y2 = fresh(await yandexSearch(q0, 12)); found = y2.find(x => !TEXTY.test(String(x.title || "").toLowerCase())) || null; } }
       if (found) usedUrl.add(found.url);
       else { // не нашлось: пустое место с подсказкой — о чём слайд и какую картинку подобрать
         const sl = slideOf(out, out.indexOf(m[0])), title = ((sl.match(/^#{1,2}\s+(.+)$/m) || [])[1] || "").replace(/[🖼🎯💬📖🔍✍️🪞🏠🧩📝*_]/gu, "").trim();
@@ -4054,7 +4056,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     state.gen = null;
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? PL.lesson(p, type) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : PL.extra(f, p, type, p.extra || {});
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : PL.extra(f, p, type, p.extra || {});
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -4063,7 +4065,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = PL.cards(p, type); }
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = PL.cards(p, type); state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
           const webTxt = p.web?.items?.length ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
@@ -4491,7 +4493,8 @@ async function renderPreview() {
   } else {
     // пока документ дописывается, перерисовка не сбрасывает то, куда учитель прокрутил (таблицы вбок, лист вниз)
     const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
-    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : ""); sheet.innerHTML = mdToHtml(md); decorate(sheet);
+    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : ""); sheet.innerHTML = mdToHtml(md); decorate(sheet);
+    if (state.active === "lesson" && window.Layout) Layout.decorate(sheet);
     if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
     state.lastDoc = state.active + ":" + L.id;
@@ -4656,9 +4659,9 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-const wsOpts = (L, d) => WS_DOCS.includes(d) ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : WS_DOCS.includes(d) ? { worksheet: true, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
 async function mdToDocxBlob(md, title, opts = {}) {
-  const ws = !!opts.worksheet, wsTag = opts.tag || ""; let h1n = 0;
+  const ws = !!opts.worksheet, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx, toks = window.marked.lexer(md.replace(Media.RE, (m, cap) => cap ? `*Иллюстрация: ${cap}*` : "").replace(/<!--[\s\S]*?-->/g, ""));
   const children = [];
@@ -4667,17 +4670,24 @@ async function mdToDocxBlob(md, title, opts = {}) {
   let wide = false;
   const emit = (t, ctx = {}) => {
     switch (t.type) {
-      case "heading": if (t.depth === 1 && ws) { const first = !h1n++; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag + " ", bold: true, size: 20, color: "3A2A00", shading: { type: D.ShadingType.CLEAR, fill: "FFD84D" } })], spacing: { before: 0, after: 80 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "FFFFFF", size: 44 }), shading: { type: D.ShadingType.CLEAR, fill: "8E3FD1" }, border: { bottom: { style: D.BorderStyle.SINGLE, size: 24, color: "F05AA6", space: 4 } }, spacing: { before: 0, after: 240 }, indent: { left: 120, right: 120 } })); break; }
+      case "heading": if (t.depth === 1 && ws) { const first = !h1n++; const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 4 }; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag.toUpperCase() + " ", bold: true, size: 18, color: "111111" })], border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 0, after: 100 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "111111", size: 40 }), border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: "111111", space: 4 } }, spacing: { before: 0, after: 200 } })); break; }
+        if (t.depth === 3 && ws) { const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 3 }; const noEmo = tk => (tk || []).map(x => ({ ...x, text: String(x.text || "").replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^\s+/, ""), tokens: x.tokens ? noEmo(x.tokens) : x.tokens })); children.push(new D.Paragraph({ children: inlineRuns(noEmo(t.tokens), D, { bold: true, size: 26 }), border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 240, after: 120 } })); break; }
+        if (t.depth === 2 && lx && /^(БЛОК|ЭТАП)\s+\d/.test(t.text)) { const m = t.text.match(/^(.*?)\s*·\s*(\d+\s*мин)\s*$/); children.push(new D.Paragraph({ children: [new D.TextRun({ text: (m ? m[1] : t.text).replace(/\*/g, ""), bold: true, color: "6B4FBB", size: 24 }), ...(m ? [new D.TextRun({ text: "  ·  " + m[2], bold: true, color: "C2185B", size: 22 })] : [])], shading: { type: D.ShadingType.CLEAR, fill: "ECE7FA" }, border: { left: { style: D.BorderStyle.SINGLE, size: 36, color: "6B4FBB", space: 6 } }, spacing: { before: 320, after: 120 }, keepNext: true })); break; }
+        if (t.depth === 1 && lx) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { bold: true, size: 30 }), spacing: { before: 0, after: 200 } })); break; }
         children.push(new D.Paragraph({ heading: [D.HeadingLevel.HEADING_1, D.HeadingLevel.HEADING_2, D.HeadingLevel.HEADING_3, D.HeadingLevel.HEADING_4][Math.min(t.depth, 4) - 1], children: inlineRuns(t.tokens, D), spacing: { before: 240, after: 120 } })); break;
-      case "paragraph": children.push(P(inlineRuns(t.tokens, D, ctx.quote ? { italics: false } : {}), ctx.quote ? { indent: { left: 360 }, shading: { type: D.ShadingType.CLEAR, fill: ctx.fill || "EEF1F7" }, border: { left: { style: D.BorderStyle.SINGLE, size: 18, color: ctx.color || "2448C4", space: 6 } } } : {})); break;
+      case "paragraph": if (lx && !ctx.quote) { const tx = t.text || ""; const mk = tx.match(/^\*\*▸\s*(ПОИСК|СЛОВО УЧИТЕЛЯ|САМОСТОЯТЕЛЬНАЯ РАБОТА|РАБОТА В ПАРАХ|РАБОТА В ГРУППАХ)\*\*$/); if (mk) { children.push(new D.Paragraph({ children: [new D.TextRun({ text: "▸ " + mk[1], bold: true, size: 18, color: mk[1] === "ПОИСК" ? "C2185B" : mk[1] === "СЛОВО УЧИТЕЛЯ" ? "2448C4" : "277A4D" })], spacing: { before: 120, after: 40 }, keepNext: true })); break; } if (/^\*(Как читать конспект|Результат блока)/.test(tx)) { children.push(P(inlineRuns(t.tokens, D, { size: 19, color: "6B6F80" }))); break; } if (/^\*Конспект урока/.test(tx)) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { color: "6B4FBB", italics: false }), spacing: { after: 40 } })); break; } }
+        children.push(P(inlineRuns(t.tokens, D, ctx.quote ? { italics: false } : {}), ctx.quote ? { indent: { left: 360 }, shading: { type: D.ShadingType.CLEAR, fill: ctx.fill || "EEF1F7" }, border: { left: { style: D.BorderStyle.SINGLE, size: 18, color: ctx.color || "2448C4", space: 6 } } } : {})); break;
       case "text": children.push(P(inlineRuns(t.tokens || [t], D))); break;
       case "list": t.items.forEach((it, i) => { const inl = it.tokens.flatMap(x => x.type === "text" || x.type === "paragraph" ? (x.tokens || [x]) : []); children.push(new D.Paragraph({ children: [new D.TextRun({ text: t.ordered ? `${(t.start || 1) + i}. ` : "• " }), ...inlineRuns(inl, D)], indent: { left: 360, hanging: 260 }, spacing: { after: 60 } })); }); break;
       case "blockquote": { const txt = t.text || ""; const sty = txt.startsWith("⚠") ? { fill: "FBECEB", color: "C63A2F" } : txt.startsWith("🔍") ? { fill: "E6F4EC", color: "277A4D" } : { fill: "E8EDFC", color: "2448C4" }; t.tokens.forEach(x => emit(x, { quote: true, ...sty })); break; }
       case "hr": children.push(new D.Paragraph({ border: { bottom: { style: D.BorderStyle.SINGLE, size: 6, color: "C9D1DE", space: 1 } }, spacing: { after: 160 } })); break;
       case "code": children.push(P([new D.TextRun({ text: t.text, font: "Consolas", size: 20 })])); break;
       case "table": {
-        if (t.header.length >= 3) wide = true;
-        const mk = (cell, head) => new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(cell.tokens, D, head ? { bold: true } : {}), spacing: { after: 40 } })], shading: head ? { type: D.ShadingType.CLEAR, fill: "EEF1F7" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 } });
+        if (lx && t.header.length === 1) { const K = Layout.docxKind(t.header[0].text || ""), bd = { style: K.dash ? D.BorderStyle.DASHED : D.BorderStyle.SINGLE, size: K.line === "333333" ? 10 : 6, color: K.line }, nb = { style: D.BorderStyle.NONE, size: 0, color: "FFFFFF" };
+          const rowsX = [new D.TableRow({ children: [new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(t.header[0].tokens, D, { bold: true, size: 19, color: K.label }), spacing: { after: 20 } })], shading: { type: D.ShadingType.CLEAR, fill: K.fill }, margins: { top: 60, bottom: 0, left: 110, right: 110 } })] }), ...t.rows.map(r => new D.TableRow({ children: [new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(r[0].tokens, D), spacing: { after: 20 } })], shading: { type: D.ShadingType.CLEAR, fill: K.fill }, margins: { top: 20, bottom: 50, left: 110, right: 110 } })] }))];
+          children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: bd, bottom: bd, left: { ...bd, size: 18 }, right: bd, insideHorizontal: nb, insideVertical: nb }, rows: rowsX })); children.push(new D.Paragraph({ text: "", spacing: { after: 60 } })); break; }
+        if (t.header.length >= 3 && !lx) wide = true;
+        const mk = (cell, head) => new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(cell.tokens, D, head ? { bold: true } : {}), spacing: { after: 40 } })], shading: head ? { type: D.ShadingType.CLEAR, fill: lx ? "ECE7FA" : "EEF1F7" } : undefined, margins: { top: 60, bottom: 60, left: 90, right: 90 } });
         children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border }, rows: [new D.TableRow({ tableHeader: true, children: t.header.map(c => mk(c, true)) }), ...t.rows.map(r => new D.TableRow({ children: r.map(c => mk(c, false)) }))] }));
         children.push(new D.Paragraph({ text: "" })); break;
       }
@@ -4796,6 +4806,17 @@ function wsDecorate(root, L) {
     const b = document.createElement("div"); b.className = "ws-banner" + (i ? " pb" : "") + (/ответ/i.test(h.textContent) ? " teacher" : "");
     b.innerHTML = `<i class="wc c1"></i><i class="wc c2"></i><i class="wc c3"></i><span class="ws-tag">${esc(tag)}</span><span class="ws-ico" aria-hidden="true">${icon}</span>`;
     h.replaceWith(b); b.appendChild(h);
+    // тема урока — подзаголовком в шапке
+    const nx = b.nextElementSibling; if (nx && nx.tagName === "P" && /^Тема:/.test(nx.textContent.trim())) { nx.classList.add("ws-sub"); b.appendChild(nx); }
+  });
+  // задания — карточками с номером в кружке (текст заголовка не меняется: правка и выгрузка работают как раньше)
+  [...root.querySelectorAll("h3")].forEach(h => {
+    if (h.closest(".ws-card")) return;
+    h.innerHTML = h.innerHTML.replace(/^\s*((?:\p{Extended_Pictographic}|\uFE0F|\u200D|\s)+)/u, '<span class="ws-emo">$1</span>').replace(/(Задание\s*(\d+)\.?)/, '<span class="ws-num" data-n="$2">$1</span>');
+    const card = document.createElement("section"); card.className = "ws-card"; h.before(card);
+    let n = h; const take = [];
+    while (n && !(n !== h && /^(H1|H2|H3|HR)$/.test(n.tagName)) && !n.classList?.contains("ws-banner")) { take.push(n); n = n.nextElementSibling; }
+    take.forEach(x => card.appendChild(x));
   });
 }
 async function docToPdfBlob(L, doc) {
@@ -4803,12 +4824,13 @@ async function docToPdfBlob(L, doc) {
   const stage = $("#pdfstage"), md = doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;
-  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}">${mdToHtml(md)}</div>`;
+  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}">${mdToHtml(md)}</div>`;
   decorate(stage);
+  if (doc === "lesson" && window.Layout) Layout.decorate(stage.firstElementChild);
   if (WS_DOCS.includes(doc)) wsDecorate(stage, L);
   await new Promise(r => setTimeout(r, 400));
   await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
-  const wide = doc !== "slides" && /\|.*\|.*\|.*\|/.test(md);
+  const wide = doc === "conspect" && /\|.*\|.*\|.*\|/.test(md);
   const blob = await window.html2pdf().set({ margin: [8, 6, 10, 6], image: { type: "jpeg", quality: 0.95 }, html2canvas: { scale: doc === "slides" ? 1.4 : 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: doc === "slides" || wide ? "landscape" : "portrait" }, pagebreak: { mode: ["css", "legacy"], before: ".ws-banner.pb", avoid: ["tr", "h2", "h3", "blockquote", "li", ".slide", "figure", ".ws-banner"] } }).from(stage.firstElementChild).outputPdf("blob");
   stage.innerHTML = ""; return blob;
 }
@@ -4963,7 +4985,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/account.js"></script>
 <script src="js/cloudbase.js"></script>
 <script src="js/rules.js"></script>
-<script src="js/lessonnotes.js"></script>
+<script src="js/layout.js"></script><script src="js/lessonnotes.js"></script>
 <script src="js/tutor.js"></script>
 <script src="js/mnemo.js"></script>
 <script src="js/themes.js"></script>
