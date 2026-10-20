@@ -61,8 +61,8 @@ const LessonNotes = (() => {
     return { qs, notes };
   }
   function task(cellText) {
-    const m = String(cellText).match(/\*\*Задание\*\*\s*\*\(источник:\s*([^)]*)\)\*:?\s*(?:<br>)?([\s\S]*)$/);
-    if (m) return { src: clean(m[1]), text: m[2].split(/<br\s*\/?>/i).map(x => x.trim()).filter(Boolean).join("<br>") };
+    const m = String(cellText).match(/\*\*Задание\*\*(?:\s*\*\(источник:\s*([^)]*)\)\*)?:?\s*(?:<br>)?([\s\S]*)$/);
+    if (m) return { src: clean(m[1] || ""), text: m[2].split(/<br\s*\/?>/i).map(x => x.trim()).filter(Boolean).join("<br>") };
     const g = String(cellText).match(/\*\*Задание:\*\*\s*([\s\S]*)$/);
     return g ? { src: "", text: clean(g[1]) } : null;
   }
@@ -147,6 +147,9 @@ const LessonNotes = (() => {
       if (word.length) out += X.row("Учитель", word);
       // вопрос учителя — рядом ответ учеников
       if (T.qs.length) out += X.qa(T.qs.map((x, k) => [x.q, x.a || (k === 0 && students ? students : "")]));
+      // схема на доске — на этапе открытия нового знания (по учебнику: принятые обозначения)
+      const sc = ru && !ctx.sch && (rk?.scheme || window.Schemes?.find("ru", p.topic));
+      if (sc && /реализац|открыти|изучени|нового|наблюден/i.test(name)) { ctx.sch = 1; out += X.row("На доске", [`**Схема: ${sc.t}**`, ...sc.s.map(x => Schemes.html(x)), ...(sc.ex || []).map(x => "Пример: " + Schemes.html(x)), sc.l ? `<i>${Schemes.html(sc.l)}</i>` : ""].filter(Boolean)); }
       // рабочий лист
       if (/рабоч[а-я]* лист/i.test(side)) out += X.row("Рабочий лист", side.replace(/^.*?(рабоч[а-я]* лист)/i, (m, a) => a.replace(/^./, ch => ch.toUpperCase())));
       // упражнение — рядом алгоритм его выполнения, ниже ответы
@@ -157,7 +160,8 @@ const LessonNotes = (() => {
         const lines = L0.length > 9 ? [...L0.slice(0, 8), "*…полностью — в учебнике и на рабочем листе*"] : L0;
         const steps = algo ? algo.steps : ["Прочитай задание, найди, что нужно сделать.", ctx.rule ? `Вспомни правило: ${ctx.rule}` : "Вспомни правило урока.", "Выполни задание по правилу для каждого примера.", "Обозначь графически то, что требует задание.", "Проверь себя: перечитай и сверь с правилом."];
         out += X.ex(`Упражнение ${ex}${t.src ? ` · ${t.src}` : ""}`, lines, steps, algo?.name);
-        out += X.row("Ответы", [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""].filter(Boolean).join("; "));
+        const key = typeof Base !== "undefined" && Base.keyFor ? Base.keyFor(t.text) : "";
+        out += X.row("Ответы", key || [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""].filter(Boolean).join("; "));
       }
       // литература: работа с фрагментами текста — по блокам: установка на чтение → отрывок → словарная работа → вопросы → вывод
       if (!ru && K?.fragments?.length && !fragDone && /аналит|анализ|комментар|беседа/.test(low(name))) {

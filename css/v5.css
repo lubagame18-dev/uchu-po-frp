@@ -1024,3 +1024,23 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .memo-sheet th { background: #d9d9d9; font-weight: 700; text-transform: uppercase; font-size: 11px; }
 .memo-sheet td:first-child { font-weight: 700; }
 @media (max-width: 600px) { .sheet.memo-sheet { padding: 16px 10px 24px; } .memo-sheet .memo-cols { column-count: 1; } }
+
+/* ===== Схемы: школьные обозначения (члены предложения, морфемы, орфограммы) ===== */
+.s-pod, .s-skaz, .s-dop, .s-opr { text-decoration-line: underline; text-decoration-color: currentColor; text-decoration-thickness: 1.5px; text-underline-offset: 4px; text-decoration-skip-ink: none; }
+.s-pod { text-decoration-style: solid; }
+.s-skaz { text-decoration-style: double; text-decoration-thickness: 1.2px; }
+.s-dop { text-decoration-style: dashed; }
+.s-opr { text-decoration-style: wavy; text-decoration-thickness: 1.2px; }
+.s-obst { padding-bottom: 3px; background: repeating-linear-gradient(90deg, currentColor 0 7px, transparent 7px 10px, currentColor 10px 12px, transparent 12px 15px) left bottom / 100% 1.5px no-repeat; }
+.s-obob { border: 1.5px solid currentColor; border-radius: 50%; padding: 0 5px; }
+.s-x, .s-orf { font-weight: 700; }
+.s-orf { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.s-kor, .s-pr, .s-suf, .s-ok, .s-osn { display: inline-block; position: relative; line-height: 1.1; margin: 10px 0 4px; }
+.s-kor::before, .s-pr::before, .s-suf::before { content: ""; position: absolute; left: 0; right: 0; top: -8px; height: 8px; box-sizing: border-box; }
+.s-kor::before { border-top: 1.5px solid currentColor; border-radius: 50% 50% 0 0 / 100% 100% 0 0; top: -7px; }
+.s-pr::before { border-top: 1.5px solid currentColor; border-right: 1.5px solid currentColor; height: 7px; top: -5px; }
+.s-suf::before { top: -9px; height: 8px; background: linear-gradient(to top left, transparent calc(50% - 1px), currentColor calc(50% - 1px), currentColor calc(50% + .5px), transparent calc(50% + .5px)) left / 50% 100% no-repeat, linear-gradient(to top right, transparent calc(50% - 1px), currentColor calc(50% - 1px), currentColor calc(50% + .5px), transparent calc(50% + .5px)) right / 50% 100% no-repeat; }
+.s-ok { border: 1.5px solid currentColor; padding: 0 2px; min-width: .8em; text-align: center; }
+.s-osn { border-bottom: 1.5px solid currentColor; }
+.s-osn::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1.5px; height: 6px; border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; }
+.scheme-box { border: 1.5px solid #111; padding: 8px 12px; margin: 8px 0; font-size: 1.02em; line-height: 2; }

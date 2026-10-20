@@ -1854,7 +1854,7 @@ const Base = (() => {
   /* Данные грузятся после открытия страницы, чтобы она показалась сразу */
   const addScript = src => new Promise(res => { const el = document.createElement("script"); el.src = src; el.async = true; el.onload = () => res(true); el.onerror = () => res(false); document.head.appendChild(el); });
   let readyP = null;
-  const ready = () => readyP || (readyP = Promise.all([window.UCHU_FRP ? true : addScript("data/frp.js"), window.UCHU_BASE ? true : addScript("data/base.js"), window.UCHU_EXTRA ? true : addScript("data/extra.js")]));
+  const ready = () => readyP || (readyP = Promise.all([window.UCHU_FRP ? true : addScript("data/frp.js"), window.UCHU_BASE ? true : addScript("data/base.js"), window.UCHU_EXTRA ? true : addScript("data/extra.js"), window.UCHU_OWN ? true : addScript("data/own.js")]));
   const loaded = () => !!B();
   const src = i => (B()?.sources || [])[i] || { short: "встроенная база", title: "" };
 
@@ -1885,7 +1885,26 @@ const Base = (() => {
       const s = sec * 3 + head * 2 + body + gradeBonus(src(it.s).grade, grade) - (it.j > 0.45 ? 5 : it.j > 0.3 ? 2 : 0);
       out.push({ text: it.t, source: label(it), sec: it.sec, s, hard: /в каком (ряду|предложении|варианте)|укажите (номер|вариант)/i.test(it.t), base: true });
     }
+    // свои тетради «Учу по ФРП»: тема урока ФРП + свои примеры, ключи для учителя, без ссылки на источник
+    for (const T of own()) {
+      const tt = FRP.score(T.t + " " + (T.sec || ""), st), g = gradeBonus(T.g, grade);
+      if (tt < need) continue;
+      T.ex.forEach((e, i) => { const head = FRP.score(e.t.slice(0, 300), st); out.push({ text: e.t, key: e.a, source: "", sec: T.t, s: tt * 3 + head + g + 4 - i * 0.1, hard: /мини-сочинение|сочинени|творческ|по схем/i.test(e.t), own: true }); });
+    }
     return out.sort((a, b) => b.s - a.s).slice(0, max);
+  }
+  const own = () => window.UCHU_OWN?.topics || [];
+  /* тема своей тетради (для алгоритма) и ключ к упражнению по его тексту */
+  function ownTopic(topic, grade) {
+    const st = FRP.stems(topic); if (!st.size) return null;
+    let best = null, bs = 0;
+    for (const T of own()) { const sc = FRP.score(T.t, st) * 3 + FRP.score(T.sec || "", st) + gradeBonus(T.g, grade); if (sc > bs) { bs = sc; best = T; } }
+    return bs >= Math.min(2, st.size) * 3 ? best : null;
+  }
+  function keyFor(text) {
+    const k = String(text || "").replace(/<br\s*\/?>/gi, "\n").replace(/\s+/g, " ").trim().slice(0, 50); if (k.length < 12) return "";
+    for (const T of own()) for (const e of T.ex) if (e.t.replace(/\s+/g, " ").trim().slice(0, 50) === k) return e.a;
+    return "";
   }
   function rules(topic, grade, max = 2) {
     const base = B(); if (!base) return [];
@@ -2009,7 +2028,7 @@ const Base = (() => {
   /* ФРП, встроенная в сайт (data/frp.js) */
   const frp = key => (window.UCHU_FRP && window.UCHU_FRP[key]) || null;
 
-  return { ready, loaded, exercises, rules, texts, lit, lessonSamples, summary, wikiSummary, wikisourceText, eduLinks, frp, label };
+  return { ready, loaded, exercises, ownTopic, keyFor, rules, texts, lit, lessonSamples, summary, wikiSummary, wikisourceText, eduLinks, frp, label };
 })();
 
 /* ===================================================================
@@ -2287,7 +2306,7 @@ const Engine = (() => {
         if (practice) {
           const e = ex[exI++];
           if (e) (p.exFull = p.exFull || []).push({ source: e.source, text: e.text, stage: s.split(":")[0].trim(), hard: !!e.hard }); // для слайдов: упражнение целиком, дословно
-          task = e ? `**Задание** *(источник: ${e.source})*:<br>${cellSafe(trimEx(e.text, 4000))}` : `**Задание:** ⟦упражнение по теме «${p.topic}» из учебника или рабочей тетради⟧`;
+          task = e ? `**Задание**${e.source ? ` *(источник: ${e.source})*` : ""}:<br>${cellSafe(trimEx(e.text, 4000))}` : `**Задание:** ⟦упражнение по теме «${p.topic}» из учебника или рабочей тетради⟧`;
         }
         const teacher = /реализац|открыти/i.test(s) && rules.length ? `💡 **ВАЖНО:** ${cellSafe(rules[0].text)} *(${rules[0].source})*` : "";
         return ruStageRow(s, p, mins[i], { task, teacher });
@@ -2390,7 +2409,7 @@ const Engine = (() => {
     if (wg === "frp" && r.loaded && r.subject.length) md += `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.\n\n`;
     else if (wg === "kids" && window.Deck?.childGoal) { try { const g = Deck.childGoal(p, {}); if (g.points.length) md += `> 🎯 **Сегодня на уроке мы:** ${g.points.map(x => x.replace(/^\S/, c => c.toLowerCase())).join("; ")}.\n\n`; } catch { } }
     md += "---\n\n";
-    let n = 0;
+    let n = 0; const wsKeys = [];
     const lvl = hard => hard ? `### 🚀 Задание ${++n}. Повышенный уровень${exam ? ` (${exam.label})` : ""}` : `### 🔓 Задание ${++n}. Базовый уровень`;
     if (ru) {
       const RK = p.plan?.rukit;
@@ -2399,7 +2418,7 @@ const Engine = (() => {
       }
       // рабочий лист сопровождает урок: те же упражнения и в том же порядке, что в техкарте (с названием этапа)
       const ex = p.exFull?.length ? p.exFull.map(e => ({ ...e, fromLesson: true })) : pickEx(p, materials, RK && /styles|lex/.test(RK.kind) ? 2 : 5).sort((a, b) => a.hard - b.hard);
-      for (const e of ex) md += `${lvl(e.hard)}${e.stage ? ` · ${e.stage}` : ""}\n\n${trimEx(e.text, 4000)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`;
+      for (const e of ex) { md += `${lvl(e.hard)}${e.stage ? ` · ${e.stage}` : ""}\n\n${trimEx(e.text, 4000)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`; const k = e.key || (typeof Base !== "undefined" && Base.keyFor ? Base.keyFor(e.text) : ""); if (k) wsKeys.push(`**Задание ${n}.** ${k}`); }
       if (ex.length < 3) {
         const mech = KB.ru.mechanics.filter(m => { const [a, b] = m.grades.split("-").map(Number); return p.grade >= a && p.grade <= (b || a); });
         const mechs = window.Variety && p.plan ? Variety.pick(mech, "mech", m => m.id, 4 - ex.length) : mech.slice(0, 4 - ex.length);
@@ -2442,7 +2461,7 @@ const Engine = (() => {
     }
     md += selfCheck(r);
     md += `---\n\n### 🔑 ОТВЕТЫ И КРИТЕРИИ ОЦЕНИВАНИЯ\n\n`;
-    md += ru ? `Ответы к заданиям из материалов — по ключу пособия, из которого взято задание.\n\n` : `Ответы зависят от прочтения текста; оценивается опора на текст и точность цитат.\n\n`;
+    md += ru ? (wsKeys.length ? wsKeys.join("\n\n") + "\n\n" : `Ответы к заданиям из материалов — по ключу пособия, из которого взято задание.\n\n`) : `Ответы зависят от прочтения текста; оценивается опора на текст и точность цитат.\n\n`;
     md += exam ? `Задания повышенного уровня оцениваются по критериям ${exam.label} (сверить с демоверсией ФИПИ текущего года).\n` : `**Школьная шкала:** по 1 баллу за базовое задание, по 2 — за повышенное и творческое; 85% и выше — «5», 65–84% — «4», 45–64% — «3».\n`;
     return md;
   }
@@ -2495,7 +2514,7 @@ const Engine = (() => {
     let home = `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}${srcLn(hw.exSrc)}\n\n` : ""}${BL}\n\n${BL}\n\n${BL}\n\n### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
     const head = (title) => `# ${title}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n`;
     let out = lesson.trim() + "\n\n";
-    if (memo) out += head("Памятка").replace(/✍️.*\n\n/, "") + `**Тема:** ${p.topic}\n\n` + memo;
+    if (memo) out += head("Памятка").replace(/✍️.*\n\n/, "") + `**Тема:** ${p.topic}\n\n` + (window.Schemes && ru ? Schemes.md(RK?.scheme || Schemes.find("ru", p.topic)) : "") + memo;
     out += head("Самостоятельная работа") + self;
     out += head("Домашнее задание") + home;
     if (answers) out += `# Ответы и критерии (для учителя)\n\n` + answers.replace(/^### 🔑 ОТВЕТЫ И КРИТЕРИИ ОЦЕНИВАНИЯ\s*/m, "");
@@ -2554,6 +2573,7 @@ const Engine = (() => {
         const ws = worksheet(p, type, materials), m = ws.match(/^# Памятка[\s\S]*?(?=^# )/m);
         md += m ? m[0] : `# Памятка\n\n**Тема:** ${p.topic}\n\n${ru && RK?.algo ? RK.algo.steps.map((x, i) => `${i + 1}. ${x}`).join("\n") : "Главное по теме урока — запишите в тетрадь."}\n\n`;
       }
+      if (window.Schemes) md = Schemes.inject(md, p.subject, p.topic, RK?.scheme);
       return md;
     }
     if (kind === "homework") {
@@ -4058,7 +4078,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     state.gen = null;
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : PL.extra(f, p, type, p.extra || {});
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : (f === "memo" && window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -4544,6 +4564,7 @@ function ensureTurndown() {
     T.addRule("figure", { filter: n => n.nodeName === "FIGURE" && n.classList.contains("pic"), replacement: (c, n) => Media.figToMd(n) });
     T.addRule("uline", { filter: n => n.nodeName === "SPAN" && n.classList.contains("uline"), replacement: (c, n) => "_".repeat(Number(n.getAttribute("data-n")) || 10) });
     T.addRule("blank", { filter: n => n.nodeName === "SPAN" && n.classList.contains("blank"), replacement: () => "[ ________________________________________ ]" });
+    T.addRule("scheme", { filter: n => n.nodeName === "SPAN" && /(^|\s)s-[a-z]+/.test(n.className || ""), replacement: (c, n) => `<span class="${(n.className.match(/s-[a-z]+/) || ["s-x"])[0]}">${c}</span>` });
     T.addRule("cellBreak", { filter: n => n.nodeName === "BR" && !!n.closest && !!n.closest("td,th"), replacement: () => "<br>" });
     T.addRule("tblwrap", { filter: n => n.nodeName === "DIV" && n.classList.contains("tblwrap"), replacement: c => "\n\n" + c + "\n\n" });
     const baseEscape = T.escape.bind(T);
@@ -4640,8 +4661,30 @@ async function saveFile(filename, data) {
 }
 const baseName = (L, doc) => `${slug(L.title)}_${L.params.grade}kl_${DOCS[doc].file}`;
 /* ---------- Markdown → DOCX ---------- */
+/* схемы: подчёркивания членов предложения — родными линиями Word, морфемы — маленькими картинками */
+const S_LINE = { "s-pod": { underline: { type: "single" } }, "s-skaz": { underline: { type: "double" } }, "s-dop": { underline: { type: "dash" } }, "s-opr": { underline: { type: "wave" } }, "s-obst": { underline: { type: "dotDash" } }, "s-x": { bold: true }, "s-orf": { bold: true } };
+const S_MORPH = new Set(["s-kor", "s-pr", "s-suf", "s-ok", "s-osn"]);
+function morphPng(kind, text) {
+  const k = 2, fs = 16 * k, cv = document.createElement("canvas"), cx = cv.getContext("2d");
+  cx.font = `${fs}px "Times New Roman", serif`;
+  const tw = Math.max(text.trim() ? cx.measureText(text).width : fs * 0.7, fs * 0.5), padX = 3 * k, top = 9 * k, bot = 6 * k;
+  cv.width = Math.ceil(tw + padX * 2); cv.height = Math.ceil(fs * 1.2 + top + bot);
+  cx.font = `${fs}px "Times New Roman", serif`; cx.fillStyle = "#111"; cx.strokeStyle = "#111"; cx.lineWidth = 1.4 * k; cx.textBaseline = "alphabetic";
+  const x0 = padX, x1 = padX + tw, base = top + fs * 0.95; cx.fillText(text, x0, base);
+  const up = top - 1 * k; cx.beginPath();
+  if (kind === "s-kor") { cx.moveTo(x0, up + 4 * k); cx.quadraticCurveTo((x0 + x1) / 2, up - 7 * k, x1, up + 4 * k); }
+  else if (kind === "s-pr") { cx.moveTo(x0, up); cx.lineTo(x1, up); cx.lineTo(x1, up + 6 * k); }
+  else if (kind === "s-suf") { cx.moveTo(x0, up + 4 * k); cx.lineTo((x0 + x1) / 2, up - 5 * k); cx.lineTo(x1, up + 4 * k); }
+  else if (kind === "s-ok") { cx.rect(x0 - 2 * k, top + 1 * k, tw + 4 * k, fs * 1.15); }
+  else if (kind === "s-osn") { const y = base + 5 * k; cx.moveTo(x0, y - 5 * k); cx.lineTo(x0, y); cx.lineTo(x1, y); cx.lineTo(x1, y - 5 * k); }
+  cx.stroke();
+  const bin = atob(cv.toDataURL("image/png").split(",")[1]), data = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i);
+  return { data, w: Math.round(cv.width / k), h: Math.round(cv.height / k) };
+}
 function inlineRuns(tokens, D, base = {}) {
-  const runs = [];
+  const runs = [], stack = []; let morph = null;
+  const eff = st => { let o = { ...st }; for (const c of stack) { const L = S_LINE[c]; if (L) o = { ...o, ...L }; if (c === "s-obob") o.border = { style: D.BorderStyle.SINGLE, size: 6, color: "111111", space: 1 }; } return o; };
+  const pushText = (text, st) => { if (morph) { morph.text += text; return; } runs.push(new D.TextRun({ text, ...eff(st) })); };
   const walk = (toks, st) => {
     for (const t of toks || []) {
       if (t.type === "strong") walk(t.tokens, { ...st, bold: true });
@@ -4650,11 +4693,16 @@ function inlineRuns(tokens, D, base = {}) {
       else if (t.type === "codespan") runs.push(new D.TextRun({ text: decodeEnt(t.text), font: "Consolas", ...st }));
       else if (t.type === "br") runs.push(new D.TextRun({ text: "", break: 1 }));
       else if (t.type === "link") walk(t.tokens, { ...st, color: "2448C4", underline: {} });
-      else if (t.type === "html") { if (/<br\s*\/?>/i.test(t.text)) runs.push(new D.TextRun({ text: "", break: 1 })); }
+      else if (t.type === "html") {
+        const h = String(t.text || "").trim(), op = h.match(/^<span class="(s-[a-z]+)">$/);
+        if (op) { stack.push(op[1]); if (S_MORPH.has(op[1]) && !morph) morph = { kind: op[1], text: "", depth: stack.length }; continue; }
+        if (/^<\/span>$/.test(h) && stack.length) { if (morph && morph.depth === stack.length) { const m = morphPng(morph.kind, morph.text.replace(/ /g, " ")); morph = null; try { runs.push(new D.ImageRun({ type: "png", data: m.data, transformation: { width: m.w, height: m.h } })); } catch { } } stack.pop(); continue; }
+        if (/<br\s*\/?>/i.test(h)) runs.push(new D.TextRun({ text: "", break: 1 }));
+      }
       else if (t.tokens) walk(t.tokens, st);
       else {
         const parts = decodeEnt(t.text || t.raw || "").split(/<br\s*\/?>/i);
-        parts.forEach((p, i) => { if (i) runs.push(new D.TextRun({ text: "", break: 1 })); p = p.replace(/\[ ?_{3,} ?\]/g, "____________________________________"); if (p) runs.push(new D.TextRun({ text: p, ...st })); });
+        parts.forEach((p, i) => { if (i) runs.push(new D.TextRun({ text: "", break: 1 })); p = p.replace(/\[ ?_{3,} ?\]/g, "____________________________________"); if (p) pushText(p, st); });
       }
     }
   };
@@ -5040,7 +5088,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/account.js"></script>
 <script src="js/cloudbase.js"></script>
 <script src="js/rules.js"></script>
-<script src="js/layout.js"></script><script src="js/lessonnotes.js"></script>
+<script src="js/schemes.js"></script><script src="js/layout.js"></script><script src="js/lessonnotes.js"></script>
 <script src="js/tutor.js"></script>
 <script src="js/mnemo.js"></script>
 <script src="js/themes.js"></script>
