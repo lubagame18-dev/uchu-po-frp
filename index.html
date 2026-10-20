@@ -1847,6 +1847,7 @@ const FRP = (() => {
    Плюс открытые образовательные источники в интернете (Википедия, Викитека)
    и ссылки на поиск заданий на образовательных сайтах.
    =================================================================== */
+const srcLn = s => s ? `\n\n*Источник: ${s}*` : "";
 const Base = (() => {
   "use strict";
   const B = () => window.UCHU_BASE || null;
@@ -1859,6 +1860,7 @@ const Base = (() => {
 
   function label(it) {
     const s = src(it.s);
+    if (s.kind === "own" || s.removed) return ""; // свои задания — без ссылки на источник
     return [s.short, it.p ? `с. ${it.p}` : "", it.n ? `упр. ${it.n}` : ""].filter(Boolean).join(", ");
   }
   const gradeBonus = (g, want) => !g || !want ? 0 : g === want ? 3 : Math.abs(g - want) === 1 ? 1 : 0;
@@ -1942,11 +1944,11 @@ const Base = (() => {
 
   function summary() {
     const base = B(); if (!base) return null;
-    return base.sources.map((s, i) => {
+    return base.sources.map((s, i) => s.removed ? null : (() => {
       const n = s.id === "sukhikh9" ? base.lit.chunks.length : base.ru.filter(x => x.s === i).length;
       const ex = base.ru.filter(x => x.s === i && x.k === "ex").length;
       return { ...s, items: n, ex };
-    }).concat((base.lessons || []).map(l => ({ title: l.title, short: l.title, kind: "lesson", subject: "lit", grade: l.grade, items: 1, ex: 0 })));
+    })()).filter(Boolean).concat((base.lessons || []).map(l => ({ title: l.title, short: l.title, kind: "lesson", subject: "lit", grade: l.grade, items: 1, ex: 0 })));
   }
 
   /* ---------- интернет: только открытые образовательные источники ---------- */
@@ -2397,7 +2399,7 @@ const Engine = (() => {
       }
       // рабочий лист сопровождает урок: те же упражнения и в том же порядке, что в техкарте (с названием этапа)
       const ex = p.exFull?.length ? p.exFull.map(e => ({ ...e, fromLesson: true })) : pickEx(p, materials, RK && /styles|lex/.test(RK.kind) ? 2 : 5).sort((a, b) => a.hard - b.hard);
-      for (const e of ex) md += `${lvl(e.hard)}${e.stage ? ` · ${e.stage}` : ""}\n\n${trimEx(e.text, 4000)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`;
+      for (const e of ex) md += `${lvl(e.hard)}${e.stage ? ` · ${e.stage}` : ""}\n\n${trimEx(e.text, 4000)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`;
       if (ex.length < 3) {
         const mech = KB.ru.mechanics.filter(m => { const [a, b] = m.grades.split("-").map(Number); return p.grade >= a && p.grade <= (b || a); });
         const mechs = window.Variety && p.plan ? Variety.pick(mech, "mech", m => m.id, 4 - ex.length) : mech.slice(0, 4 - ex.length);
@@ -2417,7 +2419,7 @@ const Engine = (() => {
         const bqs = (LBv?.questions || []).filter(q => { const g = +(String(q.source).match(/(\d{1,2})\s*кл/) || [])[1]; return (!g || Math.abs(g - p.grade) <= 1) && !(typeof Learn !== "undefined" && Learn.offTopic?.(q.text, p.topic)) && (String(q.text).match(/«[^»]+»/g) || []).every(w => p.topic.toLowerCase().includes(w.toLowerCase().replace(/[«»]/g, "").slice(0, 12))); });
         const bq = p.plan?.kit ? null : bqs[Math.floor(Math.random() * Math.min(3, bqs.length))];
         const tasks = Variety.litWorksheet(p, type, p.plan);
-        if (bq) tasks.splice(2, 0, { lvl: 1, text: `${bq.text}\n\n*Источник: ${bq.source}*`, lines: 2 });
+        if (bq) tasks.splice(2, 0, { lvl: 1, text: `${bq.text}${srcLn(bq.source)}`, lines: 2 });
         for (const t of tasks) {
           const fm = String(t.name || "").match(/(?:Фрагмент|Часть) (\d+)/), stg = fm && p.plan?.fragStage?.[+fm[1]];
           const head = (t.lvl === 3 ? `### 🏆 Задание ${++n}. Творческое${t.name ? ` (${t.name.toLowerCase()})` : ""}` : lvl(t.lvl === 2) + (t.name ? ` · ${t.name}` : "")) + (stg ? ` · этап «${stg}»` : "");
@@ -2433,7 +2435,7 @@ const Engine = (() => {
       md += `${lvl(false)}\n\nЗапишите одно слово или фразу, которые остались после первого чтения.\n\n${BL}\n\n`;
       const LB = typeof Base !== "undefined" ? Base.lit(p.topic) : null;
       const qs = LB ? [...LB.questions.map(q => ({ t: q.text, src: q.source })), ...LB.lessons.flatMap(l => l.questions.map(t => ({ t, src: "разработка: " + l.title })))].slice(0, 2) : [];
-      for (const q of qs) md += `${lvl(false)}\n\n${q.t}\n\n*Источник: ${q.src}*\n\n${BL}\n\n${BL}\n\n`;
+      for (const q of qs) md += `${lvl(false)}\n\n${q.t}${srcLn(q.src)}\n\n${BL}\n\n${BL}\n\n`;
       md += `${lvl(false)}\n\nЗаполните таблицу.\n\n| Средство выразительности | Пример из текста | Роль |\n|---|---|---|\n|  |  |  |\n|  |  |  |\n|  |  |  |\n\n`;
       md += `${lvl(true)}\n\n${type.id === "commented" ? "Заполните таблицу по эпизоду." : "Найдите 2–3 ключевые цитаты и объясните их смысл."}\n\n| Цитата | Комментарий | Скрытый смысл / подтекст |\n|---|---|---|\n|  |  |  |\n|  |  |  |\n\n`;
       md += `${lvl(true)}\n\nОтветьте на проблемный вопрос урока (5–7 предложений, опирайтесь на текст).\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
@@ -2476,7 +2478,7 @@ const Engine = (() => {
     if (ru) {
       const used = new Set([...(p.exFull || []).map(e => e.text.slice(0, 60)), p.hwText?.exText ? p.hwText.exText.slice(0, 60) : ""]);
       const more = pickEx(p, materials, 6).filter(e => !used.has(e.text.slice(0, 60))).slice(0, 2);
-      more.forEach((e, i) => { self += `### ${i ? "Задание 2 (повышенный уровень)" : "Задание 1 (базовый уровень)"}\n\n${trimEx(e.text, 3000)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`; });
+      more.forEach((e, i) => { self += `### ${i ? "Задание 2 (повышенный уровень)" : "Задание 1 (базовый уровень)"}\n\n${trimEx(e.text, 3000)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`; });
       if (!more.length && RK?.algo?.ex?.length) self += `### Задание 1\n\nОбъясните написание по алгоритму, обозначьте орфограмму (знак) графически.\n\n${RK.algo.ex.map((x, i) => `${i + 1}) ${x}`).join("\n")}\n\n${BL}\n\n${BL}\n\n`;
       if (!self && RK?.wsTasks?.length) self += `### Задание\n\n${RK.wsTasks[0].text}\n\n`;
       if (!self) self += `### Задание\n\nСоставьте 4–5 предложений по теме «${p.topic}» и объясните, как вы применили правило.\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
@@ -2490,7 +2492,7 @@ const Engine = (() => {
     self += `**Критерии:** базовое задание — 1 балл, повышенное — 2 балла; «5» — всё верно, «4» — одна-две неточности, «3» — выполнено больше половины.\n\n`;
     // 3) Домашнее задание — то же, что в конспекте
     const hw = p.hwText || { base: "выполнить упражнение из учебника по теме урока", adv: "подготовить устный ответ с примерами" };
-    let home = `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}\n\n*Источник: ${hw.exSrc}*\n\n` : ""}${BL}\n\n${BL}\n\n${BL}\n\n### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
+    let home = `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}${srcLn(hw.exSrc)}\n\n` : ""}${BL}\n\n${BL}\n\n${BL}\n\n### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
     const head = (title) => `# ${title}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n`;
     let out = lesson.trim() + "\n\n";
     if (memo) out += head("Памятка").replace(/✍️.*\n\n/, "") + `**Тема:** ${p.topic}\n\n` + memo;
@@ -2516,7 +2518,7 @@ const Engine = (() => {
         md += `${variants > 1 ? `## Вариант ${v + 1}\n\n` : ""}✍️ ФИО: ___________________________ | 📅 Дата: _________\n\n`;
         if (ru) {
           const mine = pool.filter((_, i) => i % variants === v).slice(0, C.n);
-          mine.forEach((e, i) => { md += `### Задание ${i + 1}${i === mine.length - 1 && C.n > 2 ? " (повышенный уровень)" : ""}\n\n${trimEx(e.text, 2500)}\n\n*Источник: ${e.source}*\n\n${BL}\n\n${BL}\n\n`; keys.push(`${variants > 1 ? `В${v + 1}, ` : ""}задание ${i + 1}: по ключу пособия (${e.source})`); });
+          mine.forEach((e, i) => { md += `### Задание ${i + 1}${i === mine.length - 1 && C.n > 2 ? " (повышенный уровень)" : ""}\n\n${trimEx(e.text, 2500)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`; keys.push(`${variants > 1 ? `В${v + 1}, ` : ""}задание ${i + 1}: по ключу пособия (${e.source})`); });
           if (!mine.length && RK?.algo?.ex?.length) { md += `### Задание 1\n\nОбъясните написание (постановку знаков) по алгоритму «${RK.algo.name}», обозначьте графически.\n\n${RK.algo.ex.map((x, i) => `${i + 1}) ${x}`).join("\n")}\n\n${BL}\n\n${BL}\n\n`; keys.push(`задание 1: ${RK.algo.ex.join("; ")}`); }
           md += `### Задание ${Math.max(mine.length, 1) + 1}. Своими словами\n\nСформулируйте правило по теме «${p.topic}» и приведите свой пример.\n\n${BL}\n\n${BL}\n\n`;
           if (RK?.algo) keys.push(`своими словами: ${RK.algo.steps.slice(1).join(" ")}`);
@@ -2557,7 +2559,7 @@ const Engine = (() => {
     if (kind === "homework") {
       const hw = p.hwText || { base: "выполнить упражнение из учебника по теме урока", adv: "подготовить устный ответ с примерами" };
       let md = head("Домашнее задание");
-      md += `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}\n\n*Источник: ${hw.exSrc}*\n\n` : ""}${BL}\n\n${BL}\n\n`;
+      md += `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}${srcLn(hw.exSrc)}\n\n` : ""}${BL}\n\n${BL}\n\n`;
       md += `### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
       md += `### Творческое задание (по выбору)\n\n${ru ? `Найдите в художественной книге, которую вы читаете, 3 примера на тему «${core(p.topic)}» и объясните их.` : `Нарисуйте иллюстрацию к самому яркому эпизоду (строфе) и подпишите её цитатой.`}\n\n${BL}\n\n`;
       if (o.hwText) md += `### Задание учителя\n\n${o.hwText}\n\n`;
@@ -4217,7 +4219,7 @@ function applyWeb(md, f, web) {
     if (md.includes("<!--WEB-->")) return md.replace("<!--WEB-->", block);
     return /\n## Источники/.test(md) ? md.replace(/\n## Источники/, "\n" + block + "\n## Источники") : md + "\n\n" + block;
   }
-  if (f === "worksheet") return md.replace("<!--TEXT-->", web.text ? `### 📖 Текст для работы\n\n${web.text.text.split("\n").slice(0, 40).map(l => "> " + l).join("\n")}\n\n*Источник: ${web.text.source}*\n\n` : "");
+  if (f === "worksheet") return md.replace("<!--TEXT-->", web.text ? `### 📖 Текст для работы\n\n${web.text.text.split("\n").slice(0, 40).map(l => "> " + l).join("\n")}${srcLn(web.text.source)}\n\n` : "");
   return md;
 }
 // документ доведён до конца: у техкарты и конспекта есть заключительные этапы (рефлексия, д/з)
