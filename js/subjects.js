@@ -5,7 +5,7 @@
    конспект, рабочий лист, доп. листы, презентация, задание для ИИ.
    =================================================================== */
 const Subjects = (() => {
-  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }, { id: "bio", name: "Биология", kit: () => window.BioKit }, { id: "geo", name: "География", kit: () => window.FrpKit?.geo() }];
+  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }, { id: "bio", name: "Биология", kit: () => window.BioKit }, { id: "geo", name: "География", kit: () => window.FrpKit?.geo() }, { id: "phys", name: "Физика", kit: () => window.FrpKit?.phys() }];
   const plugin = id => { const s = list.find(x => x.id === id); return s?.kit ? s.kit() || null : null; };
   const name = id => list.find(x => x.id === id)?.name || id;
   /* Проверка домашнего задания — только по тому, что действительно задавали:

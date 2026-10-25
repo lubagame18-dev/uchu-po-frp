@@ -34,6 +34,7 @@ const ThemeKit = (() => {
     collage: { name: "Коллаж", desc: "серая бумага, крафт, красный акцент", font: "oswald", frame: "D9D5CE" },
     sketch:  { name: "Скетчбук", desc: "крем, тёмно-синий и красный, от руки", font: "caveat", frame: "EFE8DA" },
     modern:  { name: "Модерн", desc: "светлый фон, кобальт, крупный гротеск", font: "unbounded", frame: "F3F1EC" },
+    grad:    { name: "Градиент", desc: "кремовый фон, цветные пятна, линейные значки, заглавные заголовки", font: "onest", frame: "EFE8E0" },
     board:   { name: "Школьная доска", desc: "зелёная доска, мел, дерево", font: "caveat", frame: "6B4A2B" }
   };
   // палитры: base/base2 — фон (60 %), l1/l2 — слои того же семейства (30 %), acc — акцент (10 %), paper/ink — бумага и текст
@@ -52,6 +53,7 @@ const ThemeKit = (() => {
     collage: { base: "#D9D5CE", base2: "#CBC6BD", l1: "#BFA98A", l2: "#B5212E", acc: "#A51E2A", paper: "#FBFAF6", ink: "#121212", line: "#1E1E1E", torn: 1 },
     sketch:  { base: "#EFE8DA", base2: "#E6DCC8", l1: "#1F2A5A", l2: "#D2382F", acc: "#1F2A5A", paper: "#FBF7EE", ink: "#1F2A5A", line: "#1F2A5A", torn: 3 },
     modern:  { base: "#F3F1EC", base2: "#ECE8E0", l1: "#2B4BD8", l2: "#E3DED3", acc: "#2B4BD8", paper: "#FFFFFF", ink: "#111111", line: "#111111", torn: 4 },
+    grad:    { base: "#F0E9E1", base2: "#EBE3D9", l1: "#8A6BFF", l2: "#FF5A3C", acc: "#111111", paper: "transparent", ink: "#111111", line: "#111111", torn: 0 },
     board:   { base: "#6B4A2B", base2: "#5A3D22", l1: "#24493A", l2: "#1D3A2C", acc: "#F2C94C", paper: "transparent", ink: "#F4F1E8", line: "#F4F1E8", torn: 5 }
   };
   const has = k => !!META[k];
@@ -121,6 +123,29 @@ const ThemeKit = (() => {
       s += `<rect x="34" y="${H - 34}" width="${W - 68}" height="20" fill="#4E351D"/><rect x="${W - 360}" y="${H - 46}" width="70" height="12" rx="4" fill="#F4F1E8"/>`;
       return s + `<rect width="${W}" height="${H}" filter="url(#g)"/>`;
     }
+    if (key === "grad") {
+      // кремовый фон, две вертикальные линии, цветные пятна (размытые, обрезанные косым краем) и чёрные линейные значки
+      const C = { mint: "#34E8B0", violet: "#A57BFF", orange: "#FF5A2C", pink: "#FF4DB0", yellow: "#FFD83A", blue: "#2F6BFF", cyan: "#27D6E8" };
+      const PRE = [
+        { q: [[.58, 0], [1, 0], [1, .5], [.7, .62]], c: [["mint", .92, .12, 300], ["blue", .75, .45, 240]], b: [["violet", .06, .96, 300], ["orange", .22, 1.02, 230]], ic: "burst", icx: .93, icy: .1 },
+        { q: [[0, .5], [.34, .42], [.3, 1], [0, 1]], c: [["violet", .05, .8, 280], ["cyan", .22, .95, 240]], b: [["orange", .96, .05, 280], ["pink", .84, .0, 220]], ic: "rings", icx: .9, icy: .12 },
+        { q: [[.66, 0], [1, 0], [1, .38], [.78, .22]], c: [["orange", .92, .08, 250], ["pink", .8, .16, 220]], b: [["blue", .1, 1, 280], ["mint", .3, 1.04, 230], ["violet", .02, .8, 200]], ic: "dots", icx: .08, icy: .93 },
+        { q: [[0, 0], [.3, 0], [.22, .26], [0, .34]], c: [["yellow", .04, .06, 250], ["pink", .16, .12, 220]], b: [["mint", .94, .96, 300], ["violet", .78, 1.04, 240]], ic: "burst", icx: .92, icy: .92 },
+        { q: [[.52, 1], [1, .7], [1, 1]], c: [["cyan", .9, .96, 280], ["violet", .7, 1.02, 240]], b: [["orange", .02, .04, 260], ["yellow", .12, 0, 200]], ic: "rings", icx: .9, icy: .1 },
+        { q: [[.74, 0], [1, 0], [1, .62], [.88, .5]], c: [["mint", .96, .1, 260], ["blue", .86, .4, 220]], b: [["pink", .04, .96, 260], ["orange", .2, 1.03, 220]], ic: "dots", icx: .9, icy: .92 }
+      ];
+      const Z = PRE[v % 6], big = kind === "title" || kind === "section";
+      s = `<defs>${grain("g", .05)}<filter id="gb" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${big ? 70 : 58}"/></filter><clipPath id="gq"><polygon points="${Z.q.map(([x, y]) => `${f1(x * W)},${f1(y * H)}`).join(" ")}"/></clipPath></defs><rect width="${W}" height="${H}" fill="${P.base}"/>`;
+      s += `<g filter="url(#gb)" opacity=".92">${Z.b.map(([c, x, y, r]) => `<circle cx="${f1(x * W)}" cy="${f1(y * H)}" r="${r * (big ? 1.25 : 1)}" fill="${C[c]}"/>`).join("")}</g>`;
+      s += `<g clip-path="url(#gq)"><rect width="${W}" height="${H}" fill="${C[Z.c[1][0]]}" opacity=".35"/><g filter="url(#gb)">${Z.c.map(([c, x, y, r]) => `<circle cx="${f1(x * W)}" cy="${f1(y * H)}" r="${r}" fill="${C[c]}"/>`).join("")}</g></g>`;
+      s += `<line x1="${W * .1}" y1="0" x2="${W * .1}" y2="${H}" stroke="#111" stroke-width="1.4" opacity=".85"/><line x1="${W * .9}" y1="0" x2="${W * .9}" y2="${H}" stroke="#111" stroke-width="1.4" opacity=".85"/>`;
+      const ix = Z.icx * W, iy = Z.icy * H;
+      if (Z.ic === "burst") { for (let k = 0; k < 28; k++) { const a = k / 28 * Math.PI * 2, r1 = 26, r2 = 66 + (k % 2) * 26; s += `<line x1="${f1(ix + Math.cos(a) * r1)}" y1="${f1(iy + Math.sin(a) * r1)}" x2="${f1(ix + Math.cos(a) * r2)}" y2="${f1(iy + Math.sin(a) * r2)}" stroke="#111" stroke-width="2"/>`; } }
+      else if (Z.ic === "rings") { for (let k = 1; k <= 6; k++) s += `<circle cx="${f1(ix)}" cy="${f1(iy)}" r="${k * 11}" fill="none" stroke="#111" stroke-width="1.6"/>`; }
+      else { for (let a = 0; a < 5; a++) for (let b = 0; b < 8; b++) s += `<circle cx="${f1(ix - 70 + b * 20)}" cy="${f1(iy - 40 + a * 20)}" r="2.6" fill="#111"/>`; }
+      s += `<line x1="${W * .1}" y1="${f1(H * .075)}" x2="${W * .9}" y2="${f1(H * .075)}" stroke="#111" stroke-width="1.2" opacity=".5"/>`;
+      return s + `<rect width="${W}" height="${H}" filter="url(#g)"/>`;
+    }
     if (key === "renaissance") {
       // строгий чёрный, тонкие линейки, номер, лилия, красный круг у края картины, лёгкие «наброски» сангиной
       // круг — у края картины (частично под ней) или в углу, никогда поверх текста
@@ -178,7 +203,7 @@ const ThemeKit = (() => {
 
   /* ---------- бумага под текст: рваный край к картинке, фактура, тень ---------- */
   function paperSvg(key, v, kind, side, P, R, flat = false) {
-    const pr = panelRect(side, kind); if (!pr || key === "board" || key === "renaissance" || key === "glow") return "";
+    const pr = panelRect(side, kind); if (!pr || key === "board" || key === "renaissance" || key === "glow" || key === "grad") return "";
     const [px, py, pw, ph] = [pr[0] / 100 * W, pr[1] / 100 * H, pr[2] / 100 * W, pr[3] / 100 * H];
     const T = P.torn, big = 30, small = T === 2 ? 7 : 5;
     // сторона к картинке рвётся сильно, остальные — едва заметно (или ровно — «Модерн», «Усадьба», «Ночь»)
@@ -239,10 +264,10 @@ const ThemeKit = (() => {
   const stkSvg = n => STK[n] ? `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${STK[n].svg}</svg>` : "";
   // стикеры темы по умолчанию — на ключевых слайдах, в свободном углу
   const THEME_STK = { night: "star", haze: "sparkle", botanic: "leaf", salon: "flower", poster: "burst", sketch: "plane", collage: "tape", museum: "", mystic: "moon", board: "" };
-  const THEME_STK2 = { night: "star", glow: "sparkle", haze: "sparkle", aqua: "sparkle", botanic: "leaf", salon: "flower", poster: "burst", sketch: "plane", collage: "tape", mystic: "moon", modern: "", museum: "", art: "", sepia: "", renaissance: "", board: "" };
+  const THEME_STK2 = { night: "star", glow: "sparkle", haze: "sparkle", aqua: "sparkle", botanic: "leaf", salon: "flower", poster: "burst", sketch: "plane", collage: "tape", mystic: "moon", modern: "", museum: "", art: "", sepia: "", renaissance: "", board: "", grad: "" };
   function autoStickers(key, kind, i) {
     const out = [], byKind = { rule: "note", big: "ask", hw: "pencil", task: "pin", mnemo: "bulb" }[kind];
-    if (byKind && !/renaissance|museum|art|sepia|modern/.test(key)) out.push({ n: byKind, x: 84, y: 4, s: 11, r: 6 });
+    if (byKind && !/renaissance|museum|art|sepia|modern|grad/.test(key)) out.push({ n: byKind, x: 84, y: 4, s: 11, r: 6 });
     else if (THEME_STK2[key] && i % 3 === 1) out.push({ n: THEME_STK2[key], x: 89, y: 78, s: 7, r: -8 });
     return out;
   }
@@ -286,6 +311,7 @@ const ThemeKit = (() => {
   ];
   function hash(s) { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
   function auto(p) {
+    if (p?.subject === "phys") return "grad";
     const t = `${p?.topic || ""} ${p?.plan?.kit?.work || ""}`;
     for (const [re, list] of RULES) if (re.test(t)) return list[hash(t) % list.length];
     return p?.subject === "lit" ? ["renaissance", "art", "glow", "haze", "salon", "aqua"][hash(t) % 6] : ["modern", "sketch", "aqua", "botanic"][hash(t) % 4];

@@ -14,6 +14,7 @@ const FrpKit = (() => {
       ctrl: { id: "ctrl", name: "Урок контроля знаний", stages: ["Организационный момент", "Инструктаж по выполнению работы", "Контрольная работа (2 варианта)", "Итог урока: самооценка", "Домашнее задание"], mins: [1, 3, 37, 2, 2] }
     };
     const detectType = ({ topic }) => {
+      if (o.detect) { const t = o.detect(topic, TYPES); if (t) return t; }
       const l = String(topic).trim().toLowerCase();
       if (/^(итоговая |годовая )?контрольная работа|^всероссийская проверочная|^проверочная работа/.test(l)) return TYPES.ctrl;
       if (/^(обобщ|повтор|резервн|итоговый урок|заключени)/.test(l)) return TYPES.gen;
@@ -35,6 +36,8 @@ const FrpKit = (() => {
   const kits = {};
   const get = (id, name, o) => kits[id] || (kits[id] = mk(id, name, o));
   const G = () => window.GeoMethod;
-  return { get, geo: () => get("geo", "География", { warm: "разминка на карте", method: "Опирайся на карту и работу с источниками географической информации; практические работы выполняются по описанию ФРП.", types: w => G().types(w), doc: (k, p, t, F, n) => G().doc(k, p, t, F, n), promptExtra: (p, F, t) => G().promptExtra(p, F, t) }) };
+  const Y = () => window.PhyMethod;
+  const phys = () => get("phys", "Физика", { warm: "физическая разминка", method: "Опирайся на опыт и эксперимент; расчётные задачи с готовыми ответами подставляет сайт.", types: w => Y().types(w), detect: (t, T) => Y().detect(t, T), doc: (k, p, t, F, n) => Y().doc(k, p, t, F, n), promptExtra: (p, F, t) => Y().promptExtra(p, F, t) });
+  return { get, phys, geo: () => get("geo", "География", { warm: "разминка на карте", method: "Опирайся на карту и работу с источниками географической информации; практические работы выполняются по описанию ФРП.", types: w => G().types(w), doc: (k, p, t, F, n) => G().doc(k, p, t, F, n), promptExtra: (p, F, t) => G().promptExtra(p, F, t) }) };
 })();
 window.FrpKit = FrpKit;

@@ -62,7 +62,8 @@ const SlideEditor = (() => {
     prata: { name: "Prata + Lora (ночная)", h: "Prata", b: "Lora", g: ["Prata", "Lora:wght@400;600;700"] },
     alice: { name: "Alice + PT Sans (акварель)", h: "Alice", b: "PT Sans", g: ["Alice", "PT+Sans:wght@400;700"] },
     playcorm: { name: "Playfair Display + Cormorant (ренессанс)", h: "Playfair Display", b: "Cormorant Garamond", g: ["Playfair+Display:wght@400;600", "Cormorant+Garamond:wght@500;600;700"] },
-    unbounded: { name: "Unbounded + Manrope (модерн)", h: "Unbounded", b: "Manrope", g: ["Unbounded:wght@500;700", "Manrope:wght@400;600;700"] }
+    unbounded: { name: "Unbounded + Manrope (модерн)", h: "Unbounded", b: "Manrope", g: ["Unbounded:wght@500;700", "Manrope:wght@400;600;700"] },
+    onest: { name: "Onest (современный гротеск)", h: "Onest", b: "Onest", g: ["Onest:wght@400;500;700;800"] }
   };
   const fontKey = () => FONTS[L()?.slideFonts] ? L().slideFonts : (window.ThemeKit?.META[theme()]?.font || "classic");
   const fontSet = () => FONTS[fontKey()] || FONTS.classic;

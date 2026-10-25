@@ -708,6 +708,18 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.tk-sketch .sx-title { font-size: calc(5.8cqw * var(--fs)); }
 .sx.tk-sketch.lay-title .sx-title { font-size: calc(8.4cqw * var(--fs)); }
 .sx.tk-night .sx-title, .sx.tk-mystic .sx-title { font-weight: 400; }
+/* градиент: кремовый фон, пятна, линии */
+.sx.tk-grad .sx-inner { inset: 11% 13% 9% 13%; }
+.sx.tk-grad .sx-title { text-transform: uppercase; font-weight: 500; letter-spacing: 0; color: #111; line-height: 1.06; }
+.sx.tk-grad.lay-title .sx-title { font-size: calc(9cqw * var(--fs)); font-weight: 500; }
+.sx.tk-grad .sx-body, .sx.tk-grad .sx-body strong { color: #111; }
+.sx.tk-grad .sx-body ul, .sx.tk-grad .sx-body ol { list-style: none; padding-left: 0; }
+.sx.tk-grad .sx-body li { background: none !important; border: 0 !important; border-top: .12cqw solid #111 !important; border-radius: 0 !important; box-shadow: none !important; padding: 1.1cqw 0 !important; display: flex; justify-content: space-between; gap: 2cqw; align-items: baseline; }
+.sx.tk-grad .sx-body li::after { content: "→"; flex: none; }
+.sx.tk-grad .sx-body li::before { background: transparent !important; color: #111 !important; border: .14cqw solid #111 !important; }
+.sx.tk-grad .sx-body li::marker { content: ""; }
+.sx.tk-grad.lay-steps .sx-body li::after { content: ""; }
+.sx.tk-grad .sx-body blockquote { background: none; border: 0; border-top: .12cqw solid #111; border-bottom: .12cqw solid #111; font-size: 1.15em; }
 /* доска */
 .sx.tk-board .sx-inner { inset: 9% 8%; }
 .sx.tk-board .sx-title { color: #F4F1E8; }
