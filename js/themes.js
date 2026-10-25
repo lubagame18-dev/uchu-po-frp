@@ -311,7 +311,7 @@ const ThemeKit = (() => {
   ];
   function hash(s) { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
   function auto(p) {
-    if (p?.subject === "phys" || p?.subject === "chem") return "grad";
+    if (p?.subject === "phys" || p?.subject === "chem" || p?.subject === "soc") return "grad";
     const t = `${p?.topic || ""} ${p?.plan?.kit?.work || ""}`;
     for (const [re, list] of RULES) if (re.test(t)) return list[hash(t) % list.length];
     return p?.subject === "lit" ? ["renaissance", "art", "glow", "haze", "salon", "aqua"][hash(t) % 6] : ["modern", "sketch", "aqua", "botanic"][hash(t) % 4];

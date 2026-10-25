@@ -13,8 +13,8 @@ const FrpKit = (() => {
       gen: { id: "gen", name: "Урок обобщения и систематизации", stages: ["Организационный момент", "Проверка домашнего задания", "Актуализация: проверочный диктант (термины)", "Обобщение: схема (таблица) темы", "Работа в группах: задачи по теме", "Самостоятельная работа (формат проверочной)", "Итог урока. Рефлексия", "Домашнее задание с инструктажем"], mins: [1, 4, 6, 10, 11, 9, 2, 2] },
       ctrl: { id: "ctrl", name: "Урок контроля знаний", stages: ["Организационный момент", "Инструктаж по выполнению работы", "Контрольная работа (2 варианта)", "Итог урока: самооценка", "Домашнее задание"], mins: [1, 3, 37, 2, 2] }
     };
-    const detectType = ({ topic }) => {
-      if (o.detect) { const t = o.detect(topic, TYPES); if (t) return t; }
+    const detectType = ({ topic, grade }) => {
+      if (o.detect) { const t = o.detect(topic, TYPES, grade | 0); if (t) return t; }
       const l = String(topic).trim().toLowerCase();
       if (/^(итоговая |годовая )?контрольная работа|^всероссийская проверочная|^проверочная работа/.test(l)) return TYPES.ctrl;
       if (/^(обобщ|повтор|резервн|итоговый урок|заключени)/.test(l)) return TYPES.gen;
@@ -38,8 +38,10 @@ const FrpKit = (() => {
   const G = () => window.GeoMethod;
   const Y = () => window.PhyMethod;
   const C = () => window.ChemMethod;
+  const O = () => window.SocMethod;
   const phys = () => get("phys", "Физика", { warm: "физическая разминка", method: "Опирайся на опыт и эксперимент; расчётные задачи с готовыми ответами подставляет сайт.", types: w => Y().types(w), detect: (t, T) => Y().detect(t, T), doc: (k, p, t, F, n) => Y().doc(k, p, t, F, n), promptExtra: (p, F, t) => Y().promptExtra(p, F, t) });
   const chem = () => get("chem", "Химия", { warm: "химическая разминка", method: "Опирайся на опыт и эксперимент: сначала наблюдение и версии, потом термин, уравнение реакции и формула; расчётные задачи с готовыми ответами подставляет сайт.", types: w => C().types(w), detect: (t, T) => C().detect(t, T), doc: (k, p, t, F, n) => C().doc(k, p, t, F, n), promptExtra: (p, F, t) => C().promptExtra(p, F, t) });
-  return { get, phys, chem, geo: () => get("geo", "География", { warm: "разминка на карте", method: "Опирайся на карту и работу с источниками географической информации; практические работы выполняются по описанию ФРП.", types: w => G().types(w), doc: (k, p, t, F, n) => G().doc(k, p, t, F, n), promptExtra: (p, F, t) => G().promptExtra(p, F, t) }) };
+  const soc = () => get("soc", "Обществознание", { warm: "обществоведческая разминка", method: "Опирайся на проблемную ситуацию, работу с понятиями, источниками, примерами и аргументами (показатели оценивания по ФРП); расчётные задания с готовыми ответами подставляет сайт.", types: w => O().types(w), detect: (t, T, g) => O().detect(t, T, g), doc: (k, p, t, F, n) => O().doc(k, p, t, F, n), promptExtra: (p, F, t) => O().promptExtra(p, F, t) });
+  return { get, phys, chem, soc, geo: () => get("geo", "География", { warm: "разминка на карте", method: "Опирайся на карту и работу с источниками географической информации; практические работы выполняются по описанию ФРП.", types: w => G().types(w), doc: (k, p, t, F, n) => G().doc(k, p, t, F, n), promptExtra: (p, F, t) => G().promptExtra(p, F, t) }) };
 })();
 window.FrpKit = FrpKit;
