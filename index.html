@@ -3997,8 +3997,9 @@ async function createLesson() {
   const { notes: _n, ...pParams } = p;
   const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason } }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
   // техкарта нужна для сборки конспекта, презентации и листа; если её не выбрали — собираем «за кадром»
-  const gen = ["conspect", ...formats.filter(f => f !== "conspect")];
+  // у предметов-плагинов (ФРП-наборы) документы собираются независимо: техкарту без запроса не строим вовсе
   const hideTech = !formats.includes("conspect");
+  const gen = hideTech && window.Subjects?.plugin(p.subject) ? [...formats] : ["conspect", ...formats.filter(f => f !== "conspect")];
   // сборка переживает обновление страницы: задание запоминается, после перезагрузки сайт продолжит с того листа, где остановился
   saveJob({ id: L.id, at: Date.now(), useAi, gen, formats, hideTech, p: { ...pParams, extra: p.extra, textOverride: p.textOverride || null }, notes: p.notes });
   await saveLesson(L);
@@ -4520,7 +4521,7 @@ async function renderPreview() {
   const md = $("#md").value, sheet = $("#sheet"), L = state.lesson;
   if (!L) return;
   const busy = isGenerating(L, state.active), editable = !busy;
-  if (!md.trim()) { sheet.className = "sheet"; sheet.removeAttribute("contenteditable"); sheet.innerHTML = `<p class="small">${busy ? (state.gen?.fake ? "Собираю урок: нейросеть продумывает замысел и ход урока. Лист появится, как только будет готов." : "Готовлю документ… Первые строки появятся через 10–60 секунд.") : L.status?.[state.active] === "wait" ? "Этот лист в очереди: он начнётся после предыдущего." : "Документ пуст."}</p>`; return; }
+  if (!md.trim()) { sheet.className = "sheet"; sheet.removeAttribute("contenteditable"); sheet.innerHTML = `<p class="small">${busy ? (state.gen?.fake ? "Собираю урок: нейросеть продумывает замысел и ход урока. Лист появится, как только будет готов." : "Готовлю документ… Первые строки появятся через 10–60 секунд.") : L.status?.[state.active] === "wait" && state.gen && state.gen.lessonId === L.id && state.gen.doc !== state.active && !(L.hideTech && state.gen.doc === "conspect") ? "Этот лист в очереди: он начнётся после предыдущего." : (L.status?.[state.active] === "wait" || L.status?.[state.active] === "run") ? "Готовлю документ…" : "Документ пуст."}</p>`; return; }
   // v5: презентация — в редакторе слайдов (шаблоны, автоподбор шрифта, миниатюры, картинки)
   if (state.active === "slides" && window.SlideEditor) {
     const same = state.lastDoc === "slides:" + L.id, wrap = $("#sheetwrap"), k = { t: wrap.scrollTop, l: wrap.scrollLeft, y: window.scrollY, th: $(".sx-thumbs", sheet) ? [$(".sx-thumbs", sheet).scrollLeft, $(".sx-thumbs", sheet).scrollTop] : null };
