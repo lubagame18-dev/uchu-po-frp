@@ -41,7 +41,7 @@ const Layout = (() => {
   /* ---------- кирпичики Markdown ---------- */
   const md = {
     kicker: (p, kind = "Конспект урока") => `*${kind} ${SUBJ[p.subject] || ""} · ${p.grade} класс*\n\n`,
-    passport: rows => { const R = rows.filter(r => r && clean(r[1])); R.push(["Как читать конспект", LEGEND]); return `| ${cell(R[0][0])} | ${cell(R[0][1])} |\n|---|---|\n${R.slice(1).map(r => `| ${cell(r[0])} | ${cell(r[1])} |`).join("\n")}\n\n`; },
+    passport: (rows, noLegend) => { const R = rows.filter(r => r && clean(r[1])); if (!noLegend) R.push(["Как читать конспект", LEGEND]); return `| ${cell(R[0][0])} | ${cell(R[0][1])} |\n|---|---|\n${R.slice(1).map(r => `| ${cell(r[0])} | ${cell(r[1])} |`).join("\n")}\n\n`; },
     // полоска этапов вместо плана: «Этап 1 · 5 мин» / название
     plan: rows => rows.length ? `| ${rows.map((r, i) => `Этап ${i + 1}${r.min ? ` · ${r.min} мин` : ""}`).join(" | ")} |\n|${rows.map(() => "---").join("|")}|\n| ${rows.map(r => cell(short(r.name))).join(" | ")} |\n\n` : "",
     legend: () => "",
@@ -122,9 +122,11 @@ const Layout = (() => {
     if (!st.length) return text;
     const mat = s => { const t = s.parts.map(x => x.table ? x.table.join(" ") : x.line).join(" ").toLowerCase(); return [/учебник|параграф/.test(t) && "учебник", /карт[аеуы]/.test(t) && /истор/.test(p.subject) && "карта", /источник/.test(t) && "источник", /микроскоп|микропрепарат/.test(t) && "микроскоп", /рабочий лист|листе/.test(t) && "рабочий лист", /слайд|доск/.test(t) && "доска"].filter(Boolean).join(", ") || "беседа"; };
     let out = md.kicker(p) + `# ${title}\n\n`;
-    out += md.passport([["Тип урока", typeName + (p.duration ? `. ${p.duration} минут` : "")], ["Проблемный вопрос", prob], ["Что нужно", equip]]);
+    // конспект без меток «Учитель / На доске / Ответы» (например, свёрстанный двумя столбцами): подсказка о метках не нужна
+    const plain = !st.some(s => s.parts.some(x => x.line || (x.table && rowCells(x.table[0]).length === 1)));
+    out += md.passport([["Тип урока", typeName + (p.duration ? `. ${p.duration} минут` : "")], ["Проблемный вопрос", prob], ["Что нужно", equip]], plain);
     out += md.plan(st.map(s => ({ name: s.name, min: s.min, mat: mat(s) })));
-    out += md.legend();
+    if (!plain) out += md.legend();
     st.forEach((s, i) => {
       out += md.block(i + 1, s.name, s.min);
       for (const part of s.parts) {
