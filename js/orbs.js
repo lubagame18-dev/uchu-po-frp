@@ -14,7 +14,7 @@
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const COL = ["#FFC93C", "#FF8FA3", "#1F7A70", "#FF5A36", "#3CB043"];
   const SHAPES = ["38% 62% 63% 37%/41% 44% 56% 59%", "58% 42% 38% 62%/52% 60% 40% 48%", "45% 55% 60% 40%/55% 38% 62% 45%", "62% 38% 46% 54%/40% 58% 42% 60%"];
-  const KS = [1.5, 0.7, 1.0, 1.25, 0.8, 1.1, 0.6, 1.35, 0.9, 1.15, 0.75, 1.4, 0.65, 1.0, 0.85, 1.2];
+  const KS = [2.3, 0.7, 1.0, 1.6, 0.6, 0.9, 0.55, 2.0, 0.75, 1.2, 0.6, 1.7, 0.55, 0.85, 0.7, 1.1];
   const B = SUBJ.map(([id, name, ico], i) => {
     const el = document.createElement("div"); el.className = "orb"; el.dataset.id = id; el.title = name;
     el.style.background = COL[i % COL.length]; el.style.borderRadius = SHAPES[i % SHAPES.length];
@@ -26,7 +26,7 @@
   let W = 0, H = 0, started = false;
   const layout = () => {
     const w = root.clientWidth, h = root.clientHeight; if (!w || !h) return false;
-    const d = Math.max(42, Math.min(90, Math.sqrt(w * h * 0.26 * 4 / (Math.PI * B.length * 1.1))));
+    const d = Math.max(42, Math.min(110, Math.sqrt(w * h * 0.30 * 4 / (Math.PI * B.reduce((s, b) => s + b.k * b.k, 0)))));
     B.forEach(b => { b.r = d * b.k / 2; b.el.style.width = b.el.style.height = b.r * 2 + "px"; b.el.style.fontSize = Math.max(16, b.r * 0.72) + "px"; });
     if (!started) {
       B.forEach((b, i) => { b.x = b.r + Math.random() * Math.max(1, w - 2 * b.r); b.y = b.r + Math.random() * Math.max(1, h - 2 * b.r); const a = Math.random() * 6.28; b.vx = Math.cos(a) * 0.18; b.vy = Math.sin(a) * 0.18; });
