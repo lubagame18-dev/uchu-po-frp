@@ -536,8 +536,8 @@ window.UCHU_SITE = {
       <section class="card params" aria-labelledby="z2">
         <div class="card-h"><span class="n">1</span><h2 id="z2">Параметры урока</h2></div>
         <div class="field"><label for="subjectSel">Предмет</label>
-          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option></select>
-          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button><button data-v="eng" aria-pressed="false">Английский язык</button><button data-v="bio" aria-pressed="false">Биология</button><button data-v="geo" aria-pressed="false">География</button><button data-v="phys" aria-pressed="false">Физика</button><button data-v="chem" aria-pressed="false">Химия</button><button data-v="soc" aria-pressed="false">Обществознание</button></div>
+          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option></select>
+          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button><button data-v="eng" aria-pressed="false">Английский язык</button><button data-v="bio" aria-pressed="false">Биология</button><button data-v="geo" aria-pressed="false">География</button><button data-v="phys" aria-pressed="false">Физика</button><button data-v="chem" aria-pressed="false">Химия</button><button data-v="soc" aria-pressed="false">Обществознание</button><button data-v="inf" aria-pressed="false">Информатика</button></div>
         </div>
         <div class="row2">
           <div class="field"><label for="grade">Класс</label><select id="grade"></select></div>
@@ -562,6 +562,7 @@ window.UCHU_SITE = {
               <label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> Ключи и критерии</label></div></details>
             <details class="check xopt" id="optMemo"><summary>🧠 Запоминание <span class="xv" id="memoVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div></details>
+            <label class="check" id="chkPack" hidden title="Подготовка учителя, программы, ссылки, инструкция ученика и ZIP с файлами для компьютеров"><input type="checkbox" value="pack"> 💻 Пакет для компьютерного класса</label>
             <label class="check" id="chkHw"><input type="checkbox" id="xHw"> 🏠 Домашняя работа <span class="pro-lock xlock" hidden>🔒</span></label>
             <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
@@ -600,6 +601,7 @@ window.UCHU_SITE = {
       <div class="ws-head">
         <div class="doc-tabs" role="tablist" id="docTabs"></div>
         <div class="ws-tools" id="wsTools">
+          <button class="btn sm flame" id="btnPackZip" hidden>⬇ Файлы для урока (ZIP)</button>
           <button class="btn sm teal" id="btnDocx">Скачать Word</button>
           <button class="btn sm teal" id="btnPptx" hidden>Скачать PowerPoint</button>
           <button class="btn sm flame" id="btnPdf">Скачать PDF</button>
@@ -644,7 +646,7 @@ window.UCHU_SITE = {
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
   <section class="own-card"><h2>Мои материалы</h2><p class="agent-lead"><b>🧠 Ваш личный ИИ-агент.</b> Прикрепите свои конспекты, задания и тексты — сайт будет опираться на них и собирать уроки по вашей методике.</p><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
-    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option></select></label><input type="file" id="matInput" multiple hidden></div>
+    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option></select></label><input type="file" id="matInput" multiple hidden></div>
     <p class="hint" data-dev>При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
     
     <div class="mat-row" data-dev><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
@@ -3195,9 +3197,10 @@ const DOCS = {
   worksheet: { label: "Рабочий лист", short: "Рабочий лист", file: "rabochiy-list", expect: 5500 },
   control: { label: "Контроль", short: "Контроль", file: "kontrol", expect: 4000 },
   memo: { label: "Запоминание", short: "Памятка", file: "pamyatka", expect: 3000 },
-  homework: { label: "Домашняя работа", short: "Д/з", file: "domashnyaya-rabota", expect: 3000 }
+  homework: { label: "Домашняя работа", short: "Д/з", file: "domashnyaya-rabota", expect: 3000 },
+  pack: { label: "Пакет для компьютерного класса", short: "Пакет", file: "paket-kompyuternyy-klass", expect: 6000 }
 };
-const WS_DOCS = ["worksheet", "control", "memo", "homework"], EXTRA_DOCS = ["control", "memo", "homework"];
+const WS_DOCS = ["worksheet", "control", "memo", "homework"], EXTRA_DOCS = ["control", "memo", "homework", "pack"];
 const LIBS = {
   marked: ["vendor/marked.umd.js", "https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"],
   purify: ["vendor/purify.min.js", "https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js"],
@@ -3580,6 +3583,13 @@ function paintExtra() {
   $("#ctrlVal").textContent = ctrl ? `· ${ctrl.toLowerCase()}` : ""; $("#memoVal").textContent = memo ? `· ${memo}` : "";
   $("#optCtrl").classList.toggle("on", !!ctrl); $("#optMemo").classList.toggle("on", !!memo);
 }
+/* «Пакет для компьютерного класса» — только для информатики; при выборе предмета отмечается сам */
+function syncPack(turnOn) {
+  const lab = $("#chkPack"); if (!lab) return; const on = state.subject === "inf", inp = lab.querySelector("input");
+  lab.hidden = !on;
+  if (!on) { inp.checked = false; state.formats.pack = false; }
+  else if (turnOn) { inp.checked = true; state.formats.pack = true; }
+}
 function syncTechCheck() {
   const okX = !window.Access || Access.techAllowed();
   ["#optCtrl", "#optMemo", "#chkHw"].forEach(id => { const el = $(id); if (!el) return; el.classList.toggle("locked", !okX); el.querySelector(".xlock").hidden = okX; el.querySelectorAll("input,select").forEach(x => x.disabled = !okX); if (!okX && el.open) el.open = false; });
@@ -3628,6 +3638,7 @@ function restoreForm() {
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; $("#wishes").value = ""; state.wishes = "";
   $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
+  syncPack(false);
   syncControls(); updateType();
 }
 
@@ -3955,6 +3966,7 @@ async function createLesson() {
   const formats = Object.keys(state.formats).filter(k => state.formats[k]);
   // методические блоки (тариф «Методист» и разработчики)
   if (!window.Access || Access.techAllowed()) { const X = state.extra; if (X.ctrl) formats.push("control"); if (X.memoSheet || X.memo) formats.push("memo"); if (X.hw) formats.push("homework"); }
+  if (state.subject !== "inf") { const i = formats.indexOf("pack"); if (i >= 0) formats.splice(i, 1); }
   if (!formats.length) { $("#createHint").textContent = "Отметьте хотя бы один документ."; return; }
   if (state.gen) { $("#createHint").textContent = "Дождитесь окончания текущей генерации или остановите её."; return; }
   $("#createHint").textContent = "";
@@ -4400,7 +4412,7 @@ function renderDownloads() {
   const L = state.lesson, box = $("#dlPanel"); if (!box) return;
   const ready = L ? Object.keys(DOCS).filter(d => L.docs[d] && !isGenerating(L, d)) : [];
   if (!L || !ready.length || (state.gen && state.gen.lessonId === L.id)) { box.hidden = true; return; }
-  const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"]] : [["docx", "Word"], ["pdf", "PDF"]];
+  const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"]] : d === "pack" ? [["docx", "Word"], ["pdf", "PDF"], ["zip", "ZIP с файлами"]] : [["docx", "Word"], ["pdf", "PDF"]];
   box.innerHTML = `<div class="dl-h">⬇ Урок готов. Скачайте нужное:</div><div class="dl-rows">${ready.map(d => `<div class="dl-row"><b>${DOCS[d].label}</b>${fmts(d).map(([f, n]) => `<button class="btn sm ${f === "pdf" ? "flame" : "teal"}" data-dl="${d}:${f}">${n}</button>`).join("")}</div>`).join("")}<div class="dl-row"><b>Весь урок</b><button class="btn sm" data-dl="all:zip">Всё одним архивом</button></div></div>`;
   box.hidden = false;
   $$("[data-dl]", box).forEach(b => b.onclick = async () => {
@@ -4410,7 +4422,7 @@ function renderDownloads() {
 }
 function syncTools() {
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
-  $("#btnDocx").hidden = state.active === "slides"; $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
+  $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
   $("#btnStop").hidden = !state.gen;
@@ -4967,6 +4979,7 @@ async function exportZip(L) {
   const put = async (name, make) => { try { const b = await make(); if (b && b.size !== 0) zip.file(name, b); else fails.push(name); } catch (e) { console.warn("zip", name, e); fails.push(name); } };
   const docs = Object.keys(DOCS).filter(d => L.docs[d]);
   for (const d of docs) await put(baseName(L, d) + (d === "slides" ? ".pptx" : ".docx"), () => d === "slides" ? slidesToPptxBlob(L.docs[d], L.title) : mdToDocxBlob(L.docs[d], L.title, wsOpts(L, d)));
+  if (L.docs.pack && window.InfMethod && window.Subjects) { try { const p = { ...L.params }, type = Subjects.plugin(p.subject).detectType(p), F = Subjects.frp(p.subject, p); InfMethod.zip(p, F, type).forEach(f => zip.file("Fayly_dlya_uroka/" + f.n.replace(/^[^/]+\//, ""), f.c)); } catch (e) { console.warn("pack", e); fails.push("файлы для урока"); } }
   let pdfOk = true; try { await loadScript("html2pdf"); } catch { pdfOk = false; }
   if (pdfOk) for (const d of docs) await put(baseName(L, d) + ".pdf", () => docToPdfBlob(L, d));
   else fails.push("PDF (библиотека не загрузилась — проверьте интернет)");
@@ -4975,10 +4988,20 @@ async function exportZip(L) {
   await saveFile(`${slug(L.title)}_${L.params.grade}kl_komplekt.zip`, await zip.generateAsync({ type: "blob", compression: "DEFLATE" }));
   if (fails.length) toast("Архив скачан, но без: " + fails.join(", ") + ". Их можно скачать по отдельности.", 9000);
 }
+/* ZIP «Файлы для урока»: карточка учителя, инструкция ученика, заготовки, ключи — всё создаётся на странице, без Интернета */
+async function packZipBlob(L) {
+  const p = { ...L.params }, kit = window.Subjects?.plugin(p.subject); if (!kit || !window.InfMethod) throw new Error("набор файлов есть только у информатики");
+  const type = kit.detectType(p), F = Subjects.frp(p.subject, p);
+  await loadScript("jszip");
+  const zip = new window.JSZip();
+  InfMethod.zip(p, F, type).forEach(f => zip.file(f.n, f.c));
+  return zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+}
 async function exportOne(L, d, f) {
   // перед выгрузкой презентации — автоподбор шрифта и деление длинных слайдов (если редактор ещё не открывался)
   if (window.SlideEditor && (d === "slides" || d === "all") && L === state.lesson && L.docs.slides && !L.slidesFitted) { L.slidesFitted = true; SlideEditor.fitAll(); }
   if (d === "all") return exportZip(L);
+  if (f === "zip") { toast("Собираю файлы для урока…", 6000); return saveFile(`${slug(L.title)}_${L.params.grade}kl_fayly-dlya-uroka.zip`, await packZipBlob(L)); }
   if (f === "docx") { toast("Готовлю Word…", 6000); return saveFile(baseName(L, d) + ".docx", await mdToDocxBlob(L.docs[d], L.title, wsOpts(L, d))); }
   if (f === "pptx") { toast("Готовлю презентацию…", 8000); return saveFile(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title)); }
   if (f === "pdf") { toast("Готовлю PDF…", 9000); return saveFile(baseName(L, d) + ".pdf", await docToPdfBlob(L, d)); }
@@ -5009,7 +5032,7 @@ function bind() {
   $("#prevHwPick").onclick = () => $("#prevHwFile").click();
   $("#prevHwFile").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const r = await readFile(f); const t = String(r?.text || "").trim(); if (!t) throw new Error("в файле не найден текст"); $("#prevHw").value = t.slice(0, 2500); $("#prevHwHint").textContent = `Из файла «${f.name}».`; } catch (er) { toast("Не получилось прочитать файл: " + (er.message || er)); } };
   $("#prevHwFind").onclick = async () => { readForm(); const f = await findPrevHw({ subject: state.subject, grade: state.grade, topic: state.topic, lessonNo: state.lessonNo }); if (f) { $("#prevHw").value = f.text; $("#prevHwHint").textContent = `Найдено: ${f.src}.`; } else $("#prevHwHint").textContent = "Прошлого урока этой темы в «Моих уроках» нет — впишите задание или прикрепите файл. Без этого проверка будет формальной."; };
-  $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); if (ch) clearTopic(); else { readForm(); updateType(); } refreshTopics(); });
+  $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); if (ch) clearTopic(); else { readForm(); updateType(); } syncPack(ch); refreshTopics(); });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
@@ -5049,7 +5072,7 @@ function bind() {
   $("#btnMdToggle").onclick = () => { const p = $("#mdPane"); p.hidden = !p.hidden; $("#split").classList.toggle("with-md", !p.hidden); syncTools(); };
   $("#btnRefine").onclick = refineDoc;
   $("#refineInput").addEventListener("keydown", e => { if (e.key === "Enter") refineDoc(); });
-  $("#btnDocx").onclick = guarded(exportDocx); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
+  $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
   // материалы
   const drop = $("#matDrop");
   ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
@@ -5121,7 +5144,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/publish.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/worksearch.js"></script>
-<script src="js/frpplans.js"></script><script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histlessons.js"></script><script src="js/histkit.js"></script><script src="js/engdata.js"></script><script src="js/engkit.js"></script><script src="js/biolessons.js"></script><script src="js/biokit.js"></script><script src="js/frpplans2.js"></script><script src="js/geomethod.js"></script><script src="js/frpplans3.js"></script><script src="js/phydata.js"></script><script src="js/phymethod.js"></script><script src="js/frpplans4.js"></script><script src="js/chemdata.js"></script><script src="js/chemmethod.js"></script><script src="js/frpplans5.js"></script><script src="js/socdata.js"></script><script src="js/socmethod.js"></script><script src="js/frpkit.js"></script>
+<script src="js/frpplans.js"></script><script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histlessons.js"></script><script src="js/histkit.js"></script><script src="js/engdata.js"></script><script src="js/engkit.js"></script><script src="js/biolessons.js"></script><script src="js/biokit.js"></script><script src="js/frpplans2.js"></script><script src="js/geomethod.js"></script><script src="js/frpplans3.js"></script><script src="js/phydata.js"></script><script src="js/phymethod.js"></script><script src="js/frpplans4.js"></script><script src="js/chemdata.js"></script><script src="js/chemmethod.js"></script><script src="js/frpplans5.js"></script><script src="js/socdata.js"></script><script src="js/socmethod.js"></script><script src="js/frpplans6.js"></script><script src="js/infgen.js"></script><script src="js/infdata.js"></script><script src="js/infmethod.js"></script><script src="js/frpkit.js"></script>
 <script src="js/subjects.js"></script>
 <script src="js/usage.js"></script>
 <script src="js/ai.js"></script><script src="js/blobs.js"></script>

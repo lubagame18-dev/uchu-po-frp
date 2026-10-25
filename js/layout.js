@@ -11,7 +11,7 @@ const Layout = (() => {
   "use strict";
   const clean = s => String(s ?? "").replace(/\s+/g, " ").trim();
   const cell = s => String(s ?? "").replace(/\|/g, "∣").replace(/\n/g, "<br>").trim();
-  const SUBJ = { ru: "русского языка", lit: "литературы", math: "математики", hist: "истории", eng: "английского языка", bio: "биологии", geo: "географии", phys: "физики", chem: "химии", soc: "обществознания" };
+  const SUBJ = { ru: "русского языка", lit: "литературы", math: "математики", hist: "истории", eng: "английского языка", bio: "биологии", geo: "географии", phys: "физики", chem: "химии", soc: "обществознания", inf: "информатики" };
 
   /* ---------- виды рамок: по заголовку столбца ---------- */
   const KINDS = [
