@@ -5,7 +5,7 @@
    конспект, рабочий лист, доп. листы, презентация, задание для ИИ.
    =================================================================== */
 const Subjects = (() => {
-  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }, { id: "bio", name: "Биология", kit: () => window.BioKit }];
+  const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }, { id: "bio", name: "Биология", kit: () => window.BioKit }, { id: "geo", name: "География", kit: () => window.FrpKit?.geo() }];
   const plugin = id => { const s = list.find(x => x.id === id); return s?.kit ? s.kit() || null : null; };
   const name = id => list.find(x => x.id === id)?.name || id;
   /* Проверка домашнего задания — только по тому, что действительно задавали:
@@ -46,7 +46,7 @@ const Subjects = (() => {
     const q = stems(String(p.topic).replace(/«|»/g, " "));
     const rank = arr => arr.map((x, i) => { const a = stems(x); let n = 0; for (const w of q) if (a.has(w)) n++; return { x, n, i }; });
     const HEADS = /^(Коммуникативные умения|Языковые знания и умения|Диалогическая речь|Монологическая речь|Аудирование|Смысловое чтение|Письменная речь|Фонетическая сторона речи|Графика, орфография и пунктуация|Лексическая сторона речи|Грамматическая сторона речи|Социокультурные знания и умения|Компенсаторные умения)\s*:?\s*/;
-    const sents = t => String(t || "").split(id === "eng" ? /(?<=[.;])\s+|(?<=:)\s+(?=[а-яё])/ : /(?<=[.;])\s+(?=[А-ЯЁ])/).map(x => { let y = x.trim(); for (let k = 0; k < 3; k++) y = y.replace(HEADS, ""); return y.replace(/[;.:]$/, "").replace(/^./, c => c.toUpperCase()); }).filter(x => x.length > 12);
+    const sents = t => String(t || "").split(id === "eng" ? /(?<=[.;])\s+|(?<=:)\s+(?=[а-яё])/ : id === "geo" ? /(?<=[.;])\s+/ : /(?<=[.;])\s+(?=[А-ЯЁ])/).map(x => { let y = x.trim(); for (let k = 0; k < 3; k++) y = y.replace(HEADS, ""); return y.replace(/[;.:]$/, "").replace(/^./, c => c.toUpperCase()); }).filter(x => x.length > 12);
     const top = (arr, k) => { const r = rank(arr), hit = r.filter(x => x.n > 0).sort((a, b) => b.n - a.n || a.i - b.i); return (hit.length ? hit : r).slice(0, k).sort((a, b) => a.i - b.i).map(x => x.x); };
     let acts = sents(th[2]); if (acts.length < 2) acts = sents(th[1]).filter(x => /(ать|ять|еть|ить|ти)\b/.test(x.split(" ")[0]) || /^[А-Я][а-я]+ние|^Диалог|^Описание|^Повествование|^Написание|^Заполнение|^Понимание|^Чтение/.test(x));
     const terms = []; for (const m of String(th[2] + " " + th[1]).matchAll(/(?:понятий|терминов)(?: и терминов)?\s*:\s*([^.]+)/g)) for (const t of m[1].split(/[,;]\s*/)) { const v = t.trim().replace(/^и\s+/, ""); if (v.length > 2 && v.length < 60 && !terms.includes(v)) terms.push(v); }
