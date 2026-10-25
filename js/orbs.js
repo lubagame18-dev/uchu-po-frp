@@ -1,12 +1,12 @@
 /* Шарики-предметы в шапке: плавают сами, сталкиваются, их можно хватать и бросать. */
 (() => {
   const SUBJ = [
-    ["ru", "Русский язык", "Aa", "#FF8FA3", "#FFC93C"], ["lit", "Литература", "📖", "#B58CFF", "#FF8FA3"],
+    ["ru", "Русский", "Aa", "#FF8FA3", "#FFC93C"], ["lit", "Литература", "📖", "#B58CFF", "#FF8FA3"],
     ["math", "Математика", "∑", "#4FC3F7", "#6C63FF"], ["inf", "Информатика", "💻", "#2DD4BF", "#3B82F6"],
     ["phys", "Физика", "⚛", "#8A6BFF", "#FF5A3C"], ["chem", "Химия", "⚗", "#A3E635", "#14B8A6"],
     ["bio", "Биология", "🌱", "#86EFAC", "#1F7A70"], ["geo", "География", "🌍", "#38BDF8", "#34D399"],
     ["hist", "История", "🏛", "#FFC93C", "#FB923C"], ["soc", "Обществознание", "⚖", "#F9A8D4", "#A78BFA"],
-    ["eng", "Английский язык", "EN", "#60A5FA", "#F472B6"], ["art", "ИЗО", "🎨", "#FDE047", "#F43F5E"],
+    ["eng", "Английский", "EN", "#60A5FA", "#F472B6"], ["art", "ИЗО", "🎨", "#FDE047", "#F43F5E"],
     ["mus", "Музыка", "♪", "#C084FC", "#FB7185"], ["tech", "Технология", "🔧", "#FDBA74", "#EF4444"],
     ["obzr", "ОБЗР", "🛟", "#FCA5A5", "#F97316"], ["pe", "Физкультура", "⚽", "#5EEAD4", "#84CC16"]
   ];
@@ -14,9 +14,11 @@
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const COL = ["#FFC93C", "#FF8FA3", "#1F7A70", "#FF5A36", "#3CB043"];
   const SHAPES = ["38% 62% 63% 37%/41% 44% 56% 59%", "58% 42% 38% 62%/52% 60% 40% 48%", "45% 55% 60% 40%/55% 38% 62% 45%", "62% 38% 46% 54%/40% 58% 42% 60%"];
-  const KS = [2.3, 0.7, 1.0, 1.6, 0.6, 0.9, 0.55, 2.0, 0.75, 1.2, 0.6, 1.7, 0.55, 0.85, 0.7, 1.1];
+  const KS0 = [2.0, 1.7, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6];
+  const rank = SUBJ.map((s, i) => [s[1].length + i * 0.01, i]).sort((x, y) => y[0] - x[0]);
+  const KS = []; rank.forEach(([, i], n) => { KS[i] = KS0[n]; });
   const B = SUBJ.map(([id, name, ico], i) => {
-    const el = document.createElement("div"); el.className = "orb"; el.dataset.id = id; el.title = name;
+    const el = document.createElement("div"); el.className = "orb"; el.dataset.id = id; el.title = name; el.setAttribute("aria-label", name);
     el.style.background = COL[i % COL.length]; el.style.borderRadius = SHAPES[i % SHAPES.length];
     el.style.color = COL[i % COL.length] === "#1F7A70" ? "#fff" : "#1B1330";
     el.innerHTML = `<span class="oi">${ico}</span><span class="on">${name}</span>`;
@@ -26,8 +28,8 @@
   let W = 0, H = 0, started = false;
   const layout = () => {
     const w = root.clientWidth, h = root.clientHeight; if (!w || !h) return false;
-    const d = Math.max(42, Math.min(110, Math.sqrt(w * h * 0.30 * 4 / (Math.PI * B.reduce((s, b) => s + b.k * b.k, 0)))));
-    B.forEach(b => { b.r = d * b.k / 2; b.el.style.width = b.el.style.height = b.r * 2 + "px"; b.el.style.fontSize = Math.max(16, b.r * 0.72) + "px"; });
+    const d = Math.max(42, Math.min(110, Math.sqrt(w * h * 0.36 * 4 / (Math.PI * B.reduce((s, b) => s + b.k * b.k, 0)))));
+    B.forEach(b => { b.r = d * b.k / 2; b.el.style.width = b.el.style.height = b.r * 2 + "px"; b.el.style.fontSize = Math.max(12, b.r * 0.5) + "px"; b.el.lastChild.style.fontSize = Math.max(8.5, Math.min(b.r * 0.34, (b.r * 1.7) / (b.name.length * 0.62))) + "px"; });
     if (!started) {
       B.forEach((b, i) => { b.x = b.r + Math.random() * Math.max(1, w - 2 * b.r); b.y = b.r + Math.random() * Math.max(1, h - 2 * b.r); const a = Math.random() * 6.28; b.vx = Math.cos(a) * 0.18; b.vy = Math.sin(a) * 0.18; });
       started = true;
