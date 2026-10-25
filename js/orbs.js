@@ -14,7 +14,7 @@
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const COL = ["#FFC93C", "#FF8FA3", "#1F7A70", "#FF5A36", "#3CB043"];
   const SHAPES = ["38% 62% 63% 37%/41% 44% 56% 59%", "58% 42% 38% 62%/52% 60% 40% 48%", "45% 55% 60% 40%/55% 38% 62% 45%", "62% 38% 46% 54%/40% 58% 42% 60%"];
-  const KS0 = [1.8, 1.6, 1.45, 1.35, 1.25, 1.2, 1.15, 1.1, 1.05, 1.0, 1.0, 0.95, 0.95, 0.9, 0.9, 0.9];
+  const KS0 = [1.25, 1.2, 1.18, 1.15, 1.12, 1.1, 1.08, 1.05, 1.03, 1.0, 1.0, 0.98, 0.96, 0.95, 0.94, 0.92];
   const rank = SUBJ.map((s, i) => [s[1].length + i * 0.01, i]).sort((x, y) => y[0] - x[0]);
   const KS = []; rank.forEach(([, i], n) => { KS[i] = KS0[n]; });
   const B = SUBJ.map(([id, name, ico], i) => {
@@ -28,8 +28,8 @@
   let W = 0, H = 0, started = false;
   const layout = () => {
     const w = root.clientWidth, h = root.clientHeight; if (!w || !h) return false;
-    const d = Math.max(52, Math.min(110, Math.sqrt(w * h * 0.46 * 4 / (Math.PI * B.reduce((s, b) => s + b.k * b.k, 0)))));
-    B.forEach(b => { b.r = d * b.k / 2; b.el.style.width = b.el.style.height = b.r * 2 + "px"; b.el.style.fontSize = Math.max(18, b.r * 0.55) + "px"; b.el.lastChild.style.fontSize = Math.max(10.5, Math.min(b.r * 0.36, (b.r * 1.7) / (b.name.length * 0.62))) + "px"; });
+    const d = Math.max(52, Math.min(120, Math.sqrt(w * h * 0.5 * 4 / (Math.PI * B.reduce((s, b) => s + b.k * b.k, 0)))));
+    B.forEach(b => { b.r = d * b.k / 2; b.el.style.width = b.el.style.height = b.r * 2 + "px"; b.el.style.fontSize = Math.max(18, b.r * 0.55) + "px"; b.el.lastChild.style.fontSize = Math.max(10.5, Math.min(b.r * 0.36, (b.r * 1.5) / (b.name.length * 0.64))) + "px"; });
     if (!started) {
       B.forEach((b, i) => { b.x = b.r + Math.random() * Math.max(1, w - 2 * b.r); b.y = b.r + Math.random() * Math.max(1, h - 2 * b.r); const a = Math.random() * 6.28; b.vx = Math.cos(a) * 0.18; b.vy = Math.sin(a) * 0.18; });
       started = true;
