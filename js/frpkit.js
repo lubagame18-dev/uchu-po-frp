@@ -37,7 +37,9 @@ const FrpKit = (() => {
   const get = (id, name, o) => kits[id] || (kits[id] = mk(id, name, o));
   const G = () => window.GeoMethod;
   const Y = () => window.PhyMethod;
+  const C = () => window.ChemMethod;
   const phys = () => get("phys", "Физика", { warm: "физическая разминка", method: "Опирайся на опыт и эксперимент; расчётные задачи с готовыми ответами подставляет сайт.", types: w => Y().types(w), detect: (t, T) => Y().detect(t, T), doc: (k, p, t, F, n) => Y().doc(k, p, t, F, n), promptExtra: (p, F, t) => Y().promptExtra(p, F, t) });
-  return { get, phys, geo: () => get("geo", "География", { warm: "разминка на карте", method: "Опирайся на карту и работу с источниками географической информации; практические работы выполняются по описанию ФРП.", types: w => G().types(w), doc: (k, p, t, F, n) => G().doc(k, p, t, F, n), promptExtra: (p, F, t) => G().promptExtra(p, F, t) }) };
+  const chem = () => get("chem", "Химия", { warm: "химическая разминка", method: "Опирайся на опыт и эксперимент: сначала наблюдение и версии, потом термин, уравнение реакции и формула; расчётные задачи с готовыми ответами подставляет сайт.", types: w => C().types(w), detect: (t, T) => C().detect(t, T), doc: (k, p, t, F, n) => C().doc(k, p, t, F, n), promptExtra: (p, F, t) => C().promptExtra(p, F, t) });
+  return { get, phys, chem, geo: () => get("geo", "География", { warm: "разминка на карте", method: "Опирайся на карту и работу с источниками географической информации; практические работы выполняются по описанию ФРП.", types: w => G().types(w), doc: (k, p, t, F, n) => G().doc(k, p, t, F, n), promptExtra: (p, F, t) => G().promptExtra(p, F, t) }) };
 })();
 window.FrpKit = FrpKit;
