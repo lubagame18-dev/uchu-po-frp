@@ -27,7 +27,7 @@
     const d = Math.max(42, Math.min(80, Math.sqrt(w * h * 0.30 * 4 / (Math.PI * B.length))));
     B.forEach(b => { b.r = d * b.k / 2; b.el.style.width = b.el.style.height = b.r * 2 + "px"; b.el.style.fontSize = Math.max(16, b.r * 0.72) + "px"; });
     if (!started) {
-      B.forEach((b, i) => { b.x = b.r + Math.random() * Math.max(1, w - 2 * b.r); b.y = b.r + Math.random() * Math.max(1, h - 2 * b.r); const a = Math.random() * 6.28; b.vx = Math.cos(a) * 0.5; b.vy = Math.sin(a) * 0.5; });
+      B.forEach((b, i) => { b.x = b.r + Math.random() * Math.max(1, w - 2 * b.r); b.y = b.r + Math.random() * Math.max(1, h - 2 * b.r); const a = Math.random() * 6.28; b.vx = Math.cos(a) * 0.18; b.vy = Math.sin(a) * 0.18; });
       started = true;
     }
     B.forEach(b => { b.x = Math.min(Math.max(b.x, b.r), w - b.r); b.y = Math.min(Math.max(b.y, b.r), h - b.r); });
@@ -37,9 +37,9 @@
   const step = () => {
     for (const b of B) {
       if (b.drag) continue;
-      b.vx += (Math.random() - .5) * 0.04; b.vy += (Math.random() - .5) * 0.04;
+      b.vx += (Math.random() - .5) * 0.012; b.vy += (Math.random() - .5) * 0.012;
       const sp = Math.hypot(b.vx, b.vy);
-      if (sp > 1.6) { b.vx *= 0.97; b.vy *= 0.97; } else if (sp < 0.3) { const k = 0.3 / (sp || 1); b.vx *= k || 1; b.vy *= k || 1; if (!sp) b.vx = 0.3; }
+      if (sp > 0.6) { b.vx *= 0.98; b.vy *= 0.98; } else if (sp < 0.1) { const k = 0.1 / (sp || 1); b.vx *= k; b.vy *= k; if (!sp) b.vx = 0.1; }
       b.x += b.vx; b.y += b.vy;
     }
     for (const b of B) {
@@ -83,19 +83,10 @@
     const end = e => {
       if (!b.drag) return; b.drag = false; b.el.classList.remove("on-drag");
       if (performance.now() - last > 80) b.vx = b.vy = 0;
-      const sp = Math.hypot(b.vx, b.vy); if (sp > 6) { b.vx *= 6 / sp; b.vy *= 6 / sp; }
-      if (moved < 6 && e.type === "pointerup") pick(b);
-      go();
+      const sp = Math.hypot(b.vx, b.vy); if (sp > 3) { b.vx *= 3 / sp; b.vy *= 3 / sp; }
+            go();
     };
     b.el.addEventListener("pointerup", end); b.el.addEventListener("pointercancel", end);
-    b.el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(b); } });
+    
   });
-  // клик по шарику выбирает предмет в конструкторе
-  const pick = b => {
-    const sel = document.getElementById("subjectSel"), has = sel && [...sel.options].some(o => o.value === b.id);
-    B.forEach(x => x.el.classList.toggle("sel", x === b && has));
-    if (has) { sel.value = b.id; sel.dispatchEvent(new Event("change")); document.querySelector("#view-builder .builder")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
-    else if (window.toast) window.toast(`«${b.name}» — скоро. Сейчас доступны: русский язык, литература, математика, история, английский, биология, география, физика.`);
-  };
-  window.addEventListener("uchu:subject", e => B.forEach(x => x.el.classList.toggle("sel", x.id === e.detail)));
 })();

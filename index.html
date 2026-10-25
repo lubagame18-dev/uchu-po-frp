@@ -99,14 +99,14 @@ a{color:inherit}
 .hero .chip{cursor:default;font-size:13px;padding:6px 13px}
 .hero{min-height:250px}
 .hero .wrap{pointer-events:none}.hero h1{pointer-events:auto}
-.orbs{position:absolute;z-index:2;top:14px;bottom:14px;left:46%;right:3%;touch-action:none;border-radius:28px;background:radial-gradient(120% 120% at 50% 0,#fff8 0,#fff0 70%);box-shadow:inset 0 0 0 2px #1B133018}
-.orb{position:absolute;left:0;top:0;border:2.5px solid var(--ink);border-radius:50%;padding:0;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--f-display);font-weight:800;display:grid;place-items:center;box-shadow:0 0 14px color-mix(in srgb,var(--c1) 55%,transparent),2px 3px 0 var(--ink);will-change:transform;transition:box-shadow .2s}
+.orbs{position:absolute;z-index:0;inset:0;touch-action:none}
+.orb{position:absolute;left:0;top:0;border:0;border-radius:50%;padding:0;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--f-display);font-weight:800;display:grid;place-items:center;box-shadow:0 0 12px color-mix(in srgb,var(--c1) 40%,transparent);will-change:transform;transition:box-shadow .2s}
 .orb .oi{line-height:1;text-shadow:0 1px 0 #0003;pointer-events:none}
 .orb .on{position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%) scale(.9);opacity:0;pointer-events:none;white-space:nowrap;background:var(--ink);color:var(--paper);font-size:12px;font-weight:700;padding:4px 10px;border-radius:100px;transition:.15s;box-shadow:0 0 12px var(--c1)}
-.orb:hover,.orb:focus-visible,.orb.on-drag{z-index:5;box-shadow:0 0 26px 4px color-mix(in srgb,var(--c1) 75%,transparent),2px 3px 0 var(--ink)}
+.orb:hover,.orb:focus-visible,.orb.on-drag{z-index:5;box-shadow:0 0 24px 4px color-mix(in srgb,var(--c1) 70%,transparent)}
 .orb:hover .on,.orb:focus-visible .on,.orb.on-drag .on{opacity:1;transform:translateX(-50%) scale(1)}
-.orb.on-drag{cursor:grabbing}.orb.sel{outline:3px solid var(--ink);outline-offset:3px}
-@media (max-width:860px){.hero{padding-bottom:215px!important;min-height:0}.orbs{left:3%;top:auto;height:195px;bottom:12px}}
+.orb.on-drag{cursor:grabbing}
+@media (max-width:860px){.hero{min-height:200px}}
 @media (prefers-reduced-motion:reduce){.orb{transition:none}}
 .blob{position:absolute;border-radius:38% 62% 63% 37%/41% 44% 56% 59%;z-index:0;pointer-events:none}
 .blob.b1{width:250px;height:250px;background:var(--sun);right:6%;top:-40px;animation:float1 8s ease-in-out infinite}
@@ -532,7 +532,7 @@ window.UCHU_SITE = {
 <div id="view-builder">
   <section class="hero" aria-label="О сервисе">
     <div class="glow-dot" aria-hidden="true"></div>
-    <div class="orbs" id="orbs" role="group" aria-label="Школьные предметы: можно перетаскивать, нажмите на шарик, чтобы выбрать предмет"></div>
+    <div class="orbs" id="orbs" role="group" aria-label="Школьные предметы: шарики можно двигать"></div>
     <div class="wrap">
       <h1>Урок по ФРП <em>за пару минут</em></h1>
     </div>
