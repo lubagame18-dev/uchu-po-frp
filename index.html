@@ -101,7 +101,7 @@ a{color:inherit}
 .blob.b1{width:250px;height:250px;background:var(--sun);right:6%;top:-40px;animation:float1 8s ease-in-out infinite}
 .blob.b2{width:150px;height:150px;background:var(--coral);right:24%;bottom:-50px;animation:float2 9s ease-in-out infinite}
 .blob.b3{width:110px;height:110px;background:var(--teal);right:2%;bottom:10px;animation:float1 7s ease-in-out infinite reverse}
-@keyframes float1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-12px,14px) rotate(8deg)}}
+@keyframes float1{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-26px,30px) rotate(14deg)}}
 @keyframes float2{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(14px,-12px) rotate(-6deg)}}
 .marquee{background:var(--ink);color:var(--paper);overflow:hidden;border-block:var(--line) solid var(--ink);padding-block:11px}
 .marquee-track{display:flex;width:max-content;animation:scroll 70s linear infinite;-webkit-animation:scroll 70s linear infinite;will-change:transform;animation-play-state:running!important}
@@ -3766,7 +3766,13 @@ const INTEGRITY = `## Честность материала
 const STYLE = `## Оформление (Markdown)
 - Пустая строка между блоками; списки короткие; **жирный** — термины и правила; *курсив* — названия и цитаты; части разделяй ---.
 - Без вступлений: выдай только документ.`;
-function exemplarRows(ru) { const lines = (ru ? SAMPLE_RU_CONSPECT : SAMPLE_LIT_CONSPECT).split("\n"), i = lines.findIndex(l => l.startsWith("| Этап урока")); return i < 0 ? "" : lines.slice(i, i + 4).join("\n"); }
+function exemplarRows(ru) {
+  /* v5.153: образец без конкретного содержания — раньше туда попадал реальный фрагмент конспекта по другой теме, и нейросеть переносила из него слова и примеры в чужой урок */
+  const H = "| Этап урока | Деятельность учителя | Деятельность ученика | Формируемые УУД / Задания |\n|---|---|---|---|";
+  return ru
+    ? H + "\n| Мотивация (2 мин) | — ‹короткая жизненная или языковая ситуация именно по теме урока, 1–2 предложения; вопрос, который вскрывает несостыковку›<br>‹2 примера по теме урока› | Высказывают версии. *(‹предполагаемый ответ›)* | Регулятивные: принятие учебной задачи. |\n| Актуализация и пробное действие (6 мин) | — ‹2 простых вопроса на опору из прошлых тем, нужную для этого урока›<br>— ‹пробное задание по теме урока› | Отвечают: *(‹ответ›)*. Выполняют пробное задание в рабочем листе (задание 1). | **Пробное действие:**<br>‹3 предложения по теме урока› |"
+    : H + "\n| Установка (2 мин) | — ‹вопрос, на что обратить внимание при чтении отрывка именно этого произведения›| Слушают. *(‹предполагаемый ответ›)* | Познавательные: ориентация в тексте. |\n| Чтение и работа с отрывком (6 мин) | — ‹простой вопрос к отрывку из разбираемого текста›<br>— ‹вопрос, подводящий к приёму› | Отвечают: *(‹ответ с опорой на текст›)*. | Коммуникативные: аргументация ответа цитатой. |";
+}
 /* v5.44: нейросеть сначала продумывает методический замысел урока, потом пишет конспект по нему */
 function promptDesign(p) {
   const ru = p.subject === "ru";
@@ -3839,7 +3845,7 @@ ${STYLE}
 
 ${SELFCHECK}
 
-## Образец уровня детализации (другая тема — содержание не копировать)
+## Образец только ФОРМАТА строк (в ‹…› — подсказки, что писать; сами подсказки и любые слова образца в ответ не переноси, всё содержание бери только из темы «${p.topic}»)
 ${exemplarRows(ru)}
 
 ## Скелет (строго)
