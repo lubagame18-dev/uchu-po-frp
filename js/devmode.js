@@ -180,9 +180,12 @@ const Dev = (() => {
     return j;
   }
   function secKeys(b) {
-    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card"><h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
+    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card" id="dvImg"></section><section class="dev-card"><h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
     ownKeyCard(b.querySelector("#dvOwn")); testPayCard(b.querySelector("#dvTest"));
-    const box = b.children[1];
+    const imgBox = b.querySelector("#dvImg");
+    const paintImg = () => { const ok = window.ImageGen?.own?.(); imgBox.innerHTML = `<h2>🎨 Подключение ключа к генерации рабочих листов и презентаций ${ok ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'}</h2><p class="small">Это отдельный ключ для картинок. Он не связан с ключами языковой модели DeepSeek, которая пишет тексты. Сейчас ключ личный: хранится только в этом браузере и работает только у вас. Общий ключ для всех учителей (по тарифам) подключается позже на сервере.</p><button class="btn sm flame" type="button" id="dvImgBtn">${ok ? "Изменить ключ и модель" : "Подключить ключ и выбрать нейросеть"}</button>`; imgBox.querySelector("#dvImgBtn").onclick = () => { if (window.openImageSettings) window.openImageSettings(paintImg); }; };
+    paintImg();
+    const box = b.children[2];
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
     const draw = (j, note) => {
       box.innerHTML = `<h2>Общие ключи ИИ <span class="tag red">для всех учителей</span></h2>

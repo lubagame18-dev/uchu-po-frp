@@ -343,7 +343,7 @@ const SlideEditor = (() => {
         <span class="sx-ha" role="group" aria-label="Выравнивание текста">${[["left", "⯇", "По левому краю"], ["center", "≡", "По центру"], ["right", "⯈", "По правому краю"]].map(([k, ic, t]) => `<button type="button" class="btn sm ${sl.set.ha === k ? "flame" : "ghost"}" data-ha="${k}" title="${t}" aria-pressed="${sl.set.ha === k}">${ic}</button>`).join("")}<label class="check small"><input type="checkbox" id="sxHaAll"> на всех</label></span>
         <label class="sx-tl">Текст <select id="sxVa">${Object.entries(VA).map(([k, n]) => `<option value="${k}" ${k === (sl.set.va || "top") ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         <button class="btn sm ${sl.set.free ? "flame" : "ghost"}" id="sxFree" title="Блоки и заголовок можно ставить в любое место слайда и менять их ширину">${sl.set.free ? "Свободная вёрстка: вкл" : "Свободная вёрстка"}</button>
-        <button class="btn sm teal" id="sxPic">+ Картинка</button><button class="btn sm ghost" id="sxYa" title="Открыть Яндекс Картинки по теме слайда">Яндекс Картинки ↗</button>
+        <button class="btn sm teal" id="sxPic">+ Картинка</button><button class="btn sm flame" id="sxAiPic" title="Нарисовать иллюстрацию к этому слайду нейросетью; можно добавить пожелания">🎨 Создать изображение ИИ</button><button class="btn sm ghost" id="sxYa" title="Открыть Яндекс Картинки по теме слайда">Яндекс Картинки ↗</button>
         <button class="btn sm ghost" id="sxSplit">Разделить</button><button class="btn sm ghost" id="sxMerge" ${cur >= arr.length - 1 ? "disabled" : ""}>Объединить со следующим</button>
         <button class="btn sm ghost" id="sxUndo" ${undo.length ? "" : "disabled"} title="Отменить (Ctrl+Z)">↶</button><button class="btn sm ghost" id="sxRedo" ${redo.length ? "" : "disabled"} title="Повторить (Ctrl+Y)">↷</button>
         <button class="btn sm ghost" id="sxHtml">Скачать HTML</button>
@@ -439,6 +439,7 @@ const SlideEditor = (() => {
     const clr = $s("#sxBgClr"); if (clr) clr.onclick = () => set({ bg: undefined, bgimg: undefined });
     $s("#sxBgImg").onclick = () => pickImage(res => set({ bgimg: res.src }));
     $s("#sxPic").onclick = () => addPicture(cur);
+    $s("#sxAiPic").onclick = () => aiPicture();
     $s("#sxAcc").onchange = e => { const v = e.target.value; const a = slides(); const has = new RegExp(Media.RE.source).test(a[cur].body); a[cur].set.acc = v || undefined; a[cur].set.afs = undefined; write(a); if (v && !has) { toast("Выберите картинку ниже, в «Картинках Яндекса», — она встанет на это место."); } rerender(); };
     const ov = $s("#sxOv"); if (ov) ov.onchange = e => set({ ov: e.target.value });
     const ovi = $s("#sxOvi"); if (ovi) ovi.onchange = e => set({ ovi: +e.target.value });
@@ -972,6 +973,24 @@ const SlideEditor = (() => {
       if (blob) { await insertBlob(blob, r.cap || r.title); }
       else { const a = slides(); a[cur].body = (a[cur].body + `\n\n${Media.mdImage(r.title || a[cur].title, r.url, { q })}`).trim(); write(a); rerender(); toast("Картинка вставлена ссылкой: сохранить её копию не удалось, в PowerPoint она может не попасть."); }
     });
+  }
+  /* Создать изображение ИИ: пожелания учителя + тема слайда; картинка встаёт на слайд так же, как найденная в Яндексе */
+  function aiPicture() {
+    if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { Access.open("Картинки ИИ — в тарифах «Учитель + ИИ» и «Методист» (в пределах месячного лимита)."); return; }
+    if (!window.ImageGen || !ImageGen.configured()) { toast("Ключ для картинок ещё не подключён.", 6000); return; }
+    const sl = slides()[cur], title = String(sl.title || "").replace(/[*_`]/g, "");
+    const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Изображение для слайда</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p class="small">Нейросеть нарисует иллюстрацию к слайду «${esc(title)}». Текст на картинку не попадает. Реальные картинки из поиска остаются, как были.</p><label class="small"><b>Пожелания (необязательно)</b></label><textarea id="aiWish" rows="3" style="width:100%" placeholder="Например: зима, ночной город, без людей; тёплые цвета; в стиле акварели"></textarea><div id="aiOut" class="small" style="margin:8px 0;min-height:22px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm flame" id="aiGo">Создать и вставить</button><button class="btn plain sm" data-close>Закрыть</button></div></div></div>`);
+    const go = m.querySelector("#aiGo"), out = m.querySelector("#aiOut");
+    go.onclick = async () => {
+      go.disabled = true; out.textContent = "Рисую… до минуты";
+      try {
+        const wish = m.querySelector("#aiWish").value.trim().slice(0, 300), L0 = L();
+        const prompt = `Illustration for a presentation slide. School subject: ${L0.params?.subject}, grade ${L0.params?.grade}, lesson topic «${L0.title}», slide «${title}». ${wish ? "Teacher's wishes (follow them): " + wish + ". " : ""}Soft atmospheric flat illustration, a few clear objects directly related to the topic, no dark fills. No text, no letters, no numbers, no logos, no watermark.`;
+        const im = await ImageGen.image(prompt, { aspect: "4:3", maxW: 1100 });
+        const blob = await (await fetch(im.url)).blob(); window.Access?.countImage(1);
+        await insertBlob(blob, title); closeModal(); toast("Картинка вставлена. Не нравится — нажмите «Создать изображение ИИ» ещё раз с другими пожеланиями.", 7000);
+      } catch (e) { out.textContent = "❌ " + (e.message || e); go.disabled = false; }
+    };
   }
   /* Щелчок по картинке Яндекса: как в Gamma — если у слайда уже есть картинка-акцент, она заменяется; если нет — встаёт акцентом справа (или по шаблону) */
   async function insertBlob(blob, cap) {

@@ -179,11 +179,43 @@ const ImageGen = (() => {
     return out;
   }
 
+  /* ---------- иллюстрации внутри листа: нейросеть-оформитель решает, у какого задания и с какой стороны они стоят ---------- */
+  const heads = md => [...String(md || "").matchAll(/^###\s+(.+)$/gm)].map(m => m[1].replace(/[*_`]/g, "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").trim()).filter(Boolean);
+  /* длина текста под каждым заголовком: картинка не должна быть выше задания, иначе она налезет на следующий заголовок */
+  const bodyLen = md => String(md || "").split(/^###\s+.+$/m).slice(1).map(x => x.replace(/^#{1,2}\s+[\s\S]*$/m, "").replace(/[|_\-\s]/g, "").length);
+  async function planSlots(p, md) {
+    const H = heads(md); if (!H.length || !window.AI?.sample || !(window.AI.configured?.() ?? true)) return [];
+    try {
+      const q = `Рабочий лист: ${SUBJ[p.subject] || "предмет"}, ${p.grade} класс, тема «${p.topic}». Задания листа (заголовки): ${H.map((h, i) => `${i + 1}) ${h}`).join("; ")}.\nТы дизайнер листа. Реши, у каких заданий (2–4 штуки, не у всех) поставить иллюстрацию, с какой стороны (right или left) и какого размера (s или m), чтобы лист выглядел живым и иллюстрации работали на материал. Если в теме или заданиях упомянуты реальные писатели, учёные, исторические деятели или герои произведения — сделай их портретами (kind portrait) обязательно. Иначе kind object (предмет по теме) или scene (небольшая сцена по теме). Ничего не выдумывай: имена и предметы только из темы и заданий. Верни ТОЛЬКО JSON-массив: [{"n":номер задания,"side":"right"|"left","size":"s"|"m","kind":"portrait"|"object"|"scene","caption":"подпись по-русски до 3 слов (только для portrait, иначе пусто)","en":"описание по-английски: портрет — кто это (имя, эпоха, профессия); предмет или сцена — что нарисовать; без текста, букв, цифр и стрелок"}]`;
+      const r = await window.AI.sample(q, { modelTier: "quick" });
+      const m = String(r?.text || "").match(/\[[\s\S]*\]/); if (!m) return [];
+      const seen = new Set();
+      const BL = bodyLen(md); return JSON.parse(m[0]).filter(x => x && Number.isInteger(+x.n) && H[+x.n - 1] && !seen.has(+x.n) && seen.add(+x.n) && /^(right|left)$/.test(x.side) && /^(portrait|object|scene)$/.test(x.kind) && (BL[+x.n - 1] || 0) >= 170 && typeof x.en === "string" && x.en.length > 5 && x.en.length < 300 && !/[А-Яа-яЁё]/.test(x.en) && (x.kind !== "portrait" || (x.caption && String(x.caption).length <= 28))).slice(0, 4).map(x => ({ at: H[+x.n - 1], side: x.side, size: x.size === "m" && BL[+x.n - 1] >= 320 ? "m" : "s", kind: x.kind, caption: x.kind === "portrait" ? String(x.caption) : "", en: x.en }));
+    } catch { return []; }
+  }
+  const sceneP = (what, p) => `Small illustration for a school worksheet (${SUBJ[p.subject] || "school"}, grade ${p.grade}): ${what}. Soft atmospheric illustration, centered subject with a calm plain light background, light pastel colors, no hard border, printable in grayscale, no dark fills. ${NEG}`;
+  async function slots(p, md) {
+    const plan = await planSlots(p, md), out = [];
+    for (const it of plan) {
+      try {
+        const r = await image(it.kind === "portrait" ? portraitPrompt(it.en, p) : it.kind === "object" ? objectPrompt(it.en, p) : sceneP(it.en, p), { aspect: "1:1", maxW: 560 });
+        const im = await loadImg(r.url), S = 560, capH = it.caption ? 52 : 0, c = document.createElement("canvas"); c.width = S; c.height = S + capH; const g = c.getContext("2d");
+        g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+        const t = document.createElement("canvas"); t.width = S; t.height = S; const tg = t.getContext("2d"); tg.drawImage(im, 0, 0, S, S);
+        tg.globalCompositeOperation = "destination-in"; const gr = tg.createRadialGradient(S / 2, S / 2, S * 0.30, S / 2, S / 2, S * 0.50); gr.addColorStop(0, "rgba(0,0,0,1)"); gr.addColorStop(1, "rgba(0,0,0,0)"); tg.fillStyle = gr; tg.fillRect(0, 0, S, S);
+        g.drawImage(t, 0, 0);
+        if (it.caption) { g.fillStyle = "#2b1d4a"; g.textAlign = "center"; g.textBaseline = "middle"; let fs = 34; do { g.font = `700 ${fs}px system-ui, "Segoe UI", Arial, sans-serif`; fs -= 2; } while (g.measureText(it.caption).width > S - 20 && fs > 14); g.fillText(it.caption, S / 2, S + capH / 2); }
+        out.push({ url: c.toDataURL("image/jpeg", 0.88), w: c.width, h: c.height, at: it.at, side: it.side, size: it.size });
+      } catch (e) { if (/401|403|402|429/.test(String(e.message))) throw e; }
+    }
+    return out;
+  }
+
   async function test() {
     const t0 = Date.now();
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
+  return { slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
 })();
 window.ImageGen = ImageGen;

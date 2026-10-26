@@ -567,6 +567,7 @@ window.UCHU_SITE = {
             <details class="check xopt" id="optMemo"><summary>🧠 Запоминание <span class="xv" id="memoVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div></details>
             <label class="check" id="chkPack" hidden title="Подготовка учителя, программы, ссылки, инструкция ученика и ZIP с файлами для компьютеров"><input type="checkbox" value="pack"> 💻 Пакет для компьютерного класса</label>
+            <label class="check" id="chkAiPics" hidden title="Красивые ИИ-иллюстрации в презентации. Реальные картинки из поиска остаются; расходует месячный лимит картинок."><input type="checkbox" id="xAiPics"> ✨ Красивые ИИ-картинки в презентации <span class="small">(реальные картинки остаются)</span></label>
             <label class="check" id="chkHw"><input type="checkbox" id="xHw"> 🏠 Домашняя работа <span class="pro-lock xlock" hidden>🔒</span></label>
             <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
@@ -607,7 +608,7 @@ window.UCHU_SITE = {
         <div class="ws-tools" id="wsTools">
           <button class="btn sm flame" id="btnDeco" hidden title="Нарисовать красивый баннер к рабочему листу (Nano Banana)">🎨 Оформить красиво</button>
           <button class="btn sm" id="btnMore" hidden title="Добавить ещё один лист (2 страницы, с двух сторон). Каждый дополнительный лист расходует месячный лимит.">➕ Добавить лист</button>
-          <button class="btn plain sm" id="btnDecoSet" hidden title="Подключение Nano Banana: ключ и проверка">⚙ Картинки</button>
+          
           <button class="btn sm flame" id="btnPackZip" hidden>⬇ Файлы для урока (ZIP)</button>
           <button class="btn sm teal" id="btnDocx">Скачать Word</button>
           <button class="btn sm teal" id="btnPptx" hidden>Скачать PowerPoint</button>
@@ -4011,7 +4012,30 @@ async function createLesson() {
   saveJob({ id: L.id, at: Date.now(), useAi, gen, formats, hideTech, p: { ...pParams, extra: p.extra, textOverride: p.textOverride || null }, notes: p.notes });
   await saveLesson(L);
   formats.forEach(f => (L.status[f] = "wait"));
-  return runJob(L, p, type, gen, formats, useAi, hideTech);
+  const res = await runJob(L, p, type, gen, formats, useAi, hideTech);
+  if ($("#xAiPics")?.checked) { try { await aiDeckPics(L); } catch (e) { console.warn("aiPics", e); } }
+  return res;
+}
+/* ИИ-картинки в презентации: красивые иллюстрации на титульном и ещё 2 слайдах; реальные картинки из поиска остаются как были */
+async function aiDeckPics(L) {
+  const md0 = L.docs?.slides; if (!md0 || !window.ImageGen) return;
+  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { toast("ИИ-картинки доступны в тарифах «Учитель + ИИ» и «Методист» (в пределах месячного лимита).", 7000); return; }
+  if (!ImageGen.configured()) { toast("Ключ для картинок пока не подключён.", 5000); return; }
+  const parts = md0.split(/(\n-{3,}\s*\n)/); const cand = [];
+  parts.forEach((x, i) => { if (i % 2 === 0 && /^#{1,3}\s/m.test(x) && !/marp\s*:/.test(x) && !Media.RE.test(x)) cand.push(i); Media.RE.lastIndex = 0; });
+  if (!cand.length) return;
+  const pick = [...new Set([cand[0], cand[Math.floor(cand.length / 2)], cand[cand.length - 1]])].slice(0, 3);
+  toast("Рисую красивые картинки для презентации…", 60000);
+  let n = 0;
+  for (const i of pick) {
+    const title = (parts[i].match(/^#{1,3}\s+(.+)$/m) || [, L.title])[1].replace(/[*_`]/g, "");
+    try {
+      const im = await ImageGen.image(`Illustration for a presentation slide. School subject: ${L.params?.subject}, grade ${L.params?.grade}, lesson topic «${L.title}», slide «${title}». Soft atmospheric flat illustration, calm light background, a few clear objects directly related to the topic, no dark fills. ${"No text, no letters, no numbers, no logos, no watermark."}`, { aspect: "4:3", maxW: 1100 });
+      const blob = await (await fetch(im.url)).blob(), id = "img-" + uid(); await Store.put("images", id, blob);
+      parts[i] = parts[i].replace(/\s*$/, "") + `\n\n${Media.mdImage(title, "idb:" + id, {})}\n`; n++;
+    } catch (e) { console.warn("deck pic", e); if (/401|403|402|429/.test(String(e.message))) break; }
+  }
+  if (n) { L.docs.slides = parts.join(""); window.Access?.countImage(1); await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000); }
 }
 /* ---------- текст произведения до сборки урока литературы ---------- */
 let pendingPlan = null; // план урока, найденный при проверке текста, — чтобы не искать второй раз
@@ -4429,9 +4453,10 @@ function renderDownloads() {
   });
 }
 function syncTools() {
+  { const ap = $("#chkAiPics"); if (ap) ap.hidden = !(window.ImageGen && (!window.Access || Access.imagesAllowed())); }
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
   { const bm = $("#btnMore"); if (bm) { bm.hidden = !(state.active === "worksheet" && has); const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
-  { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws; $("#btnDecoSet").hidden = !ws || !ImageGen.isDevUser(); if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
+  { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
   $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
@@ -4751,7 +4776,7 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : d === "memo" ? { memo: true } : WS_DOCS.includes(d) ? { worksheet: true, twoPage: d === "worksheet", banner: d === "worksheet" ? L.art?.banner : null, pages: d === "worksheet" ? L.art?.pages : null, gallery: d === "worksheet" ? L.art?.gallery : null, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : d === "memo" ? { memo: true } : WS_DOCS.includes(d) ? { worksheet: true, twoPage: d === "worksheet", banner: d === "worksheet" ? L.art?.banner : null, pages: null, slots: d === "worksheet" ? L.art?.slots : null, gallery: d === "worksheet" ? L.art?.gallery : null, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
 /* конспект: чёрно-белые таблицы по образцу учителя — метки слева, вопрос | ответ, упражнение | алгоритм, полоска этапов */
 function lxDocxTable(t, D) {
   const head = t.header.map(c => (c.text || "").trim()), n = head.length, L = window.Layout;
@@ -4793,7 +4818,9 @@ function memoDocx(toks, D, emit, swap, out) {
   });
 }
 /* ---------- Nano Banana: подключение и оформление рабочего листа ---------- */
-function openImageSettings() {
+window.openImageSettings = openImageSettings;
+function openImageSettings(onDone) {
+  window.__igDone = onDone;
   const c = ImageGen.cfg(), P = ImageGen.PRESET, esc2 = esc;
   const m = openModal(`<h2>🎨 Подключение ключа к генерации рабочих листов и презентаций</h2>
     <p class="small">Нейросеть рисует только иллюстрации и фон. Текст, подчёркивания и методические обозначения на картинку не попадают: их накладывает сайт. Это отдельный ключ для картинок, он не связан с ключом языковой модели (DeepSeek), которая пишет тексты. Ключ хранится только в этом браузере: пока он личный. Общий ключ для всех подключается позже на сервере.</p>
@@ -4814,7 +4841,7 @@ function openImageSettings() {
   q("#igModelSel").onchange = () => { q("#igModel").value = q("#igModelSel").value; hubSync(); };
   const _p = q("#igProv").onchange; q("#igProv").onchange = () => { _p(); hubSync(); };
   paint(); hubSync(); if (q("#igProv").value === "hub" && !q("#igBase").value) q("#igBase").value = P.hub.base;
-  q("#igSave").onclick = () => { ImageGen.save(read()); toast("Подключение сохранено."); closeModal(); syncTools(); };
+  q("#igSave").onclick = () => { ImageGen.save(read()); toast("Подключение сохранено."); closeModal(); syncTools(); try { window.__igDone && window.__igDone(); } catch { } };
   q("#igDel").onclick = () => { ImageGen.save({ ...read(), key: "" }); q("#igKey").value = ""; toast("Ключ стёрт из этого браузера."); };
   q("#igTest").onclick = async () => { ImageGen.save(read()); const o = q("#igOut"); o.textContent = "Проверяю… обычно до 30 секунд"; const r = await ImageGen.test(); o.innerHTML = r.ok ? `✅ Работает (${(r.ms / 1000).toFixed(1)} с).<br><img src="${r.url}" alt="" style="width:96px;height:96px;border:2px solid var(--ink);border-radius:12px;margin-top:6px">` : `❌ ${esc2(r.error)}`; };
 }
@@ -4837,15 +4864,16 @@ async function addExtraSheet() {
 async function decorateWorksheet() {
   const L = state.lesson; if (!L || !L.docs.worksheet) return;
   if (window.Access && !Access.imagesAllowed()) { Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
-  if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { toast("Сначала подключите Nano Banana: ключ и проверка."); return openImageSettings(); } toast("Картинки для рабочих листов подключаются, скоро заработают.", 6000); return; }
+  if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { toast("Ключ для картинок подключается в режиме разработчика: «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций».", 9000); return; } toast("Картинки для рабочих листов подключаются, скоро заработают.", 6000); return; }
   if (window.Access && Access.imageLeft() <= 0) { toast("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца.", 8000); return; }
   const b = $("#btnDeco"); b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Составляю описание оформления…", 30000);
   try {
-    toast("Нейросеть рисует оформление двух страниц, до двух минут…", 120000);
-    const pg = await ImageGen.pages({ ...L.params, topic: L.title }, L.docs.worksheet);
+    toast("Нейросеть-оформитель выбирает места для картинок и рисует, до двух минут…", 120000);
+    const pr = { ...L.params, topic: L.title }, bn = await ImageGen.image(await ImageGen.bannerWithBrief(pr), { aspect: "16:9", maxW: 1320, strip: 6 });
     window.Access?.countImage(1);
-    L.art = { ...(L.art || {}), pages: pg }; delete L.art.banner;
-    try { toast("Рисую портреты героев и предметы по теме…", 60000); const gl = await ImageGen.gallery({ ...L.params, topic: L.title }, L.docs.worksheet); if (gl) L.art.gallery = gl; else delete L.art.gallery; } catch (e) { console.warn("gallery", e); } await saveLesson(L); renderLesson(); toast("Готово. Оформление страниц и картинки появятся в Word; лист остаётся на 2 страницах.", 6000);
+    L.art = { ...(L.art || {}), banner: bn }; delete L.art.pages; delete L.art.gallery;
+    try { const sl = await ImageGen.slots(pr, L.docs.worksheet); L.art.slots = sl; } catch (e) { console.warn("slots", e); }
+    await saveLesson(L); renderLesson(); toast("Готово. Картинки расставлены по листу; в Word лист остаётся на 2 страницах.", 6000);
   } catch (e) { console.error(e); toast("Не получилось нарисовать: " + (e.message || e), 9000); }
   finally { b.disabled = false; b.textContent = t; }
 }
@@ -4915,10 +4943,10 @@ function wsFit(toks0, extra = 0) {
 }
 async function mdToDocxBlob(md, title, opts = {}) {
   const memo = !!opts.memo, ws = !!opts.worksheet && !memo, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
-  const two = !!opts.twoPage && ws; const pgs = two && opts.pages?.length ? opts.pages : null, _wp = { ...WS_PAGE }; if (pgs) { WS_PAGE.w = 483; WS_PAGE.h = 747; } let k2 = 1, breakAt = -1, pb = false, page2 = false, fill = [{ head: 0, row: 0 }, { head: 0, row: 0 }]; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
+  const two = !!opts.twoPage && ws; const pgs = two && opts.pages?.length ? opts.pages : null, _wp = { ...WS_PAGE }; if (pgs) { WS_PAGE.w = 483; WS_PAGE.h = 747; } const usedSl = new Set(); let k2 = 1, breakAt = -1, pb = false, page2 = false, fill = [{ head: 0, row: 0 }, { head: 0, row: 0 }]; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx; let toks = window.marked.lexer(wsClean(md));
-  if (two) { const R = wsFit(toks, (!pgs && opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0) + (opts.gallery?.url ? Math.round(440 * opts.gallery.h / opts.gallery.w * 0.75) + 8 : 0)); toks = R.toks; k2 = R.k; breakAt = R.breakAt; fill = R.fill || fill; if (opts.onRest) opts.onRest(R.rest); }
+  if (two) { const R = wsFit(toks, (!pgs && opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0) + (opts.slots?.length ? 20 * opts.slots.length : 0) + (opts.gallery?.url ? Math.round(440 * opts.gallery.h / opts.gallery.w * 0.75) + 8 : 0)); toks = R.toks; k2 = R.k; breakAt = R.breakAt; fill = R.fill || fill; if (opts.onRest) opts.onRest(R.rest); }
   let children = [];
   const border = { style: D.BorderStyle.SINGLE, size: 4, color: memo ? "555555" : "9AA3B2" };
   const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: memo ? { after: 40, line: 252 } : two ? { after: 50, line: 250 } : { after: 120, line: 300 }, ...opt });
@@ -4926,7 +4954,9 @@ async function mdToDocxBlob(md, title, opts = {}) {
   const emit = (t, ctx = {}) => {
     switch (t.type) {
       case "heading": if (t.depth === 1 && ws) { const first = !h1n++; const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 4 }; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag.toUpperCase() + " ", bold: true, size: sc(18), color: "111111" })], border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 0, after: two ? 60 : 100 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "111111", size: sc(40) }), border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: "111111", space: 4 } }, spacing: { before: 0, after: two ? 100 : 200 } })); break; }
-        if (t.depth === 3 && ws) { const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 3 }; const noEmo = tk => (tk || []).map(x => ({ ...x, text: String(x.text || "").replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^\s+/, ""), tokens: x.tokens ? noEmo(x.tokens) : x.tokens })); const brk = pb; pb = false; children.push(new D.Paragraph({ pageBreakBefore: brk, children: inlineRuns(noEmo(t.tokens), D, { bold: true, size: sc(26) }), border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: two ? (brk ? 0 : Math.round(130 + 20 * fill[page2 ? 1 : 0].head)) : 240, after: two ? 60 : 120 } })); break; }
+        if (t.depth === 3 && ws) { const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 3 }; const noEmo = tk => (tk || []).map(x => ({ ...x, text: String(x.text || "").replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^\s+/, ""), tokens: x.tokens ? noEmo(x.tokens) : x.tokens })); const brk = pb; pb = false; children.push(new D.Paragraph({ pageBreakBefore: brk, children: inlineRuns(noEmo(t.tokens), D, { bold: true, size: sc(26) }), border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: two ? (brk ? 0 : Math.round(130 + 20 * fill[page2 ? 1 : 0].head)) : 240, after: two ? 60 : 120 } }));
+          { const nt = String(t.text || "").replace(/[*_`]/g, "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").trim(); const sl = two && !usedSl.has(nt) && (opts.slots || []).find(x => x.at === nt); if (sl) { usedSl.add(nt); try { const bin = atob(sl.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), Wp = sl.size === "m" ? 125 : 100, Wx = Math.round(Wp * 96 / 72), Hx = Math.round(Wx * sl.h / sl.w), E = 12700; children.push(new D.Paragraph({ spacing: { before: 0, after: 0, line: 20, lineRule: D.LineRuleType.EXACT }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: Wx, height: Hx }, floating: { horizontalPosition: { relative: D.HorizontalPositionRelativeFrom.MARGIN, align: sl.side === "left" ? D.HorizontalPositionAlign.LEFT : D.HorizontalPositionAlign.RIGHT }, verticalPosition: { relative: D.VerticalPositionRelativeFrom.PARAGRAPH, offset: 0 }, allowOverlap: false, wrap: { type: D.TextWrappingType.SQUARE, side: D.TextWrappingSide.BOTH_SIDES, margins: { distT: 2 * E, distB: 4 * E, distL: 6 * E, distR: 6 * E } } } })] })); } catch (e) { console.warn("slot", e); } } }
+          break; }
         if (t.depth === 2 && lx && /^(БЛОК|ЭТАП)\s+\d/.test(t.text)) { const m = t.text.replace(/\*/g, "").match(/^((?:БЛОК|ЭТАП)\s+\d+\.?)\s*(.*?)(?:\s*·\s*(\d+\s*мин))?\s*$/) || [, t.text, "", ""]; const bk = { style: D.BorderStyle.SINGLE, size: 6, color: "111111" }; const C = (txt, fill, w, o = {}) => new D.TableCell({ width: { size: Math.round(99 * w), type: D.WidthType.DXA }, shading: { type: D.ShadingType.CLEAR, fill }, margins: { top: 70, bottom: 70, left: 110, right: 110 }, verticalAlign: D.VerticalAlign.CENTER, children: [new D.Paragraph({ keepNext: true, children: [new D.TextRun({ text: txt, bold: !o.thin, size: o.size || 24, font: o.font })] })] }); children.push(new D.Paragraph({ text: "", spacing: { before: 200, after: 0 }, keepNext: true })); children.push(new D.Table({ width: { size: 9900, type: D.WidthType.DXA }, columnWidths: (m[3] ? [16, 70, 14] : [16, 84]).map(w => Math.round(99 * w)), layout: D.TableLayoutType.FIXED, borders: { top: bk, bottom: bk, left: bk, right: bk, insideVertical: bk, insideHorizontal: bk }, rows: [new D.TableRow({ cantSplit: true, children: [C(m[1].toUpperCase(), "A6A6A6", 16, { size: 19, font: "Arial" }), C(m[2], "D9D9D9", m[3] ? 70 : 84), ...(m[3] ? [C(m[3], "D9D9D9", 14, { thin: true, size: 21 })] : [])] })] })); children.push(new D.Paragraph({ text: "", spacing: { after: 60 }, keepNext: true })); break; }
         if (memo && t.depth >= 2) { children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, size: 19, font: "Arial" }), spacing: { before: 80, after: 40 }, keepNext: true })); break; }
         if (t.depth === 1 && lx) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { bold: true, size: 30 }), spacing: { before: 0, after: 200 } })); break; }
@@ -5250,9 +5280,8 @@ function bind() {
   $("#btnMdToggle").onclick = () => { const p = $("#mdPane"); p.hidden = !p.hidden; $("#split").classList.toggle("with-md", !p.hidden); syncTools(); };
   $("#btnRefine").onclick = refineDoc;
   $("#refineInput").addEventListener("keydown", e => { if (e.key === "Enter") refineDoc(); });
-  { const kb = document.createElement("button"); kb.type = "button"; kb.id = "btnImgKey"; kb.className = "btn sm"; kb.textContent = "🎨 Ключ для рабочих листов и презентаций"; kb.title = "Подключение ключа к генерации рабочих листов и презентаций (картинки). Отдельно от ключа языковой модели DeepSeek."; kb.hidden = true; kb.onclick = () => openImageSettings(); (document.querySelector(".account") || document.body).append(kb); const upd = () => { try { kb.hidden = !(window.ImageGen && ImageGen.isDevUser()); kb.classList.toggle("flame", !kb.hidden && !ImageGen.own()); } catch { } }; upd(); setInterval(upd, 1500); }
   $("#btnMore").onclick = () => addExtraSheet();
-  $("#btnDecoSet").onclick = () => openImageSettings(); $("#btnDeco").onclick = () => decorateWorksheet();
+  $("#btnDeco").onclick = () => decorateWorksheet();
   $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
   // материалы
   const drop = $("#matDrop");
