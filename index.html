@@ -570,12 +570,12 @@ window.UCHU_SITE = {
             <details class="check xopt" id="optMemo"><summary>🧠 Запоминание <span class="xv" id="memoVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div></details>
             <label class="check" id="chkPack" hidden title="Подготовка учителя, программы, ссылки, инструкция ученика и ZIP с файлами для компьютеров"><input type="checkbox" value="pack"> 💻 Пакет для компьютерного класса</label>
-            <div class="xstyle" id="deckStyle" hidden><span class="lbl">🖼 Картинки в презентации</span>
-              <label class="check"><input type="radio" name="deckPics" value="real" checked> Только реальные картинки (из поиска)</label>
-              <label class="check" id="deckAiLbl"><input type="radio" name="deckPics" value="ai"> ✨ ИИ-оформление: красивые сгенерированные картинки, реальные изображения тоже используются <span class="small" id="deckAiNote"></span></label></div>
-            <div class="xstyle" id="wsStyle" hidden><span class="lbl">📄 Рабочий лист: оформление (нужно выбрать)</span>
-              <label class="check"><input type="radio" name="wsPics" value="plain"> Простой лист без оформления</label>
-              <label class="check" id="wsAiLbl"><input type="radio" name="wsPics" value="ai"> ✨ С оформлением: сгенерированные картинки и портреты, реальные изображения тоже используются <span class="small" id="wsAiNote"></span><br><span class="small">Word остаётся редактируемым: картинки вставляются отдельными рисунками. Если скачать лист картинкой (PNG), править его уже нельзя.</span></label></div>
+            <div class="xstyle" id="deckStyle" hidden>
+              <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk"> ✨ + ИИ-картинки <span class="small" id="deckAiNote"></span></label>
+              <span hidden><input type="radio" name="deckPics" value="real" checked><input type="radio" name="deckPics" value="ai"></span></div>
+            <div class="xstyle" id="wsStyle" hidden>
+              <label class="check" id="wsAiLbl" title="Нейросеть рисует иллюстрации и портреты. В Word они вставляются отдельными рисунками, лист остаётся редактируемым"><input type="checkbox" id="wsAiChk"> ✨ + ИИ-оформление <span class="small" id="wsAiNote"></span></label>
+              <span hidden><input type="radio" name="wsPics" value="plain" checked><input type="radio" name="wsPics" value="ai"></span></div>
             <label class="check" id="chkHw"><input type="checkbox" id="xHw"> 🏠 Домашняя работа <span class="pro-lock xlock" hidden>🔒</span></label>
             <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
@@ -625,7 +625,7 @@ window.UCHU_SITE = {
         </div>
       </div>
       <div class="lesson-title" id="lessonTitle" hidden></div>
-      <p class="edit-hint" id="editHint" hidden>✎ Правьте прямо на листе — всё сохраняется само.</p>
+      <p class="edit-hint" id="editHint" hidden></p>
       <div class="dl-panel" id="dlPanel" hidden></div>
       <div class="progress" id="progress" hidden><span id="progressText"></span><span class="bar"><i id="progressBar"></i></span><button class="btn sm ghost" id="btnStop">Остановить</button></div>
       <div class="split" id="split">
@@ -640,7 +640,7 @@ window.UCHU_SITE = {
         <p class="small">Каждый дополнительный лист — новые задания по теме и расходует месячный лимит.</p>
         <button class="btn sm" id="btnMore" title="Добавить ещё один лист (2 страницы, с двух сторон)">➕ Добавить лист</button></details>
       <div class="refine" id="refineBar" hidden>
-        <input type="text" id="refineInput" placeholder="Доработать с ИИ: «добавь групповую работу», «упрости задание 2»">
+        <input type="text" id="refineInput" placeholder="Что изменить? Например: упрости задание 2">
         <button class="btn sm" id="btnRefine">Доработать</button>
       </div>
     </section>
@@ -4466,7 +4466,7 @@ function renderLesson() {
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
   const busy = isGenerating(L, state.active);
   $("#refineBar").hidden = busy || !L.docs[state.active] || !!state.gen;
-  $("#editHint").hidden = busy || !L.docs[state.active];
+  $("#editHint").hidden = true;
   const md = L.docs[state.active] || "";
   if (document.activeElement !== $("#md") || busy) $("#md").value = md;
   $("#md").readOnly = busy;
@@ -4487,9 +4487,15 @@ function renderDownloads() {
 }
 function syncStyleChoices() {
   const on = k => !!document.querySelector(`#formats input[value="${k}"]`)?.checked, can = !!(window.ImageGen && (!window.Access || Access.imagesAllowed()));
-  const set = (box, lbl, note, show) => { if (!$(box)) return; $(box).hidden = !show; const inp = $(lbl)?.querySelector("input"); if (inp) { inp.disabled = !can; if (!can && inp.checked) { inp.checked = false; const first = $(box).querySelector("input:not([value=ai])"); if (first && box === "#deckStyle") first.checked = true; } } if ($(note)) $(note).textContent = can ? "" : "(в тарифах «Учитель + ИИ» и «Методист»)"; };
-  set("#deckStyle", "#deckAiLbl", "#deckAiNote", on("slides")); set("#wsStyle", "#wsAiLbl", "#wsAiNote", on("worksheet"));
+  const set = (box, chk, name, note, show) => {
+    const el = $(box), c = $(chk); if (!el || !c) return;
+    el.hidden = !show; c.disabled = !can; if (!can) c.checked = false;
+    const r = document.querySelector(`input[name="${name}"][value="${c.checked ? "ai" : (name === "wsPics" ? "plain" : "real")}"]`); if (r) r.checked = true;
+    if ($(note)) $(note).textContent = can ? "" : "(тариф с ИИ)";
+  };
+  set("#deckStyle", "#deckAiChk", "deckPics", "#deckAiNote", on("slides")); set("#wsStyle", "#wsAiChk", "wsPics", "#wsAiNote", on("worksheet"));
 }
+$("#deckAiChk")?.addEventListener("change", syncStyleChoices); $("#wsAiChk")?.addEventListener("change", syncStyleChoices);
 function syncTools() {
   syncStyleChoices();
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
