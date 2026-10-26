@@ -574,7 +574,8 @@ const Dev = (() => {
     if (document.getElementById("devEntry")) return;
     const f = document.createElement("footer"); f.className = "site-foot";
     // внизу — только неприметные серые ссылки: инструкция, источники, вход разработчика
-    f.innerHTML = `<div class="wrap foot-links"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button></span><button type="button" class="foot-dev" id="devEntry" aria-label="2026">© 2026</button></div>`;
+    const L = window.UCHU_LEGAL || {}, req = [L.name, (L.status || "").split(" (")[0], L.inn && !/_/.test(L.inn) ? "ИНН " + L.inn : "", L.email].filter(Boolean).join(", ");
+    f.innerHTML = `<div class="wrap foot-links"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button> · <details class="foot-docs"><summary>Документы</summary><span class="foot-docs-in"><a href="legal/oferta.html">Договор-оферта</a><a href="legal/privacy.html">Политика конфиденциальности</a><a href="legal/contacts.html">Контакты и реквизиты</a>${req ? `<span>${req}</span>` : ""}</span></details></span><button type="button" class="foot-dev" id="devEntry" aria-label="2026">© 2026</button></div>`;
     document.body.appendChild(f);
     f.querySelector("#devEntry").onclick = openLogin;
     f.querySelector("#helpLink").onclick = () => { if (typeof go === "function") go("help"); window.scrollTo(0, 0); };

@@ -236,8 +236,6 @@ const Learn = (() => {
       snap.delta = last ? { questions: snap.counts.questions - last.counts.questions, structures: snap.counts.structures - last.counts.structures, techniques: snap.techniques.filter(t => !last.techniques.includes(t)) } : null;
       hist.push(snap); while (hist.length > 15) hist.shift();
       try { await Store.put("kv", HIST, hist); await Store.put("kv", KEY, { excluded }); } catch { }
-      if (last && !quiet && (added.length || removed.length) && typeof toast === "function")
-        toast(`Система обновилась: ${added.length ? `изучено материалов +${added.length}` : ""}${removed.length ? ` убрано ${removed.length}` : ""}; вопросов ${snap.delta.questions >= 0 ? "+" : ""}${snap.delta.questions}, структур уроков ${snap.delta.structures >= 0 ? "+" : ""}${snap.delta.structures}. Подробности — «Материалы» → «Чему научилась система».`, 8000);
     }
     document.dispatchEvent(new CustomEvent("uchu:learned", { detail: { changed } }));
     return K;

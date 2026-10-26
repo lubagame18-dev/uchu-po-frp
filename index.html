@@ -483,6 +483,8 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 .own-frp{margin-top:10px}.own-frp summary{cursor:pointer;font-weight:700}
 .site-foot{border-top:2.5px solid var(--ink);margin-top:40px;padding:18px 0 26px;font-size:13.5px;color:var(--muted)}.site-foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}.site-foot a{color:inherit;font-weight:700}.site-foot p{margin:0}
 .ws-more{margin:8px 16px;padding:8px 12px;border:1px dashed var(--line,#ccc);border-radius:10px}.ws-more summary{cursor:pointer;font-weight:600}.ws-more .btn{margin-top:6px}
+.foot-docs{display:inline}.foot-docs summary{display:inline;cursor:pointer;color:inherit;list-style:none}.foot-docs summary::-webkit-details-marker{display:none}.foot-docs summary:hover{text-decoration:underline}.foot-docs[open]{display:block;margin-top:6px}.foot-docs-in{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;margin-top:4px}.foot-docs-in a{color:inherit;text-decoration:underline}
+.xstyle.sub{flex-basis:100%;border:0;background:none;padding:0 0 0 12px;margin:-2px 0 2px}.xstyle.sub .check{font-size:13px;padding:4px 10px;min-height:0}
 </style>
 <link rel="stylesheet" href="css/v5.css">
 </head>
@@ -563,19 +565,19 @@ window.UCHU_SITE = {
             <label class="check"><input type="checkbox" value="lesson" checked> Конспект</label>
             <label class="check" id="chkTech" title="Технологическая карта по ФРП — для проверки оформления и сдачи"><input type="checkbox" value="conspect"> Техкарта <span class="pro-lock" hidden>🔒</span></label>
             <label class="check"><input type="checkbox" value="slides" checked> Презентация</label>
+            <div class="xstyle sub" id="deckStyle" hidden>
+              <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk"> 🖼 сгенерировать картинки <span class="small" id="deckAiNote"></span></label>
+              <span hidden><input type="radio" name="deckPics" value="real" checked><input type="radio" name="deckPics" value="ai"></span></div>
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
+            <div class="xstyle sub" id="wsStyle" hidden>
+              <label class="check" id="wsAiLbl" title="Нейросеть рисует иллюстрации и портреты. В Word они вставляются отдельными рисунками, лист остаётся редактируемым"><input type="checkbox" id="wsAiChk"> 🖼 сгенерировать картинки, оформление <span class="small" id="wsAiNote"></span></label>
+              <span hidden><input type="radio" name="wsPics" value="plain" checked><input type="radio" name="wsPics" value="ai"></span></div>
             <details class="check xopt" id="optCtrl"><summary>🧪 Контроль <span class="xv" id="ctrlVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><select id="xCtrl" aria-label="Вид контроля"><option value="">выберите вид…</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select>
               <label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> Ключи и критерии</label></div></details>
             <details class="check xopt" id="optMemo"><summary>🧠 Запоминание <span class="xv" id="memoVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div></details>
             <label class="check" id="chkPack" hidden title="Подготовка учителя, программы, ссылки, инструкция ученика и ZIP с файлами для компьютеров"><input type="checkbox" value="pack"> 💻 Пакет для компьютерного класса</label>
-            <div class="xstyle" id="deckStyle" hidden>
-              <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk"> ✨ + ИИ-картинки <span class="small" id="deckAiNote"></span></label>
-              <span hidden><input type="radio" name="deckPics" value="real" checked><input type="radio" name="deckPics" value="ai"></span></div>
-            <div class="xstyle" id="wsStyle" hidden>
-              <label class="check" id="wsAiLbl" title="Нейросеть рисует иллюстрации и портреты. В Word они вставляются отдельными рисунками, лист остаётся редактируемым"><input type="checkbox" id="wsAiChk"> ✨ + ИИ-оформление <span class="small" id="wsAiNote"></span></label>
-              <span hidden><input type="radio" name="wsPics" value="plain" checked><input type="radio" name="wsPics" value="ai"></span></div>
             <label class="check" id="chkHw"><input type="checkbox" id="xHw"> 🏠 Домашняя работа <span class="pro-lock xlock" hidden>🔒</span></label>
             <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
@@ -679,7 +681,7 @@ window.UCHU_SITE = {
 <!-- ===================== ИНСТРУКЦИЯ ===================== -->
 <main id="view-help" class="wrap page help" hidden><div class="sheet" id="helpBody"></div></main>
 
-<footer class="site-foot"><div class="wrap"><nav><a href="legal/oferta.html">Договор-оферта</a><a href="legal/privacy.html">Политика конфиденциальности</a><a href="legal/contacts.html">Контакты и реквизиты</a></nav><p id="footLegal">© «Учу по ФРП»</p></div></footer>
+
 <script src="data/legal.js"></script>
 <script>(function(){var L=window.UCHU_LEGAL||{},el=document.getElementById("footLegal");if(el&&L.name)el.textContent="© «Учу по ФРП» · "+L.name+", "+(L.status||"").split(" (")[0]+(L.inn&&!/_/.test(L.inn)?", ИНН "+L.inn:"")+(L.email?" · "+L.email:"");})();</script>
 <div id="pdfstage" aria-hidden="true"></div>
