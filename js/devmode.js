@@ -183,7 +183,18 @@ const Dev = (() => {
     b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card" id="dvImg"></section><section class="dev-card"><h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
     ownKeyCard(b.querySelector("#dvOwn")); testPayCard(b.querySelector("#dvTest"));
     const imgBox = b.querySelector("#dvImg");
-    const paintImg = () => { const ok = window.ImageGen?.own?.(); imgBox.innerHTML = `<h2>🎨 Подключение ключа к генерации рабочих листов и презентаций ${ok ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'}</h2><p class="small">Это отдельный ключ для картинок. Он не связан с ключами языковой модели DeepSeek, которая пишет тексты. Сейчас ключ личный: хранится только в этом браузере и работает только у вас. Общий ключ для всех учителей (по тарифам) подключается позже на сервере.</p><button class="btn sm flame" type="button" id="dvImgBtn">${ok ? "Изменить ключ и модель" : "Подключить ключ и выбрать нейросеть"}</button>`; imgBox.querySelector("#dvImgBtn").onclick = () => { if (window.openImageSettings) window.openImageSettings(paintImg); }; };
+    const paintImg = () => {
+      const ok = window.ImageGen?.own?.(), site = !!(window.UCHU_SITE?.nanoBanana);
+      imgBox.innerHTML = `<h2>🎨 Подключение ключа к генерации рабочих листов и презентаций</h2>
+        <p class="small">Отдельный ключ для картинок. Он не связан с ключами языковой модели DeepSeek, которая пишет тексты.</p>
+        <div class="key-sub"><h3>Личный ключ ${ok ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'} <span class="tag">только у вас</span></h3>
+          <p class="small">Хранится только в этом браузере и работает только у вас: для ваших проверок и своих листов. Учителям не передаётся.</p>
+          <div id="dvImgForm"></div></div>
+        <div class="key-sub" style="margin-top:14px"><h3>Общий ключ ${site ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'} <span class="tag red">для всех учителей</span></h3>
+          <p class="small">Им пользуются учителя на тарифах «Учитель + ИИ» (500 ₽, 10 листов с картинками в месяц) и «Методист» (900 ₽, 40 листов), расход идёт с вашего баланса. Ключ хранится только на сервере (Яндекс-функция), в браузере его нет, а тариф и лимит проверяются там же. ${site ? "Адрес серверной функции задан." : "Пока не подключён: после настройки серверной функции здесь появится поле для общего ключа."}</p>
+          <label class="small"><b>Общий ключ (сервер)</b></label><input type="text" disabled style="width:100%;opacity:.55" placeholder="Появится после настройки серверной функции"></div>`;
+      window.imageKeyForm(imgBox.querySelector("#dvImgForm"), paintImg);
+    };
     paintImg();
     const box = b.children[2];
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
