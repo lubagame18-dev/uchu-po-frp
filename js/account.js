@@ -60,6 +60,10 @@ const Account = (() => {
     if (j.access_token) { setSession(j, email); push(true).catch(() => null); return "ok"; }
     return "confirm"; // в проекте включено подтверждение почты
   }
+  /* Вход по номеру телефона: Supabase шлёт SMS-код (через нашу функцию), человек вводит его — кабинет создаётся сам */
+  const normPhone = v => { let d = String(v || "").replace(/\D/g, ""); if (d.length === 11 && d[0] === "8") d = "7" + d.slice(1); if (d.length === 10) d = "7" + d; return /^7\d{10}$/.test(d) ? "+" + d : ""; };
+  async function phoneCode(phone) { if (!ready()) throw new Error("Вход по телефону доступен, когда подключено облако."); await api("/auth/v1/otp", { method: "POST", body: JSON.stringify({ phone, create_user: true }) }); }
+  async function phoneVerify(phone, token) { const j = await api("/auth/v1/verify", { method: "POST", body: JSON.stringify({ type: "sms", phone, token: String(token).trim() }) }); if (!j.access_token) throw new Error("Код не подошёл."); setSession(j, phone); push(true).catch(() => null); pull().catch(() => null); }
   async function refresh() {
     if (S?.local || !ready()) return false;
     if (!S?.refresh) return false;
@@ -210,8 +214,10 @@ const Account = (() => {
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Вход в личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <form class="dlg-b" id="acForm" autocomplete="on">
         <div class="seg mini" role="tablist"><button type="button" data-mode="in" aria-pressed="true">Вход</button><button type="button" data-mode="up" aria-pressed="false">Регистрация</button></div>
-        <div class="field"><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
-        <div class="field"><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div></div>
+        ${(window.UCHU_SITE || {}).phoneAuth ? `<div class="seg mini" role="tablist" id="acVia"><button type="button" data-via="mail" aria-pressed="true">По почте</button><button type="button" data-via="phone" aria-pressed="false">По телефону</button></div>` : ""}
+        <div id="acPhoneBox" hidden><div class="field"><label for="acPhone">Телефон</label><input type="tel" id="acPhone" autocomplete="tel" placeholder="+7 900 000-00-00" inputmode="tel"></div><div class="field" id="acCodeF" hidden><label for="acCode">Код из SMS</label><input type="text" id="acCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div></div>
+        <div class="field" data-mailf><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
+        <div class="field" data-mailf><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div></div>
         <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank">договор-оферту</a> и даю согласие на обработку персональных данных по <a href="legal/privacy.html" target="_blank">политике конфиденциальности</a></span></label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
         ${devLink()}
@@ -219,8 +225,41 @@ const Account = (() => {
     bindDev(m);
     let mode = "in";
     m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
-    m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; });
+    m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; });
+    let via = "mail", codeSent = false, cool = 0, coolT = null;
+    const afterLogin = () => {
+      closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
+      window.Access?.paint(); plan().then(() => window.Access?.paint()).catch(() => null); loadInfo().catch(() => null);
+      let want = window.Access?.wantBuy; try { want = want || localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
+      if (want && window.Access) { Access.wantBuy = null; Access.checkout(want); }
+      else if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
+    };
+    const setVia = v => {
+      via = v; m.querySelectorAll("[data-via]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.via === v)));
+      m.querySelector("#acPhoneBox").hidden = v !== "phone"; m.querySelectorAll("[data-mailf]").forEach(f => { f.hidden = v === "phone"; f.querySelector("input").required = v !== "phone"; });
+      m.querySelector("#acAgreeL").hidden = v === "phone" ? false : mode !== "up";
+      m.querySelector("#acGo").textContent = v === "phone" ? (codeSent ? "Войти" : "Получить код") : (mode === "in" ? "Войти" : "Зарегистрироваться");
+    };
+    m.querySelectorAll("[data-via]").forEach(b => b.onclick = () => setVia(b.dataset.via));
+    const phoneSubmit = async () => {
+      const msg = m.querySelector("#acMsg"), phone = normPhone(m.querySelector("#acPhone").value), go = m.querySelector("#acGo");
+      if (!phone) { msg.textContent = "Введите российский номер: +7 900 000-00-00."; return; }
+      if (!m.querySelector("#acAgree").checked) { msg.textContent = "Отметьте согласие с офертой и политикой конфиденциальности."; return; }
+      if (go.disabled) return; go.disabled = true;
+      try {
+        if (!codeSent) {
+          msg.textContent = "Отправляю код…"; await phoneCode(phone); codeSent = true; m.querySelector("#acCodeF").hidden = false; m.querySelector("#acCode").focus();
+          msg.textContent = "Код отправлен по SMS на " + phone + "."; go.textContent = "Войти"; cool = 60; clearInterval(coolT);
+          coolT = setInterval(() => { cool--; if (cool <= 0) { clearInterval(coolT); } }, 1000);
+        } else {
+          const code = m.querySelector("#acCode").value.trim(); if (!/^\d{4,8}$/.test(code)) { msg.textContent = "Введите код из SMS."; return; }
+          msg.textContent = "Проверяю код…"; await phoneVerify(phone, code); afterLogin();
+        }
+      } catch (er) { msg.textContent = /rate|too many|429/i.test(er.message) ? "Код уже отправляли — подождите минуту и попробуйте снова." : /token|expired|invalid|otp/i.test(er.message) ? "Код неверный или устарел. Запросите новый." : "Не получилось: " + er.message; if (codeSent && /устарел|неверн/.test(msg.textContent)) { codeSent = false; m.querySelector("#acCodeF").hidden = true; go.textContent = "Получить код"; } }
+      finally { go.disabled = false; }
+    };
     m.querySelector("#acForm").onsubmit = async e => {
+      if (via === "phone") { e.preventDefault(); return phoneSubmit(); }
       e.preventDefault(); const email = m.querySelector("#acEmail").value.trim(), pass = m.querySelector("#acPass").value, msg = m.querySelector("#acMsg");
       if (pass.length < 6) { msg.textContent = "Пароль — не короче 6 знаков."; return; }
       if (mode === "up" && !m.querySelector("#acAgree").checked) { msg.textContent = "Отметьте согласие с офертой и политикой конфиденциальности."; return; }

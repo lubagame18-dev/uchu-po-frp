@@ -37,6 +37,7 @@ const DS = require("./deepseek-pool.js");
 const IMG = require("./image-pool.js");
 const Q = require("./quota.js");
 const PAY = require("./payments.js");
+const SMS = require("./sms-hook.js");
 
 const ENV = {
   port: Number(process.env.PORT || 8787),
@@ -347,7 +348,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 19, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "facts", "pay"], pay: PAY.on(), payBy: PAY.provider(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 20, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "facts", "pay"], pay: PAY.on(), payBy: PAY.provider(), sms: SMS.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -393,6 +394,9 @@ async function handler(req, res) {
     if (!key) return send(res, 200, { ok: false, reason: "no_key", message: "На прокси нет ключа GigaChat (GIGACHAT_KEY)." });
     try { await gigaToken(key); const nk = normalizeKey(key); return send(res, 200, { ok: true, message: "Сбер выдал токен: GigaChat доступен." + (nk.fixed ? " (" + nk.fixed + ")" : ""), scope: scopeOf.get(crypto.createHash("sha256").update(nk.key).digest("hex")) }); }
     catch (e) { return send(res, 200, { ok: false, reason: e.reason || "other", message: e.message }); }
+  }
+  if (req.method === "POST" && route === "/sms-hook") { // Supabase просит отправить код входа по SMS (отдельно от общего лимита по IP: запросы идут с серверов Supabase)
+    try { const raw = await readBody(req); const r = await SMS.handle(raw, req.headers, request, readAll); return send(res, r.status, r.json); } catch (e) { return send(res, 200, { error: { http_code: 500, message: "ошибка" } }); }
   }
   if (req.method !== "POST") return send(res, 405, { error: "метод не поддерживается" });
   const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();

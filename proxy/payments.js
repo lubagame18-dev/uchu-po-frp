@@ -74,7 +74,7 @@ async function create(body, userToken, request, readAll) {
   const order = `${user.id}.${kind}.${Date.now()}`;
   const site = env("SITE_URL") || "https://uchu-po-frp.ru/";
   if (yk()) return ykCreate({ order, user, kind, price, name, site, method: body.method === "any" ? "" : "sbp" }, request, readAll);
-  const data = { do: "pay", order_id: order, customer_email: user.email, urlReturn: site + "?pay=cancel", urlSuccess: site + "?pay=ok", sys: "", npd_income_type: "FROM_INDIVIDUAL" };
+  const data = { do: "pay", order_id: order, ...(user.email ? { customer_email: user.email } : { customer_phone: "+" + String(user.phone || "").replace(/\D/g, "") }), urlReturn: site + "?pay=cancel", urlSuccess: site + "?pay=ok", sys: "", npd_income_type: "FROM_INDIVIDUAL" };
   if (sub) { data.subscription = sub; } else { data.products = [{ name, price: String(price), quantity: "1" }]; }
   data.signature = sign(data, env("PRODAMUS_KEY"));
   const q = new URLSearchParams();
@@ -93,7 +93,7 @@ async function ykApi(method, path, body, idem, request, readAll) {
 async function ykCreate({ order, user, kind, price, name, site, method }, request, readAll) {
   const amount = { value: Number(price).toFixed(2), currency: "RUB" };
   const base = { amount, capture: true, confirmation: { type: "redirect", return_url: site + "?pay=ok" }, description: String(name).slice(0, 128), metadata: { order, uid: user.id, kind } };
-  const receipt = { customer: { email: user.email }, items: [{ description: String(name).slice(0, 128), quantity: "1.00", amount, vat_code: 1, payment_subject: "service", payment_mode: "full_payment" }] };
+  const receipt = { customer: user.email ? { email: user.email } : { phone: "+" + String(user.phone || "").replace(/\D/g, "") }, items: [{ description: String(name).slice(0, 128), quantity: "1.00", amount, vat_code: 1, payment_subject: "service", payment_mode: "full_payment" }] };
   // по порядку: СБП с чеком → СБП без чека → все способы с чеком → все способы без чека
   const tries = [];
   if (method === "sbp") tries.push({ ...base, payment_method_data: { type: "sbp" }, receipt }, { ...base, payment_method_data: { type: "sbp" } });
