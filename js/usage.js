@@ -63,8 +63,9 @@ const Usage = (() => {
   /* Экономика тарифа: сколько стоит ИИ при полном расходе и что остаётся после комиссии и налога */
   function econ(s) {
     const perTok = (0.6 * USD.in + 0.4 * USD.out) / 1e6 * RUB; // смесь: 60% входящих, 40% исходящих
-    const rows = [["Учитель", 300, 0], ["Учитель + ИИ", 500, 2e6], ["Методист", 900, 4.8e6]].map(([n, p, t]) => { const ai = t * perTok, fee = p * 0.10, net = p - fee - ai; return `<tr><td>${n}</td><td>${p} ₽</td><td>${t ? fmt(t) : "—"}</td><td>${t ? "до " + Math.round(ai) + " ₽" : "—"}</td><td>${Math.round(fee)} ₽</td><td><b>${Math.round(net)} ₽</b></td></tr>`; }).join("");
-    return `<table class="pc-t"><tr><th>Тариф</th><th>Цена</th><th>ИИ в месяц</th><th>Себестоимость ИИ (если потратить всё)</th><th>Комиссия и налог ≈ 10%</th><th>Остаётся вам</th></tr>${rows}</table>
+    const IMG_UNIT = 25; // ₽ за один лист с картинками при полном наборе (до 7 картинок × ≈3,5 ₽, Nano Banana 2.5 Flash Image ≈ $0,039)
+    const rows = [["Учитель", 300, 0, 0], ["Учитель + ИИ", 590, 2e6, 10], ["Методист", 990, 4.8e6, 30]].map(([n, p, t, u]) => { const ai = t * perTok, im = u * IMG_UNIT, fee = p * 0.10, net = p - fee - ai - im; return `<tr><td>${n}</td><td>${p} ₽</td><td>${t ? fmt(t) : "—"}</td><td>${t ? "до " + Math.round(ai) + " ₽" : "—"}</td><td>${u ? u + " листов, до " + Math.round(im) + " ₽" : "—"}</td><td>${Math.round(fee)} ₽</td><td><b>${Math.round(net)} ₽</b></td></tr>`; }).join("");
+    return `<table class="pc-t"><tr><th>Тариф</th><th>Цена</th><th>ИИ в месяц</th><th>Себестоимость текста ИИ (если потратить всё)</th><th>Картинки (если потратить всё)</th><th>Комиссия и налог ≈ 10%</th><th>Остаётся вам</th></tr>${rows}</table>
       <p class="small">Расчёт: DeepSeek flash днём $0,30 / $1,20 за 1 млн токенов (ночью вдвое дешевле), курс ${RUB} ₽ за $. 1 ⚡ ≈ ${fmtRub(PER * perTok)}. Урок с ИИ ≈ ${fmtRub((s.avgLesson || 40000) * perTok)}${s.avgLesson ? " (по вашим урокам)" : ""}. $2 на балансе DeepSeek ≈ ${Math.round(2 * RUB / ((s.avgLesson || 40000) * perTok))} уроков с ИИ.</p>`;
   }
   const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

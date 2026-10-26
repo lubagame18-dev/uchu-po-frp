@@ -26,14 +26,14 @@ const Access = (() => {
     cloud: ["☁️", "#2fa6e8", "Все уроки — в личном кабинете"], download: ["⬇️", "#2f8f5b", "Скачивание: Word, PDF, PowerPoint"], unlim: ["♾️", "#6b2bd9", "Уроки без ограничений"],
     ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai50: ["🤖", "#a43fd0", "50 уроков с ИИ в месяц"], ai120: ["🚀", "#a43fd0", "120 уроков с ИИ в месяц"],
     pics: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 10 в месяц"],
-    pics40: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 40 в месяц"],
+    pics40: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 30 в месяц"],
     more: ["➕", "#ff9f1c", "Можно докупить уроки с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "3 урока в месяц — попробовать"]
   };
   const PLANS = {
     free: { name: "Бесплатный", price: 0, lessons: 3, extraSheets: 0, ai: false, art: "🎁", tag: "попробовать", feats: ["three", "lesson", "slides", "sheet", "cloud"] },
     basic: { name: "Учитель", price: 300, lessons: Infinity, extraSheets: 2, ai: false, art: "📚", tag: "для каждого урока", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
-    ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, img: true, imgQuota: 10, extraSheets: 10, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai50", "pics", "more", "download", "cloud"] },
-    pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, img: true, imgQuota: 40, extraSheets: 30, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai120", "pics40", "more", "help", "cloud"] }
+    ai: { name: "Учитель + ИИ", price: 590, lessons: Infinity, ai: true, img: true, imgQuota: 10, extraSheets: 10, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai50", "pics", "more", "download", "cloud"] },
+    pro: { name: "Методист", price: 990, lessons: Infinity, ai: true, img: true, imgQuota: 30, extraSheets: 30, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai120", "pics40", "more", "help", "cloud"] }
   };
   const PACKS = { ai10: { name: "+10 уроков с ИИ", price: 50 }, ai30: { name: "+30 уроков с ИИ", price: 140 } };
 

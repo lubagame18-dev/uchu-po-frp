@@ -11,7 +11,7 @@
 const SLOTS = 5;
 const DEF_URL = () => process.env.IMG_API_URL || "https://api.aitunnel.ru/v1";
 const DEF_MODEL = () => process.env.IMG_MODEL || "flux-schnell";
-const QUOTA = { ai: +process.env.IMG_QUOTA_AI || 10, pro: +process.env.IMG_QUOTA_PRO || 40 };
+const QUOTA = { ai: +process.env.IMG_QUOTA_AI || 10, pro: +process.env.IMG_QUOTA_PRO || 30 };
 const SB = () => ({ url: (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key: process.env.SUPABASE_SERVICE_KEY || "" });
 const isPlaceholder = k => !k || /^\.+$/.test(k) || k.length < 10;
 const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
