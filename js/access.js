@@ -174,9 +174,10 @@ const Access = (() => {
       try {
         const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/pay/create")}` : base + "/pay/create";
         payBtns.forEach(b => b.disabled = true);
-        const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ item, method, autopay: !!m.querySelector("#coAuto")?.checked }) });
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok || !j.url) throw new Error(j.error || "оплата недоступна");
+        const ask = async mt => { const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ item, method: mt, autopay: !!m.querySelector("#coAuto")?.checked }) }); const j = await r.json().catch(() => ({})); return r.ok && j.url ? j : { err: j.error || "оплата недоступна", status: r.status }; };
+        let j = await ask(method);
+        if (!j.url && method === "sbp" && ![401, 403, 503].includes(j.status)) { msg.textContent = "СБП сейчас недоступна — открываю оплату картой или SberPay…"; j = await ask("any"); } // СБП не вышла: сразу вторая страница, без лишних нажатий
+        if (!j.url) throw new Error(j.err);
         location.href = j.url;
       } catch (e) { payBtns.forEach(b => b.disabled = false); msg.textContent = "Не получилось: " + (e.message || e) + (method === "sbp" ? " Попробуйте «Картой или SberPay»." : ""); }
     });
