@@ -150,11 +150,40 @@ const ImageGen = (() => {
     return { url: c.toDataURL("image/jpeg", 0.88), w: W, h: H };
   }
 
+  /* ---------- оформление целой страницы: рисует нейросеть, центр под текст код всегда очищает ---------- */
+  const PG = { W: 1240, H: 1754, x0: 1250 / 20 / 595, x1: 1 - 1000 / 20 / 595, y0: 1000 / 20 / 842, y1: 1 - 900 / 20 / 842 };
+  const pagePrompt = (p, scene, which) => `Full-page decorative design for a school worksheet, A4 portrait (${which === 1 ? "first page: cheerful opening composition" : "second page: calmer closing composition"}). Subject: ${SUBJ[p.subject] || "school"}, grade ${p.grade}, lesson topic «${p.topic}». ${+p.grade <= 4 ? "Cute friendly cartoon style, big rounded shapes." : "Modern flat vector style, restrained and elegant."} Scene and motifs: ${scene}. COMPOSITION RULES: all illustrations and ornaments only in the outer margins: a decorative header band across the top (about 15% of the height), narrow decorative side margins, a thin footer band at the bottom, and corner accents. The entire large central area (about 80% width and 75% height) must stay completely EMPTY plain white: no pattern, no shapes, no gradient, no texture, no shadows. Soft pastel palette (violet, pink, cream, pale yellow), thick friendly outlines, light fills only, must print well in grayscale, no dark fills. ${NEG}`;
+  async function planPages(p, text) {
+    if (!window.AI?.sample || !(window.AI.configured?.() ?? true)) return null;
+    try {
+      const q = `Рабочий лист: ${SUBJ[p.subject] || "предмет"}, ${p.grade} класс, тема «${p.topic}». Фрагмент листа:\n${String(text || "").slice(0, 1500)}\n\nПридумай оформление двух страниц листа (рисует нейросеть, текст она НЕ рисует). Для каждой страницы опиши ПО-АНГЛИЙСКИ до 40 слов: какие 4–6 нейтральных предметов, символов или персонажей по теме расположить по верхней полосе, боковым полям и углам (где именно). Строго: никакого текста, букв, цифр, формул, стрелок, линий, таблиц; не выдумывай факты и символику; только узнаваемые предметы по теме. Верни ТОЛЬКО JSON: {"p1":"...","p2":"..."}`;
+      const r = await window.AI.sample(q, { modelTier: "quick" });
+      const m = String(r?.text || "").match(/\{[\s\S]*\}/); if (!m) return null; const j = JSON.parse(m[0]);
+      const ok = t => typeof t === "string" && t.length > 10 && t.length < 400 && !/[А-Яа-яЁё"«»]/.test(t) && !/\b(underline|letters?|caption|label|arrow|formula|equation|diagram)\b/i.test(t.replace(/\b(no|without)\s+\w+/gi, ""));
+      return ok(j.p1) && ok(j.p2) ? [j.p1, j.p2] : null;
+    } catch { return null; }
+  }
+  const finishPage = async (url, withFrame) => {
+    const im = await loadImg(url), c = document.createElement("canvas"); c.width = PG.W; c.height = PG.H; const g = c.getContext("2d");
+    g.fillStyle = "#fff"; g.fillRect(0, 0, PG.W, PG.H);
+    const k = Math.max(PG.W / im.width, PG.H / im.height), w = im.width * k, h = im.height * k; g.drawImage(im, (PG.W - w) / 2, (PG.H - h) / 2, w, h);
+    const pad = 14, x = PG.x0 * PG.W - pad, y = PG.y0 * PG.H - pad, X = PG.x1 * PG.W + pad, Y = PG.y1 * PG.H + pad;
+    g.fillStyle = "#fff"; g.beginPath(); g.roundRect(x, y, X - x, Y - y, 26); g.fill();
+    if (withFrame) { g.strokeStyle = "#b9a4e8"; g.lineWidth = 5; g.beginPath(); g.roundRect(x, y, X - x, Y - y, 26); g.stroke(); }
+    return { url: c.toDataURL("image/jpeg", 0.86), w: PG.W, h: PG.H };
+  };
+  async function pages(p, text) {
+    const plan = (await planPages(p, text)) || [`a few friendly objects typical for the lesson topic «${p.topic}» spread along the top band and the corners`, `a few small calm objects typical for the lesson topic «${p.topic}» along the bottom band and the corners`];
+    const out = [];
+    for (let i = 0; i < 2; i++) { const r = await raw(pagePrompt(p, plan[i], i + 1), { aspect: "3:4", timeout: 120000 }); out.push(await finishPage(r, true)); }
+    return out;
+  }
+
   async function test() {
     const t0 = Date.now();
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
+  return { pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
 })();
 window.ImageGen = ImageGen;

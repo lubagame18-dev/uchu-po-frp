@@ -4751,7 +4751,7 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : d === "memo" ? { memo: true } : WS_DOCS.includes(d) ? { worksheet: true, twoPage: d === "worksheet", banner: d === "worksheet" ? L.art?.banner : null, gallery: d === "worksheet" ? L.art?.gallery : null, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : d === "memo" ? { memo: true } : WS_DOCS.includes(d) ? { worksheet: true, twoPage: d === "worksheet", banner: d === "worksheet" ? L.art?.banner : null, pages: d === "worksheet" ? L.art?.pages : null, gallery: d === "worksheet" ? L.art?.gallery : null, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
 /* конспект: чёрно-белые таблицы по образцу учителя — метки слева, вопрос | ответ, упражнение | алгоритм, полоска этапов */
 function lxDocxTable(t, D) {
   const head = t.header.map(c => (c.text || "").trim()), n = head.length, L = window.Layout;
@@ -4839,12 +4839,13 @@ async function decorateWorksheet() {
   if (window.Access && !Access.imagesAllowed()) { Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
   if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { toast("Сначала подключите Nano Banana: ключ и проверка."); return openImageSettings(); } toast("Картинки для рабочих листов подключаются, скоро заработают.", 6000); return; }
   if (window.Access && Access.imageLeft() <= 0) { toast("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца.", 8000); return; }
-  const b = $("#btnDeco"); b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Языковая модель описывает сцену, затем рисуется баннер, до минуты…", 60000);
+  const b = $("#btnDeco"); b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Составляю описание оформления…", 30000);
   try {
-    const im = await ImageGen.image(await ImageGen.bannerWithBrief({ ...L.params, topic: L.title }), { aspect: "16:9", maxW: 1320, strip: 6 });
+    toast("Нейросеть рисует оформление двух страниц, до двух минут…", 120000);
+    const pg = await ImageGen.pages({ ...L.params, topic: L.title }, L.docs.worksheet);
     window.Access?.countImage(1);
-    L.art = { ...(L.art || {}), banner: im };
-    try { toast("Рисую портреты героев и предметы по теме…", 60000); const gl = await ImageGen.gallery({ ...L.params, topic: L.title }, L.docs.worksheet); if (gl) L.art.gallery = gl; else delete L.art.gallery; } catch (e) { console.warn("gallery", e); } await saveLesson(L); renderLesson(); toast("Готово. Баннер появится в Word и PDF; Word остаётся на 2 страницах.", 6000);
+    L.art = { ...(L.art || {}), pages: pg }; delete L.art.banner;
+    try { toast("Рисую портреты героев и предметы по теме…", 60000); const gl = await ImageGen.gallery({ ...L.params, topic: L.title }, L.docs.worksheet); if (gl) L.art.gallery = gl; else delete L.art.gallery; } catch (e) { console.warn("gallery", e); } await saveLesson(L); renderLesson(); toast("Готово. Оформление страниц и картинки появятся в Word; лист остаётся на 2 страницах.", 6000);
   } catch (e) { console.error(e); toast("Не получилось нарисовать: " + (e.message || e), 9000); }
   finally { b.disabled = false; b.textContent = t; }
 }
@@ -4914,10 +4915,10 @@ function wsFit(toks0, extra = 0) {
 }
 async function mdToDocxBlob(md, title, opts = {}) {
   const memo = !!opts.memo, ws = !!opts.worksheet && !memo, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
-  const two = !!opts.twoPage && ws; let k2 = 1, breakAt = -1, pb = false, page2 = false, fill = [{ head: 0, row: 0 }, { head: 0, row: 0 }]; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
+  const two = !!opts.twoPage && ws; const pgs = two && opts.pages?.length ? opts.pages : null, _wp = { ...WS_PAGE }; if (pgs) { WS_PAGE.w = 483; WS_PAGE.h = 747; } let k2 = 1, breakAt = -1, pb = false, page2 = false, fill = [{ head: 0, row: 0 }, { head: 0, row: 0 }]; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx; let toks = window.marked.lexer(wsClean(md));
-  if (two) { const R = wsFit(toks, (opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0) + (opts.gallery?.url ? Math.round(440 * opts.gallery.h / opts.gallery.w * 0.75) + 8 : 0)); toks = R.toks; k2 = R.k; breakAt = R.breakAt; fill = R.fill || fill; if (opts.onRest) opts.onRest(R.rest); }
+  if (two) { const R = wsFit(toks, (!pgs && opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0) + (opts.gallery?.url ? Math.round(440 * opts.gallery.h / opts.gallery.w * 0.75) + 8 : 0)); toks = R.toks; k2 = R.k; breakAt = R.breakAt; fill = R.fill || fill; if (opts.onRest) opts.onRest(R.rest); }
   let children = [];
   const border = { style: D.BorderStyle.SINGLE, size: 4, color: memo ? "555555" : "9AA3B2" };
   const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: memo ? { after: 40, line: 252 } : two ? { after: 50, line: 250 } : { after: 120, line: 300 }, ...opt });
@@ -4949,16 +4950,18 @@ async function mdToDocxBlob(md, title, opts = {}) {
       default: if (t.tokens) children.push(P(inlineRuns(t.tokens, D)));
     }
   };
-  if (two && opts.banner?.url) { try { const bin = atob(opts.banner.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), W = 660, Hh = Math.round(W * opts.banner.h / opts.banner.w); children.push(new D.Paragraph({ spacing: { after: 60 }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: W, height: Hh } })] })); } catch (e) { console.warn("banner", e); } }
+  if (two && !pgs && opts.banner?.url) { try { const bin = atob(opts.banner.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), W = 660, Hh = Math.round(W * opts.banner.h / opts.banner.w); children.push(new D.Paragraph({ spacing: { after: 60 }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: W, height: Hh } })] })); } catch (e) { console.warn("banner", e); } }
   if (two && opts.gallery?.url) { try { const bin = atob(opts.gallery.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), W = 440, Hh = Math.round(W * opts.gallery.h / opts.gallery.w); children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing: { after: 60 }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: W, height: Hh } })] })); } catch (e) { console.warn("gallery", e); } }
   if (memo) memoDocx(toks, D, emit, c => { const prev = children; children = c; return prev; }, children);
   else toks.forEach((t, i) => { if (two && i === breakAt) { pb = true; page2 = true; } emit(t); });
+  const mkFoot = () => new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text: "Страница ", size: 14, color: "666666" }), new D.TextRun({ children: [D.PageNumber.CURRENT], size: 14, color: "666666" }), new D.TextRun({ text: (breakAt >= 0 ? " из 2" : " из 1") + " · печать на одном листе с двух сторон, переворот по длинному краю", size: 14, color: "666666" })] })] });
+  const mkHead = pg => { const bin = atob(pg.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)); return new D.Header({ children: [new D.Paragraph({ children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: 794, height: 1123 }, floating: { horizontalPosition: { relative: D.HorizontalPositionRelativeFrom.PAGE, offset: 0 }, verticalPosition: { relative: D.VerticalPositionRelativeFrom.PAGE, offset: 0 }, behindDocument: true, allowOverlap: true, wrap: { type: D.TextWrappingType.NONE } } })] })] }); };
   const doc = new D.Document({
     creator: "Учу по ФРП", title,
     styles: { default: { document: { run: { font: "Times New Roman", size: memo ? 19 : two ? sc(22) : 24 } }, heading1: { run: { font: "Times New Roman", size: 32, bold: true } }, heading2: { run: { font: "Times New Roman", size: 28, bold: true } }, heading3: { run: { font: "Times New Roman", size: 26, bold: true } } } },
-    sections: [{ ...(two ? { footers: { default: new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text: "Страница ", size: 14, color: "666666" }), new D.TextRun({ children: [D.PageNumber.CURRENT], size: 14, color: "666666" }), new D.TextRun({ text: (breakAt >= 0 ? " из 2" : " из 1") + " · печать на одном листе с двух сторон, переворот по длинному краю", size: 14, color: "666666" })] })] }) } } : {}), properties: { page: { ...(two ? { margin: { top: 680, bottom: 760, left: 1100, right: 850, footer: 300 } } : {}), size: wide ? { orientation: D.PageOrientation.LANDSCAPE, width: D.convertMillimetersToTwip(210), height: D.convertMillimetersToTwip(297) } : {}, ...(two ? {} : { margin: { top: 1000, bottom: 1000, left: 1100, right: 900 } }) } }, children }]
+    sections: [{ ...(two ? { footers: { default: mkFoot(), ...(pgs ? { first: mkFoot() } : {}) }, ...(pgs ? { headers: { first: mkHead(pgs[0]), default: mkHead(pgs[1] || pgs[0]) } } : {}) } : {}), properties: { ...(pgs ? { titlePage: true } : {}), page: { ...(two ? { margin: pgs ? { top: 1000, bottom: 900, left: 1250, right: 1000, footer: 300 } : { top: 680, bottom: 760, left: 1100, right: 850, footer: 300 } } : {}), size: wide ? { orientation: D.PageOrientation.LANDSCAPE, width: D.convertMillimetersToTwip(210), height: D.convertMillimetersToTwip(297) } : {}, ...(two ? {} : { margin: { top: 1000, bottom: 1000, left: 1100, right: 900 } }) } }, children }]
   });
-  let blob = await D.Packer.toBlob(doc);
+  let blob = await D.Packer.toBlob(doc); Object.assign(WS_PAGE, _wp);
   if (two) blob = await wsMirror(blob);
   return blob;
 }
