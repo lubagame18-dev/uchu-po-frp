@@ -105,11 +105,25 @@ const ImageGen = (() => {
   };
   const spot = (p, what) => `Small square line-art spot illustration for a school worksheet task about «${what || p.topic}» (${SUBJ[p.subject] || "school"}, grade ${p.grade}). Black outline on white background with at most two light pastel accents, simple clear shapes, no dark fills. ${NEG}`;
 
+  /* Языковая модель (она отвечает за точность) пишет только СЦЕНУ для рисунка. Все жёсткие правила добавляет код,
+     а подчёркивания, волнистые линии и надписи в рисунок не входят вообще: их ставит сайт в Word/PDF. */
+  const briefViaLM = async p => {
+    if (!window.AI?.sample || !(window.AI.configured?.() ?? true)) return "";
+    try {
+      const q = `Ты помогаешь оформить школьный рабочий лист (${SUBJ[p.subject] || "предмет"}, ${p.grade} класс, тема «${p.topic}»). Опиши ПО-АНГЛИЙСКИ одним абзацем (до 60 слов) только декоративную сцену для широкой тонкой полосы-баннера: 3–4 простых предмета или персонажа, прямо связанных с темой, и их расположение. Строго: никакого текста, букв, цифр, формул, схем, стрелок, линий подчёркивания, рамок, таблиц и условных обозначений; не придумывай факты, исторические детали, надписи и символику; только нейтральные узнаваемые предметы. Верни только описание сцены.`;
+      const r = await window.AI.sample(q, { modelTier: "quick" });
+      const t = String(r?.text || "").replace(/\s+/g, " ").trim();
+      if (!t || t.length > 600 || /[А-Яа-яЁё]/.test(t) || /["«»“”]/.test(t) || /\b(underline|text|letter|caption|label|arrow|formula|equation|diagram|number)\b/i.test(t.replace(/\b(no|without)\s+\w+/gi, ""))) return "";
+      return t;
+    } catch { return ""; }
+  };
+  const bannerWithBrief = async p => { const scene = await briefViaLM(p); const base = banner(p); return scene ? base.replace("Lesson topic:", `Scene: ${scene} Lesson topic:`) : base; };
+
   async function test() {
     const t0 = Date.now();
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
+  return { bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
 })();
 window.ImageGen = ImageGen;

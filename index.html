@@ -4819,9 +4819,11 @@ async function decorateWorksheet() {
   const L = state.lesson; if (!L || !L.docs.worksheet) return;
   if (window.Access && !Access.imagesAllowed()) { Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
   if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { toast("Сначала подключите Nano Banana: ключ и проверка."); return openImageSettings(); } toast("Картинки для рабочих листов подключаются, скоро заработают.", 6000); return; }
-  const b = $("#btnDeco"); b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Рисую баннер к рабочему листу, до минуты…", 60000);
+  if (window.Access && Access.imageLeft() <= 0) { toast("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца.", 8000); return; }
+  const b = $("#btnDeco"); b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Языковая модель описывает сцену, затем рисуется баннер, до минуты…", 60000);
   try {
-    const im = await ImageGen.image(ImageGen.banner({ ...L.params, topic: L.title }), { aspect: "16:9", maxW: 1320, strip: 6 });
+    const im = await ImageGen.image(await ImageGen.bannerWithBrief({ ...L.params, topic: L.title }), { aspect: "16:9", maxW: 1320, strip: 6 });
+    window.Access?.countImage(1);
     L.art = { ...(L.art || {}), banner: im }; await saveLesson(L); renderLesson(); toast("Готово. Баннер появится в Word и PDF; Word остаётся на 2 страницах.", 6000);
   } catch (e) { console.error(e); toast("Не получилось нарисовать: " + (e.message || e), 9000); }
   finally { b.disabled = false; b.textContent = t; }
