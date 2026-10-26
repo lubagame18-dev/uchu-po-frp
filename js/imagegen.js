@@ -24,6 +24,7 @@ const ImageGen = (() => {
   const PRESET = {
     hub: { name: "Один ключ, много нейросетей (AITUNNEL и похожие)", model: "flux-schnell", base: "https://api.aitunnel.ru/v1", hint: "Вставьте ключ один раз и выберите нейросеть из списка. Адрес берётся из личного кабинета сервиса: если проверка не проходит, сверьте адрес и название модели там." },
     gemini: { name: "Google Gemini (Nano Banana)", model: "gemini-2.5-flash-image", base: "https://generativelanguage.googleapis.com", hint: "Ключ из Google AI Studio. Из России напрямую обычно недоступен: тогда используйте посредника или proxy." },
+    openai: { name: "OpenAI напрямую (GPT Image)", model: "gpt-image-1", base: "https://api.openai.com/v1", hint: "Ключ из platform.openai.com (раздел API keys; нужна оплаченная учётная запись). Из России напрямую обычно недоступен: тогда используйте посредника (пункт выше) или proxy. Одно изображение стоит примерно 3–17 ₽ в зависимости от качества, один лист с картинками это до 7 изображений." },
     images: { name: "Посредник: OpenAI-совместимый /images/generations", model: "gemini-2.5-flash-image", base: "", hint: "Адрес API из личного кабинета сервиса (например, https://…/v1) и ключ. Название модели смотрите в кабинете." },
     chat: { name: "Посредник: /chat/completions с картинкой", model: "google/gemini-2.5-flash-image", base: "https://openrouter.ai/api/v1", hint: "Подходит для OpenRouter и сервисов с тем же форматом." },
     proxy: { name: "Своя серверная функция (proxy)", model: "", base: "", hint: "Адрес функции. Ей отправляется POST {prompt, aspect}, ответ — {image: data URL или base64}." }
@@ -67,7 +68,7 @@ const ImageGen = (() => {
         if (!d?.data) throw new Error("сервис не вернул картинку" + (j.promptFeedback?.blockReason ? ` (заблокировано: ${j.promptFeedback.blockReason})` : ""));
         return toDataUrl(d.mimeType || d.mime_type, d.data);
       }
-      if (c.provider === "images" || c.provider === "hub") {
+      if (c.provider === "images" || c.provider === "hub" || c.provider === "openai") {
         const dalle = /dall-e-3/.test(model), size = aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024");
         const go = body => fetch(`${base}${c.path || "/images/generations"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify(body) });
         const bd = { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" };
