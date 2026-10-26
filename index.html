@@ -376,6 +376,7 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:700}
 
 /* ---------- скрытая сцена для PDF ---------- */
 .ws-art{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 10px;border:2px solid var(--ink)}
+.ws-art.ws-gal{width:68%;margin:0 auto 10px;border:0}
 #pdfstage{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111}
 #pdfstage .sheet::before{opacity:.5}
 
@@ -605,6 +606,7 @@ window.UCHU_SITE = {
         <div class="doc-tabs" role="tablist" id="docTabs"></div>
         <div class="ws-tools" id="wsTools">
           <button class="btn sm flame" id="btnDeco" hidden title="Нарисовать красивый баннер к рабочему листу (Nano Banana)">🎨 Оформить красиво</button>
+          <button class="btn sm" id="btnMore" hidden title="Добавить ещё один лист (2 страницы, с двух сторон). Каждый дополнительный лист расходует месячный лимит.">➕ Добавить лист</button>
           <button class="btn plain sm" id="btnDecoSet" hidden title="Подключение Nano Banana: ключ и проверка">⚙ Картинки</button>
           <button class="btn sm flame" id="btnPackZip" hidden>⬇ Файлы для урока (ZIP)</button>
           <button class="btn sm teal" id="btnDocx">Скачать Word</button>
@@ -4428,6 +4430,7 @@ function renderDownloads() {
 }
 function syncTools() {
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
+  { const bm = $("#btnMore"); if (bm) { bm.hidden = !(state.active === "worksheet" && has); const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
   { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws; $("#btnDecoSet").hidden = !ws || !ImageGen.isDevUser(); if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
   $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
@@ -4642,7 +4645,7 @@ const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; s
    =================================================================== */
 async function saveLesson(L) {
   if (!L || L.sample) return;
-  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null };
+  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null };
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }
@@ -4748,7 +4751,7 @@ function inlineRuns(tokens, D, base = {}) {
   walk(tokens, base); return runs;
 }
 function decodeEnt(s) { return String(s).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"); }
-const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : d === "memo" ? { memo: true } : WS_DOCS.includes(d) ? { worksheet: true, twoPage: d === "worksheet", banner: d === "worksheet" ? L.art?.banner : null, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
+const wsOpts = (L, d) => d === "lesson" ? { lesson: true } : d === "memo" ? { memo: true } : WS_DOCS.includes(d) ? { worksheet: true, twoPage: d === "worksheet", banner: d === "worksheet" ? L.art?.banner : null, gallery: d === "worksheet" ? L.art?.gallery : null, tag: `${L.params?.grade || ""} класс · ${window.Subjects && L.params?.subject && !["ru", "lit"].includes(L.params.subject) ? Subjects.name(L.params.subject) : L.params?.subject === "lit" ? "Литература" : "Русский язык"}` } : {};
 /* конспект: чёрно-белые таблицы по образцу учителя — метки слева, вопрос | ответ, упражнение | алгоритм, полоска этапов */
 function lxDocxTable(t, D) {
   const head = t.header.map(c => (c.text || "").trim()), n = head.length, L = window.Layout;
@@ -4815,6 +4818,22 @@ function openImageSettings() {
   q("#igDel").onclick = () => { ImageGen.save({ ...read(), key: "" }); q("#igKey").value = ""; toast("Ключ стёрт из этого браузера."); };
   q("#igTest").onclick = async () => { ImageGen.save(read()); const o = q("#igOut"); o.textContent = "Проверяю… обычно до 30 секунд"; const r = await ImageGen.test(); o.innerHTML = r.ok ? `✅ Работает (${(r.ms / 1000).toFixed(1)} с).<br><img src="${r.url}" alt="" style="width:96px;height:96px;border:2px solid var(--ink);border-radius:12px;margin-top:6px">` : `❌ ${esc2(r.error)}`; };
 }
+/* дополнительный лист: ещё 2 страницы (с двух сторон) с НОВЫМИ заданиями по той же теме; пишет языковая модель, за каждый лист списывается лимит тарифа */
+async function addExtraSheet() {
+  const L = state.lesson; if (!L || !L.docs.worksheet) return;
+  if (window.Access && Access.sheetsLeft() <= 0) { Access.open("Дополнительные листы закончились в этом месяце или недоступны на вашем тарифе."); return; }
+  if (!window.AI || !AI.configured()) { toast("Для дополнительных листов нужна нейросеть: подключите ИИ.", 7000); return; }
+  const n = (L.more?.length || 0) + 2, b = $("#btnMore"); b.disabled = true; toast(`Составляю лист ${n}: новые задания по теме, до минуты…`, 70000);
+  try {
+    const prev = [L.docs.worksheet, ...(L.more || []).map(x => x.md)].join("\n\n").slice(0, 7000);
+    const q = `Ты методист. Составь ДОПОЛНИТЕЛЬНЫЙ рабочий лист № ${n} по той же теме («${L.title}», ${L.params?.grade} класс). Объём: РОВНО 2 полностью заполненные страницы A4 (печать с двух сторон): страница 1 — первая половина, страница 2 — вторая; каждое задание — заголовок третьего уровня (###) и зона для записи. Задания НОВЫЕ, не повторяют уже выданные, по нарастающей сложности, в том же формате Markdown и тоне. Первая строка — заголовок первого уровня (#). Не выдумывай факты; ключ ответов не нужен. Уже выданное:\n\n${prev}\n\nВерни только Markdown листа.`;
+    const r = await AI.sample(q, { modelTier: "default" }); const md = String(r.text || "").trim();
+    if (md.length < 400) throw new Error("нейросеть вернула слишком короткий лист");
+    L.more = [...(L.more || []), { md, at: Date.now() }]; window.Access?.countSheet(1); await saveLesson(L); syncTools();
+    toast(`Лист ${n} готов. Он сохранится отдельным Word-файлом вместе с основным листом.`, 8000);
+  } catch (e) { console.error(e); toast("Не получилось добавить лист: " + (e.message || e.code || e), 9000); }
+  finally { b.disabled = false; }
+}
 async function decorateWorksheet() {
   const L = state.lesson; if (!L || !L.docs.worksheet) return;
   if (window.Access && !Access.imagesAllowed()) { Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
@@ -4824,7 +4843,8 @@ async function decorateWorksheet() {
   try {
     const im = await ImageGen.image(await ImageGen.bannerWithBrief({ ...L.params, topic: L.title }), { aspect: "16:9", maxW: 1320, strip: 6 });
     window.Access?.countImage(1);
-    L.art = { ...(L.art || {}), banner: im }; await saveLesson(L); renderLesson(); toast("Готово. Баннер появится в Word и PDF; Word остаётся на 2 страницах.", 6000);
+    L.art = { ...(L.art || {}), banner: im };
+    try { toast("Рисую портреты героев и предметы по теме…", 60000); const gl = await ImageGen.gallery({ ...L.params, topic: L.title }, L.docs.worksheet); if (gl) L.art.gallery = gl; else delete L.art.gallery; } catch (e) { console.warn("gallery", e); } await saveLesson(L); renderLesson(); toast("Готово. Баннер появится в Word и PDF; Word остаётся на 2 страницах.", 6000);
   } catch (e) { console.error(e); toast("Не получилось нарисовать: " + (e.message || e), 9000); }
   finally { b.disabled = false; b.textContent = t; }
 }
@@ -4897,7 +4917,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
   const two = !!opts.twoPage && ws; let k2 = 1, breakAt = -1, pb = false, page2 = false, fill = [{ head: 0, row: 0 }, { head: 0, row: 0 }]; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx; let toks = window.marked.lexer(wsClean(md));
-  if (two) { const R = wsFit(toks, opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0); toks = R.toks; k2 = R.k; breakAt = R.breakAt; fill = R.fill || fill; if (opts.onRest) opts.onRest(R.rest); }
+  if (two) { const R = wsFit(toks, (opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0) + (opts.gallery?.url ? Math.round(440 * opts.gallery.h / opts.gallery.w * 0.75) + 8 : 0)); toks = R.toks; k2 = R.k; breakAt = R.breakAt; fill = R.fill || fill; if (opts.onRest) opts.onRest(R.rest); }
   let children = [];
   const border = { style: D.BorderStyle.SINGLE, size: 4, color: memo ? "555555" : "9AA3B2" };
   const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: memo ? { after: 40, line: 252 } : two ? { after: 50, line: 250 } : { after: 120, line: 300 }, ...opt });
@@ -4930,6 +4950,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
     }
   };
   if (two && opts.banner?.url) { try { const bin = atob(opts.banner.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), W = 660, Hh = Math.round(W * opts.banner.h / opts.banner.w); children.push(new D.Paragraph({ spacing: { after: 60 }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: W, height: Hh } })] })); } catch (e) { console.warn("banner", e); } }
+  if (two && opts.gallery?.url) { try { const bin = atob(opts.gallery.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), W = 440, Hh = Math.round(W * opts.gallery.h / opts.gallery.w); children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, spacing: { after: 60 }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: W, height: Hh } })] })); } catch (e) { console.warn("gallery", e); } }
   if (memo) memoDocx(toks, D, emit, c => { const prev = children; children = c; return prev; }, children);
   else toks.forEach((t, i) => { if (two && i === breakAt) { pb = true; page2 = true; } emit(t); });
   const doc = new D.Document({
@@ -4945,6 +4966,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
 async function docxBlobs(L, d) {
   let rest = ""; const o = { ...wsOpts(L, d), onRest: r => (rest = r) };
   const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(L.docs[d], L.title, o)]];
+  if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + `_list${i + 2}.docx`, await mdToDocxBlob(L.more[i].md, `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
   if (o.twoPage && rest.trim()) out.push([baseName(L, d) + "_prilozheniya.docx", await mdToDocxBlob(rest, L.title, { worksheet: true, tag: o.tag })]);
   return out;
 }
@@ -5063,7 +5085,7 @@ function wsDecorate(root, L) {
     const b = document.createElement("div"); b.className = "ws-banner" + (i ? " pb" : "") + (/ответ/i.test(h.textContent) ? " teacher" : "");
     b.innerHTML = `<i class="wc c1"></i><i class="wc c2"></i><i class="wc c3"></i><span class="ws-tag">${esc(tag)}</span><span class="ws-ico" aria-hidden="true">${icon}</span>`;
     h.replaceWith(b); b.appendChild(h);
-    if (i === 0 && L?.art?.banner?.url) { const im = document.createElement("img"); im.className = "ws-art"; im.alt = ""; im.src = L.art.banner.url; b.before(im); }
+    if (i === 0 && L?.art?.banner?.url) { const im = document.createElement("img"); im.className = "ws-art"; im.alt = ""; im.src = L.art.banner.url; b.before(im); if (L.art.gallery?.url) { const g2 = document.createElement("img"); g2.className = "ws-art ws-gal"; g2.alt = ""; g2.src = L.art.gallery.url; b.before(g2); } }
     // тема урока — подзаголовком в шапке
     const nx = b.nextElementSibling; if (nx && nx.tagName === "P" && /^Тема:/.test(nx.textContent.trim())) { nx.classList.add("ws-sub"); b.appendChild(nx); }
   });
@@ -5226,6 +5248,7 @@ function bind() {
   $("#btnRefine").onclick = refineDoc;
   $("#refineInput").addEventListener("keydown", e => { if (e.key === "Enter") refineDoc(); });
   { const kb = document.createElement("button"); kb.type = "button"; kb.id = "btnImgKey"; kb.className = "btn sm"; kb.textContent = "🎨 Ключ для рабочих листов и презентаций"; kb.title = "Подключение ключа к генерации рабочих листов и презентаций (картинки). Отдельно от ключа языковой модели DeepSeek."; kb.hidden = true; kb.onclick = () => openImageSettings(); (document.querySelector(".account") || document.body).append(kb); const upd = () => { try { kb.hidden = !(window.ImageGen && ImageGen.isDevUser()); kb.classList.toggle("flame", !kb.hidden && !ImageGen.own()); } catch { } }; upd(); setInterval(upd, 1500); }
+  $("#btnMore").onclick = () => addExtraSheet();
   $("#btnDecoSet").onclick = () => openImageSettings(); $("#btnDeco").onclick = () => decorateWorksheet();
   $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
   // материалы

@@ -119,11 +119,42 @@ const ImageGen = (() => {
   };
   const bannerWithBrief = async p => { const scene = await briefViaLM(p); const base = banner(p); return scene ? base.replace("Lesson topic:", `Scene: ${scene} Lesson topic:`) : base; };
 
+  /* ---------- «галерея листа»: портреты героев и предметы по теме, подписи ставит код ---------- */
+  const portraitPrompt = (who, p) => `Artistic illustrated portrait of ${who}, head and shoulders, as an artist's interpretation (not a photograph), painterly flat style, calm expressive face, simple soft pastel background, historically and literarily plausible clothing, no dark fills, printable in grayscale. ${NEG}`;
+  const objectPrompt = (what, p) => `Single clear illustration of ${what} for a school worksheet (${SUBJ[p.subject] || "school"}, grade ${p.grade}), flat vector, thick friendly outlines, light pastel colors, centered on a white background, no dark fills. ${NEG}`;
+  async function planGallery(p, text) {
+    if (!window.AI?.sample || !(window.AI.configured?.() ?? true)) return [];
+    try {
+      const q = `Рабочий лист: ${SUBJ[p.subject] || "предмет"}, ${p.grade} класс, тема «${p.topic}». Фрагмент листа:\n${String(text || "").slice(0, 1800)}\n\nВыбери 2–3 изображения для украшения листа: портреты РЕАЛЬНО упомянутых в теме или листе писателей, исторических деятелей, учёных или героев произведения (обязательно, если они есть) и/или 1–2 понятных предмета по теме. Ничего не выдумывай: имена и предметы только из темы и текста листа. Верни ТОЛЬКО JSON-массив без пояснений: [{"kind":"portrait"|"object","caption":"подпись по-русски до 3 слов","en":"описание по-английски: для портрета — кто это (имя, эпоха, профессия), для предмета — что нарисовать"}]`;
+      const r = await window.AI.sample(q, { modelTier: "quick" });
+      const m = String(r?.text || "").match(/\[[\s\S]*\]/); if (!m) return [];
+      return JSON.parse(m[0]).filter(x => x && x.caption && x.en && /^(portrait|object)$/.test(x.kind) && !/[А-Яа-яЁё]/.test(x.en) && String(x.caption).length <= 28).slice(0, 3);
+    } catch { return []; }
+  }
+  const loadImg = u => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => no(new Error("картинка не открылась")); im.src = u; });
+  async function gallery(p, text) {
+    const plan = await planGallery(p, text); if (!plan.length) return null;
+    const pics = [];
+    for (const it of plan) { try { const r = await image(it.kind === "portrait" ? portraitPrompt(it.en, p) : objectPrompt(it.en, p), { aspect: "1:1", maxW: 520 }); pics.push({ im: await loadImg(r.url), cap: it.caption, kind: it.kind }); } catch (e) { if (/401|403|402|429/.test(String(e.message))) throw e; } }
+    if (!pics.length) return null;
+    const W = 1320, gap = 28, n = pics.length, cw = Math.min(380, Math.floor((W - gap * (n + 1)) / n)), ch = cw + 52, H = ch + 24, c = document.createElement("canvas"); c.width = W; c.height = H;
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+    const x0 = Math.round((W - (cw * n + gap * (n - 1))) / 2);
+    pics.forEach((it, i) => {
+      const x = x0 + i * (cw + gap), y = 12; g.fillStyle = "#fff8e1"; g.strokeStyle = "#2b1d4a"; g.lineWidth = 4;
+      g.beginPath(); g.roundRect(x, y, cw, ch, 22); g.fill(); g.stroke();
+      g.save(); g.beginPath(); g.roundRect(x + 8, y + 8, cw - 16, cw - 16, it.kind === "portrait" ? (cw - 16) / 2 : 14); g.clip(); g.drawImage(it.im, x + 8, y + 8, cw - 16, cw - 16); g.restore();
+      g.fillStyle = "#2b1d4a"; let fs = 30; g.textAlign = "center"; g.textBaseline = "middle"; do { g.font = `700 ${fs}px system-ui, "Segoe UI", Arial, sans-serif`; fs -= 2; } while (g.measureText(it.cap).width > cw - 24 && fs > 14);
+      g.fillText(it.cap, x + cw / 2, y + cw + 26);
+    });
+    return { url: c.toDataURL("image/jpeg", 0.88), w: W, h: H };
+  }
+
   async function test() {
     const t0 = Date.now();
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
+  return { gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
 })();
 window.ImageGen = ImageGen;

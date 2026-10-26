@@ -30,10 +30,10 @@ const Access = (() => {
     more: ["➕", "#ff9f1c", "Можно докупить уроки с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "3 урока в месяц — попробовать"]
   };
   const PLANS = {
-    free: { name: "Бесплатный", price: 0, lessons: 3, ai: false, art: "🎁", tag: "попробовать", feats: ["three", "lesson", "slides", "sheet", "cloud"] },
-    basic: { name: "Учитель", price: 300, lessons: Infinity, ai: false, art: "📚", tag: "для каждого урока", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
-    ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, img: true, imgQuota: 10, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai50", "pics", "more", "download", "cloud"] },
-    pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, img: true, imgQuota: 40, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai120", "pics40", "more", "help", "cloud"] }
+    free: { name: "Бесплатный", price: 0, lessons: 3, extraSheets: 0, ai: false, art: "🎁", tag: "попробовать", feats: ["three", "lesson", "slides", "sheet", "cloud"] },
+    basic: { name: "Учитель", price: 300, lessons: Infinity, extraSheets: 2, ai: false, art: "📚", tag: "для каждого урока", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
+    ai: { name: "Учитель + ИИ", price: 500, lessons: Infinity, ai: true, img: true, imgQuota: 10, extraSheets: 10, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai50", "pics", "more", "download", "cloud"] },
+    pro: { name: "Методист", price: 900, lessons: Infinity, ai: true, img: true, imgQuota: 40, extraSheets: 30, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai120", "pics40", "more", "help", "cloud"] }
   };
   const PACKS = { ai10: { name: "+10 уроков с ИИ", price: 50 }, ai30: { name: "+30 уроков с ИИ", price: 140 } };
 
@@ -68,6 +68,9 @@ const Access = (() => {
   /* картинки для листов: лимит в месяц по тарифу (на сайте считается в браузере; настоящий лимит ставит серверная функция) */
   const imageLeft = () => { if (free()) return Infinity; const q = PLANS[level()].imgQuota || 0; if (A.imgMonth !== month()) return q; return Math.max(0, q - (A.imgUsed || 0)); };
   function countImage(n = 1) { if (free()) return; if (A.imgMonth !== month()) { A.imgMonth = month(); A.imgUsed = 0; } A.imgUsed = (A.imgUsed || 0) + n; save(); }
+  /* дополнительные листы сверх базовых двух страниц: свой месячный лимит (на сервере его ставят так же) */
+  const sheetsLeft = () => { if (free()) return Infinity; const q = PLANS[level()].extraSheets || 0; if (A.shMonth !== month()) return q; return Math.max(0, q - (A.shUsed || 0)); };
+  function countSheet(n = 1) { if (free()) return; if (A.shMonth !== month()) { A.shMonth = month(); A.shUsed = 0; } A.shUsed = (A.shUsed || 0) + n; save(); }
   function countLesson() { if (free() || PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
@@ -228,6 +231,6 @@ const Access = (() => {
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);
-  return { imageLeft, countImage, promoFree, asTeacher, canBuildAsync, techAllowed, imagesAllowed, level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
+  return { sheetsLeft, countSheet, imageLeft, countImage, promoFree, asTeacher, canBuildAsync, techAllowed, imagesAllowed, level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
 })();
 window.Access = Access;
