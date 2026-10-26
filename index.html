@@ -549,8 +549,9 @@ window.UCHU_SITE = {
       <section class="card params" aria-labelledby="z2">
         <div class="card-h"><span class="n">1</span><h2 id="z2">Параметры урока</h2></div>
         <div class="field"><label for="subjectSel">Предмет</label>
-          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option></select>
-          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button><button data-v="eng" aria-pressed="false">Английский язык</button><button data-v="bio" aria-pressed="false">Биология</button><button data-v="geo" aria-pressed="false">География</button><button data-v="phys" aria-pressed="false">Физика</button><button data-v="chem" aria-pressed="false">Химия</button><button data-v="soc" aria-pressed="false">Обществознание</button><button data-v="inf" aria-pressed="false">Информатика</button></div>
+          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option><option value="any">Другой предмет (любая тема)</option></select>
+          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button><button data-v="eng" aria-pressed="false">Английский язык</button><button data-v="bio" aria-pressed="false">Биология</button><button data-v="geo" aria-pressed="false">География</button><button data-v="phys" aria-pressed="false">Физика</button><button data-v="chem" aria-pressed="false">Химия</button><button data-v="soc" aria-pressed="false">Обществознание</button><button data-v="inf" aria-pressed="false">Информатика</button><button data-v="any" aria-pressed="false">Другой предмет</button></div>
+          <div class="field" id="anyBox" hidden><label for="anyName">Какой предмет</label><input type="text" id="anyName" placeholder="например: ОБЖ, МХК, технология, кружок" maxlength="60" autocomplete="off"><div class="small">Тема может быть любой, даже если её нет во ФРП. Нейросеть сама достроит содержание урока.</div></div>
         </div>
         <div class="row2">
           <div class="field"><label for="grade">Класс</label><select id="grade"></select></div>
@@ -3270,6 +3271,7 @@ const state = {
   gen: null,            // {lessonId, doc, pct, ctl}
   view: "builder", materials: []
 };
+window.state = state;
 const caps = { sample: null, downloads: null };
 const isGenerating = (L = state.lesson, d = state.active) => !!(state.gen && L && state.gen.lessonId === L.id && (!d || state.gen.doc === d));
 
@@ -3537,7 +3539,7 @@ function renderMaterials() {
 /* ===================================================================
    ПАРАМЕТРЫ: класс, тема (список по ФРП), номер урока, тип урока (авто)
    =================================================================== */
-function setSeg(id, v) { $$(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(String(b.dataset.v) === String(v)))); if (id === "segSubject" && $("#subjectSel")) $("#subjectSel").value = v; }
+function setSeg(id, v) { $$(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(String(b.dataset.v) === String(v)))); if (id === "segSubject" && $("#subjectSel")) { $("#subjectSel").value = v; if ($("#anyBox")) $("#anyBox").hidden = v !== "any"; } }
 function topicList() {
   const PL = window.Subjects?.plugin(state.subject); if (PL) return { frp: true, items: PL.topics(state.grade) }; // другие предметы — темы из своего модуля
   const frp = FRP.topicsFor(state.subject, state.grade);
@@ -3606,7 +3608,7 @@ function topicHint(topic, t) {
   } catch (e) { return ""; }
 }
 /* в каких классах предмет изучается (по ФРП и по тому, что есть на сайте) */
-const SUBJ_GRADES = { ru: [5, 6, 7, 8, 9, 10, 11], lit: [5, 6, 7, 8, 9, 10, 11], math: [5, 6, 7, 8, 9, 10, 11], hist: [5, 6, 7, 8, 9, 10, 11], eng: [5, 6, 7, 8, 9, 10, 11], bio: [5, 6, 7, 8, 9, 10, 11], geo: [5, 6, 7, 8, 9, 10, 11], phys: [7, 8, 9, 10, 11], chem: [8, 9, 10, 11], soc: [8, 9, 10, 11], inf: [7, 8, 9, 10, 11] };
+const SUBJ_GRADES = { ru: [5, 6, 7, 8, 9, 10, 11], lit: [5, 6, 7, 8, 9, 10, 11], math: [5, 6, 7, 8, 9, 10, 11], hist: [5, 6, 7, 8, 9, 10, 11], eng: [5, 6, 7, 8, 9, 10, 11], bio: [5, 6, 7, 8, 9, 10, 11], geo: [5, 6, 7, 8, 9, 10, 11], phys: [7, 8, 9, 10, 11], chem: [8, 9, 10, 11], soc: [8, 9, 10, 11], inf: [7, 8, 9, 10, 11], any: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] };
 function fillGrades() {
   const ok = SUBJ_GRADES[state.subject] || [5, 6, 7, 8, 9, 10, 11];
   if (!ok.includes(+state.grade)) { const was = state.grade; state.grade = ok[0]; if (window.toast && $("#grade").options.length && was) toast(`Этот предмет изучают с ${ok[0]} класса — выбран ${state.grade} класс.`, 4500); }
@@ -3670,10 +3672,10 @@ function syncBuild() {
 }
 function readForm() {
   state.grade = +$("#grade").value; state.duration = +$("#duration").value;
-  state.control = $("#control").value; state.topic = $("#topic").value.trim(); state.wishes = $("#wishes").value.trim();
+  state.anyName = ($("#anyName")?.value || state.anyName || "").trim(); state.control = $("#control").value; state.topic = $("#topic").value.trim(); state.wishes = $("#wishes").value.trim();
   state.deep = $("#deep").checked;
   $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
-  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: state.build });
+  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: state.build, anyName: state.anyName });
 }
 function restoreForm() {
   const f = local.get("form", null);

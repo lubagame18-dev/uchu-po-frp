@@ -6,8 +6,10 @@
    =================================================================== */
 const Subjects = (() => {
   const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }, { id: "bio", name: "Биология", kit: () => window.BioKit }, { id: "geo", name: "География", kit: () => window.FrpKit?.geo() }, { id: "phys", name: "Физика", kit: () => window.FrpKit?.phys() }, { id: "chem", name: "Химия", kit: () => window.FrpKit?.chem() }, { id: "soc", name: "Обществознание", kit: () => window.FrpKit?.soc() }, { id: "inf", name: "Информатика", kit: () => window.FrpKit?.inf() }];
+  const ANY = { id: "any", name: "Другой предмет", kit: () => window.FrpKit?.any?.(window.state?.anyName) };
+  list.push(ANY);
   const plugin = id => { const s = list.find(x => x.id === id); return s?.kit ? s.kit() || null : null; };
-  const name = id => list.find(x => x.id === id)?.name || id;
+  const name = id => id === "any" ? (window.state?.anyName || "Другой предмет") : (list.find(x => x.id === id)?.name || id);
   /* Проверка домашнего задания — только по тому, что действительно задавали:
      текст/файл учителя или д/з прошлого урока из «Моих уроков» (p.prevHw = { text, src }).
      Нет сведений — проверка формальная, без выдуманных заданий и ответов. */
