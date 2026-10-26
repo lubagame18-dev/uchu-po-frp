@@ -51,6 +51,18 @@ const ENV = {
   proxyUser: process.env.PROXY_USER || "", proxyPass: process.env.PROXY_PASS || "",
   maxBody: 900 * 1024
 };
+/* Потолки стоимости одного запроса (подбери под свой тариф) и белые списки моделей:
+   на серверном ключе клиент не должен сам выбирать дорогую модель и огромный ответ. */
+const LIMITS = {
+  maxOut: Number(process.env.MAX_OUTPUT_TOKENS || 4096),
+  gigaModels: (process.env.GIGACHAT_MODELS || "GigaChat-2,GigaChat-2-Pro,GigaChat-2-Max").split(",").map(s => s.trim()).filter(Boolean),
+  gigaDefault: process.env.GIGACHAT_MODEL || "GigaChat-2",
+  yaModels: (process.env.YANDEX_MODELS || "yandexgpt-lite/latest,yandexgpt/latest,yandexgpt-lite,yandexgpt").split(",").map(s => s.trim()).filter(Boolean),
+  yaDefault: process.env.YANDEX_MODEL || "yandexgpt-lite/latest"
+};
+const clampModel = (m, list, def) => list.includes(String(m || "")) ? String(m) : def;
+const clampOut = n => Math.max(256, Math.min(+n || 1024, LIMITS.maxOut));
+const estTokens = body => Math.round((JSON.stringify(body.messages || "").length + (+body.max_tokens || 1024)) / 3);
 /* Поиск картинок Яндекса: API-ключ сервисного аккаунта с ролью search-api.webSearch.user и ID каталога */
 const YS = { key: process.env.YANDEX_SEARCH_KEY || process.env.YANDEX_KEY || "", folder: process.env.YANDEX_SEARCH_FOLDER || process.env.YANDEX_FOLDER || "" };
 const imgCache = new Map();
@@ -169,8 +181,18 @@ async function mediaSearch(q, kind) {
   return data;
 }
 /* Скачивание картинки: только изображения, не больше 8 МБ */
+/* адрес во внутренней сети (в том числе облачные служебные адреса) — туда ходить нельзя */
+function privateIp(ip) {
+  ip = String(ip).replace(/^::ffff:/, "");
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(ip)) { const [a, b] = ip.split(".").map(Number); return a === 0 || a === 10 || a === 127 || (a === 100 && b >= 64 && b <= 127) || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a >= 224; }
+  return ip === "::1" || ip === "::" || /^(fc|fd|fe[89ab])/i.test(ip);
+}
 async function fetchImage(url, depth = 0) {
-  const u = new URL(url); if (!/^https?:$/.test(u.protocol) || /^(localhost|127\.|10\.|192\.168\.|169\.254\.)/.test(u.hostname)) throw Object.assign(new Error("недопустимый адрес"), { status: 400 });
+  const u = new URL(url); if (!/^https?:$/.test(u.protocol) || u.username || u.password || (u.port && !["80", "443"].includes(u.port))) throw Object.assign(new Error("недопустимый адрес"), { status: 400 });
+  const host = u.hostname.replace(/^\[|\]$/g, "");
+  if (/^localhost$|\.(local|internal|localdomain)$/i.test(host)) throw Object.assign(new Error("недопустимый адрес"), { status: 400 });
+  const addrs = require("net").isIP(host) ? [{ address: host }] : await require("dns").promises.lookup(host, { all: true }).catch(() => []);
+  if (!addrs.length || addrs.some(a => privateIp(a.address))) throw Object.assign(new Error("недопустимый адрес"), { status: 400 });
   const res = await request(u.href, { method: "GET", headers: { "User-Agent": "Mozilla/5.0 (uchu-po-frp)", Accept: "image/*" }, timeout: 15000 });
   if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && depth < 3) { res.resume(); return fetchImage(new URL(res.headers.location, u).href, depth + 1); }
   const type = String(res.headers["content-type"] || "");
@@ -348,7 +370,7 @@ async function handler(req, res) {
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
-    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 22, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "facts", "pay"], pay: PAY.on(), payBy: PAY.provider(), sms: SMS.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
+    return send(res, 200, { ok: true, service: "uchu-po-frp-proxy", version: 23, providers: ["gigachat", "deepseek", "yandex", "relay", "images", "edu", "media", "facts", "pay"], pay: PAY.on(), payBy: PAY.provider(), sms: SMS.on(), deepseek: (await DS.pool(request, readAll).catch(() => DS.loadPool())).filter(a => a.isActive && !DS.isPlaceholder(a.key)).length, images: !!(YS.key && YS.folder), keys: { gigachat: !!process.env.GIGACHAT_KEY, yandex: !!(process.env.YANDEX_KEY && process.env.YANDEX_FOLDER) }, cert: !!ca || ENV.insecure || caFallback, certMode: ca ? "сертификат Минцифры: " + caSource : ENV.insecure || caFallback ? "проверка сертификата Сбера отключена (запасной режим)" : "нет", relay: { hosts: RELAY_HOSTS, auth: !!(ENV.proxyUser || ENV.proxyPass) }, lastError });
   }
   if (req.method === "GET" && route === "/images") {
     if (!YS.key || !YS.folder) return send(res, 200, { ok: false, reason: "no_key", message: "Поиск картинок Яндекса не настроен: нужны переменные YANDEX_SEARCH_KEY и YANDEX_SEARCH_FOLDER." });
@@ -366,6 +388,7 @@ async function handler(req, res) {
     try { return send(res, 200, await mediaSearch(q, u.searchParams.get("k") === "video" ? "video" : "audio")); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
   }
   if (req.method === "GET" && route === "/edu") {
+    if (limited((req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim())) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
     if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });
     const q = String(u.searchParams.get("q") || "").slice(0, 200).trim(); if (!q) return send(res, 400, { error: "нужен q" });
     const words = String(u.searchParams.get("w") || "").toLowerCase().split(/[,\s]+/).filter(w => w.length > 3).slice(0, 6);
@@ -380,6 +403,7 @@ async function handler(req, res) {
     try { return send(res, 200, await factSearch(q, words, String(u.searchParams.get("s") || "hist").slice(0, 10))); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
   }
   if (req.method === "GET" && route === "/img") {
+    if (limited((req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim())) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
     try { const r = await fetchImage(String(u.searchParams.get("url") || "")); res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "public, max-age=86400" }); return res.end(r.buf); }
     catch (e) { return send(res, e.status || 502, { error: e.message }); }
   }
@@ -389,6 +413,7 @@ async function handler(req, res) {
     return send(res, 200, { ok: true, accounts: await DS.balances(request, readAll) });
   }
   if (req.method === "GET" && route === "/diagnose") {
+    if (limited((req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim())) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
     // проверка «вживую»: получить токен GigaChat ключом с сервера (или из заголовка)
     const key = String(req.headers["x-gigachat-key"] || process.env.GIGACHAT_KEY || "").trim();
     if (!key) return send(res, 200, { ok: false, reason: "no_key", message: "На прокси нет ключа GigaChat (GIGACHAT_KEY)." });
@@ -405,6 +430,8 @@ async function handler(req, res) {
     const raw = await readBody(req);
     if (route === "/relay") {
       if (!relayAuthOk(req)) return send(res, 407, { error: "прокси требует логин и пароль", reason: "proxy_auth" });
+      // пароль прокси не задан и облако подключено — пускаем только вошедших, чтобы не держать открытый релей
+      if (!ENV.proxyUser && !ENV.proxyPass && Q.on() && !(await Q.validUser(req.headers["x-user-token"], request, readAll))) return send(res, 401, { error: "войдите в личный кабинет", reason: "login" });
       let target; try { target = new URL(u.searchParams.get("url") || ""); } catch { return send(res, 400, { error: "нет адреса url" }); }
       if (target.protocol !== "https:" || !RELAY_HOSTS.some(h => target.hostname === h || target.hostname.endsWith("." + h))) return send(res, 403, { error: "этот адрес нельзя пересылать: " + target.hostname });
       const pass = {}; for (const h of ["authorization", "x-api-key", "anthropic-version", "anthropic-dangerous-direct-browser-access", "http-referer", "x-title", "content-type"]) if (req.headers[h]) pass[h] = req.headers[h];
@@ -414,7 +441,7 @@ async function handler(req, res) {
     if (route === "/pay/yk") { await PAY.ykNotify(raw, request, readAll).catch(e => console.warn("yk notify", e.message)); return send(res, 200, { ok: true }); } // уведомления ЮKassa
     if (route === "/pay/notify") { const r = await PAY.notify(raw, req.headers, request, readAll); res.writeHead(r.status, { "Content-Type": "text/plain; charset=utf-8" }); return res.end(r.text); }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
-    if (route === "/admin/join") { const r = await Q.join(req.headers["x-user-token"], body.code, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? { ok: true } : { error: r.message }); }
+    if (route === "/admin/join") { const r = await Q.join(req.headers["x-user-token"], body.code, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? { ok: true, already: !!r.already } : { error: r.message }); }
     if (route === "/admin/keys") {
       // ячейки ключей DeepSeek — только автору сайта (вход в кабинет почтой из site_admins или X-Admin-Token)
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
@@ -466,8 +493,19 @@ async function handler(req, res) {
       return res.end(r.text);
     }
     if (route === "/gigachat/v1/chat/completions") {
-      const key = String(req.headers["x-gigachat-key"] || process.env.GIGACHAT_KEY || "").trim();
+      const userKey = String(req.headers["x-gigachat-key"] || "").trim();
+      const key = userKey || String(process.env.GIGACHAT_KEY || "").trim();
       if (!key) return send(res, 401, { error: "нет ключа GigaChat (заголовок X-GigaChat-Key)", reason: "no_key" });
+      // тратится серверный ключ сайта — только по входу и в пределах тарифа (как DeepSeek), с потолком на модель и длину ответа
+      if (!userKey) {
+        if (!Q.on()) return send(res, 503, { error: "кабинет сайта не подключён — вход и тариф проверить нечем", reason: "no_cloud" });
+        const admin = await Q.isAdmin(req.headers["x-user-token"], request, readAll);
+        const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll);
+        if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
+        body.model = clampModel(body.model, LIMITS.gigaModels, LIMITS.gigaDefault);
+        body.max_tokens = clampOut(body.max_tokens);
+        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body)).catch(e => console.warn("quota", e.message));
+      }
       const token = await gigaToken(key);
       const out = JSON.stringify({ model: body.model || "GigaChat-2-Pro", messages: body.messages, stream: body.stream !== false, ...(body.max_tokens ? { max_tokens: body.max_tokens } : {}), ...(body.temperature != null ? { temperature: body.temperature } : {}) });
       const up = await request(ENV.gigaApi, { headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: body.stream === false ? "application/json" : "text/event-stream" }, body: out });
@@ -475,9 +513,21 @@ async function handler(req, res) {
       return pipeUpstream(res, up);
     }
     if (route === "/yandex/v1/chat/completions") {
-      const key = String(req.headers["x-yandex-key"] || process.env.YANDEX_KEY || "").trim();
+      const userKey = String(req.headers["x-yandex-key"] || "").trim();
+      const key = userKey || String(process.env.YANDEX_KEY || "").trim();
       const folder = String(req.headers["x-yandex-folder"] || process.env.YANDEX_FOLDER || "").trim();
       if (!key || !folder) return send(res, 401, { error: "нужны X-Yandex-Key и X-Yandex-Folder", reason: "no_key" });
+      // тратится серверный ключ сайта — только по входу и в пределах тарифа, с потолком на модель и длину ответа
+      if (!userKey) {
+        if (!Q.on()) return send(res, 503, { error: "кабинет сайта не подключён — вход и тариф проверить нечем", reason: "no_cloud" });
+        const admin = await Q.isAdmin(req.headers["x-user-token"], request, readAll);
+        const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll);
+        if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
+        body.model = clampModel(body.model, LIMITS.yaModels, LIMITS.yaDefault);
+        if (body.completionOptions && typeof body.completionOptions === "object") body.completionOptions.maxTokens = clampOut(body.completionOptions.maxTokens);
+        if (body.max_tokens != null) body.max_tokens = clampOut(body.max_tokens);
+        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body)).catch(e => console.warn("quota", e.message));
+      }
       const model = String(body.model || "yandexgpt/latest");
       const out = JSON.stringify({ ...body, model: model.startsWith("gpt://") ? model : `gpt://${folder}/${model}`, stream: body.stream !== false });
       const up = await request(ENV.yaApi, { headers: { Authorization: "Api-Key " + key, "OpenAI-Project": folder, "x-folder-id": folder, "Content-Type": "application/json" }, body: out });

@@ -43,9 +43,14 @@ async function check(userToken, request, readAll) {
 /* Списание: в токенах — сколько реально потратил запрос (из ответа DeepSeek); иначе — 1 запрос */
 async function spend(q, request, readAll, tokens = 0) {
   if (!on() || !q.id) return;
+  const n = Math.max(1, Math.round(tokens));
+  // атомарно одним запросом в БД (функция spend_ai из supabase.sql) — не ломается при параллельных вызовах
+  const r = await sb(request, readAll, "/rest/v1/rpc/spend_ai", { method: "POST", body: { p_id: q.id, p_tokens: n, p_tok: !!q.tok } }).catch(() => null);
+  if (r && r.status < 300) return;
+  // запас, если функции ещё нет в облаке (с гонкой, но лучше, чем не списать)
   if (q.tok) {
     const cur = (await sb(request, readAll, `/rest/v1/profiles?id=eq.${q.id}&select=tokens_used`)).json?.[0]?.tokens_used ?? q.used;
-    await sb(request, readAll, `/rest/v1/profiles?id=eq.${q.id}`, { method: "PATCH", body: { tokens_used: (cur || 0) + Math.max(1, Math.round(tokens)) } });
+    await sb(request, readAll, `/rest/v1/profiles?id=eq.${q.id}`, { method: "PATCH", body: { tokens_used: (cur || 0) + n } });
     return;
   }
   await sb(request, readAll, `/rest/v1/profiles?id=eq.${q.id}`, { method: "PATCH", body: { ai_left: Math.max(0, q.left - 1) } });
@@ -98,13 +103,25 @@ async function isAdmin(userToken, request, readAll) {
 }
 /* Разработчик ввёл код на сайте (уже войдя в кабинет) — вносим его почту в site_admins.
    Сверяется отпечаток кода, как на сайте; свой код — переменная DEV_CODE_HASH (SHA-256 от "uchu-po-frp:dev:v5" + код). */
-const DEV_HASH = () => process.env.DEV_CODE_HASH || "7c22fbd5e2f15b7e42bc033064a7e36016d49d7e6f1300dab2bb1fdd3dd31c1e";
+// отпечаток кода разработчика берётся только из переменной окружения DEV_CODE_HASH (в репозитории его нет).
+// Задай длинный случайный код; хэш = SHA-256 от "uchu-po-frp:dev:v5" + код.
+const DEV_HASH = () => process.env.DEV_CODE_HASH || "";
+/* Защита от подбора кода: не больше 8 неверных попыток за 15 минут на вошедшего и 30 — на весь экземпляр функции.
+   Счётчик в памяти (у каждого экземпляра свой), поэтому код всё равно должен быть длинным и случайным. */
+const fails = new Map();
+function tooMany(key) { const now = Date.now(), a = (fails.get(key) || []).filter(t => now - t < 900000); fails.set(key, a); return a.length >= (key === "*" ? 30 : 8); }
+function failed(key) { const a = fails.get(key) || []; a.push(Date.now()); fails.set(key, a); const g = fails.get("*") || []; g.push(Date.now()); fails.set("*", g); if (fails.size > 2000) for (const [k, v] of fails) if (!v.length || Date.now() - v[v.length - 1] > 900000) fails.delete(k); }
 async function join(userToken, code, request, readAll) {
   if (!on()) return { ok: false, status: 503, message: "облако не подключено" };
-  const h = require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code || "")).digest("hex");
-  if (h !== DEV_HASH()) return { ok: false, status: 403, message: "неверный код" };
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
   const email = (u.json?.email || "").toLowerCase(); if (u.status !== 200 || !email) return { ok: false, status: 401, message: "войдите в кабинет" };
+  // уже разработчик (почта есть в site_admins) — код не нужен
+  const ex = await sb(request, readAll, `/rest/v1/site_admins?email=eq.${encodeURIComponent(email)}&select=email`);
+  if (Array.isArray(ex.json) && ex.json.length) return { ok: true, email, already: true };
+  if (!DEV_HASH()) return { ok: false, status: 403, message: "вход по коду разработчика отключён на сервере" };
+  if (tooMany(u.json.id) || tooMany("*")) return { ok: false, status: 429, message: "слишком много неверных попыток, подождите 15 минут" };
+  const h = require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code || "")).digest("hex");
+  if (h !== DEV_HASH()) { failed(u.json.id); return { ok: false, status: 403, message: "неверный код" }; }
   await sb(request, readAll, "/rest/v1/site_admins?on_conflict=email", { method: "POST", body: { email } });
   return { ok: true, email };
 }
@@ -120,14 +137,34 @@ async function freeUse(userToken, body, ip, request, readAll) {
   const net = String(ip || "").replace(/^::ffff:/, "").split(".").slice(0, 3).join(".");
   const month = new Date().toISOString().slice(0, 7);
   const keys = [["u:" + u.json.id, FREE_LESSONS()], ...(body.fp ? [["f:" + H(String(body.fp).slice(0, 200)), FREE_LESSONS()]] : []), ...(body.dev ? [["d:" + H(String(body.dev).slice(0, 100)), FREE_LESSONS()]] : []), ...(net ? [["n:" + H(net), FREE_NET()]] : [])];
+  const netMsg = "С этой сети бесплатные уроки на этот месяц закончились. Выберите тариф.";
+  const devMsg = "Бесплатные уроки на этот месяц закончились (на этом устройстве или в этом кабинете). Выберите тариф — уроки без ограничений.";
+  // атомарно: проверка и списание всех ключей одной функцией в БД (free_use_bump из supabase.sql) — не обойти параллельными запросами
+  const rpc = await sb(request, readAll, "/rest/v1/rpc/free_use_bump", { method: "POST", body: { keys: keys.map(k => k[0]), lims: keys.map(k => k[1]), mon: month, dry: !!body.dry } }).catch(() => null);
+  if (rpc && rpc.status < 300 && rpc.json && typeof rpc.json === "object") {
+    if (rpc.json.over) return { ok: false, status: 402, reason: "free", message: String(rpc.json.over).startsWith("n:") ? netMsg : devMsg };
+    return { ok: true, left: rpc.json.left };
+  }
+  // запас, если функции ещё нет в облаке (со старой гонкой)
   const list = (await sb(request, readAll, `/rest/v1/free_usage?month=eq.${month}&key=in.(${keys.map(k => `"${k[0]}"`).join(",")})&select=key,n`)).json;
   if (!Array.isArray(list)) return { ok: true, off: true }; // таблицы ещё нет — не мешаем
   const n = k => (list.find(r => r.key === k)?.n) || 0;
   const over = keys.find(([k, lim]) => n(k) >= lim);
-  if (over) return { ok: false, status: 402, reason: "free", message: over[0][0] === "n" ? "С этой сети бесплатные уроки на этот месяц закончились. Выберите тариф." : "Бесплатные уроки на этот месяц закончились (на этом устройстве или в этом кабинете). Выберите тариф — уроки без ограничений." };
+  if (over) return { ok: false, status: 402, reason: "free", message: over[0][0] === "n" ? netMsg : devMsg };
   if (body.dry) return { ok: true, left: Math.min(...keys.map(([k, lim]) => lim - n(k))) };
   for (const [k] of keys) await sb(request, readAll, "/rest/v1/free_usage?on_conflict=key,month", { method: "POST", body: { key: k, month, n: n(k) + 1, updated_at: new Date().toISOString() }, prefer: "resolution=merge-duplicates" });
   return { ok: true, left: Math.min(...keys.map(([k, lim]) => lim - n(k) - 1)) };
 }
-const devCodeOk = code => !!code && require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code)).digest("hex") === DEV_HASH();
-module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk, freeOk };
+const devCodeOk = code => {
+  if (!DEV_HASH() || !code || tooMany("*")) return false;
+  const ok = require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code)).digest("hex") === DEV_HASH();
+  if (!ok) failed("*");
+  return ok;
+};
+/* Проверка входа без списания квоты (для открытых маршрутов вроде /relay) */
+async function validUser(userToken, request, readAll) {
+  if (!on() || !userToken) return null;
+  const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
+  return u.status === 200 && u.json?.id ? u.json : null;
+}
+module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk, freeOk, validUser };

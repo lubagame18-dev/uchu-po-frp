@@ -121,8 +121,10 @@ async function ykNotify(raw, request, readAll) {
   const [type, item] = kind.split("_"), sum = parseFloat(pay.amount?.value || "0");
   const expect = type === "pack" ? PACKS[item]?.price : type === "plan" ? Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined : 10;
   if (!expect || sum + 0.01 < expect) return { status: 200 };
+  // занимаем платёж одним действием в БД: два одинаковых уведомления подряд не начислят тариф дважды
+  if (row) { const claim = await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order)}&status=neq.paid`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null); if (!claim || claim.status >= 300 || !Array.isArray(claim.json) || !claim.json.length) return { status: 200 }; }
   await apply(uid, p, type, item, !!p.promo || p.plan === "promo", request, readAll);
-  await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order)}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
+  if (!row) await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order || ("yk_" + String(pay.id)), user_id: uid, kind, amount: sum, status: "paid" } }).catch(() => null);
   return { status: 200 };
 }
 

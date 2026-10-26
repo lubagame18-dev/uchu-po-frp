@@ -12,7 +12,7 @@
 const Dev = (() => {
   "use strict";
   const SALT = "uchu-po-frp:dev:v5";
-  const HASH = "7c22fbd5e2f15b7e42bc033064a7e36016d49d7e6f1300dab2bb1fdd3dd31c1e"; // SHA-256(SALT + пароль); подставляется при сборке, сам пароль в коде не хранится
+  // отпечатка кода в сайте больше нет: код проверяет только сервер (переменная DEV_CODE_HASH), так его нельзя подобрать, скачав сайт
   const SAVED = "uchu:dev-fill", SESSION = "uchu:dev-session";
   let on = false, section = "materials";
 
@@ -28,12 +28,17 @@ const Dev = (() => {
   /* Разработчиков несколько: каждый сначала входит в личный кабинет своей почтой, потом вводит код разработчика */
   const email = () => (window.Account?.session?.email || "").toLowerCase();
   const needAcc = () => !!window.Account?.ready?.() && !email();
-  const mark = () => HASH.slice(0, 16) + ":" + email();
+  const mark = () => "v6:" + email();
   /* сервер вносит почту в список разработчиков (site_admins) — тогда видны ключи ИИ и присланные материалы */
   async function join(code) {
     const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
-    if (!fn || !tok || !code) return;
-    try { const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join"; await fetch(u, { method: "POST", signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code }) }); } catch { }
+    if (!fn || !tok) return { ok: false, message: "войдите в личный кабинет" };
+    try {
+      const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join";
+      const r = await fetch(u, { method: "POST", signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code: code || "" }) });
+      const j = await r.json().catch(() => ({}));
+      return r.ok ? { ok: true } : { ok: false, message: j.error || "ошибка " + r.status };
+    } catch { return { ok: false, message: "сервер не отвечает, попробуйте позже" }; }
   }
   /* полоска «вы смотрите как учитель» */
   function asTeacherBar() {
@@ -50,7 +55,7 @@ const Dev = (() => {
     if (on) return show("files");
     if (needAcc()) { Dev.wantDev = true; toast("Сначала войдите в личный кабинет своей почтой — потом откроется вход разработчика.", 6000); window.Account.open(); return; }
     // вход запомнен на этом устройстве (для этой почты) — сразу входим, без кода
-    try { if (remembered()) { enter(); join(deob(localStorage.getItem(SAVED) || "")); return; } } catch { }
+    try { if (remembered()) { enter(); try { localStorage.removeItem(SAVED); } catch { } return; } } catch { }
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Режим разработчика</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <form class="dlg-b" id="devForm" autocomplete="off">
         ${email() ? `<p class="small">Кабинет: ${esc(email())}</p>` : ""}
@@ -67,10 +72,11 @@ const Dev = (() => {
     };
     m.querySelector("#devForm").onsubmit = async e => {
       e.preventDefault();
-      const ok = (await sha(SALT + pass.value)) === HASH;
-      if (!ok) { msg.textContent = "Неверный код."; pass.select(); if (window.Log) Log.add("вход", "неверный пароль разработчика"); return; }
-      try { if (m.querySelector("#devRemember").checked) { localStorage.setItem(SAVED, ob(pass.value)); localStorage.setItem(SESSION, mark()); } else { localStorage.removeItem(SAVED); localStorage.removeItem(SESSION); } } catch { }
-      join(pass.value); closeModal(); enter();
+      msg.textContent = "Проверяю…";
+      const chk = await join(pass.value);
+      if (!chk.ok) { msg.textContent = chk.message || "Неверный код."; pass.select(); if (window.Log) Log.add("вход", "неверный пароль разработчика"); return; }
+      try { if (m.querySelector("#devRemember").checked) { localStorage.removeItem(SAVED); localStorage.setItem(SESSION, mark()); } else { localStorage.removeItem(SAVED); localStorage.removeItem(SESSION); } } catch { }
+      closeModal(); enter();
     };
   }
   function enter() {
@@ -582,7 +588,7 @@ const Dev = (() => {
   }
   document.addEventListener("DOMContentLoaded", mountEntry);
   // запомненный вход действует только вместе с кабинетом той же почты (если облако подключено)
-  const remembered = () => { try { const v = localStorage.getItem(SESSION) || ""; return window.Account?.ready?.() ? !!email() && v === mark() : v.startsWith(HASH.slice(0, 16)); } catch { return false; } };
+  const remembered = () => { try { const v = localStorage.getItem(SESSION) || ""; return window.Account?.ready?.() ? !!email() && v === mark() : false; } catch { return false; } };
   return { wantDev: false, openLogin, enter, exit, show, publishBase: embedAll, remembered, get on() { return on; } };
 })();
 window.Dev = Dev;
