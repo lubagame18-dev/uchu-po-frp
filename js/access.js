@@ -24,18 +24,18 @@ const Access = (() => {
   const F = {
     lesson: ["📘", "#6b2bd9", "Конспект урока — удобно печатать"], tech: ["📋", "#2f8f5b", "Технологическая карта по ФРП — для проверки и сдачи"], slides: ["🖥️", "#f05aa6", "Презентация — красивая, с анимацией"], sheet: ["📝", "#ff9f1c", "Рабочий лист, памятка, самостоятельная и д/з"],
     cloud: ["☁️", "#2fa6e8", "Все уроки — в личном кабинете"], download: ["⬇️", "#2f8f5b", "Скачивание: Word, PDF, PowerPoint"], unlim: ["♾️", "#6b2bd9", "Уроки без ограничений"],
-    ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai50: ["🤖", "#a43fd0", "50 уроков с ИИ в месяц"], ai120: ["🚀", "#a43fd0", "120 уроков с ИИ в месяц"],
-    pics: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 10 в месяц"],
-    pics40: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 30 в месяц"],
-    more: ["➕", "#ff9f1c", "Можно докупить уроки с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "3 урока в месяц — попробовать"]
+    ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai60: ["🤖", "#a43fd0", "60 конспектов с ИИ в месяц"], ai90: ["🤖", "#a43fd0", "90 конспектов с ИИ в месяц"], ai140: ["🚀", "#a43fd0", "140 конспектов с ИИ в месяц"],
+    pics: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 8 в месяц"],
+    pics40: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 18 в месяц"],
+    more: ["➕", "#ff9f1c", "Можно докупить конспекты с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "3 урока в месяц — попробовать"]
   };
   const PLANS = {
     free: { name: "Бесплатный", price: 0, lessons: 3, extraSheets: 0, ai: false, art: "🎁", tag: "попробовать", feats: ["three", "lesson", "slides", "sheet", "cloud"] },
-    basic: { name: "Учитель", price: 300, lessons: Infinity, extraSheets: 2, ai: false, art: "📚", tag: "для каждого урока", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
-    ai: { name: "Учитель + ИИ", price: 590, lessons: Infinity, ai: true, img: true, imgQuota: 10, extraSheets: 10, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai50", "pics", "more", "download", "cloud"] },
-    pro: { name: "Методист", price: 990, lessons: Infinity, ai: true, img: true, imgQuota: 30, extraSheets: 30, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai120", "pics40", "more", "help", "cloud"] }
+    basic: { name: "Учитель", price: 350, lessons: Infinity, extraSheets: 2, ai: true, art: "📚", tag: "для каждого урока", feats: ["unlim", "ai", "ai60", "lesson", "slides", "sheet", "download", "cloud"] },
+    ai: { name: "Учитель + ИИ", price: 690, lessons: Infinity, ai: true, img: true, imgQuota: 8, extraSheets: 10, art: "✨", tag: "самый популярный", feats: ["unlim", "ai", "ai90", "pics", "more", "download", "cloud"] },
+    pro: { name: "Методист", price: 1190, lessons: Infinity, ai: true, img: true, imgQuota: 18, extraSheets: 30, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai140", "pics40", "more", "help", "cloud"] }
   };
-  const PACKS = { ai10: { name: "+10 уроков с ИИ", price: 50 }, ai30: { name: "+30 уроков с ИИ", price: 140 } };
+  const PACKS = { ai10: { name: "+10 конспектов с ИИ", price: 70 }, ai30: { name: "+30 конспектов с ИИ", price: 190 } };
 
 
   /* Текущий уровень: промокод > тариф кабинета > бесплатный. В некоммерческой версии — всё открыто. */
@@ -74,7 +74,7 @@ const Access = (() => {
   function countLesson() { if (free() || PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
-    if (useAi && !aiAllowed()) { open("Уроки с ИИ — в тарифах «Учитель + ИИ» и «Методист»."); return false; }
+    if (useAi && !aiAllowed()) { open("Уроки с ИИ — в платных тарифах: «Учитель», «Учитель + ИИ» и «Методист»."); return false; }
     if (useAi && isPromo() && !window.AI?.ownConfigured?.()) { toast("Подключите ключ своей нейросети — кнопка «⚙ Подключить ИИ» вверху.", 6000); window.AI?.openLite?.(); return false; }
     if (!useAi && lessonsLeft() <= 0) { open("Бесплатные уроки на этот месяц закончились. Выберите тариф."); return false; }
     return true;
@@ -126,7 +126,7 @@ const Access = (() => {
       ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас бесплатный доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L !== "dev" && PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
       <div class="tr-grid">${Object.entries(PLANS).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur ? `<span class="tr-badge">${promoFree() ? "ваш доступ по промокоду" : "ваш тариф"}</span>` : k === "ai" ? `<span class="tr-badge hot">${p.tag}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div><h3>${p.name}</h3><div class="tr-price">${promoFree() && k === cur ? `<s>${p.price}</s> 0 ₽` : p.price ? (pr ? `<s>${p.price}</s> ${priceOf(k)} ₽<small>/мес</small>` : `${p.price} ₽<small>/мес</small>`) : "0 ₽"}</div><ul class="tr-feats">${featsOf(k, p).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">${promoFree() ? "Всё открыто бесплатно" : "Подключён сейчас"}</span>` : k === "free" || promoFree() ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && PLANS[cur].price && p.price > PLANS[cur].price ? "Повысить" : cur && PLANS[cur].price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
       ${!site().payments && me() && cur && cur !== "free" && !promoFree() ? `<p class="small tr-reset"><button type="button" class="btn plain" id="trReset">🧪 Тест: вернуть бесплатный тариф</button></p>` : ""}
-      ${cur && PLANS[cur].ai && !pr ? `<div class="tr-packs"><b>Не хватает уроков с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}</div>` : ""}
+      ${cur && PLANS[cur].ai && !pr ? `<div class="tr-packs"><b>Не хватает конспектов с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}</div>` : ""}
       ${promoFree() ? "" : !me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>${pr ? "Другой промокод" : "Промокод"}</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
     m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));

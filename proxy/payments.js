@@ -11,10 +11,10 @@
    =================================================================== */
 const crypto = require("crypto");
 /* tokens — сколько токенов ИИ сайта (DeepSeek) входит в тариф на месяц: ≈ 40 тыс. на урок с ИИ */
-const PLANS = { basic: { name: "Учитель", price: 300, ai: 0, tokens: 0 }, ai: { name: "Учитель + ИИ", price: 590, ai: 50, tokens: 2000000 }, pro: { name: "Методист", price: 990, ai: 120, tokens: 4800000 } };
+const PLANS = { basic: { name: "Учитель", price: 350, ai: 60, tokens: 3240000 }, ai: { name: "Учитель + ИИ", price: 690, ai: 90, tokens: 4860000 }, pro: { name: "Методист", price: 1190, ai: 140, tokens: 7560000 } };
 const PROMO_K = 0.5; // скидка по промокоду, если у кода не задан свой процент
 const kOf = p => (!!p.promo || p.plan === "promo") ? (p.promo_pct ? 1 - Math.max(1, Math.min(99, +p.promo_pct)) / 100 : PROMO_K) : 1;
-const PACKS = { ai10: { name: "10 уроков с ИИ", price: 50, ai: 10, tokens: 400000 }, ai30: { name: "30 уроков с ИИ", price: 140, ai: 30, tokens: 1200000 } };
+const PACKS = { ai10: { name: "10 конспектов с ИИ", price: 70, ai: 10, tokens: 540000 }, ai30: { name: "30 конспектов с ИИ", price: 190, ai: 30, tokens: 1620000 } };
 const DAY = 864e5;
 const env = k => process.env[k] || "";
 /* ЮKassa (самозанятые): YOOKASSA_SHOP_ID и YOOKASSA_KEY — если заданы, оплата идёт через неё (основной способ — СБП) */

@@ -237,7 +237,7 @@ const Dev = (() => {
     const draw = msg => {
       box.innerHTML = `<h2>Проверка оплаты и ИИ сайта <span class="tag">тест, без денег</span></h2>
         <p class="small">1) Смоделируйте оплату тарифа — он начислится вашему кабинету (или учителю по почте), как после настоящей оплаты. 2) Отправьте пробный запрос — он пройдёт через общие ключи DeepSeek, токены спишутся с тарифа.</p>
-        <div class="row-btn"><select id="tpItem"><option value="ai">«Учитель + ИИ» (2 млн токенов)</option><option value="pro">«Методист» (4,8 млн токенов)</option><option value="basic">«Учитель» (без ИИ)</option><option value="ai10">+10 уроков с ИИ</option></select><input type="text" id="tpEmail" placeholder="почта учителя (пусто — вам)" autocomplete="off"><button class="btn sm flame" id="tpPay" type="button">Смоделировать оплату</button></div>
+        <div class="row-btn"><select id="tpItem"><option value="ai">«Учитель + ИИ» (4,9 млн токенов)</option><option value="pro">«Методист» (7,6 млн токенов)</option><option value="basic">«Учитель» (3,2 млн токенов)</option><option value="ai10">+10 конспектов с ИИ</option></select><input type="text" id="tpEmail" placeholder="почта учителя (пусто — вам)" autocomplete="off"><button class="btn sm flame" id="tpPay" type="button">Смоделировать оплату</button></div>
         <div class="row-btn"><button class="btn sm" id="tpAsk" type="button">Пробный запрос к ИИ сайта</button><span class="small">${esc(usage())}</span></div>
         <p class="small" id="tpSt" role="status">${msg || ""}</p>`;
       const st = box.querySelector("#tpSt");
