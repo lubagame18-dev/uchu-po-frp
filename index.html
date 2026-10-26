@@ -4046,12 +4046,13 @@ async function createLesson() {
   // своя тема (не из списка ФРП): ИИ сам исправляет опечатки и записывает тему правильно; тема с опечатками в материал не попадает
   if (useAi && window.AI && AI.configured()) {
     const norm0 = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]+/g, " ").trim();
-    const known = topicList().items.some(i => norm0(i.title || i) === norm0(p.topic));
+    const nt0 = norm0(p.topic), known = nt0.length >= 4 && topicList().items.some(i => { const x = norm0(i.title || i); return x === nt0 || x.includes(nt0); });
     if (!known && p.topic.length >= 3) {
       try {
-        const q = `Исправь опечатки, орфографию и пунктуацию в теме школьного урока (${p.grade} класс). Ничего не добавляй и не меняй по смыслу. Если ошибок нет, верни тему без изменений. Верни только тему одной строкой, без кавычек вокруг и без пояснений.\n\nТема: ${p.topic}`;
-        const r = await AI.sample(q, { modelTier: "quick" }); const fixed = String(r?.text || "").split("\n")[0].replace(/^["«]|["»]$/g, "").trim();
-        if (fixed && fixed.length >= 3 && fixed.length <= p.topic.length * 1.5 + 10 && fixed !== p.topic) { p.topic = fixed; state.topic = fixed; if ($("#topic")) $("#topic").value = fixed; }
+        const subj = window.Subjects?.name ? Subjects.name(p.subject) : p.subject;
+        const q = `Ты методист. Учитель вписал тему школьного урока (предмет: ${subj}, ${p.grade} класс). Исправь опечатки, орфографию и пунктуацию, правильно запиши имена и названия (произведения оставь в «ёлочках»). Если тема сформулирована слишком поверхностно (одно слово, обрывок, разговорная фраза), переформулируй её как нормальную тему урока, не меняя смысла и не добавляя новых фактов. Если с темой всё хорошо, верни её без изменений. Верни только тему одной строкой, без кавычек вокруг и без пояснений.\n\nТема: ${p.topic}`;
+        const r = await AI.sample(q, { modelTier: "quick" }); const fixed = String(r?.text || "").split("\n")[0].replace(/^["«]|["»]$/g, "").replace(/^Тема:\s*/i, "").trim();
+        if (fixed && fixed.length >= 3 && fixed.length <= p.topic.length * 3 + 30 && fixed !== p.topic) { const was = p.topic; p.topic = fixed; state.topic = fixed; if ($("#topic")) $("#topic").value = fixed; toast(`Тема уточнена: «${fixed}». Вы вписали: «${was}».`, 7000); }
       } catch { }
     }
   }
