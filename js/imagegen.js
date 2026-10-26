@@ -33,7 +33,7 @@ const ImageGen = (() => {
   const cfg = () => load();
   const own = () => { const c = load(); return !!c.on && (c.provider === "proxy" ? !!c.proxy : !!c.key && (c.provider === "gemini" || c.provider === "hub" || !!(c.base || PRESET[c.provider].base))); };
   /* общий вход сайта: серверная функция разработчика; ключи лежат только на сервере, тариф проверяется там же */
-  const siteUrl = () => { const u = String(window.UCHU_SITE?.nanoBanana || "").replace(/\/+$/, ""); return u ? (/functions\.yandexcloud\.net/.test(u) ? `${u}?path=${encodeURIComponent("/image")}` : u + "/image") : ""; };
+  const siteUrl = () => { const u = String(window.UCHU_SITE?.nanoBanana || window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""); return u ? (/functions\.yandexcloud\.net/.test(u) ? `${u}?path=${encodeURIComponent("/image")}` : u + "/image") : ""; };
   const isDevUser = () => !window.Access || !Access.commercial?.() || !!Access.isDev?.();
   const configured = () => (isDevUser() && own()) || !!siteUrl();
   const trim = u => String(u || "").replace(/\/+$/, "");
@@ -48,7 +48,7 @@ const ImageGen = (() => {
     if (!(isDevUser() && own())) {
       return withTimeout(o.timeout || 90000, async signal => {
         const tok = window.Account?.session?.access || "";
-        const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect }) });
+        const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect, kind: o.kind || "sheet" }) });
         const j2 = await r2.json().catch(() => ({}));
         if (r2.status === 401) throw new Error("войдите в личный кабинет");
         if (r2.status === 403) throw new Error("картинки доступны в тарифах «Учитель + ИИ» и «Методист»");
@@ -198,7 +198,7 @@ const ImageGen = (() => {
     const plan = await planSlots(p, md), out = [];
     for (const it of plan) {
       try {
-        const r = await image(it.kind === "portrait" ? portraitPrompt(it.en, p) : it.kind === "object" ? objectPrompt(it.en, p) : sceneP(it.en, p), { aspect: "1:1", maxW: 560 });
+        const r = await image(it.kind === "portrait" ? portraitPrompt(it.en, p) : it.kind === "object" ? objectPrompt(it.en, p) : sceneP(it.en, p), { aspect: "1:1", maxW: 560, kind: "part" });
         const im = await loadImg(r.url), S = 560, capH = it.caption ? 52 : 0, c = document.createElement("canvas"); c.width = S; c.height = S + capH; const g = c.getContext("2d");
         g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
         const t = document.createElement("canvas"); t.width = S; t.height = S; const tg = t.getContext("2d"); tg.drawImage(im, 0, 0, S, S);

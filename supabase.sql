@@ -104,3 +104,10 @@ create or replace function promo_free_ok() returns boolean language sql security
   select exists (select 1 from profiles p join promo_codes c on c.code = p.promo_free_code where p.id = auth.uid() and c.free and c.active);
 $$;
 grant execute on function promo_free_ok() to authenticated;
+
+-- Общие ключи для картинок (рабочие листы и презентации): 5 ячеек, читает только сервер
+create table if not exists img_keys (slot int primary key check (slot between 1 and 5), label text, key text, base_url text, model text, is_active boolean not null default true, updated_at timestamptz default now());
+alter table img_keys enable row level security;
+-- Месячный лимит листов с картинками по тарифу
+alter table profiles add column if not exists img_month text;
+alter table profiles add column if not exists img_used int default 0;

@@ -162,13 +162,13 @@ const Dev = (() => {
   /* Ключи DeepSeek: 5 ячеек. Ключ уходит на сервер (Яндекс-функция) и хранится в облаке,
      сайт видит только начало и конец ключа. Запросы идут по кругу; если аккаунт ответил ошибкой
      (нет денег, лимит, сбой) — запрос сам переходит на следующую ячейку. */
-  async function keysApi(body) {
+  async function keysApi(body, path = "/admin/keys") {
     const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
     if (!fn) throw new Error("не задан адрес Яндекс-функции");
     if (!tok) throw new Error("войдите в личный кабинет своей почтой (кнопка вверху справа) — ключи может менять только автор сайта");
     // вход мог устареть: обновляем его, но не ждём дольше 8 секунд
     await Promise.race([window.Account.refreshPlan?.().catch(() => null), new Promise(r => setTimeout(r, 8000))]);
-    const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/keys")}` : fn + "/admin/keys";
+    const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent(path)}` : fn + path;
     const go = () => fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify(body), signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined });
     let r;
     try { r = await go(); } catch { await new Promise(x => setTimeout(x, 1500)); try { r = await go(); } catch (e) { throw new Error(e.name === "TimeoutError" || e.name === "AbortError" ? "функция долго не отвечает — нажмите «Повторить» через минуту; если не поможет, откройте в Яндекс Облаке функцию → «Логи» и пришлите скриншот" : "нет связи с функцией: проверьте интернет; если интернет есть — откройте функцию в Яндекс Облаке и убедитесь, что у неё включено «Публичная функция» и загружен последний архив"); } }
@@ -179,8 +179,9 @@ const Dev = (() => {
     if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
     return j;
   }
+  const imgKeysApi = body => keysApi(body, "/admin/imgkeys");
   function secKeys(b) {
-    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card" id="dvImg"></section><section class="dev-card"><h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
+    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card" id="dvImg"></section><section class="dev-card"><h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p></section><section class="dev-card"><h2>Общие ключи для картинок</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
     ownKeyCard(b.querySelector("#dvOwn")); testPayCard(b.querySelector("#dvTest"));
     const imgBox = b.querySelector("#dvImg");
     const paintImg = () => {
@@ -190,39 +191,43 @@ const Dev = (() => {
         <div class="key-sub"><h3>Личный ключ ${ok ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'} <span class="tag">только у вас</span></h3>
           <p class="small">Хранится только в этом браузере и работает только у вас: для ваших проверок и своих листов. Учителям не передаётся.</p>
           <div id="dvImgForm"></div></div>
-        <div class="key-sub" style="margin-top:14px"><h3>Общий ключ ${site ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'} <span class="tag red">для всех учителей</span></h3>
-          <p class="small">Им пользуются учителя на тарифах «Учитель + ИИ» (500 ₽, 10 листов с картинками в месяц) и «Методист» (900 ₽, 40 листов), расход идёт с вашего баланса. Ключ хранится только на сервере (Яндекс-функция), в браузере его нет, а тариф и лимит проверяются там же. ${site ? "Адрес серверной функции задан." : "Пока не подключён: после настройки серверной функции здесь появится поле для общего ключа."}</p>
-          <label class="small"><b>Общий ключ (сервер)</b></label><input type="text" disabled style="width:100%;opacity:.55" placeholder="Появится после настройки серверной функции"></div>`;
+        <p class="small">Общие ключи для всех учителей (5 ячеек с переключением) — ниже, в блоке «Общие ключи для картинок».</p>`;
       window.imageKeyForm(imgBox.querySelector("#dvImgForm"), paintImg);
     };
     paintImg();
-    const box = b.children[2];
+    const pool = (box, o) => {
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
     const draw = (j, note) => {
-      box.innerHTML = `<h2>Общие ключи ИИ <span class="tag red">для всех учителей</span></h2>
-        <div class="key-warn"><b>Внимательно: это общий ключ.</b> Им пользуются все учителя на тарифах с ИИ, расход идёт с баланса этого аккаунта. Свой ключ для личной работы сюда не вставляйте — для него блок «Личный ключ» выше.</div>
-        <p class="small">Подходят DeepSeek и сторонний сервис по адресу (OpenAI-совместимый, работающий из России): впишите ключ сервиса, его адрес в «Свой адрес API» и модель. Напрямую Claude, OpenAI, Gemini, Grok и Groq не подключаются. <b>Через сторонние сервисы — на ваш страх и риск:</b> такие посредники обходят ограничения этих компаний, доступ могут отключить в любой момент.</p>
-        <p class="small">Заполните столько ячеек, сколько у вас аккаунтов. Запросы учителей идут по кругу; если аккаунт не отвечает (закончились деньги, лимит, сбой) — запрос сам переходит на следующий, учитель ошибки не видит. Ключ после сохранения хранится только на сервере — здесь видны лишь его начало и конец.</p>
+      box.innerHTML = `<h2>${o.title} <span class="tag red">для всех учителей</span></h2>
+        <div class="key-warn">${o.warn}</div>
+        ${o.help}
         ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
         <div class="key-grid">${j.slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
           <div class="key-h"><b>Аккаунт ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
           <input type="text" name="label" placeholder="Название, например: почта аккаунта" value="${esc(x.label || "")}" autocomplete="off">
-          <input type="text" class="secret" name="key" placeholder="${x.empty ? "Ключ любой нейросети" : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
-          <input type="text" name="model" placeholder="Модель (необязательно), например deepseek-flash" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false">
+          <input type="text" class="secret" name="key" placeholder="${x.empty ? o.keyPh : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
+          <input type="text" name="model" placeholder="${o.modelPh}" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false">
           <details${x.url ? " open" : ""}><summary class="small">Свой адрес API (необязательно)</summary><input type="text" name="url" placeholder="https://…/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
           <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>
           <div class="row-btn"><button class="btn sm flame" type="submit">Сохранить</button>${x.empty ? "" : `<button class="btn sm" type="button" data-k="test">Проверить</button><button class="btn sm ghost" type="button" data-k="delete">Очистить</button>`}</div>
         </form>`).join("")}</div>
-        ${j.env?.length ? `<p class="small">Ещё в настройках функции (переменная DEEPSEEK_POOL): ${j.env.map(e => esc(e.label) + " " + esc(e.key)).join(", ")}.</p>` : ""}`;
+        ${j.env?.length ? `<p class="small">Ещё в настройках функции (${o.envName}): ${j.env.map(e => esc(e.label) + " " + esc(e.key)).join(", ")}.</p>` : ""}`;
       box.querySelectorAll(".key-slot").forEach(f => {
         const slot = +f.dataset.slot;
-        const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await keysApi(body); draw(r, r.test ? { ...r.test, message: `Аккаунт ${slot}: ${r.test.message}` } : (body.action === "save" ? { ok: true, message: `Аккаунт ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Аккаунт ${slot} очищен.` } : null)); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
-        f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm("Это ОБЩИЙ ключ: им будут пользоваться все учителя на тарифах с ИИ, деньги спишутся с этого аккаунта. Сохранить?")) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), model: f.model.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
+        const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await o.api(body); draw(r, r.test ? { ...r.test, message: `Аккаунт ${slot}: ${r.test.message}` } : (body.action === "save" ? { ok: true, message: `Аккаунт ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Аккаунт ${slot} очищен.` } : null)); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
+        f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm("Это ОБЩИЙ ключ: им будут пользоваться " + o.who + ", деньги спишутся с этого аккаунта. Сохранить?")) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), model: f.model.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
         f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить аккаунт ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
       });
     };
-    const load = () => { box.innerHTML = `<h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p>`; keysApi({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>Общие ключи ИИ</h2><p class="tr-now">Не удалось загрузить общие ключи: ${esc(e.message)}</p><button class="btn sm flame" type="button" id="keysRetry">Повторить</button>`; box.querySelector("#keysRetry").onclick = load; }); };
+    const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>${o.title}</h2><p class="tr-now">Не удалось загрузить общие ключи: ${esc(e.message)}</p><button class="btn sm flame" type="button" id="keysRetry">Повторить</button>`; box.querySelector("#keysRetry").onclick = load; }); };
     load();
+    };
+    pool(b.children[2], { api: keysApi, title: "Общие ключи ИИ", who: "все учителя на тарифах с ИИ", envName: "переменная DEEPSEEK_POOL", keyPh: "Ключ любой нейросети", modelPh: "Модель (необязательно), например deepseek-flash",
+      warn: "<b>Внимательно: это общий ключ.</b> Им пользуются все учителя на тарифах с ИИ, расход идёт с баланса этого аккаунта. Свой ключ для личной работы сюда не вставляйте — для него блок «Личный ключ» выше.",
+      help: `<p class="small">Подходят DeepSeek и сторонний сервис по адресу (OpenAI-совместимый, работающий из России): впишите ключ сервиса, его адрес в «Свой адрес API» и модель. Напрямую Claude, OpenAI, Gemini, Grok и Groq не подключаются. <b>Через сторонние сервисы — на ваш страх и риск:</b> такие посредники обходят ограничения этих компаний, доступ могут отключить в любой момент.</p><p class="small">Заполните столько ячеек, сколько у вас аккаунтов. Запросы учителей идут по кругу; если аккаунт не отвечает (закончились деньги, лимит, сбой) — запрос сам переходит на следующий, учитель ошибки не видит. Ключ после сохранения хранится только на сервере — здесь видны лишь его начало и конец.</p>` });
+    pool(b.children[3], { api: imgKeysApi, title: "Общие ключи для картинок (рабочие листы и презентации)", who: "учителя на тарифах «Учитель + ИИ» (10 листов с картинками в месяц) и «Методист» (40)", envName: "переменная IMG_POOL", keyPh: "Ключ сервиса картинок (например AITUNNEL)", modelPh: "Нейросеть, например flux-schnell или gemini-2.5-flash-image",
+      warn: "<b>Внимательно: это общий ключ для картинок.</b> Им пользуются учителя на тарифах «Учитель + ИИ» и «Методист», расход идёт с баланса этого аккаунта. Он не связан с ключами текстовой модели выше.",
+      help: `<p class="small">Нужен сервис с OpenAI-совместимым адресом генерации картинок (например AITUNNEL: адрес вида <code>https://api.aitunnel.ru/v1</code>, ключ из личного кабинета). В «Свой адрес API» впишите адрес сервиса, в «Нейросеть» её название из кабинета (для листов рекомендуем flux-schnell). Прямые Google, OpenAI и Claude не подключаются.</p><p class="small">Заполните столько ячеек, сколько у вас ключей: когда один ключ перегружен или закончились деньги, запрос сам уходит на следующий ключ, учитель ошибки не видит. Тариф и месячный лимит листов проверяются на сервере.</p>` });
   }
   /* Тестовая оплата: тариф начисляется без денег — чтобы проверить ИИ сайта (общие ключи DeepSeek) и учёт токенов */
   function testPayCard(box) {

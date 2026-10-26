@@ -4030,7 +4030,7 @@ async function aiDeckPics(L) {
   for (const i of pick) {
     const title = (parts[i].match(/^#{1,3}\s+(.+)$/m) || [, L.title])[1].replace(/[*_`]/g, "");
     try {
-      const im = await ImageGen.image(`Illustration for a presentation slide. School subject: ${L.params?.subject}, grade ${L.params?.grade}, lesson topic «${L.title}», slide «${title}». Soft atmospheric flat illustration, calm light background, a few clear objects directly related to the topic, no dark fills. ${"No text, no letters, no numbers, no logos, no watermark."}`, { aspect: "4:3", maxW: 1100 });
+      const im = await ImageGen.image(`Illustration for a presentation slide. School subject: ${L.params?.subject}, grade ${L.params?.grade}, lesson topic «${L.title}», slide «${title}». Soft atmospheric flat illustration, calm light background, a few clear objects directly related to the topic, no dark fills. ${"No text, no letters, no numbers, no logos, no watermark."}`, { aspect: "4:3", maxW: 1100, kind: n ? "part" : "sheet" });
       const blob = await (await fetch(im.url)).blob(), id = "img-" + uid(); await Store.put("images", id, blob);
       parts[i] = parts[i].replace(/\s*$/, "") + `\n\n${Media.mdImage(title, "idb:" + id, {})}\n`; n++;
     } catch (e) { console.warn("deck pic", e); if (/401|403|402|429/.test(String(e.message))) break; }
