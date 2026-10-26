@@ -484,8 +484,9 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 .site-foot{border-top:2.5px solid var(--ink);margin-top:40px;padding:18px 0 26px;font-size:13.5px;color:var(--muted)}.site-foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}.site-foot a{color:inherit;font-weight:700}.site-foot p{margin:0}
 .ws-more{margin:8px 16px;padding:8px 12px;border:1px dashed var(--line,#ccc);border-radius:10px}.ws-more summary{cursor:pointer;font-weight:600}.ws-more .btn{margin-top:6px}
 .foot-docs{display:inline}.foot-docs summary{display:inline;cursor:pointer;color:inherit;list-style:none}.foot-docs summary::-webkit-details-marker{display:none}.foot-docs summary:hover{text-decoration:underline}.foot-docs[open]{display:block;margin-top:6px}.foot-docs-in{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;margin-top:4px;justify-content:center}.foot-docs-in[hidden]{display:none}.foot-docs-in a{color:inherit;text-decoration:underline}
-.xstyle.sub{flex-basis:100%;border:0;background:none;padding:0 0 0 12px;margin:-2px 0 2px}.xstyle.sub .check{font-size:13px;padding:4px 10px;min-height:0}
+.xstyle.sub[hidden]{display:none}.xstyle.sub summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);list-style:none;padding:2px 4px}.xstyle.sub summary::before{content:"▸ "}.xstyle.sub[open] summary::before{content:"▾ "}.xstyle.sub{display:block;flex-basis:100%;border:0;background:none;padding:0 0 0 12px;margin:-2px 0 2px}.xstyle.sub .check{font-size:13px;padding:4px 10px;min-height:0}
 .foot-center{flex-direction:column!important;align-items:center;text-align:center}.foot-center .foot-q{text-align:center}.foot-center .foot-dev{flex:0 0 auto!important;order:0!important;width:auto!important;text-align:center!important;margin:6px 0 0!important}.foot-center .foot-docs[open]{display:block}.foot-center .foot-docs-in{justify-content:center}.foot-docs{display:inline}.foot-docs summary{display:inline;font:12px/1.4 Arial,sans-serif;color:#9a9590;text-decoration:underline dotted rgba(154,149,144,.6);text-underline-offset:3px}
+.foot-center .foot-dev{text-decoration:none!important;cursor:default!important;opacity:.55}.prevhw.has{border:2px solid var(--flame,#ff5a36);background:#fff3ee}.prevhw.has summary::after{content:" · есть д/з с прошлого урока";color:var(--flame,#ff5a36)}
 </style>
 <link rel="stylesheet" href="css/v5.css">
 </head>
@@ -566,13 +567,13 @@ window.UCHU_SITE = {
             <label class="check"><input type="checkbox" value="lesson" checked> Конспект</label>
             <label class="check" id="chkTech" title="Технологическая карта по ФРП — для проверки оформления и сдачи"><input type="checkbox" value="conspect"> Техкарта <span class="pro-lock" hidden>🔒</span></label>
             <label class="check"><input type="checkbox" value="slides" checked> Презентация</label>
-            <div class="xstyle sub" id="deckStyle" hidden>
-              <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk"> 🖼 сгенерировать картинки <span class="small" id="deckAiNote"></span></label>
-              <span hidden><input type="radio" name="deckPics" value="real" checked><input type="radio" name="deckPics" value="ai"></span></div>
+            <details class="xstyle sub" id="deckStyle" hidden><summary>🖼 Картинки ИИ</summary>
+              <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk"> сгенерировать картинки <span class="small" id="deckAiNote"></span></label>
+              <span hidden><input type="radio" name="deckPics" value="real" checked><input type="radio" name="deckPics" value="ai"></span></details>
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
-            <div class="xstyle sub" id="wsStyle" hidden>
-              <label class="check" id="wsAiLbl" title="Нейросеть рисует иллюстрации и портреты. В Word они вставляются отдельными рисунками, лист остаётся редактируемым"><input type="checkbox" id="wsAiChk"> 🖼 сгенерировать картинки, оформление <span class="small" id="wsAiNote"></span></label>
-              <span hidden><input type="radio" name="wsPics" value="plain" checked><input type="radio" name="wsPics" value="ai"></span></div>
+            <details class="xstyle sub" id="wsStyle" hidden><summary>🖼 Картинки ИИ</summary>
+              <label class="check" id="wsAiLbl" title="Нейросеть рисует иллюстрации и портреты. В Word они вставляются отдельными рисунками, лист остаётся редактируемым"><input type="checkbox" id="wsAiChk"> сгенерировать картинки, оформление <span class="small" id="wsAiNote"></span></label>
+              <span hidden><input type="radio" name="wsPics" value="plain" checked><input type="radio" name="wsPics" value="ai"></span></details>
             <details class="check xopt" id="optCtrl"><summary>🧪 Контроль <span class="xv" id="ctrlVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><select id="xCtrl" aria-label="Вид контроля"><option value="">выберите вид…</option><option value="self">Самостоятельная работа</option><option value="check">Проверочная работа</option><option value="test">Контрольная работа</option></select>
               <label class="check"><input type="checkbox" id="xVar"> 2 варианта</label><label class="check"><input type="checkbox" id="xKeys" checked> Ключи и критерии</label></div></details>
@@ -600,9 +601,6 @@ window.UCHU_SITE = {
           <div class="field"><label for="wishes">Пожелания <span class="small">(необязательно)</span></label><textarea class="inp" id="wishes" placeholder="Класс слабый, нужна групповая работа; связать с «Тарасом Бульбой»"></textarea></div>
           <label class="check" style="align-self:flex-start;margin-top:10px"><input type="checkbox" id="deep"> Глубокая проработка</label>
         </div>
-        <details class="field prevhw" id="findBox"><summary>Что найти к уроку в источниках</summary>
-          <textarea class="inp" id="findWhat" placeholder="Например: Челябинск в годы войны — Танкоград, эвакуированные заводы, даты. Сайт найдёт это на российских образовательных сайтах и вставит в урок со ссылками."></textarea>
-        </details>
         <details class="field prevhw" id="prevHwBox"><summary>Д/з прошлого урока — для проверки</summary>
           <textarea class="inp" id="prevHw" placeholder="Что задавали: упр. 245 или № 312, 315 (можно с ответами)"></textarea>
           <div class="prevhw-btns"><button class="btn sm" type="button" id="prevHwPick">📎 Файл</button><button class="btn sm" type="button" id="prevHwFind">🔎 Найти в «Моих уроках»</button><input type="file" id="prevHwFile" hidden></div>
@@ -4008,7 +4006,7 @@ async function createLesson() {
   }
   p.prevHw = await resolvePrevHw(p); // проверка д/з — только по тому, что действительно задавали
   if ($("#prevHw")) { $("#prevHw").value = ""; $("#prevHwHint").textContent = ""; }
-  p.find = ($("#findWhat")?.value || "").trim(); if ($("#findWhat")) $("#findWhat").value = ""; // что найти — только для этого урока
+  p.find = ""; // что найти — только для этого урока
   p.notes = window.Notes ? Notes.snapshot() : null;
   if (window.Notes?.reset) Notes.reset();
   // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
@@ -4488,6 +4486,14 @@ function renderDownloads() {
     try { await exportOne(state.lesson, d, f); } catch (e) { console.error(e); toast("Выгрузка не удалась: " + (e.message || e)); } finally { b.disabled = false; }
   });
 }
+/* подсветка «Д/з прошлого урока», если оно есть в «Моих уроках» */
+(function () {
+  let tm; const box = () => $("#prevHwBox");
+  async function check() { try { const b = box(); if (!b) return; readForm(); if (($("#prevHw")?.value || "").trim()) { b.classList.remove("has"); return; } const f = await findPrevHw({ subject: state.subject, grade: state.grade, topic: state.topic, lessonNo: state.lessonNo }); b.classList.toggle("has", !!f); } catch { } }
+  const later = () => { clearTimeout(tm); tm = setTimeout(check, 700); };
+  document.addEventListener("DOMContentLoaded", () => { const side = document.querySelector("aside"); if (side) { side.addEventListener("input", later); side.addEventListener("click", later); } later(); });
+  document.addEventListener("uchu:lessonSaved", later);
+})();
 function syncStyleChoices() {
   const on = k => !!document.querySelector(`#formats input[value="${k}"]`)?.checked, can = !!(window.ImageGen && (!window.Access || Access.imagesAllowed()));
   const set = (box, chk, name, note, show) => {
