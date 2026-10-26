@@ -375,6 +375,7 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:700}
 @media (prefers-reduced-motion:reduce){*:not(.marquee-track):not(.glow-anim){animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.marquee-track{animation-duration:80s!important}}
 
 /* ---------- скрытая сцена для PDF ---------- */
+.xstyle{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:2px dashed var(--ink);border-radius:14px;background:var(--soft)}.xstyle.need{border-color:var(--flame);background:#fff1ec}.xstyle .lbl{font-weight:700;font-size:13.5px}
 .ws-art{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 10px;border:2px solid var(--ink)}
 .ws-art.ws-gal{width:68%;margin:0 auto 10px;border:0}
 #pdfstage{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111}
@@ -567,7 +568,12 @@ window.UCHU_SITE = {
             <details class="check xopt" id="optMemo"><summary>🧠 Запоминание <span class="xv" id="memoVal"></span><span class="pro-lock xlock" hidden>🔒</span></summary>
               <div class="xpop"><label class="check"><input type="checkbox" id="xMemoSheet"> Лист для запоминания</label><label class="check"><input type="checkbox" id="xMemo"> Памятка</label></div></details>
             <label class="check" id="chkPack" hidden title="Подготовка учителя, программы, ссылки, инструкция ученика и ZIP с файлами для компьютеров"><input type="checkbox" value="pack"> 💻 Пакет для компьютерного класса</label>
-            <label class="check" id="chkAiPics" hidden title="Красивые ИИ-иллюстрации в презентации. Реальные картинки из поиска остаются; расходует месячный лимит картинок."><input type="checkbox" id="xAiPics"> ✨ Красивые ИИ-картинки в презентации <span class="small">(реальные картинки остаются)</span></label>
+            <div class="xstyle" id="deckStyle" hidden><span class="lbl">🖼 Картинки в презентации</span>
+              <label class="check"><input type="radio" name="deckPics" value="real" checked> Только реальные картинки (из поиска)</label>
+              <label class="check" id="deckAiLbl"><input type="radio" name="deckPics" value="ai"> ✨ ИИ-оформление: красивые сгенерированные картинки, реальные изображения тоже используются <span class="small" id="deckAiNote"></span></label></div>
+            <div class="xstyle" id="wsStyle" hidden><span class="lbl">📄 Рабочий лист: оформление (нужно выбрать)</span>
+              <label class="check"><input type="radio" name="wsPics" value="plain"> Простой лист без оформления</label>
+              <label class="check" id="wsAiLbl"><input type="radio" name="wsPics" value="ai"> ✨ С оформлением: сгенерированные картинки и портреты, реальные изображения тоже используются <span class="small" id="wsAiNote"></span></label></div>
             <label class="check" id="chkHw"><input type="checkbox" id="xHw"> 🏠 Домашняя работа <span class="pro-lock xlock" hidden>🔒</span></label>
             <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
@@ -3723,7 +3729,7 @@ const QUESTIONS = `## Методика (главное требование к �
 12. Для русского языка — конкретный языковой материал (пары слов и предложений, «ловушки»), а не «примеры на доске».
 Примеры формулировок: «Сравните два предложения. Что изменилось и почему?», «Что произойдёт, если убрать…?», «Докажите, опираясь на текст…», «Какая строка, по-вашему, главная? Почему?».`;
 const INTEGRITY = `## Честность материала
-- Не выдумывай цитаты: приводи фрагменты, только если уверен в точности; иначе ⟦вставить текст по изданию⟧.
+- Не выдумывай цитаты: приводи фрагменты, только если уверен в точности; иначе не цитируй. Никаких пометок «проверить» и квадратных скобок в тексте не оставляй.
 - Даты, факты, названия — только достоверные. Не выдумывай URL, страницы учебников, статистику.
 - Раздел «Планируемые результаты» НЕ пиши: его подставит система дословно из ФРП. Поставь на его месте строку <!--RESULTS-->.`;
 const STYLE = `## Оформление (Markdown)
@@ -3760,7 +3766,7 @@ const GENERAL_PROMPT = `Ты — ведущий методист по русск
 • После каждого вопроса — *(Ориентир для учителя: …)*, не озвучивается. Без вариантов «если не ответили / если затрудняются» — один ясный ход урока.
 • Разные виды деятельности, дифференциация, рефлексия через проблемный вопрос.
 • Структура: тема, цель, задачи, оборудование, планируемые результаты (дословно из ФРП), таблица «Этап урока | Деятельность учителя (реплики, вопросы, ориентиры) | Деятельность учеников | УУД», домашнее задание двух уровней, источники.
-• Не выдумывай цитаты, даты и факты; если не уверен — пометь ⟦проверить⟧.
+• Не выдумывай цитаты, даты и факты; если не уверен — не приводи. Никаких пометок «проверить» в тексте не оставляй.
 
 Тема урока: …  Класс: …  Тип урока: …  Длительность: …`;
 const genPrompt = () => window.MethodBase ? GENERAL_PROMPT.replace("\n\nГлавное — методика:", "\n\n" + MethodBase.CORE + "\n\nГлавное — методика:") : GENERAL_PROMPT;
@@ -3976,6 +3982,10 @@ async function createLesson() {
   if (!window.Access || Access.techAllowed()) { const X = state.extra; if (X.ctrl) formats.push("control"); if (X.memoSheet || X.memo) formats.push("memo"); if (X.hw) formats.push("homework"); }
   if (state.subject !== "inf") { const i = formats.indexOf("pack"); if (i >= 0) formats.splice(i, 1); }
   if (!formats.length) { $("#createHint").textContent = "Отметьте хотя бы один документ."; return; }
+  syncStyleChoices();
+  const wsPick = document.querySelector('input[name="wsPics"]:checked')?.value || "", deckPick = document.querySelector('input[name="deckPics"]:checked')?.value || "real";
+  if (formats.includes("worksheet") && !wsPick) { $("#createHint").textContent = "Выберите оформление рабочего листа: простой лист или с картинками."; $("#wsStyle")?.scrollIntoView({ block: "center", behavior: "smooth" }); $("#wsStyle")?.classList.add("need"); return; }
+  $("#wsStyle")?.classList.remove("need");
   if (state.gen) { $("#createHint").textContent = "Дождитесь окончания текущей генерации или остановите её."; return; }
   $("#createHint").textContent = "";
   updateType();
@@ -4001,6 +4011,18 @@ async function createLesson() {
   if (window.Access && !(await Access.canBuildAsync(useAi))) return;
   window.Usage?.begin("Сборка урока", state.topic); // тариф, промокод, бесплатный лимит (сервер)
   if (useAi && window.UCHU && !window.UCHU.configured()) { openAiSettings(); return; }
+  // своя тема (не из списка ФРП): ИИ сам исправляет опечатки и записывает тему правильно; тема с опечатками в материал не попадает
+  if (useAi && window.AI && AI.configured()) {
+    const norm0 = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]+/g, " ").trim();
+    const known = topicList().items.some(i => norm0(i.title || i) === norm0(p.topic));
+    if (!known && p.topic.length >= 3) {
+      try {
+        const q = `Исправь опечатки, орфографию и пунктуацию в теме школьного урока (${p.grade} класс). Ничего не добавляй и не меняй по смыслу. Если ошибок нет, верни тему без изменений. Верни только тему одной строкой, без кавычек вокруг и без пояснений.\n\nТема: ${p.topic}`;
+        const r = await AI.sample(q, { modelTier: "quick" }); const fixed = String(r?.text || "").split("\n")[0].replace(/^["«]|["»]$/g, "").trim();
+        if (fixed && fixed.length >= 3 && fixed.length <= p.topic.length * 1.5 + 10 && fixed !== p.topic) { p.topic = fixed; state.topic = fixed; if ($("#topic")) $("#topic").value = fixed; }
+      } catch { }
+    }
+  }
   if (window.Access) Access.countLesson();
   const { notes: _n, ...pParams } = p;
   const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason } }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
@@ -4013,7 +4035,8 @@ async function createLesson() {
   await saveLesson(L);
   formats.forEach(f => (L.status[f] = "wait"));
   const res = await runJob(L, p, type, gen, formats, useAi, hideTech);
-  if ($("#xAiPics")?.checked) { try { await aiDeckPics(L); } catch (e) { console.warn("aiPics", e); } }
+  if (formats.includes("slides") && deckPick === "ai") { try { await aiDeckPics(L); } catch (e) { console.warn("aiPics", e); } }
+  if (formats.includes("worksheet") && wsPick === "ai") { try { await decorateWorksheet(L, true); } catch (e) { console.warn("decor", e); } }
   return res;
 }
 /* ИИ-картинки в презентации: красивые иллюстрации на титульном и ещё 2 слайдах; реальные картинки из поиска остаются как были */
@@ -4060,14 +4083,14 @@ function askWorkText(p, work, author) {
   return new Promise(resolve => {
     let done = false; const fin = v => { if (done) return; done = true; obs.disconnect(); resolve(v); };
     const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Нужен текст произведения</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-      <p>Сайт не нашёл текст «${esc(work)}»${author ? ` (${esc(author)})` : ""}. С текстом вопросы урока пойдут по строфам и эпизодам именно этого произведения.</p>
+      <p>Сайт не нашёл текст «${esc(work)}»${author ? ` (${esc(author)})` : ""}. Прикрепите текст «${esc(work)}» (вставьте его или загрузите файл): с ним вопросы и задания пойдут по строфам и эпизодам именно этого произведения. Пока текст не добавлен, материалы не создаются и расход по тарифу не списывается.</p>
       <ol class="at-steps"><li><b>Найдите текст</b>:<div class="mat-row">${L.map(([t, u]) => `<a class="btn sm ghost" target="_blank" rel="noopener" href="${u}">${t}</a>`).join("")}</div></li>
         <li><b>Вставьте текст</b> (или нужный фрагмент) — либо загрузите файл (.txt, .docx, .pdf):
         <textarea id="awText" rows="9" placeholder="Вставьте текст произведения или фрагмента…"></textarea>
         <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div></li></ol>
       <div class="pk-foot"><button class="btn flame" id="awGo">Собрать урок с этим текстом</button></div>
-      <label class="check" style="margin-top:12px"><input type="checkbox" id="awSkip"> Продолжить без добавления текста</label>
-      <div class="pk-foot"><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
+      <label class="check" style="margin-top:12px" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><input type="checkbox" id="awSkip"> Продолжить без добавления текста (только для разработчика)</label>
+      <div class="pk-foot" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
     const obs = new MutationObserver(() => { if (!$("#modalRoot").firstElementChild) fin(null); }); obs.observe($("#modalRoot"), { childList: true });
     m.querySelector("#awFile").onchange = async ev => { const f = ev.target.files[0]; if (!f) return; msg.textContent = "Читаю файл…"; try { const r = await readFile(f); ta.value = String(r.text || "").trim(); msg.textContent = ta.value ? `Готово: ${ta.value.length} знаков.` : "В файле не нашлось текста — вставьте вручную."; } catch (er) { msg.textContent = "Не получилось прочитать: " + (er.message || er); } };
@@ -4289,12 +4312,12 @@ async function webData(L, p, type) {
   } catch { }
   L.web = web; return web;
 }
+const scrubWeb = t => String(t || "").replace(/\[(?:\d+|[а-яa-z]{1,3}\.?)\]/gi, "").replace(/\(?https?:\/\/\S+?\)?(?=[\s,;]|$)/g, "").replace(/\bwww\.\S+/g, "").replace(/Материал из Википедии[^.]*\./gi, "").replace(/\s{2,}/g, " ").replace(/\s+([,.;:!?])/g, "$1").trim();
 function webBlock(web) {
   let md = "## Из открытых источников\n\n";
-  if (web.wiki) md += `**${web.wiki.source}, «${web.wiki.title}»:** ${web.wiki.text.slice(0, 600)} [Открыть статью](${web.wiki.url})\n\n`;
-  if (web.text) md += `**Текст произведения (${web.text.source}, «${web.text.title}»):**\n\n${web.text.text.split("\n").slice(0, 16).map(l => "> " + l).join("\n")}\n\n[Полный текст](${web.text.url})\n\n`;
-  md += `**Где взять ещё задания по теме:**\n\n${web.links.map(l => `- [${l.title}](${l.url})`).join("\n")}\n`;
-  return md;
+  if (web.wiki) md += `**${web.wiki.title}:** ${scrubWeb(web.wiki.text).slice(0, 600)}\n\n`;
+  if (web.text) md += `**Текст произведения («${web.text.title}»):**\n\n${web.text.text.split("\n").slice(0, 16).map(l => "> " + l).join("\n")}\n\n`;
+  return md.trim() === "## Из открытых источников" ? "" : md;
 }
 function applyWeb(md, f, web) {
   if (!web) return navigator.onLine === false ? md.replace("<!--WEB-->", "<!--WEB-PENDING-->").replace("<!--TEXT-->", "<!--TEXT-PENDING-->") : md.replace("<!--WEB-->", "").replace("<!--TEXT-->", "");
@@ -4408,6 +4431,7 @@ function updateProgress() {
    =================================================================== */
 function revealWorkspace() { if (innerWidth < 900) setTimeout(() => $("#workspace").scrollIntoView({ behavior: "smooth", block: "start" }), 60); }
 function openLesson(L, doc, push = true) {
+  scrubLesson(L);
   if (window.SlideEditor && state.lesson?.id !== L.id) SlideEditor.reset();
   // старые уроки и образцы: конспект для печати собирается из их техкарты
   if (!L.docs.lesson && L.docs.conspect && window.LessonNotes && state.gen?.lessonId !== L.id) { try { L.docs.lesson = LessonNotes.build(L.docs.conspect, { ...L.params, plan: L.plan }); } catch (e) { console.warn(e); } }
@@ -4428,7 +4452,7 @@ function renderLesson() {
   const P = L.params;
   $("#lessonTitle").hidden = false;
   $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${L.verify && window.Verify && window.Access?.isDev?.() ? `<p class="verify-line">${esc(Verify.line(L.verify))} <button class="btn sm ghost" id="btnVerify">Отчёт сверки</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
-  { const bp = $("#btnPrompts"); if (bp) bp.onclick = () => openPrompts(L); }
+  { const dev = !window.Access || !Access.commercial() || Access.isDev(); const bp = $("#btnPrompts"); if (bp) { bp.hidden = !dev; bp.onclick = () => openPrompts(L); } const bv = $("#btnVerify"); if (bv) bv.hidden = !dev; }
   { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
   const busy = isGenerating(L, state.active);
@@ -4452,8 +4476,13 @@ function renderDownloads() {
     try { await exportOne(state.lesson, d, f); } catch (e) { console.error(e); toast("Выгрузка не удалась: " + (e.message || e)); } finally { b.disabled = false; }
   });
 }
+function syncStyleChoices() {
+  const on = k => !!document.querySelector(`#formats input[value="${k}"]`)?.checked, can = !!(window.ImageGen && (!window.Access || Access.imagesAllowed()));
+  const set = (box, lbl, note, show) => { if (!$(box)) return; $(box).hidden = !show; const inp = $(lbl)?.querySelector("input"); if (inp) { inp.disabled = !can; if (!can && inp.checked) { inp.checked = false; const first = $(box).querySelector("input:not([value=ai])"); if (first && box === "#deckStyle") first.checked = true; } } if ($(note)) $(note).textContent = can ? "" : "(в тарифах «Учитель + ИИ» и «Методист»)"; };
+  set("#deckStyle", "#deckAiLbl", "#deckAiNote", on("slides")); set("#wsStyle", "#wsAiLbl", "#wsAiNote", on("worksheet"));
+}
 function syncTools() {
-  { const ap = $("#chkAiPics"); if (ap) ap.hidden = !(window.ImageGen && (!window.Access || Access.imagesAllowed())); }
+  syncStyleChoices();
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
   { const bm = $("#btnMore"); if (bm) { bm.hidden = !(state.active === "worksheet" && has); const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
   { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
@@ -4668,8 +4697,17 @@ const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; s
 /* ===================================================================
    БИБЛИОТЕКА (уроки хранятся в браузере)
    =================================================================== */
+/* Чистый текст для учителя: без пометок «⟦…⟧», без строк сверки фактов, без служебных ссылок */
+function scrubDoc(md, keepLinks) {
+  return String(md || "").replace(/[ \t]*⟦[^⟧\n]*⟧/g, "").replace(/^.*Сверка фактов:.*$\n?/gm, "").replace(/\(помечено [^)]*\)/g, "")
+    .replace(/^\s*(?:[-*]\s*)?\[(?:Открыть статью|Полный текст|Открыть)[^\]]*\]\([^)]*\)\s*$\n?/gm, "").replace(/ ?\[(?:Открыть статью|Полный текст)\]\([^)]*\)/g, "")
+    .replace(/(?<!!)\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, t) => keepLinks ? m : t)
+    .replace(/[ \t]+$/gm, "");
+}
+function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") L.docs[k] = scrubDoc(L.docs[k], k === "slides"); }
 async function saveLesson(L) {
   if (!L || L.sample) return;
+  scrubLesson(L);
   const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null };
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
@@ -4859,19 +4897,19 @@ async function addExtraSheet() {
   } catch (e) { console.error(e); toast("Не получилось добавить лист: " + (e.message || e.code || e), 9000); }
   finally { b.disabled = false; }
 }
-async function decorateWorksheet() {
-  const L = state.lesson; if (!L || !L.docs.worksheet) return;
+async function decorateWorksheet(L0, auto) {
+  const L = L0 && L0.docs ? L0 : state.lesson; if (!L || !L.docs.worksheet) return;
   if (window.Access && !Access.imagesAllowed()) { Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
   if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { toast("Ключ для картинок подключается в режиме разработчика: «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций».", 9000); return; } toast("Картинки для рабочих листов подключаются, скоро заработают.", 6000); return; }
   if (window.Access && Access.imageLeft() <= 0) { toast("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца.", 8000); return; }
-  const b = $("#btnDeco"); b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Составляю описание оформления…", 30000);
+  const b = $("#btnDeco") || { disabled: false, textContent: "" }; b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Составляю описание оформления…", 30000);
   try {
     toast("Нейросеть-оформитель выбирает места для картинок и рисует, до двух минут…", 120000);
     const pr = { ...L.params, topic: L.title }, bn = await ImageGen.image(await ImageGen.bannerWithBrief(pr), { aspect: "16:9", maxW: 1320, strip: 6 });
     window.Access?.countImage(1);
     L.art = { ...(L.art || {}), banner: bn }; delete L.art.pages; delete L.art.gallery;
     try { const sl = await ImageGen.slots(pr, L.docs.worksheet); L.art.slots = sl; } catch (e) { console.warn("slots", e); }
-    await saveLesson(L); renderLesson(); toast("Готово. Картинки расставлены по листу; в Word лист остаётся на 2 страницах.", 6000);
+    await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast("Готово. Картинки расставлены по листу; в Word лист остаётся на 2 страницах.", 6000);
   } catch (e) { console.error(e); toast("Не получилось нарисовать: " + (e.message || e), 9000); }
   finally { b.disabled = false; b.textContent = t; }
 }
@@ -5257,7 +5295,7 @@ function bind() {
   $("#topic").addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); openTopicPanel(); $("#topicPanel button")?.focus(); } if (e.key === "Escape") $("#topicPanel").hidden = true; });
   $("#topicBtn").onclick = () => { if ($("#topicPanel").hidden) openTopicPanel(); else { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } };
   document.addEventListener("click", e => { if (!e.target.closest(".combo")) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } });
-  $$("#formats > .check > input:not([id])").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП — в тарифе «Методист»: для проверки оформления и сдачи."); } readForm(); });
+  $$("#formats > .check > input:not([id])").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП — в тарифе «Методист»: для проверки оформления и сдачи."); } readForm(); syncStyleChoices(); });
   syncTechCheck(); document.addEventListener("uchu:access", syncTechCheck);
   // подсветка в шапке следует за курсором (пальцем)
   const hero = document.querySelector(".hero"), gd = hero?.querySelector(".glow-dot");

@@ -137,11 +137,16 @@ const Subjects = (() => {
   }
   // блок «найдено в источниках» для конспекта и техкарты
   const TIERS = { 1: "официальный или научный источник", 2: "образовательная платформа", 3: "разработка учителя — проверьте" };
+  /* очистка текста, взятого с сайтов: ссылки, сноски, служебные фразы, разрывы */
+  const cleanWeb = t => String(t || "").replace(/\[(?:\d+|[а-яa-z]{1,3}\.?)\]/gi, "").replace(/\(?https?:\/\/\S+?\)?(?=[\s,;]|$)/g, "").replace(/\bwww\.\S+/g, "")
+    .replace(/Материал из Википедии[^.]*\./gi, "").replace(/(?:Читать далее|Подробнее|Скачать|Поделиться|Источник:|Cookie|©)[^.\n]*[.\n]?/gi, "").replace(/\s{2,}/g, " ").replace(/\s+([,.;:!?])/g, "$1").trim();
   function webBlock(p, br = "\n") {
     const W = p.web; if (!W?.items?.length) return "";
-    const n = new Map(W.sources.map((x, i) => [x.url, i + 1])), ref = x => ` [${n.get(x.src.url) || ""}]`;
-    const part = (kind, title) => { const a = W.items.filter(x => x.kind === kind); return a.length ? `**${title}:**${br}${a.map(x => `- ${x.text}${ref(x)}`).join(br)}${br}${br}` : ""; };
-    return `## 📚 Найдено в образовательных источниках${br}${br}*Запрос: «${W.query}». Каждое предложение взято из источника, номер — в списке ниже. Перед уроком сверьте с учебником.*${br}${br}${part("date", "Даты и события")}${part("def", "Понятия")}${part("fact", "Факты")}**Источники:**${br}${W.sources.map((x, i) => `${i + 1}. [${x.title}](${x.url}) — ${x.domain}, ${TIERS[x.tier] || TIERS[3]}`).join(br)}${br}`;
+    const part = (kind, title) => { const a = W.items.filter(x => x.kind === kind).map(x => cleanWeb(x.text)).filter(x => x.length > 25); return a.length ? `**${title}:**${br}${[...new Set(a)].map(x => `- ${x}`).join(br)}${br}${br}` : ""; };
+    const body = part("date", "Даты и события") + part("def", "Понятия") + part("fact", "Факты");
+    if (!body.trim()) return "";
+    const names = [...new Set(W.sources.map(x => String(x.domain || x.title || "").replace(/^www\./, "")).filter(Boolean))];
+    return `## 📚 Материал по теме${br}${br}${body}${names.length ? `*Источники: ${names.join(", ")}.*${br}` : ""}`;
   }
   return { list, plugin, name, hw, hwCheck, planTopics, frp, frpDoc, webFacts, webBlock };
 })();
