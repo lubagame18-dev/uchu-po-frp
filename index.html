@@ -3589,7 +3589,13 @@ function updateType() {
   $("#typeBox").innerHTML = topic ? `<div class="type-name"><span class="lbl">Тип урока — определён автоматически</span><b>${esc(t.name)}</b></div><details><summary>Этапы урока</summary><p class="hint">${esc(t.stages.join(" → "))}</p></details>`
     : `<div class="type-name"><span class="lbl">Тип урока</span><b class="muted">определится по теме и номеру урока</b></div>`;
 }
-function fillGrades() { $("#grade").innerHTML = [5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}">${g} класс</option>`).join(""); $("#grade").value = state.grade; }
+/* в каких классах предмет изучается (по ФРП и по тому, что есть на сайте) */
+const SUBJ_GRADES = { ru: [5, 6, 7, 8, 9, 10, 11], lit: [5, 6, 7, 8, 9, 10, 11], math: [5, 6, 7, 8, 9, 10, 11], hist: [5, 6, 7, 8, 9, 10, 11], eng: [5, 6, 7, 8, 9, 10, 11], bio: [5, 6, 7, 8, 9, 10, 11], geo: [5, 6, 7, 8, 9, 10, 11], phys: [7, 8, 9, 10, 11], chem: [8, 9, 10, 11], soc: [8, 9, 10, 11], inf: [7, 8, 9, 10, 11] };
+function fillGrades() {
+  const ok = SUBJ_GRADES[state.subject] || [5, 6, 7, 8, 9, 10, 11];
+  if (!ok.includes(+state.grade)) { const was = state.grade; state.grade = ok[0]; if (window.toast && $("#grade").options.length && was) toast(`Этот предмет изучают с ${ok[0]} класса — выбран ${state.grade} класс.`, 4500); }
+  $("#grade").innerHTML = ok.map(g => `<option value="${g}">${g} класс</option>`).join(""); $("#grade").value = state.grade;
+}
 /* техкарта — только методистам (тариф «Методист») и разработчикам */
 function readExtra() {
   const X = state.extra; if (!$("#xCtrl")) return;
@@ -4559,7 +4565,7 @@ function openAddText(L) {
     const t = ta.value.trim(); if (t.length < 80) { msg.textContent = "Нужен текст подлиннее (хотя бы одна строфа или абзац)."; return; }
     closeModal();
     Object.assign(state, { subject: P.subject, grade: P.grade, duration: P.duration || 45, mode: P.mode || "school", lessonNo: P.lessonNo || 1, control: P.control || "school", topic: P.topic });
-    try { setSeg("segSubject", state.subject); $("#grade").value = state.grade; $("#topic").value = state.topic; } catch { }
+    try { setSeg("segSubject", state.subject); fillGrades(); $("#grade").value = state.grade; $("#topic").value = state.topic; } catch { }
     state.textOverride = { text: t, source: "текст, добавленный учителем" };
     const oldId = L.id; await createLesson();
     try { await Store.del("lessons", oldId); if (window.Account) Account.remove(oldId); } catch { }
@@ -5329,7 +5335,7 @@ function bind() {
   $("#prevHwPick").onclick = () => $("#prevHwFile").click();
   $("#prevHwFile").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const r = await readFile(f); const t = String(r?.text || "").trim(); if (!t) throw new Error("в файле не найден текст"); $("#prevHw").value = t.slice(0, 2500); $("#prevHwHint").textContent = `Из файла «${f.name}».`; } catch (er) { toast("Не получилось прочитать файл: " + (er.message || er)); } };
   $("#prevHwFind").onclick = async () => { readForm(); const f = await findPrevHw({ subject: state.subject, grade: state.grade, topic: state.topic, lessonNo: state.lessonNo }); if (f) { $("#prevHw").value = f.text; $("#prevHwHint").textContent = `Найдено: ${f.src}.`; } else $("#prevHwHint").textContent = "Прошлого урока этой темы в «Моих уроках» нет — впишите задание или прикрепите файл. Без этого проверка будет формальной."; };
-  $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); if (ch) clearTopic(); else { readForm(); updateType(); } syncPack(ch); refreshTopics(); });
+  $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); fillGrades(); if (ch) clearTopic(); else { readForm(); updateType(); } syncPack(ch); refreshTopics(); });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
