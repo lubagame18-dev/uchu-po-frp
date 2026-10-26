@@ -482,6 +482,7 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 .base-card,.own-card{margin-top:22px}
 .own-frp{margin-top:10px}.own-frp summary{cursor:pointer;font-weight:700}
 .site-foot{border-top:2.5px solid var(--ink);margin-top:40px;padding:18px 0 26px;font-size:13.5px;color:var(--muted)}.site-foot nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:6px}.site-foot a{color:inherit;font-weight:700}.site-foot p{margin:0}
+.ws-more{margin:8px 16px;padding:8px 12px;border:1px dashed var(--line,#ccc);border-radius:10px}.ws-more summary{cursor:pointer;font-weight:600}.ws-more .btn{margin-top:6px}
 </style>
 <link rel="stylesheet" href="css/v5.css">
 </head>
@@ -613,8 +614,6 @@ window.UCHU_SITE = {
       <div class="ws-head">
         <div class="doc-tabs" role="tablist" id="docTabs"></div>
         <div class="ws-tools" id="wsTools">
-          <button class="btn sm flame" id="btnDeco" hidden title="Нарисовать красивый баннер к рабочему листу (Nano Banana)">🎨 Оформить красиво</button>
-          <button class="btn sm" id="btnMore" hidden title="Добавить ещё один лист (2 страницы, с двух сторон). Каждый дополнительный лист расходует месячный лимит.">➕ Добавить лист</button>
           
           <button class="btn sm flame" id="btnPackZip" hidden>⬇ Файлы для урока (ZIP)</button>
           <button class="btn sm teal" id="btnDocx">Скачать Word</button>
@@ -636,6 +635,10 @@ window.UCHU_SITE = {
         </div>
         <div class="pane preview"><div class="sheetwrap" id="sheetwrap"><div class="sheet" id="sheet"></div></div></div>
       </div>
+      <button id="btnDeco" hidden style="display:none"></button>
+      <details class="ws-more" id="wsMoreBox" hidden><summary>📄 Листов: базово 1 (2 страницы). Развернуть, чтобы добавить ещё</summary>
+        <p class="small">Каждый дополнительный лист — новые задания по теме и расходует месячный лимит.</p>
+        <button class="btn sm" id="btnMore" title="Добавить ещё один лист (2 страницы, с двух сторон)">➕ Добавить лист</button></details>
       <div class="refine" id="refineBar" hidden>
         <input type="text" id="refineInput" placeholder="Доработать с ИИ: «добавь групповую работу», «упрости задание 2»">
         <button class="btn sm" id="btnRefine">Доработать</button>
@@ -4490,8 +4493,8 @@ function syncStyleChoices() {
 function syncTools() {
   syncStyleChoices();
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
-  { const bm = $("#btnMore"); if (bm) { bm.hidden = !(state.active === "worksheet" && has); const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
-  { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
+  { const bm = $("#btnMore"); if (bm) { const bx = $("#wsMoreBox"); if (bx) bx.hidden = !(state.active === "worksheet" && has); bm.hidden = false; const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
+  { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = true;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
   $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; { const dev = !window.Access || !Access.commercial() || Access.isDev(), isWs = state.active === "worksheet" && has; $("#btnAppx").hidden = !isWs; $("#btnPng").hidden = !(isWs && (state.lesson.art?.banner || state.lesson.art?.slots?.length)); $("#btnMdToggle").hidden = !dev; } $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
