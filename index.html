@@ -376,6 +376,7 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:700}
 
 /* ---------- скрытая сцена для PDF ---------- */
 .xstyle{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:2px dashed var(--ink);border-radius:14px;background:var(--soft)}.xstyle.need{border-color:var(--flame);background:#fff1ec}.xstyle .lbl{font-weight:700;font-size:13.5px}
+.ws-slot{width:92px;height:auto;margin:2px 0 6px 12px;float:right}.ws-slot.l{float:left;margin:2px 12px 6px 0}.ws-slot.m{width:120px}
 .ws-art{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 10px;border:2px solid var(--ink)}
 .ws-art.ws-gal{width:68%;margin:0 auto 10px;border:0}
 #pdfstage{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111}
@@ -573,7 +574,7 @@ window.UCHU_SITE = {
               <label class="check" id="deckAiLbl"><input type="radio" name="deckPics" value="ai"> ✨ ИИ-оформление: красивые сгенерированные картинки, реальные изображения тоже используются <span class="small" id="deckAiNote"></span></label></div>
             <div class="xstyle" id="wsStyle" hidden><span class="lbl">📄 Рабочий лист: оформление (нужно выбрать)</span>
               <label class="check"><input type="radio" name="wsPics" value="plain"> Простой лист без оформления</label>
-              <label class="check" id="wsAiLbl"><input type="radio" name="wsPics" value="ai"> ✨ С оформлением: сгенерированные картинки и портреты, реальные изображения тоже используются <span class="small" id="wsAiNote"></span></label></div>
+              <label class="check" id="wsAiLbl"><input type="radio" name="wsPics" value="ai"> ✨ С оформлением: сгенерированные картинки и портреты, реальные изображения тоже используются <span class="small" id="wsAiNote"></span><br><span class="small">Word остаётся редактируемым: картинки вставляются отдельными рисунками. Если скачать лист картинкой (PNG), править его уже нельзя.</span></label></div>
             <label class="check" id="chkHw"><input type="checkbox" id="xHw"> 🏠 Домашняя работа <span class="pro-lock xlock" hidden>🔒</span></label>
             <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
@@ -617,6 +618,8 @@ window.UCHU_SITE = {
           
           <button class="btn sm flame" id="btnPackZip" hidden>⬇ Файлы для урока (ZIP)</button>
           <button class="btn sm teal" id="btnDocx">Скачать Word</button>
+          <button class="btn sm ghost" id="btnAppx" hidden title="Ответы учителя и памятка отдельным файлом">Ответы учителя</button>
+          <button class="btn sm ghost" id="btnPng" hidden title="Скачать страницы листа картинками: такой лист нельзя редактировать">Скачать картинками (PNG)</button>
           <button class="btn sm teal" id="btnPptx" hidden>Скачать PowerPoint</button>
           <button class="btn sm flame" id="btnPdf">Скачать PDF</button>
           <button class="btn plain" id="btnMdToggle">Markdown</button>
@@ -4039,25 +4042,28 @@ async function createLesson() {
   if (formats.includes("worksheet") && wsPick === "ai") { try { await decorateWorksheet(L, true); } catch (e) { console.warn("decor", e); } }
   return res;
 }
+/* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
+function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте ключ: режим разработчика → «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций» → «Проверить и нарисовать тест»." : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
 /* ИИ-картинки в презентации: красивые иллюстрации на титульном и ещё 2 слайдах; реальные картинки из поиска остаются как были */
 async function aiDeckPics(L) {
   const md0 = L.docs?.slides; if (!md0 || !window.ImageGen) return;
-  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { toast("ИИ-картинки доступны в тарифах «Учитель + ИИ» и «Методист» (в пределах месячного лимита).", 7000); return; }
-  if (!ImageGen.configured()) { toast("Ключ для картинок пока не подключён.", 5000); return; }
+  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-картинки доступны в тарифах «Учитель + ИИ» и «Методист», в пределах месячного лимита."); return; }
+  if (!ImageGen.configured()) { imgFail("Ключ для картинок не подключён."); return; }
   const parts = md0.split(/(\n-{3,}\s*\n)/); const cand = [];
   parts.forEach((x, i) => { if (i % 2 === 0 && /^#{1,3}\s/m.test(x) && !/marp\s*:/.test(x) && !Media.RE.test(x)) cand.push(i); Media.RE.lastIndex = 0; });
   if (!cand.length) return;
   const pick = [...new Set([cand[0], cand[Math.floor(cand.length / 2)], cand[cand.length - 1]])].slice(0, 3);
   toast("Рисую красивые картинки для презентации…", 60000);
-  let n = 0;
+  let n = 0, lastErr = "";
   for (const i of pick) {
     const title = (parts[i].match(/^#{1,3}\s+(.+)$/m) || [, L.title])[1].replace(/[*_`]/g, "");
     try {
       const im = await ImageGen.image(`Illustration for a presentation slide. School subject: ${L.params?.subject}, grade ${L.params?.grade}, lesson topic «${L.title}», slide «${title}». Soft atmospheric flat illustration, calm light background, a few clear objects directly related to the topic, no dark fills. ${"No text, no letters, no numbers, no logos, no watermark."}`, { aspect: "4:3", maxW: 1100, kind: n ? "part" : "sheet" });
       const blob = await (await fetch(im.url)).blob(), id = "img-" + uid(); await Store.put("images", id, blob);
       parts[i] = parts[i].replace(/\s*$/, "") + `\n\n${Media.mdImage(title, "idb:" + id, {})}\n`; n++;
-    } catch (e) { console.warn("deck pic", e); if (/401|403|402|429/.test(String(e.message))) break; }
+    } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
   }
+  if (!n) imgFail("Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : "."));
   if (n) { L.docs.slides = parts.join(""); window.Access?.countImage(1); await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000); }
 }
 /* ---------- текст произведения до сборки урока литературы ---------- */
@@ -4486,7 +4492,7 @@ function syncTools() {
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
   { const bm = $("#btnMore"); if (bm) { bm.hidden = !(state.active === "worksheet" && has); const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
   { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
-  $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
+  $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; { const dev = !window.Access || !Access.commercial() || Access.isDev(), isWs = state.active === "worksheet" && has; $("#btnAppx").hidden = !isWs; $("#btnPng").hidden = !(isWs && (state.lesson.art?.banner || state.lesson.art?.slots?.length)); $("#btnMdToggle").hidden = !dev; } $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
   $("#btnStop").hidden = !state.gen;
@@ -4899,9 +4905,9 @@ async function addExtraSheet() {
 }
 async function decorateWorksheet(L0, auto) {
   const L = L0 && L0.docs ? L0 : state.lesson; if (!L || !L.docs.worksheet) return;
-  if (window.Access && !Access.imagesAllowed()) { Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
-  if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { toast("Ключ для картинок подключается в режиме разработчика: «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций».", 9000); return; } toast("Картинки для рабочих листов подключаются, скоро заработают.", 6000); return; }
-  if (window.Access && Access.imageLeft() <= 0) { toast("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца.", 8000); return; }
+  if (window.Access && !Access.imagesAllowed()) { auto ? imgFail("Красивые рабочие листы с картинками доступны в тарифах «Учитель + ИИ» и «Методист».") : Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
+  if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { imgFail("Ключ для картинок не подключён."); return; } imgFail("Картинки для рабочих листов пока подключаются, скоро заработают."); return; }
+  if (window.Access && Access.imageLeft() <= 0) { imgFail("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца."); return; }
   const b = $("#btnDeco") || { disabled: false, textContent: "" }; b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Составляю описание оформления…", 30000);
   try {
     toast("Нейросеть-оформитель выбирает места для картинок и рисует, до двух минут…", 120000);
@@ -4910,7 +4916,7 @@ async function decorateWorksheet(L0, auto) {
     L.art = { ...(L.art || {}), banner: bn }; delete L.art.pages; delete L.art.gallery;
     try { const sl = await ImageGen.slots(pr, L.docs.worksheet); L.art.slots = sl; } catch (e) { console.warn("slots", e); }
     await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast("Готово. Картинки расставлены по листу; в Word лист остаётся на 2 страницах.", 6000);
-  } catch (e) { console.error(e); toast("Не получилось нарисовать: " + (e.message || e), 9000); }
+  } catch (e) { console.error(e); imgFail("Нейросеть не нарисовала картинки: " + (e.message || e)); }
   finally { b.disabled = false; b.textContent = t; }
 }
 /* зеркальные поля для двусторонней печати: в docx это w:mirrorMargins в settings.xml (библиотека docx такого параметра не даёт) */
@@ -5039,7 +5045,17 @@ async function docxBlobs(L, d) {
   if (o.twoPage && rest.trim()) out.push([baseName(L, d) + "_prilozheniya.docx", await mdToDocxBlob(rest, L.title, { worksheet: true, tag: o.tag })]);
   return out;
 }
-async function exportDocx() { const L = state.lesson; const files = await docxBlobs(L, state.active); for (const [n, b] of files) await saveFile(n, b); if (files.length > 1) toast("Рабочий лист — 2 страницы. Памятка и ответы учителя сохранены вторым файлом (приложение).", 7000); }
+async function exportDocx() { const L = state.lesson; const files = (await docxBlobs(L, state.active)).filter(([n]) => !/_prilozheniya\.docx$/.test(n)); for (const [n, b] of files) await saveFile(n, b); }
+/* ответы учителя и памятка — отдельным файлом и только по кнопке */
+async function exportAppx() { const L = state.lesson; const f = (await docxBlobs(L, "worksheet")).filter(([n]) => /_prilozheniya\.docx$/.test(n)); if (!f.length) { toast("Отдельного приложения у этого листа нет: всё уместилось на двух страницах.", 6000); return; } for (const [n, b] of f) await saveFile(n, b); }
+/* лист картинками (PNG): страницы нельзя редактировать */
+async function exportPng() {
+  const L = state.lesson; if (!L?.docs.worksheet) return;
+  if (!confirm("Лист скачается как картинки страниц (PNG). Такой лист нельзя отредактировать: текст в картинке не меняется. Для правки скачивайте Word, в нём картинки стоят отдельными рисунками. Скачать картинками?")) return;
+  toast("Готовлю картинки страниц…", 15000);
+  const cvs = await docToPngCanvases(L); let i = 0;
+  for (const cv of cvs) { const blob = await new Promise(r => cv.toBlob(r, "image/png")); await saveFile(`${baseName(L, "worksheet")}_str${++i}.png`, blob); }
+}
 
 /* ---------- PowerPoint: текст от 26 pt, перенос, картинки ---------- */
 function plain(tokens) { return (tokens || []).map(t => t.tokens ? plain(t.tokens) : decodeEnt(t.text || "")).join("").replace(/<br\s*\/?>/gi, " ").replace(/FIGTOKEN\d+END/g, "").trim(); }
@@ -5167,6 +5183,8 @@ function wsDecorate(root, L) {
     while (n && !(n !== h && /^(H1|H2|H3|HR)$/.test(n.tagName)) && !n.classList?.contains("ws-banner")) { take.push(n); n = n.nextElementSibling; }
     take.forEach(x => card.appendChild(x));
   });
+  // картинки внутри заданий (их выбрал ИИ-оформитель)
+  (L?.art?.slots || []).forEach(sl => { const card = [...root.querySelectorAll(".ws-card")].find(c => c.querySelector("h3")?.textContent.replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").replace(/\s+/g, " ").trim() === sl.at.replace(/\s+/g, " ")); if (!card || card.querySelector(".ws-slot")) return; const im = document.createElement("img"); im.className = "ws-slot " + (sl.side === "left" ? "l" : "r") + (sl.size === "m" ? " m" : ""); im.alt = ""; im.src = sl.url; card.querySelector("h3").after(im); });
 }
 /* PDF рабочего листа: те же 2 страницы, масштаб подбирается по числу страниц готового файла; в файле записана двусторонняя печать (переворот по длинному краю) */
 const pdfPages = blob => blob.text ? blob.text().then(t => (t.match(/\/Type\s*\/Page[^s]/g) || []).length) : Promise.resolve(0);
@@ -5213,6 +5231,23 @@ async function docToPdfBlob(L, doc) {
   else blob = await h2p().outputPdf("blob");
   stage.innerHTML = ""; return blob;
 }
+async function docToPngCanvases(L) {
+  await Promise.all([ensureMarked(), loadScript("html2pdf")]);
+  const stage = $("#pdfstage"), md = wsMainMd(L.docs.worksheet);
+  stage.innerHTML = `<div class="sheet ws-sheet">${mdToHtml(md)}</div>`; decorate(stage); wsDecorate(stage, L);
+  await new Promise(r => setTimeout(r, 400)); await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+  const el = stage.firstElementChild, st = document.createElement("style"); stage.append(st); el.classList.add("ws-fit");
+  let out = [];
+  for (const k of [1, 0.92, 0.85, 0.78, 0.72]) {
+    st.textContent = `#pdfstage .ws-fit{--k:${k}}#pdfstage .ws-fit p,#pdfstage .ws-fit li,#pdfstage .ws-fit td,#pdfstage .ws-fit th,#pdfstage .ws-fit blockquote{font-size:calc(14px*var(--k));line-height:1.3}`;
+    await new Promise(r => setTimeout(r, 120)); wsPdfBreak(el, 1119);
+    const cv = await window.html2pdf().set({ margin: 0, html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true } }).from(stage).toCanvas().get("canvas");
+    const ph = Math.round(cv.width * 1119 / 794), n = Math.max(1, Math.round(cv.height / ph));
+    out = Array.from({ length: Math.min(n, 2) }, (_, i) => { const c = document.createElement("canvas"); c.width = cv.width; c.height = ph; const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(cv, 0, i * ph, cv.width, ph, 0, 0, cv.width, ph); return c; });
+    if (n <= 2) break;
+  }
+  stage.innerHTML = ""; return out;
+}
 async function exportPdf() { const L = state.lesson; toast("Готовлю PDF…", 9000); await saveFile(baseName(L, state.active) + ".pdf", await docToPdfBlob(L, state.active)); }
 async function exportZip(L) {
   // каждый файл собирается отдельно: если один не получился (например, PDF на планшете не хватило памяти
@@ -5246,7 +5281,7 @@ async function exportOne(L, d, f) {
   if (window.SlideEditor && (d === "slides" || d === "all") && L === state.lesson && L.docs.slides && !L.slidesFitted) { L.slidesFitted = true; SlideEditor.fitAll(); }
   if (d === "all") return exportZip(L);
   if (f === "zip") { toast("Собираю файлы для урока…", 6000); return saveFile(`${slug(L.title)}_${L.params.grade}kl_fayly-dlya-uroka.zip`, await packZipBlob(L)); }
-  if (f === "docx") { toast("Готовлю Word…", 6000); const files = await docxBlobs(L, d); for (const [n, b] of files) await saveFile(n, b); if (files.length > 1) toast("Рабочий лист — 2 страницы. Памятка и ответы учителя сохранены вторым файлом (приложение).", 7000); return; }
+  if (f === "docx") { toast("Готовлю Word…", 6000); const files = (await docxBlobs(L, d)).filter(([n]) => !/_prilozheniya\.docx$/.test(n)); for (const [n, b] of files) await saveFile(n, b); return; }
   if (f === "pptx") { toast("Готовлю презентацию…", 8000); return saveFile(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title)); }
   if (f === "pdf") { toast("Готовлю PDF…", 9000); return saveFile(baseName(L, d) + ".pdf", await docToPdfBlob(L, d)); }
 }
@@ -5318,7 +5353,7 @@ function bind() {
   $("#refineInput").addEventListener("keydown", e => { if (e.key === "Enter") refineDoc(); });
   $("#btnMore").onclick = () => addExtraSheet();
   $("#btnDeco").onclick = () => decorateWorksheet();
-  $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
+  $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnAppx").onclick = guarded(exportAppx); $("#btnPng").onclick = guarded(exportPng); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
   // материалы
   const drop = $("#matDrop");
   ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));

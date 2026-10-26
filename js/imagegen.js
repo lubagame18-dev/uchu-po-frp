@@ -35,7 +35,8 @@ const ImageGen = (() => {
   /* общий вход сайта: серверная функция разработчика; ключи лежат только на сервере, тариф проверяется там же */
   const siteUrl = () => { const u = String(window.UCHU_SITE?.nanoBanana || window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""); return u ? (/functions\.yandexcloud\.net/.test(u) ? `${u}?path=${encodeURIComponent("/image")}` : u + "/image") : ""; };
   const isDevUser = () => !window.Access || !Access.commercial?.() || !!Access.isDev?.();
-  const configured = () => (isDevUser() && own()) || !!siteUrl();
+  /* личный ключ, сохранённый в этом браузере, работает всегда (вставить его можно только в режиме разработчика) */
+  const configured = () => own() || (!!siteUrl() && !isDevUser());
   const trim = u => String(u || "").replace(/\/+$/, "");
   const withTimeout = (ms, f) => { const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms); return f(ctl.signal).finally(() => clearTimeout(t)); };
   const toDataUrl = (mime, b64) => `data:${mime || "image/png"};base64,${b64}`;
@@ -45,7 +46,7 @@ const ImageGen = (() => {
   async function raw(prompt, o = {}) {
     const c = load(), P = PRESET[c.provider] || PRESET.gemini, aspect = o.aspect || "16:9", model = c.model || P.model, base = trim(c.base || P.base);
     if (!configured()) throw new Error("Подключение к Nano Banana не настроено");
-    if (!(isDevUser() && own())) {
+    if (!own()) {
       return withTimeout(o.timeout || 90000, async signal => {
         const tok = window.Account?.session?.access || "";
         const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect, kind: o.kind || "sheet" }) });
