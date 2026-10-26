@@ -40,7 +40,7 @@ const ImageGen = (() => {
   const trim = u => String(u || "").replace(/\/+$/, "");
   const withTimeout = (ms, f) => { const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms); return f(ctl.signal).finally(() => clearTimeout(t)); };
   const toDataUrl = (mime, b64) => `data:${mime || "image/png"};base64,${b64}`;
-  const err = (r, body) => { const m = (body && (body.error?.message || body.message || body.detail)) || ""; return new Error(`${r.status} ${r.status === 401 || r.status === 403 ? "ключ не подошёл или нет доступа" : r.status === 429 ? "превышен лимит запросов" : r.status === 402 ? "недостаточно средств на счёте" : "ошибка сервиса"}${m ? ": " + String(m).slice(0, 160) : ""}`); };
+  const err = (r, body) => { const m = (body && ((typeof body.error === "string" ? body.error : body.error?.message) || body.message || body.detail)) || ""; return new Error(`${r.status} ${r.status === 401 || r.status === 403 ? "ключ не подошёл или нет доступа" : r.status === 429 ? "превышен лимит запросов" : r.status === 402 ? "недостаточно средств на счёте" : r.status === 503 ? "сервис перегружен или не подключён" : "ошибка сервиса"}${m ? ": " + String(m).slice(0, 160) : ""}`); };
   const fromUrl = async (u, signal) => { if (/^data:/.test(u)) return u; const r = await fetch(u, { signal }); const b = await r.blob(); return await new Promise(ok => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(b); }); };
 
   async function raw(prompt, o = {}) {
@@ -94,7 +94,7 @@ const ImageGen = (() => {
   const shrink = (url, maxW = 1100, q = 0.86, strip = 0) => new Promise((ok, no) => {
     const im = new Image(); im.onload = () => { const k = Math.min(1, maxW / im.width), W = Math.round(im.width * k), H = Math.round(im.height * k), sh = strip ? Math.round(W / strip) : H, c = document.createElement("canvas"); c.width = W; c.height = Math.min(H, sh); const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, -Math.round((H - c.height) / 2), W, H); ok({ url: c.toDataURL("image/jpeg", q), w: c.width, h: c.height }); }; im.onerror = () => no(new Error("картинка не открылась")); im.src = url;
   });
-  const image = async (prompt, o = {}) => { let last; for (let i = 0; i < 2; i++) { try { return await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0); } catch (e) { last = e; if (/401|403|402|429|не настроено/.test(String(e.message))) break; } } throw last; };
+  const image = async (prompt, o = {}) => { let last; const wait = ms => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 3; i++) { try { return await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0); } catch (e) { last = e; if (/401|403|402|не настроено|войдите|тариф/.test(String(e.message))) break; if (i < 2) await wait(i ? 6000 : 2500); } } if (last) last.message = (own() ? "ваш ключ: " : "сервер сайта: ") + last.message; throw last; };
 
   /* ---------- описание картинки по теме урока ---------- */
   const NEG = "No text, no letters, no numbers, no words, no logos, no watermark, no arrows, no underlines, no frames.";
