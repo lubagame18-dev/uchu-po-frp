@@ -497,6 +497,8 @@ window.UCHU_SITE = {
   cloud: { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj" },
   /* ИИ сайта: true — когда в Яндекс-функции настроен пул аккаунтов DeepSeek (DEEPSEEK_POOL); учителям свой ключ не нужен */
   siteAi: true,
+  /* Nano Banana для платных тарифов («Учитель + ИИ» и выше): адрес серверной функции, где лежат ключи (Арина АИ / Google). Функция получает заголовок X-User-Token, проверяет тариф и возвращает {image}. Пока пусто — картинки доступны только разработчику со своим ключом. */
+  nanoBanana: "",
   /* Коммерческая версия: тарифы и промокод. Промокод открывает «свободную зону» (всё бесплатно, ИИ — свой).
      payUrl — страница оплаты (появится после подключения платёжного сервиса). */
   commercial: true,
@@ -4426,7 +4428,7 @@ function renderDownloads() {
 }
 function syncTools() {
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
-  { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws; $("#btnDecoSet").hidden = !ws; if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
+  { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = !ws; $("#btnDecoSet").hidden = !ws || !ImageGen.isDevUser(); if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
   $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
@@ -4811,7 +4813,8 @@ function openImageSettings() {
 }
 async function decorateWorksheet() {
   const L = state.lesson; if (!L || !L.docs.worksheet) return;
-  if (!ImageGen.configured()) { toast("Сначала подключите Nano Banana: ключ и проверка."); return openImageSettings(); }
+  if (window.Access && !Access.imagesAllowed()) { Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
+  if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { toast("Сначала подключите Nano Banana: ключ и проверка."); return openImageSettings(); } toast("Картинки для рабочих листов подключаются, скоро заработают.", 6000); return; }
   const b = $("#btnDeco"); b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Рисую баннер к рабочему листу, до минуты…", 60000);
   try {
     const im = await ImageGen.image(ImageGen.banner({ ...L.params, topic: L.title }), { aspect: "16:9", maxW: 1320, strip: 6 });
@@ -4855,15 +4858,23 @@ function wsFit(toks0, extra = 0) {
   let toks = toks0.filter(t => t.type !== "space"), rest = "";
   const h1 = toks.map((t, i) => t.type === "heading" && t.depth === 1 ? i : -1).filter(i => i >= 0);
   if (h1.length > 1) { rest = toks.slice(h1[1]).map(t => t.raw).join(""); toks = toks.slice(0, h1[1]); }
-  const cap = WS_PAGE.h * 0.93, scales = [1.1, 1.05, 1, 0.95, 0.9, 0.86, 0.82, 0.78];
+  const cap = WS_PAGE.h * 0.93, full = WS_PAGE.h * 0.80, scales = [1, 0.95, 0.9, 0.86, 0.82, 0.78];
+  const blankRow = r => r.every(c => !plain(c.tokens || []).replace(/[\s_–—-]/g, ""));
+  const emptyRows = (a, b) => toks.slice(a, b).reduce((n, t) => n + (t.type === "table" ? t.rows.filter(blankRow).length : 0), 0);
+  const stretch = (free, nH, nE) => { free = Math.max(0, free); const sh = nH ? Math.min(nE ? 18 : 36, free / nH) : 0; const left = free - sh * nH; return { head: sh, row: nE ? Math.min(45, left / nE) : 0 }; };
   for (let drop = 0; drop < 12; drop++) {
     for (const k of scales) {
       const H = wsEstimate(toks, k), total = H.reduce((a, b) => a + b, 0);
-      if (total + extra <= cap) return { toks, k, breakAt: -1, rest, onePage: true };
       let best = -1, bm = 1e9;
-      toks.forEach((t, i) => { if (t.type === "heading" && t.depth === 3 && i > 0) { const a = H.slice(0, i).reduce((x, y) => x + y, 0), b = total - a, m = Math.max(a, b); if (a + extra <= cap && b <= cap && m < bm) { bm = m; best = i; } } });
-      if (best >= 0) return { toks, k, breakAt: best, rest };
+      toks.forEach((t, i) => { if (t.type === "heading" && t.depth === 3 && i > 0) { const a = H.slice(0, i).reduce((x, y) => x + y, 0), b = total - a, m = Math.max(a, b); if (a + extra <= cap && b <= cap - 40 && m < bm) { bm = m; best = i; } } });
+      if (best >= 0) {
+        const a = H.slice(0, best).reduce((x, y) => x + y, 0), b = total - a;
+        const h3 = (x, y) => toks.slice(x, y).filter((t, n) => t.type === "heading" && t.depth === 3 && !(x === 0 && n === 0)).length;
+        const s1 = stretch(full - a - extra, h3(1, best), emptyRows(0, best)), s2 = stretch(full - b, Math.max(0, h3(best, toks.length) - 1), emptyRows(best, toks.length));
+        return { toks, k, breakAt: best, rest, fill: [s1, s2] };
+      }
     }
+    { const H = wsEstimate(toks, scales[scales.length - 1]); if (H.reduce((a, b) => a + b, 0) + extra <= cap) return { toks, k: 1, breakAt: -1, rest, onePage: true, fill: [{ head: 0, row: 0 }, { head: 0, row: 0 }] }; }
     // не поместилось даже мелко: последнее нечётное задание (не «Оцени себя») переносим в приложение
     const hs = toks.map((t, i) => t.type === "heading" && t.depth === 3 ? i : -1).filter(i => i >= 0);
     const self = hs.find(i => /Оцени себя|🪞/.test(toks[i].text || ""));
@@ -4873,14 +4884,14 @@ function wsFit(toks0, extra = 0) {
     rest = toks.slice(cut, end).map(t => t.raw).join("") + "\n\n" + rest;
     toks = [...toks.slice(0, cut), ...toks.slice(end)];
   }
-  return { toks, k: scales[scales.length - 1], breakAt: Math.floor(toks.length / 2), rest };
+  return { toks, k: scales[scales.length - 1], breakAt: Math.floor(toks.length / 2), rest, fill: [{ head: 0, row: 0 }, { head: 0, row: 0 }] };
 }
 async function mdToDocxBlob(md, title, opts = {}) {
   const memo = !!opts.memo, ws = !!opts.worksheet && !memo, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
-  const two = !!opts.twoPage && ws; let k2 = 1, breakAt = -1, pb = false; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
+  const two = !!opts.twoPage && ws; let k2 = 1, breakAt = -1, pb = false, page2 = false, fill = [{ head: 0, row: 0 }, { head: 0, row: 0 }]; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx; let toks = window.marked.lexer(wsClean(md));
-  if (two) { const R = wsFit(toks, opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0); toks = R.toks; k2 = R.k; breakAt = R.breakAt; if (opts.onRest) opts.onRest(R.rest); }
+  if (two) { const R = wsFit(toks, opts.banner?.url ? Math.round(660 / 6 * 0.75) + 8 : 0); toks = R.toks; k2 = R.k; breakAt = R.breakAt; fill = R.fill || fill; if (opts.onRest) opts.onRest(R.rest); }
   let children = [];
   const border = { style: D.BorderStyle.SINGLE, size: 4, color: memo ? "555555" : "9AA3B2" };
   const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: memo ? { after: 40, line: 252 } : two ? { after: 50, line: 250 } : { after: 120, line: 300 }, ...opt });
@@ -4888,7 +4899,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
   const emit = (t, ctx = {}) => {
     switch (t.type) {
       case "heading": if (t.depth === 1 && ws) { const first = !h1n++; const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 4 }; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag.toUpperCase() + " ", bold: true, size: sc(18), color: "111111" })], border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 0, after: two ? 60 : 100 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "111111", size: sc(40) }), border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: "111111", space: 4 } }, spacing: { before: 0, after: two ? 100 : 200 } })); break; }
-        if (t.depth === 3 && ws) { const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 3 }; const noEmo = tk => (tk || []).map(x => ({ ...x, text: String(x.text || "").replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^\s+/, ""), tokens: x.tokens ? noEmo(x.tokens) : x.tokens })); const brk = pb; pb = false; children.push(new D.Paragraph({ pageBreakBefore: brk, children: inlineRuns(noEmo(t.tokens), D, { bold: true, size: sc(26) }), border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: two ? (brk ? 0 : 130) : 240, after: two ? 60 : 120 } })); break; }
+        if (t.depth === 3 && ws) { const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 3 }; const noEmo = tk => (tk || []).map(x => ({ ...x, text: String(x.text || "").replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^\s+/, ""), tokens: x.tokens ? noEmo(x.tokens) : x.tokens })); const brk = pb; pb = false; children.push(new D.Paragraph({ pageBreakBefore: brk, children: inlineRuns(noEmo(t.tokens), D, { bold: true, size: sc(26) }), border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: two ? (brk ? 0 : Math.round(130 + 20 * fill[page2 ? 1 : 0].head)) : 240, after: two ? 60 : 120 } })); break; }
         if (t.depth === 2 && lx && /^(БЛОК|ЭТАП)\s+\d/.test(t.text)) { const m = t.text.replace(/\*/g, "").match(/^((?:БЛОК|ЭТАП)\s+\d+\.?)\s*(.*?)(?:\s*·\s*(\d+\s*мин))?\s*$/) || [, t.text, "", ""]; const bk = { style: D.BorderStyle.SINGLE, size: 6, color: "111111" }; const C = (txt, fill, w, o = {}) => new D.TableCell({ width: { size: Math.round(99 * w), type: D.WidthType.DXA }, shading: { type: D.ShadingType.CLEAR, fill }, margins: { top: 70, bottom: 70, left: 110, right: 110 }, verticalAlign: D.VerticalAlign.CENTER, children: [new D.Paragraph({ keepNext: true, children: [new D.TextRun({ text: txt, bold: !o.thin, size: o.size || 24, font: o.font })] })] }); children.push(new D.Paragraph({ text: "", spacing: { before: 200, after: 0 }, keepNext: true })); children.push(new D.Table({ width: { size: 9900, type: D.WidthType.DXA }, columnWidths: (m[3] ? [16, 70, 14] : [16, 84]).map(w => Math.round(99 * w)), layout: D.TableLayoutType.FIXED, borders: { top: bk, bottom: bk, left: bk, right: bk, insideVertical: bk, insideHorizontal: bk }, rows: [new D.TableRow({ cantSplit: true, children: [C(m[1].toUpperCase(), "A6A6A6", 16, { size: 19, font: "Arial" }), C(m[2], "D9D9D9", m[3] ? 70 : 84), ...(m[3] ? [C(m[3], "D9D9D9", 14, { thin: true, size: 21 })] : [])] })] })); children.push(new D.Paragraph({ text: "", spacing: { after: 60 }, keepNext: true })); break; }
         if (memo && t.depth >= 2) { children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, size: 19, font: "Arial" }), spacing: { before: 80, after: 40 }, keepNext: true })); break; }
         if (t.depth === 1 && lx) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { bold: true, size: 30 }), spacing: { before: 0, after: 200 } })); break; }
@@ -4904,7 +4915,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
         if (lx) { children.push(lxDocxTable(t, D)); children.push(new D.Paragraph({ text: "", spacing: { after: 80 } })); break; }
         if (t.header.length >= 3 && !lx && !two) wide = true;
         const mk = (cell, head) => new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(cell.tokens, D, head ? { bold: true } : {}), spacing: { after: two ? 10 : 40 } })], shading: head ? { type: D.ShadingType.CLEAR, fill: memo ? "D9D9D9" : "EEF1F7" } : undefined, margins: memo ? { top: 30, bottom: 30, left: 60, right: 60 } : two ? { top: 30, bottom: 30, left: 70, right: 70 } : { top: 60, bottom: 60, left: 90, right: 90 } });
-        children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border }, rows: [new D.TableRow({ tableHeader: true, children: t.header.map(c => mk(c, true)) }), ...t.rows.map(r => new D.TableRow({ children: r.map(c => mk(c, false)) }))] }));
+        children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border }, rows: [new D.TableRow({ tableHeader: true, children: t.header.map(c => mk(c, true)) }), ...t.rows.map(r => new D.TableRow({ ...(two && fill[page2 ? 1 : 0].row > 0 && r.every(c => !plain(c.tokens || []).replace(/[\s_–—-]/g, "")) ? { height: { value: Math.round((18 + fill[page2 ? 1 : 0].row) * 20), rule: D.HeightRule.ATLEAST } } : {}), children: r.map(c => mk(c, false)) }))] }));
         children.push(two ? new D.Paragraph({ text: "", spacing: { after: 0, line: 140 }, run: { size: 8 } }) : new D.Paragraph({ text: "" })); break;
       }
       case "space": break;
@@ -4914,7 +4925,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
   };
   if (two && opts.banner?.url) { try { const bin = atob(opts.banner.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), W = 660, Hh = Math.round(W * opts.banner.h / opts.banner.w); children.push(new D.Paragraph({ spacing: { after: 60 }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: W, height: Hh } })] })); } catch (e) { console.warn("banner", e); } }
   if (memo) memoDocx(toks, D, emit, c => { const prev = children; children = c; return prev; }, children);
-  else toks.forEach((t, i) => { if (two && i === breakAt) pb = true; emit(t); });
+  else toks.forEach((t, i) => { if (two && i === breakAt) { pb = true; page2 = true; } emit(t); });
   const doc = new D.Document({
     creator: "Учу по ФРП", title,
     styles: { default: { document: { run: { font: "Times New Roman", size: memo ? 19 : two ? sc(22) : 24 } }, heading1: { run: { font: "Times New Roman", size: 32, bold: true } }, heading2: { run: { font: "Times New Roman", size: 28, bold: true } }, heading3: { run: { font: "Times New Roman", size: 26, bold: true } } } },

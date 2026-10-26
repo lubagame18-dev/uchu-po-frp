@@ -22,7 +22,11 @@ const ImageGen = (() => {
   const load = () => { try { return { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return { ...DEF }; } };
   const save = c => { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { } };
   const cfg = () => load();
-  const configured = () => { const c = load(); return !!c.on && (c.provider === "proxy" ? !!c.proxy : !!c.key && (c.provider === "gemini" || !!(c.base || PRESET[c.provider].base))); };
+  const own = () => { const c = load(); return !!c.on && (c.provider === "proxy" ? !!c.proxy : !!c.key && (c.provider === "gemini" || !!(c.base || PRESET[c.provider].base))); };
+  /* общий вход сайта: серверная функция разработчика; ключи лежат только на сервере, тариф проверяется там же */
+  const siteUrl = () => { const u = String(window.UCHU_SITE?.nanoBanana || "").replace(/\/+$/, ""); return u ? (/functions\.yandexcloud\.net/.test(u) ? `${u}?path=${encodeURIComponent("/image")}` : u + "/image") : ""; };
+  const isDevUser = () => !window.Access || !Access.commercial?.() || !!Access.isDev?.();
+  const configured = () => (isDevUser() && own()) || !!siteUrl();
   const trim = u => String(u || "").replace(/\/+$/, "");
   const withTimeout = (ms, f) => { const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms); return f(ctl.signal).finally(() => clearTimeout(t)); };
   const toDataUrl = (mime, b64) => `data:${mime || "image/png"};base64,${b64}`;
@@ -32,6 +36,18 @@ const ImageGen = (() => {
   async function raw(prompt, o = {}) {
     const c = load(), P = PRESET[c.provider] || PRESET.gemini, aspect = o.aspect || "16:9", model = c.model || P.model, base = trim(c.base || P.base);
     if (!configured()) throw new Error("Подключение к Nano Banana не настроено");
+    if (!(isDevUser() && own())) {
+      return withTimeout(o.timeout || 90000, async signal => {
+        const tok = window.Account?.session?.access || "";
+        const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect }) });
+        const j2 = await r2.json().catch(() => ({}));
+        if (r2.status === 401) throw new Error("войдите в личный кабинет");
+        if (r2.status === 403) throw new Error("картинки доступны в тарифах «Учитель + ИИ» и «Методист»");
+        if (!r2.ok) throw err(r2, j2);
+        const im = j2.image || j2.data || j2.url; if (!im) throw new Error("сервер не вернул картинку");
+        return /^(data:|https?:)/.test(im) ? fromUrl(im, signal) : toDataUrl("image/png", im);
+      });
+    }
     return withTimeout(o.timeout || 90000, async signal => {
       let r, j;
       if (c.provider === "gemini") {
@@ -81,6 +97,6 @@ const ImageGen = (() => {
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { cfg, save, configured, PRESET, image, test, banner, spot, DEF };
+  return { cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
 })();
 window.ImageGen = ImageGen;
