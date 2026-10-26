@@ -5,6 +5,7 @@ window.UCHU_LEGAL = {
   inn: "742004318635",               // ИНН
   email: "pedagogruslit@gmail.com",     // почта для обращений
   city: "Россия",
+  address: "",   // адрес: город/полный адрес — появится на странице «Контакты и реквизиты»
   site: "https://uchu-po-frp.ru/",
   updated: "19 октября 2026 г."
 };
