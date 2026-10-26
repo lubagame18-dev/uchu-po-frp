@@ -3586,6 +3586,23 @@ function updateType() {
   const t = state.type;
   $("#typeBox").innerHTML = topic ? `<div class="type-name"><span class="lbl">Тип урока — определён автоматически</span><b>${esc(t.name)}</b></div><details><summary>Этапы урока</summary><p class="hint">${esc(t.stages.join(" → "))}</p></details>`
     : `<div class="type-name"><span class="lbl">Тип урока</span><b class="muted">определится по теме и номеру урока</b></div>`;
+  if (topic) $("#typeBox").insertAdjacentHTML("beforeend", topicHint(topic, t));
+}
+/* подсказка под темой: что по ней уже есть на сайте и что будет, если темы нет в списке */
+function topicHint(topic, t) {
+  try {
+    const norm = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]+/g, " ").trim();
+    const nt = norm(topic), known = nt.length >= 4 && topicList().items.some(i => { const x = norm(i.title || i); return x === nt || x.includes(nt) || (x.length >= 6 && nt.includes(x)); });
+    const L = [];
+    if (known) L.push(`✓ Тема есть в списке ${state.grade} класса по ФРП.`);
+    else if (topic.length >= 3) L.push(`Темы нет в списке ФРП: это нормально. Урок соберётся по названию; если тема необычная, опишите её в поле «Пожелания», нейросеть достроит остальное.`);
+    let r = null; try { r = window.FRP?.results(state.subject, state.grade, topic, t.id); } catch { }
+    if (r?.loaded && r.subject?.length) L.push(`Результаты ФРП, на которые опирается урок: ${r.subject.length}.`);
+    let n = 0; try { n = relevantMaterials(topic, state.grade, state.subject).length; } catch { }
+    if (n) L.push(`Ваших материалов по теме: ${n}, они войдут в урок.`);
+    if (state.subject === "lit" && typeof Base !== "undefined") { let b = null; try { b = Base.lit(topic); } catch { } if (!b) L.push(`<span class="warn-red" style="color:#c0392b">Текста произведения в базе нет. Добавьте его до создания, иначе урок будет без цитат.</span>`); }
+    return L.length ? `<div class="topic-hint small" style="margin-top:8px">${L.map(x => `<div>${x}</div>`).join("")}</div>` : "";
+  } catch (e) { return ""; }
 }
 /* в каких классах предмет изучается (по ФРП и по тому, что есть на сайте) */
 const SUBJ_GRADES = { ru: [5, 6, 7, 8, 9, 10, 11], lit: [5, 6, 7, 8, 9, 10, 11], math: [5, 6, 7, 8, 9, 10, 11], hist: [5, 6, 7, 8, 9, 10, 11], eng: [5, 6, 7, 8, 9, 10, 11], bio: [5, 6, 7, 8, 9, 10, 11], geo: [5, 6, 7, 8, 9, 10, 11], phys: [7, 8, 9, 10, 11], chem: [8, 9, 10, 11], soc: [8, 9, 10, 11], inf: [7, 8, 9, 10, 11] };
