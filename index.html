@@ -4902,16 +4902,24 @@ function imageKeyForm(host, onDone) {
     <label class="check"><input type="checkbox" id="igOn" ${c.on ? "checked" : ""}> Включено</label>
     <div id="igOut" class="small" style="margin:10px 0;min-height:24px"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm teal" id="igTest">Проверить и нарисовать тест</button><button class="btn sm flame" id="igSave">Сохранить</button><button class="btn plain sm" id="igDel">Стереть ключ</button></div>`); const m = host;
+  /* у каждого способа подключения — свои ключ, адрес и модель; при переключении подставляются именно они (или значения по умолчанию), чужие не переносятся */
+  const mem = { ...(c.by || {}) }; let cur = c.provider; mem[cur] = { key: c.key, base: c.base, model: c.model, proxy: c.proxy };
   const q = id => m.querySelector(id), read = () => ({ provider: q("#igProv").value, key: q("#igKey").value.trim(), base: q("#igBase").value.trim(), model: (q("#igModelSel").value && q("#igProv").value === "hub" ? q("#igModelSel").value : q("#igModel").value.trim()), proxy: q("#igProxy").value.trim(), on: q("#igOn").checked, path: ImageGen.cfg().path });
   const paint = () => { const p = q("#igProv").value, pr = P[p]; q("#igHint").textContent = pr.hint; q("#igKeyBox").hidden = p === "proxy"; q("#igBaseBox").hidden = p === "gemini" || p === "proxy"; q("#igModelBox").hidden = p === "proxy"; q("#igProxyBox").hidden = p !== "proxy"; q("#igModel").placeholder = pr.model; q("#igBase").placeholder = pr.base || "https://…/v1"; };
-  q("#igProv").onchange = () => { paint(); if (q("#igProv").value === "hub" && !q("#igBase").value) q("#igBase").value = P.hub.base; };
+  const grab = () => ({ key: q("#igKey").value.trim(), base: q("#igBase").value.trim(), model: (q("#igProv").value === "hub" && q("#igModelSel").value) ? q("#igModelSel").value : q("#igModel").value.trim(), proxy: q("#igProxy").value.trim() });
+  q("#igProv").onchange = () => {
+    mem[cur] = grab(); cur = q("#igProv").value; const pr = P[cur], v = mem[cur] || {};
+    q("#igKey").value = v.key || ""; q("#igBase").value = v.base || pr.base || ""; q("#igModel").value = v.model || pr.model || ""; q("#igProxy").value = v.proxy || "";
+    if (cur === "hub") { const has = ImageGen.MODELS.some(x => x.id === q("#igModel").value); q("#igModelSel").value = has ? q("#igModel").value : ""; }
+    paint();
+  };
   const hubSync = () => { const hub = q("#igProv").value === "hub", cust = !q("#igModelSel").value; q("#igModelSel").hidden = !hub; q("#igModel").hidden = hub && !cust; if (hub && !cust) q("#igModel").value = q("#igModelSel").value; };
   q("#igModelSel").onchange = () => { q("#igModel").value = q("#igModelSel").value; hubSync(); };
   const _p = q("#igProv").onchange; q("#igProv").onchange = () => { _p(); hubSync(); };
   paint(); hubSync(); if (q("#igProv").value === "hub" && !q("#igBase").value) q("#igBase").value = P.hub.base;
-  q("#igSave").onclick = () => { ImageGen.save(read()); toast("Личный ключ сохранён в этом браузере."); syncTools(); try { onDone && onDone(); } catch { } };
-  q("#igDel").onclick = () => { ImageGen.save({ ...read(), key: "" }); q("#igKey").value = ""; toast("Ключ стёрт из этого браузера."); try { onDone && onDone(); } catch { } };
-  q("#igTest").onclick = async () => { ImageGen.save(read()); const o = q("#igOut"); o.textContent = "Проверяю… обычно до 30 секунд"; const r = await ImageGen.test(); o.innerHTML = r.ok ? `✅ Работает (${(r.ms / 1000).toFixed(1)} с).<br><img src="${r.url}" alt="" style="width:96px;height:96px;border:2px solid var(--ink);border-radius:12px;margin-top:6px">` : `❌ ${esc2(r.error)}`; };
+  q("#igSave").onclick = () => { mem[cur] = grab(); ImageGen.save({ ...read(), by: mem }); toast("Личный ключ сохранён в этом браузере."); syncTools(); try { onDone && onDone(); } catch { } };
+  q("#igDel").onclick = () => { mem[cur] = { ...grab(), key: "" }; ImageGen.save({ ...read(), key: "", by: mem }); q("#igKey").value = ""; toast("Ключ стёрт из этого браузера."); try { onDone && onDone(); } catch { } };
+  q("#igTest").onclick = async () => { mem[cur] = grab(); ImageGen.save({ ...read(), by: mem }); const o = q("#igOut"); o.textContent = "Проверяю… обычно до 30 секунд"; const r = await ImageGen.test(); o.innerHTML = r.ok ? `✅ Работает (${(r.ms / 1000).toFixed(1)} с).<br><img src="${r.url}" alt="" style="width:96px;height:96px;border:2px solid var(--ink);border-radius:12px;margin-top:6px">` : `❌ ${esc2(r.error)}`; };
 }
 /* дополнительный лист: ещё 2 страницы (с двух сторон) с НОВЫМИ заданиями по той же теме; пишет языковая модель, за каждый лист списывается лимит тарифа */
 async function addExtraSheet() {
