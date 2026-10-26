@@ -35,6 +35,7 @@ const Account = (() => {
     try {
       const u = await api("/auth/v1/user", { headers: { Authorization: "Bearer " + at } });
       setSession({ access_token: at, refresh_token: rt, expires_in: +h.get("expires_in") || 3600, user: u }, u.email);
+      if (h.get("type") === "recovery") { newPasswordDialog(); await pull().catch(() => null); return; }
       toast("Почта подтверждена — вы вошли в личный кабинет.", 6000);
       await pull().catch(() => null); await plan().catch(() => null); loadInfo().catch(() => null);
       let want = null; try { want = localStorage.getItem("uchu:want-buy"); localStorage.removeItem("uchu:want-buy"); } catch { }
@@ -59,6 +60,24 @@ const Account = (() => {
     const j = await api("/auth/v1/signup?redirect_to=" + encodeURIComponent(back), { method: "POST", body: JSON.stringify({ email, password }) });
     if (j.access_token) { setSession(j, email); push(true).catch(() => null); return "ok"; }
     return "confirm"; // в проекте включено подтверждение почты
+  }
+  /* Забыли пароль: Supabase шлёт письмо со ссылкой, ссылка возвращает на сайт, там человек задаёт новый пароль */
+  async function recover(email) {
+    if (!ready()) throw new Error("Восстановление работает, когда подключено облако.");
+    await api("/auth/v1/recover?redirect_to=" + encodeURIComponent(location.origin + location.pathname), { method: "POST", body: JSON.stringify({ email }) });
+  }
+  function newPasswordDialog() {
+    const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Новый пароль</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
+      <form class="dlg-b" id="acNew" autocomplete="off"><p class="small">Придумайте новый пароль для ${esc(S?.email || "кабинета")}.</p>
+        <div class="field"><label for="acNp">Новый пароль</label><input type="password" id="acNp" autocomplete="new-password" minlength="6" required></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit">Сохранить пароль</button><span class="small" id="acNm" role="status"></span></div></form></div>`);
+    m.querySelector("#acNew").onsubmit = async e => {
+      e.preventDefault(); const p = m.querySelector("#acNp").value, msg = m.querySelector("#acNm");
+      if (p.length < 6) { msg.textContent = "Пароль — не короче 6 знаков."; return; }
+      msg.textContent = "Сохраняю…";
+      try { await api("/auth/v1/user", { method: "PUT", body: JSON.stringify({ password: p }) }); closeModal(); toast("Пароль изменён. Вы вошли в кабинет.", 6000); window.Access?.paint(); }
+      catch (er) { msg.textContent = /same|different/i.test(er.message) ? "Новый пароль должен отличаться от старого." : "Не получилось: " + RU(er.message); }
+    };
   }
   /* Вход по номеру телефона: Supabase шлёт SMS-код (через нашу функцию), человек вводит его — кабинет создаётся сам */
   const normPhone = v => { let d = String(v || "").replace(/\D/g, ""); if (d.length === 11 && d[0] === "8") d = "7" + d.slice(1); if (d.length === 10) d = "7" + d; return /^7\d{10}$/.test(d) ? "+" + d : ""; };
@@ -218,6 +237,7 @@ const Account = (() => {
         <div id="acPhoneBox" hidden><div class="field"><label for="acPhone">Телефон</label><input type="tel" id="acPhone" autocomplete="tel" placeholder="+7 900 000-00-00" inputmode="tel"></div><div class="field" id="acCodeF" hidden><label for="acCode">Код из SMS</label><input type="text" id="acCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></div></div>
         <div class="field" data-mailf><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
         <div class="field" data-mailf><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div></div>
+        <div class="small" id="acForgotW" style="margin:-4px 0 10px"><button type="button" id="acForgot" class="link" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Забыли пароль?</button></div>
         <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank">договор-оферту</a> и даю согласие на обработку персональных данных по <a href="legal/privacy.html" target="_blank">политике конфиденциальности</a></span></label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
         ${devLink()}
@@ -225,8 +245,15 @@ const Account = (() => {
     bindDev(m);
     let mode = "in";
     m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
-    m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; });
+    m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; m.querySelector("#acForgotW").hidden = mode !== "in" || via === "phone"; });
     let via = "mail", codeSent = false, cool = 0, coolT = null;
+    m.querySelector("#acForgot").onclick = async () => {
+      const email = m.querySelector("#acEmail").value.trim(), msg = m.querySelector("#acMsg");
+      if (!/^\S+@\S+\.\S+$/.test(email)) { msg.textContent = "Впишите свою почту в поле выше, потом снова нажмите «Забыли пароль?»."; m.querySelector("#acEmail").focus(); return; }
+      msg.textContent = "Отправляю письмо…";
+      try { await recover(email); msg.textContent = "Если эта почта зарегистрирована, мы отправили на неё письмо со ссылкой для нового пароля. Проверьте и «Спам»."; }
+      catch (er) { msg.textContent = RU(er.message); }
+    };
     const afterLogin = () => {
       closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
       window.Access?.paint(); plan().then(() => window.Access?.paint()).catch(() => null); loadInfo().catch(() => null);
@@ -237,7 +264,7 @@ const Account = (() => {
     const setVia = v => {
       via = v; m.querySelectorAll("[data-via]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.via === v)));
       m.querySelector("#acPhoneBox").hidden = v !== "phone"; m.querySelectorAll("[data-mailf]").forEach(f => { f.hidden = v === "phone"; f.querySelector("input").required = v !== "phone"; });
-      m.querySelector("#acAgreeL").hidden = v === "phone" ? false : mode !== "up";
+      m.querySelector("#acAgreeL").hidden = v === "phone" ? false : mode !== "up"; m.querySelector("#acForgotW").hidden = mode !== "in" || v === "phone";
       m.querySelector("#acGo").textContent = v === "phone" ? (codeSent ? "Войти" : "Получить код") : (mode === "in" ? "Войти" : "Зарегистрироваться");
     };
     m.querySelectorAll("[data-via]").forEach(b => b.onclick = () => setVia(b.dataset.via));
