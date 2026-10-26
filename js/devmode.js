@@ -205,7 +205,7 @@ const Dev = (() => {
         <div class="key-grid">${j.slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
           <div class="key-h"><b>Аккаунт ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
           <input type="text" name="label" placeholder="Название, например: почта аккаунта" value="${esc(x.label || "")}" autocomplete="off">
-          <input type="text" class="secret" name="key" placeholder="${x.empty ? o.keyPh : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
+          <input type="text" class="secret" name="key" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="${x.empty ? o.keyPh : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
           <input type="text" name="model" placeholder="${o.modelPh}" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false">
           <details${x.url ? " open" : ""}><summary class="small">Свой адрес API (необязательно)</summary><input type="text" name="url" placeholder="https://…/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
           <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>

@@ -4080,7 +4080,7 @@ async function createLesson() {
       try { await fn(pct => { if (state.gen) { state.gen.pct = pct; updateProgress(); } }); } catch (e) { console.warn("pics", e); } finally { L.status[doc] = "ok"; state.gen = null; if (state.lesson?.id === L.id) renderLesson(); }
     };
     if (wantDeck) await stage("slides", "рисую картинки", () => aiDeckPics(L));
-    if (wantWs) await stage("worksheet", "рисую лист", pct => aiSheetPhotos(L, pct));
+    if (wantWs) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
   };
   try { return await runJob(L, p, type, gen, formats, useAi, hideTech); } finally { window.Account?.refreshPlan?.().then(() => window.Access?.paint()).catch(() => null); }
 }
@@ -4975,7 +4975,7 @@ function imageKeyForm(host, onDone) {
     <label class="small"><b>Как подключаемся</b></label>
     <select id="igProv" style="width:100%">${Object.entries(P).map(([k, v]) => `<option value="${k}"${k === c.provider ? " selected" : ""}>${esc2(v.name)}</option>`).join("")}</select>
     <p class="small" id="igHint"></p>
-    <div id="igKeyBox"><label class="small"><b>Ключ (токен)</b></label><input id="igKey" type="password" autocomplete="off" style="width:100%" value="${esc2(c.key)}"></div>
+    <div id="igKeyBox"><label class="small"><b>Ключ (токен)</b></label><input id="igKey" type="text" class="secret" name="img-api-credential" autocomplete="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" style="width:100%" value="${esc2(c.key)}"></div>
     <div id="igBaseBox"><label class="small"><b>Адрес API</b></label><input id="igBase" style="width:100%" placeholder="https://…/v1" value="${esc2(c.base)}"></div>
     <div id="igModelBox"><label class="small"><b>Нейросеть</b></label><select id="igModelSel" style="width:100%">${ImageGen.MODELS.map(x => `<option value="${x.id}"${x.id === c.model ? " selected" : ""}>${esc2(x.name)}</option>`).join("")}<option value="">Другая (впишу название ниже)</option></select><input id="igModel" style="width:100%;margin-top:6px" placeholder="название модели из кабинета сервиса" value="${esc2(c.model)}"></div>
     <div id="igProxyBox"><label class="small"><b>Адрес серверной функции</b></label><input id="igProxy" style="width:100%" placeholder="https://functions.yandexcloud.net/…" value="${esc2(c.proxy)}"></div>
@@ -4997,6 +4997,8 @@ function imageKeyForm(host, onDone) {
   q("#igModelSel").onchange = () => { q("#igModel").value = q("#igModelSel").value; hubSync(); };
   const _p = q("#igProv").onchange; q("#igProv").onchange = () => { _p(); hubSync(); };
   paint(); hubSync(); if (q("#igProv").value === "hub" && !q("#igBase").value) q("#igBase").value = P.hub.base;
+  // выбор и поля запоминаются сразу, без кнопки: смена нейросети и вставленный ключ не теряются и не подменяются
+  m.addEventListener("change", () => { try { mem[cur] = grab(); ImageGen.save({ ...read(), by: mem }); } catch { } });
   q("#igSave").onclick = () => { mem[cur] = grab(); ImageGen.save({ ...read(), by: mem }); toast("Личный ключ сохранён в этом браузере."); syncTools(); try { onDone && onDone(); } catch { } };
   q("#igDel").onclick = () => { mem[cur] = { ...grab(), key: "" }; ImageGen.save({ ...read(), key: "", by: mem }); q("#igKey").value = ""; toast("Ключ стёрт из этого браузера."); try { onDone && onDone(); } catch { } };
   q("#igTest").onclick = async () => { mem[cur] = grab(); ImageGen.save({ ...read(), by: mem }); const o = q("#igOut"); o.textContent = "Проверяю… обычно до 30 секунд"; const r = await ImageGen.test(); o.innerHTML = r.ok ? `✅ Работает (${(r.ms / 1000).toFixed(1)} с).<br><img src="${r.url}" alt="" style="width:96px;height:96px;border:2px solid var(--ink);border-radius:12px;margin-top:6px">` : `❌ ${esc2(r.error)}`; };
@@ -5017,7 +5019,7 @@ async function addExtraSheet() {
   } catch (e) { console.error(e); toast("Не получилось добавить лист: " + (e.message || e.code || e), 9000); }
   finally { b.disabled = false; }
 }
-async function decorateWorksheet(L0, auto) {
+async function decorateWorksheet(L0, auto, setPct) {
   const L = L0 && L0.docs ? L0 : state.lesson; if (!L || !L.docs.worksheet) return;
   if (window.Access && !Access.imagesAllowed()) { auto ? imgFail("Красивые рабочие листы с картинками доступны в тарифах «Учитель + ИИ» и «Методист».") : Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
   if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { imgFail("Ключ для картинок не подключён."); return; } imgFail("Картинки для рабочих листов пока подключаются, скоро заработают."); return; }
@@ -5025,9 +5027,11 @@ async function decorateWorksheet(L0, auto) {
   const b = $("#btnDeco") || { disabled: false, textContent: "" }; b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Составляю описание оформления…", 30000);
   try {
     toast("Нейросеть-оформитель выбирает места для картинок и рисует, до двух минут…", 120000);
+    setPct && setPct(15);
     const pr = { ...L.params, topic: L.title }, bn = await ImageGen.image(await ImageGen.bannerWithBrief(pr), { aspect: "16:9", maxW: 1320, strip: 6 });
     window.Access?.countImage(1);
     L.art = { ...(L.art || {}), banner: bn }; delete L.art.pages; delete L.art.gallery;
+    setPct && setPct(55);
     try { const sl = await ImageGen.slots(pr, L.docs.worksheet); L.art.slots = sl; } catch (e) { console.warn("slots", e); }
     await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast("Готово. Картинки расставлены по листу; в Word лист остаётся на 2 страницах.", 6000);
   } catch (e) { console.error(e); imgFail("Нейросеть не нарисовала картинки: " + (e.message || e)); }
