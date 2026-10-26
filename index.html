@@ -4792,8 +4792,8 @@ function memoDocx(toks, D, emit, swap, out) {
 /* ---------- Nano Banana: подключение и оформление рабочего листа ---------- */
 function openImageSettings() {
   const c = ImageGen.cfg(), P = ImageGen.PRESET, esc2 = esc;
-  const m = openModal(`<h2>🎨 Картинки для листов и презентаций</h2>
-    <p class="small">Нейросеть рисует только иллюстрации и фон. Текст, подчёркивания и методические обозначения на картинку не попадают: их накладывает сайт. Ключ хранится только в этом браузере.</p>
+  const m = openModal(`<h2>🎨 Подключение ключа к генерации рабочих листов и презентаций</h2>
+    <p class="small">Нейросеть рисует только иллюстрации и фон. Текст, подчёркивания и методические обозначения на картинку не попадают: их накладывает сайт. Это отдельный ключ для картинок, он не связан с ключом языковой модели (DeepSeek), которая пишет тексты. Ключ хранится только в этом браузере: пока он личный. Общий ключ для всех подключается позже на сервере.</p>
     <label class="small"><b>Как подключаемся</b></label>
     <select id="igProv" style="width:100%">${Object.entries(P).map(([k, v]) => `<option value="${k}"${k === c.provider ? " selected" : ""}>${esc2(v.name)}</option>`).join("")}</select>
     <p class="small" id="igHint"></p>
@@ -5223,6 +5223,7 @@ function bind() {
   $("#btnMdToggle").onclick = () => { const p = $("#mdPane"); p.hidden = !p.hidden; $("#split").classList.toggle("with-md", !p.hidden); syncTools(); };
   $("#btnRefine").onclick = refineDoc;
   $("#refineInput").addEventListener("keydown", e => { if (e.key === "Enter") refineDoc(); });
+  { const kb = document.createElement("button"); kb.type = "button"; kb.id = "btnImgKey"; kb.className = "btn sm"; kb.textContent = "🎨 Ключ для рабочих листов и презентаций"; kb.title = "Подключение ключа к генерации рабочих листов и презентаций (картинки). Отдельно от ключа языковой модели DeepSeek."; kb.hidden = true; kb.onclick = () => openImageSettings(); (document.querySelector(".account") || document.body).append(kb); const upd = () => { try { kb.hidden = !(window.ImageGen && ImageGen.isDevUser()); kb.classList.toggle("flame", !kb.hidden && !ImageGen.own()); } catch { } }; upd(); setInterval(upd, 1500); }
   $("#btnDecoSet").onclick = () => openImageSettings(); $("#btnDeco").onclick = () => decorateWorksheet();
   $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
   // материалы
