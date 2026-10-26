@@ -12,8 +12,17 @@
 const ImageGen = (() => {
   "use strict";
   const KEY = "uchu:img";
-  const DEF = { provider: "gemini", key: "", base: "", model: "", path: "", proxy: "", on: true };
+  const DEF = { provider: "hub", key: "", base: "", model: "", path: "", proxy: "", on: true };
+  /* модели посредника: один ключ, выбор из списка. via — формат запроса; lit — насколько буквально следует описанию */
+  const MODELS = [
+    { id: "flux-schnell", name: "FLUX Schnell: дёшево и быстро, рисует ровно описанное (рекомендуется для листов)", via: "images" },
+    { id: "gemini-2.5-flash-image", name: "Nano Banana (Gemini 2.5 Flash Image): красиво, хорошо держит стиль", via: "images" },
+    { id: "gpt-image-1", name: "GPT Image 1: точно следует описанию, дороже", via: "images" },
+    { id: "dall-e-3", name: "DALL·E 3: художественно, но сам переписывает описание и может додумывать", via: "images" },
+    { id: "flux-pro", name: "FLUX Pro: максимум качества, дороже", via: "images" }
+  ];
   const PRESET = {
+    hub: { name: "Один ключ, много нейросетей (AITUNNEL и похожие)", model: "flux-schnell", base: "https://api.aitunnel.ru/v1", hint: "Вставьте ключ один раз и выберите нейросеть из списка. Адрес берётся из личного кабинета сервиса: если проверка не проходит, сверьте адрес и название модели там." },
     gemini: { name: "Google Gemini (Nano Banana)", model: "gemini-2.5-flash-image", base: "https://generativelanguage.googleapis.com", hint: "Ключ из Google AI Studio. Из России напрямую обычно недоступен: тогда используйте посредника или proxy." },
     images: { name: "Посредник: OpenAI-совместимый /images/generations", model: "gemini-2.5-flash-image", base: "", hint: "Адрес API из личного кабинета сервиса (например, https://…/v1) и ключ. Название модели смотрите в кабинете." },
     chat: { name: "Посредник: /chat/completions с картинкой", model: "google/gemini-2.5-flash-image", base: "https://openrouter.ai/api/v1", hint: "Подходит для OpenRouter и сервисов с тем же форматом." },
@@ -22,7 +31,7 @@ const ImageGen = (() => {
   const load = () => { try { return { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return { ...DEF }; } };
   const save = c => { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { } };
   const cfg = () => load();
-  const own = () => { const c = load(); return !!c.on && (c.provider === "proxy" ? !!c.proxy : !!c.key && (c.provider === "gemini" || !!(c.base || PRESET[c.provider].base))); };
+  const own = () => { const c = load(); return !!c.on && (c.provider === "proxy" ? !!c.proxy : !!c.key && (c.provider === "gemini" || c.provider === "hub" || !!(c.base || PRESET[c.provider].base))); };
   /* общий вход сайта: серверная функция разработчика; ключи лежат только на сервере, тариф проверяется там же */
   const siteUrl = () => { const u = String(window.UCHU_SITE?.nanoBanana || "").replace(/\/+$/, ""); return u ? (/functions\.yandexcloud\.net/.test(u) ? `${u}?path=${encodeURIComponent("/image")}` : u + "/image") : ""; };
   const isDevUser = () => !window.Access || !Access.commercial?.() || !!Access.isDev?.();
@@ -57,10 +66,14 @@ const ImageGen = (() => {
         if (!d?.data) throw new Error("сервис не вернул картинку" + (j.promptFeedback?.blockReason ? ` (заблокировано: ${j.promptFeedback.blockReason})` : ""));
         return toDataUrl(d.mimeType || d.mime_type, d.data);
       }
-      if (c.provider === "images") {
-        const size = aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? "1024x1536" : "1536x1024";
-        r = await fetch(`${base}${c.path || "/images/generations"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify({ model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" }) });
-        j = await r.json().catch(() => ({})); if (!r.ok) throw err(r, j);
+      if (c.provider === "images" || c.provider === "hub") {
+        const dalle = /dall-e-3/.test(model), size = aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024");
+        const go = body => fetch(`${base}${c.path || "/images/generations"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify(body) });
+        const bd = { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" };
+        r = await go(bd); j = await r.json().catch(() => ({}));
+        if (!r.ok && r.status === 400) { delete bd.response_format; r = await go(bd); j = await r.json().catch(() => ({})); }
+        if (!r.ok && r.status === 400) { delete bd.size; r = await go(bd); j = await r.json().catch(() => ({})); }
+        if (!r.ok) throw err(r, j);
         const d = j.data?.[0]; if (d?.b64_json) return toDataUrl("image/png", d.b64_json); if (d?.url) return fromUrl(d.url, signal);
         throw new Error("сервис не вернул картинку");
       }
@@ -97,6 +110,6 @@ const ImageGen = (() => {
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
+  return { MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
 })();
 window.ImageGen = ImageGen;
