@@ -180,6 +180,26 @@ const ImageGen = (() => {
     return out;
   }
 
+
+  /* ---------- рабочий лист «фотографией»: нейросеть рисует страницы целиком, текст приходит готовый (от DeepSeek) ---------- */
+  function splitSheet(md) {
+    const t = String(md || "").replace(/<!--[\s\S]*?-->/g, "").replace(/\[ _+ \]/g, "______").trim();
+    const parts = t.split(/\n(?=###\s)/); if (parts.length < 3) return [t, ""];
+    const total = t.length; let acc = 0, cut = parts.length - 1;
+    for (let i = 0; i < parts.length; i++) { acc += parts[i].length; if (acc >= total / 2) { cut = Math.min(parts.length - 1, i + 1); break; } }
+    return [parts.slice(0, cut).join("\n"), parts.slice(cut).join("\n")];
+  }
+  const photoPrompt = (p, txt, n, of) => `Design a finished, beautiful, colourful printed school worksheet page, A4 portrait, page ${n} of ${of}. It must look like a professionally designed worksheet photographed flat from above: pleasant background, headings in banners, task cards with numbers, illustrations related to the topic, clearly marked blank writing lines or boxes for pupils' answers. You decide the whole layout, colours and where each picture goes. Subject: ${SUBJ[p.subject] || "school"}, grade ${p.grade}, lesson topic «${p.topic}». ${+p.grade <= 4 ? "Cheerful friendly cartoon style." : "Modern, restrained, elegant flat style."} Put EXACTLY the following Russian text on the page, word for word, in Cyrillic, large and readable, with no spelling changes, nothing added and nothing omitted (lines of underscores mean empty answer lines to draw):\n\n${txt}`;
+  async function photos(p, md, onStep) {
+    const pg = splitSheet(md).filter(x => x.trim()); const out = [];
+    for (let i = 0; i < pg.length; i++) {
+      onStep && onStep(i, pg.length);
+      const r = await image(photoPrompt(p, pg[i], i + 1, pg.length), { aspect: "3:4", maxW: 1240, kind: i ? "part" : "sheet", timeout: 150000 });
+      out.push({ url: r.url, w: r.w, h: r.h });
+    }
+    return out;
+  }
+
   /* ---------- иллюстрации внутри листа: нейросеть-оформитель решает, у какого задания и с какой стороны они стоят ---------- */
   const heads = md => [...String(md || "").matchAll(/^###\s+(.+)$/gm)].map(m => m[1].replace(/[*_`]/g, "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").trim()).filter(Boolean);
   /* длина текста под каждым заголовком: картинка не должна быть выше задания, иначе она налезет на следующий заголовок */
@@ -217,6 +237,6 @@ const ImageGen = (() => {
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
+  return { photos, slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
 })();
 window.ImageGen = ImageGen;

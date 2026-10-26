@@ -377,7 +377,7 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:700}
 /* ---------- скрытая сцена для PDF ---------- */
 .xstyle{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:2px dashed var(--ink);border-radius:14px;background:var(--soft)}.xstyle.need{border-color:var(--flame);background:#fff1ec}.xstyle .lbl{font-weight:700;font-size:13.5px}
 .ws-slot{width:92px;height:auto;margin:2px 0 6px 12px;float:right}.ws-slot.l{float:left;margin:2px 12px 6px 0}.ws-slot.m{width:120px}
-.ws-art{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 10px;border:2px solid var(--ink)}
+.ws-photo{display:block;width:100%;height:auto;border-radius:10px;margin:0 0 12px;border:1px solid var(--line,#ddd)}.ws-photo-note{padding:10px 12px;margin:0 0 12px;border-radius:12px;background:#fff6e0;font-size:14px}.ws-art{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 10px;border:2px solid var(--ink)}
 .ws-art.ws-gal{width:68%;margin:0 auto 10px;border:0}
 #pdfstage{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111}
 #pdfstage .sheet::before{opacity:.5}
@@ -2556,12 +2556,8 @@ const Engine = (() => {
     const hw = p.hwText || { base: "выполнить упражнение из учебника по теме урока", adv: "подготовить устный ответ с примерами" };
     let home = `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}${srcLn(hw.exSrc)}\n\n` : ""}${BL}\n\n${BL}\n\n${BL}\n\n### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
     const head = (title) => `# ${title}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n`;
-    let out = lesson.trim() + "\n\n";
-    if (memo) out += head("Памятка").replace(/✍️.*\n\n/, "") + `**Тема:** ${p.topic}\n\n` + (window.Schemes && ru ? Schemes.md(RK?.scheme || Schemes.find("ru", p.topic)) : "") + memo;
-    out += head("Самостоятельная работа") + self;
-    out += head("Домашнее задание") + home;
-    if (answers) out += `# Ответы и критерии (для учителя)\n\n` + answers.replace(/^### 🔑 ОТВЕТЫ И КРИТЕРИИ ОЦЕНИВАНИЯ\s*/m, "");
-    return out;
+    // рабочий лист — только сам лист; памятка, самостоятельная, домашнее задание и ответы создаются отдельно
+    return lesson.trim() + "\n";
   }
   const capF = s => String(s).charAt(0).toUpperCase() + String(s).slice(1);
 
@@ -4049,10 +4045,17 @@ async function createLesson() {
   saveJob({ id: L.id, at: Date.now(), useAi, gen, formats, hideTech, p: { ...pParams, extra: p.extra, textOverride: p.textOverride || null }, notes: p.notes });
   await saveLesson(L);
   formats.forEach(f => (L.status[f] = "wait"));
-  const res = await runJob(L, p, type, gen, formats, useAi, hideTech);
-  if (formats.includes("slides") && deckPick === "ai") { try { await aiDeckPics(L); } catch (e) { console.warn("aiPics", e); } }
-  if (formats.includes("worksheet") && wsPick === "ai") { try { await decorateWorksheet(L, true); } catch (e) { console.warn("decor", e); } }
-  return res;
+  // картинки — этап той же сборки: вкладка листа остаётся «в работе», пока нейросеть рисует
+  const wantDeck = formats.includes("slides") && deckPick === "ai", wantWs = formats.includes("worksheet") && wsPick === "ai";
+  if (useAi && (wantDeck || wantWs)) L._after = async () => {
+    const stage = async (doc, label, fn) => {
+      L.status[doc] = "run"; state.gen = { lessonId: L.id, doc, pct: 4, label, fake: false, ctl: new AbortController() }; updateProgress(); if (state.lesson?.id === L.id) renderLesson();
+      try { await fn(pct => { if (state.gen) { state.gen.pct = pct; updateProgress(); } }); } catch (e) { console.warn("pics", e); } finally { L.status[doc] = "ok"; state.gen = null; if (state.lesson?.id === L.id) renderLesson(); }
+    };
+    if (wantDeck) await stage("slides", "рисую картинки", () => aiDeckPics(L));
+    if (wantWs) await stage("worksheet", "рисую лист", pct => aiSheetPhotos(L, pct));
+  };
+  return await runJob(L, p, type, gen, formats, useAi, hideTech);
 }
 /* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
 function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте ключ: режим разработчика → «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций» → «Проверить и нарисовать тест»." : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
@@ -4077,6 +4080,19 @@ async function aiDeckPics(L) {
   }
   if (!n) imgFail("Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : "."));
   if (n) { L.docs.slides = parts.join(""); window.Access?.countImage(1); await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000); }
+}
+/* рабочий лист «фотографией»: страницы рисует нейросеть, текст берётся из готового листа */
+async function aiSheetPhotos(L, setPct) {
+  if (!L.docs?.worksheet || !window.ImageGen) return;
+  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-листы доступны в тарифах «Учитель + ИИ» и «Методист», в пределах месячного лимита."); return; }
+  if (!ImageGen.configured()) { imgFail("Ключ для картинок не подключён."); return; }
+  try {
+    const ph = await ImageGen.photos({ ...L.params, topic: L.title }, L.docs.worksheet, (i, n) => setPct && setPct(10 + Math.round(i / n * 80)));
+    if (!ph.length) throw new Error("нейросеть не вернула страницы");
+    window.Access?.countImage(1);
+    L.art = { ...(L.art || {}), photos: ph }; await saveLesson(L);
+    toast("Лист нарисован. Это картинка: она не редактируется. Редактируемая версия — Word.", 7000);
+  } catch (e) { console.error(e); imgFail("Нейросеть не нарисовала лист: " + (e.message || e)); }
 }
 /* ---------- текст произведения до сборки урока литературы ---------- */
 let pendingPlan = null; // план урока, найденный при проверке текста, — чтобы не искать второй раз
@@ -4164,7 +4180,7 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
   const done = () => { addPrevHw(L, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
-  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); clearJob(L.id); }
+  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } clearJob(L.id); }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }
@@ -4441,7 +4457,7 @@ function updateProgress() {
   $$(".doc-tab").forEach(b => { const d = b.dataset.doc, pct = $(".pct", b); if (!pct) return; pct.textContent = mine && g.doc === d ? ` ${Math.round(g.pct)}%` : ""; });
   const show = mine && g.doc === state.active;
   $("#progress").hidden = !show;
-  if (show) { $("#progressText").textContent = `${DOCS[g.doc].label}: ${Math.round(g.pct)}%`; $("#progressBar").style.width = g.pct + "%"; }
+  if (show) { $("#progressText").textContent = `${DOCS[g.doc].label}${g.label ? " · " + g.label : ""}: ${Math.round(g.pct)}%`; $("#progressBar").style.width = g.pct + "%"; }
 }
 
 /* ===================================================================
@@ -5085,6 +5101,7 @@ async function exportAppx() { const L = state.lesson; const f = (await docxBlobs
 /* лист картинками (PNG): страницы нельзя редактировать */
 async function exportPng() {
   const L = state.lesson; if (!L?.docs.worksheet) return;
+  if (L.art?.photos?.length) { let k = 0; for (const x of L.art.photos) await saveFile(`${baseName(L, "worksheet")}_str${++k}.png`, await (await fetch(x.url)).blob()); return; }
   if (!confirm("Лист скачается как картинки страниц (PNG). Такой лист нельзя отредактировать: текст в картинке не меняется. Для правки скачивайте Word, в нём картинки стоят отдельными рисунками. Скачать картинками?")) return;
   toast("Готовлю картинки страниц…", 15000);
   const cvs = await docToPngCanvases(L); let i = 0;
@@ -5198,6 +5215,11 @@ function memoDecorate(root) {
   });
 }
 function wsDecorate(root, L) {
+  if (L?.art?.photos?.length) {
+    root.innerHTML = `<div class="ws-photo-note">🖼 Лист нарисован нейросетью как картинка — править текст нельзя. Для правок скачайте Word. <button class="btn ghost" id="wsUnphoto" type="button">Показать обычный лист</button></div>` + L.art.photos.map((x, i) => `<img class="ws-photo" alt="Рабочий лист, страница ${i + 1}" src="${x.url}">`).join("");
+    const b = root.querySelector("#wsUnphoto"); if (b) b.onclick = async () => { delete L.art.photos; await saveLesson(L); renderLesson(); };
+    return;
+  }
   const P = L?.params || {}, tag = `${P.grade || ""} класс · ${window.Subjects && P.subject && !["ru", "lit"].includes(P.subject) ? Subjects.name(P.subject) : P.subject === "lit" ? "Литература" : "Русский язык"}`;
   [...root.querySelectorAll("h1")].forEach((h, i) => {
     const icon = (WS_ICON.find(([re]) => re.test(h.textContent)) || [0, "📝"])[1];
