@@ -229,9 +229,9 @@ const Access = (() => {
     // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
     // окошко расхода: сколько токенов потрачено и сколько осталось (только у вошедших, на платных и бесплатном тарифе)
     let tk = document.getElementById("tokBadge");
-    const T = window.Account?.session?.tokens, show = commercial() && !isDev() && !promoFree() && !!window.Account?.session;
+    const T = window.Account?.session?.tokens, show = commercial() && !isDev() && !promoFree() && !!window.Account?.session && ["basic", "ai", "pro"].includes(window.Account.session.plan);
     if (show && !tk) { tk = document.createElement("span"); tk.id = "tokBadge"; tk.className = "small"; tk.style.cssText = "padding:4px 10px;border:1.5px solid var(--ink,#333);border-radius:999px;white-space:nowrap;font-weight:600"; document.querySelector(".account")?.prepend(tk); }
-    if (tk) { tk.hidden = !show; if (show) { const k = n => (n >= 1000 ? Math.round(n / 1000) + " тыс." : n); if (T) { const left = Math.max(0, T.limit - T.used); tk.textContent = `⚡ Потрачено ${k(T.used)} · осталось ${k(left)}`; tk.title = `Токены ИИ в этом периоде: потрачено ${T.used} из ${T.limit}. Обновляется после каждой сборки.`; } else { tk.textContent = "⚡ Учёт токенов появится после первой сборки"; tk.title = ""; } } }
+    if (tk) { tk.hidden = !show; if (show) { const k = n => (n >= 1000 ? Math.round(n / 1000) + " тыс." : n); if (T) { const cr = n => Math.round(n / 4000 * 10) / 10, left = Math.max(0, T.limit - T.used); tk.textContent = `⚡ Осталось ${cr(left)} из ${cr(T.limit)}`; tk.title = `Кредиты ИИ в этом периоде: 1 ⚡ — примерно 2–3 страницы текста. Потрачено ${cr(T.used)}, осталось ${cr(left)}. Урок с ИИ — около 10 ⚡. Обновляется после каждой сборки.`; } else { tk.textContent = "⚡ Кредиты появятся после первой сборки"; tk.title = ""; } } }
     document.dispatchEvent(new Event("uchu:access"));
     if (b) { const L = level(); b.textContent = promoFree() ? "🚀 Методист · всё открыто" : `💳 ${PLANS[L]?.name || "Тарифы"}`; b.title = promoFree() ? "Бесплатный доступ по промокоду: все возможности сайта" : "Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
   }
