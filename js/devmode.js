@@ -574,7 +574,7 @@ const Dev = (() => {
     if (document.getElementById("devEntry")) return;
     const f = document.createElement("footer"); f.className = "site-foot";
     // внизу — только неприметные серые ссылки: инструкция, источники, вход разработчика
-    f.innerHTML = `<div class="wrap foot-links foot-center"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button> · <button type="button" class="foot-link" id="docsLink">Документы</button></span><span class="foot-docs-in" id="docsBox" hidden><a href="legal/oferta.html">Договор-оферта</a><a href="legal/privacy.html">Политика конфиденциальности</a><a href="legal/contacts.html">Контакты и реквизиты</a></span><span class="foot-dev" id="devEntry">© 2026</span></div>`;
+    f.innerHTML = `<div class="wrap foot-links foot-center"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button> · <button type="button" class="foot-link" id="docsLink">Документы</button></span><span class="foot-docs-in" id="docsBox" hidden><a href="legal/tarify.html">Тарифы и услуги</a><a href="legal/oferta.html">Договор-оферта</a><a href="legal/privacy.html">Политика конфиденциальности</a><a href="legal/contacts.html">Контакты и реквизиты</a></span><span class="foot-dev" id="devEntry">© 2026</span></div>`;
     document.body.appendChild(f);
     f.querySelector("#docsLink").onclick = () => { const b = f.querySelector("#docsBox"); b.hidden = !b.hidden; };
     f.querySelector("#helpLink").onclick = () => { if (typeof go === "function") go("help"); window.scrollTo(0, 0); };
