@@ -72,7 +72,7 @@ async function create(body, userToken, request, readAll) {
     }
   } else return { status: 400, json: { error: "нет такого тарифа" } };
   const order = `${user.id}.${kind}.${Date.now()}`;
-  const site = env("SITE_URL") || "https://lubagame18-dev.github.io/uchu-po-frp/";
+  const site = env("SITE_URL") || "https://uchu-po-frp.ru/";
   if (yk()) return ykCreate({ order, user, kind, price, name, site, method: body.method === "any" ? "" : "sbp" }, request, readAll);
   const data = { do: "pay", order_id: order, customer_email: user.email, urlReturn: site + "?pay=cancel", urlSuccess: site + "?pay=ok", sys: "", npd_income_type: "FROM_INDIVIDUAL" };
   if (sub) { data.subscription = sub; } else { data.products = [{ name, price: String(price), quantity: "1" }]; }
