@@ -3587,6 +3587,7 @@ function updateType() {
   $("#typeBox").innerHTML = topic ? `<div class="type-name"><span class="lbl">Тип урока — определён автоматически</span><b>${esc(t.name)}</b></div><details><summary>Этапы урока</summary><p class="hint">${esc(t.stages.join(" → "))}</p></details>`
     : `<div class="type-name"><span class="lbl">Тип урока</span><b class="muted">определится по теме и номеру урока</b></div>`;
   if (topic) $("#typeBox").insertAdjacentHTML("beforeend", topicHint(topic, t));
+  textLookupSoon();
 }
 /* подсказка под темой: что по ней уже есть на сайте и что будет, если темы нет в списке */
 function topicHint(topic, t) {
@@ -4022,6 +4023,7 @@ async function createLesson() {
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   rememberTopic(state.topic);
   // литература: текст произведения нужен до сборки — если сайт его не нашёл, спрашиваем учителя сейчас, а не после генерации
+  dropStaleTextChoice(planKey(p));
   if (p.subject === "lit" && window.Variety && !state.textOverride) {
     const r = await checkWorkText(p, type); if (r === null) return;
   }
@@ -4033,7 +4035,7 @@ async function createLesson() {
   // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
   p.extra = { ...state.extra };
   state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
-  if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } // текст, который учитель добавил сам
+  if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   const useAi = state.build === "ai";
   if (window.Access && !(await Access.canBuildAsync(useAi))) return;
@@ -4112,12 +4114,49 @@ async function aiSheetPhotos(L, setPct) {
   } catch (e) { console.error(e); imgFail("Нейросеть не нарисовала лист: " + (e.message || e)); }
 }
 /* ---------- текст произведения до сборки урока литературы ---------- */
+/* литература: текст произведения запрашиваем сразу при выборе темы, а не после «Создать» */
+const textBoxKey = () => planKey({ subject: state.subject, grade: state.grade, lessonNo: state.lessonNo, topic: state.topic || $("#topic")?.value.trim() || "" });
+let textSeq = 0;
+function dropStaleTextChoice(key) { const c = state.textChoice; if (c && c.key !== key) { if (c.mode === "text") state.textOverride = null; state.textChoice = null; } }
+const textLookupSoon = debounce(() => textLookup().catch(e => console.warn("textLookup", e)), 900);
+async function textLookup() {
+  let box = $("#textBox");
+  if (!box) { box = document.createElement("div"); box.id = "textBox"; $("#typeBox").insertAdjacentElement("afterend", box); }
+  const topic = $("#topic").value.trim(), seq = ++textSeq;
+  const work = (topic.match(/«([^»]+)»/) || [])[1], author = window.Engine?.authorOf ? Engine.authorOf(topic) : "";
+  dropStaleTextChoice(textBoxKey());
+  if (state.subject !== "lit" || !window.Variety || topic.length < 4 || (!work && !author)) { box.hidden = true; box.innerHTML = ""; return; }
+  const key = textBoxKey(); dropStaleTextChoice(key); const ch = state.textChoice;
+  if (ch && ch.key === key) { paintTextBox(box, ch.mode === "skip" ? "skip" : "text", work, author, key); return; }
+  if (pendingPlan && pendingPlan.key === key) { box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false; box.innerHTML = `<div class="small" style="margin-top:8px">Ищу текст произведения…</div>`;
+  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic, wishes: "", formats: [], type: state.type };
+  let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, state.type); } catch { }
+  if (seq !== textSeq) return; // тема уже изменилась
+  if (plan && (plan.kit || plan.textSource)) { pendingPlan = { key, plan }; box.innerHTML = `<div class="small" style="margin-top:8px;color:#2a7a3b">✓ Текст произведения найден, добавлять не нужно.</div>`; return; }
+  paintTextBox(box, "need", work, author, key, plan);
+}
+function paintTextBox(box, mode, work, author, key, plan) {
+  box.hidden = false;
+  if (mode === "text") { box.innerHTML = `<div class="small" style="margin-top:8px;color:#2a7a3b">✓ Ваш текст добавлен, урок пойдёт по нему.</div>`; return; }
+  if (mode === "skip") { box.innerHTML = `<div class="small" style="margin-top:8px">Урок соберётся без текста произведения (без цитат). <button type="button" class="btn sm ghost" id="tbBack">Добавить текст</button></div>`; $("#tbBack").onclick = () => { state.textChoice = null; textLookupSoon(); }; return; }
+  box.innerHTML = `<div style="margin-top:8px;padding:10px 12px;border:1.5px solid #c0392b;border-radius:12px;background:#fff1f0"><div class="small" style="color:#c0392b;font-weight:700">Текста «${esc(work || state.topic)}» на сайте нет.</div><div class="small" style="margin:4px 0 8px">Добавьте текст, и вопросы пойдут по строфам и эпизодам этого произведения. Или продолжите без него: цитат в уроке не будет.</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm flame" id="tbAdd">Добавить текст</button><button type="button" class="btn sm ghost" id="tbSkip">Продолжить без текста</button></div></div>`;
+  $("#tbAdd").onclick = async () => {
+    const p = { subject: state.subject, grade: state.grade, topic: state.topic || $("#topic").value.trim() };
+    const ans = await askWorkText(p, work || p.topic, author || "");
+    if (ans?.text) { state.textOverride = { text: ans.text, source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; paintTextBox(box, "text", work, author, key); }
+    else if (ans?.skip) { state.textChoice = { key, mode: "skip" }; paintTextBox(box, "skip", work, author, key); }
+  };
+  $("#tbSkip").onclick = () => { state.textChoice = { key, mode: "skip" }; if (plan) pendingPlan = { key, plan }; paintTextBox(box, "skip", work, author, key); };
+}
 let pendingPlan = null; // план урока, найденный при проверке текста, — чтобы не искать второй раз
 const planKey = p => [p.subject, p.grade, p.lessonNo || 1, p.topic].join("|");
 async function checkWorkText(p, type) {
   const work = (p.topic.match(/«([^»]+)»/) || [])[1], author = Engine.authorOf(p.topic);
   if (!work && !author) return true; // обзорная тема — тексту произведения взяться неоткуда
   const own = window.Notes?.snapshot?.()?.text; if (own && own.trim().length > 80) return true;
+  if (state.textChoice && state.textChoice.key === planKey(p)) return true; // выбор уже сделан под темой: текст добавлен или «без текста»
+  if (pendingPlan && pendingPlan.key === planKey(p)) return true;
   $("#createHint").textContent = "Ищу текст произведения…";
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, type); } catch { }
   $("#createHint").textContent = "";
