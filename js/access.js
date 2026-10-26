@@ -227,6 +227,11 @@ const Access = (() => {
     let b = document.getElementById("btnPlan");
     if (!b && commercial()) { b = document.createElement("button"); b.type = "button"; b.id = "btnPlan"; b.className = "btn sm ghost"; b.onclick = () => open(); document.querySelector(".account")?.prepend(b); }
     // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
+    // окошко расхода: сколько токенов потрачено и сколько осталось (только у вошедших, на платных и бесплатном тарифе)
+    let tk = document.getElementById("tokBadge");
+    const T = window.Account?.session?.tokens, show = commercial() && !isDev() && !promoFree() && !!window.Account?.session;
+    if (show && !tk) { tk = document.createElement("span"); tk.id = "tokBadge"; tk.className = "small"; tk.style.cssText = "padding:4px 10px;border:1.5px solid var(--ink,#333);border-radius:999px;white-space:nowrap;font-weight:600"; document.querySelector(".account")?.prepend(tk); }
+    if (tk) { tk.hidden = !show; if (show) { const k = n => (n >= 1000 ? Math.round(n / 1000) + " тыс." : n); if (T) { const left = Math.max(0, T.limit - T.used); tk.textContent = `⚡ Потрачено ${k(T.used)} · осталось ${k(left)}`; tk.title = `Токены ИИ в этом периоде: потрачено ${T.used} из ${T.limit}. Обновляется после каждой сборки.`; } else { tk.textContent = "⚡ Учёт токенов появится после первой сборки"; tk.title = ""; } } }
     document.dispatchEvent(new Event("uchu:access"));
     if (b) { const L = level(); b.textContent = promoFree() ? "🚀 Методист · всё открыто" : `💳 ${PLANS[L]?.name || "Тарифы"}`; b.title = promoFree() ? "Бесплатный доступ по промокоду: все возможности сайта" : "Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
   }

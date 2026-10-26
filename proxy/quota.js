@@ -22,6 +22,7 @@ async function check(userToken, request, readAll) {
   if (!userToken) return { ok: false, status: 401, reason: "login", message: "Войдите в личный кабинет, чтобы пользоваться ИИ сайта." };
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
   if (u.status !== 200 || !u.json?.id) return { ok: false, status: 401, reason: "login", message: "Вход устарел — войдите в кабинет ещё раз." };
+  if (!(u.json.email_confirmed_at || u.json.confirmed_at || u.json.phone_confirmed_at)) return { ok: false, status: 403, reason: "confirm", message: "Подтвердите почту: откройте письмо от сайта и нажмите ссылку. После этого ИИ откроется." };
   const id = u.json.id;
   let p = (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0];
   const month = new Date().toISOString().slice(0, 7);

@@ -43,7 +43,7 @@ async function sb(request, readAll, path, { method = "GET", body, token } = {}) 
   const t = await readAll(res); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
   return { status: res.statusCode, json: j };
 }
-async function userOf(token, request, readAll) { if (!token) return null; const u = await sb(request, readAll, "/auth/v1/user", { token }); return u.status === 200 && u.json?.id ? u.json : null; }
+async function userOf(token, request, readAll) { if (!token) return null; const u = await sb(request, readAll, "/auth/v1/user", { token }); return u.status === 200 && u.json?.id && (u.json.email_confirmed_at || u.json.confirmed_at || u.json.phone_confirmed_at) ? u.json : null; }
 async function profile(id, request, readAll) { return (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0] || null; }
 
 /* ---------- 1. Ссылка на оплату ---------- */

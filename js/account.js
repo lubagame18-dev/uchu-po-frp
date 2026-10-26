@@ -62,6 +62,7 @@ const Account = (() => {
     return "confirm"; // в проекте включено подтверждение почты
   }
   /* Забыли пароль: Supabase шлёт письмо со ссылкой, ссылка возвращает на сайт, там человек задаёт новый пароль */
+  async function resendConfirm(email) { await api("/auth/v1/resend?redirect_to=" + encodeURIComponent(location.origin + location.pathname), { method: "POST", body: JSON.stringify({ type: "signup", email }) }); }
   async function recover(email) {
     if (!ready()) throw new Error("Восстановление работает, когда подключено облако.");
     await api("/auth/v1/recover?redirect_to=" + encodeURIComponent(location.origin + location.pathname), { method: "POST", body: JSON.stringify({ email }) });
@@ -303,7 +304,14 @@ const Account = (() => {
         if (want && window.Access) { Access.wantBuy = null; Access.checkout(want); }
         else if (window.Access?.wantPromo) { Access.wantPromo = false; Access.open(); }
         else if (window.Dev?.wantDev) { Dev.wantDev = false; Dev.openLogin(); }
-      } catch (er) { msg.textContent = RU(er.message); }
+      } catch (er) {
+        msg.textContent = RU(er.message);
+        if (/not confirmed|confirm/i.test(er.message) && mode === "in") { // старый аккаунт без подтверждения: даём отправить письмо ещё раз
+          const b = document.createElement("button"); b.type = "button"; b.className = "btn sm ghost"; b.style.marginLeft = "8px"; b.textContent = "Отправить письмо ещё раз";
+          b.onclick = async () => { b.disabled = true; try { await resendConfirm(email); msg.textContent = "Письмо отправлено на " + email + ". Откройте его и нажмите ссылку."; } catch (e2) { msg.textContent = RU(e2.message); } };
+          msg.appendChild(b);
+        }
+      }
       finally { go.disabled = false; }
     };
   }
