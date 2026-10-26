@@ -36,3 +36,4 @@ Disallow: /data/
 Disallow: /js/
 Disallow: /proxy/
 Allow: /
+Sitemap: https://uchu-po-frp.ru/sitemap.xml
