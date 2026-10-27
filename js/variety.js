@@ -629,11 +629,13 @@ ${G.map((g, i) => `| ${i + 1} | ${g.word} |  | ${L[i]}) ${G[order[i]].def} |`).j
     return pick;
   }
   /* «Интересные» механики из рабочих тетрадей и пособий — по одной на урок, без повтора подряд */
-  const RU_FORMATS = ["crossword", "equation", "perfo", "speech", "research", "restore", "picture", "lingEssay"];
+  const RU_FORMATS = ["crossword", "equation", "perfo", "research", "restore", "picture"];
+  /* формат подходит только к теме, к которой он логичен (сочинения и «поздравления» в лист не берём) */
+  const FORMAT_FIT = { picture: /деепричаст|причаст|глагол/i, restore: /определен|эпитет|союз|однородн/i, research: /предложен|член|обособ|знак|пунктуац|причаст|деепричаст|однородн|определен|обстоятельств|дополнени|сложн/i };
   function chooseRuFormat(p) {
     if (typeof KB === "undefined") return null;
     const last = H.lastFormats(1)[0];
-    const mech = KB.ru.mechanics.filter(m => RU_FORMATS.includes(m.id) && m.id !== last).filter(m => { const [a, b] = m.grades.split("-").map(Number); return p.grade >= a && p.grade <= (b || a); });
+    const mech = KB.ru.mechanics.filter(m => RU_FORMATS.includes(m.id) && m.id !== last && (!FORMAT_FIT[m.id] || FORMAT_FIT[m.id].test(String(p.topic || "")))).filter(m => { const [a, b] = m.grades.split("-").map(Number); return p.grade >= a && p.grade <= (b || a); });
     const [m] = pickLRU(mech, "fmt", x => x.id, 1);
     return m ? { id: m.id, name: m.name, task: `${m.formula} Материал — по теме «${p.topic}».`, src: m.src } : null;
   }
