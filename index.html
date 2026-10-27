@@ -2306,7 +2306,20 @@ const Engine = (() => {
     const sum = w.reduce((a, b) => a + b, 0);
     const mins = w.map(x => Math.max(1, Math.round(x / sum * total)));
     let diff = total - mins.reduce((a, b) => a + b, 0), i = mins.indexOf(Math.max(...mins));
-    mins[i] += diff; return mins;
+    mins[i] += diff;
+    /* практика (закрепление, самостоятельная и творческая работа, проверка) – не меньше 45% урока */
+    const pr = stages.map(st => /закреплен|самостоятел|практик|тренинг|применен|контрольн|создание собственного|трансформац|классификац|редактирован|взаимопроверк|творческ|работа над ошибк/i.test(st.split(":")[0]));
+    if (pr.some(Boolean) && pr.some(x => !x)) {
+      const floor = st => /рефлекс|организац|домашн|постановк/i.test(st.split(":")[0]) ? 1 : 3;
+      let guard = 60;
+      while (guard-- > 0 && mins.reduce((a, m, k) => a + (pr[k] ? m : 0), 0) < Math.ceil(total * 0.45)) {
+        let from = -1; mins.forEach((m, k) => { if (!pr[k] && m > floor(stages[k]) && (from < 0 || m > mins[from])) from = k; });
+        if (from < 0) break;
+        let to = -1; mins.forEach((m, k) => { if (pr[k] && (to < 0 || m < mins[to])) to = k; });
+        mins[from]--; mins[to]++;
+      }
+    }
+    return mins;
   }
   const cellSafe = s => s.replace(/\|/g, "/").replace(/\n+/g, "<br>");
 
