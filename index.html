@@ -4933,7 +4933,7 @@ function scrubDoc(md, keepLinks) {
     .replace(/(?<!!)\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, t) => keepLinks ? m : t)
     .replace(/[ \t]+$/gm, "");
 }
-function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject); } }
+function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject, k); } }
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);
@@ -5023,7 +5023,8 @@ function morphPng(kind, text) {
 function inlineRuns(tokens, D, base = {}) {
   const runs = [], stack = []; let morph = null;
   const eff = st => { let o = { ...st }; for (const c of stack) { const L = S_LINE[c]; if (L) o = { ...o, ...L }; if (c === "s-obob") o.border = { style: D.BorderStyle.SINGLE, size: 6, color: "111111", space: 1 }; } return o; };
-  const pushText = (text, st) => { if (morph) { morph.text += text; return; } runs.push(new D.TextRun({ text, ...eff(st) })); };
+  let sb = 0;
+  const pushText = (text, st) => { if (morph) { morph.text += text; return; } runs.push(new D.TextRun({ text, ...eff(st), ...(sb === 1 ? { subScript: true } : sb === 2 ? { superScript: true } : {}) })); };
   const walk = (toks, st) => {
     for (const t of toks || []) {
       if (t.type === "strong") walk(t.tokens, { ...st, bold: true });
@@ -5036,6 +5037,7 @@ function inlineRuns(tokens, D, base = {}) {
         const h = String(t.text || "").trim(), op = h.match(/^<span class="(s-[a-z]+)">$/);
         if (op) { stack.push(op[1]); if (S_MORPH.has(op[1]) && !morph) morph = { kind: op[1], text: "", depth: stack.length }; continue; }
         if (/^<\/span>$/.test(h) && stack.length) { if (morph && morph.depth === stack.length) { const m = morphPng(morph.kind, morph.text.replace(/ /g, " ")); morph = null; try { runs.push(new D.ImageRun({ type: "png", data: m.data, transformation: { width: m.w, height: m.h } })); } catch { } } stack.pop(); continue; }
+        if (/^<sub>$/i.test(h)) { sb = 1; continue; } if (/^<sup>$/i.test(h)) { sb = 2; continue; } if (/^<\/su[bp]>$/i.test(h)) { sb = 0; continue; }
         if (/<br\s*\/?>/i.test(h)) runs.push(new D.TextRun({ text: "", break: 1 }));
       }
       else if (t.tokens) walk(t.tokens, st);
