@@ -151,6 +151,7 @@ const LessonNotes = (() => {
       for (const n of T.notes) {
         if (hasEx && /^Форма работы:/i.test(n)) continue;
         if (/^Алгоритм «.*на слайде/.test(n) || /если затрудня|если не (ответ|справ)|наводящ/i.test(n)) continue;
+        if (/^(Медленное чтение|Итог анализа|Прогноз|Как автор этого добивается|Предварительный комментарий|Нравственный выбор)[^<]*:$/.test(n.trim())) continue;
         word.push(n.replace(/^🔗\s*\*?Переход:\*?\s*/, "").replace(/^📌\s*/, ""));
       }
       if (word.length) out += X.row("Учитель", word);
@@ -184,12 +185,12 @@ const LessonNotes = (() => {
           out += X.box(`Отрывок ${f.n}. ${f.label}`, f.text.split("\n").filter(l => l.trim()).map(l => `*${clean(l)}*`));
           const gl = (K.glossary || []).filter(g => low(f.text).includes(low(g.word).slice(0, Math.max(4, g.word.length - 2))));
           if (gl.length) out += X.box("Словарная работа", gl.map(g => `**${g.word}** — ${g.def}`));
-          const pairs = qa.flatMap(x => x.steps ? x.steps.map((q, k) => [q, k === x.steps.length - 1 ? x.a : ""]) : [[x.q, x.a]]);
+          const pairs = qa.flatMap(x => x.steps ? x.steps.map((q, k) => [q, x.as?.[k] || (k === x.steps.length - 1 ? x.a : "")]) : [[x.q, x.a]]);
           out += X.qa(pairs, ["Вопрос, задание учителя", "Ответ учеников"]);
           if (K.conclusions?.[j]) out += X.box("Вывод", [`Учитель: «${clean(K.conclusions[j])}»`]);
         });
         // понятия — после наблюдения над текстом, с проговариванием вслух
-        (K.terms || []).slice(0, 4).forEach(tm => { out += X.box(`Понятие «${tm.term}»`, [`Учитель: «${tm.def.replace(/^./, ch => ch.toUpperCase())}${tm.ex ? `. Вспомним строки: «${tm.ex.replace(/[«»]/g, "")}»` : ""}»`]); out += X.box("Проговариваем вслух", [`Учитель: «Как называется этот приём?» — Класс: «${tm.term}».`]); });
+        (K.terms || []).slice(0, 4).forEach(tm => { out += X.box(`Понятие «${tm.term}»`, [`Учитель: «${tm.def.replace(/[.\s]+$/, "").replace(/^./, ch => ch.toUpperCase())}${tm.ex ? `. Вспомним строки: «${tm.ex.replace(/[«»]/g, "")}»` : ""}»`]); out += X.box("Проговариваем вслух", [`Учитель: «Как называется этот приём?» — Класс: «${tm.term}».`]); });
       }
       // работа с текстом на остальных этапах: сам текст (дословно) должен быть перед глазами учителя там, где о нём говорят
       if (!ru && K?.fragments?.length) {

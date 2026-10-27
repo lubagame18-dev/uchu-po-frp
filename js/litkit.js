@@ -276,7 +276,7 @@ const LitKit = (() => {
       const ch = x.term === "эпитет" ? H.device("epithet", x.ex) : x.term === "сравнение" ? H.device("simile", x.ex) : x.term === "анафора" ? H.device("anaphora", A.anaphora?.word) : x.term === "повтор" ? H.device("repeat", x.ex)
         : x.term === "антитеза" ? H.device("antithesis", A.pairs[0]) : x.term === "риторический вопрос" ? H.device("rhetq", x.ex) : /цвет/.test(x.q) && A.colors?.length ? H.device("color", A.colors.slice(0, 3))
         : x.term === "диалог" ? H.device("dialog") : /Каким предстаёт/.test(x.q) && A.heroes?.length ? H.device("hero", A.heroes[0]) : null;
-      if (ch) { x.q = ch.steps[0]; x.steps = ch.steps; x.hint = ch.hint; x.a = ch.a; }
+      if (ch) { x.q = ch.steps[0]; x.steps = ch.steps; x.hint = ch.hint; x.a = ch.a; x.as = ch.as; }
     }
     return out.slice(0, fr.qa?.length ? fr.qa.length + 1 : 3);
   }
