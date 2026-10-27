@@ -260,8 +260,7 @@ const Deck = (() => {
     const MN = window.Mnemo ? Mnemo.find(p.topic, RK?.algo?.name || "", p.subject) : null;
     if (lit && MN && !cards.some(c => c.title === "Как запомнить")) {
       const before = idx("concl") >= 0 ? idx("concl") : idx("hw") >= 0 ? idx("hw") : cards.length;
-      at(before, { kind: "list", title: "Как запомнить", points: MN.tips.map(plainMd), notes: "Приёмы запоминания — по школьным учебникам. Попросите учеников придумать свой пример." });
-      at(before + 1, { kind: "list", title: "Проверь себя: переверни карточку", points: MN.quiz.map(([g, a]) => `${g} — ${a}`), notes: "В показе карточки переворачиваются по щелчку." });
+      Mnemo.cards(MN, plainMd).forEach((c, k) => at(before + k, c));
     }
     // доска — сразу после цели
     const g = idx("goal");
@@ -337,8 +336,7 @@ const Deck = (() => {
     if (!lit && window.Mnemo) {
       const MN = Mnemo.find(p.topic, RK?.algo?.name || "");
       if (MN) {
-        add({ kind: "list", title: "Как запомнить", points: MN.tips.map(plainMd), notes: "Приёмы запоминания: проговорите с классом, попросите придумать свой пример." });
-        add({ kind: "list", title: "Проверь себя: переверни карточку", points: MN.quiz.map(([g, a]) => `${g} — ${a}`), notes: "В показе каждая карточка переворачивается по щелчку: сначала ученики отвечают, потом открываем ответ." });
+        Mnemo.cards(MN, plainMd).forEach(c => add(c));
       }
     }
     // 6. Этапы техкарты
@@ -451,7 +449,7 @@ const Deck = (() => {
       case "glossary": set.layout = "cards"; set.kind = "glossary"; body = (card.items || []).map(g => `- **${md1(g.word)}** — ${md1(g.def)}`).join("\n"); break;
       case "terms": set.layout = "cards"; body = (card.items || []).map(t => `- **${md1(t.term)}** — ${md1(t.def)}${t.ex ? `  \n*Пример:* «${md1(t.ex).replace(/[«»]/g, "")}»` : ""}`).join("\n"); break;
       case "fragment": set.layout = card.verse ? "poem" : "task"; set.vb = 1; body = (card.mdBody || verbatimMd(card.text, { verse: card.verse })) + (card.by ? `\n\n*${md1(card.by)}*` : ""); break;
-      case "table": set.layout = "one"; body = `| ${card.head.map(md1).join(" | ")} |\n|${card.head.map(() => "---").join("|")}|\n${card.rows.map(r => `| ${md1(r[0])} |${" |".repeat(card.head.length - 1)}`).join("\n")}`; break;
+      case "table": set.layout = "one"; body = `| ${card.head.map(md1).join(" | ")} |\n|${card.head.map(() => "---").join("|")}|\n${card.rows.map(r => card.full ? `| ${card.head.map((_, i) => md1(r[i])).join(" | ")} |` : `| ${md1(r[0])} |${" |".repeat(card.head.length - 1)}`).join("\n")}`; break;
       case "concl": set.layout = "list"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "image": set.layout = "image"; break;
       case "board": { set.layout = "one"; const pp = card.points || []; body = `${md1(pp[0] || "")}  \n${md1(pp[1] || "")}` + (pp.length > 2 ? "\n\n" + pp.slice(2).map(x => `- ${md1(x)}`).join("\n") : ""); break; }
@@ -506,8 +504,7 @@ ${JSON.stringify(payload)}`;
     if (cards.some(c => c.title === "Как запомнить") || !window.Mnemo?.ai) return cards;
     const MN = await Mnemo.ai(p.topic, p.grade, p.subject); if (!MN) return cards;
     const i = cards.findIndex(c => ["concl", "hw"].includes(c.kind)), pos = i >= 0 ? i : cards.length;
-    const add = [{ id: "m1", on: true, kind: "list", title: "Как запомнить", points: MN.tips.map(plainMd), notes: "Приёмы предложены нейросетью по школьной методике — проверьте перед уроком." }];
-    if (MN.quiz.length) add.push({ id: "m2", on: true, kind: "list", title: "Проверь себя: переверни карточку", points: MN.quiz.map(([g, a]) => `${g} — ${a}`), notes: "В показе карточки переворачиваются по щелчку." });
+    const add = Mnemo.cards(MN, plainMd).map((c, k) => ({ id: "m" + (k + 1), on: true, ...c, notes: c.notes + " Предложено нейросетью по школьной методике — проверьте перед уроком." }));
     cards.splice(pos, 0, ...add); return cards;
   }
   /* Аудио и видео: сайт ищет чтение артистов и экранизации; не нашёл — слайд остаётся в плане выключенным */

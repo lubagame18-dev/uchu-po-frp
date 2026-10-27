@@ -4939,7 +4939,10 @@ async function saveFile(filename, data) {
   try { await caps.downloads.save({ filename, data }); toast("Файл сохранён: " + filename); }
   catch (e) { if (e?.code !== "declined") toast("Не удалось сохранить файл: " + (e?.message || e?.code || e)); }
 }
-const baseName = (L, doc) => `${slug(L.title)}_${L.params.grade}kl_${DOCS[doc].file}`;
+/* имя файла: «Тема — Тип документа» по-русски, без символов, запрещённых в именах файлов */
+const fileSafe = (s, n = 80) => String(s || "").replace(/[\u0000-\u001f\\\/:*?"<>|«»]+/g, " ").replace(/\s+/g, " ").trim().replace(/[. ]+$/, "").slice(0, n).trim();
+const baseName = (L, doc) => `${fileSafe(L.title, 70) || "Урок"} — ${DOCS[doc].label}`;
+const APPX_RE = /— приложения для учителя\.docx$/;
 /* ---------- Markdown → DOCX ---------- */
 /* схемы: подчёркивания членов предложения — родными линиями Word, морфемы — маленькими картинками */
 const S_LINE = { "s-pod": { underline: { type: "single" } }, "s-skaz": { underline: { type: "double" } }, "s-dop": { underline: { type: "dash" } }, "s-opr": { underline: { type: "wave" } }, "s-obst": { underline: { type: "dotDash" } }, "s-x": { bold: true }, "s-orf": { bold: true } };
@@ -5222,21 +5225,21 @@ async function mdToDocxBlob(md, title, opts = {}) {
 async function docxBlobs(L, d) {
   let rest = ""; const o = { ...wsOpts(L, d), onRest: r => (rest = r) };
   const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(L.docs[d], L.title, o)]];
-  if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + `_list${i + 2}.docx`, await mdToDocxBlob(L.more[i].md, `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
-  if (o.twoPage && rest.trim()) out.push([baseName(L, d) + "_prilozheniya.docx", await mdToDocxBlob(rest, L.title, { worksheet: true, tag: o.tag })]);
+  if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + ` (лист ${i + 2}).docx`, await mdToDocxBlob(L.more[i].md, `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
+  if (o.twoPage && rest.trim()) out.push([baseName(L, d) + " — приложения для учителя.docx", await mdToDocxBlob(rest, L.title, { worksheet: true, tag: o.tag })]);
   return out;
 }
-async function exportDocx() { const L = state.lesson; const files = (await docxBlobs(L, state.active)).filter(([n]) => !/_prilozheniya\.docx$/.test(n)); for (const [n, b] of files) await saveFile(n, b); }
+async function exportDocx() { const L = state.lesson; const files = (await docxBlobs(L, state.active)).filter(([n]) => !APPX_RE.test(n)); for (const [n, b] of files) await saveFile(n, b); }
 /* ответы учителя и памятка — отдельным файлом и только по кнопке */
-async function exportAppx() { const L = state.lesson; const f = (await docxBlobs(L, "worksheet")).filter(([n]) => /_prilozheniya\.docx$/.test(n)); if (!f.length) { toast("Отдельного приложения у этого листа нет: всё уместилось на двух страницах.", 6000); return; } for (const [n, b] of f) await saveFile(n, b); }
+async function exportAppx() { const L = state.lesson; const f = (await docxBlobs(L, "worksheet")).filter(([n]) => APPX_RE.test(n)); if (!f.length) { toast("Отдельного приложения у этого листа нет: всё уместилось на двух страницах.", 6000); return; } for (const [n, b] of f) await saveFile(n, b); }
 /* лист картинками (PNG): страницы нельзя редактировать */
 async function exportPng() {
   const L = state.lesson; if (!L?.docs.worksheet) return;
-  if (L.art?.photos?.length) { let k = 0; for (const x of L.art.photos) await saveFile(`${baseName(L, "worksheet")}_str${++k}.png`, await (await fetch(x.url)).blob()); return; }
+  if (L.art?.photos?.length) { let k = 0; for (const x of L.art.photos) await saveFile(`${baseName(L, "worksheet")} (стр. ${++k}).png`, await (await fetch(x.url)).blob()); return; }
   if (!confirm("Лист скачается как картинки страниц (PNG). Такой лист нельзя отредактировать: текст в картинке не меняется. Для правки скачивайте Word, в нём картинки стоят отдельными рисунками. Скачать картинками?")) return;
   toast("Готовлю картинки страниц…", 15000);
   const cvs = await docToPngCanvases(L); let i = 0;
-  for (const cv of cvs) { const blob = await new Promise(r => cv.toBlob(r, "image/png")); await saveFile(`${baseName(L, "worksheet")}_str${++i}.png`, blob); }
+  for (const cv of cvs) { const blob = await new Promise(r => cv.toBlob(r, "image/png")); await saveFile(`${baseName(L, "worksheet")} (стр. ${++i}).png`, blob); }
 }
 
 /* ---------- PowerPoint: текст от 26 pt, перенос, картинки ---------- */
@@ -5444,14 +5447,11 @@ async function exportZip(L) {
   const zip = new window.JSZip(), fails = [];
   const put = async (name, make) => { try { const b = await make(); if (b && b.size !== 0) zip.file(name, b); else fails.push(name); } catch (e) { console.warn("zip", name, e); fails.push(name); } };
   const docs = Object.keys(DOCS).filter(d => L.docs[d]);
-  for (const d of docs) { if (d === "slides") await put(baseName(L, d) + ".pptx", () => slidesToPptxBlob(L.docs[d], L.title)); else { try { for (const [n, b] of await docxBlobs(L, d)) zip.file(n, b); } catch (e) { console.warn("zip", d, e); fails.push(baseName(L, d) + ".docx"); } } }
-  if (L.docs.pack && window.InfMethod && window.Subjects) { try { const p = { ...L.params }, type = Subjects.plugin(p.subject).detectType(p), F = Subjects.frp(p.subject, p); InfMethod.zip(p, F, type).forEach(f => zip.file("Fayly_dlya_uroka/" + f.n.replace(/^[^/]+\//, ""), f.c)); } catch (e) { console.warn("pack", e); fails.push("файлы для урока"); } }
-  let pdfOk = true; try { await loadScript("html2pdf"); } catch { pdfOk = false; }
-  if (pdfOk) for (const d of docs) await put(baseName(L, d) + ".pdf", () => docToPdfBlob(L, d));
-  else fails.push("PDF (библиотека не загрузилась — проверьте интернет)");
+  // ровно по одному файлу на каждый созданный документ: презентация — .pptx, остальное — .docx (без дублей в PDF и служебных папок)
+  for (const d of docs) { if (d === "slides") await put(baseName(L, d) + ".pptx", () => slidesToPptxBlob(L.docs[d], L.title)); else { try { for (const [n, b] of (await docxBlobs(L, d)).filter(([n]) => !APPX_RE.test(n))) zip.file(n, b); } catch (e) { console.warn("zip", d, e); fails.push(baseName(L, d) + ".docx"); } } }
   if (!Object.keys(zip.files).length) throw new Error("ни один файл не собрался");
   if (fails.length) zip.file("ПРОЧТИТЕ.txt", "Не удалось собрать: " + fails.join(", ") + ".\nСкачайте их по отдельности кнопками над листом.");
-  await saveFile(`${slug(L.title)}_${L.params.grade}kl_komplekt.zip`, await zip.generateAsync({ type: "blob", compression: "DEFLATE" }));
+  await saveFile(`${fileSafe(L.title, 70) || "Урок"} — комплект материалов.zip`, await zip.generateAsync({ type: "blob", compression: "DEFLATE" }));
   if (fails.length) toast("Архив скачан, но без: " + fails.join(", ") + ". Их можно скачать по отдельности.", 9000);
 }
 /* ZIP «Файлы для урока»: карточка учителя, инструкция ученика, заготовки, ключи — всё создаётся на странице, без Интернета */
@@ -5467,8 +5467,8 @@ async function exportOne(L, d, f) {
   // перед выгрузкой презентации — автоподбор шрифта и деление длинных слайдов (если редактор ещё не открывался)
   if (window.SlideEditor && (d === "slides" || d === "all") && L === state.lesson && L.docs.slides && !L.slidesFitted) { L.slidesFitted = true; SlideEditor.fitAll(); }
   if (d === "all") return exportZip(L);
-  if (f === "zip") { toast("Собираю файлы для урока…", 6000); return saveFile(`${slug(L.title)}_${L.params.grade}kl_fayly-dlya-uroka.zip`, await packZipBlob(L)); }
-  if (f === "docx") { toast("Готовлю Word…", 6000); const files = (await docxBlobs(L, d)).filter(([n]) => !/_prilozheniya\.docx$/.test(n)); for (const [n, b] of files) await saveFile(n, b); return; }
+  if (f === "zip") { toast("Собираю файлы для урока…", 6000); return saveFile(`${fileSafe(L.title, 70) || "Урок"} — файлы для урока.zip`, await packZipBlob(L)); }
+  if (f === "docx") { toast("Готовлю Word…", 6000); const files = (await docxBlobs(L, d)).filter(([n]) => !APPX_RE.test(n)); for (const [n, b] of files) await saveFile(n, b); return; }
   if (f === "pptx") { toast("Готовлю презентацию…", 8000); return saveFile(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title)); }
   if (f === "pdf") { toast("Готовлю PDF…", 9000); return saveFile(baseName(L, d) + ".pdf", await docToPdfBlob(L, d)); }
 }
