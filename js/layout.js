@@ -35,15 +35,16 @@ const Layout = (() => {
     if (t.length <= 22) return { label: t.toUpperCase(), lead: "" };
     return { label: "ХОД РАБОТЫ", lead: t };
   }
-  const LEGEND = "Метки слева: УЧИТЕЛЬ — что сказать; НА ДОСКЕ и В ТЕТРАДЬ — что записать; СЛОВАРЬ — непонятные слова; ОТВЕТЫ — ключ для учителя. В таблице «Вопрос учителя — Ответ учеников» ответ стоит рядом с вопросом; в таблице «Упражнение — Алгоритм» рядом с заданием порядок его выполнения.";
+  const LEGEND = "Метки слева: УЧИТЕЛЬ – что сказать; НА ДОСКЕ и В ТЕТРАДЬ – что записать; ОТВЕТЫ – ключ для учителя. Рядом с вопросом – ожидаемый ответ учеников, рядом с упражнением – порядок его выполнения.";
+  const LEGEND_OLD = "Метки слева: УЧИТЕЛЬ — что сказать; НА ДОСКЕ и В ТЕТРАДЬ — что записать; СЛОВАРЬ — непонятные слова; ОТВЕТЫ — ключ для учителя. В таблице «Вопрос учителя — Ответ учеников» ответ стоит рядом с вопросом; в таблице «Упражнение — Алгоритм» рядом с заданием порядок его выполнения.";
 
   const short = n => { const t = clean(n).replace(/[:,(].*$/, "").trim(); if (t.length <= 30) return t; const w = t.split(" "); let o = ""; for (const x of w) { if ((o + " " + x).trim().length > 28) break; o = (o + " " + x).trim(); } return o + "…"; };
   /* ---------- кирпичики Markdown ---------- */
   const md = {
     kicker: (p, kind = "Конспект урока") => `*${kind} ${SUBJ[p.subject] || ""} · ${p.grade} класс*\n\n`,
-    passport: (rows, noLegend) => { const R = rows.filter(r => r && clean(r[1])); if (!noLegend) R.push(["Как читать конспект", LEGEND]); return `| ${cell(R[0][0])} | ${cell(R[0][1])} |\n|---|---|\n${R.slice(1).map(r => `| ${cell(r[0])} | ${cell(r[1])} |`).join("\n")}\n\n`; },
+    passport: (rows, noLegend) => { const R = rows.filter(r => r && clean(r[1])); const tbl = R.length ? `| ${cell(R[0][0])} | ${cell(R[0][1])} |\n|---|---|\n${R.slice(1).map(r => `| ${cell(r[0])} | ${cell(r[1])} |`).join("\n")}\n\n` : ""; return tbl + (noLegend ? "" : `*Как читать конспект: ${LEGEND}*\n\n`); },
     // полоска этапов вместо плана: «Этап 1 · 5 мин» / название
-    plan: rows => rows.length ? `| ${rows.map((r, i) => `Этап ${i + 1}${r.min ? ` · ${r.min} мин` : ""}`).join(" | ")} |\n|${rows.map(() => "---").join("|")}|\n| ${rows.map(r => cell(short(r.name))).join(" | ")} |\n\n` : "",
+    plan: rows => rows.length ? `| № | Этап урока | Время |\n|---|---|---|\n${rows.map((r, i) => `| ${i + 1} | ${cell(clean(r.name).replace(/\s*[:(].*$/, "").replace(/^./, c => c.toUpperCase()))} | ${r.min ? r.min + " мин" : ""} |`).join("\n")}\n\n` : "",
     legend: () => "",
     block: (n, title, min) => `## ЭТАП ${n}. ${clean(title).replace(/^./, c => c.toUpperCase())}${min ? ` · ${min} мин` : ""}\n\n`,
     sub: (num, title, min) => `### ${num}. ${clean(title)}${min ? ` (${min} мин)` : ""}\n\n`,
@@ -124,7 +125,7 @@ const Layout = (() => {
     let out = md.kicker(p) + `# ${title}\n\n`;
     // конспект без меток «Учитель / На доске / Ответы» (например, свёрстанный двумя столбцами): подсказка о метках не нужна
     const plain = !st.some(s => s.parts.some(x => x.line || (x.table && rowCells(x.table[0]).length === 1)));
-    out += md.passport([["Тип урока", typeName + (p.duration ? `. ${p.duration} минут` : "")], ["Проблемный вопрос", prob], ["Что нужно", equip]], plain);
+    out += md.passport([["Проблемный вопрос", prob]], plain);
     out += md.plan(st.map(s => ({ name: s.name, min: s.min, mat: mat(s) })));
     if (!plain) out += md.legend();
     st.forEach((s, i) => {

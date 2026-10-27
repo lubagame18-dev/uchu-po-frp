@@ -43,7 +43,13 @@ const Subjects = (() => {
     const P = window.FRPPlans?.[id]?.[p.grade]; if (!P) return null;
     const low = x => String(x).toLowerCase().trim(), row = P.l.find(r => low(r[0]) === low(p.topic));
     let th = row && row[2] >= 0 ? P.th[row[2]] : null;
-    if (!th) { const q = stems(p.topic); let best = 0; for (const r of P.l) { const a = stems(r[0] + " " + (P.th[r[2]]?.[0] || "")); let n = 0; for (const w of q) if (a.has(w)) n++; if (n > best && r[2] >= 0) { best = n; th = P.th[r[2]]; } } if (best < 1) th = null; }
+    if (!th) {
+      // тема урока должна по-настоящему совпасть с темой программы: достаточно доли общих корней, а не одного общего слова («географические»)
+      const q = stems(p.topic), need = Math.max(1, Math.ceil(q.size * 0.6));
+      const find = PP => { let best = 0, hit = null; for (const r of PP.l) { const a = stems(r[0] + " " + (PP.th[r[2]]?.[0] || "")); let n = 0; for (const w of q) if (a.has(w)) n++; if (n > best && r[2] >= 0) { best = n; hit = PP.th[r[2]]; } } return best >= need ? hit : null; };
+      th = find(P);
+      if (!th) for (const g of Object.keys(window.FRPPlans[id])) { if (g === String(p.grade)) continue; th = find(window.FRPPlans[id][g]); if (th) break; }
+    }
     if (!th) return null;
     const q = stems(String(p.topic).replace(/«|»/g, " "));
     const rank = arr => arr.map((x, i) => { const a = stems(x); let n = 0; for (const w of q) if (a.has(w)) n++; return { x, n, i }; });

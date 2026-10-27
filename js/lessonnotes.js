@@ -53,7 +53,7 @@ const LessonNotes = (() => {
       if (/^[^\wА-Яа-яЁё]*(↳\s*)?(Если (ученики )?затрудня|Если не (ответ|справ)|Наводящий вопрос)/i.test(line)) continue;
       if (/^\*\(/.test(line) && qs.length) { qs[qs.length - 1].a = clean(ans(line)[1] || line.replace(/^\*\(|\)\*$/g, "")); continue; }
       let pre = "";
-      const k = line.indexOf(" — "); if (!/^—/.test(line) && k > 0 && /\?/.test(line.slice(k))) { pre = line.slice(0, k).trim(); line = line.slice(k + 1).trim(); }
+      const k = line.indexOf(" — "), opened = k > 0 ? (line.slice(0, k).match(/«/g) || []).length - (line.slice(0, k).match(/»/g) || []).length : 0; if (!/^—/.test(line) && k > 0 && opened <= 0 && /\?/.test(line.slice(k))) { pre = line.slice(0, k).trim(); line = line.slice(k + 1).trim(); }
       if (pre) notes.push(pre);
       if (/^—/.test(line)) { const [q, a] = ans(line.replace(/^—\s*/, "")); qs.push({ q, a: /^ответы учеников$|^целевая установка/i.test(a) ? "" : a }); }
       else notes.push(line);
@@ -81,15 +81,16 @@ const LessonNotes = (() => {
       return "";
     }
     const rule = ctx.rule || (RK?.algo ? RK.algo.steps.slice(1).join(" ") : "");
-    if (/мотивац|самоопредел/.test(s)) return "Чтобы ответить точно, нужно знать правило — это и есть задача нашего урока.";
-    if (/актуализ|пробн/.test(s)) return "Знаний, которые у нас есть, не хватило — значит, сегодня узнаём новое.";
-    if (/выявлени|затруднен/.test(s)) return "Мы не знаем, по какому условию делать выбор. Это и выясним.";
-    if (/построени|проект выхода|постановк/.test(s)) return "План: наблюдаем → формулируем правило → составляем алгоритм → тренируемся.";
+    const alg = RK?.algo?.name ? `«${RK.algo.name}»` : "правило";
+    if (/построени|проект выхода|постановк/.test(s)) return "";
+    if (/мотивац|самоопредел/.test(s)) return "";
+    if (/актуализ|пробн/.test(s)) return "Ответы разошлись: знаний, которые у нас есть, не хватает для уверенного выбора.";
+    if (/выявлени|затруднен/.test(s)) return `Вопрос урока: от чего зависит выбор — ${RK?.algo?.name ? "по какому условию применять " + alg : "по какому условию делать выбор"}?`;
     if (/реализац|открыти|изучени|нового/.test(s)) return rule ? `Правило: ${rule}` : "Правило сформулировали и сверили с учебником.";
-    if (/первичн|закреплен|проговарив|тренинг/.test(s)) return RK?.algo ? `Рассуждаем по алгоритму «${RK.algo.name}» — тогда ошибок нет.` : "Рассуждаем по правилу — тогда ошибок нет.";
-    if (/самостоятел|самопровер|эталон|контрол/.test(s)) return "Сверились с эталоном: ошибки разобрали, правило работает.";
-    if (/включени|повторени|систем/.test(s)) return "Новое правило связано с тем, что мы уже знаем, и пригодится в любом тексте.";
-    if (/рефлекс|итог/.test(s)) { const g = window.Deck?.childGoal ? Deck.childGoal(p, {}) : null; return g?.points?.length ? "Сегодня мы " + g.points.map(x => x.replace(/^\S/, c => c.toLowerCase())).join(", ") + "." : "Подводим итог: что узнали и чему научились."; }
+    if (/первичн|закреплен|проговарив|тренинг/.test(s)) return RK?.algo ? `Рассуждаем по алгоритму ${alg} вслух, шаг за шагом.` : "Рассуждаем по правилу вслух, шаг за шагом.";
+    if (/самостоятел|самопровер|эталон|контрол/.test(s)) return "Сверили работу с эталоном; ошибки разобрали по шагам алгоритма.";
+    if (/включени|повторени|систем/.test(s)) return "Новое правило связали с тем, что уже знали; оно пригодится в любом тексте.";
+    if (/рефлекс|итог/.test(s)) return RK?.algo ? `Сегодня мы узнали, как работает ${alg}, и научились применять его по алгоритму.` : "Подводим итог: что узнали и чему научились.";
     if (/домашн/.test(s)) return "";
     return "";
   }
@@ -120,7 +121,7 @@ const LessonNotes = (() => {
     const typeName = (H.meta.match(/Тип урока:\*\*\s*([^·]+)/) || [])[1] || p.type?.name || "";
     const prob = !ru && K?.problem ? K.problem : (md.match(/Проблемный вопрос[^:\n]*:\**\s*([^\n]+)/) || [])[1] || "";
     let out = X.kicker(p) + `# ${H.title || p.topic}\n\n`;
-    out += X.passport([["Учебник", H.book], ["Тип урока", clean(typeName) + `. ${p.duration || 45} минут`], ["Цель", H.goal], ["Проблемный вопрос", strip(prob)], ["Понятия урока", !ru && K?.terms?.length ? "вводятся по ходу работы с текстом: " + K.terms.map(t => t.term).join(", ") : ""], ["Текст", H.text], ["Что нужно", H.equip]]);
+    out += X.passport([["Учебник", H.book], ["Проблемный вопрос", strip(prob).length >= 25 ? strip(prob) : ""], ["Понятия урока", !ru && K?.terms?.length ? "вводятся по ходу работы с текстом: " + K.terms.map(t => t.term).join(", ") : ""], ["Текст", H.text]]);
     // план урока
     const st = R.map((c, i) => {
       const stage = c[0] || `Этап ${i + 1}`, name = stage.replace(/\s*\(\d+\s*мин\)\s*$/, ""), min = (stage.match(/\((\d+)\s*мин\)/) || [])[1] || "";
@@ -140,7 +141,9 @@ const LessonNotes = (() => {
       out += X.meta(S.mat !== "беседа" ? S.mat : "", writes);
       // слово учителя: переходы, пояснения (без вариантов «если не ответили…»)
       const word = [];
+      const hasEx = ru && t && t.text && !/⟦/.test(t.text);
       for (const n of T.notes) {
+        if (hasEx && /^Форма работы:/i.test(n)) continue;
         if (/^Алгоритм «.*на слайде/.test(n) || /если затрудня|если не (ответ|справ)|наводящ/i.test(n)) continue;
         word.push(n.replace(/^🔗\s*\*?Переход:\*?\s*/, "").replace(/^📌\s*/, ""));
       }
@@ -159,7 +162,8 @@ const LessonNotes = (() => {
         const L0 = String(t.text).split("<br>").map(x => clean(x)).filter(Boolean);
         const lines = L0.length > 9 ? [...L0.slice(0, 8), "*…полностью — в учебнике и на рабочем листе*"] : L0;
         const steps = algo ? algo.steps : ["Прочитай задание, найди, что нужно сделать.", ctx.rule ? `Вспомни правило: ${ctx.rule}` : "Вспомни правило урока.", "Выполни задание по правилу для каждого примера.", "Обозначь графически то, что требует задание.", "Проверь себя: перечитай и сверь с правилом."];
-        out += X.ex(`Упражнение ${ex}${t.src ? ` · ${t.src}` : ""}`, lines, steps, algo?.name);
+        const pre = ru && /актуализ|пробн|выявлен|мотивац/i.test(name);
+        out += X.ex(`Упражнение ${ex}${t.src ? ` · ${t.src}` : ""}`, lines, pre ? ["Выполните задание так, как считаете верным, без подсказок.", "Поставьте «?» там, где сомневаетесь.", "Сравните ответы с соседом: где они разошлись?"] : steps, pre ? "Пробное действие" : algo?.name);
         const key = typeof Base !== "undefined" && Base.keyFor ? Base.keyFor(t.text) : "";
         out += X.row("Ответы", key || [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""].filter(Boolean).join("; "));
       }
