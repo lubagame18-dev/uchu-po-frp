@@ -20,6 +20,7 @@ const Conv = (() => {
 
   /* ---------- общие правила ---------- */
   const COMMON = [
+    "Формулы и значения – обычным текстом с символами Юникода (λ, ρ, Δ, ·, ×, ², ₁, °), без TeX, без \\( … \\), без $…$ и без команд вида \\cdot, \\lambda, ^{5}: «λ = 3,3 · 10⁵ Дж/кг».",
     "Кавычки только «ёлочки» (внутри цитаты — „лапки“). Тире в тексте — среднее «–» с пробелами; диапазоны без пробелов: 5–9 классы, 1914–1918 гг.",
     "Между числом и единицей, инициалами и фамилией, в сокращениях «т. е.», «и т. д.», «г.», «в.» ставь неразрывный пробел; точку в обозначении единиц не ставь (ГОСТ 8.417-2002).",
     "Один и тот же знак, цвет и способ выделения — всегда в одном значении на весь комплект; новое обозначение вводи один раз, с примером, и сразу в легенде «Условные обозначения».",
@@ -204,9 +205,30 @@ const Conv = (() => {
     t = t.replace(/\u0001(\d+)\u0001/g, (m, i) => keep[+i]);
     return t;
   }
+  /* TeX из нейросети → обычный текст с Юникодом (в Word и PDF формулы TeX не отображаются) */
+  const SUP = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻", "−": "⁻", "+": "⁺", n: "ⁿ" };
+  const SUB = { "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉", "-": "₋", "+": "₊" };
+  const GREEK = { lambda: "λ", Lambda: "Λ", Delta: "Δ", delta: "δ", rho: "ρ", eta: "η", alpha: "α", beta: "β", gamma: "γ", mu: "μ", pi: "π", omega: "ω", Omega: "Ω", theta: "θ", varphi: "φ", phi: "φ", sigma: "σ", tau: "τ", epsilon: "ε", varepsilon: "ε", nu: "ν", kappa: "κ", Sigma: "Σ" };
+  const mapSup = (t, M) => { const a = [...t]; return a.every(c => M[c]) ? a.map(c => M[c]).join("") : null; };
+  function texPlain(t) {
+    let s = String(t);
+    for (let i = 0; i < 4; i++) s = s.replace(/\\(?:d|t)?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, (m, a, b) => (/[+\-−\s]/.test(a.trim()) ? `(${a})` : a) + "/" + (/[+\-−\s]/.test(b.trim()) ? `(${b})` : b)).replace(/\\(?:text|mathrm|mathbf|operatorname)\s*\{([^{}]*)\}/g, "$1").replace(/\\sqrt\s*\{([^{}]*)\}/g, "√($1)");
+    s = s.replace(/\\([A-Za-z]+)/g, (m, w) => GREEK[w] ?? ({ cdot: "·", times: "×", approx: "≈", neq: "≠", leq: "≤", le: "≤", geq: "≥", ge: "≥", pm: "±", circ: "°", rightarrow: "→", to: "→", Rightarrow: "⇒", infty: "∞", left: "", right: "", quad: " ", qquad: " ", ldots: "…", dots: "…", degree: "°", div: ":", in: "∈", cup: "∪", cap: "∩", angle: "∠", perp: "⊥", parallel: "∥", triangle: "△", sim: "∼", equiv: "≡", sqrt: "√", rm: "", bf: "", Delta: "Δ", ne: "≠", cdots: "…" })[w] ?? m);
+    s = s.replace(/\\[,;:! ]/g, " ").replace(/\{,\}/g, ",").replace(/(\d),!(\d)/g, "$1,$2");
+    s = s.replace(/\^\{([^{}]*)\}/g, (m, a) => mapSup(a, SUP) || "^(" + a + ")").replace(/\^([0-9n])/g, (m, a) => SUP[a]).replace(/_\{([^{}]*)\}/g, (m, a) => mapSup(a, SUB) || "_" + a).replace(/_([0-9])/g, (m, a) => SUB[a]);
+    s = s.replace(/([ΔλρηαβγμπωΩθφστεν]) (?=[A-Za-z](?![A-Za-zа-я]))/g, "$1");
+    return s.replace(/[{}]/g, "").replace(/\s{2,}/g, " ").trim();
+  }
+  const hasTex = x => /\\[A-Za-z]{2,}|\^\{|_\{|\{,\}/.test(x), hasTex2 = x => hasTex(x) || /[A-Za-zα-ω]_\w|\w\^\w/.test(x);
+  function fixTex(md) {
+    return md.replace(/\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]|\$\$([^$]+)\$\$|\$([^$\n]+)\$/g, (m, a, b, c, d) => { const x = a ?? b ?? c ?? d; return /\\\(|\\\[/.test(m) || hasTex2(x) ? texPlain(x) : m; })
+      .replace(/(?<![\\\w])((?:[^\n|]{0,40}?)\\[A-Za-z]{2,}[^\n|]*)/g, (m) => hasTex(m) ? texPlain(m) : m);
+  }
+
   function fix(md, subject) {
     if (typeof md !== "string" || !md) return md;
     let fence = false;
+    md = fixTex(md);
     md = md.replace(/\s*\((?:по |см\. )?ГОСТ[^)]*\)/g, "").replace(/,? (?:оформлен|выполнен|составлен)[а-яё]* по ГОСТ[а-яё]*/gi, "").replace(/ по ГОСТ[а-яё]*(?:[ -]?[Рр]?\s?[\d.]+(?:-\d+)?)?/g, "");
     md = md.replace(/^[^\n]*[Пп]ереверните (?:лист|страницу)[^\n]*\n?/gm, "");
     return md.split("\n").map(line => { if (/^\s*```/.test(line)) { fence = !fence; return line; } return fence ? line : fixLine(line, subject); }).join("\n");

@@ -5453,6 +5453,25 @@ function wsPdfBreak(el, pageH) {
   kids.forEach((c, i) => { if (i === 0) return; const top = c.offsetTop; if (top > pageH * 0.97) return; const sc = Math.abs(top - total / 2) - (/^H3$/.test(c.tagName) || c.querySelector?.("h3") ? 80 : 0); if (sc < bm) { bm = sc; best = c; } });
   if (best) { const d = document.createElement("div"); d.className = "html2pdf__page-break"; best.before(d); }
 }
+/* Лист в PDF/PNG: те же две страницы, что и в Word (раскладка wsFit), каждая – ровно один лист A4, без разрыва посреди блока */
+async function wsBuildPages(L, stage) {
+  const PH = 1112, toks = window.marked.lexer(wsKeysToH1(String(L.docs.worksheet || ""))), R = wsFit(toks, L.art?.banner?.url ? 90 : 0);
+  stage.innerHTML = `<div class="ws-pages"><div class="sheet ws-sheet ws-fit">${mdToHtml(R.toks.map(t => t.raw.replace(/\n+$/, "")).join("\n\n"))}</div></div>`;
+  decorate(stage); wsDecorate(stage, L);
+  await new Promise(r => setTimeout(r, 300)); await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+  const wrap = stage.firstElementChild, s1 = wrap.firstElementChild, s2 = s1.cloneNode(false), norm = x => String(x || "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").replace(/\s+/g, " ").trim();
+  const bt = R.breakAt > 0 ? R.toks[R.breakAt] : null, kids = [...s1.children];
+  let cut = bt ? kids.find(c => norm(c.querySelector?.("h3")?.textContent || (c.tagName === "H3" ? c.textContent : "")) === norm(bt.text)) : null;
+  if (!cut && bt) { const mid = s1.scrollHeight / 2; cut = kids.filter(c => c.tagName !== "IMG" && !c.classList.contains("ws-banner")).find(c => c.offsetTop >= mid) || null; }
+  if (cut) { let n = cut; while (n) { const nx = n.nextElementSibling; s2.appendChild(n); n = nx; } }
+  const brk = document.createElement("div"); brk.className = "html2pdf__page-break"; wrap.append(brk, s2);
+  [s1, s2].forEach(x => { x.style.cssText += `;height:${PH}px;overflow:hidden;box-sizing:border-box;padding-top:22px;padding-bottom:22px`; });
+  const st = document.createElement("style"); stage.append(st);
+  const css = k => `#pdfstage .ws-fit{--k:${k}}#pdfstage .ws-fit p,#pdfstage .ws-fit li,#pdfstage .ws-fit td,#pdfstage .ws-fit th,#pdfstage .ws-fit blockquote{font-size:calc(14px*var(--k));line-height:1.3;margin-top:0;margin-bottom:calc(6px*var(--k))}#pdfstage .ws-fit h1{font-size:calc(26px*var(--k));margin-bottom:calc(8px*var(--k))}#pdfstage .ws-fit h2,#pdfstage .ws-fit h3{font-size:calc(16px*var(--k));margin:calc(10px*var(--k)) 0 calc(6px*var(--k))}#pdfstage .ws-fit td,#pdfstage .ws-fit th{padding:calc(4px*var(--k)) calc(6px*var(--k))}`;
+  const over = x => x.scrollHeight > PH + 1;
+  for (const k of [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65]) { st.textContent = css(k); await new Promise(r => setTimeout(r, 100)); if (!over(s1) && !over(s2)) break; }
+  return [s1, s2];
+}
 async function docToPdfBlob(L, doc) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
   const stage = $("#pdfstage"), md = doc === "worksheet" ? wsMainMd(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
@@ -5469,35 +5488,16 @@ async function docToPdfBlob(L, doc) {
   const h2p = () => window.html2pdf().set({ margin: [8, 6, 10, 6], image: { type: "jpeg", quality: 0.95 }, html2canvas: { scale: doc === "slides" ? 1.4 : 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: doc === "slides" || wide ? "landscape" : "portrait" }, pagebreak: { mode: ["css", "legacy"], before: ".ws-banner.pb", avoid: ["tr", "h2", "h3", "blockquote", "li", ".slide", "figure", ".ws-banner"] } }).from(stage.firstElementChild);
   let blob;
   if (doc === "worksheet") {
-    // подбираем масштаб, пока в готовом PDF не станет не больше 2 страниц
-    const el = stage.firstElementChild, st = document.createElement("style"); stage.append(st); el.classList.add("ws-fit");
-    const pageH = 1119; // 279 мм полезной высоты в пикселях сцены (794 px = 198 мм)
-    for (const k of [1, 0.92, 0.85, 0.78, 0.72]) {
-      st.textContent = `#pdfstage .ws-fit{--k:${k}}#pdfstage .ws-fit p,#pdfstage .ws-fit li,#pdfstage .ws-fit td,#pdfstage .ws-fit th,#pdfstage .ws-fit blockquote{font-size:calc(14px*var(--k));line-height:1.3;margin-top:0;margin-bottom:calc(6px*var(--k))}#pdfstage .ws-fit h1{font-size:calc(26px*var(--k));margin-bottom:calc(8px*var(--k))}#pdfstage .ws-fit h2,#pdfstage .ws-fit h3{font-size:calc(16px*var(--k));margin:calc(12px*var(--k)) 0 calc(6px*var(--k))}#pdfstage .ws-fit td,#pdfstage .ws-fit th{padding:calc(4px*var(--k)) calc(6px*var(--k))}`;
-      await new Promise(r => setTimeout(r, 120));
-      wsPdfBreak(el, pageH);
-      blob = await h2p().toPdf().get("pdf").then(pdfDuplex).outputPdf("blob");
-      const n = await pdfPages(blob); if (!n || n <= 2) break;
-    }
+    await wsBuildPages(L, stage);
+    blob = await h2p().set({ pagebreak: { mode: ["css", "legacy"] } }).toPdf().get("pdf").then(pdfDuplex).outputPdf("blob");
   } else if (wsPrint) blob = await h2p().toPdf().get("pdf").then(pdfDuplex).outputPdf("blob");
   else blob = await h2p().outputPdf("blob");
   stage.innerHTML = ""; return blob;
 }
 async function docToPngCanvases(L) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
-  const stage = $("#pdfstage"), md = wsMainMd(L.docs.worksheet);
-  stage.innerHTML = `<div class="sheet ws-sheet">${mdToHtml(md)}</div>`; decorate(stage); wsDecorate(stage, L);
-  await new Promise(r => setTimeout(r, 400)); await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
-  const el = stage.firstElementChild, st = document.createElement("style"); stage.append(st); el.classList.add("ws-fit");
-  let out = [];
-  for (const k of [1, 0.92, 0.85, 0.78, 0.72]) {
-    st.textContent = `#pdfstage .ws-fit{--k:${k}}#pdfstage .ws-fit p,#pdfstage .ws-fit li,#pdfstage .ws-fit td,#pdfstage .ws-fit th,#pdfstage .ws-fit blockquote{font-size:calc(14px*var(--k));line-height:1.3}`;
-    await new Promise(r => setTimeout(r, 120)); wsPdfBreak(el, 1119);
-    const cv = await window.html2pdf().set({ margin: 0, html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true } }).from(stage).toCanvas().get("canvas");
-    const ph = Math.round(cv.width * 1119 / 794), n = Math.max(1, Math.round(cv.height / ph));
-    out = Array.from({ length: Math.min(n, 2) }, (_, i) => { const c = document.createElement("canvas"); c.width = cv.width; c.height = ph; const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(cv, 0, i * ph, cv.width, ph, 0, 0, cv.width, ph); return c; });
-    if (n <= 2) break;
-  }
+  const stage = $("#pdfstage"), pages = await wsBuildPages(L, stage), out = [];
+  for (const pg of pages) out.push(await window.html2pdf().set({ margin: 0, html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true } }).from(pg).toCanvas().get("canvas"));
   stage.innerHTML = ""; return out;
 }
 async function exportPdf() { const L = state.lesson; toast("Готовлю PDF…", 9000); await saveFile(baseName(L, state.active) + ".pdf", await docToPdfBlob(L, state.active)); }
