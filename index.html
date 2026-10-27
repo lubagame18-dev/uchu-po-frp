@@ -499,11 +499,10 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 <link rel="stylesheet" href="css/v5.css">
 </head>
 <body>
-<!-- Загрузочная анимация: один раз за сеанс; чистый SVG, анимируются только transform и opacity -->
+<!-- Анимация ожидания при создании материалов; чистый SVG, анимируются только transform и opacity -->
 <style>
-.ld{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.4rem,1.6vh,1rem);padding:1rem;background:#FFFCF3;transition:opacity .5s ease;animation:ldGone 0s 14s forwards;overscroll-behavior:contain}
+.ld{position:fixed;inset:0;z-index:65;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.4rem,1.6vh,1rem);padding:1rem;background:#FFFCF3;transition:opacity .5s ease;overscroll-behavior:contain}
 .ld.out{opacity:0;pointer-events:none}
-@keyframes ldGone{to{opacity:0;visibility:hidden;pointer-events:none}}
 .ld-svg{width:min(94vw,640px,calc(66vh*1.1765));height:auto;display:block;overflow:visible}
 .ld-svg *{transform-box:view-box}
 .ld .st{stroke:#fff;stroke-width:5;stroke-linejoin:round;paint-order:stroke}
@@ -515,7 +514,8 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 .ld .stand{transform:translate(calc(var(--x,0px) + 4px),var(--y,0px))}
 .ld .spark{opacity:0}
 .ld-s{margin:0;font:600 .85rem var(--f-body,Arial);color:#6E6584;text-align:center}
-.ld-skip{position:absolute;right:.9rem;bottom:.9rem;border:2px solid #1B1330;background:#fff;color:#1B1330;border-radius:999px;padding:.35rem .9rem;font:700 .8rem var(--f-body,Arial);cursor:pointer}
+.ld-btns{position:absolute;right:.9rem;bottom:.9rem;display:flex;gap:.5rem}
+.ld-skip{border:2px solid #1B1330;background:#fff;color:#1B1330;border-radius:999px;padding:.35rem .9rem;font:700 .8rem var(--f-body,Arial);cursor:pointer}
 /* фаза 1: перебирает архивы и печатает */
 .ld.p1 .paw.pl{animation:ldKey .36s ease-in-out infinite}
 .ld.p1 .paw.pr{animation:ldKey .36s ease-in-out .18s infinite}
@@ -559,10 +559,10 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 @keyframes ldPopS{from{transform:translateY(24px);opacity:0}}
 @keyframes ldBob{50%{transform:translateY(-3px)}}
 @keyframes ldLeg{50%{transform:rotate(14deg)}}
-@media (max-width:480px){.ld-svg{width:96vw}.ld-skip{bottom:.6rem}}
+@media (max-width:480px){.ld-svg{width:96vw}.ld-btns{bottom:.6rem}}
 @media (prefers-reduced-motion:reduce){.ld *{animation:none!important;transition:none!important}}
 </style>
-<div class="ld p1" id="uchuLd" role="status" aria-live="polite" aria-label="Загрузка сайта «Учу по ФРП»">
+<div class="ld p1" id="uchuLd" hidden role="status" aria-live="polite" aria-label="Идёт создание материалов">
 <svg class="ld-svg" viewBox="0 0 400 340" aria-hidden="true" focusable="false">
 <defs><pattern id="ldht" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.5" fill="#1B1330"/></pattern>
 <pattern id="ldkey" width="7" height="6" patternUnits="userSpaceOnUse"><rect x="1" y="1" width="5" height="4" rx="1" fill="#8D8FA0"/></pattern></defs>
@@ -620,36 +620,36 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 <path class="st" d="M-35-27L0-42L35-27L0-13Z" fill="#2B2B31"/><path d="M-20-22V-12Q0-4 20-12V-22L0-13Z" fill="#3A3A42"/><path d="M0-27L24-24L26-9" fill="none" stroke="#FFC93C" stroke-width="2.6" stroke-linecap="round"/><circle cx="26" cy="-7" r="3" fill="#FFC93C"/></g>
 <circle cx="26" cy="194" r="7" fill="#FAF7F2" stroke="#fff" stroke-width="2.4" paint-order="stroke"/><circle cx="43" cy="198" r="7.5" fill="#FAF7F2" stroke="#fff" stroke-width="2.4" paint-order="stroke"/></g></g>
 </svg>
-<p class="ld-s">Учу по ФРП</p>
-<button class="ld-skip" type="button">Пропустить</button>
+<p class="ld-s">Создаём материалы для урока…</p>
+<div class="ld-btns"><button class="ld-skip" id="ldMin" type="button">Свернуть</button><button class="ld-skip" id="ldStop" type="button">Остановить</button></div>
 </div>
 <script>(function(){var el=document.getElementById("uchuLd");if(!el)return;
-var seen=0,force=/[?&]loader=1/.test(location.search),reduce=0;
-try{seen=sessionStorage.getItem("uchu:ld")}catch(e){}
+var pct=el.querySelector(".pct"),root=document.documentElement,reduce=0,on=0,d=0,fin=0,hold=0,holdDone=0,last=0,lastN=-1,ph="",collapsed=null,timer=0,prevOv="";
 try{reduce=matchMedia("(prefers-reduced-motion:reduce)").matches}catch(e){}
-if(!force&&(seen||reduce)){el.remove();return}
-try{sessionStorage.setItem("uchu:ld","1")}catch(e){}
-var root=document.documentElement,prevOv=root.style.overflow;root.style.overflow="hidden";
-var pct=el.querySelector(".pct"),done=0,t0=performance.now(),ph="",lastN=-1;
-/* время (с) → процент: 0–40 за 2.2 с, пауза на 41, рывок до 85, толчок до 100 */
-var K=[[0,0],[2.2,40],[3.4,41],[4.6,70],[6.5,100]];
-function prog(s){for(var i=1;i<K.length;i++){if(s<=K[i][0]){var a=K[i-1],b=K[i],u=(s-a[0])/(b[0]-a[0]);u=i===2?u:u*u*(3-2*u);return a[1]+(b[1]-a[1])*u}}return 100}
-function phase(s){return s<2.2?"p1":s<3.4?"p2":s<4.6?"p3":"p4"}
-function finish(){if(done)return;done=1;el.classList.add("out");root.style.overflow=prevOv;setTimeout(function(){el.remove()},650)}
-function ready(){return document.readyState==="complete"||performance.now()-t0>16000}
-function tick(now){if(done)return;var s=(now-t0)/1000,p=prog(s);
- if(p>=100&&!ready()){p=99}
- var x=(p/100)*320,n=Math.round(p),f=phase(s);
- var xc=x+4,fy=250;[244,276,308].forEach(function(b){var u=Math.min(1,Math.max(0,(xc-(b-14))/14));fy-=16*u*u*(3-2*u)});
- el.style.setProperty("--y",(fy-328).toFixed(1)+"px");
- el.style.setProperty("--p",(p/100).toFixed(4));el.style.setProperty("--x",x.toFixed(1)+"px");
+function gen(){try{return window.demoGen||(typeof state!=="undefined"?state.gen:null)}catch(e){return null}}
+function reset(){d=0;fin=0;hold=0;holdDone=0;lastN=-1;ph="";el.classList.remove("out","p2","p3","p4");el.classList.add("p1")}
+function hide(){on=0;el.classList.add("out");root.style.overflow=prevOv;setTimeout(function(){if(!on){el.hidden=true;reset()}},550)}
+function show(){if(on||reduce)return;on=1;reset();el.hidden=false;void el.offsetWidth;prevOv=root.style.overflow;root.style.overflow="hidden";last=performance.now();requestAnimationFrame(tick)}
+function phase(){return hold&&!holdDone?"p2":d<41?"p1":d<70?"p3":"p4"}
+function tick(now){if(!on)return;var dt=Math.min(.1,(now-last)/1000);last=now;var g=gen();
+ if(!g)fin=1;
+ var tgt=fin?100:Math.min(96,g.pct||0),sp=fin?70:16;
+ if(!holdDone&&d>=40.5&&tgt>=41){if(!hold)hold=now;if(now-hold<1400){d=41}else holdDone=1}
+ else if(d<tgt){d=Math.min(tgt,d+sp*dt);if(!holdDone&&d>41&&d<45&&!hold){d=41}}
+ var x=d/100*320,n=Math.round(d),f=phase(),xc=x+4,fy=250;
+ [244,276,308].forEach(function(b){var u=Math.min(1,Math.max(0,(xc-(b-14))/14));fy-=16*u*u*(3-2*u)});
+ el.style.setProperty("--y",(fy-328).toFixed(1)+"px");el.style.setProperty("--p",(d/100).toFixed(4));el.style.setProperty("--x",x.toFixed(1)+"px");
  if(n!==lastN){lastN=n;pct.textContent=n+"%"}
  if(f!==ph){el.classList.remove("p1","p2","p3","p4");el.classList.add(f);ph=f}
- if(p>=100){setTimeout(finish,350);return}
+ if(fin&&d>=100){setTimeout(hide,350);on=2;return}
  requestAnimationFrame(tick)}
-el.querySelector(".ld-skip").addEventListener("click",finish);
-document.addEventListener("keydown",function(e){if(e.key==="Escape")finish()});
-requestAnimationFrame(tick)})();</script>
+/* вызывается из updateProgress: показываем, если генерация идёт дольше 0,8 с (мгновенные сборки без нейросети не мигают) */
+function watch(){var g=gen();if(!g||on||timer||g===collapsed)return;timer=setTimeout(function(){timer=0;var g2=gen();if(g2&&g2!==collapsed)show()},800)}
+el.querySelector("#ldMin").addEventListener("click",function(){collapsed=gen();hide()});
+el.querySelector("#ldStop").addEventListener("click",function(){var b=document.getElementById("btnStop");if(b)b.click();else if(window.demoGen)window.demoGen=null});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&on===1){collapsed=gen();hide()}});
+window.CatLoader={watch:watch,demo:function(){var t0=performance.now();window.demoGen={pct:0};var iv=setInterval(function(){var s=(performance.now()-t0)/1000;window.demoGen.pct=Math.min(96,s*14);if(s>8){clearInterval(iv);window.demoGen=null}},100);show()}};
+if(/[?&]loader=1/.test(location.search))addEventListener("load",function(){CatLoader.demo()})})();</script>
 <script>/* Настройки сайта для владельца (v5).
    yandexFunction — прокси GigaChat в Яндекс Облаке: неприоритетный вариант, используется, если другие нейросети не ответили.
    pollinationsAppKey — ключ приложения Pollinations (pk_…) для входа учителей в один клик; можно оставить пустым.
@@ -4730,6 +4730,7 @@ async function refineDoc() {
 setInterval(() => { const g = state.gen; if (!g?.fake) return; g.pct = Math.min(92, Math.round((g.pct + Math.max(0.4, (92 - g.pct) * 0.02)) * 10) / 10); updateProgress(); }, 1000);
 function updateProgress() {
   const g = state.gen, L = state.lesson;
+  if (g && window.CatLoader) CatLoader.watch();
   const mine = g && L && g.lessonId === L.id;
   $$(".doc-tab").forEach(b => { const d = b.dataset.doc, pct = $(".pct", b); if (!pct) return; pct.textContent = mine && g.doc === d ? ` ${Math.round(g.pct)}%` : ""; });
   const show = mine && g.doc === state.active;
