@@ -2314,7 +2314,7 @@ const Engine = (() => {
           const MB = window.MethodBase, verse = A.verse !== false, cx = { W: (p.topic.match(/«[^»]+»/) || ["произведения"])[0], hero: (A.heroes || [])[0] || "герой" };
           const pre = !verse && MB ? ["Предварительный комментарий (комментированное чтение):", ...Heur.rows(MB.epicComment(cx))] : [];
           const fc = verse && MB ? MB.forecast(A) : null;
-          const post = MB ? (verse ? ["Итог анализа — чтение:", ...Heur.rows([MB.SCORE])] : ["Нравственный выбор героя:", ...Heur.rows([MB.MORAL(cx)])]) : [];
+          const post = MB ? (verse ? ["Итог анализа – выразительное чтение:", ...Heur.rows([MB.SCORE])] : ["Нравственный выбор героя:", ...Heur.rows([MB.MORAL(cx)])]) : [];
           teacher = [...head.slice(0, 1), ...pre, ...(fc ? ["Прогноз (до перелома):", ...Heur.rows([fc])] : []), "Медленное чтение (текст на слайде):", ...Heur.rows(slow.length ? slow : []), ...post, ...(dev.length ? ["Как автор этого добивается:", ...Heur.rows(dev)] : []), "**Работа в парах — задания трёх уровней (на выбор, по тексту):**", ...Heur.levels(A.verse !== false)].join("<br>");
         } else if (H && !(kit && /словар/i.test(stage) && kit.glossary?.length)) {
           // проблемный вопрос не объявляется готовым: он — в ориентире учителя, ученики формулируют сами
