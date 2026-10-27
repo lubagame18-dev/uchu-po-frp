@@ -2035,19 +2035,48 @@ const Base = (() => {
     const ck = query + "|" + max; if (wsCache.has(ck)) return wsCache.get(ck);
     const r = await wikisourceFetch(query, max); wsCache.set(ck, r); return r;
   }
+  /* Текст страницы Викитеки без искажений: все блоки стихов (.poem) и абзацы в порядке следования, <br> → перенос строки, строфы разделены пустой строкой */
+  function wsExtract(html) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("sup, .noprint, .mw-editsection, table, style, script, .reference, .ws-noexport, .ambox, #toc, .toc, .navbox, .header_notes, .pagenum, [id^=cite_]").forEach(n => n.remove());
+    doc.querySelectorAll("br").forEach(b => b.replaceWith("\u0001"));
+    const root = doc.querySelector(".mw-parser-output") || doc.body;
+    const parts = [];
+    const take = el => {
+      if (el.matches?.(".poem")) {
+        const ps = el.querySelectorAll("p").length ? [...el.querySelectorAll("p")] : [el];
+        parts.push(ps.map(x => x.textContent.replace(/\n/g, "").split("\u0001").map(l => l.replace(/\s+/g, " ").trim()).join("\n").replace(/\n{3,}/g, "\n\n").trim()).filter(Boolean).join("\n\n"));
+        return;
+      }
+      if (el.tagName === "P") { const t = el.textContent.replace(/\u0001/g, "\n").replace(/[ \t]+/g, " ").replace(/ ?\n ?/g, "\n").trim(); if (t) parts.push(t); return; }
+      if (/^(DIV|BLOCKQUOTE|CENTER|SECTION|DL|DD|UL|OL|LI)$/.test(el.tagName)) for (const c of el.children) take(c);
+    };
+    for (const c of root.children) take(c);
+    return parts.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
+  const wsNorm = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
   async function wikisourceFetch(query, max) {
-    const s = await getJson(`${WS}/w/api.php?action=query&format=json&origin=*&list=search&srlimit=5&srsearch=${encodeURIComponent(query)}`);
+    const s = await getJson(`${WS}/w/api.php?action=query&format=json&origin=*&list=search&srlimit=8&srsearch=${encodeURIComponent(query)}`);
     const hits = s?.query?.search || [];
-    for (const h of hits) {
-      const j = await getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text&disablelimitreport=1&page=${encodeURIComponent(h.title)}`);
+    // страница должна быть про это произведение: в её названии есть значимые слова запроса (иначе можно подсунуть чужой текст)
+    const qw = wsNorm(query).split(" ").filter(w => w.length > 3).map(w => w.slice(0, 5));
+    const mine = hits.filter(h => { const t = wsNorm(h.title); const n = qw.filter(w => t.includes(w)).length; return n >= Math.max(1, Math.ceil(qw.length / 2)); });
+    for (const h of mine) {
+      const j = await getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text|links&disablelimitreport=1&page=${encodeURIComponent(h.title)}`);
       const html = j?.parse?.text?.["*"]; if (!html) continue;
-      const doc = new DOMParser().parseFromString(html, "text/html");
-      doc.querySelectorAll("sup, .noprint, .mw-editsection, table, style, .reference, .ws-noexport").forEach(n => n.remove());
-      const poem = doc.querySelector(".poem");
-      let text = poem ? poem.innerText || poem.textContent : [...doc.querySelectorAll("p")].map(p => p.textContent.trim()).filter(Boolean).join("\n\n");
-      text = String(text || "").replace(/\n{3,}/g, "\n\n").trim();
+      let text = wsExtract(html), title = h.title;
+      // оглавление книги: настоящий текст лежит в подстраницах «Название/Глава …» — берём подряд, пока не наберётся объём
+      if (text.length < 1500) {
+        const subs = (j.parse.links || []).map(l => l["*"]).filter(t => t.startsWith(h.title + "/")).slice(0, 6);
+        for (const t of subs) {
+          if (text.length >= max) break;
+          const jj = await getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text&disablelimitreport=1&page=${encodeURIComponent(t)}`);
+          const h2 = jj?.parse?.text?.["*"]; if (!h2) continue;
+          const t2 = wsExtract(h2); if (t2.length > 200) text += (text ? "\n\n" : "") + t2;
+        }
+      }
       if (text.length < 80) continue;
-      return { title: h.title, text: text.slice(0, max), url: `${WS}/wiki/${encodeURIComponent(h.title.replace(/ /g, "_"))}`, source: "Викитека" };
+      return { title, text: text.slice(0, max), url: `${WS}/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`, source: "Викитека" };
     }
     return null;
   }

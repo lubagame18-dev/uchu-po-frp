@@ -132,6 +132,12 @@ const LessonNotes = (() => {
     });
     if (st.length) out += X.plan(st.map(s => ({ name: s.name.split(/[(:]/)[0].trim(), min: s.min, mat: s.mat })));
     out += X.legend();
+    // литература без загруженного текста: отрывки не выдумываем (искажение недопустимо), а указываем, где искать, — начало и конец цитаты с многоточием
+    if (!ru && !K) {
+      const Wk = window.LitKit?.workOf?.(p.topic);
+      out += X.box("⚠ Текст произведения", ["Сайт не получил дословный текст (Викитека недоступна или произведение не найдено). Отрывки здесь намеренно не пересказаны и не переписаны по памяти, чтобы не исказить авторский текст.", "**Что сделать:** на странице создания урока вставьте текст в поле «Вставьте текст» (или загрузите файл) и соберите урок заново, тогда отрывки появятся здесь дословно. Либо работайте по учебнику, ориентируясь на указания ниже."]);
+      if (Wk?.anchors?.length) out += X.qa(Wk.anchors.map((a, j) => [`**Отрывок ${j + 1}. ${a.label}.** Найдите в тексте место, которое начинается словами «${String(a.find).replace(/[.,;:!?…]+$/, "")}…» и дочитайте до конца абзаца (строфы).${a.qa?.[0] ? " " + a.qa[0][0] : ""}`, a.qa?.[0]?.[1] || ""]), ["Найдите в тексте и прочитайте", "Ответ учеников"]);
+    }
     let ex = 0, fragDone = false;
     st.forEach((S, i) => {
       const { c, name, min, t, side } = S, T = talk(c[1] || ""), students = ru ? strip(c[2]) : "";
@@ -184,6 +190,29 @@ const LessonNotes = (() => {
         });
         // понятия — после наблюдения над текстом, с проговариванием вслух
         (K.terms || []).slice(0, 4).forEach(tm => { out += X.box(`Понятие «${tm.term}»`, [`Учитель: «${tm.def.replace(/^./, ch => ch.toUpperCase())}${tm.ex ? `. Вспомним строки: «${tm.ex.replace(/[«»]/g, "")}»` : ""}»`]); out += X.box("Проговариваем вслух", [`Учитель: «Как называется этот приём?» — Класс: «${tm.term}».`]); });
+      }
+      // работа с текстом на остальных этапах: сам текст (дословно) должен быть перед глазами учителя там, где о нём говорят
+      if (!ru && K?.fragments?.length) {
+        const fr = K.fragments, allLines = fr.flatMap(f => f.text.split("\n").filter(l => l.trim()));
+        if (/восприят|чтени|знакомств/.test(low(name)) && !ctx.readDone) {
+          ctx.readDone = 1;
+          const whole = fr[0].whole || fr[0].part;
+          const body = whole ? fr.map(f => f.text).join("\n\n") : fr[0].text;
+          out += X.box(whole ? "Текст для чтения (дословно)" : `Отрывок для первого чтения: ${fr[0].label} (дословно)`, body.split(/\n/).map(l => l.trim() ? `*${clean(l)}*` : ""));
+          if (!whole && fr.length > 1) out += X.box("Остальные отрывки", [`Читаем по ходу анализа (этап «Аналитический блок»): ${fr.slice(1).map(f => f.label).join("; ")}.`]);
+        }
+        if (/словарн/.test(low(name)) && !ctx.vocDone) {
+          ctx.vocDone = 1;
+          const gl0 = (K.glossary || []).length ? K.glossary : [...String(c[1] || "").matchAll(/«([а-яёА-ЯЁ-]{4,})»/g)].map(m => ({ word: m[1] })).slice(0, 6);
+          const rows = gl0.slice(0, 8).map(g => { const key = low(g.word).slice(0, Math.max(4, g.word.length - 2)); const ln = allLines.find(l => low(l).includes(key)); return ln ? `**${g.word}** – «${clean(ln)}»` : ""; }).filter(Boolean);
+          if (rows.length) out += X.box("Слова в строках текста (читаем строку целиком, потом объясняем слово)", rows);
+        }
+        if (/синтез|обобщ|итог/.test(low(name)) && !/рефлекс|домашн/.test(low(name)) && !ctx.refDone) {
+          ctx.refDone = 1;
+          const refs = [...fr.map(f => f.text.split("\n").filter(l => l.trim())[0]), ...(K.terms || []).map(t => t.ex)].filter(Boolean).map(x => String(x).replace(/[«»]/g, "").replace(/[…]+$/, "").trim()).filter(x => x.length >= 12);
+          const uniq = [...new Set(refs)].slice(0, 6);
+          if (uniq.length) out += X.box("Опорные строки для ответа (ученики подтверждают вывод словами текста)", uniq.map(x => `«${clean(x)}${/[.!?…]$/.test(x) ? "" : "…"}»`));
+        }
       }
       const concl = conclusion(name, p, ctx);
       if (concl && !(fragDone && /аналит|анализ|комментар|беседа/.test(low(name)))) out += X.box("Вывод", [concl]);
