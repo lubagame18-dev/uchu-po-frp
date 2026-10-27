@@ -2462,7 +2462,7 @@ const Engine = (() => {
     const wg = window.Rules ? Rules.get("ws_goal") : "kids";
     if (wg === "frp" && r.loaded && r.subject.length) md += `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.\n\n`;
     else if (wg === "kids" && window.Deck?.childGoal) { try { const g = Deck.childGoal(p, {}); if (g.points.length) md += `> 🎯 **Сегодня на уроке мы:** ${g.points.map(x => x.replace(/^\S/, c => c.toLowerCase())).join("; ")}.\n\n`; } catch { } }
-    { const th = wsTheory(p); if (th) md += th + "\n\n"; }
+    { const th = wsTheory(p); if (th) md += th + "\n\n"; const lg = window.Conv ? Conv.legendLine(p) : ""; if (lg) md += lg + "\n\n"; }
     md += "---\n\n";
     let n = 0; const wsKeys = [];
     const lvl = hard => hard ? `### 🚀 Задание ${++n}. Повышенный уровень${exam ? ` (${exam.label})` : ""}` : `### 🔓 Задание ${++n}. Базовый уровень`;
@@ -2627,6 +2627,7 @@ const Engine = (() => {
         md += m ? m[0] : `# Памятка\n\n**Тема:** ${p.topic}\n\n${ru && RK?.algo ? RK.algo.steps.map((x, i) => `${i + 1}. ${x}`).join("\n") : "Главное по теме урока — запишите в тетрадь."}\n\n`;
       }
       if (window.Schemes) md = Schemes.inject(md, p.subject, p.topic, RK?.scheme);
+      { const lg = window.Conv ? Conv.legendLine(p, 8) : ""; if (lg) md += "\n\n" + lg + "\n"; }
       return md;
     }
     if (kind === "homework") {
@@ -3896,6 +3897,8 @@ ${INTEGRITY}
 
 ${STYLE}
 
+${window.Conv ? Conv.prompt(p) : ""}
+
 ${SELFCHECK}
 
 ## Образец только ФОРМАТА строк (в ‹…› — подсказки, что писать; сами подсказки и любые слова образца в ответ не переноси, всё содержание бери только из темы «${p.topic}»)
@@ -3962,6 +3965,7 @@ paginate: true
 - Второй слайд — запись в тетрадь: только число, «Классная работа» и тема. Больше на нём ничего нет.
 - Остальные: «## <эмодзи> Заголовок» (эмодзи только в начале: 🎯 💬 📝 🔍 📌 📖 ✍️ 🧩 ⚠️ 🪞 🏠 🖼).
 - Не больше 3–4 пунктов, каждый короче 80 знаков. Длинное — переноси на следующий слайд с тем же заголовком и пометкой «(продолжение)».
+${window.Conv ? Conv.prompt(p) : ""}
 - Картинки: ${lit ? "обязательно слайд с портретом писателя; если урок о картине или сочинение по картине — слайд с картиной; при анализе стихотворения можно иллюстрацию." : "по возможности одна иллюстрация к теме или тексту упражнения."} Формат картинки строго: ![Подпись: художник, название, год](search:поисковый запрос) — система сама найдёт картинку. Слайд с картиной может быть без текста: только заголовок, картинка и подпись.
 - Заметка учителю — в конце слайда: <!-- что сказать и спросить, ожидаемый ответ -->.
 ${INTEGRITY.split("\n").slice(0, 3).join("\n")}
@@ -3992,6 +3996,8 @@ ${examBlock(p)}
 ${INTEGRITY.split("\n").slice(0, 3).join("\n")}
 
 ${STYLE}
+
+${window.Conv ? Conv.prompt(p) : ""}
 
 ## Скелет (строго)
 # ${p.topic}
@@ -4041,6 +4047,7 @@ function wsHead(p) {
   const out = [], wg = window.Rules ? Rules.get("ws_goal") : "kids";
   if (wg === "kids" && window.Deck?.childGoal) { try { const g = Deck.childGoal(p, {}); if (g.points.length) out.push(`> 🎯 **Сегодня на уроке мы:** ${g.points.map(x => x.replace(/^\S/, c => c.toLowerCase())).join("; ")}.`); } catch { } }
   const t = wsTheory(p); if (t) out.push(t);
+  const lg = window.Conv ? Conv.legendLine(p) : ""; if (lg) out.push(lg);
   return out.join("\n\n");
 }
 function wsTheory(p) {
@@ -4331,6 +4338,10 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }
 /* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
+/* условные обозначения предмета: для плагинов предметов (математика, физика, химия…) — в лист, памятку и презентацию */
+function convWs(md, p) { const lg = window.Conv ? Conv.legendLine(p) : ""; if (!lg || /🔣 \*\*Условные обозначения/.test(md)) return md; return /✍️ ФИО:[^\n]*\n/.test(md) ? md.replace(/(✍️ ФИО:[^\n]*\n)/, `$1\n${lg}\n`) : md.replace(/^(# [^\n]*\n+[^\n]*\n)/, `$1\n${lg}\n`); }
+function convMemo(md, p) { const lg = window.Conv ? Conv.legendLine(p, 8) : ""; return lg && !/🔣 \*\*Условные обозначения/.test(md) ? md + "\n\n" + lg + "\n" : md; }
+function convCards(cards, p) { if (!window.Conv || !Array.isArray(cards) || cards.some(c => c.title === "Условные обозначения")) return cards; const lp = Conv.legendPoints(p); if (lp.length < 3) return cards; const g = cards.findIndex(c => c.kind === "goal"); cards.splice(g >= 0 ? g + 1 : Math.min(2, cards.length), 0, { id: "cv1", on: true, kind: "list", title: "Условные обозначения", points: lp, notes: "Покажите знаки один раз и договоритесь: дальше в слайдах, листе и памятке они означают одно и то же." }); return cards; }
 async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   // материал из российских образовательных источников — к каждому уроку (по теме урока или по запросу учителя)
@@ -4343,7 +4354,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     state.gen = null;
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? PL.worksheet(p, type) : f === "slides" ? (window.Deck ? Deck.toMarkdown(PL.cards(p, type)) : "") : (f === "memo" && window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}));
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(convCards(PL.cards(p, type), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -4352,11 +4363,11 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = PL.cards(p, type); state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = convCards(PL.cards(p, type), p); state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
           const webTxt = p.web?.items?.length ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample(PL.prompt(f, p, type, md) + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
           if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
@@ -4904,7 +4915,7 @@ function scrubDoc(md, keepLinks) {
     .replace(/(?<!!)\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, t) => keepLinks ? m : t)
     .replace(/[ \t]+$/gm, "");
 }
-function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") L.docs[k] = scrubDoc(L.docs[k], k === "slides"); }
+function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject); } }
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);
@@ -5633,6 +5644,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/rules.js"></script>
 <script src="js/schemes.js"></script><script src="js/layout.js"></script><script src="js/lessonnotes.js"></script>
 <script src="js/tutor.js"></script>
+<script src="js/conventions.js"></script>
 <script src="js/mnemo.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/video.js"></script>
