@@ -255,7 +255,7 @@ const LitKit = (() => {
     if (typeof Variety === "undefined" || !Variety.analyze) return [];
     const A = Variety.analyze(fr.text, { title: null }) || {};
     // эпитет — прилагательное + существительное (отсекаем «трапезой сидит», «железным пробил»)
-    A.epithets = (A.epithets || []).filter(e => { const [a, b] = lowe(e).split(/\s+/); return !!(a && b && ADJ.test(a) && !VERBY.test(b) && !ADJ.test(b) && !(/(ью|ям|ам|ями|ами)$/.test(b) && !/(ой|ей|ым|им|ыми|ими)$/.test(a))); });
+    A.epithets = (A.epithets || []).filter(e => { const [a, b] = lowe(e).split(/\s+/); return !!(a && b && !(window.Variety?.notEpithet?.(e)) && !/^(январ|феврал|март|апрел|ма[яй]|июн|июл|август|сентябр|октябр|ноябр|декабр|год|числ)/.test(b) && ADJ.test(a) && !VERBY.test(b) && !ADJ.test(b) && !(/(ью|ям|ам|ями|ами)$/.test(b) && !/(ой|ей|ым|им|ыми|ими)$/.test(a))); });
     const out = [];
     if (fr.qa?.length) { for (const [q1, a1] of fr.qa) out.push({ q: q1, a: a1, term: null }); }
     else if (fr.part) out.push({ q: "О чём говорит лирический герой в этой части? Какое настроение она создаёт?", a: `ученики своими словами передают мысль части (строки ${fr.from}–${fr.to}) и называют настроение, опираясь на ключевые слова`, term: null });

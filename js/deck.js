@@ -210,6 +210,8 @@ const Deck = (() => {
         add({ kind: "big", title: "Наблюдаем за текстом", lead: `«${t.ex.replace(/[«»]/g, "")}»`, points: [], callout: "", notes: `Беседа: ${ch.steps.map((x, k) => `${k + 1}) ${x}`).join(" ")} Если затрудняются: ${ch.hint} Понятие, к которому приходим: ${t.term} — ${t.def} (не называть до обсуждения).` });
       }
       add({ kind: "table", title: "Запишем в тетрадь", head: ["Понятие", "Пример из текста", "Роль в произведении"], rows: kit.terms.map(t => [`${t.term}${t.ex ? ` — «${t.ex.replace(/[«»]/g, "")}»` : ""}`]), notes: `Заполняется ПОСЛЕ беседы: ученики сами называют понятие, приводят пример и формулируют роль. Определения: ${kit.terms.map(t => `${t.term} — ${t.def}`).join("; ")}` });
+      // следом — та же таблица уже заполненной: класс сверяет свою запись
+      if (kit.terms.some(t => t.ex || t.def)) add({ kind: "table", title: "Проверяем таблицу", head: ["Понятие", "Пример из текста", "Что это"], rows: kit.terms.map(t => [t.term, t.ex ? `«${t.ex.replace(/[«»]/g, "")}»` : "—", String(t.def || "—").replace(/\s+/g, " ").slice(0, 150)]), notes: "Заполненная таблица: сверьте с записями класса." });
       const flip = kit.terms.filter(t => t.ex && t.ex.length <= 40);
       if (flip.length >= 2) add({ kind: "list", title: "Проверь себя: что за приём?", points: flip.map(t => `«${t.ex.replace(/[«»]/g, "")}» — ${t.term}`), notes: "Карточки переворачиваются по щелчку: сначала ученики называют приём и его роль, потом открываем." });
     } else if (kit.terms.length) for (let i = 0; i < kit.terms.length; i += 2) add({ kind: "terms", title: "Работа с понятиями", items: kit.terms.slice(i, i + 2), notes: "Сначала пример из текста и вопрос, затем понятие." });
@@ -244,7 +246,7 @@ const Deck = (() => {
       else if (RK?.theory?.length) RK.theory.slice(0, 3).forEach(t => pts.push(plainMd(t).slice(0, 120)));
       { const exs = (MN?.quiz || []).slice(0, 4).map(([, a]) => chalk(a.split(":")[0].trim())).filter(x => /\*\*/.test(x)).slice(0, 3); if (exs.length) pts.push("Примеры (орфограмма выделена): " + exs.join(", ")); }
     }
-    return { kind: "board", title: lit ? (p.topic.match(/«[^»]+»/) || [p.topic])[0] : capF(core), points: [`${dateWords()}.`, "Классная работа.", ...pts], notes: "Запись на доске и в тетради: число, «Классная работа», тема, опорная схема, примеры (орфограмма выделена). Дату поправьте под день урока." };
+    return { kind: "board", title: lit ? (p.topic.match(/«[^»]+»/) || [p.topic])[0] : capF(core), points: [`${dateWords()}.`, "Классная работа."], notes: "Запись в тетради: число, «Классная работа», тема. Больше ничего на слайде нет. Дату поправьте под день урока." };
   }
   function enrich(cards, p, o) {
     const lit = p.subject === "lit", RK = !lit ? p.plan?.rukit : null;
@@ -326,6 +328,7 @@ const Deck = (() => {
       else if (RK.theory?.length) add({ kind: RK.theory.length > 3 ? "list" : "cards", title: "Запомним", points: RK.theory.slice(0, 6), notes: "Опорная теория — для записи в тетрадь." });
       (RK.handouts || []).forEach(h => add({ kind: "quote", title: h.title, quote: h.text, by: "", notes: h.key ? "Для учителя: " + h.key : "" }));
       if (RK.table) add({ kind: "table", title: RK.table.title, head: RK.table.head, rows: RK.table.rows.map(r => [r[0]]), notes: "Таблица — та же, что в рабочем листе." });
+      if (RK.table && RK.table.rows.some(r => r.length > 1 && r.slice(1).some(x => String(x || "").trim()))) add({ kind: "table", title: RK.table.title + " — проверяем", head: RK.table.head, rows: RK.table.rows, notes: "Заполненная таблица: сверьте с записями класса." });
     }
     // 5б. Запоминалки и интерактивные примеры (в показе — карточки-перевороты: пропуск → ответ)
     if (!lit && window.Mnemo) {
@@ -523,7 +526,7 @@ ${JSON.stringify(payload)}`;
     const work = (p.topic.match(/«([^»]+)»/) || [])[1] || p.topic, author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "";
     const frs = kit.fragments.slice(0, 8).map(f => ({ n: f.n, text: String(f.text).slice(0, 1800) }));
     const prompt = `Ты — методист-словесник. Урок: «${work}»${author ? ", " + author : ""}, ${p.grade} класс. Ниже фрагменты текста, с которыми класс работает на уроке.
-1) notes: слова и выражения из текста, которые ученику ${p.grade} класса непонятны или несут историко-культурный смысл (реалии, имена, устаревшие слова, исторические события). Не больше 8. "w" — ровно как в тексте (1–3 слова), "tip" — пояснение до 160 знаков: словарное значение или историческая справка. Очевидное не толковать.
+1) notes: слова и выражения из текста, которые ученику ${p.grade} класса непонятны или несут историко-культурный смысл (реалии, имена, устаревшие слова, исторические события). Не больше 8. "w" — ровно как в тексте (1–3 слова), "tip" — пояснение до 160 знаков: словарное значение или историческая справка. Очевидное не толковать. Числительные, даты, местоимения и имена без реалий («третьего сентября», «этот», «Тарас») не толкуй.
 2) concl: для каждого фрагмента — вывод, который класс записывает после работы с ним (1–2 предложения, с литературоведческими терминами, опора на конкретные слова текста, без пустых абстракций и без готовой трактовки всего произведения).
 Верни только JSON: {"notes":[{"w":"…","tip":"…"}],"concl":[{"n":1,"t":"…"}]}
 ${JSON.stringify(frs)}`;
