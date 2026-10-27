@@ -4840,7 +4840,7 @@ async function renderPreview() {
   } else {
     // пока документ дописывается, перерисовка не сбрасывает то, куда учитель прокрутил (таблицы вбок, лист вниз)
     const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
-    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : ""); sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(wsKeysToH1(md)) : md); decorate(sheet);
+    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : ""); sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
     if (state.active === "lesson" && window.Layout) Layout.decorate(sheet);
     if (state.active === "memo") { sheet.classList.add("memo-sheet"); memoDecorate(sheet); } else if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
@@ -5441,6 +5441,7 @@ function wsDecorate(root, L) {
 const pdfPages = blob => blob.text ? blob.text().then(t => (t.match(/\/Type\s*\/Page[^s]/g) || []).length) : Promise.resolve(0);
 const pdfDuplex = pdf => { try { if (pdf.viewerPreferences) pdf.viewerPreferences({ Duplex: "DuplexFlipLongEdge", PrintScaling: "None" }, true); } catch (e) { console.warn("duplex", e); } };
 function wsMainMd(md) {
+  md = wsKeysToH1(String(md || ""));
   const toks = window.marked.lexer(md), i = toks.findIndex((t, n) => n > 0 && t.type === "heading" && t.depth === 1);
   return i > 0 ? toks.slice(0, i).map(t => t.raw).join("") : md;
 }

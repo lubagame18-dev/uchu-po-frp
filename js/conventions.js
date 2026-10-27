@@ -208,6 +208,7 @@ const Conv = (() => {
     if (typeof md !== "string" || !md) return md;
     let fence = false;
     md = md.replace(/\s*\((?:по |см\. )?ГОСТ[^)]*\)/g, "").replace(/,? (?:оформлен|выполнен|составлен)[а-яё]* по ГОСТ[а-яё]*/gi, "").replace(/ по ГОСТ[а-яё]*(?:[ -]?[Рр]?\s?[\d.]+(?:-\d+)?)?/g, "");
+    md = md.replace(/^[^\n]*[Пп]ереверните (?:лист|страницу)[^\n]*\n?/gm, "");
     return md.split("\n").map(line => { if (/^\s*```/.test(line)) { fence = !fence; return line; } return fence ? line : fixLine(line, subject); }).join("\n");
   }
 
