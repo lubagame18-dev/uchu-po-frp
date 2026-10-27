@@ -47,7 +47,7 @@ const LessonNotes = (() => {
   /* реплики учителя → вопросы с ожидаемыми ответами и пометки */
   function talk(cellText) {
     const qs = [], notes = [];
-    const ans = s => { const m = s.match(/\*\((?:(?:Ожидаемый ответ|Ориентир для учителя|Ориентир):\s*)?([^)]*(?:\([^)]*\)[^)]*)*)\)\*\s*$/); return m ? [s.slice(0, m.index).trim(), clean(m[1])] : [s.trim(), ""]; };
+    const ans = s => { const m = s.match(/\*\((?:(?:Верный ответ ученика|Ожидаемый ответ|Ориентир для учителя|Ориентир):\s*)?([^)]*(?:\([^)]*\)[^)]*)*)\)\*\s*$/); return m ? [s.slice(0, m.index).trim(), clean(m[1])] : [s.trim(), ""]; };
     for (let line of String(cellText).split(/<br\s*\/?>/i)) {
       line = line.replace(/\*?\((?:Наводящий вопрос|Если затрудняются)[^)]*\)\*?/gi, "").trim(); if (!line) continue;
       if (/^[^\wА-Яа-яЁё]*(↳\s*)?(Если (ученики )?затрудня|Если не (ответ|справ)|Наводящий вопрос)/i.test(line)) continue;

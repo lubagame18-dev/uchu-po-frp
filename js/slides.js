@@ -439,7 +439,7 @@ const SlideEditor = (() => {
     const clr = $s("#sxBgClr"); if (clr) clr.onclick = () => set({ bg: undefined, bgimg: undefined });
     $s("#sxBgImg").onclick = () => pickImage(res => set({ bgimg: res.src }));
     $s("#sxPic").onclick = () => addPicture(cur);
-    $s("#sxAiPic").onclick = () => aiPicture();
+    if (window.UCHU_SITE?.imageGenUi === false) $s("#sxAiPic").hidden = true; else $s("#sxAiPic").onclick = () => aiPicture();
     $s("#sxAcc").onchange = e => { const v = e.target.value; const a = slides(); const has = new RegExp(Media.RE.source).test(a[cur].body); a[cur].set.acc = v || undefined; a[cur].set.afs = undefined; write(a); if (v && !has) { toast("Выберите картинку ниже, в «Картинках Яндекса», — она встанет на это место."); } rerender(); };
     const ov = $s("#sxOv"); if (ov) ov.onchange = e => set({ ov: e.target.value });
     const ovi = $s("#sxOvi"); if (ovi) ovi.onchange = e => set({ ovi: +e.target.value });

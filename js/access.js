@@ -120,7 +120,8 @@ const Access = (() => {
   /* ---------- окно тарифов ---------- */
   function open(reason) {
     const L = level(), cur = L === "dev" ? null : L, pr = isPromo();
-    const featsOf = (k, p) => pr && p.ai ? p.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : p.feats;
+    const noPics = f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false);
+    const featsOf = (k, p) => (pr && p.ai ? p.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : p.feats).filter(noPics);
     const m = openModal(`<div class="dialog wide tr-dlg"><div class="dlg-h"><h2>Тарифы</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       ${reason ? `<p class="tr-reason">${esc(reason)}</p>` : ""}
       ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас бесплатный доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L !== "dev" && PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
@@ -153,11 +154,11 @@ const Access = (() => {
     const P = PLANS[item], K = PACKS[item], L = level(), pr = isPromo();
     const up = P && PLANS[L]?.price && P.price > PLANS[L].price;
     const needKey = pr && P?.ai && !window.AI?.ownConfigured?.();
-    const feats = P ? (pr && P.ai ? P.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : P.feats) : [];
+    const feats = P ? (pr && P.ai ? P.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : P.feats).filter(f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false)) : [];
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Оформление</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       <div class="co-item"><span class="co-art">${P ? P.art : "✨"}</span><div><b>${P ? `Тариф «${P.name}»` : K.name}</b><div class="co-price">${P ? (up ? "доплата за оставшиеся дни" : `${priceOf(item)} ₽ в месяц${pr ? ` <s>${P.price} ₽</s> · промокод −${pct()}%` : ""}`) : `${K.price} ₽`}</div></div></div>
       ${needKey ? `<div class="co-key"><b>Чтобы этот тариф работал, подключите ключ своей нейросети.</b><button type="button" class="btn sm flame" id="coKey">Подключить ключ</button></div>` : ""}
-      ${P ? `<ul class="tr-feats">${feats.map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>` : `<p>Уроки с ИИ добавятся к вашему тарифу и не сгорают до конца оплаченного периода.</p>`}
+      ${P ? `<ul class="tr-feats">${feats.filter(f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false)).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>` : `<p>Уроки с ИИ добавятся к вашему тарифу и не сгорают до конца оплаченного периода.</p>`}
       ${P && !up && site().autopay && !pr ? `<label class="check"><input type="checkbox" id="coAuto" checked> Автоплатёж каждый месяц (отключить можно в любой момент по ссылке в письме)</label>` : ""}
       ${up ? `` : ""}
       ${site().payments ? `<p class="small">Оплата по СБП — через приложение вашего банка. Чек придёт на почту ${esc(me())}. Оплачивая, вы принимаете <a href="legal/oferta.html" target="_blank">договор-оферту</a>.</p>
