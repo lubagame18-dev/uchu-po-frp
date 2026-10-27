@@ -631,7 +631,7 @@ window.UCHU_SITE = {
           
           <button class="btn sm flame" id="btnPackZip" hidden>⬇ Файлы для урока (ZIP)</button>
           <button class="btn sm teal" id="btnDocx">Скачать Word</button>
-          <button class="btn sm ghost" id="btnAppx" hidden title="Ответы учителя и памятка отдельным файлом">Ответы учителя</button>
+          <button class="btn sm ghost" id="btnAppx" hidden title="Ответы учителя и памятка отдельным файлом">Ключи и доп. задания</button>
           <button class="btn sm ghost" id="btnPng" hidden title="Скачать страницы листа картинками: такой лист нельзя редактировать">Скачать картинками (PNG)</button>
           <button class="btn sm teal" id="btnPptx" hidden>Скачать PowerPoint</button>
           <button class="btn sm flame" id="btnPdf">Скачать PDF</button>
@@ -2462,6 +2462,7 @@ const Engine = (() => {
     const wg = window.Rules ? Rules.get("ws_goal") : "kids";
     if (wg === "frp" && r.loaded && r.subject.length) md += `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.\n\n`;
     else if (wg === "kids" && window.Deck?.childGoal) { try { const g = Deck.childGoal(p, {}); if (g.points.length) md += `> 🎯 **Сегодня на уроке мы:** ${g.points.map(x => x.replace(/^\S/, c => c.toLowerCase())).join("; ")}.\n\n`; } catch { } }
+    { const th = wsTheory(p); if (th) md += th + "\n\n"; }
     md += "---\n\n";
     let n = 0; const wsKeys = [];
     const lvl = hard => hard ? `### 🚀 Задание ${++n}. Повышенный уровень${exam ? ` (${exam.label})` : ""}` : `### 🔓 Задание ${++n}. Базовый уровень`;
@@ -2568,7 +2569,9 @@ const Engine = (() => {
     let home = `### Базовый уровень\n\n${capF(hw.base.replace(/\.$/, ""))}.\n\n${hw.exText ? `${trimEx(hw.exText, 2500)}${srcLn(hw.exSrc)}\n\n` : ""}${BL}\n\n${BL}\n\n${BL}\n\n### Повышенный уровень\n\n${capF(hw.adv.replace(/\.$/, ""))}.\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
     const head = (title) => `# ${title}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n`;
     // рабочий лист — только сам лист; памятка, самостоятельная, домашнее задание и ответы создаются отдельно
-    return lesson.trim() + "\n";
+    // ответы и критерии — отдельным документом (в Word это второй файл «… — ключи для учителя»), в самом листе их нет
+    const keyBody = answers.replace(/^###\s*🔑[^\n]*\n+/, "").trim();
+    return lesson.trim() + "\n" + (keyBody ? `\n# 🔑 Ответы и критерии оценивания (для учителя)\n\n${keyBody}\n` : "");
   }
   const capF = s => String(s).charAt(0).toUpperCase() + String(s).slice(1);
 
@@ -3997,6 +4000,8 @@ ${STYLE}
 
 <!--RESULTS-->
 
+(Сразу под маркером система сама вставит цель и короткий блок «Запомни». Ты их не пиши и не дублируй; теорию в лист не переписывай, только задания.)
+
 ---
 
 ### 🔓 Задание 1. Базовый уровень
@@ -4013,7 +4018,8 @@ ${STYLE}
 
 ---
 
-### 🔑 ОТВЕТЫ И КРИТЕРИИ ОЦЕНИВАНИЯ
+# 🔑 Ответы и критерии оценивания (для учителя)
+(это ОТДЕЛЬНЫЙ документ: заголовок первого уровня «#», именно так, ответы в самом листе не нужны)
 (ответы; баллы; ${exam ? `логика ${exam.label} — только подтверждённые критерии` : "школьная шкала 5/4/3"})
 
 Выдай только Markdown.`;
@@ -4030,11 +4036,30 @@ ${md.slice(0, 60000)}
 Сохрани структуру, разметку картинок ![…](…) и комментарии <!-- … --> без изменений.`;
 }
 
+/* рабочий лист: цель для ученика (без формулировок ФРП) и короткий блок «Запомни» — правило, алгоритм, схема с примером */
+function wsHead(p) {
+  const out = [], wg = window.Rules ? Rules.get("ws_goal") : "kids";
+  if (wg === "kids" && window.Deck?.childGoal) { try { const g = Deck.childGoal(p, {}); if (g.points.length) out.push(`> 🎯 **Сегодня на уроке мы:** ${g.points.map(x => x.replace(/^\S/, c => c.toLowerCase())).join("; ")}.`); } catch { } }
+  const t = wsTheory(p); if (t) out.push(t);
+  return out.join("\n\n");
+}
+function wsTheory(p) {
+  const RK = p.plan?.rukit, L = [], ok = x => x && !/⟦/.test(x);
+  const clean = (x, n = 90) => { x = String(x).replace(/\*\([^)]*\)\*/g, "").replace(/\*\*/g, "").replace(/\s+/g, " ").trim().replace(/[.;]$/, ""); return x.length > n ? x.slice(0, n - 1).replace(/\s\S*$/, "") + "…" : x; };
+  if (RK?.algo?.steps?.length && RK.algo.steps.every(ok)) L.push(`**${RK.algo.name || "Алгоритм"}:** ` + RK.algo.steps.slice(0, 4).map((x, i) => `${i + 1}) ${clean(x, 80)}`).join("; ") + ".");
+  else if (RK?.theory?.length) RK.theory.filter(ok).slice(0, 2).forEach(x => L.push(clean(x, 200) + "."));
+  const MN = window.Mnemo ? Mnemo.find(p.topic, RK?.algo?.name || "", p.subject) : null;
+  if (MN) { if (MN.scheme?.length) L.push("**Схема:** " + MN.scheme.slice(0, 2).map(x => clean(x, 100)).join(" ▸ ")); else if (MN.tips?.[0]) L.push("**Пример:** " + clean(MN.tips[0], 150)); }
+  return L.length ? "> 📌 **Запомни**\n" + L.map(x => "> - " + x).join("\n") : "";
+}
 /* ---------- результаты ФРП: подставляет система, не ИИ ---------- */
 function injectResults(md, p, type, doc) {
   const r = FRP.results(p.subject, p.grade, p.topic, type.id);
   if (doc === "worksheet") {
-    const block = r.loaded && r.subject.length ? `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.` : "";
+    // формулировки ФРП в рабочий лист не выводим (они в техкарте); вместо них — цель для ученика и блок «Запомни»
+    const wg = window.Rules ? Rules.get("ws_goal") : "kids";
+    const block = wg === "frp" && r.loaded && r.subject.length ? `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.` : wsHead(p);
+    md = md.replace(/^> 🎯 ВАЖНО: на уроке я учусь \(по ФРП\):.*\n?/m, "");
     return md.includes("<!--RESULTS-->") ? md.replace("<!--RESULTS-->", block) : md;
   }
   let out = md.replace(/\n## Планируемые результаты[\s\S]*?(?=\n## |\n---)/, "\n");
@@ -4942,7 +4967,9 @@ async function saveFile(filename, data) {
 /* имя файла: «Тема — Тип документа» по-русски, без символов, запрещённых в именах файлов */
 const fileSafe = (s, n = 80) => String(s || "").replace(/[\u0000-\u001f\\\/:*?"<>|«»]+/g, " ").replace(/\s+/g, " ").trim().replace(/[. ]+$/, "").slice(0, n).trim();
 const baseName = (L, doc) => `${fileSafe(L.title, 70) || "Урок"} — ${DOCS[doc].label}`;
-const APPX_RE = /— приложения для учителя\.docx$/;
+const APPX_RE = /— (ключи для учителя|приложение для учителя|дополнительные задания)\.docx$/;
+/* ответы и критерии — всегда отдельным документом, а не внутри листа: поднимаем их заголовок до первого уровня */
+function wsKeysToH1(md) { const m = /^#{2,3}\s.*(ответ|ключ|критерии оцени).*$/im.exec(md); if (!m || m.index < md.length * 0.3) return md; return md.slice(0, m.index) + m[0].replace(/^#+/, "#") + md.slice(m.index + m[0].length); }
 /* ---------- Markdown → DOCX ---------- */
 /* схемы: подчёркивания членов предложения — родными линиями Word, морфемы — маленькими картинками */
 const S_LINE = { "s-pod": { underline: { type: "single" } }, "s-skaz": { underline: { type: "double" } }, "s-dop": { underline: { type: "dash" } }, "s-opr": { underline: { type: "wave" } }, "s-obst": { underline: { type: "dotDash" } }, "s-x": { bold: true }, "s-orf": { bold: true } };
@@ -5224,14 +5251,19 @@ async function mdToDocxBlob(md, title, opts = {}) {
 /* Word: рабочий лист — ровно 2 страницы; всё, что не вошло (памятка, ответы, лишние задания), идёт вторым файлом «приложения» */
 async function docxBlobs(L, d) {
   let rest = ""; const o = { ...wsOpts(L, d), onRest: r => (rest = r) };
-  const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(L.docs[d], L.title, o)]];
-  if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + ` (лист ${i + 2}).docx`, await mdToDocxBlob(L.more[i].md, `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
-  if (o.twoPage && rest.trim()) out.push([baseName(L, d) + " — приложения для учителя.docx", await mdToDocxBlob(rest, L.title, { worksheet: true, tag: o.tag })]);
+  const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(WS_DOCS.includes(d) ? wsKeysToH1(L.docs[d]) : L.docs[d], L.title, o)]];
+  if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + ` (лист ${i + 2}).docx`, await mdToDocxBlob(wsKeysToH1(L.more[i].md), `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
+  if (o.twoPage && rest.trim()) {
+    // что не влезло на две страницы (доп. задания) — одним файлом, ответы и критерии — отдельным
+    const km = /^# .*(ответ|ключ|критерии)/im.exec(rest), extra = km ? rest.slice(0, km.index) : "", keys = km ? rest.slice(km.index) : rest;
+    if (extra.trim()) out.push([baseName(L, d) + " — дополнительные задания.docx", await mdToDocxBlob(extra, L.title, { worksheet: true, tag: o.tag })]);
+    if (keys.trim()) out.push([baseName(L, d) + (km ? " — ключи для учителя.docx" : " — приложение для учителя.docx"), await mdToDocxBlob(keys, L.title, { worksheet: true, tag: o.tag })]);
+  }
   return out;
 }
 async function exportDocx() { const L = state.lesson; const files = (await docxBlobs(L, state.active)).filter(([n]) => !APPX_RE.test(n)); for (const [n, b] of files) await saveFile(n, b); }
 /* ответы учителя и памятка — отдельным файлом и только по кнопке */
-async function exportAppx() { const L = state.lesson; const f = (await docxBlobs(L, "worksheet")).filter(([n]) => APPX_RE.test(n)); if (!f.length) { toast("Отдельного приложения у этого листа нет: всё уместилось на двух страницах.", 6000); return; } for (const [n, b] of f) await saveFile(n, b); }
+async function exportAppx() { const L = state.lesson; const f = (await docxBlobs(L, "worksheet")).filter(([n]) => APPX_RE.test(n)); if (!f.length) { toast("Ключей отдельным файлом нет: в этом листе они не созданы (включите «Ключи и критерии» в дополнительных настройках).", 6000); return; } for (const [n, b] of f) await saveFile(n, b); }
 /* лист картинками (PNG): страницы нельзя редактировать */
 async function exportPng() {
   const L = state.lesson; if (!L?.docs.worksheet) return;
@@ -5448,7 +5480,7 @@ async function exportZip(L) {
   const put = async (name, make) => { try { const b = await make(); if (b && b.size !== 0) zip.file(name, b); else fails.push(name); } catch (e) { console.warn("zip", name, e); fails.push(name); } };
   const docs = Object.keys(DOCS).filter(d => L.docs[d]);
   // ровно по одному файлу на каждый созданный документ: презентация — .pptx, остальное — .docx (без дублей в PDF и служебных папок)
-  for (const d of docs) { if (d === "slides") await put(baseName(L, d) + ".pptx", () => slidesToPptxBlob(L.docs[d], L.title)); else { try { for (const [n, b] of (await docxBlobs(L, d)).filter(([n]) => !APPX_RE.test(n))) zip.file(n, b); } catch (e) { console.warn("zip", d, e); fails.push(baseName(L, d) + ".docx"); } } }
+  for (const d of docs) { if (d === "slides") await put(baseName(L, d) + ".pptx", () => slidesToPptxBlob(L.docs[d], L.title)); else { try { for (const [n, b] of (await docxBlobs(L, d)).filter(([n]) => !/— дополнительные задания\.docx$/.test(n))) zip.file(n, b); } catch (e) { console.warn("zip", d, e); fails.push(baseName(L, d) + ".docx"); } } }
   if (!Object.keys(zip.files).length) throw new Error("ни один файл не собрался");
   if (fails.length) zip.file("ПРОЧТИТЕ.txt", "Не удалось собрать: " + fails.join(", ") + ".\nСкачайте их по отдельности кнопками над листом.");
   await saveFile(`${fileSafe(L.title, 70) || "Урок"} — комплект материалов.zip`, await zip.generateAsync({ type: "blob", compression: "DEFLATE" }));
