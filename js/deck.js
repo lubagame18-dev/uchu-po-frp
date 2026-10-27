@@ -174,10 +174,7 @@ const Deck = (() => {
       const who = c.wiki.match(/\)\s*[—–-]\s*([^.;]{8,120})/); if (who) pts.push(capF(who[1].trim()));
       if (pts.length) add({ kind: "author", title: author, points: pts, img: imgOn ? `commons:${author} портрет` : "", acc: "left", notes: "Справка — по Википедии; даты сверьте с учебником." });
     }
-    if (kit.glossary.length) {
-      const per = Math.ceil(kit.glossary.length / Math.ceil(kit.glossary.length / 4));
-      for (let i = 0; i < kit.glossary.length; i += per) add({ kind: "glossary", title: "Словарная работа", items: kit.glossary.slice(i, i + per) });
-    }
+    // словарные слова не отдельными слайдами посреди урока: в тексте они нажимаются (подсказка), а игра с карточками — в разминке в конце
     // текст: фрагменты дословно; слова из словаря и примеры терминов — с подсказкой по щелчку
     const verse = !!p.plan.analysis?.verse;
     const mid = Math.ceil(kit.fragments.length / 2);
@@ -221,6 +218,12 @@ const Deck = (() => {
     add({ kind: "concl", title: "Выводы", points: kit.conclusions, notes: "Запишите в тетрадь." });
     const cr = c.rows.find(r => /^творческ/i.test(r.stage)); if (cr) { const t = cleanLine(unbr(cr.content)); if (t.length > 10) add({ kind: "big", title: "Творческое задание", lead: t }); }
     if (c.hw.length) add({ kind: "hw", title: "Домашнее задание", points: c.hw.slice(0, 4) });
+    // разминка в конце: не входит в время урока, учитель берёт любое задание, если осталось время (или переносит на начало следующего урока)
+    if (kit.glossary.length) {
+      add({ kind: "section", title: "Разминка", points: ["Если останется время (в хронометраж урока не входит)"], warm: true });
+      const per = Math.ceil(kit.glossary.length / Math.ceil(kit.glossary.length / 5));
+      for (let i = 0; i < kit.glossary.length; i += per) add({ kind: "list", title: "Разминка: незнакомые слова", points: kit.glossary.slice(i, i + per).map(g => `${g.word} — ${String(g.def || "").replace(/\s+/g, " ").slice(0, 140)}`), warm: true, notes: "Карточки переворачиваются по щелчку: ученик объясняет слово, потом открываем значение. Разминка — не основной урок: берите, если осталось время." });
+    }
     return cards;
   }
   /* ---------- дополнения ко всем презентациям: доска, запоминалки, видео, разделители ---------- */
@@ -528,7 +531,9 @@ ${JSON.stringify(payload)}`;
     const prompt = `Ты — методист-словесник. Урок: «${work}»${author ? ", " + author : ""}, ${p.grade} класс. Ниже фрагменты текста, с которыми класс работает на уроке.
 1) notes: слова и выражения из текста, которые ученику ${p.grade} класса непонятны или несут историко-культурный смысл (реалии, имена, устаревшие слова, исторические события). Не больше 8. "w" — ровно как в тексте (1–3 слова), "tip" — пояснение до 160 знаков: словарное значение или историческая справка. Очевидное не толковать. Числительные, даты, местоимения и имена без реалий («третьего сентября», «этот», «Тарас») не толкуй.
 2) concl: для каждого фрагмента — вывод, который класс записывает после работы с ним (1–2 предложения, с литературоведческими терминами, опора на конкретные слова текста, без пустых абстракций и без готовой трактовки всего произведения).
-Верни только JSON: {"notes":[{"w":"…","tip":"…"}],"concl":[{"n":1,"t":"…"}]}
+3) heroes: только для прозы и драмы (для стихотворения — пустой массив): 3–5 главных действующих лиц из этих фрагментов. "name" — имя как в тексте, "hint" — описание по поступку или черте в одном предложении, БЕЗ имени героя, до 110 знаков.
+4) events: только для прозы и драмы: 5–7 ключевых событий этих фрагментов в правильном порядке, каждое до 70 знаков, только то, что есть в тексте.
+Верни только JSON: {"notes":[{"w":"…","tip":"…"}],"concl":[{"n":1,"t":"…"}],"heroes":[{"name":"…","hint":"…"}],"events":["…"]}
 ${JSON.stringify(frs)}`;
     try {
       const res = await caps.sample(prompt, { modelTier: "default", cache: false, signal });
@@ -542,6 +547,22 @@ ${JSON.stringify(frs)}`;
           const last = cards.map(c => c.kind === "fragment" && c.fn === n).lastIndexOf(true); if (last < 0) continue;
           cards.splice(last + 1, 0, { id: "v" + n, on: true, kind: "concl", title: "Вывод", points: [concl.get(n)], notes: "Показывайте после обсуждения: вывод сначала формулируют ученики, слайд — для записи. Слайд можно выключить." });
         }
+      }
+      // разминка в конце презентации (не входит в время урока): «Угадай героя» и «Восстанови сюжет»
+      if (!p.plan?.analysis?.verse) {
+        const txt = kit.fragments.map(f => f.text).join("\n").toLowerCase().replace(/ё/g, "е");
+        const heroes = (j.heroes || []).filter(x => x?.name && x?.hint && txt.includes(String(x.name).toLowerCase().replace(/ё/g, "е").split(/\s+/)[0].slice(0, 5)) && !String(x.hint).toLowerCase().includes(String(x.name).toLowerCase().split(/\s+/)[0].slice(0, 5))).slice(0, 5);
+        const events = (j.events || []).map(x => String(x || "").trim().slice(0, 90)).filter(x => x.length > 8).slice(0, 7);
+        const warm = [];
+        if (!cards.some(c => c.warm && c.kind === "section")) warm.push({ kind: "section", title: "Разминка", points: ["Если останется время (в хронометраж урока не входит)"], warm: true });
+        if (heroes.length >= 3) warm.push({ kind: "list", title: "Разминка: угадай героя по описанию", points: heroes.map(h => `${String(h.hint).replace(/\s+/g, " ")} — ${h.name}`), warm: true, notes: "Карточки переворачиваются по щелчку: класс называет героя по описанию, потом открываем имя." });
+        if (events.length >= 4) {
+          const order = events.map((e, i) => [e, i]).sort((a, b) => ((a[1] * 7 + 3) % 11) - ((b[1] * 7 + 3) % 11));
+          const L = "АБВГДЕЖ";
+          warm.push({ kind: "list", title: "Разминка: восстанови сюжет", points: order.map(([e], i) => `${L[i]}. ${e}`), warm: true, notes: "События перепутаны: класс называет правильный порядок букв. Ответ — на следующем слайде." });
+          warm.push({ kind: "steps", title: "Сюжет по порядку", points: events, warm: true, notes: "Правильный порядок событий." });
+        }
+        if (warm.length > (cards.some(c => c.warm && c.kind === "section") ? 0 : 1)) cards.push(...warm.map((c, i) => ({ id: "w" + i + "_" + Math.random().toString(36).slice(2, 5), on: true, ...c })));
       }
     } catch (e) { console.warn("Deck AI lit", e); }
     return cards;

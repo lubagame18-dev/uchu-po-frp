@@ -3825,10 +3825,43 @@ const SELFCHECK = `## Перед тем как выдать — проверь �
 - Нет ли вопросов «Что такое…?» и готовых ответов в репликах учителя?
 - У каждого ключевого эпизода — цепочка вопросов, у каждого вопроса — ориентир?
 - Каждое понятие вводится через наблюдение над текстом (языковым материалом), а не определением?
-- Конспект написан именно про эту тему и этот текст — его нельзя подставить к другому уроку?`;
+- Конспект написан именно про эту тему и этот текст — его нельзя подставить к другому уроку?
+- Нет ли в документе правил, примеров и терминов из другой темы?
+- Мотивация и проблемный вопрос спокойные, по делу: без пафосного начала и без эмоциональных или оценочных ловушек («обидно ли вам?», «кто из героев прав?»). Для русского языка достаточно показать два примера (в одном запятая есть, в другом нет) и спросить, почему.`;
 /* баланс времени: открытие правила не должно съедать урок, главная работа (применение) — не меньше половины */
 const BALANCE = d => `## Распределение времени (обязательно)
 Урок длится ${d} мин. На открытие нового (наблюдение, гипотеза, формулировка правила) уходит не больше 30 % времени. На практику (упражнения, самостоятельная работа с самопроверкой, применение) отводится не меньше 45 %: для 45 минут это не меньше 5–6 заданий разной сложности, из них минимум два с проверкой по эталону. Главное действие темы (например, выделить оборот запятыми, решить задачу, составить предложение) ученики выполняют на многих примерах: сначала с комментированием, потом самостоятельно. Проставь минуты по этапам, сумма равна ${d}. Перед выдачей проверь: если практики меньше 45 %, перераспредели время и добавь упражнения.`;
+/* Вторая, независимая проверка готового конспекта: «взгляд со стороны», без методических запоминалок. Возвращает точечные замены, а не весь документ (дёшево по токенам). */
+function promptReview(p, md) {
+  return `Ты — независимый проверяющий конспектов уроков. Ты не писал этот конспект и не знаешь методических шаблонов: оцени только то, что написано. Предмет: ${p.subject === "ru" ? "русский язык" : p.subject === "lit" ? "литература" : (window.Subjects?.name?.(p.subject) || p.subject)}, ${p.grade} класс. Тема урока: «${p.topic}».
+
+Найди в конспекте ТОЛЬКО это:
+1. Лишнее по теме: правила, термины, примеры и задания из другой темы (например, приставки пре-/при- в уроке про причастие) или вообще не относящиеся к уроку. Такое нужно убрать или заменить на материал по теме.
+2. Странные, неестественные или пафосные формулировки в мотивации, проблемном вопросе и цели: эмоциональные ловушки («обидно ли вам?»), оценочные вопросы без опоры на материал, высокопарное начало. Замени на спокойную, понятную детям формулировку по теме. Нормально, если проблемная ситуация — два примера, где в одном запятая есть, в другом нет.
+3. Явные ошибки: неверное правило, неверный пример, имя или термин не на своём месте.
+Не переписывай конспект целиком и не придирайся к стилю. Если всё в порядке, верни пустой список.
+
+Верни только JSON: {"fixes":[{"old":"ТОЧНЫЙ фрагмент из конспекта, 20–300 знаков, встречается один раз","new":"чем заменить (пустая строка — убрать)","why":"коротко"}]}. Не больше 8 замен.
+
+<conspect>
+${String(md).slice(0, 26000)}
+</conspect>`;
+}
+async function reviewConspect(md, p, signal) {
+  try {
+    const res = await caps.sample(promptReview(p, md), { modelTier: "default", cache: false, signal });
+    const j = JSON.parse((String(res.text).match(/\{[\s\S]*\}/) || ["{}"])[0]);
+    let out = md, n = 0; const done = [];
+    for (const x of (j.fixes || []).slice(0, 8)) {
+      const o = String(x?.old || ""), nw = String(x?.new ?? "");
+      if (o.length < 20 || o.length > 400 || nw.length > o.length * 2 + 80) continue;
+      if (out.split(o).length !== 2) continue; // фрагмент должен найтись ровно один раз
+      if (/[|]/.test(o) !== /[|]/.test(nw) && nw) continue; // не ломаем таблицу
+      out = out.replace(o, () => nw); n++; done.push(String(x.why || "").slice(0, 100));
+    }
+    return { md: out, n, done };
+  } catch (e) { if (e?.code === "cancelled") throw e; return { md, n: 0, done: [] }; }
+}
 function promptConspect(p) {
   const ru = p.subject === "ru", cols = ru ? KB.ru.techmap.columns : KB.lit.techmapColumns;
   return `Ты — ведущий методист: русский язык и литература, ФГОС, ФРП. Составь конспект урока в форме технологической карты.
@@ -4296,6 +4329,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
           const webTxt = p.web?.items?.length ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
           const res = await caps.sample(PL.prompt(f, p, type, md) + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
+          if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
       }
       L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
@@ -4379,6 +4413,10 @@ async function buildWithAi(L, p, type, formats) {
         catch (e) { if (e?.code === "cancelled") throw e; if (e?.text) raw = joinCont(raw, e.text); break; }
       }
       let md = cleanMd(raw);
+      if (f === "conspect" && md.length > 1500) { // вторая проверка со стороны: лишние темы и странные формулировки
+        state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress();
+        const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
+      }
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
       else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md).catch(() => md); }
       L.docs[f] = md; L.status[f] = "ok";
