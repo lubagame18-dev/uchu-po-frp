@@ -499,6 +499,162 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
 <link rel="stylesheet" href="css/v5.css">
 </head>
 <body>
+<!-- Загрузочная анимация: один раз за сеанс; чистый SVG, анимируются только transform и opacity -->
+<style>
+.ld{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.4rem,1.6vh,1rem);padding:1rem;background:#FFFCF3;transition:opacity .5s ease;animation:ldGone 0s 14s forwards;overscroll-behavior:contain}
+.ld.out{opacity:0;pointer-events:none}
+@keyframes ldGone{to{opacity:0;visibility:hidden;pointer-events:none}}
+.ld-svg{width:min(94vw,640px,calc(66vh*1.1765));height:auto;display:block;overflow:visible}
+.ld-svg *{transform-box:view-box}
+.ld .st{stroke:#fff;stroke-width:5;stroke-linejoin:round;paint-order:stroke}
+.ld .pct{font:800 12px var(--f-display,Arial);fill:#1B1330}
+.ld .fill{transform-origin:40px 40px;transform:scaleX(var(--p,0))}
+.ld .plug{transform:translateX(var(--x,0px))}
+.ld .gl{font:800 21px var(--f-display,Arial);opacity:0;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.ld .qm{font:800 26px var(--f-display,Arial);fill:#FF5A36;opacity:0;paint-order:stroke;stroke:#fff;stroke-width:5px}
+.ld .pole,.ld .stand{opacity:0}
+.ld .stand{transform:translateX(calc(var(--x,0px) + 5px))}
+.ld .pole{transform:translateX(var(--x,0px))}
+.ld .spark{opacity:0}
+.ld-t{margin:0;font:800 clamp(1rem,2.6vw,1.35rem)/1.2 var(--f-display,Arial);color:#1B1330;text-align:center;min-height:1.4em}
+.ld-s{margin:0;font:600 .85rem var(--f-body,Arial);color:#6E6584;text-align:center}
+.ld-skip{position:absolute;right:.9rem;bottom:.9rem;border:2px solid #1B1330;background:#fff;color:#1B1330;border-radius:999px;padding:.35rem .9rem;font:700 .8rem var(--f-body,Arial);cursor:pointer}
+/* фаза 1: перебирает архивы и печатает */
+.ld.p1 .paw.pl{animation:ldKey .36s ease-in-out infinite}
+.ld.p1 .paw.pr{animation:ldKey .36s ease-in-out .18s infinite}
+.ld.p1 .hdi{transform-origin:0 24px;animation:ldNod .72s ease-in-out infinite}
+.ld.p1 .sheet{animation:ldSheet 1.1s ease-in-out infinite}
+.ld.p1 .topf{animation:ldFold 1.3s ease-in-out infinite}
+.ld.p1 .pg{transform-origin:348px 202px;animation:ldPage 1.1s ease-in-out infinite}
+.ld .tail{transform-origin:70px 240px;animation:ldTail 2.2s ease-in-out infinite}
+/* фаза 2: замер, смотрит вверх на шкалу */
+.ld.p2 .hd{transform-origin:106px 204px}
+.ld.p2 .hdi{transform:rotate(-12deg);transform-origin:0 24px;transition:transform .25s}
+.ld.p2 .pup{transform:translate(1px,-3.4px)}
+.ld.p2 .qm{opacity:1;animation:ldPop .5s ease-out both}
+.ld.p2 .plug{animation:ldStuck .5s linear infinite}
+/* фаза 3: качает головой и бешено печатает */
+.ld.p3 .hdi{transform-origin:0 24px;animation:ldShake .5s ease-in-out 2,ldNod .3s ease-in-out .5s infinite}
+.ld.p3 .paw.pl{animation:ldKey .13s ease-in-out infinite}
+.ld.p3 .paw.pr{animation:ldKey .13s ease-in-out .065s infinite}
+.ld.p3 .gl{animation:ldFly 1.35s ease-out var(--dl) infinite}
+.ld.p3 .spark{animation:ldBlink .26s steps(2) infinite}
+.ld.p3 .topf{animation:ldFold .7s ease-in-out infinite}
+.ld.p3 .pg{transform-origin:348px 202px;animation:ldPage .55s ease-in-out infinite}
+/* фаза 4: закрывает ноутбук, встаёт и толкает шкалу */
+.ld.p4 .sit{opacity:0;transition:opacity .2s}
+.ld.p4 .scr{transform-origin:206px 232px;transform:scaleY(.04);transition:transform .35s ease-in}
+.ld.p4 .stand{opacity:1;animation:ldHop .45s ease-out}
+.ld.p4 .pole{opacity:1}
+.ld.p4 .walk{animation:ldBob .34s ease-in-out infinite}
+.ld.p4 .l1{transform-origin:-10px 292px;animation:ldLeg .34s ease-in-out infinite}
+.ld.p4 .l2{transform-origin:10px 292px;animation:ldLeg .34s ease-in-out .17s infinite}
+@keyframes ldKey{50%{transform:translateY(-6px)}}
+@keyframes ldNod{50%{transform:rotate(3deg) translateY(1px)}}
+@keyframes ldSheet{0%{transform:translate(0,0) rotate(0)}45%{transform:translate(8px,-12px) rotate(8deg)}100%{transform:translate(0,0) rotate(0)}}
+@keyframes ldFold{50%{transform:translateY(-8px) rotate(-5deg)}}
+@keyframes ldPage{0%{transform:scaleX(1)}50%{transform:scaleX(-.9)}100%{transform:scaleX(1)}}
+@keyframes ldTail{50%{transform:rotate(-7deg)}}
+@keyframes ldPop{from{transform:scale(.2) translateY(14px)}to{transform:none}}
+@keyframes ldStuck{50%{transform:translate(calc(var(--x,0px) + 1.6px),0)}}
+@keyframes ldShake{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+@keyframes ldFly{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-120px) scale(1.15) rotate(12deg)}}
+@keyframes ldBlink{50%{opacity:1}}
+@keyframes ldHop{from{transform:translate(calc(var(--x,0px) + 5px),-26px)}to{transform:translateX(calc(var(--x,0px) + 5px))}}
+@keyframes ldBob{50%{transform:translateY(-3px)}}
+@keyframes ldLeg{50%{transform:rotate(14deg)}}
+@media (max-width:480px){.ld-svg{width:96vw}.ld-skip{bottom:.6rem}}
+@media (prefers-reduced-motion:reduce){.ld *{animation:none!important;transition:none!important}}
+</style>
+<div class="ld p1" id="uchuLd" role="status" aria-live="polite" aria-label="Загрузка сайта «Учу по ФРП»">
+<svg class="ld-svg" viewBox="0 0 400 340" aria-hidden="true" focusable="false">
+<defs><pattern id="ldht" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.5" fill="#1B1330"/></pattern>
+<pattern id="ldkey" width="7" height="6" patternUnits="userSpaceOnUse"><rect x="1" y="1" width="5" height="4" rx="1" fill="#8D8FA0"/></pattern></defs>
+<g class="blob"><path d="M62 118Q70 78 120 76Q200 52 290 78Q348 92 352 160Q362 226 330 270Q280 316 200 312Q110 318 70 272Q34 224 62 118Z" fill="#FFC93C"/><path d="M62 118Q70 78 120 76Q200 52 290 78Q348 92 352 160Q362 226 330 270Q280 316 200 312Q110 318 70 272Q34 224 62 118Z" fill="url(#ldht)" opacity=".16" transform="translate(7 8)"/></g>
+<!-- шкала -->
+<g class="bar"><rect class="st" x="40" y="30" width="320" height="20" rx="10" fill="#fff"/><rect class="fill" x="40" y="30" width="320" height="20" rx="10" fill="#FF5A36"/><rect x="40" y="30" width="320" height="20" rx="10" fill="none" stroke="#1B1330" stroke-width="3"/>
+<g class="plug"><circle cx="40" cy="40" r="17" fill="#FFC93C" stroke="#1B1330" stroke-width="3"/><text class="pct" x="40" y="45" text-anchor="middle">0%</text></g></g>
+<g class="pole"><path d="M40 57V282" stroke="#fff" stroke-width="11" stroke-linecap="round"/><path d="M40 57V282" stroke="#C98A55" stroke-width="6" stroke-linecap="round"/></g>
+<!-- стол -->
+<rect class="st" x="12" y="250" width="376" height="12" rx="4" fill="#FF8FA3"/>
+<!-- бумаги слева -->
+<g class="papers"><rect class="st" x="18" y="236" width="50" height="14" fill="#F1E3C6" transform="rotate(-2 43 243)"/><rect class="st" x="22" y="224" width="46" height="13" fill="#F7EBD3" transform="rotate(2 45 230)"/><rect class="st" x="20" y="212" width="48" height="13" fill="#EADBB8" transform="rotate(-1 44 218)"/><g class="sheet"><rect class="st" x="26" y="198" width="38" height="14" fill="#FFFCF3"/><path d="M30 203H58M30 207H52" stroke="#1B1330" stroke-width="1.2" opacity=".5"/></g></g>
+<!-- кот сидит -->
+<g class="sit">
+<path class="tail" d="M70 240Q42 238 46 210Q48 196 58 200" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round"/><path class="tail" d="M70 240Q42 238 46 210Q48 196 58 200" fill="none" stroke="#B9B1A5" stroke-width="10" stroke-linecap="round"/>
+<ellipse class="st" cx="102" cy="224" rx="34" ry="28" fill="#B9B1A5"/><ellipse cx="108" cy="231" rx="20" ry="20" fill="#FAF7F2"/>
+<path d="M122 222Q148 236 170 236" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round"/><path d="M122 222Q148 236 170 236" fill="none" stroke="#B9B1A5" stroke-width="10" stroke-linecap="round"/>
+<g class="hd" transform="translate(106 182)"><g class="hdi"><g class="ears"><path class="st" d="M-27-12L-24-42L-7-25Z" fill="#B9B1A5"/><path d="M-23-18L-22-34L-12-25Z" fill="#FFB3C1"/><path class="st" d="M27-12L24-42L7-25Z" fill="#B9B1A5"/><path d="M23-18L22-34L12-25Z" fill="#FFB3C1"/></g>
+<ellipse class="st" cx="0" cy="0" rx="31" ry="26" fill="#B9B1A5"/>
+<path d="M-6-24Q0-14 6-24Q3-10 0-8Q-3-10-6-24Z" fill="#8F8579"/>
+<ellipse cx="0" cy="9" rx="17" ry="12" fill="#FAF7F2"/>
+<circle cx="-13" cy="-3" r="7" fill="#fff"/><circle cx="13" cy="-3" r="7" fill="#fff"/>
+<g class="pup"><circle cx="-13" cy="-3" r="3.6" fill="#1B1330"/><circle cx="13" cy="-3" r="3.6" fill="#1B1330"/><circle cx="-12" cy="-4.4" r="1.2" fill="#fff"/><circle cx="14" cy="-4.4" r="1.2" fill="#fff"/></g>
+<g fill="none" stroke="#1B1330" stroke-width="3.2" stroke-linecap="round"><circle cx="-13" cy="-3" r="11.5"/><circle cx="13" cy="-3" r="11.5"/><path d="M-1.5-4Q0-6 1.5-4"/><path d="M-24.5-5L-31-8M24.5-5L31-8"/></g>
+<path d="M-3 6L3 6L0 10Z" fill="#FF8FA3"/><path d="M0 10Q-4 15-8 12M0 10Q4 15 8 12" fill="none" stroke="#1B1330" stroke-width="1.6" stroke-linecap="round"/>
+<g stroke="#1B1330" stroke-width="1" opacity=".55"><path d="M-17 9L-34 6M-17 12L-34 14M17 9L34 6M17 12L34 14"/></g>
+<path class="st" d="M-35-27L0-42L35-27L0-13Z" fill="#2B2B31"/><path d="M-20-22V-12Q0-4 20-12V-22L0-13Z" fill="#3A3A42"/><path d="M0-27L24-24L26-9" fill="none" stroke="#FFC93C" stroke-width="2.6" stroke-linecap="round"/><circle cx="26" cy="-7" r="3" fill="#FFC93C"/></g></g>
+<circle class="paw pl" cx="172" cy="237" r="7.5" fill="#FAF7F2" stroke="#fff" stroke-width="2.4" paint-order="stroke"/><circle class="paw pr" cx="196" cy="237" r="7.5" fill="#FAF7F2" stroke="#fff" stroke-width="2.4" paint-order="stroke"/>
+<text class="qm" x="132" y="130">?</text>
+</g>
+<!-- ноутбук -->
+<g class="lap"><rect class="st scr" x="156" y="168" width="100" height="64" rx="5" fill="#D9DADF"/><rect class="scr" x="163" y="174" width="86" height="52" rx="2" fill="#FFC93C"/><rect class="scr" x="163" y="174" width="86" height="52" rx="2" fill="url(#ldht)" opacity=".22"/><path class="scr" d="M170 186H228M170 195H214M170 204H236M170 213H206" stroke="#1B1330" stroke-width="2.4" stroke-linecap="round" opacity=".55"/>
+<path class="st" d="M148 232H264L270 250H142Z" fill="#E8E9EE"/><path d="M152 237H260L262 246H150Z" fill="url(#ldkey)"/>
+<g class="spark" fill="#FFC93C" stroke="#1B1330" stroke-width="1.2" stroke-linejoin="round"><path d="M250 164L262 148L258 166L270 164L258 176Z"/><path d="M150 176L140 162L152 168L148 154L162 170Z"/></g></g>
+<text class="gl" style="--dx:-30px;--dl:0.00s" x="205" y="232" fill="#FF5A36">5</text><text class="gl" style="--dx:-12px;--dl:0.17s" x="205" y="232" fill="#1F7A70">A+</text><text class="gl" style="--dx:8px;--dl:0.34s" x="205" y="232" fill="#FF5A36">4</text><text class="gl" style="--dx:26px;--dl:0.51s" x="205" y="232" fill="#1B1330">x²</text><text class="gl" style="--dx:-22px;--dl:0.68s" x="205" y="232" fill="#1B1330">π</text><text class="gl" style="--dx:14px;--dl:0.85s" x="205" y="232" fill="#1F7A70">1812</text><text class="gl" style="--dx:34px;--dl:1.02s" x="205" y="232" fill="#FF5A36">B</text><text class="gl" style="--dx:-4px;--dl:1.19s" x="205" y="232" fill="#1B1330">Σ</text>
+<!-- папки -->
+<g class="folders"><g transform="rotate(-9 286 250)"><path class="st" d="M268 208H282L286 204H304V250H268Z" fill="#C9955A"/></g><path class="st" d="M273 214H287L291 210H309V250H273Z" fill="#D8A468"/><g class="topf"><path class="st" d="M279 216H293L297 212H315V250H279Z" fill="#E3B27A"/><path d="M285 226H309" stroke="#1B1330" stroke-width="1.4" opacity=".45"/></g></g>
+<!-- учебники -->
+<g class="books"><rect class="st" x="318" y="236" width="66" height="14" rx="2" fill="#2D3B63"/><rect class="st" x="322" y="222" width="58" height="14" rx="2" fill="#E9A23B" transform="rotate(-2 351 229)"/><rect class="st" x="316" y="208" width="62" height="14" rx="2" fill="#E04F3A" transform="rotate(1.5 347 215)"/>
+<path class="st" d="M322 208L348 198V206L322 208Z" fill="#fff"/><path class="st" d="M374 208L348 198V206L374 208Z" fill="#FFFCF3"/><path d="M330 203L344 200M330 206L344 203M352 200L366 203M352 203L366 206" stroke="#1B1330" stroke-width="1" opacity=".5"/><path class="pg" d="M348 198L372 204V210L348 206Z" fill="#fff" stroke="#1B1330" stroke-width="1" opacity=".9"/></g>
+<!-- кот стоит -->
+<g class="stand"><g class="walk">
+<g class="legs"><rect class="lg l1" x="-17" y="288" width="13" height="40" rx="6" fill="#B9B1A5" stroke="#fff" stroke-width="3" paint-order="stroke"/><rect class="lg l2" x="3" y="288" width="13" height="40" rx="6" fill="#B9B1A5" stroke="#fff" stroke-width="3" paint-order="stroke"/></g>
+<ellipse class="st" cx="-1" cy="268" rx="25" ry="34" fill="#B9B1A5"/><ellipse cx="3" cy="274" rx="14" ry="22" fill="#FAF7F2"/>
+<path d="M-18 238Q-34 250-40 268" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round"/><path d="M-18 238Q-34 250-40 268" fill="none" stroke="#B9B1A5" stroke-width="9" stroke-linecap="round"/>
+<path d="M14 244Q30 246 35 250" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round"/><path d="M14 244Q30 246 35 250" fill="none" stroke="#B9B1A5" stroke-width="10" stroke-linecap="round"/>
+<g transform="translate(0 214) scale(.92)"><g class="ears"><path class="st" d="M-27-12L-24-42L-7-25Z" fill="#B9B1A5"/><path d="M-23-18L-22-34L-12-25Z" fill="#FFB3C1"/><path class="st" d="M27-12L24-42L7-25Z" fill="#B9B1A5"/><path d="M23-18L22-34L12-25Z" fill="#FFB3C1"/></g>
+<ellipse class="st" cx="0" cy="0" rx="31" ry="26" fill="#B9B1A5"/>
+<path d="M-6-24Q0-14 6-24Q3-10 0-8Q-3-10-6-24Z" fill="#8F8579"/>
+<ellipse cx="0" cy="9" rx="17" ry="12" fill="#FAF7F2"/>
+<circle cx="-13" cy="-3" r="7" fill="#fff"/><circle cx="13" cy="-3" r="7" fill="#fff"/>
+<g><circle cx="-13" cy="-3" r="3.6" fill="#1B1330"/><circle cx="13" cy="-3" r="3.6" fill="#1B1330"/><circle cx="-12" cy="-4.4" r="1.2" fill="#fff"/><circle cx="14" cy="-4.4" r="1.2" fill="#fff"/></g>
+<g fill="none" stroke="#1B1330" stroke-width="3.2" stroke-linecap="round"><circle cx="-13" cy="-3" r="11.5"/><circle cx="13" cy="-3" r="11.5"/><path d="M-1.5-4Q0-6 1.5-4"/><path d="M-24.5-5L-31-8M24.5-5L31-8"/></g>
+<path d="M-3 6L3 6L0 10Z" fill="#FF8FA3"/><path d="M0 10Q-4 15-8 12M0 10Q4 15 8 12" fill="none" stroke="#1B1330" stroke-width="1.6" stroke-linecap="round"/>
+<g stroke="#1B1330" stroke-width="1" opacity=".55"><path d="M-17 9L-34 6M-17 12L-34 14M17 9L34 6M17 12L34 14"/></g>
+<path class="st" d="M-35-27L0-42L35-27L0-13Z" fill="#2B2B31"/><path d="M-20-22V-12Q0-4 20-12V-22L0-13Z" fill="#3A3A42"/><path d="M0-27L24-24L26-9" fill="none" stroke="#FFC93C" stroke-width="2.6" stroke-linecap="round"/><circle cx="26" cy="-7" r="3" fill="#FFC93C"/></g>
+<circle cx="35" cy="250" r="7.5" fill="#FAF7F2" stroke="#fff" stroke-width="2.4" paint-order="stroke"/></g></g>
+</svg>
+<p class="ld-t">Достаю материалы и берусь за дело…</p>
+<p class="ld-s">Учу по ФРП</p>
+<button class="ld-skip" type="button">Пропустить</button>
+</div>
+<script>(function(){var el=document.getElementById("uchuLd");if(!el)return;
+var seen=0,force=/[?&]loader=1/.test(location.search),reduce=0;
+try{seen=sessionStorage.getItem("uchu:ld")}catch(e){}
+try{reduce=matchMedia("(prefers-reduced-motion:reduce)").matches}catch(e){}
+if(!force&&(seen||reduce)){el.remove();return}
+try{sessionStorage.setItem("uchu:ld","1")}catch(e){}
+var root=document.documentElement,prevOv=root.style.overflow;root.style.overflow="hidden";
+var pct=el.querySelector(".pct"),title=el.querySelector(".ld-t"),done=0,t0=performance.now(),ph="",lastN=-1;
+var TXT={p1:"Достаю материалы и берусь за дело…",p2:"Хм… шкала застряла.",p3:"Сверяюсь с учебниками!",p4:"Дотолкаю до конца!"};
+/* время (с) → процент: 0–40 за 2.2 с, пауза на 41, рывок до 85, толчок до 100 */
+var K=[[0,0],[2.2,40],[3.4,41],[5.1,85],[6.5,100]];
+function prog(s){for(var i=1;i<K.length;i++){if(s<=K[i][0]){var a=K[i-1],b=K[i],u=(s-a[0])/(b[0]-a[0]);u=i===2?u:u*u*(3-2*u);return a[1]+(b[1]-a[1])*u}}return 100}
+function phase(s){return s<2.2?"p1":s<3.4?"p2":s<5.1?"p3":"p4"}
+function finish(){if(done)return;done=1;el.classList.add("out");root.style.overflow=prevOv;setTimeout(function(){el.remove()},650)}
+function ready(){return document.readyState==="complete"||performance.now()-t0>16000}
+function tick(now){if(done)return;var s=(now-t0)/1000,p=prog(s);
+ if(p>=100&&!ready()){p=99}
+ var x=(p/100)*320,n=Math.round(p),f=phase(s);
+ el.style.setProperty("--p",(p/100).toFixed(4));el.style.setProperty("--x",x.toFixed(1)+"px");
+ if(n!==lastN){lastN=n;pct.textContent=n+"%"}
+ if(f!==ph){el.classList.remove("p1","p2","p3","p4");el.classList.add(f);ph=f;title.textContent=TXT[f]}
+ if(p>=100){title.textContent="Готово!";setTimeout(finish,350);return}
+ requestAnimationFrame(tick)}
+el.querySelector(".ld-skip").addEventListener("click",finish);
+document.addEventListener("keydown",function(e){if(e.key==="Escape")finish()});
+requestAnimationFrame(tick)})();</script>
 <script>/* Настройки сайта для владельца (v5).
    yandexFunction — прокси GigaChat в Яндекс Облаке: неприоритетный вариант, используется, если другие нейросети не ответили.
    pollinationsAppKey — ключ приложения Pollinations (pk_…) для входа учителей в один клик; можно оставить пустым.
