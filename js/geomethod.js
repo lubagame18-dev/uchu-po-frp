@@ -231,7 +231,7 @@ const GeoMethod = (() => {
     if (/^[А-ЯЁ][а-яё]+(ться|ть|ти|чь)\s/.test(y)) y = "Объясните, как " + y.charAt(0).toLowerCase() + y.slice(1);
     return y;
   };
-  const tasksOf = (F, p) => F.tasks.length ? F.tasks.map(fixTask) : [`Изучите материал параграфа по теме «${short(p.topic)}» и составьте план ответа`];
+  const tasksOf = (F, p) => F.tasks.length ? F.tasks.map(fixTask) : /^Резервн|^Повторение|^Обобщ/i.test(p.topic) ? ["Выпишите три темы курса, вызвавшие затруднения, и составьте к каждой вопрос.", "Ответьте на свои вопросы письменно, пользуясь учебником и атласом.", "Составьте таблицу или схему по одной из этих тем."] : [`Изучите материал параграфа по теме «${short(p.topic)}» и составьте план ответа`];
   const cell = x => String(x || "").replace(/\|/g, "∣").replace(/\n/g, "<br>");
   const lst = (a, br = "<br>") => a.map((x, i) => `${i + 1}) ${x}`).join(br);
   const blank = "<br><br>";
