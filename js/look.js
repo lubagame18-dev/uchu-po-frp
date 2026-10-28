@@ -71,13 +71,13 @@ const Look = (() => {
     return out.map(x => x.c);
   }
   /* ---------- применить тему ---------- */
-  const get = () => { try { return localStorage.getItem(KEY) || "classic"; } catch { return "classic"; } };
-  let cur = "classic";
+  const get = () => { try { return localStorage.getItem(KEY) || "lavender"; } catch { return "lavender"; } };
+  let cur = "lavender";
   function apply(key) {
     const t = THEMES.find(x => x.k === key) || THEMES[0]; cur = t.k;
     const s = document.documentElement.style, names = ["--ink", "--paper", "--soft", "--rule", "--muted", "--muted-2", "--flame", "--teal", "--sun", "--coral", "--leaf", "--sky", "--aurora", "--on-sun"];
-    document.documentElement.dataset.look = t.k;
-    if (t.plain) { names.forEach(n => s.removeProperty(n)); document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#FFFCF3"); return; }
+    document.documentElement.dataset.look = t.k; document.documentElement.dataset.skin = t.plain ? "sticker" : "glass";
+    if (t.plain) { names.forEach(n => s.removeProperty(n)); ["--grad", "--edge", "--glass", "--glass-2", "--soft-shadow", "--chip", "--field", "--bd", "--sh", "--blur"].forEach(n => s.removeProperty(n)); document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#FFFCF3"); return; }
     const dark = t.mode === "dark";
     const paper = dark ? mix(t.base, "#ffffff", .88) : mix(t.base, "#ffffff", .72);
     const ink = (() => { const c = dark ? mix(t.base, "#000000", .78) : mix(t.ink, "#000000", .35); return lum(c) < .045 ? c : mix(c, "#000000", .5); })();
@@ -87,8 +87,8 @@ const Look = (() => {
     const sky = mix(c1, "#ffffff", .84), soft = mix(paper, c0, .08), rule = mix(paper, ink, .16);
     let muted = mix(ink, paper, .3); for (let i = 0; i < 8 && contrast(muted, paper) < 6; i++) muted = mix(muted, ink, .2);
     let muted2 = mix(ink, paper, .45); for (let i = 0; i < 8 && contrast(muted2, paper) < 4.6; i++) muted2 = mix(muted2, ink, .2);
-    const spots = (t.bg || []).slice(0, 4).map((c, i) => `radial-gradient(${["42% 38% at 10% 6%", "40% 36% at 94% 12%", "44% 40% at 82% 94%", "38% 34% at 6% 90%"][i]}, ${hex(rgb(mix(c, "#ffffff", dark ? .25 : 0)))}${dark ? "88" : "66"}, transparent 70%)`).join(",");
-    const v = { "--ink": ink, "--paper": paper, "--soft": soft, "--rule": rule, "--muted": muted, "--muted-2": muted2, "--flame": flame, "--teal": teal, "--sun": sun, "--coral": coral, "--leaf": leaf, "--sky": sky, "--aurora": spots };
+    const spots = [c1, c0, c3, c2].map((c, i) => `radial-gradient(${["42% 38% at 10% 6%", "40% 36% at 94% 12%", "44% 40% at 82% 94%", "38% 34% at 6% 90%"][i]}, ${c}8c, transparent 70%)`).join(",");
+    const shadowC = mix(flame, "#000000", .35), v = { "--edge": "rgba(255,255,255,.78)", "--glass": "rgba(255,255,255,.46)", "--glass-2": "rgba(255,255,255,.7)", "--blur": "blur(22px) saturate(165%)", "--chip": mix(paper, flame, .14) + "cc", "--field": "rgba(255,255,255,.78)", "--soft-shadow": `0 18px 44px -18px ${shadowC}66, 0 2px 6px ${shadowC}14`, "--bd": "var(--edge)", "--grad": `linear-gradient(120deg,${flame},${mix(flame, coral, .55)})`, "--sh": "transparent", "--ink": ink, "--paper": paper, "--soft": soft, "--rule": rule, "--muted": muted, "--muted-2": muted2, "--flame": flame, "--teal": teal, "--sun": sun, "--coral": coral, "--leaf": leaf, "--sky": sky, "--aurora": spots };
     Object.entries(v).forEach(([k, x]) => s.setProperty(k, x));
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", paper);
   }
@@ -128,6 +128,49 @@ const Look = (() => {
     });
     hero.insertBefore(box, hero.firstChild);
   }
+  const SKIN = `
+/* ---------- стеклянное оформление (как на платформе репетитора): прозрачные панели, размытие, мягкие тени, скруглённые формы ---------- */
+html[data-skin="glass"]{--line:1px;--r:22px;--f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;--f-display:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-skin="glass"] .sheet,html[data-skin="glass"] .slide,html[data-skin="glass"] .ws-pages{--bd:var(--ink);--sh:var(--ink)}
+html[data-skin="glass"] .help .sheet{--bd:var(--edge);--sh:transparent}
+html[data-skin="glass"] h1,html[data-skin="glass"] .hero h1{font-family:"Playfair Display",Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:-.01em}
+html[data-skin="glass"] .sheet h1,html[data-skin="glass"] .slide h1{font-family:var(--f-display)}
+html[data-skin="glass"] .card,html[data-skin="glass"] .workspace,html[data-skin="glass"] .lcard,html[data-skin="glass"] .plan,html[data-skin="glass"] .frp-card,html[data-skin="glass"] .send-card,html[data-skin="glass"] .learn-card,html[data-skin="glass"] .dev-card,html[data-skin="glass"] .help .sheet{background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--edge);border-radius:22px;box-shadow:var(--soft-shadow),inset 0 1px 0 rgba(255,255,255,.55)}
+html[data-skin="glass"] .dialog{background:var(--glass-2);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--edge);border-radius:24px;box-shadow:var(--soft-shadow),inset 0 1px 0 rgba(255,255,255,.6)}
+html[data-skin="glass"] .modal{background:rgba(30,18,60,.28);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+html[data-skin="glass"] .dlg-h{border-bottom:1px solid var(--rule)}
+html[data-skin="glass"] .topbar{position:sticky;top:8px;margin:8px max(12px,env(safe-area-inset-left)) 0;border-radius:20px;border:1px solid var(--edge);background:var(--glass-2);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:var(--soft-shadow)}
+html[data-skin="glass"] .topbar .wrap{padding-block:9px}
+html[data-skin="glass"] .btn{border:0;border-radius:14px;background:var(--grad);color:#fff;box-shadow:0 8px 20px -10px var(--flame);font-family:var(--f-body);font-weight:800;letter-spacing:0}
+html[data-skin="glass"] .btn:hover{transform:translateY(-1px);box-shadow:0 12px 24px -10px var(--flame)}
+html[data-skin="glass"] .btn:active{transform:translateY(1px);box-shadow:0 4px 10px -6px var(--flame)}
+html[data-skin="glass"] .btn.sm{border-radius:11px;box-shadow:0 6px 14px -8px var(--flame)}
+html[data-skin="glass"] .btn.ghost{background:var(--glass-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--edge)}
+html[data-skin="glass"] .btn.flame,html[data-skin="glass"] .btn.primary{background:var(--flame);box-shadow:0 8px 20px -10px var(--flame)}
+html[data-skin="glass"] .btn.teal{background:var(--teal);box-shadow:0 8px 20px -10px var(--teal)}
+html[data-skin="glass"] .btn.leaf{background:var(--leaf);box-shadow:0 8px 20px -10px var(--leaf)}
+html[data-skin="glass"] .btn.coral{background:var(--coral);color:var(--ink);box-shadow:0 8px 20px -10px var(--coral)}
+html[data-skin="glass"] .btn.plain{background:transparent;box-shadow:none;color:var(--ink)}
+html[data-skin="glass"] .btn[disabled]{box-shadow:none;opacity:.5}
+html[data-skin="glass"] .chip,html[data-skin="glass"] .doc-tab,html[data-skin="glass"] .plan-chip{border:1px solid var(--edge);background:var(--glass-2);box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+html[data-skin="glass"] .chip[aria-pressed="true"],html[data-skin="glass"] .chip[aria-selected="true"],html[data-skin="glass"] .chip.on,html[data-skin="glass"] .nav button[aria-current="page"],html[data-skin="glass"] .doc-tab[aria-selected="true"]{background:var(--grad);color:#fff;border-color:transparent}
+html[data-skin="glass"] .topic-panel{background:var(--paper);border:1px solid var(--edge);border-radius:16px;box-shadow:var(--soft-shadow)}
+html[data-skin="glass"] .dl-panel{background:var(--glass-2);border:1px solid var(--edge);border-radius:20px;box-shadow:var(--soft-shadow)}
+html[data-skin="glass"] .dl-panel .dl-row{border:1px solid var(--edge);background:var(--glass-2)}
+html[data-skin="glass"] .topic-panel button:hover,html[data-skin="glass"] .topic-panel button:focus-visible{background:var(--chip)}
+html[data-skin="glass"] .seg button{border:1px solid var(--edge);background:var(--glass-2);border-radius:12px}
+html[data-skin="glass"] .seg button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+html[data-skin="glass"] .marquee::after{background:linear-gradient(90deg,var(--paper),transparent 8%,transparent 92%,var(--paper))}
+html[data-skin="glass"] .orb-d{border:2px solid rgba(255,255,255,.8);box-shadow:0 16px 30px -12px var(--flame),inset 0 -6px 12px rgba(0,0,0,.12)}
+html[data-skin="glass"] .orb-d.grab{box-shadow:0 24px 40px -14px var(--flame),inset 0 -6px 12px rgba(0,0,0,.12)}
+html[data-skin="glass"] select,html[data-skin="glass"] input[type=text],html[data-skin="glass"] input[type=email],html[data-skin="glass"] input[type=password],html[data-skin="glass"] textarea.inp{border:1px solid var(--edge);border-radius:14px;background-color:var(--field)}
+html[data-skin="glass"] .marquee{background:var(--glass-2);color:var(--ink);border-block:1px solid var(--edge);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+html[data-skin="glass"] .marquee-track b{color:var(--flame)}
+html[data-skin="glass"] .hero h1 em{background:var(--sun);border:0;box-shadow:0 10px 22px -12px var(--flame);border-radius:16px}
+html[data-skin="glass"] .sheetwrap{border:1px solid var(--edge);border-radius:16px}
+html[data-skin="glass"] body{font-family:var(--f-body)}
+html[data-skin="glass"] .hero{padding-block:30px 24px}
+`;
   /* ---------- стили и кнопка в шапке ---------- */
   function mount() {
     const st = document.createElement("style");
@@ -146,6 +189,8 @@ html[data-look]:not([data-look="classic"]) .topbar{background:color-mix(in srgb,
 .lk-sw{display:flex;height:34px;border-radius:10px;overflow:hidden;border:2px solid var(--ink)}.lk-sw i{flex:1}
 .lk-btn{font-size:16px;padding:6px 11px}`;
     document.head.appendChild(st);
+    const sg = document.createElement("style"); sg.textContent = SKIN; document.head.appendChild(sg);
+    const fl = document.createElement("link"); fl.rel = "stylesheet"; fl.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap"; document.head.appendChild(fl);
     const acc = document.querySelector(".topbar .account");
     if (acc && !document.getElementById("lookBtn")) { const b = document.createElement("button"); b.id = "lookBtn"; b.className = "btn sm ghost lk-btn"; b.type = "button"; b.title = "Оформление сайта"; b.setAttribute("aria-label", "Оформление сайта"); b.textContent = "🎨"; b.onclick = open; acc.parentNode.insertBefore(b, acc); }
     orbs();
