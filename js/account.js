@@ -217,10 +217,9 @@ const Account = (() => {
             <div class="row-btn"><button class="btn sm" type="submit">Сохранить</button>${I.avatar ? `<button class="btn sm ghost" type="button" id="acNoPhoto">Убрать фото</button>` : ""}<span class="small" id="acPMsg" role="status"></span></div>
           </div>
         </form>
-        <div class="ac-look"><b>Оформление сайта</b>${window.Look ? window.Look.pickerHTML() : ""}</div>
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
         <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
-      bindDev(m); window.Look?.bindPicker(m);
+      bindDev(m);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
       const pm = m.querySelector("#acPMsg");
       const fields = () => ({ name: m.querySelector("#acName").value.trim(), school: m.querySelector("#acSchool").value.trim(), city: m.querySelector("#acCity").value.trim() });
