@@ -430,9 +430,9 @@ const EngKit = (() => {
       const tr = shuffle(m.r, m.match);
       md += `### 🔓 Task 2. Match\n\n${m.match.map((w, k) => `${k + 1}) ${w[0]}`).join("  \n")}\n\n${tr.map((w, k) => `${"abcdef"[k]}) ${w[1]}`).join("  \n")}\n\n`;
       md += `### 🔓 Task 3. Fill in the gaps\n\n*Words: ${shuffle(m.r, m.gapW).map(w => w[0]).join(", ")}*\n\n${m.gapW.map((w, k) => `${k + 1}) ${blankW(w)}`).join("  \n")}\n\n`;
-      md += `### 📗 Task 4. Read and answer: True or False?\n\n${W.text}\n\n${W.tf.map((x, k) => `${k + 1}) ${x[0]} ____`).join("  \n")}\n\n`;
+      const LIS = /аудирован/i.test(p.topic); md += `### 📗 Task 4. ${LIS ? "Listen twice and answer: True or False?" : "Read and answer: True or False?"}\n\n${LIS ? "*(The teacher reads the text aloud twice.)*" : W.text}\n\n${W.tf.map((x, k) => `${k + 1}) ${x[0]} ____`).join("  \n")}\n\n`;
       md += `### ⭐ Task 5. Speak\n\n${W.speak}\n\n*Опора:* ${W.ph.join(" / ")}\n\n`;
-      md += `### 🪞 Self-assessment\n\n☐ I can do it myself  ☐ I need help  ☐ I need more practice\n\n---\n\n## 🔑 Answers (для учителя)\n\nTask 2: ${m.match.map((w, k) => `${k + 1}–${"abcdef"[tr.indexOf(w)]}`).join(", ")}  \nTask 3: ${gapKey(m.gapW)}  \nTask 4: ${W.tf.map((x, k) => `${k + 1}) ${x[1] ? "True" : "False"}`).join("; ")}\n`;
+      md += `### 🪞 Self-assessment\n\n☐ I can do it myself  ☐ I need help  ☐ I need more practice\n\n---\n\n## 🔑 Answers (для учителя)\n\nTask 2: ${m.match.map((w, k) => `${k + 1}–${"abcdef"[tr.indexOf(w)]}`).join(", ")}  \nTask 3: ${gapKey(m.gapW)}  \n${/аудирован/i.test(p.topic) ? `Text for the teacher: ${W.text}  \n` : ""}Task 4: ${W.tf.map((x, k) => `${k + 1}) ${x[1] ? "True" : "False"}`).join("; ")}\n`;
       return md;
     }
     return md + `### Task 1\n\n____________________\n\n### Task 2\n\n____________________\n`;
