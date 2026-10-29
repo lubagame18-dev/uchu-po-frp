@@ -26,7 +26,7 @@ window.Plans = (() => {
     pe: ["frpplans8", "frpplans13", "frpplans17"],
     orkse: ["frpplans8", "frpplans12"],
     obzh: ["frpplans9", "frpplans12"],
-    vis: ["frpplans9", "frpplans12"],
+    vis: ["frpplans9", "frpplans12", "frpplans18"],
     mhk: ["frpplans9", "frpplans12"],
     ru1: ["frpplans11", "frpplans13"],
     lit1: ["frpplans11", "frpplans13"],
