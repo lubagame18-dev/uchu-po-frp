@@ -23,7 +23,7 @@ const Materials = (() => {
     const add = (src, g, title) => out.push({ g: +g, title, subject: src });
     if (!subject || subject === "ru") Object.entries(KB.ru.topics).forEach(([g, list]) => list.forEach(t => add("ru", g, t)));
     if (!subject || subject === "lit") Object.entries(KB.lit.works).forEach(([g, list]) => list.forEach(t => add("lit", g, t)));
-    if (typeof FRP !== "undefined") ["ru", "lit"].forEach(k => { if (subject && subject !== k) return; [5, 6, 7, 8, 9, 10, 11].forEach(g => (FRP.topicsFor(k, g) || []).forEach(t => add(k, g, cleanTopic ? cleanTopic(t.title) : t.title))); });
+    if (typeof FRP !== "undefined") ["ru", "lit"].forEach(k => { if (subject && subject !== k) return; [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].forEach(g => (FRP.topicsFor(k, g) || []).forEach(t => add(k, g, cleanTopic ? cleanTopic(t.title) : t.title))); });
     return out;
   }
   function classify(m) {
@@ -96,7 +96,7 @@ const Materials = (() => {
     const topics = [...new Set(all.flatMap(m => [m.topic, ...(m.tags || [])]).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ru"));
     box.innerHTML = `<div class="mat-tools">
       <input type="search" class="inp" id="mfQ" placeholder="${D ? "Поиск по тексту всех материалов" : "🔍 Поиск по моим материалам"}" value="${esc(F.q)}" aria-label="Поиск по материалам">
-      ${D ? `<select id="mfGrade" aria-label="Класс"><option value="">все классы</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}" ${F.grade === String(g) ? "selected" : ""}>${g} класс</option>`).join("")}<option value="all" ${F.grade === "all" ? "selected" : ""}>для всех классов</option></select>
+      ${D ? `<select id="mfGrade" aria-label="Класс"><option value="">все классы</option>${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(g => `<option value="${g}" ${F.grade === String(g) ? "selected" : ""}>${g} класс</option>`).join("")}<option value="all" ${F.grade === "all" ? "selected" : ""}>для всех классов</option></select>
       <select id="mfTopic" aria-label="Тема"><option value="">все темы</option>${topics.map(t => `<option ${F.topic === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
       <select id="mfType" aria-label="Тип"><option value="">все типы</option>${Object.entries(TYPES).map(([k, v]) => `<option value="${k}" ${F.type === k ? "selected" : ""}>${v.label}</option>`).join("")}</select>
       <select id="mfDate" aria-label="Дата"><option value="">за всё время</option><option value="week" ${F.date === "week" ? "selected" : ""}>за неделю</option><option value="month" ${F.date === "month" ? "selected" : ""}>за месяц</option><option value="year" ${F.date === "year" ? "selected" : ""}>за год</option></select>
@@ -170,7 +170,7 @@ const Materials = (() => {
       <form class="dlg-b" id="meForm">
         <div class="field"><label for="meTitle">Название</label><input class="inp" id="meTitle" value="${esc(m.title || m.name)}"></div>
         <div class="field"><label for="meDesc">Описание</label><textarea class="inp" id="meDesc">${esc(m.desc || "")}</textarea></div>
-        <div class="row2"><div class="field"><label for="meGrade">Класс</label><select id="meGrade"><option value="">для всех классов</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option ${g === m.grade ? "selected" : ""}>${g}</option>`).join("")}</select></div>
+        <div class="row2"><div class="field"><label for="meGrade">Класс</label><select id="meGrade"><option value="">для всех классов</option>${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(g => `<option ${g === m.grade ? "selected" : ""}>${g}</option>`).join("")}</select></div>
         <div class="field"><label for="meSubj">Предмет</label><select id="meSubj"><option value="ru" ${m.subject !== "lit" ? "selected" : ""}>Русский язык</option><option value="lit" ${m.subject === "lit" ? "selected" : ""}>Литература</option></select></div></div>
         <div class="field"><label for="meType">Тип</label><select id="meType">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}" ${m.type === k ? "selected" : ""}>${v.label}</option>`).join("")}</select></div>
         <div class="field"><label for="meTopic">Тема (перемещение между темами)</label><input class="inp" id="meTopic" list="meTopics" value="${esc(m.topic || "")}"><datalist id="meTopics">${topics.slice(0, 600).map(t => `<option value="${esc(t)}">`).join("")}</datalist></div>
