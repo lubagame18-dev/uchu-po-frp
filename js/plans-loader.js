@@ -30,7 +30,7 @@ window.Plans = (() => {
     mhk: ["frpplans9", "frpplans12", "frpplans20"],
     ru1: ["frpplans11", "frpplans13"],
     lit1: ["frpplans11", "frpplans13"],
-    astr: ["frpplans13"]
+    astr: ["frpplans13", "frpplans23"]
   };
 
   const files = new Map();   // файл -> Promise<boolean>
