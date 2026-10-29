@@ -28,8 +28,16 @@ const SlideEditor = (() => {
   const OV = { frosted: "Матовое стекло", faded: "Затемнение к тексту", clear: "Без наложения" };
   const VA = { top: "Текст сверху", center: "Текст по центру", bottom: "Текст снизу" };
   const HA = { "": "По умолчанию", left: "⯇ По левому краю", center: "≡ По центру", right: "⯈ По правому краю" };
-  const INSERT = [["text", "Т", "Текст"], ["head", "H", "Подзаголовок"], ["list", "•", "Список"], ["num", "1.", "Нумерация"], ["quote", "❝", "Цитата"], ["callout", "💡", "Выноска"], ["table", "▦", "Таблица"], ["button", "➜", "Кнопка-переход"], ["photo", "🖼", "Фото с компьютера"], ["yandex", "🔍", "Картинка из Яндекса"], ["video", "▶", "Видео"], ["sticker", "★", "Стикер"], ["hr", "—", "Разделитель"]];
-  const NEWSLIDE = [["cards", "▤", "Карточки"], ["steps", "①", "Шаги"], ["big", "?", "Крупный вопрос"], ["quote", "❝", "Цитата"], ["two", "◫", "Две колонки"], ["image", "▣", "Фото на весь слайд"], ["title", "★", "Раздел / титул"], ["board", "▭", "На доске"], ["video", "▶", "Видеофрагмент"]];
+  /* Панель вставки: сверху — то, чем пользуются каждый урок, остальное — в «Ещё».
+     Так панель не пугает учителя 22 кнопками; все возможности сохранены. */
+  const INSERT = {
+    main: [["text", "Т", "Текст"], ["list", "•", "Список"], ["quote", "❝", "Цитата"], ["yandex", "🔍", "Картинка"], ["photo", "🖼", "Фото"], ["video", "▶", "Видео"]],
+    more: [["head", "H", "Подзаголовок"], ["num", "1.", "Нумерация"], ["callout", "💡", "Выноска"], ["table", "▦", "Таблица"], ["button", "➜", "Кнопка-переход"], ["sticker", "★", "Стикер"], ["hr", "—", "Разделитель"]]
+  };
+  const NEWSLIDE = {
+    main: [["title", "★", "Титул"], ["cards", "▤", "Карточки"], ["big", "?", "Вопрос"], ["two", "◫", "Две колонки"], ["image", "▣", "Фото на весь слайд"]],
+    more: [["steps", "①", "Шаги"], ["quote", "❝", "Цитата"], ["board", "▭", "На доске"], ["video", "▶", "Видеофрагмент"]]
+  };
   const SNIP = {
     text: "Новый текст — щёлкните, чтобы изменить.", head: "### Подзаголовок", list: "- Первый пункт\n- Второй пункт", num: "1. Первый шаг\n2. Второй шаг",
     quote: "> «Цитата»\n\n— Автор", callout: "> 💡 Важно: …", table: "| Столбец 1 | Столбец 2 |\n|---|---|\n| | |\n| | |", button: "[Продолжить →](#next)", hr: "* * *"
@@ -354,9 +362,11 @@ const SlideEditor = (() => {
         <ol class="sx-thumbs" aria-label="Слайды">${arr.map((s, i) => `<li class="sx-th${i === cur ? " on" : ""}" draggable="true" data-i="${i}" tabindex="0" aria-current="${i === cur}"><span class="sx-n">${i + 1}</span><div class="sx-mini">${slideHtml(s, i)}</div><button type="button" class="sx-thdots" data-dots="${i}" title="Меню слайда" aria-label="Меню слайда ${i + 1}">⋯</button></li>`).join("")}</ol>
         <aside class="sx-rail" aria-label="Вставить на слайд">
           <b class="sx-rail-h">Вставить</b>
-          ${INSERT.map(([k, ic, n]) => `<button type="button" class="sx-ins" data-ins="${k}" title="${n}"><span class="ic">${ic}</span><span>${n}</span></button>`).join("")}
+          ${INSERT.main.map(([k, ic, n]) => `<button type="button" class="sx-ins" data-ins="${k}" title="${n}"><span class="ic">${ic}</span><span>${n}</span></button>`).join("")}
+          <details class="sx-more"><summary>Ещё…</summary>${INSERT.more.map(([k, ic, n]) => `<button type="button" class="sx-ins" data-ins="${k}" title="${n}"><span class="ic">${ic}</span><span>${n}</span></button>`).join("")}</details>
           <b class="sx-rail-h">Слайд</b>
-          ${NEWSLIDE.map(([k, ic, n]) => `<button type="button" class="sx-ins" data-new="${k}" title="Новый слайд: ${n}"><span class="ic">${ic}</span><span>${n}</span></button>`).join("")}
+          ${NEWSLIDE.main.map(([k, ic, n]) => `<button type="button" class="sx-ins" data-new="${k}" title="Новый слайд: ${n}"><span class="ic">${ic}</span><span>${n}</span></button>`).join("")}
+          <details class="sx-more"><summary>Ещё…</summary>${NEWSLIDE.more.map(([k, ic, n]) => `<button type="button" class="sx-ins" data-new="${k}" title="Новый слайд: ${n}"><span class="ic">${ic}</span><span>${n}</span></button>`).join("")}</details>
           <button type="button" class="sx-ins play" id="sxPlay" title="Показ: полноэкранный режим, кнопки-переходы работают"><span class="ic">▶</span><span>Показ</span></button>
         </aside>
         <div class="sx-stage"><div class="sx-eltools" id="sxEl" hidden role="toolbar" aria-label="Выбранный блок"><button data-el="up" title="Выше">↑</button><button data-el="down" title="Ниже">↓</button><button data-el="dup" title="Дублировать">⧉</button><button data-el="bold" title="Жирный (Ctrl+B)"><b>Ж</b></button><button data-el="ital" title="Курсив (Ctrl+I)"><i>К</i></button><button data-el="link" title="Сделать кнопкой-переходом">➜</button><button data-el="del" title="Удалить блок">🗑</button></div>

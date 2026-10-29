@@ -8,7 +8,8 @@
    Ключи — в таблице img_keys (SQL в supabase.sql) или в переменной IMG_POOL:
      [{"label":"основной","key":"sk-...","url":"https://api.aitunnel.ru/v1","model":"flux-schnell"}]
    =================================================================== */
-const SLOTS = 5;
+const MAX_SLOT = 100; /* ключей может быть сколько угодно */
+function dbMark(a, body, request, readAll) { try { if (a && a.slot != null && /^s/.test(String(a.id))) sb(request, readAll, "/rest/v1/img_keys?slot=eq." + a.slot, { method: "PATCH", body }).catch(() => { }); } catch (e) { } }
 const DEF_URL = () => process.env.IMG_API_URL || "https://api.aitunnel.ru/v1";
 const DEF_MODEL = () => process.env.IMG_MODEL || "flux-schnell";
 const QUOTA = { ai: +process.env.IMG_QUOTA_AI || 8, pro: +process.env.IMG_QUOTA_PRO || 18 };
@@ -32,7 +33,7 @@ async function dbPool(request, readAll, force) {
 }
 function envPool() { try { return process.env.IMG_POOL ? JSON.parse(process.env.IMG_POOL) : []; } catch { return []; } }
 async function pool(request, readAll, force) {
-  const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, label: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.is_active !== false }));
+  const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, label: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.is_active !== false, weight: Math.max(1, +a.weight || 1), lastUsed: a.last_used ? Date.parse(a.last_used) : 0, failCount: +a.fail_count || 0, disabledUntil: a.disabled_until ? Date.parse(a.disabled_until) : 0 }));
   const env = envPool().map((a, i) => ({ id: "e" + i, label: String(a.label || "ключ " + (i + 1)), key: String(a.key || "").trim(), url: String(a.url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.isActive !== false }));
   return db.concat(env);
 }
@@ -40,7 +41,7 @@ const rest = new Map(), last = new Map(); let cursor = 0;
 async function queue(request, readAll) {
   const p = (await pool(request, readAll)).filter(a => a.isActive && !isPlaceholder(a.key));
   if (!p.length) return [];
-  const s = cursor++ % p.length, ord = p.slice(s).concat(p.slice(0, s)), now = Date.now(), fresh = ord.filter(a => !(rest.get(a.id) > now));
+  const s = cursor++ % p.length, ord = p.slice(s).concat(p.slice(0, s)), now = Date.now(), fresh = ord.filter(a => !(rest.get(a.id) > now) && !(a.disabledUntil > now));
   return fresh.length ? fresh : ord;
 }
 const sizeOf = (aspect, model) => { const dalle = /dall-e-3/.test(model); return aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024"); };
@@ -79,8 +80,9 @@ async function image(prompt, aspect, request, readAll, onlySlot) {
       const pause = [401, 402, 403].includes(r.status) ? 3600e3 : r.status === 429 ? 300e3 : r.status >= 500 ? 60e3 : 0;
       if (!pause) break;
       rest.set(a.id, Date.now() + pause);
+      dbMark(a, { fail_count: (a.failCount || 0) + 1, disabled_until: new Date(Date.now() + pause).toISOString() }, request, readAll);
       console.warn(`Картинки: ${mask(a.label)} ответил ${r.status}, переключаюсь на следующий ключ`);
-    } catch (e) { lastErr = { status: 502, text: String(e.message || e) }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text.slice(0, 160) }); rest.set(a.id, Date.now() + 60e3); }
+    } catch (e) { lastErr = { status: 502, text: String(e.message || e) }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text.slice(0, 160) }); rest.set(a.id, Date.now() + 60e3); dbMark(a, { fail_count: (a.failCount || 0) + 1, disabled_until: new Date(Date.now() + 60e3).toISOString() }, request, readAll); }
   }
   const e = new Error("Картинку не удалось нарисовать ни на одном общем ключе: " + (lastErr ? `HTTP ${lastErr.status} ${String(lastErr.text).slice(0, 160)}` : "нет ответа"));
   e.status = lastErr?.status === 400 ? 400 : 502; e.reason = lastErr?.status === 402 ? "payment" : lastErr?.status === 429 ? "rate" : "other"; throw e;
@@ -121,7 +123,7 @@ async function handle(body, userToken, request, readAll) {
 async function admin(body, request, readAll) {
   if (!SB().url || !SB().key) return { status: 400, json: { error: "в функции не заданы SUPABASE_URL и SUPABASE_SERVICE_KEY" } };
   const act = body.action || "list", slot = Math.round(+body.slot);
-  if (act !== "list" && !(slot >= 1 && slot <= SLOTS)) return { status: 400, json: { error: "ячейка — от 1 до " + SLOTS } };
+  if (act !== "list" && !(slot >= 1 && slot <= MAX_SLOT)) return { status: 400, json: { error: "ячейка — от 1 до " + MAX_SLOT } };
   if (act === "save") {
     const row = { slot, label: String(body.label || "").slice(0, 80), base_url: String(body.url || "").trim().slice(0, 200), model: String(body.model || "").trim().slice(0, 80), is_active: body.isActive !== false, updated_at: new Date().toISOString() };
     if (row.base_url && !/^https:\/\/[\w.-]+(\/[\w./-]*)?$/.test(row.base_url)) return { status: 400, json: { error: "адрес должен начинаться с https://" } };
@@ -142,7 +144,10 @@ async function admin(body, request, readAll) {
     else { try { await image("A simple smiling sun, flat vector, white background. No text.", "1:1", request, readAll, slot); test = { ok: true, message: "ключ работает: тестовая картинка нарисована" }; } catch (e) { test = { ok: false, message: e.message }; } }
   }
   const now = Date.now();
-  const slots = Array.from({ length: SLOTS }, (_, i) => { const n = i + 1, a = rows.find(r => r.slot === n), id = "s" + n, L = last.get(id); return a ? { slot: n, label: a.label || "", url: a.base_url || "", model: a.model || "", isActive: a.is_active !== false, empty: isPlaceholder(a.key), key: tail(a.key), resting: rest.get(id) > now ? Math.ceil((rest.get(id) - now) / 60000) : 0, last: L || null, provider: a.base_url ? "" : "AITUNNEL" } : { slot: n, empty: true, isActive: true, label: "", url: "", model: "" }; });
+  const existingSlots = (rows || []).map(r => +r.slot).filter(n => n >= 1);
+  const topSlot = existingSlots.length ? Math.max(...existingSlots) : 0;
+  const slotsCount = Math.min(Math.max(topSlot + 1, 5), MAX_SLOT);
+  const slots = Array.from({ length: slotsCount }, (_, i) => { const n = i + 1, a = (rows || []).find(r => r.slot === n), id = "s" + n, L = last.get(id); return a ? { slot: n, label: a.label || "", url: a.base_url || "", model: a.model || "", isActive: a.is_active !== false, empty: isPlaceholder(a.key), key: tail(a.key), resting: rest.get(id) > now ? Math.ceil((rest.get(id) - now) / 60000) : 0, last: L || null, provider: a.base_url ? "" : "AITUNNEL" } : { slot: n, empty: true, isActive: true, label: "", url: "", model: "" }; });
   const env = envPool().filter(a => !isPlaceholder(a.key)).map(a => ({ label: mask(a.label || ""), isActive: a.isActive !== false, key: tail(a.key) }));
   return { status: 200, json: { ok: true, slots, env, test } };
 }

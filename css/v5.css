@@ -359,6 +359,12 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .sx-main.has-rail { grid-template-columns: 168px 96px minmax(0, 1fr); }
 .sx-rail { display: flex; flex-direction: column; gap: 5px; position: sticky; top: 8px; max-height: 82vh; overflow: auto; padding: 6px; border: 2px solid var(--ink); border-radius: 14px; background: var(--card); }
 .sx-rail-h { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 4px 2px 0; }
+/* «Ещё» в панели вставки: редкие кнопки не мешают основной работе */
+.sx-more { margin: 2px 0 4px; }
+.sx-more > summary { list-style: none; cursor: pointer; font-size: 12px; opacity: .72; padding: 4px 6px; border-radius: 8px; text-align: center; }
+.sx-more > summary::-webkit-details-marker { display: none; }
+.sx-more[open] > summary { opacity: 1; }
+.sx-more .sx-ins { margin-top: 4px; }
 .sx-ins { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border: 1.5px solid var(--rule); border-radius: 10px; background: #fff; font: 600 11px/1.15 var(--f-body, inherit); color: var(--ink); cursor: pointer; text-align: center; }
 .sx-ins .ic { font-size: 17px; line-height: 1; font-weight: 800; }
 .sx-ins:hover, .sx-ins:focus-visible { border-color: var(--flame); background: var(--sun, #FFF4C2); outline: none; }
@@ -1056,3 +1062,6 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .s-osn { border-bottom: 1.5px solid currentColor; }
 .s-osn::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1.5px; height: 6px; border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; }
 .scheme-box { border: 1.5px solid #111; padding: 8px 12px; margin: 8px 0; font-size: 1.02em; line-height: 2; }
+
+/* кнопка «Приложение»: hidden должен реально скрывать */
+#btnInstall[hidden] { display: none !important; }

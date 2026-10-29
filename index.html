@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Конструктор уроков по ФРП для учителей 5–11 классов: русский язык, литература, математика, история, английский, биология, география, физика, химия, обществознание, информатика и другие предметы. По теме урока собирает конспект, технологическую карту, презентацию и рабочий лист.">
 <link rel="canonical" href="https://uchu-po-frp.ru/">
-<meta name="theme-color" content="#FFC93C">
+<meta name="theme-color" content="#FFC93C"><link rel="manifest" href="manifest.json"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Учу по ФРП"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:site_name" content="Учу по ФРП"><meta property="og:url" content="https://uchu-po-frp.ru/">
 <meta property="og:title" content="Учу по ФРП — конструктор уроков для учителей всех предметов"><meta property="og:description" content="Конструктор уроков по ФРП для учителей 5–11 классов: русский язык, литература, математика, история, английский, биология, география, физика, химия, обществознание, информатика и другие предметы. По теме урока собирает конспект, технологическую карту, презентацию и рабочий лист.">
 <meta property="og:image" content="https://uchu-po-frp.ru/icons/icon-512.png"><meta name="twitter:card" content="summary">
@@ -534,7 +534,7 @@ window.UCHU_SITE = {
     <nav class="nav" aria-label="Разделы">
       <button class="chip" id="nav-builder" aria-current="page">Конструктор</button>
       <button class="chip" id="nav-library">Мои уроки</button>
-      <button class="chip" id="nav-materials">Материалы</button>
+      <button class="chip" id="nav-materials">Материалы</button><button class="chip" id="btnInstall" hidden title="Установить приложение на телефон или компьютер">📲 Приложение</button>
     </nav>
     <div class="account"></div>
   </div>
@@ -558,9 +558,10 @@ window.UCHU_SITE = {
     <aside class="panel">
       <section class="card params" aria-labelledby="z2">
         <div class="card-h"><span class="n">1</span><h2 id="z2">Параметры урока</h2></div>
+        <div class="field"><span class="lbl">Ступень школы</span><div class="seg lesson" id="segStage"><button data-v="primary" aria-pressed="false">1–4 классы</button><button data-v="middle" aria-pressed="true">5–9 классы</button><button data-v="high" aria-pressed="false">10–11 классы</button></div></div>
         <div class="field"><label for="subjectSel">Предмет</label>
-          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option><option value="any">Другой предмет (любая тема)</option></select>
-          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button><button data-v="eng" aria-pressed="false">Английский язык</button><button data-v="bio" aria-pressed="false">Биология</button><button data-v="geo" aria-pressed="false">География</button><button data-v="phys" aria-pressed="false">Физика</button><button data-v="chem" aria-pressed="false">Химия</button><button data-v="soc" aria-pressed="false">Обществознание</button><button data-v="inf" aria-pressed="false">Информатика</button><button data-v="any" aria-pressed="false">Другой предмет</button></div>
+          <select id="subjectSel" aria-label="Предмет"><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option><option value="okr">Окружающий мир</option><option value="izo">Изобразительное искусство</option><option value="mus">Музыка</option><option value="tech">Технология</option><option value="pe">Физическая культура</option><option value="orkse">ОРКСЭ</option><option value="obzh">ОБЖ / ОБЗР</option><option value="vis">Вероятность и статистика</option><option value="mhk">Искусство (МХК)</option><option value="ru1">Русский язык</option><option value="lit1">Литературное чтение</option><option value="astr">Астрономия</option><option value="any">Другой предмет (любая тема)</option></select>
+          <div class="seg" id="segSubject" hidden><button data-v="ru" aria-pressed="true">Русский язык</button><button data-v="lit" aria-pressed="false">Литература</button><button data-v="math" aria-pressed="false">Математика</button><button data-v="hist" aria-pressed="false">История</button><button data-v="eng" aria-pressed="false">Английский язык</button><button data-v="bio" aria-pressed="false">Биология</button><button data-v="geo" aria-pressed="false">География</button><button data-v="phys" aria-pressed="false">Физика</button><button data-v="chem" aria-pressed="false">Химия</button><button data-v="soc" aria-pressed="false">Обществознание</button><button data-v="inf" aria-pressed="false">Информатика</button><button data-v="okr" aria-pressed="false">Окружающий мир</button><button data-v="izo" aria-pressed="false">Изобразительное искусство</button><button data-v="mus" aria-pressed="false">Музыка</button><button data-v="tech" aria-pressed="false">Технология</button><button data-v="pe" aria-pressed="false">Физическая культура</button><button data-v="orkse" aria-pressed="false">ОРКСЭ</button><button data-v="obzh" aria-pressed="false">ОБЖ / ОБЗР</button><button data-v="vis" aria-pressed="false">Вероятность и статистика</button><button data-v="mhk" aria-pressed="false">Искусство (МХК)</button><button data-v="ru1" aria-pressed="false">Русский язык</button><button data-v="lit1" aria-pressed="false">Литературное чтение</button><button data-v="astr" aria-pressed="false">Астрономия</button><button data-v="any" aria-pressed="false">Другой предмет</button></div>
           <div class="field" id="anyBox" hidden><label for="anyName">Какой предмет</label><input type="text" id="anyName" placeholder="например: ОБЖ, МХК, технология, кружок" maxlength="60" autocomplete="off"><div class="small">Тема может быть любой, даже если её нет во ФРП. Нейросеть сама достроит содержание урока.</div></div>
         </div>
         <div class="row2">
@@ -680,7 +681,7 @@ window.UCHU_SITE = {
     <details class="own-frp"><summary>Своя программа (по желанию)</summary><p class="hint" style="font-size:14px">Если в школе своя рабочая программа, загрузите её (.docx или .pdf с текстом). Она заменит встроенную ФРП для своих классов только в этом браузере.</p><div class="mat-row"><button class="btn sm ghost" id="frpPick">Загрузить свою программу</button><input type="file" id="frpInput" accept=".docx,.pdf,.txt" hidden><button class="btn plain" id="frpEmbed" data-dev>Встроить для всех учителей (frp.js)</button></div></details>
   </section>
   <section class="own-card"><h2>Мои материалы</h2><p class="agent-lead"><b>🧠 Ваш личный ИИ-агент.</b> Прикрепите свои конспекты, задания и тексты — сайт будет опираться на них и собирать уроки по вашей методике.</p><p class="hint" style="font-size:14px" data-dev>Прикрепите то, чего нет в базе: свои задания, разработки, тексты. Материал встраивается в этом браузере и сразу используется при сборке уроков. В общую базу сайта он сам не попадает — его можно отправить разработчику (ниже).</p>
-    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option></select></label><input type="file" id="matInput" multiple hidden></div>
+    <div class="mat-drop" id="matDrop"><p>Перетащите файлы сюда или нажмите кнопку</p><button class="btn sm" id="matPick">Прикрепить и встроить</button><label class="small" data-dev style="margin-left:8px">Предмет: <select id="matSubject"><option value="">определить сам</option><option value="ru">Русский язык</option><option value="lit">Литература</option><option value="math">Математика</option><option value="hist">История</option><option value="eng">Английский язык</option><option value="bio">Биология</option><option value="geo">География</option><option value="phys">Физика</option><option value="chem">Химия</option><option value="soc">Обществознание</option><option value="inf">Информатика</option><option value="okr">Окружающий мир</option><option value="izo">Изобразительное искусство</option><option value="mus">Музыка</option><option value="tech">Технология</option><option value="pe">Физическая культура</option><option value="orkse">ОРКСЭ</option><option value="obzh">ОБЖ / ОБЗР</option><option value="vis">Вероятность и статистика</option><option value="mhk">Искусство (МХК)</option><option value="ru1">Русский язык</option><option value="lit1">Литературное чтение</option><option value="astr">Астрономия</option></select></label><input type="file" id="matInput" multiple hidden></div>
     <p class="hint" data-dev>При загрузке текст сам очищается от номеров страниц, колонтитулов, водяных знаков, переносов и повторов (что удалено — видно в карточке, очистку можно откатить). Сканы без текста распознаются (OCR). Повторно загруженный файл не дублируется.</p>
     
     <div class="mat-row" data-dev><button class="btn sm ghost" id="matExport">Скачать мои материалы одним файлом</button><button class="btn plain" id="matEmbed" data-dev>Встроить в общую базу (extra.js)</button><span class="small" id="matUsage"></span></div>
@@ -688,6 +689,7 @@ window.UCHU_SITE = {
   </section>
   <section class="send-card" id="sendCard" data-dev></section>
   <section class="learn-card" id="learnCard" data-dev></section>
+  <section class="learn-card" id="learnCard2" data-dev></section>
 </main>
 
 <!-- ===================== ИНСТРУКЦИЯ ===================== -->
@@ -3325,7 +3327,7 @@ const lessonLabel = n => Engine.lessonLabel(n);
 
 /* ---------- состояние ---------- */
 const state = {
-  subject: "ru", grade: 8, duration: 45, mode: "school", lessonNo: 1, control: "school", topic: "", wishes: "",
+  subject: "ru", grade: 8, duration: 45, mode: "school", stage: "middle", lessonNo: 1, lessonTotal: 1, control: "school", topic: "", wishes: "",
   formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "noai",
   extra: { ctrl: "", variants: false, keys: true, memoSheet: false, memo: false, hw: false, hwText: "", extraText: "" },
   type: null, lesson: null, active: "conspect",
@@ -3349,7 +3351,7 @@ function guessKind(name, text) {
   if (/аннотация|ключевые слова|методик|doi/.test(t)) return "method";
   return "other";
 }
-function guessGrade(name, text) { const m = (name + " " + text.slice(0, 3000)).match(/(\d{1,2})\s*(?:-?\s*(?:й|го)?\s*)?(?:класс|кл(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))|kl|klass)/i); const g = m ? +m[1] : null; return g >= 5 && g <= 11 ? g : null; }
+function guessGrade(name, text) { const m = (name + " " + text.slice(0, 3000)).match(/(\d{1,2})\s*(?:-?\s*(?:й|го)?\s*)?(?:класс|кл(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))|kl|klass)/i); const g = m ? +m[1] : null; return g >= 1 && g <= 11 ? g : null; }
 function guessSubject(name, text) { const t = (name + " " + text.slice(0, 4000)).toLowerCase();
   // выбранный разработчиком предмет при загрузке — главнее догадки
   const forced = document.getElementById("matSubject")?.value; if (forced) return forced;
@@ -3580,7 +3582,7 @@ function renderMaterials() {
   box.innerHTML = ms.length ? ms.map(m => `<article class="lcard mat"><h3 title="${esc(m.name)}">${esc(m.name)}</h3>
     <div class="tags"><span class="tag">${esc(KINDS[m.kind] || m.kind)}</span>${m.grade ? `<span class="tag">${m.grade} класс</span>` : ""}<span class="tag">${window.Subjects && m.subject && !["ru", "lit"].includes(m.subject) ? Subjects.name(m.subject) : m.subject === "lit" ? "Литература" : "Русский"}</span>${m.scanned ? '<span class="tag red">скан без текста</span>' : ""}</div>
     <p class="small" style="margin:0">${(m.chars || 0).toLocaleString("ru-RU")} знаков${m.pages ? ` · ${m.pages} стр.` : ""}</p>
-    ${m.builtin ? `<div class="acts"><span class="tag">встроен в сайт</span></div>` : `<div class="acts"><select data-kind="${m.id}" aria-label="Тип материала">${Object.entries(KINDS).filter(([k]) => k !== "frp").map(([k, v]) => `<option value="${k}" ${k === m.kind ? "selected" : ""}>${v}</option>`).join("")}</select><select data-grade="${m.id}" aria-label="Класс"><option value="">класс?</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option ${g === m.grade ? "selected" : ""}>${g}</option>`).join("")}</select><button class="btn sm ghost" data-delmat="${m.id}">Удалить</button></div>`}</article>`).join("")
+    ${m.builtin ? `<div class="acts"><span class="tag">встроен в сайт</span></div>` : `<div class="acts"><select data-kind="${m.id}" aria-label="Тип материала">${Object.entries(KINDS).filter(([k]) => k !== "frp").map(([k, v]) => `<option value="${k}" ${k === m.kind ? "selected" : ""}>${v}</option>`).join("")}</select><select data-grade="${m.id}" aria-label="Класс"><option value="">класс?</option>${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(g => `<option ${g === m.grade ? "selected" : ""}>${g}</option>`).join("")}</select><button class="btn sm ghost" data-delmat="${m.id}">Удалить</button></div>`}</article>`).join("")
     : `<div class="lcard"><h3>Своих материалов пока нет</h3></div>`;
   $$("[data-delmat]", box).forEach(b => b.onclick = async () => { if (b.dataset.sure) { await Store.del("materials", b.dataset.delmat); await loadMaterials(); renderMaterials(); } else { b.dataset.sure = 1; b.textContent = "Точно удалить?"; } });
   $$("[data-kind]", box).forEach(s => s.onchange = async () => { const m = ms.find(x => x.id === s.dataset.kind); m.kind = s.value; await Store.put("materials", m.id, m); });
@@ -3626,7 +3628,7 @@ function renderTopicPanel() {
   }).join("");
   const rec = recentTopics().filter(t => !q || t.toLowerCase().includes(q)).filter(t => t.toLowerCase() !== q);
   const recHtml = rec.length ? `<li class="tp-sec">Недавние</li>${rec.map((t, k) => `<li><button type="button" data-rec="${k}"><span class="tp-n">↺</span><span class="tp-t">${esc(t)}</span></button></li>`).join("")}<li class="tp-sec">Все темы</li>` : "";
-  $("#topicPanel").innerHTML = `<div class="tp-note">${frp ? `Темы ${state.grade} класса по ФРП, по порядку` : `Примерный список тем ${state.grade} класса (текст ФРП для этого класса в сайт пока не встроен)`}</div><ul>${recHtml}${rows || `<li class="tp-sec">Ничего не найдено — тему можно ввести вручную</li>`}</ul>`;
+  $("#topicPanel").innerHTML = `<div class="tp-note">${frp ? `Темы ${state.grade} класса по ФРП, по порядку — в программе ${new Set(items.map(i => String(i.title).toLowerCase())).size} тем, ${items.length} уроков` : `Примерный список тем ${state.grade} класса (текст ФРП для этого класса в сайт пока не встроен)`}</div><ul>${recHtml}${rows || `<li class="tp-sec">Ничего не найдено — тему можно ввести вручную</li>`}</ul>`;
   if (q && !list.length && !rec.length) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); }
   $$("#topicPanel button[data-n]").forEach(b => b.onclick = () => { const it = items.find(x => String(x.n) === b.dataset.n); pickTopic(it); });
   $$("#topicPanel button[data-rec]").forEach(b => b.onclick = () => { $("#topic").value = rec[+b.dataset.rec]; $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); readForm(); updateType(); });
@@ -3669,9 +3671,65 @@ function topicHint(topic, t) {
   } catch (e) { return ""; }
 }
 /* в каких классах предмет изучается (по ФРП и по тому, что есть на сайте) */
-const SUBJ_GRADES = { ru: [5, 6, 7, 8, 9, 10, 11], lit: [5, 6, 7, 8, 9, 10, 11], math: [5, 6, 7, 8, 9, 10, 11], hist: [5, 6, 7, 8, 9, 10, 11], eng: [5, 6, 7, 8, 9, 10, 11], bio: [5, 6, 7, 8, 9, 10, 11], geo: [5, 6, 7, 8, 9, 10, 11], phys: [7, 8, 9, 10, 11], chem: [8, 9, 10, 11], soc: [8, 9, 10, 11], inf: [7, 8, 9, 10, 11], any: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] };
+const SUBJ_GRADES = { ru: [5, 6, 7, 8, 9, 10, 11], lit: [5, 6, 7, 8, 9, 10, 11], math: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], hist: [5, 6, 7, 8, 9, 10, 11], eng: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11], bio: [5, 6, 7, 8, 9, 10, 11], geo: [5, 6, 7, 8, 9, 10, 11], phys: [7, 8, 9, 10, 11], chem: [8, 9, 10, 11], soc: [8, 9, 10, 11], inf: [7, 8, 9, 10, 11], okr: [1, 2, 3, 4], izo: [1, 2, 3, 4, 5, 6, 7, 8], mus: [1, 2, 3, 4, 5, 6, 7, 8], tech: [1, 2, 3, 4, 5, 6, 7, 8, 9], pe: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], orkse: [4], obzh: [8, 9, 10, 11], vis: [7, 8, 9], mhk: [5, 6, 7, 8, 9, 10, 11], ru1: [1, 2, 3, 4], lit1: [1, 2, 3, 4], astr: [10, 11], any: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] };
+/* ---------- ступени школы: сначала выбираем 1–4, 5–9 или 10–11 ---------- */
+const STAGES = [
+  { id: "primary", name: "1–4 классы", grades: [1, 2, 3, 4] },
+  { id: "middle", name: "5–9 классы", grades: [5, 6, 7, 8, 9] },
+  { id: "high", name: "10–11 классы", grades: [10, 11] }
+];
+const stageById = id => STAGES.find(s => s.id === id) || STAGES[1];
+function stageOfSubject(id) {
+  const g = SUBJ_GRADES[id] || [];
+  return STAGES.find(s => s.grades.some(x => g.includes(x))) || STAGES[1];
+}
+function subjectsOfStage(stageId) {
+  const st = stageById(stageId);
+  return (window.Subjects?.list || []).map(s => s.id).filter(id => (SUBJ_GRADES[id] || []).some(g => st.grades.includes(g)));
+}
+/* какие предметы показывать в выбранной ступени */
+function fillSubjects(stageId) {
+  const allowed = subjectsOfStage(stageId);
+  if (state.subject !== "any" && !allowed.includes(state.subject)) state.subject = allowed[0] || state.subject;
+  const sel = $("#subjectSel");
+  if (sel) { Array.from(sel.options).forEach(o => { o.hidden = o.value !== "any" && !allowed.includes(o.value); }); sel.value = state.subject; }
+  $$("#segSubject button").forEach(b => { b.hidden = b.dataset.v !== "any" && !allowed.includes(b.dataset.v); });
+  setSeg("segSubject", state.subject);
+}
+/* сколько уроков программа отводит на тему: в ФРП одна тема может занимать 2–3 урока */
+function topicLessonCount(title, subject = state.subject, grade = state.grade) {
+  const plan = window.FRPPlans?.[subject]?.[grade];
+  const key = String(title || "").toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim();
+  if (!plan || !key) return 1;
+  let n = 0;
+  for (const row of plan.l || []) {
+    if (String(row[0]).toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim() === key) n++;
+  }
+  return Math.max(1, n);
+}
+/* кнопки «1-й / 2-й …» показываем только для реального числа уроков темы */
+function updateLessonSeg() {
+  const box = $("#segLesson"); if (!box) return;
+  const title = ($("#topic")?.value || state.topic || "").trim();
+  const total = topicLessonCount(title);
+  state.lessonTotal = total;
+  const maxN = Math.min(total, 8);
+  box.innerHTML = "";
+  for (let n = 1; n <= maxN; n++) {
+    const b = document.createElement("button");
+    b.dataset.v = String(n);
+    b.textContent = n + "-й";
+    b.title = total > 1 ? ("Урок " + n + " из " + total + " по теме") : "На тему по программе отведён один урок";
+    b.onclick = () => { state.lessonNo = n; setSeg("segLesson", n); readForm(); updateType(); };
+    box.appendChild(b);
+  }
+  const lbl = box.parentElement?.querySelector(".lbl");
+  if (lbl) lbl.textContent = total > 1 ? ("Урок по этой теме — в программе " + total + " урока") : "Урок по этой теме (в программе 1 урок)";
+  if (+state.lessonNo > maxN) { state.lessonNo = maxN; }
+  setSeg("segLesson", state.lessonNo);
+}
 function fillGrades() {
-  const ok = SUBJ_GRADES[state.subject] || [5, 6, 7, 8, 9, 10, 11];
+  const ok = SUBJ_GRADES[state.subject] || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   if (!ok.includes(+state.grade)) { const was = state.grade; state.grade = ok[0]; if (window.toast && $("#grade").options.length && was) toast(`Этот предмет изучают с ${ok[0]} класса — выбран ${state.grade} класс.`, 4500); }
   $("#grade").innerHTML = ok.map(g => `<option value="${g}">${g} класс</option>`).join(""); $("#grade").value = state.grade;
 }
@@ -3736,7 +3794,8 @@ function readForm() {
   state.anyName = ($("#anyName")?.value || state.anyName || "").trim(); state.control = $("#control").value; state.topic = $("#topic").value.trim(); state.wishes = $("#wishes").value.trim();
   state.deep = $("#deep").checked;
   $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
-  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: state.build, anyName: state.anyName });
+  if (window.updateLessonSeg) updateLessonSeg();
+  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: state.build, anyName: state.anyName });
 }
 function restoreForm() {
   const f = local.get("form", null);
@@ -4156,7 +4215,10 @@ function sampleErr(e) {
 /* ---------- запуск ---------- */
 const cleanMd = t => String(t || "").replace(/^\s*```(?:markdown|md)?\s*\n/, "").replace(/\n```\s*$/, "").replace(/\r/g, "");
 async function createLesson() {
+  if (window.Plans) await Plans.ensure(state.subject);
+  if (window.Kits) await Kits.ensure(state.subject);
   readForm(); await Base.ready();
+  if (window.Learn2) Learn2.setContext({ subject: state.subject, grade: state.grade, kind: state.active });
   if (!state.topic) { $("#topic").focus(); $("#createHint").textContent = "Введите тему урока или выберите её из списка."; return; }
   if (state.formats.conspect && window.Access && !Access.techAllowed()) { state.formats.conspect = false; syncTechCheck(); }
   readExtra();
@@ -4173,7 +4235,7 @@ async function createLesson() {
   $("#createHint").textContent = "";
   updateType();
   const type = state.type;
-  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
+  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   rememberTopic(state.topic);
   // литература: текст произведения нужен до сборки — если сайт его не нашёл, спрашиваем учителя сейчас, а не после генерации
@@ -4285,7 +4347,7 @@ async function textLookup() {
   if (ch && ch.key === key) { paintTextBox(box, ch.mode === "skip" ? "skip" : "text", work, author, key); return; }
   if (pendingPlan && pendingPlan.key === key) { box.hidden = true; box.innerHTML = ""; return; }
   box.hidden = false; box.innerHTML = `<div class="small" style="margin-top:8px">Ищу текст произведения…</div>`;
-  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, control: state.control, topic, wishes: "", formats: [], type: state.type };
+  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic, wishes: "", formats: [], type: state.type };
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, state.type); } catch { }
   if (seq !== textSeq) return; // тема уже изменилась
   if (plan && (plan.kit || plan.textSource)) { pendingPlan = { key, plan }; box.innerHTML = `<div class="small" style="margin-top:8px;color:#2a7a3b">✓ Текст произведения найден, добавлять не нужно.</div>`; return; }
@@ -4406,7 +4468,12 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   {
     { const d0 = hideTech && gen[0] === "conspect" ? (formats.find(x => x !== "conspect") || gen[0]) : gen[0]; state.gen = { lessonId: L.id, doc: d0, pct: 5, fake: true, ctl: new AbortController() }; if (L.status[d0] === "wait") L.status[d0] = "run"; updateProgress(); }
     toast("Ищу материал к уроку в образовательных источниках…", 4000);
-    p.web = window.Subjects?.webFacts ? await Subjects.webFacts(p) : null;
+    // поиск материала во внешних источниках не должен задерживать сборку урока:
+    // если источник не ответил за 9 секунд или упал — собираем без него
+    p.web = window.Subjects?.webFacts ? await Promise.race([
+      Promise.resolve().then(() => Subjects.webFacts(p)).catch(() => null),
+      new Promise(res => setTimeout(() => res(null), 9000))
+    ]) : null;
     if (p.web?.items?.length) toast(`Найдено в источниках: ${p.web.items.length} выдержек (${p.web.sources.length} сайтов).`, 5000);
     else if (p.find) toast(p.web?.reason === "no_keys" ? "Поиск по источникам не настроен на сервере (нужен ключ Яндекс-поиска)." : "По запросу в образовательных источниках ничего не нашлось.", 7000);
     state.gen = null;
@@ -4961,7 +5028,7 @@ function moveSlide(i, d) {
   if (L.sample) forkSample();
   saveLesson(state.lesson); renderLesson();
 }
-const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; state.lesson.docs[state.active] = $("#md").value; if (state.lesson.sample) forkSample(); renderPreview(); saveLesson(state.lesson); }, 400);
+const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; const before = state.lesson.docs[state.active] || ""; const after = $("#md").value; if (window.Learn2 && after !== before) Learn2.learnNote({ subject: state.subject, grade: state.grade, topic: state.topic || state.lesson.title, kind: state.active, before, after }); state.lesson.docs[state.active] = after; if (state.lesson.sample) forkSample(); renderPreview(); saveLesson(state.lesson); }, 400);
 
 /* ===================================================================
    БИБЛИОТЕКА (уроки хранятся в браузере)
@@ -5602,12 +5669,42 @@ function bind() {
   $("#prevHwPick").onclick = () => $("#prevHwFile").click();
   $("#prevHwFile").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const r = await readFile(f); const t = String(r?.text || "").trim(); if (!t) throw new Error("в файле не найден текст"); $("#prevHw").value = t.slice(0, 2500); $("#prevHwHint").textContent = `Из файла «${f.name}».`; } catch (er) { toast("Не получилось прочитать файл: " + (er.message || er)); } };
   $("#prevHwFind").onclick = async () => { readForm(); const f = await findPrevHw({ subject: state.subject, grade: state.grade, topic: state.topic, lessonNo: state.lessonNo }); if (f) { $("#prevHw").value = f.text; $("#prevHwHint").textContent = `Найдено: ${f.src}.`; } else $("#prevHwHint").textContent = "Прошлого урока этой темы в «Моих уроках» нет — впишите задание или прикрепите файл. Без этого проверка будет формальной."; };
-  $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); fillGrades(); if (ch) clearTopic(); else { readForm(); updateType(); } syncPack(ch); refreshTopics(); });
+  $$("#segSubject button").forEach(b => b.onclick = async () => {
+    const ch = state.subject !== b.dataset.v;
+    state.subject = b.dataset.v; setSeg("segSubject", state.subject); fillGrades();
+    if (ch) clearTopic(); else { readForm(); updateType(); }
+    syncPack(ch);
+    if (window.Plans && Plans.pending(state.subject)) { const ok = await Plans.ensure(state.subject); if (!ok) toast("Не удалось загрузить программу предмета — проверьте интернет и выберите предмет ещё раз.", 6000); }
+    if (window.Kits && Kits.pending(state.subject)) { const ok2 = await Kits.ensure(state.subject); if (!ok2) toast("Не удалось загрузить модули предмета — проверьте интернет и выберите предмет ещё раз.", 6000); }
+    { const stg = stageById(state.stage); const sg = SUBJ_GRADES[state.subject] || []; if (!stg.grades.some(g => sg.includes(g))) { state.stage = stageOfSubject(state.subject).id; setSeg("segStage", state.stage); fillSubjects(state.stage); } }
+    updateLessonSeg(); if (window.syncThemeOptions) syncThemeOptions(); refreshTopics();
+  });
+  $$("#segStage button").forEach(b => b.onclick = async () => {
+    if (state.stage === b.dataset.v) return;
+    state.stage = b.dataset.v; setSeg("segStage", state.stage);
+    fillSubjects(state.stage);
+    { const stg = stageById(state.stage); const okG = (SUBJ_GRADES[state.subject] || []).filter(g => stg.grades.includes(g)); if (okG.length && !okG.includes(+state.grade)) { state.grade = okG[0]; } }
+    fillGrades(); clearTopic();
+    readForm(); updateType();
+    if (window.Plans) await Plans.ensure(state.subject);
+    if (window.Kits) await Kits.ensure(state.subject);
+    updateLessonSeg(); if (window.syncThemeOptions) syncThemeOptions(); refreshTopics();
+  });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
   { const sel = $("#slTheme"); if (sel && window.ThemeKit && window.SlideEditor) {
-    sel.innerHTML += Object.entries(ThemeKit.META).map(([k, v]) => `<option value="${k}">${v.name} — ${v.desc}</option>`).join("") + Object.entries(SlideEditor.THEMES).filter(([k]) => !ThemeKit.has(k)).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+    const baseHtml = sel.innerHTML;
+    const buildThemeOptions = () => {
+      const pack = ThemeKit.packFor ? ThemeKit.packFor(state.subject) : null;
+      const keys = (pack && pack.length) ? pack : Object.keys(ThemeKit.META);
+      const cur = sel.value;
+      sel.innerHTML = baseHtml + keys.map(k => `<option value="${k}">${ThemeKit.META[k].name} — ${ThemeKit.META[k].desc}</option>`).join("")
+        + (pack && pack.length ? "" : Object.entries(SlideEditor.THEMES).filter(([k]) => !keys.includes(k) && !ThemeKit.has(k)).map(([k, v]) => `<option value="${k}">${v}</option>`).join(""));
+      sel.value = (cur === "auto" || keys.includes(cur)) ? cur : "auto";
+    };
+    window.syncThemeOptions = buildThemeOptions;
+    buildThemeOptions();
     try { sel.value = localStorage.getItem("uchu:theme") || "auto"; } catch { }
     const why = () => { const t = $("#topic")?.value || ""; $("#slThemeWhy").textContent = sel.value === "auto" && t.trim() ? "сейчас: " + ThemeKit.why({ topic: t, subject: state.subject }) : ""; };
     sel.onchange = () => { try { localStorage.setItem("uchu:theme", sel.value); } catch { } why(); };
@@ -5661,13 +5758,52 @@ function bind() {
 }
 function openTopicPanel() { renderTopicPanel(); $("#topicPanel").hidden = false; $("#topicBtn").setAttribute("aria-expanded", "true"); }
 
+/* Установка как приложение (PWA): кнопка в шапке появляется, когда браузер готов */
+let __installPrompt = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); __installPrompt = e; const b = $("#btnInstall"); if (b) b.hidden = false; });
+window.addEventListener("appinstalled", () => { __installPrompt = null; const b = $("#btnInstall"); if (b) b.hidden = true; });
+function initInstall() {
+  const b = $("#btnInstall"); if (!b) return;
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (standalone) { b.hidden = true; return; }
+  if (ios) {
+    b.hidden = false;
+    b.onclick = () => toast("На iPhone и iPad: «Поделиться» → «На экран „Домой“». Приложение появится как иконка.", 8000);
+    return;
+  }
+  b.hidden = !__installPrompt;
+  b.onclick = async () => {
+    if (!__installPrompt) { toast("Откройте сайт в Chrome или Edge — браузер предложит установить приложение.", 6000); return; }
+    __installPrompt.prompt();
+    try { await __installPrompt.userChoice; } catch { }
+    __installPrompt = null; b.hidden = true;
+  };
+}
+
 async function start() {
   bind();
+  initInstall();
   restoreForm();
+  /* переход из Telegram-бота: ?subject=…&grade=…&topic=… сразу заполняет форму */
+  try {
+    const q = new URLSearchParams(location.search);
+    const qs = q.get("subject"), qg = +q.get("grade"), qt = q.get("topic");
+    if (qs && (window.Subjects?.list || []).some(s => s.id === qs)) state.subject = qs;
+    if (qg >= 1 && qg <= 11) state.grade = qg;
+    if (qt) { state.topic = qt; if ($("#topic")) $("#topic").value = qt; }
+    if (qs || qg || qt) {
+      setSeg("segSubject", state.subject); fillGrades(); readForm(); refreshTopics(); updateType();
+      if (window.Plans) await Plans.ensure(state.subject);
+      if (window.Kits) await Kits.ensure(state.subject);
+    }
+  } catch (e) { }
   renderLesson();
   ensureMarked().then(() => { if (!state.lesson) renderEmpty(); });
   [caps.sample, caps.downloads] = await Promise.all(["sample", "downloads"].map(n => window.claude?.use?.(n).catch(() => null) ?? null));
   await Base.ready(); await loadMaterials(); // материалы из data/extra.js доступны только после загрузки базы
+  if (window.Plans) await Plans.ensure(state.subject);
+  if (window.Kits) await Kits.ensure(state.subject);
   await FRP.load();
   Store.persist();
   syncBuild(); updateType(); refreshTopics();
@@ -5687,7 +5823,7 @@ document.addEventListener("DOMContentLoaded", start);
 <!-- v5: модули (логика отдельно от данных; каждый модуль независим и подключается по имени) -->
 <script src="js/log.js"></script>
 <script src="js/cleaner.js"></script>
-<script src="js/learn.js"></script>
+<script src="js/learn.js"></script><script src="js/learn2.js"></script>
 <script src="js/variety.js"></script>
 <script src="js/methodbase.js"></script>
 <script src="js/heur.js"></script>
@@ -5707,7 +5843,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/tutor.js"></script>
 <script src="js/conventions.js"></script>
 <script src="js/mnemo.js"></script>
-<script src="js/themes.js"></script>
+<script src="js/themes.js"></script><script src="js/themes2.js"></script>
 <script src="js/video.js"></script>
 <script src="js/photostk.js"></script>
 <script src="data/promo.js"></script>
@@ -5717,7 +5853,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/publish.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/worksearch.js"></script>
-<script src="js/frpplans.js"></script><script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histlessons.js"></script><script src="js/histkit.js"></script><script src="js/engdata.js"></script><script src="js/engkit.js"></script><script src="js/biolessons.js"></script><script src="js/biokit.js"></script><script src="js/frpplans2.js"></script><script src="js/geomethod.js"></script><script src="js/frpplans3.js"></script><script src="js/phydata.js"></script><script src="js/phymethod.js"></script><script src="js/frpplans4.js"></script><script src="js/chemdata.js"></script><script src="js/chemmethod.js"></script><script src="js/frpplans5.js"></script><script src="js/socdata.js"></script><script src="js/socmethod.js"></script><script src="js/frpplans6.js"></script><script src="js/infgen.js"></script><script src="js/infdata.js"></script><script src="js/infmethod.js"></script><script src="js/imagegen.js"></script><script src="js/frpkit.js"></script>
+<script src="js/imagegen.js"></script><script src="js/plans-loader.js"></script><script src="js/kits-loader.js"></script><script src="js/frpkit.js"></script>
 <script src="js/subjects.js"></script>
 <script src="js/usage.js"></script>
 <script src="js/ai.js"></script><script src="js/blobs.js"></script>

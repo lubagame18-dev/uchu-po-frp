@@ -197,13 +197,14 @@ const Dev = (() => {
         <div class="key-sub"><h3>Личный ключ ${ok ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'} <span class="tag">только у вас</span></h3>
           <p class="small">Хранится только в этом браузере и работает только у вас: для ваших проверок и своих листов. Учителям не передаётся.</p>
           <div id="dvImgForm"></div></div>
-        <p class="small">Общие ключи для всех учителей (5 ячеек с переключением) — ниже, в блоке «Общие ключи для картинок».</p>`;
+        <p class="small">Общие ключи для всех учителей (пул с переключением; пустая ячейка внизу добавляет новый ключ) — ниже, в блоке «Общие ключи для картинок».</p>`;
       window.imageKeyForm(imgBox.querySelector("#dvImgForm"), paintImg);
     };
     paintImg();
     const pool = (box, o) => {
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
     const draw = (j, note) => {
+      if (j && Array.isArray(j.slots)) window.__keySlots = j.slots.map(x => x.slot);
       box.innerHTML = `<h2>${o.title} <span class="tag red">для всех учителей</span></h2>
         <div class="key-warn">${o.warn}</div>
         ${o.help}
@@ -262,7 +263,7 @@ const Dev = (() => {
       b.innerHTML = `<section class="dev-card teach">
         <h2>Научить словами</h2>
         <p class="small">Напишите, что не нравится или как должно быть. ${aiOn ? "Нейросеть предложит изменения — вы посмотрите и примените." : "<b>Нейросеть не подключена</b> — пожелание добавится как правило для сборки с ИИ. Чтобы сайт сам переключал настройки, подключите личный ключ (раздел «Ключи ИИ»)."}</p>
-        <div class="row-btn"><label for="tcVia" class="small">Нейросеть:</label><select id="tcVia">${(window.AI ? AI.chain(AI.cfg()) : []).map(id => `<option value="${esc(id)}">личная: ${esc(AI.P[id]?.name || id)}</option>`).join("")}${[1, 2, 3, 4, 5].map(n => `<option value="slot:${n}">общий ключ ${n}</option>`).join("")}</select></div>
+        <div class="row-btn"><label for="tcVia" class="small">Нейросеть:</label><select id="tcVia">${(window.AI ? AI.chain(AI.cfg()) : []).map(id => `<option value="${esc(id)}">личная: ${esc(AI.P[id]?.name || id)}</option>`).join("")}${(window.__keySlots && window.__keySlots.length ? window.__keySlots : [1, 2, 3, 4, 5]).map(n => `<option value="slot:${n}">общий ключ ${n}</option>`).join("")}</select></div>
         <textarea class="inp" id="tcWish" rows="3" placeholder="Например: в рабочих листах не нужны предметные результаты; цель на слайде пишите для детей, интересно"></textarea>
         <div class="row-btn"><button class="btn flame" id="tcGo" type="button">${aiOn ? "Разобрать пожелание" : "Добавить как правило"}</button><span class="small" id="tcSt" role="status">${esc(msg || "")}</span></div>
         ${proposal ? `<div class="tc-prop"><b>Предложение нейросети</b>${proposal.explain ? `<p>${esc(proposal.explain)}</p>` : ""}<ul>
@@ -450,7 +451,7 @@ const Dev = (() => {
     const tags = [...new Set(all.flatMap(e => e.tags))].sort();
     const topics = [...new Set(all.map(e => e.topic).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ru"));
     b.innerHTML = `<section class="dev-card"><h2>Конструктор упражнений</h2><p class="hint">Упражнения из всех материалов. Тип определяется по содержанию (формулировка, ключевые слова, структура); если подходит под несколько — у упражнения несколько тегов. Всего: ${all.length}.</p>
-      <div class="mat-tools"><input type="search" class="inp" id="exQ" placeholder="Поиск по тексту упражнения"><select id="exTag"><option value="">все типы</option>${tags.map(t => `<option>${esc(t)}</option>`).join("")}</select><select id="exTopic"><option value="">все темы</option>${topics.map(t => `<option>${esc(t)}</option>`).join("")}</select><select id="exGrade"><option value="">все классы</option>${[5, 6, 7, 8, 9, 10, 11].map(g => `<option>${g}</option>`).join("")}</select></div><div id="exList"></div></section>`;
+      <div class="mat-tools"><input type="search" class="inp" id="exQ" placeholder="Поиск по тексту упражнения"><select id="exTag"><option value="">все типы</option>${tags.map(t => `<option>${esc(t)}</option>`).join("")}</select><select id="exTopic"><option value="">все темы</option>${topics.map(t => `<option>${esc(t)}</option>`).join("")}</select><select id="exGrade"><option value="">все классы</option>${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(g => `<option>${g}</option>`).join("")}</select></div><div id="exList"></div></section>`;
     const paint = () => {
       const q = b.querySelector("#exQ").value.toLowerCase(), tg = b.querySelector("#exTag").value, tp = b.querySelector("#exTopic").value, gr = b.querySelector("#exGrade").value;
       const arr = all.filter(e => (!q || e.text.toLowerCase().includes(q)) && (!tg || e.tags.includes(tg)) && (!tp || e.topic === tp) && (!gr || String(e.grade) === gr));
