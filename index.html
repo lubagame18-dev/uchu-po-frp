@@ -4406,7 +4406,12 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   {
     { const d0 = hideTech && gen[0] === "conspect" ? (formats.find(x => x !== "conspect") || gen[0]) : gen[0]; state.gen = { lessonId: L.id, doc: d0, pct: 5, fake: true, ctl: new AbortController() }; if (L.status[d0] === "wait") L.status[d0] = "run"; updateProgress(); }
     toast("Ищу материал к уроку в образовательных источниках…", 4000);
-    p.web = window.Subjects?.webFacts ? await Subjects.webFacts(p) : null;
+    // поиск материала во внешних источниках не должен задерживать сборку урока:
+    // если источник не ответил за 9 секунд или упал — собираем без него
+    p.web = window.Subjects?.webFacts ? await Promise.race([
+      Promise.resolve().then(() => Subjects.webFacts(p)).catch(() => null),
+      new Promise(res => setTimeout(() => res(null), 9000))
+    ]) : null;
     if (p.web?.items?.length) toast(`Найдено в источниках: ${p.web.items.length} выдержек (${p.web.sources.length} сайтов).`, 5000);
     else if (p.find) toast(p.web?.reason === "no_keys" ? "Поиск по источникам не настроен на сервере (нужен ключ Яндекс-поиска)." : "По запросу в образовательных источниках ничего не нашлось.", 7000);
     state.gen = null;
