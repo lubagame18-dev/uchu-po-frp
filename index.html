@@ -689,6 +689,7 @@ window.UCHU_SITE = {
   </section>
   <section class="send-card" id="sendCard" data-dev></section>
   <section class="learn-card" id="learnCard" data-dev></section>
+  <section class="learn-card" id="learnCard2" data-dev></section>
 </main>
 
 <!-- ===================== ИНСТРУКЦИЯ ===================== -->
@@ -4217,6 +4218,7 @@ async function createLesson() {
   if (window.Plans) await Plans.ensure(state.subject);
   if (window.Kits) await Kits.ensure(state.subject);
   readForm(); await Base.ready();
+  if (window.Learn2) Learn2.setContext({ subject: state.subject, grade: state.grade, kind: state.active });
   if (!state.topic) { $("#topic").focus(); $("#createHint").textContent = "Введите тему урока или выберите её из списка."; return; }
   if (state.formats.conspect && window.Access && !Access.techAllowed()) { state.formats.conspect = false; syncTechCheck(); }
   readExtra();
@@ -5026,7 +5028,7 @@ function moveSlide(i, d) {
   if (L.sample) forkSample();
   saveLesson(state.lesson); renderLesson();
 }
-const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; state.lesson.docs[state.active] = $("#md").value; if (state.lesson.sample) forkSample(); renderPreview(); saveLesson(state.lesson); }, 400);
+const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; const before = state.lesson.docs[state.active] || ""; const after = $("#md").value; if (window.Learn2 && after !== before) Learn2.learnNote({ subject: state.subject, grade: state.grade, topic: state.topic || state.lesson.title, kind: state.active, before, after }); state.lesson.docs[state.active] = after; if (state.lesson.sample) forkSample(); renderPreview(); saveLesson(state.lesson); }, 400);
 
 /* ===================================================================
    БИБЛИОТЕКА (уроки хранятся в браузере)
@@ -5784,7 +5786,7 @@ document.addEventListener("DOMContentLoaded", start);
 <!-- v5: модули (логика отдельно от данных; каждый модуль независим и подключается по имени) -->
 <script src="js/log.js"></script>
 <script src="js/cleaner.js"></script>
-<script src="js/learn.js"></script>
+<script src="js/learn.js"></script><script src="js/learn2.js"></script>
 <script src="js/variety.js"></script>
 <script src="js/methodbase.js"></script>
 <script src="js/heur.js"></script>

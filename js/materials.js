@@ -214,12 +214,26 @@ const Materials = (() => {
     const la = box.querySelector("#lexAll"); if (la) la.onclick = async () => { for (const id of ex) await Learn.include(id); renderLearn(box); };
   }
 
-  /* ---------- страница «Материалы» целиком ---------- */
+  /* «Мягкое самообучение» на правках учителей: что замечено и что включено */
+  function renderLearn2(box) {
+    if (!box || !window.Learn2) return;
+    const L = Learn2.list(), pats = L.patterns || [];
+    const active = pats.filter(p => p.active).length;
+    box.innerHTML = `<h2>Правки учителей → мягкие подсказки</h2>
+      <p class="hint" style="font-size:14px">Сайт замечает ручные правки конспектов и выводит из них направление: например, «для 5–6 классов уместен вовлекающий заход до терминов». Тексты учителя не копируются. Подсказка начинает действовать после повторения на разных темах и только если уместна. Плохие правки (удаление содержания, длинные цитаты, переписывание без приёма) отбрасываются.</p>
+      <div class="learn-stats"><div><b>${L.notes.length}</b><span>наблюдений</span></div><div><b>${active}</b><span>действует</span></div><div><b>${pats.length}</b><span>направлений</span></div></div>
+      <ul class="learn-cats">${pats.map(p => `<li><b>${esc(p.type === "МЕТОДИЧЕСКИЙ_ПРИЕМ" ? p.dir : "дополнение содержания")}</b> · ${esc(p.band)} классы · ${esc(p.group)} · тем: ${(p.topics || []).length} <button class="btn sm ghost" data-l2toggle="${esc(p.key)}">${p.active ? "выключить" : "включить"}</button>${p.text ? `<br><span class="small">${esc(p.text)}</span>` : ""}</li>`).join("") || "<li>пока нет наблюдений</li>"}</ul>
+      <button class="btn sm ghost" id="l2clear">Очистить наблюдения</button>`;
+    box.querySelectorAll("[data-l2toggle]").forEach(b => b.onclick = () => { Learn2.approve(b.dataset.l2toggle); renderLearn2(box); });
+    const cl = box.querySelector("#l2clear"); if (cl) cl.onclick = () => { if (confirm("Очистить все наблюдения и направления?")) { Learn2.clear(); renderLearn2(box); } };
+  }
+
   function renderPage() {
     const lib = document.getElementById("matLib");
     if (lib) renderLib(lib, DEV() ? "own" : "own");
     renderFrp();
     renderLearn(document.getElementById("learnCard"));
+    renderLearn2(document.getElementById("learnCard2"));
     if (window.Collect) Collect.render(document.getElementById("sendCard"));
     Store.usage().then(u => { const el = document.getElementById("matUsage"); if (el && u) el.textContent = `Занято в браузере: ${(u.used / 1048576).toFixed(1)} МБ из ${(u.quota / 1048576 / 1024).toFixed(1)} ГБ.`; });
     document.dispatchEvent(new Event("uchu:materials-rendered"));

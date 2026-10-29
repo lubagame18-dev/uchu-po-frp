@@ -49,7 +49,8 @@ const Rules = (() => {
   /* добавка к каждому запросу к нейросети */
   function aiSuffix() {
     const L = (get("ai_rules") || []).filter(Boolean);
-    return L.length ? "\n\n# Правила сайта «Учу по ФРП» (обязательно соблюдай)\n" + L.map((x, i) => `${i + 1}. ${x}`).join("\n") : "";
+    const soft = window.Learn2 && Learn2.hintsSuffix ? Learn2.hintsSuffix() : "";
+    return (L.length ? "\n\n# Правила сайта «Учу по ФРП» (обязательно соблюдай)\n" + L.map((x, i) => `${i + 1}. ${x}`).join("\n") : "") + soft;
   }
   /* «научить словами»: нейросеть превращает пожелание в изменения настроек */
   /* через какую нейросеть: личная (id из «⚙ ИИ») или общий ключ сайта (ячейка 1–5) */
