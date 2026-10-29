@@ -367,6 +367,24 @@ async function handler(req, res) {
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
   const u = new URL(req.url, "http://x");
   const route = u.pathname.replace(/\/+$/, "").replace(/^\/(api\/)?ai(?=\/|$)/, "");
+  /* ---------- приём ботов по корню функции: некоторые платформы теряют ?path= ---------- */
+  if (req.method === "POST" && (route === "" || route === "/")) {
+    let rawRoot = ""; try { rawRoot = await readAll(req); } catch { }
+    let upd = {}; try { upd = JSON.parse(rawRoot || "{}"); } catch { }
+    if (upd && upd.update_type) {
+      const wantMax = process.env.MAX_SECRET;
+      if (wantMax && req.headers["x-max-bot-api-secret"] !== wantMax) return send(res, 403, { error: "forbidden" });
+      try { await require("./maxbot.js").handle(upd); } catch (e) { lastError = String(e.message || e).slice(0, 160); }
+      return send(res, 200, { ok: true });
+    }
+    if (upd && (upd.update_id || upd.message || upd.callback_query)) {
+      const wantTg = process.env.TELEGRAM_SECRET;
+      if (wantTg && req.headers["x-telegram-bot-api-secret-token"] !== wantTg) return send(res, 403, { error: "forbidden" });
+      try { await require("./telegram.js").handle(upd); } catch (e) { lastError = String(e.message || e).slice(0, 160); }
+      return send(res, 200, { ok: true });
+    }
+    return send(res, 400, { error: "нужен массив messages" });
+  }
   /* ---------- Telegram-бот «Учу по ФРП» (вебхук) ---------- */
   if (req.method === "POST" && route === "/telegram/webhook") {
     const want = process.env.TELEGRAM_SECRET;
