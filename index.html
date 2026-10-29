@@ -5780,10 +5780,24 @@ function initInstall() {
     __installPrompt = null; b.hidden = true;
   };
 }
+
 async function start() {
   bind();
   initInstall();
   restoreForm();
+  /* переход из Telegram-бота: ?subject=…&grade=…&topic=… сразу заполняет форму */
+  try {
+    const q = new URLSearchParams(location.search);
+    const qs = q.get("subject"), qg = +q.get("grade"), qt = q.get("topic");
+    if (qs && (window.Subjects?.list || []).some(s => s.id === qs)) state.subject = qs;
+    if (qg >= 1 && qg <= 11) state.grade = qg;
+    if (qt) { state.topic = qt; if ($("#topic")) $("#topic").value = qt; }
+    if (qs || qg || qt) {
+      setSeg("segSubject", state.subject); fillGrades(); readForm(); refreshTopics(); updateType();
+      if (window.Plans) await Plans.ensure(state.subject);
+      if (window.Kits) await Kits.ensure(state.subject);
+    }
+  } catch (e) { }
   renderLesson();
   ensureMarked().then(() => { if (!state.lesson) renderEmpty(); });
   [caps.sample, caps.downloads] = await Promise.all(["sample", "downloads"].map(n => window.claude?.use?.(n).catch(() => null) ?? null));
