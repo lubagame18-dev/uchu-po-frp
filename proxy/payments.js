@@ -11,7 +11,7 @@
    =================================================================== */
 const crypto = require("crypto");
 /* tokens — сколько токенов ИИ сайта (DeepSeek) входит в тариф на месяц: ≈ 40 тыс. на урок с ИИ */
-const PLANS = { basic: { name: "Учитель", price: 350, ai: 60, tokens: 3240000 }, ai: { name: "Учитель + ИИ", price: 690, ai: 90, tokens: 4860000 }, pro: { name: "Методист", price: 1190, ai: 140, tokens: 7560000 } };
+const PLANS = { basic: { name: "Без ИИ", price: 250, ai: 0, tokens: 0, days: 30 }, ai: { name: "С ИИ", price: 500, ai: 90, tokens: 4860000, days: 30 }, basicYear: { name: "Без ИИ, год", price: 2000, ai: 0, tokens: 0, days: 365 }, aiYear: { name: "С ИИ, год", price: 4000, ai: 1080, tokens: 58320000, days: 365 }, pro: { name: "Методист", price: 1190, ai: 140, tokens: 7560000, days: 30 } };
 const PROMO_K = 0.5; // скидка по промокоду, если у кода не задан свой процент
 const kOf = p => (!!p.promo || p.plan === "promo") ? (p.promo_pct ? 1 - Math.max(1, Math.min(99, +p.promo_pct)) / 100 : PROMO_K) : 1;
 const PACKS = { ai10: { name: "10 конспектов с ИИ", price: 70, ai: 10, tokens: 540000 }, ai30: { name: "30 конспектов с ИИ", price: 190, ai: 30, tokens: 1620000 } };
@@ -65,7 +65,7 @@ async function create(body, userToken, request, readAll) {
     const cur = PLANS[p.plan], left = p.paid_until ? new Date(p.paid_until) - Date.now() : 0;
     if (cur && left > 0 && PLANS[item].price > cur.price) {
       // повышение тарифа: доплата разницы только за оставшиеся дни
-      kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / (30 * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
+      kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / ((PLANS[item]?.days || 30) * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
     } else {
       kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», 1 месяц${promo ? ` (промокод −${pct}%)` : ""}`;
       if (body.autopay && !promo) sub = env("PRODAMUS_SUB_" + item.toUpperCase());
@@ -159,7 +159,7 @@ function patchFor(p, type, item, promo) {
   const aiOf = x => promo ? 0 : PLANS[x]?.ai || 0, tokOf = x => promo ? 0 : PLANS[x]?.tokens || 0;
   const now = Date.now(), until = p.paid_until && new Date(p.paid_until) > now ? new Date(p.paid_until).getTime() : now;
   const leftTok = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0));
-  if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + 30 * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
+  if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + (PLANS[item]?.days || 30) * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
   if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: (p.tokens_limit || 0) + Math.max(0, tokOf(item) - tokOf(p.plan)) };
   return { ai_left: (p.ai_left || 0) + PACKS[item].ai, tokens_limit: (p.tokens_limit || 0) + PACKS[item].tokens };
 }

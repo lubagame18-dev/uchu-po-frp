@@ -117,7 +117,9 @@ function zipStore(entries) {
   return Buffer.concat([...chunks, centralBuf, end]);
 }
 const xmlEsc = s => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-function docx(paragraphs) {
+
+function docx(input) {
+  const paragraphs = input.filter(p => !/^\s*[#*_=~—–-]{3,}\s*$/.test(p)).map(p => String(p).replace(/\*{2,}/g, "").replace(/`{1,3}/g, ""));
   const body = paragraphs.map(p => {
     if (p === "") return "<w:p/>";
     const bold = /^#\s/.test(p) ? true : false;
