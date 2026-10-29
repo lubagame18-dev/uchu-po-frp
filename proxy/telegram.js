@@ -224,6 +224,26 @@ async function onCallback(chatId, data) {
   }
 }
 
+/* Отправка файла (архив функции) в чат — доступно только когда задан BOT_FILE_PATH.
+   В облаке переменной нет, поэтому команда отвечает «файл доступен только локально». */
+async function sendFile(chatId, caption) {
+  const pathFile = process.env.BOT_FILE_PATH || "";
+  if (!pathFile) return send(chatId, "Файл доступен только в локальном режиме настройки.", { inline_keyboard: [[{ text: "Открыть сайт", url: SITE }]] });
+  try {
+    const fs = require("fs");
+    if (!fs.existsSync(pathFile)) return send(chatId, "Файл не найден на сервере настройки.");
+    const buf = fs.readFileSync(pathFile);
+    const form = new FormData();
+    form.append("chat_id", String(chatId));
+    form.append("document", new Blob([buf], { type: "application/zip" }), pathFile.split(/[\\/]/).pop());
+    if (caption) form.append("caption", caption);
+    const res = await fetch(`https://api.telegram.org/bot${TOKEN()}/sendDocument`, { method: "POST", body: form });
+    const j = await res.json().catch(() => ({}));
+    if (!j.ok) await send(chatId, "Не удалось отправить файл: " + String(j.description || "").slice(0, 120));
+  } catch (e) {
+    await send(chatId, "Ошибка отправки файла: " + String(e.message || e).slice(0, 160));
+  }
+}
 /* ---------- обработка обновления ---------- */
 async function handle(update) {
   if (!update || !TOKEN()) return;
@@ -238,6 +258,7 @@ async function handle(update) {
       if (/^\/start/.test(text)) return onStart(chatId);
       if (/^\/help/.test(text)) return onHelp(chatId);
       if (/^\/site/.test(text)) return onSite(chatId);
+      if (/^\/file/.test(text)) return sendFile(chatId, "Архив функции Яндекс.Облака (с Telegram-ботом). Загрузите его в функцию и добавьте TELEGRAM_BOT_TOKEN и TELEGRAM_SECRET.");
       if (/^\/lesson/.test(text)) { state.delete(chatId); return send(chatId, "Напишите тему урока (можно с предметом и классом)."); }
       return onText(chatId, text);
     }
@@ -251,4 +272,4 @@ async function handle(update) {
   }
 }
 
-module.exports = { handle, guess, ai, onStart, onText, send, state, buildLocal };
+module.exports = { handle, guess, ai, onStart, onText, send, sendFile, state, buildLocal };
