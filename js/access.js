@@ -27,10 +27,10 @@ const Access = (() => {
     ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai60: ["🤖", "#a43fd0", "60 конспектов с ИИ в месяц"], ai90: ["🤖", "#a43fd0", "90 конспектов с ИИ в месяц"], ai140: ["🚀", "#a43fd0", "140 конспектов с ИИ в месяц"],
     pics: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 8 в месяц"],
     pics40: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 18 в месяц"],
-    more: ["➕", "#ff9f1c", "Можно докупить конспекты с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "3 урока в месяц — попробовать"]
+    more: ["➕", "#ff9f1c", "Можно докупить конспекты с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "2 урока при регистрации — со всеми функциями"]
   };
   const PLANS = {
-    free: { name: "Бесплатный", price: 0, lessons: 3, extraSheets: 0, ai: false, art: "🎁", tag: "попробовать", feats: ["three", "lesson", "slides", "sheet", "cloud"] },
+    free: { name: "Пробный доступ", price: 0, lessons: 2, extraSheets: 2, ai: true, img: true, imgQuota: 2, hidden: true, art: "🎁", tag: "2 урока при регистрации", feats: ["three", "ai", "lesson", "slides", "sheet", "download", "cloud"] },
     basic: { name: "Без ИИ", price: 250, period: "мес", lessons: Infinity, extraSheets: 2, ai: false, art: "📘", tag: "конспекты, презентации, листы", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
     ai: { name: "С ИИ", price: 500, period: "мес", lessons: Infinity, ai: true, img: true, imgQuota: 8, extraSheets: 10, art: "✨", tag: "всё с ИИ", feats: ["unlim", "ai", "ai60", "pics", "more", "download", "cloud"] },
     basicYear: { name: "Без ИИ, год", price: 2000, period: "год", days: 365, lessons: Infinity, extraSheets: 2, ai: false, art: "📘", tag: "год без ИИ", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
@@ -65,19 +65,19 @@ const Access = (() => {
   const techAllowed = () => free() || level() === "pro";
   const imagesAllowed = () => free() || !!PLANS[level()].img;
   const month = () => new Date().toISOString().slice(0, 7);
-  function lessonsLeft() { const L = level(); if (free()) return Infinity; const lim = PLANS[L].lessons; if (lim === Infinity) return Infinity; const used = A.month === month() ? A.used || 0 : 0; return Math.max(0, lim - used); }
+  function lessonsLeft() { const L = level(); const lim = PLANS[L].lessons; if (lim === Infinity) return Infinity; const used = A.month === month() ? A.used || 0 : 0; return Math.max(0, lim - used); }
   /* картинки для листов: лимит в месяц по тарифу (на сайте считается в браузере; настоящий лимит ставит серверная функция) */
   const imageLeft = () => { if (free()) return Infinity; const q = PLANS[level()].imgQuota || 0; if (A.imgMonth !== month()) return q; return Math.max(0, q - (A.imgUsed || 0)); };
   function countImage(n = 1) { if (free()) return; if (A.imgMonth !== month()) { A.imgMonth = month(); A.imgUsed = 0; } A.imgUsed = (A.imgUsed || 0) + n; save(); }
   /* дополнительные листы сверх базовых двух страниц: свой месячный лимит (на сервере его ставят так же) */
   const sheetsLeft = () => { if (free()) return Infinity; const q = PLANS[level()].extraSheets || 0; if (A.shMonth !== month()) return q; return Math.max(0, q - (A.shUsed || 0)); };
   function countSheet(n = 1) { if (free()) return; if (A.shMonth !== month()) { A.shMonth = month(); A.shUsed = 0; } A.shUsed = (A.shUsed || 0) + n; save(); }
-  function countLesson() { if (free() || PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
+  function countLesson() { if (PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
     if (useAi && !aiAllowed()) { open("Уроки с ИИ — в платных тарифах: «Учитель», «Учитель + ИИ» и «Методист»."); return false; }
     if (useAi && isPromo() && !window.AI?.ownConfigured?.()) { toast("Подключите ключ своей нейросети — кнопка «⚙ Подключить ИИ» вверху.", 6000); window.AI?.openLite?.(); return false; }
-    if (!useAi && lessonsLeft() <= 0) { open("Бесплатные уроки на этот месяц закончились. Выберите тариф."); return false; }
+    if (lessonsLeft() <= 0) { open("Пробные уроки закончились — выберите тариф, чтобы продолжать без ограничений."); return false; }
     return true;
   }
   /* Бесплатный тариф: урок — только после входа в кабинет; счёт ведёт сервер (кабинет + устройство + сеть) */

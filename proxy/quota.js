@@ -8,7 +8,7 @@
    =================================================================== */
 const URL0 = () => (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const KEY = () => process.env.SUPABASE_SERVICE_KEY || "";
-const FREE = () => Number(process.env.FREE_AI || 15);
+const FREE = () => Number(process.env.FREE_AI || 2);
 const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
 const FREE_TOK = () => FREE() * PER_LESSON;
 const on = () => !!(URL0() && KEY());
@@ -33,8 +33,8 @@ async function check(userToken, request, readAll) {
   // бесплатный лимит обновляется раз в месяц; у платного — пока не кончился срок
   const tok = typeof p.tokens_limit === "number"; // учёт в токенах (если в облаке есть колонки tokens_limit / tokens_used)
   const patch = b => sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: b });
-  if ((p.plan === "free" || p.plan === "promo") && p.free_month !== month) { p.ai_left = FREE(); p.free_month = month; const b = { ai_left: p.ai_left, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
-  if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = FREE(); const b = { plan: "free", ai_left: p.ai_left, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
+  if (p.plan === "promo" && p.free_month !== month) { p.ai_left = FREE(); p.free_month = month; const b = { ai_left: p.ai_left, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
+  if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = 0; const b = { plan: "free", ai_left: 0, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
   const NO = { ok: false, status: 402, reason: "quota", message: "ИИ по вашему тарифу на этот месяц закончился. Можно собрать урок без ИИ, докупить уроки с ИИ или сменить тариф в кабинете." };
   if (tok) { const left = (p.tokens_limit || 0) - (p.tokens_used || 0); if (left <= 0) return NO; return { ok: true, id, tok: true, left, used: p.tokens_used || 0, limit: p.tokens_limit || 0 }; }
   if (!(p.ai_left > 0)) return NO;
