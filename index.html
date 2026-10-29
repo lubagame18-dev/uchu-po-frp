@@ -3699,13 +3699,22 @@ function subjectsOfStage(stageId) {
 }
 /* какие предметы показывать в выбранной ступени */
 function fillSubjects(stageId) {
+  /* предметы — только из выбранной ступени; список пересобирается заново */
   const allowed = subjectsOfStage(stageId);
   if (state.subject !== "any" && !allowed.includes(state.subject)) state.subject = allowed[0] || state.subject;
+  const list = window.Subjects?.list || [];
+  const nameOf = id => (list.find(s => s.id === id) || {}).name || id;
   const sel = $("#subjectSel");
-  if (sel) { Array.from(sel.options).forEach(o => { o.hidden = o.value !== "any" && !allowed.includes(o.value); }); sel.value = state.subject; }
+  if (sel) {
+    const keep = state.subject;
+    sel.innerHTML = '<option value="any">Любой предмет</option>' +
+      allowed.map(id => `<option value="${id}">${esc(nameOf(id))}</option>`).join("");
+    sel.value = allowed.includes(keep) ? keep : "any";
+  }
   $$("#segSubject button").forEach(b => { b.hidden = b.dataset.v !== "any" && !allowed.includes(b.dataset.v); });
   setSeg("segSubject", state.subject);
 }
+
 /* сколько уроков программа отводит на тему: в ФРП одна тема может занимать 2–3 урока */
 function topicLessonCount(title, subject = state.subject, grade = state.grade) {
   const plan = window.FRPPlans?.[subject]?.[grade];
@@ -3739,9 +3748,18 @@ function updateLessonSeg() {
   setSeg("segLesson", state.lessonNo);
 }
 function fillGrades() {
-  const ok = SUBJ_GRADES[state.subject] || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-  if (!ok.includes(+state.grade)) { const was = state.grade; state.grade = ok[0]; if (window.toast && $("#grade").options.length && was) toast(`Этот предмет изучают с ${ok[0]} класса — выбран ${state.grade} класс.`, 4500); }
-  $("#grade").innerHTML = ok.map(g => `<option value="${g}">${g} класс</option>`).join(""); $("#grade").value = state.grade;
+  /* классы — только из выбранной ступени: 1–4, 5–9 или 10–11 */
+  const st = (typeof stageById === "function" ? stageById(state.stage) : null) || { grades: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] };
+  const all = SUBJ_GRADES[state.subject] || st.grades.slice();
+  let ok = all.filter(g => st.grades.includes(g));
+  if (!ok.length) ok = all.slice();
+  if (!ok.includes(+state.grade)) {
+    const was = state.grade;
+    state.grade = ok[0];
+    if (window.toast && was && $("#grade")?.options.length) toast(`Для этой ступени доступны классы: ${ok.join(", ")}. Выбран ${state.grade} класс.`, 4500);
+  }
+  $("#grade").innerHTML = ok.map(g => `<option value="${g}">${g} класс</option>`).join("");
+  $("#grade").value = state.grade;
 }
 /* техкарта — только методистам (тариф «Методист») и разработчикам */
 function readExtra() {

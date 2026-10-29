@@ -1065,3 +1065,6 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 
 /* кнопка «Приложение»: hidden должен реально скрывать */
 #btnInstall[hidden] { display: none !important; }
+
+/* скрытие кнопок ступеней и предметов по атрибуту hidden */
+.seg button[hidden], .seg a[hidden], .seg label[hidden] { display: none !important; }
