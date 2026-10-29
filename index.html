@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Конструктор уроков по ФРП для учителей 5–11 классов: русский язык, литература, математика, история, английский, биология, география, физика, химия, обществознание, информатика и другие предметы. По теме урока собирает конспект, технологическую карту, презентацию и рабочий лист.">
 <link rel="canonical" href="https://uchu-po-frp.ru/">
-<meta name="theme-color" content="#FFC93C">
+<meta name="theme-color" content="#FFC93C"><link rel="manifest" href="manifest.json"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Учу по ФРП"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:site_name" content="Учу по ФРП"><meta property="og:url" content="https://uchu-po-frp.ru/">
 <meta property="og:title" content="Учу по ФРП — конструктор уроков для учителей всех предметов"><meta property="og:description" content="Конструктор уроков по ФРП для учителей 5–11 классов: русский язык, литература, математика, история, английский, биология, география, физика, химия, обществознание, информатика и другие предметы. По теме урока собирает конспект, технологическую карту, презентацию и рабочий лист.">
 <meta property="og:image" content="https://uchu-po-frp.ru/icons/icon-512.png"><meta name="twitter:card" content="summary">
@@ -534,7 +534,7 @@ window.UCHU_SITE = {
     <nav class="nav" aria-label="Разделы">
       <button class="chip" id="nav-builder" aria-current="page">Конструктор</button>
       <button class="chip" id="nav-library">Мои уроки</button>
-      <button class="chip" id="nav-materials">Материалы</button>
+      <button class="chip" id="nav-materials">Материалы</button><button class="chip" id="btnInstall" hidden title="Установить приложение на телефон или компьютер">📲 Приложение</button>
     </nav>
     <div class="account"></div>
   </div>
@@ -5758,8 +5758,31 @@ function bind() {
 }
 function openTopicPanel() { renderTopicPanel(); $("#topicPanel").hidden = false; $("#topicBtn").setAttribute("aria-expanded", "true"); }
 
+/* Установка как приложение (PWA): кнопка в шапке появляется, когда браузер готов */
+let __installPrompt = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); __installPrompt = e; const b = $("#btnInstall"); if (b) b.hidden = false; });
+window.addEventListener("appinstalled", () => { __installPrompt = null; const b = $("#btnInstall"); if (b) b.hidden = true; });
+function initInstall() {
+  const b = $("#btnInstall"); if (!b) return;
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (standalone) { b.hidden = true; return; }
+  if (ios) {
+    b.hidden = false;
+    b.onclick = () => toast("На iPhone и iPad: «Поделиться» → «На экран „Домой“». Приложение появится как иконка.", 8000);
+    return;
+  }
+  b.hidden = !__installPrompt;
+  b.onclick = async () => {
+    if (!__installPrompt) { toast("Откройте сайт в Chrome или Edge — браузер предложит установить приложение.", 6000); return; }
+    __installPrompt.prompt();
+    try { await __installPrompt.userChoice; } catch { }
+    __installPrompt = null; b.hidden = true;
+  };
+}
 async function start() {
   bind();
+  initInstall();
   restoreForm();
   renderLesson();
   ensureMarked().then(() => { if (!state.lesson) renderEmpty(); });
