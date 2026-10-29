@@ -365,6 +365,8 @@ function relayAuthOk(req) {
 async function handler(req, res) {
   cors(req, res);
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
+  const u = new URL(req.url, "http://x");
+  const route = u.pathname.replace(/\/+$/, "").replace(/^\/(api\/)?ai(?=\/|$)/, "");
   /* ---------- Telegram-бот «Учу по ФРП» (вебхук) ---------- */
   if (req.method === "POST" && route === "/telegram/webhook") {
     const want = process.env.TELEGRAM_SECRET;
@@ -374,8 +376,6 @@ async function handler(req, res) {
     try { const tg = require("./telegram.js"); await tg.handle(upd); } catch (e) { lastError = String(e.message || e).slice(0, 160); }
     return send(res, 200, { ok: true });
   }
-  const u = new URL(req.url, "http://x");
-  const route = u.pathname.replace(/\/+$/, "").replace(/^\/(api\/)?ai(?=\/|$)/, "");
   if (req.method === "GET" && (route === "" || route === "/health")) {
     // ждём сертификат (не дольше 9 секунд), чтобы ответ показывал правду
     await Promise.race([ensureCa(), new Promise(r => setTimeout(r, 9000))]);
