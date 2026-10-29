@@ -51,7 +51,7 @@ async function dbPool(request, readAll, force) {
 }
 /* Все аккаунты: сначала ячейки с сайта, потом из переменных функции */
 async function pool(request, readAll, force) {
-  const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, email: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.is_active !== false }));
+  const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, email: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.is_active !== false, weight: Math.max(1, +a.weight || 1), lastUsed: a.last_used ? Date.parse(a.last_used) : 0, failCount: +a.fail_count || 0, disabledUntil: a.disabled_until ? Date.parse(a.disabled_until) : 0 }));
   return db.concat(loadPool());
 }
 const isPlaceholder = k => !k || /^\.+$/.test(k) || /^(sk-)?\.{2,}/.test(k) || k.length < 10;
@@ -67,7 +67,7 @@ async function queue(request, readAll) {
   const start = cursor++ % pool.length;
   const ordered = pool.slice(start).concat(pool.slice(0, start));
   const now = Date.now();
-  const fresh = ordered.filter(a => !(rest.get(a.id) > now));
+  const fresh = ordered.filter(a => !(rest.get(a.id) > now) && !(a.disabledUntil > now));
   return fresh.length ? fresh : ordered; // если «отдыхают» все — пробуем всё равно
 }
 const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
@@ -98,13 +98,14 @@ async function chat(body, request, readAll, onlySlot) {
       let res, text;
       if (ruBlocked(a)) continue; // сервис не работает из России — не обращаемся вовсе
       res = await request(P.base + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ ...body, model, stream: false }), timeout: 280000 }); text = await readAll(res);
-      if (res.statusCode === 200) { rest.delete(a.id); last.set(a.id, { at: Date.now(), status: 200 }); return { status: 200, text, account: mask(a.email) }; }
+      if (res.statusCode === 200) { rest.delete(a.id); last.set(a.id, { at: Date.now(), status: 200 }); dbMark(a, { last_used: new Date().toISOString(), fail_count: 0, disabled_until: null }, request, readAll); return { status: 200, text, account: mask(a.email) }; }
       last.set(a.id, { at: Date.now(), status: res.statusCode, error: String(text).slice(0, 160) });
       lastErr = { status: res.statusCode, text };
       // 401 — ключ неверный, 402 — нет денег: аккаунт отдыхает час; 429 — лимит: 5 минут; 5xx — 1 минута
       const pause = [401, 402, 403].includes(res.statusCode) ? 3600e3 : res.statusCode === 429 ? 300e3 : res.statusCode >= 500 ? 60e3 : 0;
       if (!pause) break; // ошибка в самом запросе (400) — другой аккаунт не поможет
       rest.set(a.id, Date.now() + pause);
+      dbMark(a, { fail_count: (a.failCount || 0) + 1, disabled_until: new Date(Date.now() + pause).toISOString() }, request, readAll);
       console.warn(`ИИ: ${mask(a.email)} ответил ${res.statusCode}, переключаюсь на следующий аккаунт`);
     } catch (e) { lastErr = { status: 502, text: String(e.message || e) }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text.slice(0, 160) }); rest.set(a.id, Date.now() + 60e3); }
   }
@@ -133,12 +134,12 @@ async function balances(request, readAll) {
   return out;
 }
 /* ---------- управление ячейками с сайта (только автору сайта) ---------- */
-const SLOTS = 5;
+const MAX_SLOT = 100; /* ключей может быть сколько угодно: ограничение «5 ячеек» снято */
 const tail = k => isPlaceholder(k) ? "" : String(k).slice(0, 3) + "…" + String(k).slice(-4);
 async function admin(body, request, readAll) {
   if (!SB().url || !SB().key) return { status: 400, json: { error: "в функции не заданы SUPABASE_URL и SUPABASE_SERVICE_KEY" } };
   const act = body.action || "list", slot = Math.round(+body.slot);
-  if (act !== "list" && !(slot >= 1 && slot <= SLOTS)) return { status: 400, json: { error: "ячейка — от 1 до " + SLOTS } };
+  if (act !== "list" && !(slot >= 1 && slot <= MAX_SLOT)) return { status: 400, json: { error: "ячейка — от 1 до " + MAX_SLOT } };
   if (act === "save") {
     const row = { slot, label: String(body.label || "").slice(0, 80), base_url: String(body.url || "").trim().slice(0, 200), model: String(body.model || "").trim().slice(0, 80), is_active: body.isActive !== false, updated_at: new Date().toISOString() };
     if (row.base_url && !/^https:\/\/[\w.-]+(\/[\w./-]*)?$/.test(row.base_url)) return { status: 400, json: { error: "адрес должен начинаться с https://" } };
@@ -162,7 +163,10 @@ async function admin(body, request, readAll) {
     else { try { const r = await chat({ messages: [{ role: "user", content: "Ответь одним словом: готово" }], max_tokens: 20 }, request, readAll, slot); const j = JSON.parse(r.text); test = { ok: true, message: `${P.name} (${a.model || P.model}): ключ работает, ответ «${String(j.choices?.[0]?.message?.content || "").trim().slice(0, 40)}»` }; } catch (e) { test = { ok: false, message: `${P.name}: ${e.message}${/403|not allowed|unsupported_country|region/i.test(e.message) ? " — сервис не принимает запросы из России (сервер сайта в Яндекс Облаке)" : ""}` }; } }
   }
   const now = Date.now();
-  const slots = Array.from({ length: SLOTS }, (_, i) => { const n = i + 1, a = rows.find(r => r.slot === n), id = "s" + n, L = last.get(id); return a ? { slot: n, label: a.label || "", url: a.base_url || "", model: a.model || "", provider: providerOf({ key: a.key, url: a.base_url, model: a.model }).name, isActive: a.is_active !== false, key: tail(a.key), resting: rest.get(id) > now ? Math.ceil((rest.get(id) - now) / 60000) : 0, last: L || null } : { slot: n, empty: true }; });
+  const existingSlots = (rows || []).map(r => +r.slot).filter(n => n >= 1);
+  const topSlot = existingSlots.length ? Math.max(...existingSlots) : 0;
+  const slotsCount = Math.min(Math.max(topSlot + 1, 5), MAX_SLOT);
+  const slots = Array.from({ length: slotsCount }, (_, i) => { const n = i + 1, a = (rows || []).find(r => r.slot === n), id = "s" + n, L = last.get(id); return a ? { slot: n, label: a.label || "", url: a.base_url || "", model: a.model || "", provider: providerOf({ key: a.key, url: a.base_url, model: a.model }).name, isActive: a.is_active !== false, key: tail(a.key), resting: rest.get(id) > now ? Math.ceil((rest.get(id) - now) / 60000) : 0, last: L || null } : { slot: n, empty: true }; });
   const env = loadPool().filter(a => !isPlaceholder(a.key)).map(a => ({ label: mask(a.email), isActive: a.isActive, key: tail(a.key) }));
   return { status: 200, json: { ok: true, slots, env, test, table: rows !== null } };
 }
