@@ -549,7 +549,17 @@ window.UCHU_SITE = {
       <h1>Урок по ФРП <em>за пару минут</em></h1>
     </div>
   </section>
-  <div class="marquee" aria-hidden="true"><div class="marquee-track">
+  <section class="card appcard" id="appCard" aria-labelledby="appTitle">
+    <div class="card-h"><span class="n">📲</span><h2 id="appTitle">Приложение на телефон и компьютер</h2></div>
+    <p>Сайт устанавливается как обычное приложение — без магазинов и без отдельного файла. Открывается в своём окне, работает офлайн, уроки остаются в памяти устройства.</p>
+    <div class="row-btn">
+      <button class="btn flame" id="btnInstall2" type="button">Скачать приложение</button>
+      <a class="btn plain" href="https://t.me/Uchu_po_frp_bot" target="_blank" rel="noopener">Открыть в Telegram</a>
+      <button class="btn plain" id="btnInstallHelp" type="button">Как установить?</button>
+    </div>
+    <p class="small" id="appHint">Android (Chrome): «Установить приложение». iPhone: «Поделиться» → «На экран „Домой“». Компьютер (Chrome/Edge): значок установки в адресной строке.</p>
+    <p class="small">Мессенджер MAX — скоро. Telegram-бот <b>@Uchu_po_frp_bot</b> соберёт конспект по теме прямо в чате.</p>
+  </section>  <div class="marquee" aria-hidden="true"><div class="marquee-track">
     <span>🧠 ваш личный ИИ-агент <b>·</b></span><span>🎯 по вашей методике <b>·</b></span><span>📚 учится на ваших материалах <b>·</b></span><span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
     <span>🧠 ваш личный ИИ-агент <b>·</b></span><span>🎯 по вашей методике <b>·</b></span><span>📚 учится на ваших материалах <b>·</b></span><span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
   </div></div>
@@ -5763,22 +5773,24 @@ let __installPrompt = null;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); __installPrompt = e; const b = $("#btnInstall"); if (b) b.hidden = false; });
 window.addEventListener("appinstalled", () => { __installPrompt = null; const b = $("#btnInstall"); if (b) b.hidden = true; });
 function initInstall() {
-  const b = $("#btnInstall"); if (!b) return;
+  const b = $("#btnInstall"), b2 = $("#btnInstall2"), help = $("#btnInstallHelp");
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if (standalone) { b.hidden = true; return; }
-  if (ios) {
-    b.hidden = false;
-    b.onclick = () => toast("На iPhone и iPad: «Поделиться» → «На экран „Домой“». Приложение появится как иконка.", 8000);
-    return;
+  function hint(text) { const el = $("#appHint"); if (el) el.textContent = text; }
+  function doInstall() {
+    if (__installPrompt) {
+      const p = __installPrompt;
+      p.prompt();
+      try { p.userChoice.then(() => { __installPrompt = null; [b, b2].forEach(x => x && (x.hidden = true)); }).catch(() => { }); } catch (e) { }
+      return;
+    }
+    if (ios) return toast("На iPhone и iPad: «Поделиться» → «На экран „Домой“». Приложение появится как иконка.", 8000);
+    toast("Откройте сайт в Chrome или Edge — в адресной строке появится «Установить приложение».", 7000);
   }
-  b.hidden = !__installPrompt;
-  b.onclick = async () => {
-    if (!__installPrompt) { toast("Откройте сайт в Chrome или Edge — браузер предложит установить приложение.", 6000); return; }
-    __installPrompt.prompt();
-    try { await __installPrompt.userChoice; } catch { }
-    __installPrompt = null; b.hidden = true;
-  };
+  [b, b2].forEach(x => { if (!x) return; x.hidden = false; x.onclick = doInstall; });
+  if (help) help.onclick = () => toast("Android: меню Chrome → «Установить приложение». iPhone: «Поделиться» → «На экран „Домой“». Компьютер: значок установки в адресной строке Chrome/Edge.", 10000);
+  if (standalone) { [b, b2].forEach(x => x && (x.hidden = true)); }
+  if (ios) hint("На iPhone: «Поделиться» → «На экран „Домой“» — приложение появится иконкой на рабочем столе.");
 }
 
 async function start() {
