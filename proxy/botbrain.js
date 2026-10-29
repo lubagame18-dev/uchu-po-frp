@@ -247,7 +247,7 @@ const ok = m => `✅ ${m}`;
 
 /* ---------- состояние диалога ---------- */
 function createBrain(opts) {
-  const { store, send, sendDoc, links } = opts; // store: {get(id), set(id, mem)}
+  const { store, send, sendDoc, links, platform } = opts; // store: {get(id), set(id, mem)}
   const sessions = new Map();
 
   const getSession = id => {
@@ -318,6 +318,26 @@ function createBrain(opts) {
     s.step = "idle"; s.job = {};
   }
 
+  async function botRegister(chatId, email, password) {
+    const url = process.env.BOT_REGISTER_URL || "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/bot/register";
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Bot-Secret": process.env.BOT_SECRET || "" },
+        body: JSON.stringify({ email, password, chat_id: String(chatId), platform: platform || "tg" })
+      });
+      const j = await res.json().catch(() => ({}));
+      return { ok: res.ok && j.ok, error: j.error };
+    } catch (e) { return { ok: false, error: "сервис недоступен" }; }
+  }
+
+  async function beginRegistration(id) {
+    const s = getSession(id);
+    if (s.mem.email) return send(id, `Кабинет уже привязан к этому чату: ${s.mem.email}.\nВход на сайте — та же почта и пароль.`);
+    s.step = "email";
+    return send(id, "Создам личный кабинет «Учу по ФРП» прямо здесь.\n\nНапишите почту — на неё будет аккаунт (подтверждение не потребуется).", [[{ text: "Отмена", data: "cancel" }]]);
+  }
+
   function start(id, preset) {
     const s = getSession(id);
     s.step = "idle"; s.job = {};
@@ -326,12 +346,31 @@ function createBrain(opts) {
     return send(id,
       "Создам материалы к уроку.\n\nНапишите тему — можно сразу с предметом и классом:\n«Строение клетки, биология, 5 класс»." + hint +
       "\n\nЧтобы сохранять уроки и скачивать материалы без ограничений, подключите личный кабинет: войдите на сайте и подтвердите почту — кнопка «Войти в кабинет».\n\nИли откройте приложение на телефоне.",
-      preset || [[{ text: "Войти в кабинет", url: SITE }, { text: "Открыть приложение", url: SITE }]]);
+      preset || [[{ text: "Создать кабинет здесь", data: "reg" }, { text: "Открыть приложение", url: SITE }]]);
   }
 
   async function onText(id, text) {
     const s = getSession(id);
     const t = String(text || "").trim();
+    if (s.step === "email") {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t)) return send(id, "Похоже, это не почта. Напишите адрес вида name@mail.ru — или нажмите «Отмена».", [[{ text: "Отмена", data: "cancel" }]]);
+      s.pendingEmail = t.toLowerCase(); s.step = "password";
+      return send(id, "Почта принята. Придумайте пароль (минимум 6 символов) и отправьте его одним сообщением.");
+    }
+    if (s.step === "password") {
+      if (t.length < 6) return send(id, "Пароль короче 6 символов — придумайте подлиннее.");
+      const email = s.pendingEmail || "";
+      s.step = "idle"; s.pendingEmail = "";
+      await send(id, "Создаю кабинет…");
+      const r = await botRegister(id, email, t);
+      if (!r.ok) {
+        s.step = "idle";
+        return send(id, "Не получилось создать кабинет: " + (r.error || "ошибка сервиса") + ".\nМожно зарегистрироваться на сайте.", [[{ text: "Открыть сайт", url: SITE }]]);
+      }
+      saveMem(id, { ...s.mem, email });
+      return send(id, `Готово: кабинет ${email} создан и привязан к этому чату.\n\nВход на сайте — та же почта и пароль. Подтверждение почты не нужно. Можно сразу собирать материалы.`);
+    }
+    if (/(кабинет|регистрац|войти|привяз)/i.test(t)) return beginRegistration(id);
     if (/^\/(start|new)\b/i.test(t)) return start(id);
     if (/^\/(app|site)\b/i.test(t) || /^(приложение|открой приложение|скачать приложение)/i.test(t)) {
       return send(id, "Приложение «Учу по ФРП» ставится из сайта: откройте его и нажмите «Установить приложение» (Android/Chrome) или «Поделиться → На экран „Домой“» (iPhone).", [[{ text: "Открыть сайт", url: SITE }]]);
@@ -351,6 +390,8 @@ function createBrain(opts) {
   async function onCallback(id, data) {
     const s = getSession(id);
     if (data === "new") return start(id);
+    if (data === "reg") return beginRegistration(id);
+    if (data === "cancel") { const s2 = getSession(id); s2.step = "idle"; s2.pendingEmail = ""; return send(id, "Хорошо, отменил. Напишите тему урока, когда будете готовы."); }
     if (data.startsWith("subj:")) { s.job.subject = data.slice(5); return askNext(id, s); }
     if (data.startsWith("grade:")) { s.job.grade = +data.slice(6); return askNext(id, s); }
     if (data.startsWith("fmt:")) {

@@ -65,6 +65,7 @@ const brain = createBrain({
   send,
   sendDoc,
   links: { site: SITE },
+  platform: "max",
   store: {
     get: id => memCache[id] || {},
     set: (id, mem) => { memCache[id] = mem; persist(); }

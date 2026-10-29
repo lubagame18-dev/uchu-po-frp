@@ -367,6 +367,48 @@ async function handler(req, res) {
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
   const u = new URL(req.url, "http://x");
   const route = u.pathname.replace(/\/+$/, "").replace(/^\/(api\/)?ai(?=\/|$)/, "");
+
+  /* ---------- регистрация через бота: создаёт аккаунт и сразу привязывает чат ---------- */
+  if (req.method === "POST" && route === "/bot/register") {
+    const botSecret = process.env.BOT_SECRET || "";
+    if (botSecret && req.headers["x-bot-secret"] !== botSecret) return send(res, 403, { error: "forbidden" });
+    let rawReg = ""; try { rawReg = await readAll(req); } catch { }
+    let br = {}; try { br = JSON.parse(rawReg || "{}"); } catch { }
+    const email = String(br.email || "").trim().toLowerCase();
+    const password = String(br.password || "");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, { error: "нужна корректная почта" });
+    if (password.length < 6) return send(res, 400, { error: "пароль короче 6 символов" });
+    const sbUrl = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
+    const sbKey = process.env.SUPABASE_SERVICE_KEY || "";
+    if (!sbUrl || !sbKey) return send(res, 503, { error: "регистрация временно недоступна" });
+    const headers = { apikey: sbKey, Authorization: "Bearer " + sbKey, "Content-Type": "application/json" };
+    const rr = await request(sbUrl + "/auth/v1/admin/users", {
+      method: "POST", headers,
+      body: JSON.stringify({ email, password, email_confirm: true }), timeout: 20000
+    });
+    const rtxt = await readAll(rr); let j = null; try { j = JSON.parse(rtxt); } catch { }
+    if (rr.status < 200 || rr.status >= 300 || !j || !j.id) {
+      const msg = (j && (j.msg || j.message || j.error_description)) || "не удалось создать аккаунт";
+      return send(res, 400, { error: String(msg).slice(0, 200) });
+    }
+    const uid = j.id;
+    try {
+      await request(sbUrl + "/rest/v1/profiles", {
+        method: "POST", headers, timeout: 15000,
+        body: JSON.stringify({ id: uid, plan: "free", ai_left: 0 })
+      });
+    } catch { }
+    if (br.chat_id) {
+      try {
+        await request(sbUrl + "/rest/v1/bot_links", {
+          method: "POST", headers, timeout: 15000,
+          body: JSON.stringify({ chat_id: String(br.chat_id), platform: String(br.platform || "tg"), user_id: uid, email: email })
+        });
+      } catch { }
+    }
+    return send(res, 200, { ok: true, user_id: uid, email });
+  }
+
   /* ---------- приём ботов по корню функции: некоторые платформы теряют ?path= ---------- */
   if (req.method === "POST" && (route === "" || route === "/")) {
     let rawRoot = ""; try { rawRoot = await readAll(req); } catch { }
