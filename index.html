@@ -5675,7 +5675,7 @@ function bind() {
     if (window.Plans && Plans.pending(state.subject)) { const ok = await Plans.ensure(state.subject); if (!ok) toast("Не удалось загрузить программу предмета — проверьте интернет и выберите предмет ещё раз.", 6000); }
     if (window.Kits && Kits.pending(state.subject)) { const ok2 = await Kits.ensure(state.subject); if (!ok2) toast("Не удалось загрузить модули предмета — проверьте интернет и выберите предмет ещё раз.", 6000); }
     { const stg = stageById(state.stage); const sg = SUBJ_GRADES[state.subject] || []; if (!stg.grades.some(g => sg.includes(g))) { state.stage = stageOfSubject(state.subject).id; setSeg("segStage", state.stage); fillSubjects(state.stage); } }
-    updateLessonSeg(); refreshTopics();
+    updateLessonSeg(); if (window.syncThemeOptions) syncThemeOptions(); refreshTopics();
   });
   $$("#segStage button").forEach(b => b.onclick = async () => {
     if (state.stage === b.dataset.v) return;
@@ -5686,13 +5686,23 @@ function bind() {
     readForm(); updateType();
     if (window.Plans) await Plans.ensure(state.subject);
     if (window.Kits) await Kits.ensure(state.subject);
-    updateLessonSeg(); refreshTopics();
+    updateLessonSeg(); if (window.syncThemeOptions) syncThemeOptions(); refreshTopics();
   });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
   { const sel = $("#slTheme"); if (sel && window.ThemeKit && window.SlideEditor) {
-    sel.innerHTML += Object.entries(ThemeKit.META).map(([k, v]) => `<option value="${k}">${v.name} — ${v.desc}</option>`).join("") + Object.entries(SlideEditor.THEMES).filter(([k]) => !ThemeKit.has(k)).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+    const baseHtml = sel.innerHTML;
+    const buildThemeOptions = () => {
+      const pack = ThemeKit.packFor ? ThemeKit.packFor(state.subject) : null;
+      const keys = (pack && pack.length) ? pack : Object.keys(ThemeKit.META);
+      const cur = sel.value;
+      sel.innerHTML = baseHtml + keys.map(k => `<option value="${k}">${ThemeKit.META[k].name} — ${ThemeKit.META[k].desc}</option>`).join("")
+        + (pack && pack.length ? "" : Object.entries(SlideEditor.THEMES).filter(([k]) => !keys.includes(k) && !ThemeKit.has(k)).map(([k, v]) => `<option value="${k}">${v}</option>`).join(""));
+      sel.value = (cur === "auto" || keys.includes(cur)) ? cur : "auto";
+    };
+    window.syncThemeOptions = buildThemeOptions;
+    buildThemeOptions();
     try { sel.value = localStorage.getItem("uchu:theme") || "auto"; } catch { }
     const why = () => { const t = $("#topic")?.value || ""; $("#slThemeWhy").textContent = sel.value === "auto" && t.trim() ? "сейчас: " + ThemeKit.why({ topic: t, subject: state.subject }) : ""; };
     sel.onchange = () => { try { localStorage.setItem("uchu:theme", sel.value); } catch { } why(); };
@@ -5794,7 +5804,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/tutor.js"></script>
 <script src="js/conventions.js"></script>
 <script src="js/mnemo.js"></script>
-<script src="js/themes.js"></script>
+<script src="js/themes.js"></script><script src="js/themes2.js"></script>
 <script src="js/video.js"></script>
 <script src="js/photostk.js"></script>
 <script src="data/promo.js"></script>
