@@ -9,6 +9,7 @@
      [{"label":"основной","key":"sk-...","url":"https://api.aitunnel.ru/v1","model":"flux-schnell"}]
    =================================================================== */
 const MAX_SLOT = 100; /* ключей может быть сколько угодно */
+function dbMark(a, body, request, readAll) { try { if (a && a.slot != null && /^s/.test(String(a.id))) sb(request, readAll, "/rest/v1/img_keys?slot=eq." + a.slot, { method: "PATCH", body }).catch(() => { }); } catch (e) { } }
 const DEF_URL = () => process.env.IMG_API_URL || "https://api.aitunnel.ru/v1";
 const DEF_MODEL = () => process.env.IMG_MODEL || "flux-schnell";
 const QUOTA = { ai: +process.env.IMG_QUOTA_AI || 8, pro: +process.env.IMG_QUOTA_PRO || 18 };
@@ -79,8 +80,9 @@ async function image(prompt, aspect, request, readAll, onlySlot) {
       const pause = [401, 402, 403].includes(r.status) ? 3600e3 : r.status === 429 ? 300e3 : r.status >= 500 ? 60e3 : 0;
       if (!pause) break;
       rest.set(a.id, Date.now() + pause);
+      dbMark(a, { fail_count: (a.failCount || 0) + 1, disabled_until: new Date(Date.now() + pause).toISOString() }, request, readAll);
       console.warn(`Картинки: ${mask(a.label)} ответил ${r.status}, переключаюсь на следующий ключ`);
-    } catch (e) { lastErr = { status: 502, text: String(e.message || e) }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text.slice(0, 160) }); rest.set(a.id, Date.now() + 60e3); }
+    } catch (e) { lastErr = { status: 502, text: String(e.message || e) }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text.slice(0, 160) }); rest.set(a.id, Date.now() + 60e3); dbMark(a, { fail_count: (a.failCount || 0) + 1, disabled_until: new Date(Date.now() + 60e3).toISOString() }, request, readAll); }
   }
   const e = new Error("Картинку не удалось нарисовать ни на одном общем ключе: " + (lastErr ? `HTTP ${lastErr.status} ${String(lastErr.text).slice(0, 160)}` : "нет ответа"));
   e.status = lastErr?.status === 400 ? 400 : 502; e.reason = lastErr?.status === 402 ? "payment" : lastErr?.status === 429 ? "rate" : "other"; throw e;

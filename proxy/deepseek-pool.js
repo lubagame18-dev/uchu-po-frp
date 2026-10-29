@@ -135,6 +135,7 @@ async function balances(request, readAll) {
 }
 /* ---------- управление ячейками с сайта (только автору сайта) ---------- */
 const MAX_SLOT = 100; /* ключей может быть сколько угодно: ограничение «5 ячеек» снято */
+function dbMark(a, body, request, readAll) { try { if (a && a.slot != null && /^s/.test(String(a.id))) sb(request, readAll, "/rest/v1/ai_keys?slot=eq." + a.slot, { method: "PATCH", body }).catch(() => { }); } catch (e) { } }
 const tail = k => isPlaceholder(k) ? "" : String(k).slice(0, 3) + "…" + String(k).slice(-4);
 async function admin(body, request, readAll) {
   if (!SB().url || !SB().key) return { status: 400, json: { error: "в функции не заданы SUPABASE_URL и SUPABASE_SERVICE_KEY" } };
