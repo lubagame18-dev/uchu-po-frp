@@ -4156,6 +4156,7 @@ function sampleErr(e) {
 /* ---------- запуск ---------- */
 const cleanMd = t => String(t || "").replace(/^\s*```(?:markdown|md)?\s*\n/, "").replace(/\n```\s*$/, "").replace(/\r/g, "");
 async function createLesson() {
+  if (window.Plans) await Plans.ensure(state.subject);
   readForm(); await Base.ready();
   if (!state.topic) { $("#topic").focus(); $("#createHint").textContent = "Введите тему урока или выберите её из списка."; return; }
   if (state.formats.conspect && window.Access && !Access.techAllowed()) { state.formats.conspect = false; syncTechCheck(); }
@@ -5607,7 +5608,7 @@ function bind() {
   $("#prevHwPick").onclick = () => $("#prevHwFile").click();
   $("#prevHwFile").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const r = await readFile(f); const t = String(r?.text || "").trim(); if (!t) throw new Error("в файле не найден текст"); $("#prevHw").value = t.slice(0, 2500); $("#prevHwHint").textContent = `Из файла «${f.name}».`; } catch (er) { toast("Не получилось прочитать файл: " + (er.message || er)); } };
   $("#prevHwFind").onclick = async () => { readForm(); const f = await findPrevHw({ subject: state.subject, grade: state.grade, topic: state.topic, lessonNo: state.lessonNo }); if (f) { $("#prevHw").value = f.text; $("#prevHwHint").textContent = `Найдено: ${f.src}.`; } else $("#prevHwHint").textContent = "Прошлого урока этой темы в «Моих уроках» нет — впишите задание или прикрепите файл. Без этого проверка будет формальной."; };
-  $$("#segSubject button").forEach(b => b.onclick = () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); fillGrades(); if (ch) clearTopic(); else { readForm(); updateType(); } syncPack(ch); refreshTopics(); });
+  $$("#segSubject button").forEach(b => b.onclick = async () => { const ch = state.subject !== b.dataset.v; state.subject = b.dataset.v; setSeg("segSubject", state.subject); fillGrades(); if (ch) clearTopic(); else { readForm(); updateType(); } syncPack(ch); if (window.Plans && Plans.pending(state.subject)) { const ok = await Plans.ensure(state.subject); if (!ok) toast("Не удалось загрузить программу предмета — проверьте интернет и выберите предмет ещё раз.", 6000); } refreshTopics(); });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
@@ -5673,6 +5674,7 @@ async function start() {
   ensureMarked().then(() => { if (!state.lesson) renderEmpty(); });
   [caps.sample, caps.downloads] = await Promise.all(["sample", "downloads"].map(n => window.claude?.use?.(n).catch(() => null) ?? null));
   await Base.ready(); await loadMaterials(); // материалы из data/extra.js доступны только после загрузки базы
+  if (window.Plans) await Plans.ensure(state.subject);
   await FRP.load();
   Store.persist();
   syncBuild(); updateType(); refreshTopics();
@@ -5722,7 +5724,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/publish.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/worksearch.js"></script>
-<script src="js/frpplans.js"></script><script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histlessons.js"></script><script src="js/histkit.js"></script><script src="js/engdata.js"></script><script src="js/engkit.js"></script><script src="js/biolessons.js"></script><script src="js/biokit.js"></script><script src="js/frpplans2.js"></script><script src="js/geomethod.js"></script><script src="js/frpplans3.js"></script><script src="js/phydata.js"></script><script src="js/phymethod.js"></script><script src="js/frpplans4.js"></script><script src="js/chemdata.js"></script><script src="js/chemmethod.js"></script><script src="js/frpplans5.js"></script><script src="js/socdata.js"></script><script src="js/socmethod.js"></script><script src="js/frpplans6.js"></script><script src="js/frpplans7.js"></script><script src="js/frpplans8.js"></script><script src="js/frpplans9.js"></script><script src="js/frpplans10.js"></script><script src="js/frpplans11.js"></script><script src="js/frpplans12.js"></script><script src="js/frpplans13.js"></script><script src="js/infgen.js"></script><script src="js/infdata.js"></script><script src="js/infmethod.js"></script><script src="js/imagegen.js"></script><script src="js/frpkit.js"></script>
+<script src="js/mathkit.js"></script><script src="js/histdata.js"></script><script src="js/histlessons.js"></script><script src="js/histkit.js"></script><script src="js/engdata.js"></script><script src="js/engkit.js"></script><script src="js/biolessons.js"></script><script src="js/biokit.js"></script><script src="js/geomethod.js"></script><script src="js/phydata.js"></script><script src="js/phymethod.js"></script><script src="js/chemdata.js"></script><script src="js/chemmethod.js"></script><script src="js/socdata.js"></script><script src="js/socmethod.js"></script><script src="js/infgen.js"></script><script src="js/infdata.js"></script><script src="js/infmethod.js"></script><script src="js/imagegen.js"></script><script src="js/plans-loader.js"></script><script src="js/frpkit.js"></script>
 <script src="js/subjects.js"></script>
 <script src="js/usage.js"></script>
 <script src="js/ai.js"></script><script src="js/blobs.js"></script>

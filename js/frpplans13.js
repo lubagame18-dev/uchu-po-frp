@@ -9,6 +9,7 @@ window.FRPPlans = window.FRPPlans || {};
   function addSection(subject, grade, section, theme, lessons) {
     const plan = P[subject] && P[subject][grade];
     if (!plan) return;
+    if (plan.s && plan.s.includes(section)) return; // раздел уже добавлен
     plan.s.push(section);
     plan.th.push(theme);
     const si = plan.s.length - 1;
@@ -17,6 +18,7 @@ window.FRPPlans = window.FRPPlans || {};
   }
 
   /* ---------- Изобразительное искусство: +7 уроков в каждом классе ---------- */
+  function apply() {
   addSection("izo", "1", "Искусство и игра",
     ["Искусство и игра", "Маска и карнавальный образ; открытка к празднику; коллективная работа; игра как источник художественных образов.", "Придумывать образ; делать маску и открытку; работать в группе; рассказывать о своей работе."],
     ["Маска сказочного героя", "Открытка к празднику", "Коллективное панно", "Играем в художников"]);
@@ -134,6 +136,12 @@ window.FRPPlans = window.FRPPlans || {};
   addSection("lit1", "4", "Читательские проекты",
     ["Читательские проекты", "Итоговый проект по чтению; список чтения на лето; защита проекта.", "Выполнять проект; составлять список; защищать; оценивать."],
     ["Итоговый проект по чтению", "Список на лето", "Защита проекта"]);
+
+  }
+
+  window.FRP_EXTRAS = window.FRP_EXTRAS || [];
+  window.FRP_EXTRAS.push(apply);
+  apply();
 
   /* ---------- Астрономия, 10–11 классы ---------- */
   P.astr = {
