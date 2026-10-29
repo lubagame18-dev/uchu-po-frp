@@ -534,7 +534,7 @@ window.UCHU_SITE = {
     <nav class="nav" aria-label="Разделы">
       <button class="chip" id="nav-builder" aria-current="page">Конструктор</button>
       <button class="chip" id="nav-library">Мои уроки</button>
-      <button class="chip" id="nav-materials">Материалы</button><button class="chip" id="btnInstall" hidden title="Установить приложение на телефон или компьютер">📲 Приложение</button>
+      <button class="chip" id="nav-materials">Материалы</button>
     </nav>
     <div class="account"></div>
   </div>
@@ -549,17 +549,7 @@ window.UCHU_SITE = {
       <h1>Урок по ФРП <em>за пару минут</em></h1>
     </div>
   </section>
-  <section class="card appcard" id="appCard" aria-labelledby="appTitle">
-    <div class="card-h"><span class="n">📲</span><h2 id="appTitle">Приложение на телефон и компьютер</h2></div>
-    <p>Сайт устанавливается как обычное приложение — без магазинов и без отдельного файла. Открывается в своём окне, работает офлайн, уроки остаются в памяти устройства.</p>
-    <div class="row-btn">
-      <button class="btn flame" id="btnInstall2" type="button">Скачать приложение</button>
-      <a class="btn plain" href="https://t.me/Uchu_po_frp_bot" target="_blank" rel="noopener">Открыть в Telegram</a>
-      <button class="btn plain" id="btnInstallHelp" type="button">Как установить?</button>
-    </div>
-    <p class="small" id="appHint">Android (Chrome): «Установить приложение». iPhone: «Поделиться» → «На экран „Домой“». Компьютер (Chrome/Edge): значок установки в адресной строке.</p>
-    <p class="small">Мессенджер MAX — скоро. Telegram-бот <b>@Uchu_po_frp_bot</b> соберёт конспект по теме прямо в чате.</p>
-  </section>  <div class="marquee" aria-hidden="true"><div class="marquee-track">
+  <div class="marquee" aria-hidden="true"><div class="marquee-track">
     <span>🧠 ваш личный ИИ-агент <b>·</b></span><span>🎯 по вашей методике <b>·</b></span><span>📚 учится на ваших материалах <b>·</b></span><span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
     <span>🧠 ваш личный ИИ-агент <b>·</b></span><span>🎯 по вашей методике <b>·</b></span><span>📚 учится на ваших материалах <b>·</b></span><span>✎ техкарта <b>·</b></span><span>конспект <b>·</b></span><span>презентация <b>·</b></span><span>рабочий лист <b>·</b></span><span>результаты ФРП <b>·</b></span><span>ВПР <b>·</b></span><span>ОГЭ <b>·</b></span><span>ЕГЭ <b>·</b></span>
   </div></div>
@@ -671,7 +661,21 @@ window.UCHU_SITE = {
     </section>
   </main>
 </div>
-
+  <footer class="app-foot" id="appFoot" aria-label="Приложение и мессенджеры">
+    <button class="chip foot" id="btnInstall2" type="button" title="Установить приложение на телефон или компьютер">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>
+      Приложение
+    </button>
+    <a class="chip foot" href="https://t.me/Uchu_po_frp_bot" target="_blank" rel="noopener" title="Открыть бота в Telegram">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M21.9 4.4c-.2-.2-.5-.3-.8-.2L2.9 11.5c-.3.1-.5.4-.5.7 0 .3.2.6.5.7l4.4 1.6 1.7 5.4c.1.3.4.5.7.5.2 0 .4-.1.5-.2l2.6-2.7 4.2 3.1c.2.2.5.2.7.1.2-.1.4-.3.4-.6l3-14c.1-.4 0-.7-.2-.9zM9.9 14.4l-.9 3-1.3-4.1L18 6.2 9.9 14.4z"/></svg>
+      Telegram
+    </a>
+    <button class="chip foot subtle" id="btnMax" type="button" title="MAX — скоро">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.7 14V8.5h2.2l2.5 4.2 2.5-4.2h2.2V16h-2v-4.4l-2 3.2h-1.3l-2-3.2V16H8.3z"/></svg>
+      MAX <span class="soon">скоро</span>
+    </button>
+    <span class="small">Установка: Android/Chrome — «Установить приложение», iPhone — «Поделиться → На экран „Домой“».</span>
+  </footer>
 <!-- ===================== МОИ УРОКИ ===================== -->
 <main id="view-library" class="wrap page" hidden>
   <h1>Мои уроки</h1>
@@ -5791,10 +5795,9 @@ let __installPrompt = null;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); __installPrompt = e; const b = $("#btnInstall"); if (b) b.hidden = false; });
 window.addEventListener("appinstalled", () => { __installPrompt = null; const b = $("#btnInstall"); if (b) b.hidden = true; });
 function initInstall() {
-  const b = $("#btnInstall"), b2 = $("#btnInstall2"), help = $("#btnInstallHelp");
+  const b = $("#btnInstall"), b2 = $("#btnInstall2"), maxBtn = $("#btnMax");
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  function hint(text) { const el = $("#appHint"); if (el) el.textContent = text; }
   function doInstall() {
     if (__installPrompt) {
       const p = __installPrompt;
@@ -5806,11 +5809,10 @@ function initInstall() {
     toast("Откройте сайт в Chrome или Edge — в адресной строке появится «Установить приложение».", 7000);
   }
   [b, b2].forEach(x => { if (!x) return; x.hidden = false; x.onclick = doInstall; });
-  if (help) help.onclick = () => toast("Android: меню Chrome → «Установить приложение». iPhone: «Поделиться» → «На экран „Домой“». Компьютер: значок установки в адресной строке Chrome/Edge.", 10000);
+  if (b) b.hidden = true; // в шапке не дублируем: виджет внизу страницы
+  if (maxBtn) maxBtn.onclick = () => toast("MAX подключим сразу после создания бота — пока пользуйтесь Telegram.", 6000);
   if (standalone) { [b, b2].forEach(x => x && (x.hidden = true)); }
-  if (ios) hint("На iPhone: «Поделиться» → «На экран „Домой“» — приложение появится иконкой на рабочем столе.");
 }
-
 async function start() {
   bind();
   initInstall();
