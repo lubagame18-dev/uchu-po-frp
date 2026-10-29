@@ -670,10 +670,10 @@ window.UCHU_SITE = {
       <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M21.9 4.4c-.2-.2-.5-.3-.8-.2L2.9 11.5c-.3.1-.5.4-.5.7 0 .3.2.6.5.7l4.4 1.6 1.7 5.4c.1.3.4.5.7.5.2 0 .4-.1.5-.2l2.6-2.7 4.2 3.1c.2.2.5.2.7.1.2-.1.4-.3.4-.6l3-14c.1-.4 0-.7-.2-.9zM9.9 14.4l-.9 3-1.3-4.1L18 6.2 9.9 14.4z"/></svg>
       Telegram
     </a>
-    <button class="chip foot subtle" id="btnMax" type="button" title="MAX — скоро">
+    <a class="chip foot" id="btnMax" href="https://max.ru/se14825349_bot" target="_blank" rel="noopener" title="Открыть бота в MAX">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.7 14V8.5h2.2l2.5 4.2 2.5-4.2h2.2V16h-2v-4.4l-2 3.2h-1.3l-2-3.2V16H8.3z"/></svg>
-      MAX <span class="soon">скоро</span>
-    </button>
+      MAX
+    </a>
     <span class="small">Установка: Android/Chrome — «Установить приложение», iPhone — «Поделиться → На экран „Домой“».</span>
   </footer>
 <!-- ===================== МОИ УРОКИ ===================== -->
@@ -5810,7 +5810,6 @@ function initInstall() {
   }
   [b, b2].forEach(x => { if (!x) return; x.hidden = false; x.onclick = doInstall; });
   if (b) b.hidden = true; // в шапке не дублируем: виджет внизу страницы
-  if (maxBtn) maxBtn.onclick = () => toast("MAX подключим сразу после создания бота — пока пользуйтесь Telegram.", 6000);
   if (standalone) { [b, b2].forEach(x => x && (x.hidden = true)); }
 }
 async function start() {
