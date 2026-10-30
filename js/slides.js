@@ -163,7 +163,8 @@ const SlideEditor = (() => {
     const tkv = TK ? ThemeKit.vars(T, L()?.slidePalette) : "";
     const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${st.aw ? `--aw:${+st.aw}%;` : ""}${st.ix || st.iy ? `--ix:${+st.ix || 0}%;--iy:${+st.iy || 0}%;` : ""}${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
-    const body = vid + linkify(mdToHtml(acc ? parts.rest : sl.body || ""));
+    const srcBody = String(acc ? parts.rest : sl.body || "").replace(/\]\(#g\s+«([^»]*)»\)/g, (m, d) => "](#g \"" + String(d).replace(/"/g, "\x27") + "\")");
+  const body = vid + linkify(mdToHtml(srcBody));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
     const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
