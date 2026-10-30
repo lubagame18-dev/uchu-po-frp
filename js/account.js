@@ -356,7 +356,20 @@ const Account = (() => {
     }
     btn.title = S ? "Личный кабинет" : "Войти в личный кабинет";
   }
-  document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); });
+  const navBtn = () => document.getElementById("navAuth");
+  function paintNav() {
+    const nb = navBtn(); if (!nb) return;
+    if (!S) { nb.innerHTML = "Войти"; nb.onclick = open; return; }
+    const I = S?.info || {};
+    const pic = I.avatar || S.pic || "";
+    const nm = I.name || S.email || "Кабинет";
+    nb.innerHTML = (pic ? `<img class="acc-ava" src="${esc(pic)}" alt="">` : "") + esc(nm.split(/\s+/).slice(0, 2).join(" ") || "Кабинет");
+    nb.onclick = open;
+  }
+  document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); paintNav(); });
+  document.addEventListener("uchu:auth", paintNav);
+  setInterval(paintNav, 1500);
+
   async function fromCode() {
     const q = new URLSearchParams(location.search);
     const code = q.get("code"); if (!code) return false;

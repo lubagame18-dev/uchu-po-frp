@@ -1091,3 +1091,6 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .acc-btn:hover { border-color: var(--accent); }
 .acc-btn .acc-ava { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .acc-btn .acc-ini { font-size: 14px; letter-spacing: .02em; }
+/* яркая кнопка входа/кабинета в ряду разделов */
+.nav-auth { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; }
+.nav-auth .acc-ava { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
