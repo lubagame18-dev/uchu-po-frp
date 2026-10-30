@@ -18,7 +18,7 @@ textarea{min-height:110px}
 .tile b{display:block;margin-bottom:2px}.tile span{color:#666;font-size:13px}
 </style></head><body><div class="wrap">
 <h1>Кабинет разработчика</h1>
-<p class="sub">Цены, промпты, материалы и AI — всё в одном месте. Вход по коду, без почты.</p>
+<p class="sub" id="sub">Цены, промпты, материалы и AI — всё в одном месте. Вход по коду, без почты.</p>
 
 <div class="card" id="gate">
   <label for="code">Код разработчика</label>
@@ -103,7 +103,7 @@ textarea{min-height:110px}
       msg.textContent=""; msg.className=""; show();
     } else { msg.textContent="Неверный код"; msg.className="err"; }
   };
-  if(localStorage.getItem("uchu:dev-session")){ show(); }
+  if(localStorage.getItem("uchu:dev-session")){ show(); }\n  if(/[?&]embed=1/.test(location.search)){ var _g=document.getElementById("gate"); if(_g)_g.hidden=true; var _h=document.querySelector("h1"); if(_h)_h.hidden=true; var _s=document.getElementById("sub"); if(_s)_s.hidden=true; show(); }
   document.getElementById("save").onclick=function(){
     var c=cfg();
     c.prices={basic:+document.getElementById("pBasic").value||250, ai:+document.getElementById("pAi").value||500, basicYear:+document.getElementById("pBasicYear").value||2000, aiYear:+document.getElementById("pAiYear").value||4000};

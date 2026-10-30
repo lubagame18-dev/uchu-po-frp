@@ -82,6 +82,20 @@ const Dev = (() => {
   }
   function enter() {
     try {
+      try {
+        const sb = document.getElementById("devSettings");
+        if (sb) sb.onclick = () => {
+          let ov = document.getElementById("devSettingsOv");
+          if (!ov) {
+            ov = document.createElement("div"); ov.id = "devSettingsOv";
+            ov.style.cssText = "position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px";
+            ov.innerHTML = '<div style="background:#fff;border-radius:16px;width:min(980px,100%);height:min(86vh,900px);overflow:hidden;display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #eee"><b>Настройки сайта</b><button class="btn sm" id="devSettingsX">Закрыть</button></div><iframe src="/dev.html?embed=1" style="border:0;flex:1;width:100%"></iframe></div>';
+            document.body.appendChild(ov);
+            ov.querySelector("#devSettingsX").onclick = () => ov.remove();
+            ov.addEventListener("click", e => { if (e.target === ov) ov.remove(); });
+          }
+        };
+      } catch { }
       const nav = document.querySelector(".nav");
       if (nav && !document.getElementById("navDev")) {
         const nb = document.createElement("button");
@@ -93,7 +107,7 @@ const Dev = (() => {
     on = true;
     document.body.classList.add("dev-on");
     const root = document.createElement("div"); root.id = "devRoot";
-    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button><button class="btn sm ghost" id="devTeacher" title="Посмотреть сайт так, как его видит учитель на своём тарифе">👁 Как учитель</button><button class="btn sm ghost" id="devForget" title="Выйти и больше не входить автоматически на этом устройстве">Выйти и забыть</button></div>
+    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button><button class="btn sm ghost" id="devTeacher" title="Посмотреть сайт так, как его видит учитель на своём тарифе">👁 Как учитель</button><button class="btn sm ghost" id="devSettings" title="Цены, промпты, материалы, AI">⚙ Настройки</button><button class="btn sm ghost" id="devForget" title="Выйти и больше не входить автоматически на этом устройстве">Выйти и забыть</button></div>
       <main id="view-dev" class="wrap page" hidden></main>`;
     document.body.prepend(root);
     root.querySelector("#devExit").onclick = exit;
