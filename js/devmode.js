@@ -251,7 +251,26 @@ const Dev = (() => {
         f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить аккаунт ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
       });
     };
-    const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>${o.title}</h2><p class="tr-now">Не удалось загрузить общие ключи: ${esc(e.message)}</p><button class="btn sm flame" type="button" id="keysRetry">Повторить</button>`; box.querySelector("#keysRetry").onclick = load; }); };
+    const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { localKeys(box, o, e); }); };
+    function localKeys(box, o, e) {
+      const isImg = /картинок/i.test(o.title || "");
+      const uniq = "lk" + Math.floor(Math.random() * 1e6);
+      box.innerHTML = `<h2>${o.title}</h2>
+        <p class="small">Серверные общие ключи доступны только с почты автора сайта (${esc(e.message)}).<br>В режиме разработчика можно сохранить ключи <b>локально в этом браузере — без почты</b>: они применятся к вашей работе с сайтом.</p>
+        <div class="row"><input id="${uniq}k" placeholder="${isImg ? "Ключ для картинок (Nano Banana / Google)" : "Ключ любой нейросети (DeepSeek/OpenRouter)"}" style="flex:1;min-width:240px"><input id="${uniq}m" placeholder="Модель (необязательно)" style="width:220px"><button class="btn sm flame" type="button" id="${uniq}s">Сохранить локально</button></div>
+        <p class="small" id="${uniq}msg"></p>`;
+      box.querySelector("#" + uniq + "s").onclick = () => {
+        try {
+          const ai = JSON.parse(localStorage.getItem("uchu:ai") || "{}") || {};
+          const key = box.querySelector("#" + uniq + "k").value.trim();
+          const model = box.querySelector("#" + uniq + "m").value.trim();
+          if (isImg) { ai.imgKey = key; }
+          else { ai.openaiKey = key; if (!ai.openaiBase) ai.openaiBase = "https://openrouter.ai/api/v1"; if (model) ai.openaiModel = model; }
+          localStorage.setItem("uchu:ai", JSON.stringify(ai));
+          box.querySelector("#" + uniq + "msg").textContent = "Сохранено локально. Перезагрузите страницу, чтобы ключ применился.";
+        } catch (err) { box.querySelector("#" + uniq + "msg").textContent = "Не удалось сохранить: " + err.message; }
+      };
+    }
     load();
     };
     pool(b.children[2], { api: keysApi, title: "Общие ключи ИИ", who: "все учителя на тарифах с ИИ", envName: "переменная DEEPSEEK_POOL", keyPh: "Ключ любой нейросети", modelPh: "Модель (необязательно), например deepseek-flash",
