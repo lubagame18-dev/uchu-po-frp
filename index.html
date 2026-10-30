@@ -4034,7 +4034,18 @@ const SUBJECT_METHOD = {
 function subjectMethod(p) {
   const s = String(p?.subject || "").toLowerCase();
   const key = Object.keys(SUBJECT_METHOD).find(k => s.startsWith(k) || s.includes(k));
-  return key ? "\n\n# Предметная методика\n" + SUBJECT_METHOD[key] : "";
+  if (!key) return "";
+  let out = "\n\n# Предметная методика\n" + SUBJECT_METHOD[key];
+  const B = (window.SUBJECT_BASE || {})[key];
+  if (B) {
+    out += "\n\n# Содержательная база предмета";
+    if (B.terms) out += "\nКлючевые понятия: " + B.terms.join(", ") + ".";
+    if (B.ideas) out += "\nОпорные положения:\n" + B.ideas.map(x => "- " + x).join("\n");
+    if (B.tasks) out += "\nТиповые задания:\n" + B.tasks.map(x => "- " + x).join("\n");
+    if (B.stages) out += "\nВопросы, вокруг которых строится урок: " + B.stages.join(" ");
+    if (B.assess) out += "\nОценивание: " + B.assess;
+  }
+  return out;
 }
 
 const METHOD_RULES = `
@@ -5911,6 +5922,7 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/cleaner.js"></script>
 <script src="js/learn.js"></script><script src="js/learn2.js"></script>
 <script src="js/variety.js"></script>
+<script src="js/subjects-base.js"></script>
 <script src="js/methodbase.js"></script>
 <script src="js/heur.js"></script>
 <script src="js/litkit.js"></script>
