@@ -256,7 +256,7 @@ const Access = (() => {
   document.addEventListener("uchu:ready", afterPay);
   /* ---------- шапка: кнопка «⚙ ИИ» только в свободной зоне; метка тарифа ---------- */
   function paint() {
-    const ai = document.getElementById("btnAi"); if (ai) ai.hidden = commercial() && !ownAi();
+    const ai = document.getElementById("btnAi"); if (ai) ai.hidden = !isDev(); /* ключи ИИ — только у разработчика */
     let b = document.getElementById("btnPlan");
     if (!b && commercial()) { b = document.createElement("button"); b.type = "button"; b.id = "btnPlan"; b.className = "btn sm ghost"; b.onclick = () => open(); document.querySelector(".nav")?.prepend(b); }
     // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
