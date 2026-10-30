@@ -4104,7 +4104,7 @@ ${p.mode === "tutor" || p.control !== "school" ? "\n> ⚠️ ЛОВУШКА ЭК
 }
 function promptSlides(p, conspect) {
   const lit = p.subject === "lit";
-  return `${METHOD_RULES}
+return `
 
 Ты — методист и дизайнер учебных презентаций. Сделай презентацию к уроку по конспекту ниже.
 
@@ -4136,7 +4136,7 @@ function promptWorksheet(p, conspect) {
   const ru = p.subject === "ru", exam = p.control !== "school" ? KB.exams[p.control] : null;
   const mech = ru ? KB.ru.mechanics.filter(m => gradeIn(m.grades, p.grade) && !/^(lingEssay|speech|creative)$/.test(m.id)) : [];
   const lvl2 = exam ? `Повышенный уровень (${exam.label})` : "Повышенный уровень";
-  return `${METHOD_RULES}
+return `
 
 Ты — методист. Сделай рабочий лист ученика к уроку.
 
@@ -4160,7 +4160,7 @@ ${INTEGRITY.split("\n").slice(0, 3).join("\n")}
 
 ${STYLE}
 
-${METHOD_RULES}
+
 
 ${window.Conv ? Conv.prompt(p) : ""}
 
