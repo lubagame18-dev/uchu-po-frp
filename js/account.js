@@ -232,7 +232,7 @@ const Account = (() => {
           <label class="ac-ava" title="Нажмите, чтобы выбрать фото">${I.avatar ? `<img src="${esc(I.avatar)}" alt="">` : `<span>${esc(initials(I.name) || "👤")}</span>`}<input type="file" id="acPhoto" accept="image/*" hidden><em>${I.avatar ? "сменить" : "фото"}</em></label>
           <div class="ac-ava-set" id="acAvaSet">
             <span class="small">Или выберите готовый:</span>
-            <div class="ac-ava-grid">${[1,2,3,4,5,6,7].map(i=>`<button type="button" class="ac-ava-btn" data-ava="js/avatars/a${i}.png" title="Без фона"><img src="js/avatars/a${i}.png" alt=""></button>`).join("")}${[1,2,3,4,5,6,7].map(i=>`<button type="button" class="ac-ava-btn" data-ava="js/avatars/a${i}w.png" title="На белом"><img src="js/avatars/a${i}w.png" alt=""></button>`).join("")}</div>
+            <div class="ac-ava-grid">${[1,2,3,4,5,6,7].map(i=>`<button type="button" class="ac-ava-btn" data-ava="js/avatars/a${i}.png?v=2" title="Без фона"><img src="js/avatars/a${i}.png?v=2" alt=""></button>`).join("")}${[1,2,3,4,5,6,7].map(i=>`<button type="button" class="ac-ava-btn" data-ava="js/avatars/a${i}w.png?v=2" title="На белом"><img src="js/avatars/a${i}w.png?v=2" alt=""></button>`).join("")}</div>
           </div>
           <div class="ac-fields">
             <input type="text" id="acName" placeholder="Имя и фамилия" value="${esc(I.name || "")}" autocomplete="name">
