@@ -214,7 +214,9 @@ const Account = (() => {
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
   const devLink = () => ""; /* вход разработчика только на /dev.html */
-  function bindDev(m) { const avaLabel = m.querySelector(".ac-ava"), avaSet = m.querySelector("#acAvaSet");\n    if (avaLabel && avaSet) avaLabel.addEventListener("click", e => { if (e.target.tagName !== "INPUT") { e.preventDefault(); avaSet.hidden = false; avaSet.scrollIntoView({ block: "nearest" }); } });\n    m.querySelectorAll("[data-ava]").forEach(b => b.onclick = async () => {
+  function bindDev(m) { const avaLabel = m.querySelector(".ac-ava"), avaSet = m.querySelector("#acAvaSet");
+    if (avaLabel && avaSet) avaLabel.addEventListener("click", e => { if (e.target.tagName !== "INPUT") { e.preventDefault(); avaSet.hidden = false; avaSet.scrollIntoView({ block: "nearest" }); } });
+    m.querySelectorAll("[data-ava]").forEach(b => b.onclick = async () => {
       try {
         const info = { ...(S.info || {}), avatar: b.dataset.ava };
         await saveInfo(info);
