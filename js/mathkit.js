@@ -678,6 +678,7 @@ const MathKit = (() => {
 
   /* ---------- технологическая карта ---------- */
   function conspect(p, type) {
+    if (+p.grade <= 4 && window.MathPrimary) return window.MathPrimary.conspect(p, type);
     const m = material(p), f = m.f, mins = type.mins, T = p.topic;
     const goal = { onz: `формирование умения ${f ? `выполнять действия по теме «${f.name.toLowerCase()}»` : `решать задачи по теме «${T}»`} на основе нового правила (формулы)`, refl: `закрепление умения применять правило и формулы темы «${T}» в стандартных и изменённых условиях`, gen: `обобщение и систематизация знаний по теме «${T}»`, ctrl: `проверка уровня освоения темы «${T}»` }[type.id];
     let md = `# ${T}\n\n**Класс:** ${p.grade} · **Предмет:** Математика · **Тип урока:** ${type.name} · **Урок по теме:** ${p.lessonNo === 1 ? "1-й" : p.lessonNo + "-й"} урок по теме · **Длительность:** ${p.duration} мин\n\n`;
@@ -711,6 +712,7 @@ const MathKit = (() => {
 
   /* ---------- конспект для учителя (печать): этапы по порядку, в рамках ---------- */
   function lesson(p, type) {
+    if (+p.grade <= 4 && window.MathPrimary) return window.MathPrimary.lesson(p, type);
     const m = material(p), f = m.f, mins = type.mins;
     let md = `# ${p.topic}\n\n*Конспект урока для учителя*\n\n**Класс:** ${p.grade} · **Предмет:** Математика · **Тип урока:** ${type.name} · **Длительность:** ${p.duration} мин\n\n`;
     if (f) md += `> 📐 **Запишем в тетрадь:**<br>${f.rule.join("<br>")}\n\n`;
@@ -736,6 +738,7 @@ const MathKit = (() => {
 
   /* ---------- рабочий лист ученика ---------- */
   function worksheet(p, type) {
+    if (+p.grade <= 4 && window.MathPrimary) return window.MathPrimary.worksheet(p, type);
     const m = material(p), f = m.f;
     let md = `# Рабочий лист урока\n\n**Тема:** ${p.topic}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n`;
     if (!f) return md + `### Задание 1\n\n____________________\n\n### Задание 2\n\n____________________\n`;

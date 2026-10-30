@@ -8,7 +8,7 @@ window.Kits = (() => {
   "use strict";
 
   const MAP = {
-    math: ["mathkit"],
+    math: ["mathprimary", "mathkit"],
     hist: ["histdata", "histlessons", "histkit"],
     eng: ["engdata", "engkit"],
     bio: ["biolessons", "biokit"],
