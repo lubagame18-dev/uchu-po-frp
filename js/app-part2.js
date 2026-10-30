@@ -1338,7 +1338,8 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       if (f === "slides") { autoTheme(L, p); L.deckOutline = convCards(PL.cards(p, type), p); state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
-          const webTxt = p.web?.items?.length ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
+          const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
+          const webTxt = _wq.length >= 2 ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
           const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
           if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
