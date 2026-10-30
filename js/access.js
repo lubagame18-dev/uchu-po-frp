@@ -65,14 +65,14 @@ const Access = (() => {
   const techAllowed = () => free() || level() === "pro";
   const imagesAllowed = () => free() || !!PLANS[level()].img;
   const month = () => new Date().toISOString().slice(0, 7);
-  function lessonsLeft() { const L = level(); const lim = PLANS[L].lessons; if (lim === Infinity) return Infinity; const used = A.month === month() ? A.used || 0 : 0; return Math.max(0, lim - used); }
+  function lessonsLeft() { const L = level(); if (L === "free") return Math.max(0, 2 - (A.trialUsed || 0)); const lim = PLANS[L].lessons; if (lim === Infinity) return Infinity; const used = A.month === month() ? A.used || 0 : 0; return Math.max(0, lim - used); }
   /* картинки для листов: лимит в месяц по тарифу (на сайте считается в браузере; настоящий лимит ставит серверная функция) */
   const imageLeft = () => { if (free()) return Infinity; const q = PLANS[level()].imgQuota || 0; if (A.imgMonth !== month()) return q; return Math.max(0, q - (A.imgUsed || 0)); };
   function countImage(n = 1) { if (free()) return; if (A.imgMonth !== month()) { A.imgMonth = month(); A.imgUsed = 0; } A.imgUsed = (A.imgUsed || 0) + n; save(); }
   /* дополнительные листы сверх базовых двух страниц: свой месячный лимит (на сервере его ставят так же) */
   const sheetsLeft = () => { if (free()) return Infinity; const q = PLANS[level()].extraSheets || 0; if (A.shMonth !== month()) return q; return Math.max(0, q - (A.shUsed || 0)); };
   function countSheet(n = 1) { if (free()) return; if (A.shMonth !== month()) { A.shMonth = month(); A.shUsed = 0; } A.shUsed = (A.shUsed || 0) + n; save(); }
-  function countLesson() { if (PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
+  function countLesson() { if (free()) { A.trialUsed = (A.trialUsed || 0) + 1; save(); return; } if (PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
     if (useAi && !aiAllowed()) { open("Уроки с ИИ — в платных тарифах: «Учитель», «Учитель + ИИ» и «Методист»."); return false; }
