@@ -1099,3 +1099,12 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .ac-ava-btn { padding:0; border:1.5px solid var(--rule); border-radius:50%; background:#fff; width:46px; height:46px; overflow:hidden; cursor:pointer; }
 .ac-ava-btn img { width:100%; height:100%; object-fit:cover; display:block; }
 .ac-ava-btn:hover { border-color:var(--accent); }
+/* скорость на телефонах: убираем дорогие эффекты размытия и тяжёлые тени */
+@media (max-width: 820px) {
+  .overlay, .dialog, .dlg-b, .dialog.wide, .modal, .backdrop {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .dialog, .tr-dlg { box-shadow: 0 10px 30px rgba(0,0,0,.18) !important; }
+  #view-builder > section, .tr-card, .mat-card { content-visibility: auto; contain-intrinsic-size: 400px; }
+}
