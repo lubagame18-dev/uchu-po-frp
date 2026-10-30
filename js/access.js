@@ -56,6 +56,19 @@ const Access = (() => {
   const promoFree = () => !isDev() && !!me() && !!window.Account?.session?.promoFree;
   const isPromo = () => !isDev() && !!me() && !promoFree() && (!!window.Account?.session?.promo || window.Account?.session?.plan === "promo" || (!!A.promo && A.promo.email === me()));
   const pct = () => Math.max(1, Math.min(99, +window.Account?.session?.promoPct || +A.promo?.pct || 50)); // скидку задаёт тот, кто выдал код
+  /* синхронизация бесплатного доступа с сервером (один аккаунт — один доступ) */
+  async function syncTrial() {
+    const tk = window.Account?.session?.access; if (!tk) return;
+    try {
+      const r = await fetch("https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/trial/status", { headers: { "X-User-Token": tk } });
+      const j = await r.json();
+      if (!r.ok || !j || !j.ok) return;
+      if (j.startAt) { A.trialStart = j.startAt; A.day = j.dayIndex; A.dayUsed = j.usedToday; A.trialExpired = !!j.expired; save(); }
+    } catch { }
+  }
+  document.addEventListener("uchu:auth", () => { syncTrial(); });
+  if (document.readyState !== "loading") setTimeout(syncTrial, 1200); else document.addEventListener("DOMContentLoaded", () => setTimeout(syncTrial, 1200));
+
   const priceOf = k => { const P = PLANS[k] || PACKS[k]; return P ? (isPromo() ? Math.round(P.price * (1 - pct() / 100)) : P.price) : 0; };
   const label = () => { const L = level(); return L === "dev" ? "разработчик" : promoFree() ? "бесплатный доступ по промокоду" : `тариф «${PLANS[L].name}»${isPromo() ? ` · промокод −${pct()}%` : ""}`; };
   const free = () => level() === "dev";
@@ -72,7 +85,7 @@ const Access = (() => {
   /* дополнительные листы сверх базовых двух страниц: свой месячный лимит (на сервере его ставят так же) */
   const sheetsLeft = () => { if (free()) return Infinity; const q = PLANS[level()].extraSheets || 0; if (A.shMonth !== month()) return q; return Math.max(0, q - (A.shUsed || 0)); };
   function countSheet(n = 1) { if (free()) return; if (A.shMonth !== month()) { A.shMonth = month(); A.shUsed = 0; } A.shUsed = (A.shUsed || 0) + n; save(); }
-  function countLesson() { if (free()) { if (!A.trialStart) { A.trialStart = Date.now(); A.day = 0; A.dayUsed = 0; } const d = Math.floor((Date.now() - A.trialStart) / 86400000); if (A.day !== d) { A.day = d; A.dayUsed = 0; } A.dayUsed = (A.dayUsed || 0) + 1; save(); return; } if (PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
+  function countLesson() { if (free()) { if (!A.trialStart) { A.trialStart = Date.now(); A.day = 0; A.dayUsed = 0; } const d = Math.floor((Date.now() - A.trialStart) / 86400000); if (A.day !== d) { A.day = d; A.dayUsed = 0; } A.dayUsed = (A.dayUsed || 0) + 1; save(); try { const tk = window.Account?.session?.access; if (tk) fetch("https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/trial/use", { method: "POST", headers: { "X-User-Token": tk } }).catch(() => null); } catch { } return; } if (PLANS[level()].lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
     if (useAi && !aiAllowed()) { open("Уроки с ИИ — в платных тарифах: «Учитель», «Учитель + ИИ» и «Методист»."); return false; }
