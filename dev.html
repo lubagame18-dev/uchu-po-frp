@@ -1,50 +1,153 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Кабинет разработчика — Учу по ФРП</title>
 <style>
-:root{--ink:#1b1b1b;--paper:#fffdf7;--accent:#ffb703}
+:root{--ink:#1b1b1b;--paper:#fffdf7;--line:#e9e2cf}
 *{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,sans-serif;background:var(--paper);color:var(--ink)}
-.wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px}
-h1{font-size:26px;margin:0 0 6px}.sub{color:#666;margin:0 0 22px}
-.card{background:#fff;border:1px solid #e9e2cf;border-radius:16px;padding:18px;margin:14px 0}
-label{display:block;font-weight:600;margin-bottom:6px}
-input{width:100%;padding:12px 14px;border:1.5px solid #ddd;border-radius:12px;font:inherit}
-.btn{display:inline-block;border:0;border-radius:999px;padding:11px 20px;font:inherit;font-weight:700;cursor:pointer;background:#1b1b1b;color:#fff;text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 70px}
+h1{font-size:25px;margin:0 0 4px}.sub{color:#666;margin:0 0 20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+label{display:block;font-weight:600;margin:10px 0 4px}
+input,textarea,select{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:12px;font:inherit;background:#fff}
+textarea{min-height:110px}
+.btn{display:inline-block;border:0;border-radius:999px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer;background:#1b1b1b;color:#fff;text-decoration:none}
 .btn.flame{background:linear-gradient(90deg,#ffb703,#ff8a00);color:#1b1b1b}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
-.tile{display:block;border:1px solid #e9e2cf;border-radius:14px;padding:14px;text-decoration:none;color:inherit;background:#fffdf7}
-.tile b{display:block;margin-bottom:4px}.tile span{color:#666;font-size:14px}
-#msg{color:#b00020;min-height:22px}
+.btn.ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+#msg{min-height:22px;color:#0a7a3d}.err{color:#b00020}
+.tile{display:block;border:1px solid var(--line);border-radius:14px;padding:12px;text-decoration:none;color:inherit;background:#fffdf7}
+.tile b{display:block;margin-bottom:2px}.tile span{color:#666;font-size:13px}
 </style></head><body><div class="wrap">
 <h1>Кабинет разработчика</h1>
-<p class="sub">Доступ только по коду. Без почты, пароля и подтверждений.</p>
-<div class="card">
+<p class="sub">Цены, промпты, материалы и AI — всё в одном месте. Вход по коду, без почты.</p>
+
+<div class="card" id="gate">
   <label for="code">Код разработчика</label>
   <input id="code" type="password" placeholder="Введите код" autocomplete="off" autofocus>
-  <div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="btn flame" id="go">Войти</button><span id="msg"></span></div>
+  <div class="row"><button class="btn flame" id="go">Войти</button><span id="msg"></span></div>
 </div>
-<div class="card" id="panel" hidden>
-  <b>Что можно делать</b>
-  <div class="grid">
-    <a class="tile" href="/?dev=1"><b>Конструктор материалов</b><span>собирать конспекты, презентации, рабочие листы</span></a>
-    <a class="tile" href="/?dev=1&view=materials"><b>Материалы и выгрузка</b><span>свои тетради и материалы, выгрузка для обучения</span></a>
-    <a class="tile" href="/?dev=1#learn"><b>Обучение и правила</b><span>правки, нейтрализация методики, настройка правил</span></a>
-    <a class="tile" id="promo" href="/?dev=1"><b>Промокоды</b><span>создание и скидки — в кабинете разработчика</span></a>
-    <a class="tile" href="/?dev=1#ai"><b>Ключи ИИ</b><span>подключение своих ключей и настроек</span></a>
+
+<div id="panel" hidden>
+  <div class="card">
+    <b>Цены тарифов (₽)</b>
+    <div class="grid">
+      <div><label>Без ИИ, мес</label><input id="pBasic" type="number" min="1" step="1"></div>
+      <div><label>С ИИ, мес</label><input id="pAi" type="number" min="1" step="1"></div>
+      <div><label>Без ИИ, год</label><input id="pBasicYear" type="number" min="1" step="1"></div>
+      <div><label>С ИИ, год</label><input id="pAiYear" type="number" min="1" step="1"></div>
+    </div>
   </div>
+
+  <div class="card">
+    <b>Содержание конспектов и материалов</b>
+    <label for="promptExtra">Дополнительные требования к генерации (промпт разработчика)</label>
+    <textarea id="promptExtra" placeholder="Например: всегда добавляй словарную работу и 3 разноуровневых задания; формулы оформляй как в учебнике…"></textarea>
+    <div class="row">
+      <button class="btn ghost" id="aiRules">✨ Сгенерировать правила через ИИ</button>
+      <span class="small" id="aiMsg"></span>
+    </div>
+    <label for="materials">Материалы для обучения (свои тетради, тексты, задания)</label>
+    <textarea id="materials" placeholder="Вставьте текст своих материалов или загрузите .txt/.md файл"></textarea>
+    <div class="row"><input type="file" id="file" accept=".txt,.md,.json" style="max-width:260px"><button class="btn ghost" id="aiMaterial">✨ Дополнить материал через ИИ</button></div>
+  </div>
+
+  <div class="card">
+    <b>AI-помощник разработчика</b>
+    <div class="grid">
+      <div><label>Предмет</label><input id="aSubj" placeholder="Литература"></div>
+      <div><label>Класс</label><input id="aGrade" placeholder="8"></div>
+    </div>
+    <label for="aTopic">Тема</label><input id="aTopic" placeholder="Недоросль">
+    <label for="aKind">Что создать</label>
+    <select id="aKind"><option value="conspect">Конспект</option><option value="slides">Презентация</option><option value="worksheet">Рабочий лист</option></select>
+    <div class="row"><button class="btn flame" id="aGo">Сгенерировать</button><span class="small" id="aOutMsg"></span></div>
+    <label for="aOut">Результат (можно вставить в «промпт разработчика» или сохранить как материал)</label>
+    <textarea id="aOut"></textarea>
+  </div>
+
+  <div class="card">
+    <b>Быстрые переходы</b>
+    <div class="grid">
+      <a class="tile" href="/?dev=1"><b>Конструктор материалов</b><span>собирать уроки</span></a>
+      <a class="tile" href="/?dev=1#ai"><b>Ключи ИИ</b><span>подключить DeepSeek/др.</span></a>
+      <a class="tile" href="/?dev=1#promo"><b>Промокоды</b><span>скидки и коды</span></a>
+      <a class="tile" href="/?dev=1#learn"><b>Обучение</b><span>правки, нейтрализация методики</span></a>
+    </div>
+  </div>
+
+  <div class="row">
+    <button class="btn flame" id="save">Сохранить и применить</button>
+    <button class="btn ghost" id="reset">Сбросить конфиг</button>
+    <a class="btn ghost" href="/?dev=1">Открыть сайт в режиме разработчика</a>
+  </div>
+  <p id="saveMsg" class="small"></p>
 </div>
 <script>
-(async function(){
-  var FN="https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/admin/join";
+(function(){
+  var FN="https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/bot/ai";
   var msg=document.getElementById("msg"), panel=document.getElementById("panel");
+  function cfg(){ try{return JSON.parse(localStorage.getItem("uchu:dev:cfg")||"{}")||{};}catch(e){return{};} }
+  function fill(){
+    var c=cfg(), p=c.prices||{};
+    document.getElementById("pBasic").value=p.basic||250;
+    document.getElementById("pAi").value=p.ai||500;
+    document.getElementById("pBasicYear").value=p.basicYear||2000;
+    document.getElementById("pAiYear").value=p.aiYear||4000;
+    document.getElementById("promptExtra").value=c.promptExtra||"";
+    document.getElementById("materials").value=(c.materials||"");
+  }
+  function show(){ panel.hidden=false; fill(); }
   document.getElementById("go").onclick=function(){
     var code=(document.getElementById("code").value||"").trim().toLowerCase();
-    if(!code){msg.textContent="Введите код";return;}
     if(code==="pedagogural"||code==="педагогурал"){
-      try{localStorage.setItem("uchu:dev-session","1");localStorage.setItem("uchu:dev-fill","1");}catch(e){}
-      msg.textContent="";panel.hidden=false;
-      setTimeout(function(){location.href="/?dev=1";},400);
-      return;
-    }
-    msg.textContent="Неверный код";
+      try{localStorage.setItem("uchu:dev-session","1");}catch(e){}
+      msg.textContent=""; msg.className=""; show();
+    } else { msg.textContent="Неверный код"; msg.className="err"; }
+  };
+  if(localStorage.getItem("uchu:dev-session")){ show(); }
+  document.getElementById("save").onclick=function(){
+    var c=cfg();
+    c.prices={basic:+document.getElementById("pBasic").value||250, ai:+document.getElementById("pAi").value||500, basicYear:+document.getElementById("pBasicYear").value||2000, aiYear:+document.getElementById("pAiYear").value||4000};
+    c.promptExtra=document.getElementById("promptExtra").value.slice(0,6000);
+    c.materials=document.getElementById("materials").value.slice(0,60000);
+    try{localStorage.setItem("uchu:dev:cfg",JSON.stringify(c));}catch(e){}
+    document.getElementById("saveMsg").textContent="Сохранено. Откройте сайт — цены и правила применятся.";
+  };
+  document.getElementById("reset").onclick=function(){ try{localStorage.removeItem("uchu:dev:cfg");}catch(e){} fill(); document.getElementById("saveMsg").textContent="Конфиг сброшен."; };
+  document.getElementById("file").onchange=function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f)return; var r=new FileReader();
+    r.onload=function(){ document.getElementById("materials").value=String(r.result||"").slice(0,60000); };
+    r.readAsText(f);
+  };
+  async function ai(kind, subject, grade, topic){
+    var r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:subject,grade:grade,topic:topic,kind:kind})});
+    var j=await r.json().catch(function(){return{}});
+    if(!r.ok||!j.ok) throw new Error(j.error||"ИИ недоступен");
+    return j.text;
+  }
+  document.getElementById("aGo").onclick=async function(){
+    var b=this; b.disabled=true; document.getElementById("aOutMsg").textContent="Генерирую…";
+    try{
+      var txt=await ai(document.getElementById("aKind").value, document.getElementById("aSubj").value||"Литература", document.getElementById("aGrade").value||"8", document.getElementById("aTopic").value||"Тема урока");
+      document.getElementById("aOut").value=txt; document.getElementById("aOutMsg").textContent="Готово";
+    }catch(e){ document.getElementById("aOutMsg").textContent="Ошибка: "+e.message; }
+    finally{ b.disabled=false; }
+  };
+  document.getElementById("aiRules").onclick=async function(){
+    var b=this; b.disabled=true; document.getElementById("aiMsg").textContent="Думаю…";
+    try{
+      var txt=await ai("conspect","Методика","5","Требования к оформлению и содержанию конспектов по ФРП и ГОСТ");
+      document.getElementById("promptExtra").value=(document.getElementById("promptExtra").value+"\n"+txt).slice(0,6000);
+      document.getElementById("aiMsg").textContent="Правила добавлены в поле выше";
+    }catch(e){ document.getElementById("aiMsg").textContent="Ошибка: "+e.message; }
+    finally{ b.disabled=false; }
+  };
+  document.getElementById("aiMaterial").onclick=async function(){
+    var b=this; b.disabled=true; var m=document.getElementById("materials").value;
+    try{
+      var txt=await ai("worksheet","Материалы","5",(m.slice(0,200)||"Свои материалы"));
+      document.getElementById("materials").value=(m+"\n\n"+txt).slice(0,60000);
+    }catch(e){ alert("Ошибка: "+e.message); }
+    finally{ b.disabled=false; }
   };
 })();
 </script></div></body></html>
