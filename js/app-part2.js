@@ -334,7 +334,7 @@ function renderMaterials() {
    =================================================================== */
 function setSeg(id, v) { $$(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(String(b.dataset.v) === String(v)))); if (id === "segSubject" && $("#subjectSel")) { $("#subjectSel").value = v; if ($("#anyBox")) $("#anyBox").hidden = v !== "any"; } }
 function topicList() {
-  const PL = window.Subjects?.plugin(state.subject); if (PL) return { frp: true, items: PL.topics(state.grade) }; // другие предметы — темы из своего модуля
+  let PL = null; try { PL = window.Subjects?.plugin(state.subject); } catch (ePL) { PL = null; } if (PL) return { frp: true, items: PL.topics(state.grade) }; // другие предметы — темы из своего модуля
   const frp = FRP.topicsFor(state.subject, state.grade);
   if (frp && frp.length) return { frp: true, items: frp };
   const base = state.subject === "ru" ? KB.ru.topics[state.grade] : KB.lit.works[state.grade];
@@ -376,7 +376,7 @@ function pickTopic(it) {
 }
 function updateType() {
   const topic = $("#topic").value.trim();
-  const PL = window.Subjects?.plugin(state.subject);
+  let PL = null; try { PL = window.Subjects?.plugin(state.subject); } catch (ePL) { PL = null; }
   try { state.type = (PL || Engine).detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade }); }
   catch (e) { try { state.type = Engine.detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade }); } catch (e2) { state.type = { name: "Комбинированный урок", stages: [], mins: [] }; } }
   const t = state.type;
