@@ -27,6 +27,18 @@ const Account = (() => {
   const RU0 = m => /invalid login|invalid_grant|credentials/i.test(m) ? "Неверная почта или пароль." : /already registered|exists/i.test(m) ? "Эта почта уже зарегистрирована — войдите." : /password.*(6|short)/i.test(m) ? "Пароль — не короче 6 знаков." : /email.*(invalid|valid)/i.test(m) ? "Проверьте адрес почты." : /confirm/i.test(m) ? "Подтвердите почту по ссылке из письма (или владелец может отключить подтверждение)." : m;
   const RU = m => /rate limit|too many/i.test(m) ? "Слишком много писем за короткое время. Если вы уже нажимали ссылку в письме — просто войдите. Иначе попробуйте через час." : /not confirmed/i.test(m) ? "Почта ещё не подтверждена: откройте письмо и нажмите ссылку." : RU0(m);
   /* Вход по ссылке из письма: Supabase возвращает на сайт с #access_token=…&refresh_token=… */
+  async function afterOAuth() {
+    if (!S || !S.email) return;
+    try {
+      const k = "uchu:onb:" + S.email;
+      if (localStorage.getItem(k)) return;
+      localStorage.setItem(k, "1");
+      try { await resendConfirm(S.email); } catch { }
+      toast("Вход выполнен. Заполните личные данные в кабинете, а на " + S.email + " отправлено письмо для подтверждения почты.", 9000);
+      open();
+    } catch { }
+  }
+
   async function fromLink() {
     const h = new URLSearchParams(location.hash.replace(/^#/, ""));
     if (h.get("error_description")) { history.replaceState(null, "", location.pathname + location.search); toast("Ссылка из письма устарела или уже использована. Просто войдите с почтой и паролем.", 8000); return; }
@@ -42,7 +54,7 @@ const Account = (() => {
       if (want && window.Access) Access.checkout(want);
     } catch (e) { toast("Не удалось войти по ссылке: " + RU(e.message) + " Войдите с почтой и паролем.", 8000); }
   }
-  function setSession(j, email) { S = { email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
+  function setSession(j, email) { S = { email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { paintNav(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
   /* Пока облако не подключено — учётная запись в этом браузере (почта + отпечаток пароля); уроки — тоже здесь */
   const LKEY = "uchu:local-users";
   const lusers = () => { try { return JSON.parse(localStorage.getItem(LKEY)) || {}; } catch { return {}; } };
@@ -380,7 +392,7 @@ const Account = (() => {
       sessionStorage.removeItem("uchu:pkce");
       if (!j || !j.access_token) { toast("Вход не удался: сервер не вернул сессию.", 7000); return false; }
       setSession(j, j.user?.email || "");
-      closeModal(); toast("Вы вошли в личный кабинет."); paint();
+      closeModal(); toast("Вы вошли в личный кабинет."); paint(); paintNav(); afterOAuth();
       pull().catch(() => null); loadInfo().catch(() => null);
       return true;
     } catch (e) { toast("Вход не удался: " + (e.message || "ошибка"), 7000); return false; }
