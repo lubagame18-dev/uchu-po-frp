@@ -5909,5 +5909,6 @@ document.addEventListener("DOMContentLoaded", start);
 <script src="js/subjects.js"></script>
 <script src="js/usage.js"></script>
 <script src="js/ai.js"></script><script src="js/blobs.js"></script>
+<script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("label,.field,label.field").forEach(function(e){if(/Урок по этой теме/.test(e.textContent||"")){var r=e.closest(".field,label.field,.row,div");if(r)r.hidden=true;}});});</script>
 </body>
 </html>
