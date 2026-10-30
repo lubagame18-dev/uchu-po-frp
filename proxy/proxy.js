@@ -410,6 +410,49 @@ async function handler(req, res) {
   }
 
 
+
+  /* ---------- ИИ для ботов: конспект с предметным содержанием ---------- */
+  if (req.method === "POST" && route === "/bot/ai") {
+    const botSecret3 = process.env.BOT_SECRET || "";
+    if (botSecret3 && req.headers["x-bot-secret"] !== botSecret3) return send(res, 403, { error: "forbidden" });
+    let rawAi = ""; try { rawAi = await readAll(req); } catch { }
+    let ba = {}; try { ba = JSON.parse(rawAi || "{}"); } catch { }
+    const subject = String(ba.subject || "").slice(0, 80);
+    const grade = String(ba.grade || "").slice(0, 4);
+    const topic = String(ba.topic || "").slice(0, 300);
+    const kind = String(ba.kind || "conspect");
+    if (!subject || !grade || !topic) return send(res, 400, { error: "нужны subject, grade, topic" });
+    const sys = [
+      "Ты — ведущий методист и автор учебных материалов по ФРП (Федеральная рабочая программа) и требованиям ФГОС.",
+      "Твоя задача — создать глубокий, содержательный документ по теме, а не общие фразы.",
+      `Предмет: ${subject}. Класс: ${grade}. Тема: ${topic}.`,
+      "Требования:",
+      "1. Только материал по теме и классу; не добавляй постороннее.",
+      "2. Опирайся на содержание ФРП: планируемые результаты (предметные, метапредметные, личностные), виды деятельности.",
+      "3. Не выдумывай факты, даты, формулы, цитаты; если данных нет — формулируй задание без конкретного факта.",
+      "4. Не упоминай сайт, сервис, ИИ, себя и внешние ссылки.",
+      "5. Оформление — методический документ: заголовки # и ##, выделение **текст**, списки «-», таблицы, если нужны.",
+      "6. Наполненность: конкретные понятия темы, примеры, задания с ответами/критериями, вопросы, дифференциация, домашнее задание. Не сокращай ради краткости.",
+      kind === "worksheet"
+        ? "Формат: рабочий лист для ученика — 6–8 заданий по теме с местом для ответа, без рефлексии ФРП."
+        : kind === "slides"
+          ? "Формат: план презентации — 9–11 слайдов, для каждого: заголовок, 3–5 тезисов, задание/вопрос. Ключевые термины помечай как [термин](#g \"краткое значение\")."
+          : "Формат: развёрнутый конспект урока — цель, планируемые результаты, ключевые понятия с определениями, этапы с минутами и деятельностью учителя/ученика, примеры и задания, вопросы, дифференциация, критерии, домашнее задание.",
+      "Верни только готовый документ в markdown, без пояснений и вступлений."
+    ].join("\n");
+    try {
+      const DS2 = require("./deepseek-pool.js");
+      const rs = await DS2.chat({ messages: [{ role: "system", content: sys }, { role: "user", content: `Создай материал: ${kind}. Тема «${topic}», ${subject}, ${grade} класс.` }], temperature: 0.55, max_tokens: 3200 }, request, readAll, 0);
+      let content = "";
+      try { const j = JSON.parse(rs.text); content = j.choices?.[0]?.message?.content || ""; } catch { content = String(rs.text || ""); }
+      content = String(content).replace(/^\s*```(?:markdown|md)?\s*\n/, "").replace(/\n```\s*$/, "").trim();
+      if (!content) return send(res, 502, { error: "пустой ответ модели" });
+      return send(res, 200, { ok: true, text: content });
+    } catch (e) {
+      return send(res, 503, { error: String(e.message || e).slice(0, 160) });
+    }
+  }
+
   /* ---------- привязка мессенджера к аккаунту: бот присылает почту ---------- */
   if (req.method === "POST" && route === "/bot/link") {
     const botSecret2 = process.env.BOT_SECRET || "";

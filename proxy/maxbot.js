@@ -36,9 +36,20 @@ function queryOf(to) {
 }
 
 async function send(to, text, rows) {
-  const body = { text: String(text || "").slice(0, 4000), format: "markdown", notify: true };
-  if (rows) body.attachments = maxButtons(rows);
-  return api("POST", "/messages" + queryOf(to), body);
+  const base = { text: String(text || "").slice(0, 4000), notify: true };
+  if (rows) base.attachments = maxButtons(rows);
+  try {
+    let r = await api("POST", "/messages" + queryOf(to), { ...base, format: "markdown" });
+    if (r && (r.code || r.error)) {
+      console.log("MAX send markdown:", JSON.stringify(r).slice(0, 200));
+      r = await api("POST", "/messages" + queryOf(to), base);
+    }
+    if (r && (r.code || r.error)) console.log("MAX send plain:", JSON.stringify(r).slice(0, 200));
+    return r;
+  } catch (e) {
+    console.log("MAX send error:", String(e.message || e).slice(0, 200));
+    return {};
+  }
 }
 
 async function sendDoc(to, buffer, filename, caption) {

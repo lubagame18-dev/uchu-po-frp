@@ -301,13 +301,18 @@ function createBrain(opts) {
   async function generate(id, s) {
     const job = s.job;
     const formats = job.formats && job.formats.length ? job.formats : ["Конспект урока", "Презентация", "Рабочий лист"];
-    await send(id, `Генерирую: ${formats.join(", ").toLowerCase()}…`);
+    await send(id, `Генерирую: ${formats.join(", ").toLowerCase()}… Содержание собираю через ИИ, это может занять до минуты.`);
+    let aiConspect = "";
+    try {
+      const ai = await botAI("conspect", job);
+      if (ai.ok) { aiConspect = ai.text; }
+    } catch (e) { }
     const link = SITE + "?subject=" + encodeURIComponent(job.subject) + "&grade=" + encodeURIComponent(job.grade) + "&topic=" + encodeURIComponent(job.topic);
     const files = [];
     if (formats.includes("Рабочий лист")) files.push({ name: "рабочий-лист.docx", buf: docx(buildWorksheet(job)) });
     if (formats.includes("Презентация")) files.push({ name: "презентация-план.docx", buf: docx(buildSlidesOutline(job)) });
     if (formats.includes("Технологическая карта")) files.push({ name: "техкарта.docx", buf: docx(buildTechCard(job)) });
-    files.push({ name: "конспект.docx", buf: docx(buildConspect(job)) });
+    files.push({ name: "конспект.docx", buf: docx(aiConspect ? aiConspect.split("\n") : buildConspect(job)) });
     for (const f of files) {
       try { await sendDoc(id, f.buf, f.name, "Материал к уроку; полный набор с оформлением — на сайте."); } catch (e) { }
     }
@@ -358,6 +363,20 @@ function createBrain(opts) {
     const s = getSession(id);
     s.step = "linkemail";
     return send(id, "Привяжу мессенджер к аккаунту «Учу по ФРП».\n\nНапишите почту, которую указывали при регистрации на сайте.");
+  }
+
+  async function botAI(kind, job) {
+    const base = process.env.BOT_AI_URL
+      || (process.env.BOT_REGISTER_URL || "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/bot/register").replace(/\/bot\/register.*$/, "/bot/ai");
+    try {
+      const res = await fetch(base, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Bot-Secret": process.env.BOT_SECRET || "" },
+        body: JSON.stringify({ subject: job.subject, grade: job.grade, topic: job.topic, kind })
+      });
+      const j = await res.json().catch(() => ({}));
+      return { ok: res.ok && j.ok && j.text, text: j.text || "", error: j.error };
+    } catch (e) { return { ok: false, text: "", error: "сервис недоступен" }; }
   }
 
   function start(id, preset) {
