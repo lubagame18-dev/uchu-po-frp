@@ -44,6 +44,10 @@ const FrpKit = (() => {
       const T = window.TechPrimary;
       return { ...baseKit, conspect: p => T.conspect(p), lesson: p => T.lesson(p), worksheet: p => T.worksheet(p) };
     }
+    if (id === "orkse" && window.OrksePrimary) {
+      const O = window.OrksePrimary;
+      return { ...baseKit, conspect: p => O.conspect(p), lesson: p => O.lesson(p), worksheet: p => O.worksheet(p) };
+    }
     const SPECIAL = { izo: 1, mus: 1, tech: 1, pe: 1, orkse: 1, obzh: 1, astr: 1, vis: 1, mhk: 1 };
     if (SPECIAL[id] && window.SpecialPrimary) {
       const S = window.SpecialPrimary;
