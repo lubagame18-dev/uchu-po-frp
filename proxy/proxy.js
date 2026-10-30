@@ -491,7 +491,7 @@ async function handler(req, res) {
     const code = u2.searchParams.get("code");
     const site = u2.searchParams.get("site") || "https://uchu-po-frp.ru/";
     const wantJson = u2.searchParams.get("format") === "json";
-    const redirect = (url) => { if (wantJson) return send(res, 200, { redirect: url }); res.statusCode = 302; res.setHeader("Location", url); res.end(); };
+    const redirect = (url) => { if (wantJson) return send(res, 200, { redirect: url }); const esc2 = String(url).replace(/&/g, "&amp;").replace(/"/g, "&quot;"); res.statusCode = 200; res.setHeader("Content-Type", "text/html; charset=utf-8"); res.end("<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Вход через Яндекс</title></head><body style=\"font:16px system-ui;padding:24px;text-align:center\"><p>Переходим на Яндекс…</p><p><a href=\"" + esc2 + "\">Продолжить вручную</a></p><script>location.replace(" + JSON.stringify(url) + ");</script></body></html>"); };
     if (!code) {
       return redirect("https://oauth.yandex.ru/authorize?response_type=code&client_id=" + encodeURIComponent(yid)
         + "&redirect_uri=" + encodeURIComponent("https://uchu-po-frp.ru/yandex.html") + "&state=" + encodeURIComponent(site));
