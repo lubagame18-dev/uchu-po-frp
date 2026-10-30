@@ -69,6 +69,7 @@ textarea{min-height:110px}
     <b>Ключи ИИ: пул (любое количество, без почты)</b>
     <p class="small">Вставьте ключ → «Добавить». Ключи работают по очереди: если один не ответил, используется следующий. Хранятся в этом браузере.</p>
     <div class="row"><input id="kKey" placeholder="Ключ (DeepSeek/OpenRouter)" style="flex:1;min-width:220px"><input id="kModel" placeholder="Модель" style="width:180px"><input id="kBase" placeholder="https://openrouter.ai/api/v1" style="width:230px"><button class="btn ghost" id="kAdd">Добавить</button></div>
+    <div class="row" style="margin-top:6px"><button class="btn ghost" id="kBal">Проверить балансы (USD и ¥)</button><span class="small" id="kBalMsg"></span></div>
     <div id="keysList" class="small" style="margin-top:8px"></div>
     <p class="small" id="kMsg"></p>
   </div>
@@ -149,6 +150,31 @@ textarea{min-height:110px}
   };
   function poolGet(){ try{ var a=JSON.parse(localStorage.getItem("uchu:ai")||"{}"); return Array.isArray(a.pool)?a.pool:[]; }catch(e){ return []; } }
   function poolSet(list){ var a={}; try{ a=JSON.parse(localStorage.getItem("uchu:ai")||"{}")||{}; }catch(e){} a.pool=list; if(list[0]){ a.openaiBase=list[0].base; a.openaiKey=list[0].key; a.openaiModel=list[0].model||""; } try{ localStorage.setItem("uchu:ai",JSON.stringify(a)); }catch(e){} }
+var CNY=7.2;
+  function fmtBal(b){ if(b==null) return "—"; return b.cur==="CNY" ? ("¥"+b.amount.toFixed(2)+" (≈ $"+ (b.amount/CNY).toFixed(2)+")") : ("$"+b.amount.toFixed(2)+" (≈ ¥"+ (b.amount*CNY).toFixed(2)+")"); }
+  async function balOf(k){
+    var base=String(k.base||"").toLowerCase();
+    try{
+      if(/deepseek/.test(base)){
+        var r=await fetch("https://api.deepseek.com/user/balance",{headers:{Authorization:"Bearer "+k.key}});
+        if(!r.ok) return {err:"HTTP "+r.status};
+        var j=await r.json(); var bi=(j.balance_infos||[])[0]||{};
+        var cur=(bi.currency||"CNY").toUpperCase(); var amt=parseFloat(bi.total_balance||bi.balance||"0");
+        return {amount:amt, cur:cur};
+      }
+      var r2=await fetch(String(k.base||"https://openrouter.ai/api/v1").replace(/\/+$/,"")+"/credits",{headers:{Authorization:"Bearer "+k.key}});
+      if(!r2.ok) return {err:"HTTP "+r2.status};
+      var j2=await r2.json(); var d=j2.data||{};
+      var left=(parseFloat(d.total_credits||0)-parseFloat(d.total_usage||0));
+      return {amount:left, cur:"USD"};
+    }catch(e){ return {err:e.message}; }
+  }
+  document.getElementById("kBal").onclick=async function(){
+    var box=document.getElementById("kBalMsg"); box.textContent="Проверяю…";
+    var list=poolGet(); var out=[];
+    for(var i=0;i<list.length;i++){ var b=await balOf(list[i]); out.push((i+1)+": " + (b.err?("ошибка "+b.err):fmtBal(b))); }
+    box.textContent = out.join("  ·  ") || "Ключей нет";
+  };
   function renderPool(){
     var box=document.getElementById("keysList"); if(!box) return; box.innerHTML="";
     var list=poolGet();
