@@ -37,10 +37,10 @@ const Access = (() => {
     basicYear: { name: "Без ИИ, год", price: 2000, period: "год", days: 365, lessons: Infinity, extraSheets: 2, ai: false, art: "📘", tag: "год без ИИ", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
     aiYear: { name: "С ИИ, год", price: 4000, period: "год", days: 365, lessons: Infinity, ai: true, img: true, imgQuota: 8, extraSheets: 10, art: "✨", tag: "год с ИИ, скидка", feats: ["unlim", "ai", "ai60", "pics", "more", "download", "cloud"] },
     pro: { name: "Методист", price: 1190, period: "мес", hidden: true, lessons: Infinity, ai: true, img: true, imgQuota: 18, extraSheets: 30, art: "🚀", tag: "максимум", feats: ["unlim", "tech", "ai", "ai140", "pics40", "more", "help", "cloud"] }
-  /* конфиг из кабинета разработчика: цены и доп. инструкции */
-  try { const dc = JSON.parse(localStorage.getItem("uchu:dev:cfg") || "null"); if (dc) { for (const k of Object.keys(dc.prices || {})) if (PLANS[k] && +dc.prices[k] > 0) PLANS[k].price = +dc.prices[k]; window.UCHU_DEV_CFG = dc; } } catch { }
 
-  };const PACKS = { ai10: { name: "+10 конспектов с ИИ", price: 70 }, ai30: { name: "+30 конспектов с ИИ", price: 190 } };
+  };
+  const PACKS = { ai10: { name: "+10 конспектов с ИИ", price: 70 }, ai30: { name: "+30 конспектов с ИИ", price: 190 } };
+  try { const dc = JSON.parse(localStorage.getItem("uchu:dev:cfg") || "null"); if (dc) { for (const k of Object.keys(dc.prices || {})) if (PLANS[k] && +dc.prices[k] > 0) PLANS[k].price = +dc.prices[k]; window.UCHU_DEV_CFG = dc; } } catch { }
 
 
   /* Текущий уровень: промокод > тариф кабинета > бесплатный. В некоммерческой версии — всё открыто. */
