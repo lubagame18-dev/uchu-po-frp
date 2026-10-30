@@ -81,6 +81,15 @@ const Dev = (() => {
     };
   }
   function enter() {
+    try {
+      const nav = document.querySelector(".nav");
+      if (nav && !document.getElementById("navDev")) {
+        const nb = document.createElement("button");
+        nb.type = "button"; nb.className = "chip"; nb.id = "navDev"; nb.textContent = "Разработчик";
+        nb.onclick = () => show();
+        nav.appendChild(nb);
+      }
+    } catch { }
     on = true;
     document.body.classList.add("dev-on");
     const root = document.createElement("div"); root.id = "devRoot";
