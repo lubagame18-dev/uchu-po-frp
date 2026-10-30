@@ -36,6 +36,10 @@ const FrpKit = (() => {
       const Z = window.IzoPrimary;
       return { ...baseKit, conspect: p => Z.conspect(p), lesson: p => Z.lesson(p), worksheet: p => Z.worksheet(p) };
     }
+    if (id === "mus" && window.MusicPrimary) {
+      const M = window.MusicPrimary;
+      return { ...baseKit, conspect: p => M.conspect(p), lesson: p => M.lesson(p), worksheet: p => M.worksheet(p) };
+    }
     const SPECIAL = { izo: 1, mus: 1, tech: 1, pe: 1, orkse: 1, obzh: 1, astr: 1, vis: 1, mhk: 1 };
     if (SPECIAL[id] && window.SpecialPrimary) {
       const S = window.SpecialPrimary;

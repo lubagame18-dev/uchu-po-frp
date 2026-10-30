@@ -12,7 +12,7 @@ window.Kits = (() => {
   ru1: ["ruprimary"],
   okr: ["frpkit", "okrprimary"],
   izo: ["izoprimary", "frpkit", "speciallocal"],
-  mus: ["frpkit", "speciallocal"],
+  mus: ["musicprimary", "frpkit", "speciallocal"],
   tech: ["frpkit", "speciallocal"],
   pe: ["frpkit", "speciallocal"],
   orkse: ["frpkit", "speciallocal"],
