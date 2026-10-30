@@ -32,7 +32,9 @@ const maxButtons = rows => rows && rows.length ? [{
 }] : undefined;
 
 function queryOf(to) {
-  return to.chatId ? "?chat_id=" + to.chatId : "?user_id=" + to.userId;
+  if (to.chatId && to.chatType && to.chatType !== "dialog") return "?chat_id=" + encodeURIComponent(to.chatId);
+  if (to.userId) return "?user_id=" + encodeURIComponent(to.userId);
+  return "";
 }
 
 async function send(to, text, rows) {
@@ -44,7 +46,7 @@ async function send(to, text, rows) {
       console.log("MAX send markdown:", JSON.stringify(r).slice(0, 200));
       r = await api("POST", "/messages" + queryOf(to), base);
     }
-    if (r && (r.code || r.error)) console.log("MAX send plain:", JSON.stringify(r).slice(0, 200));
+    if (r && (r.code || r.error)) { console.log("MAX send plain:", JSON.stringify(r).slice(0, 200), "to:", JSON.stringify(to), "url:", queryOf(to), "text:", String(text).slice(0, 80)); }
     return r;
   } catch (e) {
     console.log("MAX send error:", String(e.message || e).slice(0, 200));
@@ -89,9 +91,11 @@ async function handle(update) {
   try {
     const msg = update.message || update;
     const text = String(msg?.body?.text || msg?.text || "").trim();
-    const userId = msg?.sender?.user_id ?? update.user?.user_id ?? update.user_id;
+    const userId = msg?.sender?.user_id ?? update.user?.user_id ?? update.user_id ?? update.callback?.user?.user_id;
     const chatId = msg?.recipient?.chat_id ?? update.chat_id;
-    const to = chatId ? { chatId, userId } : { userId };
+    const chatType = msg?.recipient?.chat_type || update.chat_type || "dialog";
+    if (!userId) { console.log("MAX: нет user_id в обновлении", JSON.stringify(update).slice(0, 300)); return; }
+    const to = { userId, chatId, chatType };
 
     if (type === "bot_started") return brain.start(chatId || userId);
     if (type === "message_created") {
