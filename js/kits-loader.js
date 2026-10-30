@@ -11,7 +11,7 @@ window.Kits = (() => {
     math: ["mathprimary", "mathkit"],
   ru1: ["ruprimary"],
   okr: ["frpkit", "okrprimary"],
-  izo: ["frpkit", "speciallocal"],
+  izo: ["izoprimary", "frpkit", "speciallocal"],
   mus: ["frpkit", "speciallocal"],
   tech: ["frpkit", "speciallocal"],
   pe: ["frpkit", "speciallocal"],
