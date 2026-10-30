@@ -177,6 +177,7 @@ textarea{min-height:110px}
     const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename||"инструкция.docx";a.click();
   }
   window.__docxFrom=docxFrom;
+  if(/[?&]testdocx=1/.test(location.search)){ try{ docxFrom("# Тест\n| A | B |\n|---|---|\n| 1 | 2 |","t.docx"); document.title="DOCX_OK"; }catch(e){ document.title="DOCX_ERR "+e.message; } }
   document.getElementById("aGo").onclick=async function(){
     var b=this; b.disabled=true; document.getElementById("aOutMsg").textContent="Генерирую…";
     try{
