@@ -214,7 +214,15 @@ const Account = (() => {
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
   const devLink = () => ""; /* вход разработчика только на /dev.html */
-  function bindDev(m) { const b = m.querySelector("#acDev"); if (b) b.onclick = () => { closeModal(); if (window.Dev?.on) window.Dev.show("files"); else window.Dev?.openLogin(); }; }
+  function bindDev(m) { m.querySelectorAll("[data-ava]").forEach(b => b.onclick = async () => {
+      try {
+        const info = { ...(S.info || {}), avatar: b.dataset.ava };
+        await saveInfo(info);
+        toast("Аватар обновлён.");
+        closeModal(); open(); paint(); paintNav();
+      } catch (e) { toast("Не удалось сохранить аватар: " + e.message, 6000); }
+    });
+  const b = m.querySelector("#acDev"); if (b) b.onclick = () => { closeModal(); if (window.Dev?.on) window.Dev.show("files"); else window.Dev?.openLogin(); }; }
   /* ---------- окно кабинета ---------- */
   function open() {
     if (S) {
@@ -222,6 +230,10 @@ const Account = (() => {
       const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
         <form class="ac-prof" id="acProf">
           <label class="ac-ava" title="Нажмите, чтобы выбрать фото">${I.avatar ? `<img src="${esc(I.avatar)}" alt="">` : `<span>${esc(initials(I.name) || "👤")}</span>`}<input type="file" id="acPhoto" accept="image/*" hidden><em>${I.avatar ? "сменить" : "фото"}</em></label>
+          <div class="ac-ava-set" id="acAvaSet">
+            <span class="small">Или выберите готовый:</span>
+            <div class="ac-ava-grid">${[1,2,3,4,5,6,7].map(i=>`<button type="button" class="ac-ava-btn" data-ava="js/avatars/a${i}.png" title="Без фона"><img src="js/avatars/a${i}.png" alt=""></button>`).join("")}${[1,2,3,4,5,6,7].map(i=>`<button type="button" class="ac-ava-btn" data-ava="js/avatars/a${i}w.png" title="На белом"><img src="js/avatars/a${i}w.png" alt=""></button>`).join("")}</div>
+          </div>
           <div class="ac-fields">
             <input type="text" id="acName" placeholder="Имя и фамилия" value="${esc(I.name || "")}" autocomplete="name">
             <input type="text" id="acSchool" placeholder="Школа (по желанию)" value="${esc(I.school || "")}" autocomplete="organization">
