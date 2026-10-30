@@ -103,7 +103,7 @@ const Account = (() => {
     try { setSession(await api("/auth/v1/token?grant_type=refresh_token", { method: "POST", body: JSON.stringify({ refresh_token: S.refresh }) }), S.email); return true; }
     catch (e) { if (e.status === 400 || e.status === 401) { S = null; save(); } return false; }
   }
-  function signOut() { const local = S?.local; S = null; if (window.Dev?.on) try { Dev.exit(); } catch { } save(); window.Access?.paint(); toast(local ? "Вы вышли из кабинета." : "Вы вышли из кабинета. Уроки в облаке сохранены."); }
+  function signOut() { const local = S?.local; if (!local) { try { push(true).catch(() => null); } catch { } } try { if (window.Store && Store.clear) Store.clear(); } catch { } try { Object.keys(localStorage).forEach(k => { if (/uchu:lessons|uchu:lesson$/i.test(k)) localStorage.removeItem(k); }); } catch { } S = null; if (window.Dev?.on) try { Dev.exit(); } catch { } save(); window.Access?.paint(); toast("Вы вышли из кабинета. Уроки сохранены в облаке и убраны из этого браузера."); }
   /* ---------- синхронизация уроков ---------- */
   let pushT = null, busy = false;
   async function upsert(rows) { if (!rows.length) return; await api("/rest/v1/lessons", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows) }); }
@@ -230,7 +230,7 @@ const Account = (() => {
           </div>
         </form>
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row">${S.local ? "" : `<button class="btn sm flame" id="acSync">Синхронизировать сейчас</button>`}${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
+        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
       bindDev(m);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
       const pm = m.querySelector("#acPMsg");
