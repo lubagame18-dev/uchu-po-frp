@@ -366,7 +366,7 @@ const Account = (() => {
     nb.innerHTML = (pic ? `<img class="acc-ava" src="${esc(pic)}" alt="">` : "") + esc(nm.split(/\s+/).slice(0, 2).join(" ") || "Кабинет");
     nb.onclick = open;
   }
-  document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); paintNav(); });
+  document.addEventListener("DOMContentLoaded", () => { paint(); paintNav(); });
   document.addEventListener("uchu:auth", paintNav);
   setInterval(paintNav, 1500);
 
