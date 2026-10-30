@@ -241,10 +241,23 @@ const Account = (() => {
         <div class="small" id="acForgotW" style="margin:-4px 0 10px"><button type="button" id="acForgot" class="link" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Забыли пароль?</button></div>
         <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank">договор-оферту</a> и даю согласие на обработку персональных данных по <a href="legal/privacy.html" target="_blank">политике конфиденциальности</a></span></label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn sm" type="button" id="acGoogle">Войти через Google</button>
+          <button class="btn sm" type="button" id="acYandex">Войти через Яндекс</button>
+        </div>
+        <p class="small" style="margin-top:6px">Без пароля — через аккаунт Google или Яндекс. При первом входе кабинет создаётся автоматически.</p>
         ${devLink()}
       </form></div>`);
     bindDev(m);
     let mode = "in";
+    const oauth = provider => {
+      if (!ready()) { toast("Вход через " + provider + " временно недоступен.", 5000); return; }
+      const back = location.origin + location.pathname;
+      location.href = C().url.replace(/\/+$/, "") + "/auth/v1/authorize?provider=" + encodeURIComponent(provider) + "&redirect_to=" + encodeURIComponent(back);
+    };
+    const gb = m.querySelector("#acGoogle"), yb = m.querySelector("#acYandex");
+    if (gb) gb.onclick = () => oauth("google");
+    if (yb) yb.onclick = () => oauth("yandex");
     m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
     m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; m.querySelector("#acForgotW").hidden = mode !== "in" || via === "phone"; });
     let via = "mail", codeSent = false, cool = 0, coolT = null;
