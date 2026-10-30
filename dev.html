@@ -58,7 +58,8 @@ textarea{min-height:110px}
     </div>
     <label for="aTopic">Тема</label><input id="aTopic" placeholder="Недоросль">
     <label for="aKind">Что создать</label>
-    <select id="aKind"><option value="conspect">Конспект</option><option value="slides">Презентация</option><option value="worksheet">Рабочий лист</option></select>
+    <select id="aKind"><option value="conspect">Конспект</option><option value="slides">Презентация</option><option value="worksheet">Рабочий лист</option>
+        <option value="instruction">Инструкция (красивый .docx)</option></select>
     <div class="row"><button class="btn flame" id="aGo">Сгенерировать</button><span class="small" id="aOutMsg"></span></div>
     <label for="aOut">Результат (можно вставить в «промпт разработчика» или сохранить как материал)</label>
     <textarea id="aOut"></textarea>
@@ -137,11 +138,55 @@ textarea{min-height:110px}
     if(!r.ok||!j.ok) throw new Error(j.error||"ИИ недоступен");
     return j.text;
   }
+  /* мини-генератор .docx: заголовки, абзацы, таблицы */
+  const CRC=(()=>{const t=new Int32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c;}return t;})();
+  const crc32=b=>{let c=-1;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&0xFF]^(c>>>8);return (c^-1)>>>0;};
+  function zipStore(entries){const chunks=[],central=[];let offset=0;for(const e of entries){const name=new TextEncoder().encode(e.name),data=new TextEncoder().encode(e.data),crc=crc32(data);const local=new Uint8Array(30+name.length);const dv=new DataView(local.buffer);dv.setUint32(0,0x04034b50,true);dv.setUint16(4,20,true);dv.setUint16(6,0x0800,true);dv.setUint16(8,0,true);dv.setUint16(10,0,true);dv.setUint16(12,0,true);dv.setUint32(14,crc,true);dv.setUint32(18,data.length,true);dv.setUint32(22,data.length,true);dv.setUint16(26,name.length,true);dv.setUint16(28,0,true);local.set(name,30);chunks.push(local,data);const cen=new Uint8Array(46+name.length);const cv=new DataView(cen.buffer);cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0x0800,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);cv.setUint16(14,0,true);cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);cv.setUint16(28,name.length,true);cv.setUint32(42,offset,true);cen.set(name,46);central.push(cen);offset+=local.length+data.length;}const cb=central.reduce((a,b)=>a+b.length,0);const end=new Uint8Array(22);const ev=new DataView(end.buffer);ev.setUint32(0,0x06054b50,true);ev.setUint16(8,entries.length,true);ev.setUint16(10,entries.length,true);ev.setUint32(12,cb,true);ev.setUint32(16,offset,true);const parts=[...chunks,...central,end];const total=parts.reduce((a,b)=>a+b.length,0);const out=new Uint8Array(total);let p=0;for(const x of parts){out.set(x,p);p+=x.length;}return new Blob([out],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});}
+  function escXml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function docxFrom(text,filename){
+    const lines=String(text||"").split(/\r?\n/);const body=[];let i=0;
+    const para=(t,bold,size)=>`<w:p><w:r><w:rPr>${bold?"<w:b/>":""}<w:sz w:val="${size||24}"/></w:rPr><w:t xml:space="preserve">${escXml(t)}</w:t></w:r></w:p>`;
+    while(i<lines.length){
+      const line=lines[i];
+      if(/^\s*\|.*\|\s*$/.test(line)){
+        const rows=[];
+        while(i<lines.length&&/^\s*\|.*\|\s*$/.test(lines[i])){
+          const cells=lines[i].trim().replace(/^\|/,"").replace(/\|$/,"").split("|").map(c=>c.trim());
+          if(!cells.every(c=>c===""||/^:?-{2,}:?$/.test(c))) rows.push(cells);
+          i++;
+        }
+        if(rows.length){
+          const cols=Math.max(...rows.map(r=>r.length));const w=Math.floor(9000/cols);
+          let tbl='<w:tbl><w:tblPr><w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(s=>`<w:${s} w:val="single" w:sz="4" w:color="808080"/>`).join("")+'</w:tblBorders></w:tblPr><w:tblGrid>'+Array(cols).fill(`<w:gridCol w:w="${w}"/>`).join("")+'</w:tblGrid>';
+          for(const r of rows){ tbl+='<w:tr>'; for(let c=0;c<cols;c++){ tbl+=`<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/></w:tcPr>${para(r[c]||"",false,20)}</w:tc>`; } tbl+='</w:tr>'; }
+          tbl+='</w:tbl>'; body.push(tbl); continue;
+        }
+      }
+      if(/^#\s/.test(line)) body.push(para(line.replace(/^#\s*/,""),true,32));
+      else if(/^##\s/.test(line)) body.push(para(line.replace(/^##\s*/,""),true,28));
+      else if(line.trim()==="") body.push("<w:p/>");
+      else body.push(para(line.replace(/\*\*/g,""),false,24));
+      i++;
+    }
+    const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body.join("")}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body></w:document>`;
+    const blob=zipStore([
+      {name:"[Content_Types].xml",data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`},
+      {name:"_rels/.rels",data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`},
+      {name:"word/document.xml",data:doc}
+    ]);
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename||"инструкция.docx";a.click();
+  }
+  window.__docxFrom=docxFrom;
   document.getElementById("aGo").onclick=async function(){
     var b=this; b.disabled=true; document.getElementById("aOutMsg").textContent="Генерирую…";
     try{
       var txt=await ai(document.getElementById("aKind").value, document.getElementById("aSubj").value||"Литература", document.getElementById("aGrade").value||"8", document.getElementById("aTopic").value||"Тема урока");
       document.getElementById("aOut").value=txt; document.getElementById("aOutMsg").textContent="Готово";
+      const kindNow=document.getElementById("aKind").value;
+      let dl=document.getElementById("aDownload");
+      if(!dl){ dl=document.createElement("button"); dl.id="aDownload"; dl.className="btn"; dl.textContent="⬇ Скачать .docx"; dl.style.marginLeft="8px"; document.getElementById("aOutMsg").parentElement.appendChild(dl); }
+      dl.onclick=()=>window.__docxFrom(txt, (kindNow==="instruction"?"инструкция":"материал")+".docx");
+      dl.hidden = false;
     }catch(e){ document.getElementById("aOutMsg").textContent="Ошибка: "+e.message; }
     finally{ b.disabled=false; }
   };
