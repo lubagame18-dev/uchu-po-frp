@@ -1320,3 +1320,30 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
   return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;
+
+/* Плавающая панель A−/A+ при выделении текста на слайде */
+(function () {
+  if (window.__selFsInit) return; window.__selFsInit = 1;
+  function bar() { let b = document.getElementById("selFsBar"); if (b) return b;
+    b = document.createElement("div"); b.id = "selFsBar"; b.hidden = true;
+    b.style.cssText = "position:fixed;z-index:9999;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #ddd;border-radius:999px;padding:5px 8px;box-shadow:0 8px 24px rgba(0,0,0,.18)";
+    b.innerHTML = '<button type="button" class="btn sm ghost" id="selFsDn" aria-label="Мельче">A−</button><span class="small" id="selFsVal"></span><button type="button" class="btn sm ghost" id="selFsUp" aria-label="Крупнее">A+</button>';
+    b.querySelector("#selFsDn").onclick = () => { document.getElementById("sxFsM")?.click(); };
+    b.querySelector("#selFsUp").onclick = () => { document.getElementById("sxFsP")?.click(); };
+    document.body.appendChild(b); return b;
+  }
+  document.addEventListener("selectionchange", () => {
+    const sel = getSelection(), n = sel && sel.anchorNode;
+    const host = n && (n.nodeType === 1 ? n : n.parentElement)?.closest?.(".sx-inner");
+    const b = bar();
+    if (!host || !sel.rangeCount || sel.isCollapsed) { b.hidden = true; return; }
+    try {
+      const r = sel.getRangeAt(0).getBoundingClientRect();
+      b.hidden = false; b.style.left = Math.max(8, Math.min(innerWidth - 170, r.left + r.width / 2 - 70)) + "px";
+      b.style.top = Math.max(8, r.top - 46) + "px";
+      const fs = getComputedStyle(host.closest(".sx") || host).getPropertyValue("--fs") || "1";
+      b.querySelector("#selFsVal").textContent = Math.round(parseFloat(fs) * 100) + "%";
+    } catch { b.hidden = true; }
+  });
+  document.addEventListener("mousedown", e => { const b = document.getElementById("selFsBar"); if (b && !b.contains(e.target)) setTimeout(() => { if (getSelection()?.isCollapsed) b.hidden = true; }, 120); });
+})();
