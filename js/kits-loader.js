@@ -21,6 +21,7 @@ window.Kits = (() => {
     inf: ["infgen", "infdata", "infmethod"]
   };
 
+  const VER = (window.UCHU_VER || "5.300");
   const files = new Map();   // файл -> Promise<boolean>
   const done = new Set();
   const listeners = [];
@@ -29,7 +30,7 @@ window.Kits = (() => {
     if (files.has(name)) return files.get(name);
     const p = new Promise(resolve => {
       const s = document.createElement("script");
-      s.src = "js/" + name + ".js";
+      s.src = "js/" + name + ".js?v=" + encodeURIComponent(VER);
       s.async = true;
       s.onload = () => resolve(true);
       s.onerror = () => { files.delete(name); resolve(false); };
