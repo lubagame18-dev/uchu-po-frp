@@ -34,7 +34,7 @@ const Account = (() => {
       if (localStorage.getItem(k)) return;
       localStorage.setItem(k, "1");
       try { await resendConfirm(S.email); } catch { }
-      toast("Вход выполнен. Заполните личные данные в кабинете, а на " + S.email + " отправлено письмо для подтверждения почты.", 9000);
+      toast("Вход выполнен. Заполните имя и фото в профиле — они появятся в шапке сайта.", 9000);
       open();
     } catch { }
   }
@@ -360,7 +360,7 @@ const Account = (() => {
     if (!S) { btn.innerHTML = "Войти"; btn.setAttribute("aria-label", "Войти в личный кабинет"); }
     else {
       const pic = I.avatar || S.pic || "";
-      const nm = I.name || S.email || "Кабинет";
+      const nm = I.name || (S.local ? "Кабинет" : "Кабинет");
       const ini = initials(nm) || "👤";
       btn.innerHTML = pic ? `<img class="acc-ava" src="${esc(pic)}" alt="">` : `<span class="acc-ini">${esc(ini)}</span>`;
       btn.setAttribute("aria-label", "Личный кабинет: " + nm);
@@ -373,7 +373,7 @@ const Account = (() => {
     if (!S) { nb.innerHTML = "Войти"; nb.onclick = open; return; }
     const I = S?.info || {};
     const pic = I.avatar || S.pic || "";
-    const nm = I.name || S.email || "Кабинет";
+    const nm = I.name || (S.local ? "Кабинет" : "Кабинет");
     nb.innerHTML = (pic ? `<img class="acc-ava" src="${esc(pic)}" alt="">` : "") + esc(nm.split(/\s+/).slice(0, 2).join(" ") || "Кабинет");
     nb.onclick = open;
   }
