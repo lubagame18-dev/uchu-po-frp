@@ -2532,9 +2532,10 @@ function bind() {
     /* ступень автоматически подстраивается под предмет: физика/химия — 5–9 или 10–11 */
     const st = stageOfSubject(id);
     if (state.stage !== st.id) { state.stage = st.id; setSeg("segStage", st.id); fillSubjects(st.id); }
-    state.subject = id; setSeg("segSubject", id); fillGrades(); clearTopic();
+    state.subject = id; setSeg("segSubject", id); fillGrades();
     if (window.Plans) { try { await Plans.ensure(id); } catch (e) { } }
     if (window.Kits) { try { await Kits.ensure(id); } catch (e) { } }
+    clearTopic();
     readForm(); updateType();
     if (window.syncThemeOptions) syncThemeOptions();
     refreshTopics();
