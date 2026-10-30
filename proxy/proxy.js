@@ -500,7 +500,7 @@ async function handler(req, res) {
       const tr = await request("https://oauth.yandex.ru/token", {
         method: "POST", timeout: 20000,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "grant_type=authorization_code&code=" + encodeURIComponent(code) + "&client_id=" + encodeURIComponent(yid) + "&client_secret=" + encodeURIComponent(ysec)
+        body: "grant_type=authorization_code&code=" + encodeURIComponent(code) + "&client_id=" + encodeURIComponent(yid) + "&client_secret=" + encodeURIComponent(ysec) + "&redirect_uri=" + encodeURIComponent(site.replace(/\/+$/, "") + "/yandex.html")
       });
       const tj = JSON.parse(await readAll(tr));
       const at = tj.access_token; if (!at) return redirect(site + "#error_description=yandex_token");
