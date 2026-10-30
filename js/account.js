@@ -245,7 +245,7 @@ const Account = (() => {
           <button class="btn sm" type="button" id="acGoogle"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.5 30.2 0 24 0 14.6 0 6.4 5.4 2.5 13.2l7.8 6.1C12.2 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.5c-.5 2.9-2.2 5.4-4.6 7l7.1 5.5c4.2-3.9 6.6-9.6 7.1-17z"/><path fill="#FBBC05" d="M10.3 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.5-2 15.3-5.5l-7.1-5.5c-2 1.4-4.7 2.3-8.2 2.3-6.4 0-11.8-3.7-13.7-8.8l-7.8 6.1C6.4 42.6 14.6 48 24 48z"/></svg>Войти через Google</button>
           <button class="btn sm" type="button" id="acYandex"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="12" fill="#FC3F1D"/><path fill="#fff" d="M13.6 7.6h-1.2c-1.5 0-2.2.7-2.2 1.8 0 1.2.5 1.8 1.9 2.5l1.2.6-2.9 4.6h-1.8l2.6-4.1c-1.6-.8-2.4-1.7-2.4-3.3 0-2.1 1.4-3.5 3.8-3.5h2.8v10.9h-1.6V7.6z"/></svg>Войти через Яндекс</button>
         </div>
-        <p class="small" style="margin-top:6px">Первый вход через Google или Яндекс — это регистрация: кабинет создаётся сам. Дальше входите этой же кнопкой — без почты и пароля. (Вход через Яндекс появится после подключения провайдера.)</p>
+        <p class="small" style="margin-top:6px">Первый вход через Google или Яндекс — это регистрация: кабинет создаётся сам. Дальше входите этой же кнопкой — без почты и пароля. </p>
         ${devLink()}
       </form></div>`);
     bindDev(m);
@@ -265,7 +265,7 @@ const Account = (() => {
     };
     const gb = m.querySelector("#acGoogle"), yb = m.querySelector("#acYandex");
     if (gb) gb.onclick = () => oauth("google");
-    if (yb) yb.onclick = () => oauth("yandex");
+    if (yb) yb.onclick = () => { location.href = "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex&site=" + encodeURIComponent(location.origin + location.pathname); };
     m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
     m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; m.querySelector("#acForgotW").hidden = mode !== "in" || via === "phone"; });
     let via = "mail", codeSent = false, cool = 0, coolT = null;

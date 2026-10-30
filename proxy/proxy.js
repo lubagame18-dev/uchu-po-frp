@@ -481,6 +481,55 @@ async function handler(req, res) {
     return send(res, 200, { ok: true, email: email });
   }
 
+
+  /* ---------- вход через Яндекс (свой OAuth) ---------- */
+  if (route === "/auth/yandex") {
+    const yid = process.env.YANDEX_CLIENT_ID || "", ysec = process.env.YANDEX_CLIENT_SECRET || "";
+    if (!yid || !ysec) return send(res, 503, { error: "вход через Яндекс не настроен" });
+    const fnUrl = "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex";
+    const u2 = new URL(req.url, "https://x");
+    const code = u2.searchParams.get("code");
+    const site = u2.searchParams.get("site") || "https://uchu-po-frp.ru/";
+    const redirect = (url) => { res.statusCode = 302; res.setHeader("Location", url); res.end(); };
+    if (!code) {
+      return redirect("https://oauth.yandex.ru/authorize?response_type=code&client_id=" + encodeURIComponent(yid)
+        + "&redirect_uri=" + encodeURIComponent(fnUrl) + "&state=" + encodeURIComponent(site));
+    }
+    try {
+      const tr = await request("https://oauth.yandex.ru/token", {
+        method: "POST", timeout: 20000,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "grant_type=authorization_code&code=" + encodeURIComponent(code) + "&client_id=" + encodeURIComponent(yid) + "&client_secret=" + encodeURIComponent(ysec)
+      });
+      const tj = JSON.parse(await readAll(tr));
+      const at = tj.access_token; if (!at) return redirect(site + "#error_description=yandex_token");
+      const ir = await request("https://login.yandex.ru/info?format=json", { headers: { Authorization: "OAuth " + at }, timeout: 20000 });
+      const ij = JSON.parse(await readAll(ir));
+      const email = String(ij.default_email || (ij.emails && ij.emails[0]) || "").toLowerCase();
+      if (!email) return redirect(site + "#error_description=yandex_email");
+      const sbUrl = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), sbKey = process.env.SUPABASE_SERVICE_KEY || "";
+      const headers = { apikey: sbKey, Authorization: "Bearer " + sbKey, "Content-Type": "application/json" };
+      let prof = null;
+      try { const pr = await request(sbUrl + "/rest/v1/profiles?email=eq." + encodeURIComponent(email) + "&select=id", { headers, timeout: 15000 }); prof = (JSON.parse(await readAll(pr)) || [])[0] || null; } catch { }
+      if (!prof) {
+        const pass = "ya_" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+        const cr = await request(sbUrl + "/auth/v1/admin/users", { method: "POST", headers, timeout: 20000, body: JSON.stringify({ email, password: pass, email_confirm: true, user_metadata: { avatar_url: ij.default_avatar_id ? "https://avatars.yandex.net/get-yapic/" + ij.default_avatar_id + "/islands-200" : "" } }) });
+        const cj = JSON.parse(await readAll(cr));
+        if (!cj.id) return redirect(site + "#error_description=yandex_create");
+        try { await request(sbUrl + "/rest/v1/profiles", { method: "POST", headers, timeout: 15000, body: JSON.stringify({ id: cj.id, plan: "free", ai_left: 2, email }) }); } catch { }
+        const tk = await request(sbUrl + "/auth/v1/token?grant_type=password", { method: "POST", headers: { apikey: sbKey, "Content-Type": "application/json" }, timeout: 20000, body: JSON.stringify({ email, password: pass }) });
+        const tjj = JSON.parse(await readAll(tk));
+        return redirect(site + "#access_token=" + encodeURIComponent(tjj.access_token || "") + "&refresh_token=" + encodeURIComponent(tjj.refresh_token || "") + "&expires_in=" + (tjj.expires_in || 3600));
+      }
+      const gr = await request(sbUrl + "/auth/v1/admin/generate_link", { method: "POST", headers, timeout: 20000, body: JSON.stringify({ type: "magiclink", email, redirect_to: site }) });
+      const gj = JSON.parse(await readAll(gr));
+      if (gj && gj.action_link) return redirect(gj.action_link);
+      return redirect(site + "#error_description=yandex_login");
+    } catch (e) {
+      return redirect(site + "#error_description=" + encodeURIComponent(String(e.message || "yandex")));
+    }
+  }
+
   /* ---------- приём ботов по корню функции: некоторые платформы теряют ?path= ---------- */
   if (req.method === "POST" && (route === "" || route === "/")) {
     let rawRoot = ""; try { rawRoot = await readAll(req); } catch { }
