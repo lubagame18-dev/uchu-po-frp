@@ -31,7 +31,15 @@ const FrpKit = (() => {
       const fmt = { conspect: "Составь технологическую карту урока в Markdown: этапы, деятельность учителя и учеников, УУД.", lesson: "Составь конспект урока в Markdown: по этапам, реплики учителя, ожидаемые ответы, что записать на доске.", worksheet: "Объём: рабочий лист — РОВНО 2 полностью заполненные страницы A4 (печать с двух сторон): страница 1 — первая половина урока (мотивация, новое знание, опорная схема), страница 2 — вторая (применение, самопроверка, рефлексия); ни одной пустой трети страницы и ни одного задания на третью страницу. Заданий столько, чтобы заполнить обе страницы; в каждом — зона для записи. Каждое задание — заголовок третьего уровня (###). Составь рабочий лист с пустыми зонами для записи, заданиями разных уровней. В листе ТОЛЬКО сам рабочий лист: без домашнего задания, контрольной или самостоятельной работы, памятки, ответов и ключей — всё это создаётся отдельно.", slides: "Составь план презентации: слайд — заголовок и короткие тезисы." }[k] || "Составь документ в Markdown.";
       return `${base}\n\nРаспределение времени (обязательно): на открытие нового не больше 30 % урока, на практику не меньше 45 % (не меньше 5–6 заданий, минимум два с самопроверкой); главное действие темы ученики выполняют на многих примерах. Минуты по этапам в сумме дают ${p.duration}.\n\n${fmt}\nВерни только документ.${draft ? `\n\nЧерновик сайта (улучши, структуру и факты сохрани):\n${String(draft).slice(0, 6000)}` : ""}`;
     };
-    return { id, name, hasOwn: () => false, topics, detectType, conspect: W("conspect"), lesson: W("lesson"), worksheet: W("worksheet"), extra: (k, p, t) => W(k)(p, t), cards: W("cards"), prompt, find: () => null, TYPES };
+    const baseKit = { id, name, hasOwn: () => false, topics, detectType, conspect: W("conspect"), lesson: W("lesson"), worksheet: W("worksheet"), extra: (k, p, t) => W(k)(p, t), cards: W("cards"), prompt, find: () => null, TYPES };
+    if ((id === "ru1" || id === "lit1") && window.RuPrimary) {
+      const R = window.RuPrimary;
+      return { ...baseKit,
+        conspect: p => (+p.grade <= 4 ? R.conspect(p) : baseKit.conspect(p)),
+        lesson: p => (+p.grade <= 4 ? R.lesson(p) : baseKit.lesson(p)),
+        worksheet: p => (+p.grade <= 4 ? R.worksheet(p) : baseKit.worksheet(p)) };
+    }
+    return baseKit;
   };
   const kits = {};
   const get = (id, name, o) => kits[id] || (kits[id] = mk(id, name, o));

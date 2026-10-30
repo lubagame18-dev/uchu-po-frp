@@ -9,6 +9,8 @@ window.Kits = (() => {
 
   const MAP = {
     math: ["mathprimary", "mathkit"],
+  ru1: ["ruprimary"],
+  lit1: ["ruprimary"],
     hist: ["histdata", "histlessons", "histkit"],
     eng: ["engdata", "engkit"],
     bio: ["biolessons", "biokit"],
