@@ -271,8 +271,7 @@ const Account = (() => {
         sessionStorage.setItem("uchu:pkce", ver);
         const back = location.origin + location.pathname;
         location.href = C().url.replace(/\/+$/, "") + "/auth/v1/authorize?provider=" + encodeURIComponent(provider)
-          + "&redirect_to=" + encodeURIComponent(back)
-          + "&code_challenge=" + b64url(dig) + "&code_challenge_method=s256";
+          + "&redirect_to=" + encodeURIComponent(back);
       } catch (e) { toast("Не удалось открыть вход через " + provider + ": " + e.message, 6000); }
     };
     const gb = m.querySelector("#acGoogle"), yb = m.querySelector("#acYandex");
