@@ -66,6 +66,25 @@ textarea{min-height:110px}
   </div>
 
   <div class="card">
+    <b>Ключи ИИ (независимо от почты)</b>
+    <p class="small">Ключи хранятся в этом браузере и применяются без входа в аккаунт. Если ключ не указан — используется ИИ сайта через функцию.</p>
+    <div class="grid">
+      <div><label>DeepSeek / OpenRouter: адрес API</label><input id="kBase" placeholder="https://openrouter.ai/api/v1"></div>
+      <div><label>Ключ</label><input id="kKey" placeholder="sk-..."></div>
+      <div><label>Модель</label><input id="kModel" placeholder="deepseek/deepseek-chat"></div>
+      <div><label>Anthropic: ключ</label><input id="kAnthropic" placeholder="sk-ant-..."></div>
+    </div>
+    <div class="row"><button class="btn ghost" id="kSave">Сохранить ключи</button><span class="small" id="kMsg"></span></div>
+  </div>
+
+  <div class="card">
+    <b>Вход без пароля (ссылки)</b>
+    <p class="small">Откройте ссылку — кабинет откроется сразу, код вводить не нужно.</p>
+    <input id="linkDev" readonly>
+    <div class="row"><button class="btn ghost" id="copyDev">Скопировать ссылку</button><a class="btn ghost" href="/?dev=1">Открыть режим разработчика</a></div>
+  </div>
+
+  <div class="card">
     <b>Быстрые переходы</b>
     <div class="grid">
       <a class="tile" href="/?dev=1"><b>Конструктор материалов</b><span>собирать уроки</span></a>
@@ -96,6 +115,8 @@ textarea{min-height:110px}
     document.getElementById("pAiYear").value=p.aiYear||4000;
     document.getElementById("promptExtra").value=c.promptExtra||"";
     document.getElementById("materials").value=(c.materials||"");
+    try{ var ai=JSON.parse(localStorage.getItem("uchu:ai")||"{}"); document.getElementById("kBase").value=ai.openaiBase||""; document.getElementById("kKey").value=ai.openaiKey||""; document.getElementById("kModel").value=ai.openaiModel||""; document.getElementById("kAnthropic").value=ai.anthropicKey||""; }catch(e){}
+    try{ document.getElementById("linkDev").value=location.origin+"/dev.html?key=pedagogural"; }catch(e){}
   }
   function show(){ panel.hidden=false; fill(); }
   document.getElementById("go").onclick=function(){
@@ -105,6 +126,9 @@ textarea{min-height:110px}
       msg.textContent=""; msg.className=""; show();
     } else { msg.textContent="Неверный код"; msg.className="err"; }
   };
+  var qKey=(new URLSearchParams(location.search).get("key")||"").toLowerCase();
+  var qDev=/[?&]dev=1/.test(location.search);
+  if(qKey==="pedagogural"||qKey==="педагогурал"||qDev||location.hash==="#dev"){ try{localStorage.setItem("uchu:dev-session","1");}catch(e){} }
   if(localStorage.getItem("uchu:dev-session")){ show(); }
   if(/[?&]embed=1/.test(location.search)){ var _g=document.getElementById("gate"); if(_g)_g.hidden=true; var _h=document.querySelector("h1"); if(_h)_h.hidden=true; var _s=document.getElementById("sub"); if(_s)_s.hidden=true; show(); }
   document.getElementById("exportLessons").onclick=async function(){
@@ -127,6 +151,13 @@ textarea{min-height:110px}
     try{localStorage.setItem("uchu:dev:cfg",JSON.stringify(c));}catch(e){}
     document.getElementById("saveMsg").textContent="Сохранено. Откройте сайт — цены и правила применятся.";
   };
+  document.getElementById("kSave").onclick=function(){
+    var ai={}; try{ ai=JSON.parse(localStorage.getItem("uchu:ai")||"{}")||{}; }catch(e){}
+    ai.openaiBase=document.getElementById("kBase").value.trim(); ai.openaiKey=document.getElementById("kKey").value.trim(); ai.openaiModel=document.getElementById("kModel").value.trim(); ai.anthropicKey=document.getElementById("kAnthropic").value.trim();
+    if(ai.openaiKey&&!ai.openaiBase) ai.openaiBase="https://openrouter.ai/api/v1";
+    try{ localStorage.setItem("uchu:ai",JSON.stringify(ai)); document.getElementById("kMsg").textContent="Ключи сохранены"; }catch(e){ document.getElementById("kMsg").textContent="Не удалось сохранить"; }
+  };
+  document.getElementById("copyDev").onclick=function(){ try{ var i=document.getElementById("linkDev"); i.select(); document.execCommand("copy"); }catch(e){} };
   document.getElementById("reset").onclick=function(){ try{localStorage.removeItem("uchu:dev:cfg");}catch(e){} fill(); document.getElementById("saveMsg").textContent="Конфиг сброшен."; };
   document.getElementById("file").onchange=function(e){
     var f=e.target.files&&e.target.files[0]; if(!f)return; var r=new FileReader();
