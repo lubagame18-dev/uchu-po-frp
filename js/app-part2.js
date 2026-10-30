@@ -377,7 +377,8 @@ function pickTopic(it) {
 function updateType() {
   const topic = $("#topic").value.trim();
   const PL = window.Subjects?.plugin(state.subject);
-  state.type = (PL || Engine).detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade });
+  try { state.type = (PL || Engine).detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade }); }
+  catch (e) { try { state.type = Engine.detectType({ subject: state.subject, topic: topic || "—", lessonNo: state.lessonNo, grade: state.grade }); } catch (e2) { state.type = { name: "Комбинированный урок", stages: [], mins: [] }; } }
   const t = state.type;
   $("#typeBox").innerHTML = topic ? `<div class="type-name"><span class="lbl">Тип урока — определён автоматически</span><b>${esc(t.name)}</b></div><details><summary>Этапы урока</summary><p class="hint">${esc(t.stages.join(" → "))}</p></details>`
     : `<div class="type-name"><span class="lbl">Тип урока</span><b class="muted">определится по теме и номеру урока</b></div>`;
@@ -2532,8 +2533,8 @@ function bind() {
     const st = stageOfSubject(id);
     if (state.stage !== st.id) { state.stage = st.id; setSeg("segStage", st.id); fillSubjects(st.id); }
     state.subject = id; setSeg("segSubject", id); fillGrades(); clearTopic();
-    if (window.Plans && Plans.pending(id)) { const ok = await Plans.ensure(id); if (!ok) toast("Не удалось загрузить программу предмета — проверьте соединение."); }
-    if (window.Kits && Kits.pending(id)) { const ok2 = await Kits.ensure(id); if (!ok2) toast("Не удалось загрузить модули предмета."); }
+    if (window.Plans) { try { await Plans.ensure(id); } catch (e) { } }
+    if (window.Kits) { try { await Kits.ensure(id); } catch (e) { } }
     readForm(); updateType();
     if (window.syncThemeOptions) syncThemeOptions();
     refreshTopics();
