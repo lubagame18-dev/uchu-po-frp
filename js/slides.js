@@ -209,6 +209,9 @@ const SlideEditor = (() => {
     if (inner.scrollHeight > inner.clientHeight + 2 || inner.scrollWidth > inner.clientWidth + 2) return false;
     // длинное слово в заголовке или тексте не должно вылезать за край (иначе его пришлось бы рвать посередине)
     if ([...el.querySelectorAll(".sx-title, .sx-body > p, .sx-body li, .sx-body blockquote")].some(x => x.scrollWidth > x.clientWidth + 2)) return false;
+    // заголовок должен помещаться в одну строку — иначе уменьшаем шрифт
+    const ttl = el.querySelector(".sx-title");
+    if (ttl) { const cs = getComputedStyle(ttl); const lh = parseFloat(cs.lineHeight) || (parseFloat(cs.fontSize) * 1.3); if (ttl.scrollHeight > lh * 1.45) return false; }
     // текст не должен заходить на нижнее поле плашки: проверяем низ каждого блока относительно внутренней границы
     const ib = inner.getBoundingClientRect(), cs = getComputedStyle(inner), limit = ib.bottom - parseFloat(cs.paddingBottom) + 1;
     const body = el.querySelector(".sx-body");
