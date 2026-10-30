@@ -17,50 +17,37 @@ window.CardsPlus = (() => {
   function fromMd(md, p) {
     const lines = String(md || "").split(/\r?\n/);
     const cards = [];
-    const subject = p.subjectName || p.subject || "";
     const topic = clean(p.topic || "Урок");
+    const subject = p.subjectName || p.subject || "";
     cards.push({ id: "cp-title", on: true, kind: "title", title: topic, lead: `${p.grade ? p.grade + " класс · " : ""}${subject}`.trim() });
-    let cur = null, inTable = false, tableRows = [];
-    const flush = () => {
-      if (!cur) return;
-      if ((cur.points && cur.points.length) || (cur.rows && cur.rows.length)) cards.push(cur);
-      cur = null;
-    };
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line || /^\|?[\s:-]+\|/.test(line)) continue;
+    let cur = null, table = null;
+    const pushList = () => { if (cur && cur.points.length) { cards.push(cur); } cur = null; };
+    const pushTable = () => { if (table && table.rows.length) cards.push(table); table = null; };
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
       if (/^##\s+/.test(line)) {
-        flush();
+        pushList(); pushTable();
         const title = clean(line.replace(/^##\s+/, ""));
-        cur = { id: "cp-" + (cards.length + 1), on: true, kind: "list", title, points: [] };
-        inTable = false;
-        tableRows = [];
+        if (title && !/справочная опора/i.test(title)) cur = { id: "cp-" + (cards.length + 1), on: true, kind: "list", title, points: [] };
         continue;
-      }
-      if (!cur) {
-        if (/^[-•]\s+/.test(line)) {
-          cur = { id: "cp-" + (cards.length + 1), on: true, kind: "list", title: topic, points: [] };
-        } else continue;
       }
       if (/^\|/.test(line)) {
-        if (cur && cur.kind !== "table") {
-          flush();
-          cur = { id: "cp-" + (cards.length + 1), on: true, kind: "table", title: (cur && cur.title) || "Таблица", head: [], rows: [] };
-        }
         const cells = line.replace(/^\|/, "").replace(/\|$/, "").split("|").map(x => clean(x));
-        if (!cur.head.length) cur.head = cells;
-        else if (!/^[-: ]+$/.test(cells.join(""))) cur.rows.push(cells);
-        inTable = true;
+        if (/^[\s:|-]+$/.test(cells.join(""))) continue;
+        if (!table) table = { id: "cp-" + (cards.length + 1), on: true, kind: "table", title: "Таблица с ответами", head: cells, rows: [] };
+        else if (!table.head.length) table.head = cells;
+        else table.rows.push(cells);
         continue;
       }
+      pushTable();
+      if (!cur) cur = { id: "cp-" + (cards.length + 1), on: true, kind: "list", title: topic, points: [] };
       if (/^[-•]\s+/.test(line)) cur.points.push(clean(line.replace(/^[-•]\s+/, "")));
-      else if (cur.points.length && cur.points.length < 7) cur.points.push(clean(line));
-      else if (cur.points.length) {} // дальше не наращиваем
+      else if (cur.points.length < 7) cur.points.push(clean(line));
     }
-    flush();
-    return cards.filter(c => c.kind === "title" || (c.points && c.points.length) || (c.rows && c.rows.length)).slice(0, 18);
+    pushList(); pushTable();
+    return cards.filter(c => c.kind === "title" || (c.points && c.points.length) || (c.rows && c.rows.length)).slice(0, 20);
   }
-
   function supportCard(p) {
     try {
       const md = window.SupportLib && window.SupportLib.md(p);
