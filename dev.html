@@ -35,19 +35,16 @@ input{width:100%;padding:12px 14px;border:1.5px solid #ddd;border-radius:12px;fo
 (async function(){
   var FN="https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/admin/join";
   var msg=document.getElementById("msg"), panel=document.getElementById("panel");
-  document.getElementById("go").onclick=async function(){
-    var code=document.getElementById("code").value.trim();
+  document.getElementById("go").onclick=function(){
+    var code=(document.getElementById("code").value||"").trim().toLowerCase();
     if(!code){msg.textContent="Введите код";return;}
-    msg.textContent="Проверяю…";
-    try{
-      var r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:code})});
-      var j=await r.json().catch(function(){return{}});
-      if(!r.ok||!(j.ok||j.token)){msg.textContent="Неверный код";return;}
-      if(j.token){try{localStorage.setItem("uchu:dev:token",j.token);}catch(e){}}
-      try{localStorage.setItem("uchu:dev:remembered","1");}catch(e){}
-      msg.textContent=""; panel.hidden=false;
-      setTimeout(function(){location.href="/?dev=1";},600);
-    }catch(e){msg.textContent="Сервис недоступен";}
+    if(code==="pedagogural"||code==="педагогурал"){
+      try{localStorage.setItem("uchu:dev:remembered","1");localStorage.setItem("uchu:dev:code","Pedagogural");}catch(e){}
+      msg.textContent="";panel.hidden=false;
+      setTimeout(function(){location.href="/?dev=1";},400);
+      return;
+    }
+    msg.textContent="Неверный код";
   };
 })();
 </script></div></body></html>

@@ -31,7 +31,7 @@ const Dev = (() => {
   const mark = () => "v6:" + email();
   /* сервер вносит почту в список разработчиков (site_admins) — тогда видны ключи ИИ и присланные материалы */
   async function join(code) {
-    if (String(code || "").trim() === "Pedagogural") { enter(); return { ok: true }; }
+    const _c = String(code || "").trim().toLowerCase(); if (_c === "pedagogural" || _c === "педагогурал") { enter(); return { ok: true }; }
     const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
     if (!fn || !tok) return { ok: false, message: "войдите в личный кабинет" };
     try {
