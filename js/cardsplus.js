@@ -60,6 +60,7 @@ window.CardsPlus = (() => {
 
   /* собирает полный набор слайдов для локального урока */
   function build(p, PL, type) {
+    try { if (window.MaterialResolver) { const rc = window.MaterialResolver.cards(p); if (rc) return rc; } } catch (e) { }
     if (!PL || typeof PL.conspect !== "function") return null;
     let md = "";
     try { md = PL.conspect(p, type) || ""; } catch (e) { md = ""; }
