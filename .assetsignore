@@ -1,0 +1,15 @@
+# Не публиковать на сайте служебные и закрытые файлы
+.git
+.github
+.local
+node_modules
+proxy
+tools
+docs
+.vscode
+.gitignore
+*.sql
+*.zip
+*.md
+assetsignore
+wrangler.toml
