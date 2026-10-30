@@ -482,6 +482,20 @@ async function handler(req, res) {
   }
 
 
+
+  /* ---------- выгрузка собранных уроков для внешнего сайта ---------- */
+  if (route === "/export/lessons") {
+    const adm = process.env.ADMIN_TOKEN || "";
+    if (!adm || req.headers["x-admin-token"] !== adm) return send(res, 403, { error: "только для разработчика" });
+    const sbU = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), sbK = process.env.SUPABASE_SERVICE_KEY || "";
+    if (!sbU || !sbK) return send(res, 503, { error: "облако недоступно" });
+    const rr = await request(sbU + "/rest/v1/lessons?select=id,user_id,data,updated_at&order=updated_at.desc&limit=5000", { headers: { apikey: sbK, Authorization: "Bearer " + sbK }, timeout: 30000 });
+    const txt = await readAll(rr);
+    let rows = []; try { rows = JSON.parse(txt || "[]"); } catch { }
+    const lessons = (Array.isArray(rows) ? rows : []).map(r => ({ id: r.id, user_id: r.user_id, updated_at: r.updated_at, lesson: r.data }));
+    return send(res, 200, { ok: true, count: lessons.length, exported_at: new Date().toISOString(), lessons });
+  }
+
   /* ---------- вход через Яндекс (свой OAuth) ---------- */
   if (route === "/auth/yandex") {
     const yid = process.env.YANDEX_CLIENT_ID || "", ysec = process.env.YANDEX_CLIENT_SECRET || "";

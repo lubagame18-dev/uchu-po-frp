@@ -75,6 +75,7 @@ textarea{min-height:110px}
   </div>
 
   <div class="row">
+    <button class="btn" id="exportLessons">⬇ Выгрузить все уроки (JSON)</button>
     <button class="btn flame" id="save">Сохранить и применить</button>
     <button class="btn ghost" id="reset">Сбросить конфиг</button>
     <a class="btn ghost" href="/?dev=1">Открыть сайт в режиме разработчика</a>
@@ -104,6 +105,18 @@ textarea{min-height:110px}
     } else { msg.textContent="Неверный код"; msg.className="err"; }
   };
   if(localStorage.getItem("uchu:dev-session")){ show(); }\n  if(/[?&]embed=1/.test(location.search)){ var _g=document.getElementById("gate"); if(_g)_g.hidden=true; var _h=document.querySelector("h1"); if(_h)_h.hidden=true; var _s=document.getElementById("sub"); if(_s)_s.hidden=true; show(); }
+  document.getElementById("exportLessons").onclick=async function(){
+    var code=prompt("Код администратора (ADMIN_TOKEN):"); if(!code) return;
+    this.disabled=true;
+    try{
+      var r=await fetch("https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/export/lessons",{headers:{"X-Admin-Token":code}});
+      var j=await r.json();
+      if(!r.ok||!j.ok) throw new Error(j.error||"ошибка");
+      var blob=new Blob([JSON.stringify(j,null,1)],{type:"application/json"});
+      var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="uchu-lessons-"+new Date().toISOString().slice(0,10)+".json"; a.click();
+    }catch(e){ alert("Не удалось: "+e.message); }
+    finally{ this.disabled=false; }
+  };
   document.getElementById("save").onclick=function(){
     var c=cfg();
     c.prices={basic:+document.getElementById("pBasic").value||250, ai:+document.getElementById("pAi").value||500, basicYear:+document.getElementById("pBasicYear").value||2000, aiYear:+document.getElementById("pAiYear").value||4000};
