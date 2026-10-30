@@ -772,6 +772,16 @@ function subjectMethod(p) {
     if (B.stages) out += "\nВопросы, вокруг которых строится урок: " + B.stages.join(" ");
     if (B.assess) out += "\nОценивание: " + B.assess;
   }
+    const DP = (window.SUBJECT_DEPTH || {})[key];
+  if (DP) {
+    out += "\n\n# Глубина и исторические справки";
+    if (DP.epochs) out += "\nЭпохи и стили:\n" + DP.epochs.map(e => "- " + e.name + " (" + e.years + "): " + e.features.join("; ") + "; примеры: " + e.works.slice(0, 2).join(", ")).join("\n");
+    out += "\nОбязательно: историческая справка (даты, события, контекст), анализ минимум 2 произведений, сравнение произведений разных эпох, термины, вопросы, критерии оценивания.";
+    if (DP.analysis) out += "\nАлгоритм анализа произведения:\n" + DP.analysis.join("\n");
+    if (DP.historyNotes) out += "\nИсторические справки:\n" + DP.historyNotes.map(x => "- " + x).join("\n");
+    if (DP.extraTerms) out += "\nДополнительные термины: " + DP.extraTerms.join(", ") + ".";
+    if (DP.questions) out += "\nВопросы:\n" + DP.questions.map(x => "- " + x).join("\n");
+  }
   return out;
 }
 
