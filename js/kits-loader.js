@@ -8,7 +8,7 @@ window.Kits = (() => {
   "use strict";
 
   const MAP = {
-    math: ["mathprimary", "mathkit"],
+    math: ["mathsecondary", "mathprimary", "mathkit"],
   ru1: ["ruprimary"],
   okr: ["frpkit", "okrprimary"],
   izo: ["izoprimary", "frpkit", "speciallocal"],
