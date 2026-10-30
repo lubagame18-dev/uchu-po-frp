@@ -21,7 +21,7 @@ window.Kits = (() => {
   vis: ["frpkit", "speciallocal"],
   mhk: ["frpkit", "speciallocal"],
   lit1: ["litprimary", "ruprimary"],
-    hist: ["histdata", "histlessons", "histkit"],
+    hist: ["histdata", "histlessons", "histkit", "histsec"],
     eng: ["engprimary", "engdata", "engkit", "engsec"],
     bio: ["biolessons", "biokit", "biosec"],
     geo: ["geomethod", "frpkit", "geosec"],
