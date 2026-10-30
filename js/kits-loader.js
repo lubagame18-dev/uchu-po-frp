@@ -26,7 +26,7 @@ window.Kits = (() => {
     bio: ["biolessons", "biokit", "biosec"],
     geo: ["geomethod", "frpkit", "geosec"],
     phys: ["phydata", "phymethod", "frpkit", "physsec"],
-    chem: ["chemdata", "chemmethod"],
+    chem: ["chemdata", "chemmethod", "frpkit", "chemsec"],
     soc: ["socdata", "socmethod"],
     inf: ["infgen", "infdata", "infmethod"]
   };
