@@ -146,21 +146,46 @@ const Learn2 = (() => {
   }
 
   /* ---------- контекст генерации и подсказки ---------- */
+  /* нейтрализация авторской методики: личное -> общее положение */
+  function neutralize(s) {
+    return String(s || "")
+      .replace(/\b(?:я|мы)\s+(?:обычно|всегда|люблю|предпочитаю|советую|делаю|использую)\b/gi, "на практике")
+      .replace(/\b(?:по моему мнению|на мой взгляд|мне нравится|я считаю)\b/gi, "целесообразно")
+      .replace(/[А-ЯЁ][а-яё]+\s+[А-ЯЁ][а-яё]+(?:\s+[А-ЯЁ][а-яё]+)?/g, "")
+      .replace(/«[^»]{0,120}»/g, "")
+      .replace(/\b(?:моя|моей|моих|наш|наша|наши)\b/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/^[\s,;:—-]+|[\s,;:—-]+$/g, "")
+      .trim();
+  }
+  /* сигнал от выгрузки: какие материалы чаще сохраняют по предмету/классу */
+  function learnExport({ subject, grade, kind, format }) {
+    try {
+      S = load() || { notes: [], patterns: [] };
+      const key = "export:" + (subject || "?") + ":" + gradeBand(grade) + ":" + (format || kind || "?");
+      let p = (S.patterns || []).find(x => x.key === key);
+      if (!p) { p = { key, n: 0, subject, band: gradeBand(grade), format: format || kind || "" }; S.patterns.push(p); }
+      p.n++; p.at = Date.now();
+      keep();
+      return true;
+    } catch { return false; }
+  }
+
   function setContext(c) { ctx = { ...ctx, ...(c || {}) }; }
-  function hints() {
+  function hints() { /* выдаём только обобщённые формулировки */
     const band = gradeBand(ctx.grade), sg = subjectGroup(ctx.subject);
     return S.patterns
       .filter(p => p.active && p.band === band && p.group === sg && p.text)
       .slice(0, 2)
       .map(p => p.text);
   }
-  function hintsSuffix() {
+  function hintsSuffix() { /* нейтрализованные подсказки */
     const h = hints();
     return h.length ? "\n\n# Мягкие наблюдения с правок учителей (учитывай, если уместно, не навязывай)\n" + h.map((x, i) => `${i + 1}. ${x}`).join("\n") : "";
   }
 
   /* ---------- просмотр и ручное подтверждение (кабинет) ---------- */
-  function list() {
+  function list() { /* список для кабинета */
     return {
       notes: S.notes.slice().reverse(),
       patterns: S.patterns.slice().sort((a, b) => (b.active - a.active) || (b.n - a.n))
@@ -176,6 +201,6 @@ const Learn2 = (() => {
 
   document.addEventListener("uchu:ready", () => { try { keep(); } catch { } });
 
-  return { learnNote, setContext, hints, hintsSuffix, list, approve, clear, gradeBand, subjectGroup, MATURE };
+  return { learnNote, learnExport, neutralize, setContext, hints, hintsSuffix, list, approve, clear, gradeBand, subjectGroup, MATURE };
 })();
 window.Learn2 = Learn2;

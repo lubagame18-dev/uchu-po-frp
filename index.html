@@ -5685,7 +5685,7 @@ async function packZipBlob(L) {
   InfMethod.zip(p, F, type).forEach(f => zip.file(f.n, f.c));
   return zip.generateAsync({ type: "blob", compression: "DEFLATE" });
 }
-async function exportOne(L, d, f) {
+async function exportOne(L, d, f) { try { window.Learn2?.learnExport?.({ subject: L.subject, grade: L.grade, kind: d, format: f }); } catch { }
   // перед выгрузкой презентации — автоподбор шрифта и деление длинных слайдов (если редактор ещё не открывался)
   if (window.SlideEditor && (d === "slides" || d === "all") && L === state.lesson && L.docs.slides && !L.slidesFitted) { L.slidesFitted = true; SlideEditor.fitAll(); }
   if (d === "all") return exportZip(L);
