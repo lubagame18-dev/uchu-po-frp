@@ -1,0 +1,10 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Вход через Яндекс</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#fffdf7;color:#1c1c1c}p{max-width:420px;text-align:center}</style></head><body><p id="m">Входим через Яндекс…</p>
+<script>
+(function(){var q=new URLSearchParams(location.search);var code=q.get("code");var err=q.get("error");var site=(q.get("state")||"https://uchu-po-frp.ru/");
+if(err){location.replace(site+"#error_description="+encodeURIComponent(err));return;}
+if(!code){document.getElementById("m").textContent="Нет кода от Яндекса. Вернитесь на сайт и попробуйте снова.";return;}
+var u="https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex&format=json&code="+encodeURIComponent(code)+"&site="+encodeURIComponent(site);
+fetch(u).then(function(r){return r.json()}).then(function(j){location.replace(j&&j.redirect?j.redirect:site+"#error_description=yandex");}).catch(function(){location.replace(site+"#error_description=yandex");});
+})();
+</script></body></html>

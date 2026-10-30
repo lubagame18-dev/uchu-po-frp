@@ -490,10 +490,11 @@ async function handler(req, res) {
     const u2 = new URL(req.url, "https://x");
     const code = u2.searchParams.get("code");
     const site = u2.searchParams.get("site") || "https://uchu-po-frp.ru/";
-    const redirect = (url) => { res.statusCode = 302; res.setHeader("Location", url); res.end(); };
+    const wantJson = u2.searchParams.get("format") === "json";
+    const redirect = (url) => { if (wantJson) return send(res, 200, { redirect: url }); res.statusCode = 302; res.setHeader("Location", url); res.end(); };
     if (!code) {
       return redirect("https://oauth.yandex.ru/authorize?response_type=code&client_id=" + encodeURIComponent(yid)
-        + "&redirect_uri=" + encodeURIComponent(fnUrl) + "&state=" + encodeURIComponent(site));
+        + "&redirect_uri=" + encodeURIComponent("https://uchu-po-frp.ru/yandex.html") + "&state=" + encodeURIComponent(site));
     }
     try {
       const tr = await request("https://oauth.yandex.ru/token", {
@@ -528,6 +529,46 @@ async function handler(req, res) {
     } catch (e) {
       return redirect(site + "#error_description=" + encodeURIComponent(String(e.message || "yandex")));
     }
+  }
+
+
+  /* ---------- серверный учёт бесплатного доступа: 3 в день, 2 дня ---------- */
+  async function trialUser(tok) {
+    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    if (!sb || !key || !tok) return null;
+    const r = await request(sb + "/auth/v1/user", { headers: { apikey: key, Authorization: "Bearer " + tok }, timeout: 15000 });
+    const u = JSON.parse(await readAll(r)); return u && u.id ? u : null;
+  }
+  async function trialProfile(uid) {
+    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const r = await request(sb + "/rest/v1/profiles?id=eq." + uid + "&select=trial_start,trial_day,trial_used", { headers: { apikey: key, Authorization: "Bearer " + key }, timeout: 15000 });
+    const j = JSON.parse(await readAll(r)); return (Array.isArray(j) ? j[0] : null) || null;
+  }
+  function trialCalc(p) {
+    const today = new Date().toISOString().slice(0, 10);
+    const start = p && p.trial_start ? new Date(p.trial_start).getTime() : 0;
+    if (!start) return { started: false, dayIndex: 0, usedToday: 0, left: 3, expired: false, startAt: null };
+    const dayIndex = Math.floor((Date.now() - start) / 86400000);
+    if (dayIndex >= 2) return { started: true, dayIndex, usedToday: 3, left: 0, expired: true, startAt: start };
+    const usedToday = p.trial_day === today ? (p.trial_used || 0) : 0;
+    return { started: true, dayIndex, usedToday, left: Math.max(0, 3 - usedToday), expired: false, startAt: start };
+  }
+  if (route === "/trial/status") {
+    const u = await trialUser(req.headers["x-user-token"]);
+    if (!u) return send(res, 401, { error: "войдите в кабинет" });
+    return send(res, 200, { ok: true, ...trialCalc(await trialProfile(u.id)) });
+  }
+  if (route === "/trial/use" && req.method === "POST") {
+    const u = await trialUser(req.headers["x-user-token"]);
+    if (!u) return send(res, 401, { error: "войдите в кабинет" });
+    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const p0 = await trialProfile(u.id);
+    const c = trialCalc(p0);
+    if (c.expired || c.left <= 0) return send(res, 403, { error: "trial_expired", ...c });
+    const today = new Date().toISOString().slice(0, 10);
+    const patch = { trial_start: c.startAt ? new Date(c.startAt).toISOString() : new Date().toISOString(), trial_day: today, trial_used: (p0 && p0.trial_day === today ? (p0.trial_used || 0) : 0) + 1 };
+    await request(sb + "/rest/v1/profiles?id=eq." + u.id, { method: "PATCH", headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify(patch), timeout: 15000 });
+    return send(res, 200, { ok: true, left: Math.max(0, 3 - patch.trial_used), usedToday: patch.trial_used, startAt: new Date(patch.trial_start).getTime() });
   }
 
   /* ---------- приём ботов по корню функции: некоторые платформы теряют ?path= ---------- */
