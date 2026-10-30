@@ -38,6 +38,7 @@ jobs:
       - name: Опрос Telegram
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          BOT_SECRET: ${{ secrets.BOT_SECRET }}
           RUN_LIMIT_MIN: "340"
         run: node tools/tg-poll.cjs
 
@@ -68,6 +69,7 @@ jobs:
       - name: Опрос MAX
         env:
           MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+          BOT_SECRET: ${{ secrets.BOT_SECRET }}
           NODE_EXTRA_CA_CERTS: tools/russian_ca.pem
           RUN_LIMIT_MIN: "340"
         run: node tools/max-poll.cjs
