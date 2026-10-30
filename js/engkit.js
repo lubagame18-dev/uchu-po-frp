@@ -342,6 +342,7 @@ const EngKit = (() => {
 
   /* ---------- технологическая карта ---------- */
   function conspect(p, type) {
+    if (+p.grade <= 4 && window.EngPrimary) return window.EngPrimary.conspect(p, type);
     const m = material(p), f = m.f, W = m.W, S = type.stages, mins = type.mins;
     const goal = f ? `формирование грамматического навыка: употребление «${f.name}» в устной и письменной речи` : W ? `формирование лексического навыка по теме «${W.t}» и умения вести диалог по теме` : `формирование коммуникативных умений по теме «${p.topic}»`;
     let md = `# ${p.topic}\n\n${head(p, type)} · **Урок по теме:** ${p.lessonNo === 1 ? "1-й" : p.lessonNo + "-й"}\n\n**Цель:** ${type.id === "ctrl" ? `проверка уровня освоения темы «${p.topic}»` : goal}.\n\n`;
@@ -380,6 +381,7 @@ const EngKit = (() => {
 
   /* ---------- конспект для учителя ---------- */
   function lesson(p, type) {
+    if (+p.grade <= 4 && window.EngPrimary) return window.EngPrimary.lesson(p, type);
     const m = material(p), f = m.f, W = m.W, mins = type.mins;
     let md = `# ${p.topic}\n\n${head(p, type)}\n\n`;
     if (f) md += `> 📐 **Правило урока:**<br>${f.rule.join("<br>")}\n\n`;
@@ -413,6 +415,7 @@ const EngKit = (() => {
 
   /* ---------- рабочий лист ---------- */
   function worksheet(p, type) {
+    if (+p.grade <= 4 && window.EngPrimary) return window.EngPrimary.worksheet(p, type);
     const m = material(p), f = m.f, W = m.W;
     let md = `# Worksheet\n\n**Topic:** ${p.topic}\n\n✍️ Name: ___________________________ | 📅 Date: _________ | 🏫 Form: ${p.grade}\n\n`;
     if (f) {

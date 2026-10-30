@@ -22,7 +22,7 @@ window.Kits = (() => {
   mhk: ["frpkit", "speciallocal"],
   lit1: ["litprimary", "ruprimary"],
     hist: ["histdata", "histlessons", "histkit"],
-    eng: ["engdata", "engkit"],
+    eng: ["engprimary", "engdata", "engkit"],
     bio: ["biolessons", "biokit"],
     geo: ["geomethod"],
     phys: ["phydata", "phymethod"],
