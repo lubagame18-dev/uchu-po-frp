@@ -44,7 +44,14 @@ const FrpKit = (() => {
         lesson: p => (+p.grade <= 4 ? K.lesson(p) : baseKit.lesson(p)),
         worksheet: p => (+p.grade <= 4 ? K.worksheet(p) : baseKit.worksheet(p)) };
     }
-    if ((id === "ru1" || id === "lit1") && window.RuPrimary) {
+    if (id === "lit1" && window.LitPrimary) {
+      const LP = window.LitPrimary;
+      return { ...baseKit,
+        conspect: p => LP.conspect(p),
+        lesson: p => LP.lesson(p),
+        worksheet: p => LP.worksheet(p) };
+    }
+    if (id === "ru1" && window.RuPrimary) {
       const R = window.RuPrimary;
       return { ...baseKit,
         conspect: p => (+p.grade <= 4 ? R.conspect(p) : baseKit.conspect(p)),

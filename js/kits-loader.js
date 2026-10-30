@@ -20,7 +20,7 @@ window.Kits = (() => {
   astr: ["frpkit", "speciallocal"],
   vis: ["frpkit", "speciallocal"],
   mhk: ["frpkit", "speciallocal"],
-  lit1: ["ruprimary"],
+  lit1: ["litprimary", "ruprimary"],
     hist: ["histdata", "histlessons", "histkit"],
     eng: ["engdata", "engkit"],
     bio: ["biolessons", "biokit"],
