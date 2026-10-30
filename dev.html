@@ -39,7 +39,7 @@ input{width:100%;padding:12px 14px;border:1.5px solid #ddd;border-radius:12px;fo
     var code=(document.getElementById("code").value||"").trim().toLowerCase();
     if(!code){msg.textContent="Введите код";return;}
     if(code==="pedagogural"||code==="педагогурал"){
-      try{localStorage.setItem("uchu:dev:remembered","1");localStorage.setItem("uchu:dev:code","Pedagogural");}catch(e){}
+      try{localStorage.setItem("uchu:dev-session","1");localStorage.setItem("uchu:dev-fill","1");}catch(e){}
       msg.textContent="";panel.hidden=false;
       setTimeout(function(){location.href="/?dev=1";},400);
       return;
