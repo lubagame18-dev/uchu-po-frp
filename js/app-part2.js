@@ -2526,7 +2526,18 @@ function openAiSettings() {
 function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });
   $("#btnBack").onclick = () => history.back();
-  $("#subjectSel").onchange = e => $(`#segSubject button[data-v="${e.target.value}"]`)?.click();
+  $("#subjectSel").onchange = async e => {
+    const id = e.target.value;
+    /* ступень автоматически подстраивается под предмет: физика/химия — 5–9 или 10–11 */
+    const st = stageOfSubject(id);
+    if (state.stage !== st.id) { state.stage = st.id; setSeg("segStage", st.id); fillSubjects(st.id); }
+    state.subject = id; setSeg("segSubject", id); fillGrades(); clearTopic();
+    if (window.Plans && Plans.pending(id)) { const ok = await Plans.ensure(id); if (!ok) toast("Не удалось загрузить программу предмета — проверьте соединение."); }
+    if (window.Kits && Kits.pending(id)) { const ok2 = await Kits.ensure(id); if (!ok2) toast("Не удалось загрузить модули предмета."); }
+    readForm(); updateType();
+    if (window.syncThemeOptions) syncThemeOptions();
+    refreshTopics();
+  };
   $("#prevHwPick").onclick = () => $("#prevHwFile").click();
   $("#prevHwFile").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const r = await readFile(f); const t = String(r?.text || "").trim(); if (!t) throw new Error("в файле не найден текст"); $("#prevHw").value = t.slice(0, 2500); $("#prevHwHint").textContent = `Из файла «${f.name}».`; } catch (er) { toast("Не получилось прочитать файл: " + (er.message || er)); } };
   $("#prevHwFind").onclick = async () => { readForm(); const f = await findPrevHw({ subject: state.subject, grade: state.grade, topic: state.topic, lessonNo: state.lessonNo }); if (f) { $("#prevHw").value = f.text; $("#prevHwHint").textContent = `Найдено: ${f.src}.`; } else $("#prevHwHint").textContent = "Прошлого урока этой темы в «Моих уроках» нет — впишите задание или прикрепите файл. Без этого проверка будет формальной."; };
