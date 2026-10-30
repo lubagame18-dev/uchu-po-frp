@@ -28,7 +28,7 @@ window.Kits = (() => {
     phys: ["phydata", "phymethod", "frpkit", "physsec"],
     chem: ["chemdata", "chemmethod", "frpkit", "chemsec"],
     soc: ["socdata", "socmethod", "frpkit", "socsec"],
-    inf: ["infgen", "infdata", "infmethod"]
+    inf: ["infgen", "infdata", "infmethod", "frpkit", "infosec"]
   };
 
   const VER = (window.UCHU_VER || "5.300");
