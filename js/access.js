@@ -69,6 +69,19 @@ const Access = (() => {
   document.addEventListener("uchu:auth", () => { syncTrial(); });
   if (document.readyState !== "loading") setTimeout(syncTrial, 1200); else document.addEventListener("DOMContentLoaded", () => setTimeout(syncTrial, 1200));
 
+  /* живой счётчик пробного периода в окне тарифов */
+  if (!window.__trialTick) {
+    window.__trialTick = setInterval(() => {
+      const el = document.getElementById("trialLeft"); if (!el) return;
+      const st = A.trialStart, days = PLANS.free.trialDays || 2;
+      if (!st) { el.textContent = "—"; return; }
+      const ms = st + days * 86400000 - Date.now();
+      if (ms <= 0) { el.textContent = "0"; el.closest("p")?.classList.add("expired"); return; }
+      const h = Math.floor(ms / 3600000);
+      el.textContent = h >= 24 ? Math.floor(h / 24) + " д " + (h % 24) + " ч" : h + " ч " + Math.floor(ms % 3600000 / 60000) + " мин";
+    }, 30000);
+  }
+
   const priceOf = k => { const P = PLANS[k] || PACKS[k]; return P ? (isPromo() ? Math.round(P.price * (1 - pct() / 100)) : P.price) : 0; };
   const label = () => { const L = level(); return L === "dev" ? "разработчик" : promoFree() ? "бесплатный доступ по промокоду" : `тариф «${PLANS[L].name}»${isPromo() ? ` · промокод −${pct()}%` : ""}`; };
   const free = () => level() === "dev";
@@ -139,7 +152,7 @@ const Access = (() => {
     const featsOf = (k, p) => (pr && p.ai ? p.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : p.feats).filter(noPics);
     const m = openModal(`<div class="dialog wide tr-dlg"><div class="dlg-h"><h2>Тарифы</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       ${reason ? `<p class="tr-reason">${esc(reason)}</p>` : ""}
-      ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас бесплатный доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L === "free" && PLANS.free.trialDays ? `<p class="tr-now">Бесплатный доступ: <b>${PLANS.free.trialDays} дня, по 3 конспекта в день</b>${A.trialStart ? ` · действует до ${new Date(A.trialStart + PLANS.free.trialDays * 86400000).toLocaleDateString("ru-RU")}` : ""}${lessonsLeft() === 0 ? " · истёк" : ""}</p>` : L !== "dev" && PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
+      ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас бесплатный доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L === "free" && PLANS.free.trialDays ? `<p class="tr-now" id="trialBanner">⏳ <b>Пробный период: ${PLANS.free.trialDays} дня</b> · ${A.trialStart ? `осталось <b id="trialLeft">${(() => { const ms = A.trialStart + PLANS.free.trialDays * 86400000 - Date.now(); if (ms <= 0) return "0"; const h = Math.floor(ms / 3600000); return h >= 24 ? Math.floor(h / 24) + " д " + (h % 24) + " ч" : h + " ч " + Math.floor(ms % 3600000 / 60000) + " мин"; })()}</b> · по 3 конспекта в день` : "начнётся с первого урока"}` + (lessonsLeft() === 0 ? " · <b>истёк</b> ⛔" : "") + `</p>` : L !== "dev" && PLANS[L].lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
       <div class="tr-grid">${Object.entries(PLANS).filter(([, p]) => !p.hidden).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur ? `<span class="tr-badge">${promoFree() ? "ваш доступ по промокоду" : "ваш тариф"}</span>` : k === "ai" ? `<span class="tr-badge hot">${p.tag}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div><h3>${p.name}</h3><div class="tr-price">${promoFree() && k === cur ? `<s>${p.price}</s> 0 ₽` : p.price ? (pr ? `<s>${p.price}</s> ${priceOf(k)} ₽<small>/${p.period || "мес"}</small>` : `${p.price} ₽<small>/${p.period || "мес"}</small>`) : "0 ₽"}</div><ul class="tr-feats">${featsOf(k, p).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === cur ? `<span class="tr-cur">${promoFree() ? "Всё открыто бесплатно" : "Подключён сейчас"}</span>` : k === "free" || promoFree() ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && PLANS[cur].price && p.price > PLANS[cur].price ? "Повысить" : cur && PLANS[cur].price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
       ${!site().payments && me() && cur && cur !== "free" && !promoFree() ? `<p class="small tr-reset"><button type="button" class="btn plain" id="trReset">🧪 Тест: вернуть бесплатный тариф</button></p>` : ""}
       ${cur && PLANS[cur].ai && !pr ? `<div class="tr-packs"><b>Не хватает конспектов с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}</div>` : ""}
