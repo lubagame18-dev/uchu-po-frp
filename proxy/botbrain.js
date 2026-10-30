@@ -232,17 +232,18 @@ function buildSlidesOutline(job) {
     `# Презентация: ${t}`,
     "",
     "1. Титульный слайд — тема, класс, предмет.",
-    "2. Что мы знаем — вопросы к классу.",
-    "3. Ключевые понятия темы.",
-    "4. Пример и разбор.",
-    "5. Практика: задание для класса.",
-    "6. Итог и рефлексия.",
-    "7. Домашнее задание.",
+    "2. Цель и задачи урока.",
+    "3. Вспомним: вопросы к классу по прошлому материалу.",
+    `4. Ключевые понятия темы «${t}» — [термин](#g "значение") для главных терминов.`,
+    "5. Пример и разбор: что наблюдаем, какой вывод.",
+    "6. Практика: задание для класса (в парах).",
+    "7. Проверка: эталон и критерии.",
+    "8. Итог: что узнали, где пригодится.",
+    "9. Домашнее задание.",
     "",
     "> Полноценную презентацию с оформлением можно собрать на сайте — ссылка ниже."
   ];
 }
-
 const ok = m => `✅ ${m}`;
 
 /* ---------- состояние диалога ---------- */
@@ -354,8 +355,15 @@ function createBrain(opts) {
     const t = String(text || "").trim();
     if (s.step === "email") {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t)) return send(id, "Похоже, это не почта. Напишите адрес вида name@mail.ru — или нажмите «Отмена».", [[{ text: "Отмена", data: "cancel" }]]);
-      s.pendingEmail = t.toLowerCase(); s.step = "password";
-      return send(id, "Почта принята. Придумайте пароль (минимум 6 символов) и отправьте его одним сообщением.");
+      s.pendingEmail = t.toLowerCase(); s.step = "emailok";
+      return send(id, "Проверьте почту: " + s.pendingEmail + ". Всё верно?", [[{ text: "Да, верно", data: "emailok" }, { text: "Изменить", data: "emailedit" }]]);
+    }
+    if (s.step === "emailok") {
+      if (/^(да|верно|всё верно|ок|yes|\+)$/i.test(t)) {
+        s.step = "password";
+        return send(id, "Почта подтверждена: " + (s.pendingEmail || "") + ".\nПридумайте пароль (минимум 6 символов) и отправьте одним сообщением.");
+      }
+      return send(id, "Проверьте почту: " + (s.pendingEmail || "") + ". Если всё верно — нажмите «Да, верно», иначе — «Изменить».", [[{ text: "Да, верно", data: "emailok" }, { text: "Изменить", data: "emailedit" }]]);
     }
     if (s.step === "password") {
       if (t.length < 6) return send(id, "Пароль короче 6 символов — придумайте подлиннее.");
@@ -391,6 +399,15 @@ function createBrain(opts) {
     const s = getSession(id);
     if (data === "new") return start(id);
     if (data === "reg") return beginRegistration(id);
+    if (data === "emailok") {
+      const s3 = getSession(id);
+      if (s3.step === "emailok") { s3.step = "password"; return send(id, "Почта подтверждена: " + (s3.pendingEmail || "") + ".\nПридумайте пароль (минимум 6 символов) и отправьте одним сообщением."); }
+      return;
+    }
+    if (data === "emailedit") {
+      const s4 = getSession(id); s4.step = "email"; s4.pendingEmail = "";
+      return send(id, "Хорошо, напишите другой адрес почты.");
+    }
     if (data === "cancel") { const s2 = getSession(id); s2.step = "idle"; s2.pendingEmail = ""; return send(id, "Хорошо, отменил. Напишите тему урока, когда будете готовы."); }
     if (data.startsWith("subj:")) { s.job.subject = data.slice(5); return askNext(id, s); }
     if (data.startsWith("grade:")) { s.job.grade = +data.slice(6); return askNext(id, s); }
