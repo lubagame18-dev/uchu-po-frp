@@ -53,7 +53,7 @@ const Dev = (() => {
   function openLogin() {
     try { sessionStorage.removeItem("uchu:as-teacher"); document.getElementById("asTeacher")?.remove(); } catch { }
     if (on) return show("files");
-    if (needAcc()) { Dev.wantDev = true; toast("Сначала войдите в личный кабинет своей почтой — потом откроется вход разработчика.", 6000); window.Account.open(); return; }
+      /* вход разработчика: только код, без аккаунта и почты */
     // вход запомнен на этом устройстве (для этой почты) — сразу входим, без кода
     try { if (remembered()) { enter(); try { localStorage.removeItem(SAVED); } catch { } return; } } catch { }
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Режим разработчика</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
