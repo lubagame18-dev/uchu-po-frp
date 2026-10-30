@@ -385,10 +385,18 @@ const Account = (() => {
       return true;
     } catch (e) { toast("Вход не удался: " + (e.message || "ошибка"), 7000); return false; }
   }
-  document.addEventListener("uchu:ready", () => {
-    if (/access_token|error_description/.test(location.hash)) fromLink();
-    else if (/[?&]code=/.test(location.search)) fromCode();
-    else if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); }
+  function bootAuth() {
+    if (/access_token|error_description/.test(location.hash)) { fromLink(); return true; }
+    if (/[?&]code=/.test(location.search)) { fromCode(); return true; }
+    if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); paint(); paintNav(); }
+    return false;
+  }
+  document.addEventListener("uchu:ready", bootAuth);
+  document.addEventListener("DOMContentLoaded", () => {
+    let n = 0;
+    const tick = () => { if (bootAuth() || S || n++ > 20) { clearInterval(iv); } else { paint(); paintNav(); } };
+    const iv = setInterval(tick, 500);
+    setTimeout(tick, 100);
   });
   paint();
   // запрос к облаку от имени вошедшего (права — по правилам таблиц)
