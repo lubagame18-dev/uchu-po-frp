@@ -105,7 +105,8 @@ textarea{min-height:110px}
       msg.textContent=""; msg.className=""; show();
     } else { msg.textContent="Неверный код"; msg.className="err"; }
   };
-  if(localStorage.getItem("uchu:dev-session")){ show(); }\n  if(/[?&]embed=1/.test(location.search)){ var _g=document.getElementById("gate"); if(_g)_g.hidden=true; var _h=document.querySelector("h1"); if(_h)_h.hidden=true; var _s=document.getElementById("sub"); if(_s)_s.hidden=true; show(); }
+  if(localStorage.getItem("uchu:dev-session")){ show(); }
+  if(/[?&]embed=1/.test(location.search)){ var _g=document.getElementById("gate"); if(_g)_g.hidden=true; var _h=document.querySelector("h1"); if(_h)_h.hidden=true; var _s=document.getElementById("sub"); if(_s)_s.hidden=true; show(); }
   document.getElementById("exportLessons").onclick=async function(){
     var code=prompt("Код администратора (ADMIN_TOKEN):"); if(!code) return;
     this.disabled=true;
