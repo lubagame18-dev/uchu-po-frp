@@ -42,7 +42,7 @@ const Account = (() => {
       if (want && window.Access) Access.checkout(want);
     } catch (e) { toast("Не удалось войти по ссылке: " + RU(e.message) + " Войдите с почтой и паролем.", 8000); }
   }
-  function setSession(j, email) { S = { email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000 }; save(); }
+  function setSession(j, email) { S = { email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
   /* Пока облако не подключено — учётная запись в этом браузере (почта + отпечаток пароля); уроки — тоже здесь */
   const LKEY = "uchu:local-users";
   const lusers = () => { try { return JSON.parse(localStorage.getItem(LKEY)) || {}; } catch { return {}; } };
@@ -242,18 +242,26 @@ const Account = (() => {
         <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank">договор-оферту</a> и даю согласие на обработку персональных данных по <a href="legal/privacy.html" target="_blank">политике конфиденциальности</a></span></label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-          <button class="btn sm" type="button" id="acGoogle">Войти через Google</button>
-          <button class="btn sm" type="button" id="acYandex">Войти через Яндекс</button>
+          <button class="btn sm" type="button" id="acGoogle"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.5 30.2 0 24 0 14.6 0 6.4 5.4 2.5 13.2l7.8 6.1C12.2 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.5c-.5 2.9-2.2 5.4-4.6 7l7.1 5.5c4.2-3.9 6.6-9.6 7.1-17z"/><path fill="#FBBC05" d="M10.3 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.5-2 15.3-5.5l-7.1-5.5c-2 1.4-4.7 2.3-8.2 2.3-6.4 0-11.8-3.7-13.7-8.8l-7.8 6.1C6.4 42.6 14.6 48 24 48z"/></svg>Войти через Google</button>
+          <button class="btn sm" type="button" id="acYandex"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="12" fill="#FC3F1D"/><path fill="#fff" d="M13.6 7.6h-1.2c-1.5 0-2.2.7-2.2 1.8 0 1.2.5 1.8 1.9 2.5l1.2.6-2.9 4.6h-1.8l2.6-4.1c-1.6-.8-2.4-1.7-2.4-3.3 0-2.1 1.4-3.5 3.8-3.5h2.8v10.9h-1.6V7.6z"/></svg>Войти через Яндекс</button>
         </div>
-        <p class="small" style="margin-top:6px">Без пароля — через аккаунт Google или Яндекс. При первом входе кабинет создаётся автоматически.</p>
+        <p class="small" style="margin-top:6px">Первый вход через Google или Яндекс — это регистрация: кабинет создаётся сам. Дальше входите этой же кнопкой — без почты и пароля. (Вход через Яндекс появится после подключения провайдера.)</p>
         ${devLink()}
       </form></div>`);
     bindDev(m);
     let mode = "in";
-    const oauth = provider => {
+    const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const oauth = async provider => {
       if (!ready()) { toast("Вход через " + provider + " временно недоступен.", 5000); return; }
-      const back = location.origin + location.pathname;
-      location.href = C().url.replace(/\/+$/, "") + "/auth/v1/authorize?provider=" + encodeURIComponent(provider) + "&redirect_to=" + encodeURIComponent(back);
+      try {
+        const ver = b64url(crypto.getRandomValues(new Uint8Array(32)));
+        const dig = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ver));
+        sessionStorage.setItem("uchu:pkce", ver);
+        const back = location.origin + location.pathname;
+        location.href = C().url.replace(/\/+$/, "") + "/auth/v1/authorize?provider=" + encodeURIComponent(provider)
+          + "&redirect_to=" + encodeURIComponent(back)
+          + "&code_challenge=" + b64url(dig) + "&code_challenge_method=s256";
+      } catch (e) { toast("Не удалось открыть вход через " + provider + ": " + e.message, 6000); }
     };
     const gb = m.querySelector("#acGoogle"), yb = m.querySelector("#acYandex");
     if (gb) gb.onclick = () => oauth("google");
@@ -334,16 +342,41 @@ const Account = (() => {
     };
   }
   /* ---------- кнопка в шапке ---------- */
-  const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn sm"; btn.id = "btnAccount"; btn.onclick = open;
+  const btn = document.createElement("button"); btn.type = "button"; btn.className = "acc-btn"; btn.id = "btnAccount"; btn.onclick = open;
   const initials = n => String(n || "").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase();
   function paint() {
     const I = S?.info || {};
-    if (!S) btn.innerHTML = "👤 Войти";
-    else btn.innerHTML = `${I.avatar ? `<img class="acc-mini" src="${esc(I.avatar)}" alt="">` : "👤 "}${esc(I.name ? I.name.split(/\s+/).slice(0, 2).join(" ") : "Кабинет")}`;
-    btn.title = S ? "Личный кабинет" : "Личный кабинет: вход по почте";
+    if (!S) { btn.innerHTML = "Войти"; btn.setAttribute("aria-label", "Войти в личный кабинет"); }
+    else {
+      const pic = I.avatar || S.pic || "";
+      const nm = I.name || S.email || "Кабинет";
+      const ini = initials(nm) || "👤";
+      btn.innerHTML = pic ? `<img class="acc-ava" src="${esc(pic)}" alt="">` : `<span class="acc-ini">${esc(ini)}</span>`;
+      btn.setAttribute("aria-label", "Личный кабинет: " + nm);
+    }
+    btn.title = S ? "Личный кабинет" : "Войти в личный кабинет";
   }
   document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.appendChild(btn); paint(); });
-  document.addEventListener("uchu:ready", () => { if (/access_token|error_description/.test(location.hash)) fromLink(); else if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); } });
+  async function fromCode() {
+    const q = new URLSearchParams(location.search);
+    const code = q.get("code"); if (!code) return false;
+    history.replaceState(null, "", location.pathname);
+    const ver = sessionStorage.getItem("uchu:pkce") || "";
+    try {
+      const j = await api("/auth/v1/token?grant_type=pkce", { method: "POST", body: JSON.stringify({ auth_code: code, code_verifier: ver }) });
+      sessionStorage.removeItem("uchu:pkce");
+      if (!j || !j.access_token) { toast("Вход не удался: сервер не вернул сессию.", 7000); return false; }
+      setSession(j, j.user?.email || "");
+      closeModal(); toast("Вы вошли в личный кабинет."); paint();
+      pull().catch(() => null); loadInfo().catch(() => null);
+      return true;
+    } catch (e) { toast("Вход не удался: " + (e.message || "ошибка"), 7000); return false; }
+  }
+  document.addEventListener("uchu:ready", () => {
+    if (/access_token|error_description/.test(location.hash)) fromLink();
+    else if (/[?&]code=/.test(location.search)) fromCode();
+    else if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); }
+  });
   paint();
   // запрос к облаку от имени вошедшего (права — по правилам таблиц)
   async function db(path, opt = {}) { if (!ready() || !S || S.local) throw new Error("войдите в личный кабинет"); if (!(await refresh())) throw new Error("войдите в личный кабинет заново"); return api(path, opt); }
