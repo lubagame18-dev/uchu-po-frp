@@ -1345,6 +1345,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
           if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
       }
+      try { if (["conspect", "lesson"].includes(f) && window.MaterialResolver) { const ex = window.MaterialResolver.md(p); if (ex && !String(md).includes("Материалы урока")) md = String(md) + ex; } } catch (e2) { }
       L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
       await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
     }
@@ -1558,6 +1559,7 @@ async function buildWithoutAi(L, p, type, formats) {
     if (f !== "slides") { state.gen.pct = 55; updateProgress(); md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
     if (f === "slides" && window.Deck?.mediaFill && L.deckOutline?.some(c => c.auto && c.kind === "video")) { state.gen.pct = 58; updateProgress(); L.deckOutline = await Deck.mediaFill(L.deckOutline).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline); }
     if (f === "slides") { state.gen.pct = 60; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => md); if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; md = await SlideEditor.stickerize(md).catch(() => md); state.lesson = prev; } }
+    try { if (["conspect", "lesson"].includes(f) && window.MaterialResolver) { const ex = window.MaterialResolver.md(p); if (ex && !String(md).includes("Материалы урока")) md = String(md) + ex; } } catch (e2) { }
     L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
     await saveLesson(L); // готовый лист сохраняется сразу: после обновления страницы сборка продолжится со следующего
     if (state.lesson?.id === L.id) renderLesson();

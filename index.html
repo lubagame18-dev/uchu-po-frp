@@ -839,6 +839,19 @@ window.UCHU_SITE = {
       if (!text.trim()) throw { code: "empty_completion", message: "пустой ответ" };
       return { text, truncated: !!r.truncated, modelTierApplied: opts.modelTier || "default" };
     } catch (e) {
+      try {
+        const _pool = ((JSON.parse(localStorage.getItem("uchu:ai") || "{}") || {}).pool) || [];
+        for (const _k of _pool) {
+          try {
+            const _base = String(_k.base || "https://openrouter.ai/api/v1").replace(/\/+$/, "");
+            const _r = await fetch(_base + "/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + _k.key }, body: JSON.stringify({ model: _k.model || "deepseek/deepseek-chat", messages: [{ role: "user", content: prompt }] }) });
+            if (!_r.ok) continue;
+            const _j = await _r.json();
+            const _txt = _j?.choices?.[0]?.message?.content || "";
+            if (String(_txt).trim()) { emit(_txt); return { text: _txt, truncated: false }; }
+          } catch (_e) { }
+        }
+      } catch (_e2) { }
       if (e?.name === "AbortError" || opts.signal?.aborted) throw { code: "cancelled", text };
       if (e instanceof TypeError) throw { code: "network", message: e.message, text };
       throw { code: e?.code || "upstream_error", message: e?.message || String(e), text: text || undefined };
