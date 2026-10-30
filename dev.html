@@ -47,7 +47,7 @@ textarea{min-height:110px}
     </div>
     <label for="materials">Материалы для обучения (свои тетради, тексты, задания)</label>
     <textarea id="materials" placeholder="Вставьте текст своих материалов или загрузите .txt/.md файл"></textarea>
-    <div class="row"><input type="file" id="file" accept=".txt,.md,.json" style="max-width:260px"><button class="btn ghost" id="aiMaterial">✨ Дополнить материал через ИИ</button></div>
+    <div class="row"><input type="file" id="file" accept=".txt,.md,.json" style="max-width:260px"><button class="btn ghost" id="aiMaterial">✨ Улучшить текст через ИИ</button></div>
   </div>
 
   <div class="card">
@@ -157,8 +157,10 @@ textarea{min-height:110px}
   document.getElementById("aiMaterial").onclick=async function(){
     var b=this; b.disabled=true; var m=document.getElementById("materials").value;
     try{
-      var txt=await ai("worksheet","Материалы","5",(m.slice(0,200)||"Свои материалы"));
-      document.getElementById("materials").value=(m+"\n\n"+txt).slice(0,60000);
+      var r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:document.getElementById("aSubj").value||"Материалы",grade:document.getElementById("aGrade").value||"5",topic:"Материалы разработчика",kind:"edit",text:m})});
+      var j=await r.json().catch(function(){return{}});
+      if(!r.ok||!j.ok) throw new Error(j.error||"ИИ недоступен");
+      document.getElementById("materials").value=String(j.text||"").slice(0,60000);
     }catch(e){ alert("Ошибка: "+e.message); }
     finally{ b.disabled=false; }
   };

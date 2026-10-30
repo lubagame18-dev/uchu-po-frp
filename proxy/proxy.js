@@ -421,6 +421,7 @@ async function handler(req, res) {
     const grade = String(ba.grade || "").slice(0, 4);
     const topic = String(ba.topic || "").slice(0, 300);
     const kind = String(ba.kind || "conspect");
+    const editText = String(ba.text || "").slice(0, 20000);
     if (!subject || !grade || !topic) return send(res, 400, { error: "нужны subject, grade, topic" });
     const sys = [
       "Ты — ведущий методист и автор учебных материалов по ФРП (Федеральная рабочая программа) и требованиям ФГОС.",
@@ -433,7 +434,7 @@ async function handler(req, res) {
       "4. Не упоминай сайт, сервис, ИИ, себя и внешние ссылки.",
       "5. Оформление — методический документ: заголовки # и ##, выделение **текст**, списки «-», таблицы, если нужны.",
       "6. Наполненность: конкретные понятия темы, примеры, задания с ответами/критериями, вопросы, дифференциация, домашнее задание. Не сокращай ради краткости.",
-      kind === "worksheet"
+      editText ? "Формат: редактирование готового текста. Сохрани смысл и структуру, исправь оформление под методический документ (ГОСТ, без символов разметки), убери лишнее, добавь недостающие задания/вопросы по теме. Верни только готовый документ." : kind === "worksheet"
         ? "Формат: рабочий лист для ученика — 6–8 заданий по теме с местом для ответа, без рефлексии ФРП."
         : kind === "slides"
           ? "Формат: план презентации — 9–11 слайдов, для каждого: заголовок, 3–5 тезисов, задание/вопрос. Ключевые термины помечай как [термин](#g \"краткое значение\")."
@@ -442,7 +443,7 @@ async function handler(req, res) {
     ].join("\n");
     try {
       const DS2 = require("./deepseek-pool.js");
-      const rs = await DS2.chat({ messages: [{ role: "system", content: sys }, { role: "user", content: `Создай материал: ${kind}. Тема «${topic}», ${subject}, ${grade} класс.` }], temperature: 0.55, max_tokens: 3200 }, request, readAll, 0);
+      const rs = await DS2.chat({ messages: [{ role: "system", content: sys }, { role: "user", content: editText ? `Отредактируй текст по теме «${topic}», ${subject}, ${grade} класс. Текст для редактирования:\n\n${editText}` : `Создай материал: ${kind}. Тема «${topic}», ${subject}, ${grade} класс.` }], temperature: 0.55, max_tokens: 3200 }, request, readAll, 0);
       let content = "";
       try { const j = JSON.parse(rs.text); content = j.choices?.[0]?.message?.content || ""; } catch { content = String(rs.text || ""); }
       content = String(content).replace(/^\s*```(?:markdown|md)?\s*\n/, "").replace(/\n```\s*$/, "").trim();
