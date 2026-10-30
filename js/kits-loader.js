@@ -27,7 +27,7 @@ window.Kits = (() => {
     geo: ["geomethod", "frpkit", "geosec"],
     phys: ["phydata", "phymethod", "frpkit", "physsec"],
     chem: ["chemdata", "chemmethod", "frpkit", "chemsec"],
-    soc: ["socdata", "socmethod"],
+    soc: ["socdata", "socmethod", "frpkit", "socsec"],
     inf: ["infgen", "infdata", "infmethod"]
   };
 
