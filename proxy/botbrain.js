@@ -339,6 +339,27 @@ function createBrain(opts) {
     return send(id, "Создам личный кабинет «Учу по ФРП» прямо здесь.\n\nНапишите почту — на неё будет аккаунт (подтверждение не потребуется).", [[{ text: "Отмена", data: "cancel" }]]);
   }
 
+  async function botLink(chatId, email) {
+    const url = process.env.BOT_REGISTER_URL
+      ? process.env.BOT_REGISTER_URL.replace(/\/bot\/register.*$/, "/bot/link")
+      : "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/bot/link";
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Bot-Secret": process.env.BOT_SECRET || "" },
+        body: JSON.stringify({ email, chat_id: String(chatId), platform: platform || "tg" })
+      });
+      const j = await res.json().catch(() => ({}));
+      return { ok: res.ok && j.ok, error: j.error };
+    } catch (e) { return { ok: false, error: "сервис недоступен" }; }
+  }
+
+  async function beginLink(id) {
+    const s = getSession(id);
+    s.step = "linkemail";
+    return send(id, "Привяжу мессенджер к аккаунту «Учу по ФРП».\n\nНапишите почту, которую указывали при регистрации на сайте.");
+  }
+
   function start(id, preset) {
     const s = getSession(id);
     s.step = "idle"; s.job = {};
@@ -353,6 +374,13 @@ function createBrain(opts) {
   async function onText(id, text) {
     const s = getSession(id);
     const t = String(text || "").trim();
+    /* просто почта без активного шага — привязка к аккаунту на сайте */
+    if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t) && !s.step) {
+      await send(id, "Привязываю мессенджер к аккаунту " + t.toLowerCase() + "…");
+      const rl = await botLink(id, t.toLowerCase());
+      if (rl.ok) { saveMem(id, { ...s.mem, email: t.toLowerCase() }); return send(id, "Готово: мессенджер привязан к аккаунту " + t.toLowerCase() + "."); }
+      return send(id, "Не удалось привязать: " + (rl.error || "ошибка сервиса") + ".\nПроверьте, что аккаунт с этой почтой создан на сайте.", [[{ text: "Открыть сайт", url: SITE }]]);
+    }
     if (s.step === "email") {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t)) return send(id, "Похоже, это не почта. Напишите адрес вида name@mail.ru — или нажмите «Отмена».", [[{ text: "Отмена", data: "cancel" }]]);
       s.pendingEmail = t.toLowerCase(); s.step = "emailok";
@@ -364,6 +392,14 @@ function createBrain(opts) {
         return send(id, "Почта подтверждена: " + (s.pendingEmail || "") + ".\nПридумайте пароль (минимум 6 символов) и отправьте одним сообщением.");
       }
       return send(id, "Проверьте почту: " + (s.pendingEmail || "") + ". Если всё верно — нажмите «Да, верно», иначе — «Изменить».", [[{ text: "Да, верно", data: "emailok" }, { text: "Изменить", data: "emailedit" }]]);
+    }
+    if (s.step === "linkemail") {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t)) return send(id, "Похоже, это не почта. Напишите адрес, указанный при регистрации на сайте, — или нажмите «Отмена».", [[{ text: "Отмена", data: "cancel" }]]);
+      s.step = "idle";
+      const r = await botLink(id, t.toLowerCase());
+      if (!r.ok) return send(id, "Не удалось привязать: " + (r.error || "ошибка сервиса") + ".\nПроверьте, что аккаунт с этой почтой создан на сайте.", [[{ text: "Открыть сайт", url: SITE }]]);
+      saveMem(id, { ...s.mem, email: t.toLowerCase() });
+      return send(id, `Готово: мессенджер привязан к аккаунту ${t.toLowerCase()}.\nУроки и материалы теперь связаны с кабинетом.`);
     }
     if (s.step === "password") {
       if (t.length < 6) return send(id, "Пароль короче 6 символов — придумайте подлиннее.");
@@ -378,7 +414,8 @@ function createBrain(opts) {
       saveMem(id, { ...s.mem, email });
       return send(id, `Готово: кабинет ${email} создан и привязан к этому чату.\n\nВход на сайте — та же почта и пароль. Подтверждение почты не нужно. Можно сразу собирать материалы.`);
     }
-    if (/(кабинет|регистрац|войти|привяз)/i.test(t)) return beginRegistration(id);
+    if (/(привяз|мессенджер|связать)/i.test(t)) return beginLink(id);
+    if (/(кабинет|регистрац|войти)/i.test(t)) return beginRegistration(id);
     if (/^\/(start|new)\b/i.test(t)) return start(id);
     if (/^\/(app|site)\b/i.test(t) || /^(приложение|открой приложение|скачать приложение)/i.test(t)) {
       return send(id, "Приложение «Учу по ФРП» ставится из сайта: откройте его и нажмите «Установить приложение» (Android/Chrome) или «Поделиться → На экран „Домой“» (iPhone).", [[{ text: "Открыть сайт", url: SITE }]]);

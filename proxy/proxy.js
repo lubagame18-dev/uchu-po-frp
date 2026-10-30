@@ -409,6 +409,35 @@ async function handler(req, res) {
     return send(res, 200, { ok: true, user_id: uid, email });
   }
 
+
+  /* ---------- привязка мессенджера к аккаунту: бот присылает почту ---------- */
+  if (req.method === "POST" && route === "/bot/link") {
+    const botSecret2 = process.env.BOT_SECRET || "";
+    if (botSecret2 && req.headers["x-bot-secret"] !== botSecret2) return send(res, 403, { error: "forbidden" });
+    let rawLink = ""; try { rawLink = await readAll(req); } catch { }
+    let bl = {}; try { bl = JSON.parse(rawLink || "{}"); } catch { }
+    const email = String(bl.email || "").trim().toLowerCase();
+    const chatId = String(bl.chat_id || "").trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, { error: "нужна корректная почта" });
+    if (!chatId) return send(res, 400, { error: "нет chat_id" });
+    const sbUrl2 = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
+    const sbKey2 = process.env.SUPABASE_SERVICE_KEY || "";
+    if (!sbUrl2 || !sbKey2) return send(res, 503, { error: "привязка временно недоступна" });
+    const headers2 = { apikey: sbKey2, Authorization: "Bearer " + sbKey2, "Content-Type": "application/json" };
+    const prof = await request(sbUrl2 + "/rest/v1/profiles?email=eq." + encodeURIComponent(email) + "&select=id", { headers: headers2, timeout: 15000 });
+    const pj = await readAll(prof); let arr = []; try { arr = JSON.parse(pj || "[]"); } catch { }
+    if (!Array.isArray(arr) || !arr[0] || !arr[0].id) return send(res, 404, { error: "аккаунт не найден — сначала зарегистрируйтесь на сайте" });
+    const uid2 = arr[0].id;
+    try {
+      await request(sbUrl2 + "/rest/v1/bot_links?on_conflict=chat_id", {
+        method: "POST", timeout: 15000,
+        headers: { ...headers2, Prefer: "resolution=merge-duplicates,return=representation" },
+        body: JSON.stringify({ chat_id: chatId, platform: String(bl.platform || "tg"), user_id: uid2, email: email })
+      });
+    } catch { }
+    return send(res, 200, { ok: true, email: email });
+  }
+
   /* ---------- приём ботов по корню функции: некоторые платформы теряют ?path= ---------- */
   if (req.method === "POST" && (route === "" || route === "/")) {
     let rawRoot = ""; try { rawRoot = await readAll(req); } catch { }

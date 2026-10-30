@@ -294,7 +294,12 @@ const Account = (() => {
       msg.textContent = mode === "in" ? "Вхожу…" : "Создаю кабинет…";
       const go = m.querySelector("#acGo"); if (go.disabled) return; go.disabled = true;
       try {
-        if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.textContent = "Почти готово! Мы отправили письмо на " + email + ". Откройте его, нажмите ссылку подтверждения и войдите здесь."; return; } }
+        if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.innerHTML = "Почти готово! Мы отправили письмо на <b>" + email + "</b>. Откройте его и нажмите ссылку подтверждения." +
+          '<div style="margin-top:12px;padding:12px;border:1px dashed var(--rule);border-radius:12px;text-align:left">' +
+          "<b>Следующий шаг — привязать мессенджер.</b><br>Откройте бота и отправьте ему вашу почту <b>" + email + "</b> — чат привяжется к аккаунту автоматически.<br>" +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' +
+          '<a class="btn sm" href="https://t.me/Uchu_po_frp_bot" target="_blank" rel="noopener">Telegram</a>' +
+          '<a class="btn sm" href="https://max.ru/se14825349_bot" target="_blank" rel="noopener">MAX</a></div></div>'; return; } }
         else await signIn(email, pass);
         if (window.PasswordCredential) { try { navigator.credentials.store(new PasswordCredential({ id: email, password: pass })).catch(() => null); } catch { } } // не ждём: окно браузера «сохранить пароль» не должно держать вход
         closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
