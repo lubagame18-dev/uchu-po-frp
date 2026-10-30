@@ -66,15 +66,11 @@ textarea{min-height:110px}
   </div>
 
   <div class="card">
-    <b>Ключи ИИ (независимо от почты)</b>
-    <p class="small">Ключи хранятся в этом браузере и применяются без входа в аккаунт. Если ключ не указан — используется ИИ сайта через функцию.</p>
-    <div class="grid">
-      <div><label>DeepSeek / OpenRouter: адрес API</label><input id="kBase" placeholder="https://openrouter.ai/api/v1"></div>
-      <div><label>Ключ</label><input id="kKey" placeholder="sk-..."></div>
-      <div><label>Модель</label><input id="kModel" placeholder="deepseek/deepseek-chat"></div>
-      <div><label>Anthropic: ключ</label><input id="kAnthropic" placeholder="sk-ant-..."></div>
-    </div>
-    <div class="row"><button class="btn ghost" id="kSave">Сохранить ключи</button><span class="small" id="kMsg"></span></div>
+    <b>Ключи ИИ: пул (любое количество, без почты)</b>
+    <p class="small">Вставьте ключ → «Добавить». Ключи работают по очереди: если один не ответил, используется следующий. Хранятся в этом браузере.</p>
+    <div class="row"><input id="kKey" placeholder="Ключ (DeepSeek/OpenRouter)" style="flex:1;min-width:220px"><input id="kModel" placeholder="Модель" style="width:180px"><input id="kBase" placeholder="https://openrouter.ai/api/v1" style="width:230px"><button class="btn ghost" id="kAdd">Добавить</button></div>
+    <div id="keysList" class="small" style="margin-top:8px"></div>
+    <p class="small" id="kMsg"></p>
   </div>
 
   <div class="card">
@@ -115,8 +111,8 @@ textarea{min-height:110px}
     document.getElementById("pAiYear").value=p.aiYear||4000;
     document.getElementById("promptExtra").value=c.promptExtra||"";
     document.getElementById("materials").value=(c.materials||"");
-    try{ var ai=JSON.parse(localStorage.getItem("uchu:ai")||"{}"); document.getElementById("kBase").value=ai.openaiBase||""; document.getElementById("kKey").value=ai.openaiKey||""; document.getElementById("kModel").value=ai.openaiModel||""; document.getElementById("kAnthropic").value=ai.anthropicKey||""; }catch(e){}
     try{ document.getElementById("linkDev").value=location.origin+"/dev.html?key=pedagogural"; }catch(e){}
+    renderPool();
   }
   function show(){ panel.hidden=false; fill(); }
   document.getElementById("go").onclick=function(){
@@ -151,11 +147,27 @@ textarea{min-height:110px}
     try{localStorage.setItem("uchu:dev:cfg",JSON.stringify(c));}catch(e){}
     document.getElementById("saveMsg").textContent="Сохранено. Откройте сайт — цены и правила применятся.";
   };
-  document.getElementById("kSave").onclick=function(){
-    var ai={}; try{ ai=JSON.parse(localStorage.getItem("uchu:ai")||"{}")||{}; }catch(e){}
-    ai.openaiBase=document.getElementById("kBase").value.trim(); ai.openaiKey=document.getElementById("kKey").value.trim(); ai.openaiModel=document.getElementById("kModel").value.trim(); ai.anthropicKey=document.getElementById("kAnthropic").value.trim();
-    if(ai.openaiKey&&!ai.openaiBase) ai.openaiBase="https://openrouter.ai/api/v1";
-    try{ localStorage.setItem("uchu:ai",JSON.stringify(ai)); document.getElementById("kMsg").textContent="Ключи сохранены"; }catch(e){ document.getElementById("kMsg").textContent="Не удалось сохранить"; }
+  function poolGet(){ try{ var a=JSON.parse(localStorage.getItem("uchu:ai")||"{}"); return Array.isArray(a.pool)?a.pool:[]; }catch(e){ return []; } }
+  function poolSet(list){ var a={}; try{ a=JSON.parse(localStorage.getItem("uchu:ai")||"{}")||{}; }catch(e){} a.pool=list; if(list[0]){ a.openaiBase=list[0].base; a.openaiKey=list[0].key; a.openaiModel=list[0].model||""; } try{ localStorage.setItem("uchu:ai",JSON.stringify(a)); }catch(e){} }
+  function renderPool(){
+    var box=document.getElementById("keysList"); if(!box) return; box.innerHTML="";
+    var list=poolGet();
+    if(!list.length){ box.innerHTML="<i>Ключей пока нет.</i>"; return; }
+    list.forEach(function(k,i){
+      var d=document.createElement("div"); d.style.cssText="display:flex;gap:8px;align-items:center;margin:4px 0";
+      var s=document.createElement("span"); s.style.cssText="flex:1;overflow:hidden;text-overflow:ellipsis";
+      s.textContent=(i+1)+". "+String(k.key||"").slice(0,10)+"…"+(k.model||"модель по умолчанию");
+      var b=document.createElement("button"); b.className="btn ghost"; b.textContent="Удалить";
+      b.onclick=function(){ var l=poolGet(); l.splice(i,1); poolSet(l); renderPool(); };
+      d.appendChild(s); d.appendChild(b); box.appendChild(d);
+    });
+  }
+  document.getElementById("kAdd").onclick=function(){
+    var key=document.getElementById("kKey").value.trim(), model=document.getElementById("kModel").value.trim(), base=document.getElementById("kBase").value.trim()||"https://openrouter.ai/api/v1";
+    if(!key){ document.getElementById("kMsg").textContent="Вставьте ключ"; return; }
+    var l=poolGet(); if(l.length>=20){ document.getElementById("kMsg").textContent="Достаточно 20 ключей"; return; }
+    l.push({key:key,model:model,base:base}); poolSet(l); renderPool();
+    document.getElementById("kKey").value=""; document.getElementById("kMsg").textContent="Добавлено. Всего ключей: "+l.length;
   };
   document.getElementById("copyDev").onclick=function(){ try{ var i=document.getElementById("linkDev"); i.select(); document.execCommand("copy"); }catch(e){} };
   document.getElementById("reset").onclick=function(){ try{localStorage.removeItem("uchu:dev:cfg");}catch(e){} fill(); document.getElementById("saveMsg").textContent="Конфиг сброшен."; };
@@ -210,10 +222,27 @@ textarea{min-height:110px}
   }
   window.__docxFrom=docxFrom;
   if(/[?&]testdocx=1/.test(location.search)){ try{ docxFrom("# Тест\n| A | B |\n|---|---|\n| 1 | 2 |","t.docx"); document.title="DOCX_OK"; }catch(e){ document.title="DOCX_ERR "+e.message; } }
+  async function poolGenerate(kind, subj, grade, topic){
+    var list=poolGet(); if(!list.length) return null;
+    var prompt="Создай материал: "+kind+". Предмет: "+subj+", класс: "+grade+", тема: «"+topic+"». Верни только готовый текст в Markdown, без пояснений.";
+    for(var i=0;i<list.length;i++){
+      var k=list[i]; try{
+        document.getElementById("aOutMsg").textContent="Генерирую (ключ "+(i+1)+" из "+list.length+")…";
+        var base=String(k.base||"https://openrouter.ai/api/v1").replace(/\/+$/,"");
+        var r=await fetch(base+"/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+k.key},body:JSON.stringify({model:k.model||"deepseek/deepseek-chat",messages:[{role:"system",content:"Ты методист-предметник. Пиши методически корректно, по ФГОС, без выдуманных фактов."},{role:"user",content:prompt}]})});
+        if(!r.ok) throw new Error("HTTP "+r.status);
+        var j=await r.json(); var txt=(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||"";
+        if(txt.trim()) return txt;
+      }catch(e){ continue; }
+    }
+    return null;
+  }
   document.getElementById("aGo").onclick=async function(){
     var b=this; b.disabled=true; document.getElementById("aOutMsg").textContent="Генерирую…";
     try{
-      var txt=await ai(document.getElementById("aKind").value, document.getElementById("aSubj").value||"Литература", document.getElementById("aGrade").value||"8", document.getElementById("aTopic").value||"Тема урока");
+      var kindV=document.getElementById("aKind").value, subjV=document.getElementById("aSubj").value||"Литература", gradeV=document.getElementById("aGrade").value||"8", topicV=document.getElementById("aTopic").value||"Тема урока";
+      var txt=await poolGenerate(kindV, subjV, gradeV, topicV);
+      if(!txt) txt=await ai(kindV, subjV, gradeV, topicV);
       document.getElementById("aOut").value=txt; document.getElementById("aOutMsg").textContent="Готово";
       const kindNow=document.getElementById("aKind").value;
       let dl=document.getElementById("aDownload");
