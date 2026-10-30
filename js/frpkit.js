@@ -32,6 +32,13 @@ const FrpKit = (() => {
       return `${base}\n\nРаспределение времени (обязательно): на открытие нового не больше 30 % урока, на практику не меньше 45 % (не меньше 5–6 заданий, минимум два с самопроверкой); главное действие темы ученики выполняют на многих примерах. Минуты по этапам в сумме дают ${p.duration}.\n\n${fmt}\nВерни только документ.${draft ? `\n\nЧерновик сайта (улучши, структуру и факты сохрани):\n${String(draft).slice(0, 6000)}` : ""}`;
     };
     const baseKit = { id, name, hasOwn: () => false, topics, detectType, conspect: W("conspect"), lesson: W("lesson"), worksheet: W("worksheet"), extra: (k, p, t) => W(k)(p, t), cards: W("cards"), prompt, find: () => null, TYPES };
+    if (id === "okr" && window.OkrPrimary) {
+      const K = window.OkrPrimary;
+      return { ...baseKit,
+        conspect: p => (+p.grade <= 4 ? K.conspect(p) : baseKit.conspect(p)),
+        lesson: p => (+p.grade <= 4 ? K.lesson(p) : baseKit.lesson(p)),
+        worksheet: p => (+p.grade <= 4 ? K.worksheet(p) : baseKit.worksheet(p)) };
+    }
     if ((id === "ru1" || id === "lit1") && window.RuPrimary) {
       const R = window.RuPrimary;
       return { ...baseKit,
