@@ -297,4 +297,15 @@ window.SupportLib = (() => {
     });
   }
   try { wrap(window.Engine, ["conspect", "lesson", "worksheet"]); } catch (e) { }
+  try {
+    if (window.Subjects && !window.Subjects.__supPatched) {
+      const _plugin = window.Subjects.plugin;
+      window.Subjects.plugin = function (id) {
+        const kit = _plugin.call(window.Subjects, id);
+        if (kit) { try { wrap(kit, ["conspect", "lesson", "worksheet"]); } catch (e) { } }
+        return kit;
+      };
+      window.Subjects.__supPatched = true;
+    }
+  } catch (e) { }
 })();
