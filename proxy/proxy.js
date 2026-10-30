@@ -492,8 +492,21 @@ async function handler(req, res) {
     const rr = await request(sbU + "/rest/v1/lessons?select=id,user_id,data,updated_at&order=updated_at.desc&limit=5000", { headers: { apikey: sbK, Authorization: "Bearer " + sbK }, timeout: 30000 });
     const txt = await readAll(rr);
     let rows = []; try { rows = JSON.parse(txt || "[]"); } catch { }
-    const lessons = (Array.isArray(rows) ? rows : []).map(r => ({ id: r.id, user_id: r.user_id, updated_at: r.updated_at, lesson: r.data }));
-    return send(res, 200, { ok: true, count: lessons.length, exported_at: new Date().toISOString(), lessons });
+    const lessons = (Array.isArray(rows) ? rows : []).map(r => {
+      const L = r.data || {}, pr = L.params || {};
+      return {
+        id: r.id,
+        subject: pr.subject || L.subject || "",
+        grade: +(pr.grade || L.grade || 0),
+        topic: pr.topic || L.title || "",
+        title: L.title || pr.topic || "",
+        type: pr.type?.name || pr.typeName || "",
+        duration: +(pr.duration || 45),
+        formats: Object.fromEntries(Object.entries(L.docs || {}).filter(([, v]) => typeof v === "string" && v.trim()).map(([k, v]) => [k, v])),
+        updated_at: r.updated_at
+      };
+    }).filter(x => x.topic || Object.keys(x.formats).length).sort((a, b) => (a.subject + a.grade + a.topic).localeCompare(b.subject + b.grade + b.topic, "ru"));
+    return send(res, 200, { ok: true, schema: "uchu-ai-lessons/1", count: lessons.length, exported_at: new Date().toISOString(), lessons });
   }
 
   /* ---------- вход через Яндекс (свой OAuth) ---------- */
