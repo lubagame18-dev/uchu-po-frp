@@ -30,6 +30,7 @@ const Access = (() => {
     more: ["➕", "#ff9f1c", "Можно докупить конспекты с ИИ недорого"], help: ["💬", "#2fa6e8", "Приоритетная поддержка"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "2 урока при регистрации — со всеми функциями"]
   };
   const PLANS = {
+  dev: { name: "Разработчик", price: 0, lessons: Infinity, extraSheets: 999, ai: true, img: true, imgQuota: 999, hidden: true, art: "🛠", tag: "разработчик", feats: ["unlim", "ai", "pics40", "more", "download", "cloud"] },
     free: { name: "Пробный доступ", price: 0, lessons: 3, trialDays: 2, extraSheets: 0, ai: false, img: false, imgQuota: 0, hidden: true, art: "🎁", tag: "2 урока при регистрации", feats: ["three", "ai", "lesson", "slides", "sheet", "download", "cloud"] },
     basic: { name: "Без ИИ", price: 250, period: "мес", lessons: Infinity, extraSheets: 2, ai: false, art: "📘", tag: "конспекты, презентации, листы", feats: ["unlim", "lesson", "slides", "sheet", "download", "cloud"] },
     ai: { name: "С ИИ", price: 500, period: "мес", lessons: Infinity, ai: true, img: true, imgQuota: 8, extraSheets: 10, art: "✨", tag: "всё с ИИ", feats: ["unlim", "ai", "ai60", "pics", "more", "download", "cloud"] },
