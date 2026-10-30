@@ -213,7 +213,7 @@ const Account = (() => {
     const U = n => window.Usage ? Usage.fmt(n) : kTok(n); return `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div><span class="small"><b>ИИ:</b> потрачено ${U(used)} из ${U(lim)} · осталось ≈ ${Math.floor(left / 40000)} уроков с ИИ</span>`;
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
-  const devLink = () => `<div class="ac-dev"><button type="button" class="foot-dev" id="acDev">${window.Dev?.on ? "🛠 Разделы разработчика" : "🛠 Вход разработчика"}</button></div>`;
+  const devLink = () => ""; /* вход разработчика только на /dev.html */
   function bindDev(m) { const b = m.querySelector("#acDev"); if (b) b.onclick = () => { closeModal(); if (window.Dev?.on) window.Dev.show("files"); else window.Dev?.openLogin(); }; }
   /* ---------- окно кабинета ---------- */
   function open() {
