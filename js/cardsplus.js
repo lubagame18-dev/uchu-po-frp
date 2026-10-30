@@ -23,7 +23,7 @@ window.CardsPlus = (() => {
     let cur = null, inTable = false, tableRows = [];
     const flush = () => {
       if (!cur) return;
-      if (cur.points.length || cur.table) cards.push(cur);
+      if ((cur.points && cur.points.length) || (cur.rows && cur.rows.length)) cards.push(cur);
       cur = null;
     };
     for (let i = 0; i < lines.length; i++) {
