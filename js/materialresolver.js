@@ -26,8 +26,18 @@ window.MaterialResolver = (() => {
     const lib = get();
     if (!lib || !Array.isArray(lib.BANKS)) return null;
     const t = norm(topic);
-    return lib.BANKS.find(b => b.re.test(t)) || null;
+    /* выбираем самый точный банк: короткие совпадения (одна буква) не считаются */
+    let best = null, bs = 0;
+    lib.BANKS.forEach(b => {
+      const s = String(b.re.source).split("|").reduce((acc, alt) => {
+        const w = alt.replace(/[.*+?^${}()\[\]\\\/]/g, "").trim();
+        return (w.length >= 3 && t.includes(w)) ? acc + w.length : acc;
+      }, 0);
+      if (s > bs) { bs = s; best = b; }
+    });
+    return bs >= 3 ? best : null;
   }
+
 
   function baseEntry(p, key) {
     const B = window.SUBJECT_BASE || {};
