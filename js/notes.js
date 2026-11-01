@@ -20,7 +20,6 @@ const Notes = (() => {
     const box = document.createElement("div");
     box.className = "notes-panel"; box.id = "notesBox";
     box.innerHTML = `<div class="np-h"><h3>🧩 Пожелания к уроку</h3><span class="small" id="nbCount"></span></div>
-      <p class="np-lead">Окно всегда открыто: напишите, что важно для этого урока — класс, акцент, что сравнить, каких заданий больше. Нейросеть выполнит пожелания в первую очередь, а прикреплённые файлы и фото учебника будут реально использованы в уроке.</p>
       <textarea class="inp" id="nbPrompt" rows="3" placeholder="Например: класс слабый — больше объяснений; нужна групповая работа; сравнить с Тютчевым; больше схем и картинок"></textarea>
       <div class="np-drop" id="nbDrop">
         <span class="np-dt">Перетащите сюда файлы (Word, PDF, фото, txt) — они попадут в урок. Можно нажать кнопку.</span>
