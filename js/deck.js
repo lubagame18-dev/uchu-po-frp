@@ -191,6 +191,11 @@ const Deck = (() => {
     add({ kind: "title", title: work ? `«${work}»` : (c.title || p.topic), points: [author || "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${work || p.topic} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация` : "", acc: "right" });
     // 1. Биография автора — первый слайд урока (портрет + годы + 2–3 вопроса)
     if (first && author) add({ kind: "author", title: author, points: [wikiYears, wikiWho].filter(Boolean), qs: ["Что в судьбе автора помогает понять произведение?", "Какие события жизни и эпохи отразились в его творчестве?", "Что удивило вас в биографии писателя?"], img: imgOn ? `commons:${author} портрет` : "", acc: "left", notes: `Биография: ${clip(c.wiki || "", 500) || "по учебнику"}. Вопросы — короткое обсуждение до чтения (2–3 минуты).` });
+    // 1а. Больше портретов автора: живописный и фотографический — с подписями (художник/фотограф, название)
+    if (first && author && imgOn) {
+      add({ kind: "image", title: "Портреты автора", img: `commons:${author} портрет живопись`, cap: "Портрет: художник и год — в подписи", notes: "Второй портрет автора: покажите и спросите, что меняется в облике и настроении." });
+      add({ kind: "image", title: "Автор в разные годы", img: `commons:${author} фотография`, cap: "", notes: "Фотография автора — без подписи, если неизвестен автор снимка." });
+    }
     // 2. Вводный слайд: о произведении, жанр, герои
     if (first) {
       const pts = [];
@@ -463,7 +468,8 @@ const Deck = (() => {
     const keys = ["hist", "terms", "map"].filter(k => links[k]);
     if (host && keys.length) addLink(host, keys);
     if (links.answers) { const q = cards.find(c => c.kind === "quiz") || cards.find(c => c.kind === "check"); addLink(q || host, "answers"); }
-    // ссылка «биография» не ставится: для приложения bio контракт slides.js ссылку не задаёт
+    // биография открывается кнопкой со слайда об авторе
+    if (links.bio) { const a = cards.find(c => c.kind === "author"); addLink(a, "bio"); }
   }
   /* Технические предметы: «вспомним → образец → решаем вместе → самостоятельно» (+ олимпиада / подсказки по уровню). */
   function techFlowCards(p, c, MN, RK) {
@@ -539,6 +545,20 @@ const Deck = (() => {
     if (!cards.some(c => c.kind === "check")) { const cc = checkCard(MN, RK); if (cc) at(beforeEnd(), cc); }
     // «Картина» для творческих предметов: репродукция + вопросы
     if ((!o || o.images !== "none") && CREATIVE.has(p.subject) && !cards.some(c => c.kind === "art")) { const ac = artCard(p); if (ac) at(beforeEnd(), ac); }
+    // Гуманитарные предметы: основа — реальная живопись и исторические фотографии (с подписью или без — по типу)
+    if ((!o || o.images !== "none") && HUMAN.has(p.subject)) {
+      const core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
+      if (p.subject === "hist") {
+        if (!cards.some(c => c.kind === "art")) at(beforeEnd(), { kind: "art", title: "Историческая картина", img: `commons:${core} историческая картина`, cap: "Историческая живопись: автор и название — в подписи", points: ["Что происходит на полотне и кто изображён?", "Какие детали помогают понять эпоху?", "Совпадает ли картина с тем, что вы прочитали?"], note: "Репродукция подбирается с проверкой подписи. Подпись — художник, название, год." });
+        at(beforeEnd(), { kind: "image", title: "Исторические фотографии", img: `commons:${core} фотография 19 век`, cap: "", notes: "Историческая фотография: автор снимка часто неизвестен — подпись не ставим, но проговорите, что на снимке и когда он сделан." });
+      } else if (p.subject === "soc" || p.subject === "geo") {
+        at(beforeEnd(), { kind: "image", title: p.subject === "geo" ? "Реальные фотографии места" : "Фотографии и документы эпохи", img: `commons:${core} фотография`, cap: "", notes: "Реальная фотография по теме; подпись не нужна, если автор неизвестен." });
+      } else if (p.subject === "lit" && !cards.some(c => c.kind === "art")) {
+        const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "", author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "";
+        const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
+        at(beforeEnd(), { kind: "art", title: "Художник о произведении", img: `commons:${work || p.topic} ${sur} иллюстрация`, cap: "Иллюстрация: художник, название — в подписи", points: ["Какой эпизод выбрал художник?", "Что в иллюстрации совпадает с текстом, а что — нет?", "Какой момент вы бы нарисовали сами?"], note: "Иллюстрация подбирается с проверкой подписи (художник, название)." });
+      }
+    }
     // аудио и видео — только там, где это работает на урок; ссылку ищет сайт (Яндекс), не нашёл — слайд выключается
     if (lit) {
       const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "", author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "";
@@ -576,8 +596,12 @@ const Deck = (() => {
     return cards;
   }
   function outline(md, p, type, o = opts()) {
-    const cards = expandCards(enrich(outline0(md, p, type, o), p, o, md), p, o);
-    return fillImages(cards, p, o);
+    const lvl = levelOf(p), cfg = { ...o };
+    // «Умный класс быстро решает»: на высоком уровне больше слайдов и практики; на слабом — короче и с опорой
+    if (lvl === "high" && cfg.amount !== "detailed") cfg.amount = "detailed";
+    if (lvl === "weak" && cfg.amount === "detailed") cfg.amount = "medium";
+    const cards = expandCards(enrich(outline0(md, p, type, cfg), p, cfg, md), p, cfg);
+    return fillImages(cards, p, cfg);
   }
   function outline0(md, p, type, o = opts()) {
     curTopic = p.topic; curKit = p.plan?.kit || null;
