@@ -135,6 +135,7 @@ const SlideEditor = (() => {
     const text = sl.body.replace(Media.RE, "").trim(); Media.RE.lastIndex = 0;
     if (i === 0 || sl.level === 1) return "title";
     if (!text && !pics) return "section";
+    if (/классная работа/i.test(text)) return "title";
     if (pics >= 2) return "gallery";
     if (pics === 1 && !text) return "image";
     if (/^>\s/m.test(text) && text.split("\n").filter(l => l.trim()).every(l => /^>/.test(l) || l.length < 70)) return "quote";

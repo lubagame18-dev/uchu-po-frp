@@ -1,4 +1,4 @@
-
+﻿
 /* ===================================================================
    «Учу по ФРП» — ядро (бесплатное приложение, без тарифов)
    =================================================================== */
@@ -923,6 +923,7 @@ const METHOD_BANS = `## Методические запреты (обязате�
 - Таблицу приёмов не делай; таблица — для образов героев: цитаты → характеристика → вывод; на слайде сначала пустая, затем заполненная.
 - Формальную рефлексию «Что поняли?» не добавляй.
 - Не перегружай: один смысл на слайд, логика урока видна.
+- Новую тему вводи постепенно: наблюдение → гипотеза → правило → применение; не выдавай правило сразу.
 - Фрагменты текста — в конспекте и на слайде; в технологической карте не дублируй.`;
 function promptConspect(p) {
   const ru = p.subject === "ru", cols = ru ? KB.ru.techmap.columns : KB.lit.techmapColumns;
@@ -1854,7 +1855,7 @@ async function buildWithoutAi(L, p, type, formats) {
 }
 /* ---------- правка по просьбе учителя: документ, рабочий лист, презентация или весь материал ---------- */
 const REFINE_ORDER = ["lesson", "conspect", "slides", "worksheet", "control", "memo", "homework"];
-function refineScopeNow() { return document.getElementById("refineScope")?.value || "current"; }
+function refineScopeNow() { return document.getElementById("refineScope")?.value || ""; }
 function refineDocList(scope, L = state.lesson) {
   if (!L) return [];
   let list;
@@ -1904,6 +1905,7 @@ async function refineDocs(list, instr) {
 }
 async function refineDoc() {
   const instr = $("#refineInput").value.trim(); if (!instr || !state.lesson || state.gen) return;
+  const scope0 = refineScopeNow(); if (!scope0) { toast("Сначала выберите, что править: презентацию, рабочий лист, конспект или весь урок.", 6000); $("#refineScope").focus(); return; }
   if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) { openAiSettings(); return; }
   const scope = refineScopeNow(), list = refineDocList(scope);
   if (!list.length) {
