@@ -8,11 +8,14 @@ alter table lessons enable row level security;
 drop policy if exists own_lessons on lessons;
 create policy own_lessons on lessons for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- профиль учителя. Тарифы: plan = 'free' (пробный доступ, 2 дня по 3 урока),
+-- 'ai' («С ИИ», 400 ₽/мес, 50 уроков с ИИ и 6 листов с картинками в месяц) или
+-- 'aiYear' («С ИИ, год», 3900 ₽/год, 365 дней). Значения пишет только сервер (proxy/payments.js).
 create table if not exists profiles (
   id uuid primary key references auth.users on delete cascade,
   email text,
   plan text not null default 'free',
-  ai_left int not null default 15,
+  ai_left int not null default 6,
   paid_until timestamptz,
   free_month text
 );
@@ -90,6 +93,8 @@ drop policy if exists rules_admin on site_rules;
 create policy rules_admin on site_rules for all using (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email')) with check (exists (select 1 from site_admins a where a.email = auth.jwt()->>'email'));
 
 -- учёт токенов ИИ сайта по тарифу (сколько потрачено и сколько можно за месяц)
+-- «С ИИ» / «С ИИ, год»: tokens_limit = 2 700 000 (50 уроков × 40 тыс. + запас на правки), после оплаты
+-- докупки уроков лимит увеличивается: n уроков = n × 40 тыс. токенов
 alter table profiles add column if not exists tokens_used bigint not null default 0;
 alter table profiles add column if not exists tokens_limit bigint not null default 0;
 -- бесплатный тариф: счёт уроков по кабинету, устройству и сети (только сервер)
@@ -114,7 +119,7 @@ grant execute on function promo_free_ok() to authenticated;
 -- Общие ключи для картинок (рабочие листы и презентации): 5 ячеек, читает только сервер
 create table if not exists img_keys (slot int primary key check (slot between 1 and 5), label text, key text, base_url text, model text, is_active boolean not null default true, updated_at timestamptz default now());
 alter table img_keys enable row level security;
--- Месячный лимит листов с картинками по тарифу
+-- Месячный лимит листов с картинками: у тарифа «С ИИ» — 6 в месяц (20 доп. листов в месяц считается на сайте)
 alter table profiles add column if not exists img_month text;
 alter table profiles add column if not exists img_used int default 0;
 

@@ -58,7 +58,7 @@ const lessonLabel = n => Engine.lessonLabel(n);
 /* ---------- состояние ---------- */
 const state = {
   subject: "ru", grade: 8, duration: 45, mode: "school", stage: "middle", lessonNo: 1, lessonTotal: 1, control: "school", topic: "", wishes: "",
-  formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "noai",
+  formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "ai",
   extra: { ctrl: "", variants: false, keys: true, memoSheet: false, memo: false, hw: false, hwText: "", extraText: "" },
   type: null, lesson: null, active: "conspect",
   gen: null,            // {lessonId, doc, pct, ctl}
@@ -482,7 +482,7 @@ function fillGrades() {
   $("#grade").innerHTML = ok.map(g => `<option value="${g}">${g} класс</option>`).join("");
   $("#grade").value = state.grade;
 }
-/* техкарта — только методистам (тариф «Методист») и разработчикам */
+/* техкарта — входит в тариф «С ИИ» (и разработчикам) */
 function readExtra() {
   const X = state.extra; if (!$("#xCtrl")) return;
   // вписанные задания — к прикреплённому файлу
@@ -524,7 +524,12 @@ function syncControls() {
 function paintCosts() {
   const U = window.Usage, ai = state.build === "ai";
   $("#btnCreate").innerHTML = "Создать урок" + (U && ai ? ` <small class="btn-cost">${U.cost("lesson")}</small>` : "");
-  const r = $("#btnRefine"); if (r) r.innerHTML = "Доработать" + (U ? ` <small class="btn-cost">${U.cost("edit")}</small>` : "");
+  const r = $("#btnRefine");
+  if (r) {
+    let c = U ? U.cost("edit") : "";
+    try { const n = (typeof refineDocList === "function" && state.lesson) ? refineDocList(refineScopeNow()).length : 0; if (n > 1) c = `${n} документа · ${c}`; } catch { }
+    r.innerHTML = "Доработать" + (c ? ` <small class="btn-cost">${c}</small>` : "");
+  }
 }
 window.addEventListener("uchu:usage", () => { try { paintCosts(); } catch { } });
 function syncBuild() {
@@ -533,9 +538,10 @@ function syncBuild() {
   // какая нейросеть подключена — видно только разработчику и по промокоду (кто подключает ИИ сам)
   const own = !window.Access || !Access.commercial() || Access.ownAi();
   $("#buildAi").innerHTML = !own || ok ? "С ИИ" : `С ИИ <small>не подключён</small>`; // какая именно нейросеть работает — не показываем
-  setSeg("segBuild", state.build);
-  $("#aiOnly").hidden = state.build !== "ai";
-  $("#buildHint").hidden = true;
+  setSeg("segBuild", "ai");
+  state.build = "ai";
+  $("#aiOnly").hidden = false; // пожелания учителя — всегда на виду: ИИ выполняет их первыми
+  $("#buildHint").hidden = false;
   paintCosts();
 }
 function readForm() {
@@ -548,7 +554,7 @@ function readForm() {
 }
 function restoreForm() {
   const f = local.get("form", null);
-  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: f.build || "noai" });
+  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai" });
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; $("#wishes").value = ""; state.wishes = "";
   $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
@@ -825,6 +831,15 @@ function promptConspect(p) {
 
 ${paramsBlock(p)}
 
+## Пожелания заказчика (обязательно, важнее общих правил)
+${p.wishes ? `— ${p.wishes}\nВыполни буквально: это главное требование к уроку.` : "— не заданы"}
+
+## Насыщенность и наглядность (обязательно)
+- Материала на урок должно быть много: 6–9 этапов, к каждому ключевому шагу — вопросы с верными ответами, примеры, «ловушки».
+- Включи 1–2 схемы-опоры (аккуратной таблицей или списком) и блок «Запомни» с мнемоникой по теме — так, как это делают в рабочих тетрадях.
+- В техкарте используй условные обозначения по ГОСТ (одна черта — подлежащее, две — сказуемое, пунктир — дополнение, волнистая — определение, точка-тире — обстоятельство; приставка ¬, корень ∩, суффикс ∧, окончание □).
+- Для изобразительного искусства, МХК, музыки и литературы добавь раздел «Иллюстративный ряд»: 2–3 произведения (автор, название, год) и по 1–2 вопроса к каждому — что видим, как это связано с темой; без ссылок и без вставки картинок в текст конспекта.
+
 ${trackBlock(p)}
 
 ${BALANCE(p.duration)}
@@ -906,16 +921,23 @@ ${paramsBlock(p)}
 ${(conspect || "").replace(/## Планируемые результаты[\s\S]*?(?=\n## )/, "").slice(0, 24000)}
 </conspect>
 
+${window.Notes ? Notes.promptBlock(p) : ""}
+
+## Пожелания заказчика (обязательно)
+${p.wishes ? `— ${p.wishes}\nВыполни буквально: это важнее общих правил оформления.` : "— не заданы; сделай презентацию максимально наглядной."}
+
 ## Правила
 - Презентация иллюстрирует урок: на слайдах выжимки, ключевые вопросы, правила и цитаты из конспекта, а не полный текст.
+- Слайдов много и они насыщенные: 16–24. Лучше больше коротких слайдов с картинкой и одним смыслом, чем мало и перегружено.
 - Начни строго с:
 ---
 marp: true
 paginate: true
 ---
-- Слайды разделяй строкой --- (с пустыми строками вокруг). Порядок — как этапы техкарты. 10–16 слайдов.
+- Слайды разделяй строкой --- (с пустыми строками вокруг). Порядок — как этапы техкарты.
 - Слайд 1: «# Тема» и строка «${p.grade} класс · ${lit ? "Литература" : "Русский язык"}». Заголовок — КРАТКОЕ название (2–5 слов): не перечисляй авторов, века и произведения в заголовке.
-- В презентации должно быть 3–6 изображений: репродукции картин, портреты, схемы, исторические иллюстрации (только общественное достояние или собственные). Для каждого — подпись и вопрос/задание к классу; на слайде с картиной — 2–3 вопроса для анализа.
+- В презентации должно быть 6–10 изображений и опор: репродукции картин, портреты, исторические иллюстрации (только общественное достояние или собственные), а также схемы-запоминалки. Для каждой картинки — подпись и вопрос/задание к классу; на слайде с картиной — 2–3 вопроса для анализа.
+- Обязательно слайды: «Запомни» (схема или мнемоника по теме), «Проверь себя» (2–3 вопроса, ответы — в заметке учителю), слайд с упражнением из конспекта (дословно) и слайд-схема с условными обозначениями по ГОСТ. Схемы рисуй текстом: короткие пункты, стрелки →, таблица, жирные метки. Не вставляй HTML.
 - Второй слайд — запись в тетрадь: только число, «Классная работа» и тема. Больше на нём ничего нет.
 - Остальные: «## <эмодзи> Заголовок» (эмодзи только в начале: 🎯 💬 📝 🔍 📌 📖 ✍️ 🧩 ⚠️ 🪞 🏠 🖼).
 - Не больше 3–4 пунктов, каждый короче 80 знаков. Длинное — переноси на следующий слайд с тем же заголовком и пометкой «(продолжение)».
@@ -958,7 +980,12 @@ ${STYLE}
 
 ${window.Conv ? Conv.prompt(p) : ""}
 
+## Пожелания заказчика (обязательно, важнее общих правил)
+${p.wishes ? `— ${p.wishes}\nВыполни буквально.` : "— не заданы"}
+
 ## Логика заданий (обязательно)
+- Задания делай насыщенными: в каждом 2–3 подпункта или примера, а не один пункт; материала на листе должно быть много, но он должен помещаться.
+- Где уместно — добавь схему-опору, таблицу для заполнения или образец разбора; обозначения — по ГОСТ.
 - Каждое задание проверяет то, чему учили на уроке, и стоит после того, что для него нужно. Нет заданий «вообще по теме», не связанных с отработанным действием.
 - Никаких сочинений, мини-сочинений, рассуждений «Зачем нужно…», открыток и поздравлений, если урок не посвящён развитию речи. Последнее задание – небольшое практическое: составить 2–3 предложения или найти и обозначить конструкцию в тексте.
 - Формулировка, образец и критерий проверки не противоречат друг другу; ответ можно вписать в оставленное место.
@@ -995,15 +1022,38 @@ ${window.Conv ? Conv.prompt(p) : ""}
 Выдай только Markdown.`;
 }
 function promptRefine(doc, md, instruction) {
-  return `Ты — методист. Вот документ «${DOCS[doc].label}» в Markdown. Внеси только эту правку учителя и верни документ целиком, без комментариев.
+  const label = DOCS[doc]?.label || "документ", isSlides = doc === "slides";
+  return `Ты — методист и редактор учебных материалов. Ниже ${isSlides ? "презентация урока" : `документ «${label}»`} в Markdown. Внеси ТОЛЬКО ту правку, которую просит учитель, и верни документ целиком, без комментариев.
 
 <document>
 ${md.slice(0, 60000)}
 </document>
 
-Правка: ${instruction}
+Просьба учителя (выполни буквально, это главное требование): ${instruction}
 
-Сохрани структуру, разметку картинок ![…](…) и комментарии <!-- … --> без изменений.`;
+Правила правки:
+- Правка учителя важнее общих правил оформления: сделай именно так, как он просит, даже если обычно делаешь иначе.
+- Меняй только то, что относится к просьбе; остальной текст, структуру, Markdown, картинки ![…](…), таблицы и комментарии <!-- … --> сохраняй без изменений.
+- Не выдумывай факты, даты и цитаты; не упоминай сайт, ИИ и ссылки; не добавляй служебные пояснения.
+${isSlides ? "- Слайды разделяй строкой --- (с пустыми строками вокруг). Формат заголовков слайдов сохраняй; заметка учителю — в <!-- … -->. Картинка — строкой ![Подпись](search:запрос). Если просят больше картинок, схем или слайдов — добавь их в том же формате." : "- Сохраняй заголовки, таблицы и условные обозначения по ГОСТ; если просят схемы и опоры — добавь их аккуратными таблицами или списками."}
+- Верни только готовый документ целиком.`;
+}
+function promptRefineSlide(L, index, total, title, md, instruction) {
+  const P = L.params || {};
+  return `Ты — методист и редактор учебной презентации. Ниже ОДИН слайд из презентации урока. Перепиши только этот слайд по просьбе учителя и верни только его — один слайд, без других разделителей --- и без комментариев.
+
+Урок: «${L.title}». ${P.grade || ""} класс. Предмет: ${window.Subjects?.name ? Subjects.name(P.subject) : P.subject}. Слайд ${index + 1} из ${total}, заголовок «${title}».
+
+<slide>
+${String(md || "").slice(0, 20000)}
+</slide>
+
+Просьба учителя (выполни буквально): ${instruction}
+
+Правила:
+- Сохрани формат слайда: строка заголовка «## …», короткие пункты, при необходимости таблица, картинка ![Подпись](search:запрос), заметка учителю <!-- … -->.
+- Текст не длиннее, чем помещается на слайд: 3–5 коротких пунктов; если просят подробнее — лучше добавь аккуратную таблицу или схему, а не сплошной текст.
+- Не выдумывай факты; без пояснений от себя; верни только слайд.`;
 }
 
 /* рабочий лист: цель для ученика (без формулировок ФРП) и короткий блок «Запомни» — правило, алгоритм, схема с примером */
@@ -1045,9 +1095,9 @@ function sampleErr(e) {
   const c = e?.code;
   if (c === "not_configured") setTimeout(() => window.UCHU && openAiSettings(), 50);
   return ({
-    not_configured: "Нейросеть не подключена. Откройте «ИИ» в шапке — или соберите урок без ИИ.",
+    not_configured: "Нейросеть не подключена. Откройте «ИИ» в шапке — или соберите черновик урока (спросим подтверждение).",
     auth_failed: "Ключ не принят. Проверьте настройки ИИ.",
-    network: "Нет связи с нейросетью из этой сети. Подключите другую нейросеть в «⚙ ИИ» (например, войдите через OpenRouter) или соберите урок без ИИ.",
+    network: "Нет связи с нейросетью из этой сети. Подключите другую нейросеть в «⚙ ИИ» (например, войдите через OpenRouter) — или соберите черновик: он сохранится и доработается позже.",
     payment_required: "У нейросети закончился бесплатный лимит. Сайт попробует другую; добавьте ещё одну в «⚙ ИИ».",
     proxy_auth: "Прокси не принял логин и пароль (настройки ИИ → «Прокси»).",
     rate_limited: "Слишком много запросов или закончился лимит. Попробуйте позже.",
@@ -1067,6 +1117,14 @@ const cleanMd = t => String(t || "")
     .replace(/^\s*(?:учу по фрп|uchu-po-frp|нейросет[а-я]* интеллект|искусственн[а-я]* интеллект|я — ии|надеюсь,? (?:это|вам) поможет|вот (?:ваш|твой) конспект)[^\n]*$/gim, "")
     .replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n")
     .trim();
+/* Текст презентации: строки-разделители слайдов «---» не должны исчезать при чистке.
+   Иначе презентация после правки/пересборки склеивается в один слайд. */
+function cleanDeck(raw) {
+  const S = "\u0001SLIDE_SEP\u0001";
+  const marked = String(raw || "").replace(/\r/g, "").replace(/^\s*-{3,}\s*$/gm, S);
+  const clean = cleanMd(marked).split(S).join("\n\n---\n\n").replace(/\n{3,}/g, "\n\n");
+  try { return Engine.normalizeSlides(clean); } catch { return clean; }
+}
 async function createLesson() {
   if (window.Plans) await Plans.ensure(state.subject);
   if (window.Kits) await Kits.ensure(state.subject);
@@ -1076,7 +1134,7 @@ async function createLesson() {
   if (state.formats.conspect && window.Access && !Access.techAllowed()) { state.formats.conspect = false; syncTechCheck(); }
   readExtra();
   const formats = Object.keys(state.formats).filter(k => state.formats[k]);
-  // методические блоки (тариф «Методист» и разработчики)
+  // методические блоки (техкарта, контроль, памятки, д/з — входят в тариф «С ИИ»)
   if (!window.Access || Access.techAllowed()) { const X = state.extra; if (X.ctrl) formats.push("control"); if (X.memoSheet || X.memo) formats.push("memo"); if (X.hw) formats.push("homework"); }
   if (state.subject !== "inf") { const i = formats.indexOf("pack"); if (i >= 0) formats.splice(i, 1); }
   if (!formats.length) { $("#createHint").textContent = "Отметьте хотя бы один документ."; return; }
@@ -1106,10 +1164,13 @@ async function createLesson() {
   state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
   if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
-  const useAi = state.build === "ai";
+  let useAi = true; // генерация без ИИ из интерфейса убрана; локальная сборка — только аварийный резерв
+  if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) {
+    if (!confirm("Нейросеть не подключена. Собрать урок черновиком без ИИ? Черновик можно доработать позже, когда нейросеть появится.")) { openAiSettings(); return; }
+    useAi = false;
+  }
   if (window.Access && !(await Access.canBuildAsync(useAi))) return;
   window.Usage?.begin("Сборка урока", state.topic); // тариф, промокод, бесплатный лимит (сервер)
-  if (useAi && window.UCHU && !window.UCHU.configured()) { openAiSettings(); return; }
   // своя тема (не из списка ФРП): ИИ сам исправляет опечатки и записывает тему правильно; тема с опечатками в материал не попадает
   if (useAi && window.AI && AI.configured()) {
     const norm0 = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]+/g, " ").trim();
@@ -1151,7 +1212,7 @@ function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Ac
 /* ИИ-картинки в презентации: красивые иллюстрации на титульном и ещё 2 слайдах; реальные картинки из поиска остаются как были */
 async function aiDeckPics(L) {
   const md0 = L.docs?.slides; if (!md0 || !window.ImageGen) return;
-  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-картинки доступны в тарифах «Учитель + ИИ» и «Методист», в пределах месячного лимита."); return; }
+  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-картинки входят в тариф «С ИИ», в пределах месячного лимита: 6 листов в месяц."); return; }
   if (!ImageGen.configured()) { imgFail("Ключ для картинок не подключён."); return; }
   const parts = md0.split(/(\n-{3,}\s*\n)/); const cand = [];
   parts.forEach((x, i) => { if (i % 2 === 0 && /^#{1,3}\s/m.test(x) && !/marp\s*:/.test(x) && !Media.RE.test(x)) cand.push(i); Media.RE.lastIndex = 0; });
@@ -1173,7 +1234,7 @@ async function aiDeckPics(L) {
 /* рабочий лист «фотографией»: страницы рисует нейросеть, текст берётся из готового листа */
 async function aiSheetPhotos(L, setPct) {
   if (!L.docs?.worksheet || !window.ImageGen) return;
-  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-листы доступны в тарифах «Учитель + ИИ» и «Методист», в пределах месячного лимита."); return; }
+  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-листы входят в тариф «С ИИ», в пределах месячного лимита: 6 листов в месяц."); return; }
   if (!ImageGen.configured()) { imgFail("Ключ для картинок не подключён."); return; }
   try {
     const ph = await ImageGen.photos({ ...L.params, topic: L.title }, L.docs.worksheet, (i, n) => setPct && setPct(10 + Math.round(i / n * 80)));
@@ -1315,6 +1376,43 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
 function convWs(md, p) { const lg = window.Conv ? Conv.legendLine(p) : ""; if (!lg || /🔣 \*\*Условные обозначения/.test(md)) return md; return /✍️ ФИО:[^\n]*\n/.test(md) ? md.replace(/(✍️ ФИО:[^\n]*\n)/, `$1\n${lg}\n`) : md.replace(/^(# [^\n]*\n+[^\n]*\n)/, `$1\n${lg}\n`); }
 function convMemo(md, p) { const lg = window.Conv ? Conv.legendLine(p, 8) : ""; return lg && !/🔣 \*\*Условные обозначения/.test(md) ? md + "\n\n" + lg + "\n" : md; }
 function convCards(cards, p) { if (!window.Conv || !Array.isArray(cards) || cards.some(c => c.title === "Условные обозначения")) return cards; const lp = Conv.legendPoints(p); if (lp.length < 3) return cards; const g = cards.findIndex(c => c.kind === "goal"); cards.splice(g >= 0 ? g + 1 : Math.min(2, cards.length), 0, { id: "cv1", on: true, kind: "list", title: "Условные обозначения", points: lp, notes: "Покажите знаки один раз и договоритесь: дальше в слайдах, листе и памятке они означают одно и то же." }); return cards; }
+/* Слайды предметных плагинов (математика, история, физика и т.д.): добавляем то же, что Deck делает
+   для русского и литературы, — схему-опору, «Запомни» с мнемоникой, «Проверь себя», картину для
+   творческих предметов и картинки-акценты почти на каждый слайд (реальные, из открытых источников). */
+function deckCardsExtras(cards, p) {
+  if (!Array.isArray(cards)) return cards;
+  const out = cards.slice();
+  const hasKind = k => out.some(c => c.kind === k);
+  const insert = (card) => { const i = out.findIndex(c => ["concl", "hw"].includes(c.kind)); if (i >= 0) out.splice(i, 0, card); else out.push(card); };
+  const plain = x => String(x || "").replace(/\*\*|__/g, "").replace(/\s+/g, " ").trim();
+  try {
+    if (window.Schemes?.find && !hasKind("scheme")) {
+      const sc = Schemes.find(p.subject, p.topic);
+      if (sc && (sc.s || []).length >= 2) insert({ id: "px1", on: true, kind: "scheme", title: sc.t ? "Схема-опора: " + sc.t : "Схема-опора", points: sc.s.map(plain).slice(0, 6), ex: (sc.ex || []).map(plain).slice(0, 2), l: plain(sc.l), notes: "Схема — та же, что в конспекте и рабочем листе; по ней удобно отвечать у доски." });
+    }
+  } catch (e) { console.warn("deck extras scheme", e); }
+  try {
+    if (window.Mnemo?.find && window.Mnemo?.cards && !hasKind("mnemo")) {
+      const MN = Mnemo.find(p.topic, "", p.subject);
+      if (MN) Mnemo.cards(MN, plain).forEach(c => insert(c));
+    }
+  } catch (e) { console.warn("deck extras mnemo", e); }
+  try {
+    const creative = /^(izo|mhk|mus|lit)$/.test(String(p.subject || ""));
+    if (creative && !hasKind("art")) insert({ id: "pa1", on: true, kind: "art", title: "Картина", img: `commons:${p.topic} картина`, cap: "Репродукция картины", points: ["Что изображено и как построена композиция?", "Какие цвета, свет и детали важны для понимания темы?", "Какое настроение создаёт произведение и как это связано с уроком?"], note: "Подпись (художник, название, год) уточните по источнику изображения." });
+  } catch (e) { console.warn("deck extras art", e); }
+  // картинки-акценты: почти на каждом слайде, кроме дословных блоков
+  const NOIMG = new Set(["quote", "poem", "task", "rule", "fragment", "board", "image", "art", "video", "section", "hw", "title"]);
+  try {
+    for (const c of out) {
+      if (c.img || c.on === false || NOIMG.has(c.kind)) continue;
+      const t = plain(c.title || "");
+      c.img = t && t.length <= 48 ? `${p.topic} ${t}` : p.topic;
+      c.cap = c.cap || t || p.topic;
+    }
+  } catch (e) { console.warn("deck extras img", e); }
+  return out;
+}
 async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   // материал из российских образовательных источников — к каждому уроку (по теме урока или по запросу учителя)
@@ -1332,7 +1430,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     state.gen = null;
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(convCards(PL.cards(p, type), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(deckCardsExtras(convCards(PL.cards(p, type), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -1341,12 +1439,12 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = convCards(PL.cards(p, type), p); state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = deckCardsExtras(convCards(PL.cards(p, type), p), p); state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
           const webTxt = _wq.length >= 2 ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
           if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
@@ -1576,22 +1674,114 @@ async function buildWithoutAi(L, p, type, formats) {
   state.gen = null; await saveLesson(L); renderLesson();
   toast("Урок готов.", 3500);
 }
+/* ---------- правка по просьбе учителя: документ, рабочий лист, презентация или весь материал ---------- */
+const REFINE_ORDER = ["lesson", "conspect", "slides", "worksheet", "control", "memo", "homework"];
+function refineScopeNow() { return document.getElementById("refineScope")?.value || "current"; }
+function refineDocList(scope, L = state.lesson) {
+  if (!L) return [];
+  let list;
+  if (scope === "worksheet") list = ["worksheet"];
+  else if (scope === "slides") list = ["slides"];
+  else if (scope === "all") list = REFINE_ORDER.filter(d => L.docs?.[d]);
+  else list = [state.active];
+  return [...new Set(list)].filter(d => DOCS[d] && L.docs?.[d]);
+}
+function syncRefineScope() {
+  const note = document.getElementById("refineNote"); if (!note) return;
+  const scope = refineScopeNow(), L = state.lesson;
+  const has = d => !!(L && L.docs?.[d]);
+  let text = "";
+  if (scope === "worksheet") text = has("worksheet") ? "Правка только рабочего листа — конспект и презентация не меняются." : "В уроке нет рабочего листа — отметьте его в конструкторе и соберите урок ещё раз.";
+  else if (scope === "slides") text = has("slides") ? "Правка всей презентации целиком. Один слайд — кнопка «✎ Слайд с ИИ» в редакторе презентации." : "В уроке нет презентации — отметьте её в конструкторе.";
+  else if (scope === "all") text = "Правка всего материала урока: конспект, техкарта, презентация и листы. Это несколько запросов к ИИ.";
+  note.textContent = text; note.hidden = !text || document.getElementById("refineBar")?.hidden !== false;
+}
+async function refineDocs(list, instr) {
+  const L = state.lesson; if (!L || !list.length) return;
+  const before = {}; list.forEach(d => before[d] = L.docs[d]);
+  try { await saveLesson({ ...L, id: L.id + "-v" + Date.now().toString(36), title: L.title + " (до правки)", docs: { ...L.docs } }); } catch { }
+  window.Usage?.begin(list.length > 1 ? "Правка всего материала" : "Правка по просьбе", L.params?.topic || "");
+  let done = 0, lastErr = null;
+  try {
+    for (let k = 0; k < list.length; k++) {
+      const d = list[k], src = before[d];
+      state.gen = { lessonId: L.id, doc: d, pct: 0, label: list.length > 1 ? `${DOCS[d].short} ${k + 1}/${list.length}` : "", ctl: new AbortController() };
+      renderLesson();
+      const paint = throttle(t => { if (state.lesson?.id === L.id && state.active === d) { $("#md").value = t; renderPreview(); } }, 300);
+      try {
+        const res = await caps.sample(promptRefine(d, src, instr), {
+          modelTier: "default", cache: false, signal: state.gen.ctl.signal,
+          onText: ({ text }) => { const part = 100 / list.length; state.gen.pct = Math.min(95, part * k + Math.min(95, text.length / Math.max(src.length, 1000) * part)); updateProgress(); if (state.active === d) paint(cleanMd(text)); }
+        });
+        L.docs[d] = d === "slides" ? cleanDeck(res.text) : cleanMd(res.text);
+        done++;
+      } catch (e) { lastErr = e; if (e?.code === "cancelled") break; }
+    }
+  } finally { state.gen = null; updateProgress(); }
+  const box = $("#refineInput"); if (box) box.value = "";
+  if (done && done === list.length) toast(list.length === 1 ? "Правка внесена. Версия до правки — в «Моих уроках»." : `Правка внесена во все документы: ${done}. Версия до правки — в «Моих уроках».`, 5000);
+  else if (done) toast(`Правка внесена в ${done} из ${list.length}: ${list.filter((d, i) => i < done).map(d => DOCS[d].short).join(", ")}. Версия до правки — в «Моих уроках».`, 6000);
+  if (lastErr && done < list.length) toast(sampleErr(lastErr), 7000);
+  await saveLesson(L); renderLesson();
+}
 async function refineDoc() {
   const instr = $("#refineInput").value.trim(); if (!instr || !state.lesson || state.gen) return;
-  if (window.UCHU && !window.UCHU.configured()) { openAiSettings(); return; }
-  const L = state.lesson, f = state.active, before = L.docs[f];
-  state.gen = { lessonId: L.id, doc: f, pct: 0, ctl: new AbortController() }; renderLesson();
-  window.Usage?.begin("Правка по просьбе", L.params?.topic || "");
-  const paint = throttle(t => { if (state.lesson?.id === L.id && state.active === f) { $("#md").value = t; renderPreview(); } }, 300);
+  if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) { openAiSettings(); return; }
+  const scope = refineScopeNow(), list = refineDocList(scope);
+  if (!list.length) {
+    toast(scope === "worksheet" ? "В этом уроке нет рабочего листа — отметьте его в конструкторе и соберите урок." : scope === "slides" ? "В этом уроке нет презентации — отметьте её в конструкторе." : "Пока нечего править: сначала соберите урок.", 6000);
+    return;
+  }
+  await refineDocs(list, instr);
+}
+/* ---------- ИИ-правка одного слайда и всей презентации (кнопки в редакторе слайдов) ---------- */
+async function refineSlide(index, instruction) {
+  const L = state.lesson; if (!L?.docs?.slides || !window.SlideEditor) { toast("Слайдов пока нет."); return; }
+  instruction = String(instruction || "").trim(); if (instruction.length < 3) { toast("Опишите, что поправить на слайде."); return; }
+  if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) { openAiSettings(); return; }
+  const total = SlideEditor.count(); if (index < 0 || index >= total) return;
+  const title = SlideEditor.slideTitle(index) || `Слайд ${index + 1}`, md = SlideEditor.slideMarkdown(index);
+  const before = L.docs.slides;
+  state.gen = { lessonId: L.id, doc: "slides", pct: 3, label: `слайд ${index + 1}`, ctl: new AbortController() }; renderLesson();
+  window.Usage?.begin("Правка слайда", L.title);
   try {
-    const res = await caps.sample(promptRefine(f, before, instr), { modelTier: "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { state.gen.pct = Math.min(95, Math.round(text.length / Math.max(before.length, 1000) * 100)); updateProgress(); paint(cleanMd(text)); } });
-    L.docs[f] = f === "slides" ? Engine.normalizeSlides(cleanMd(res.text)) : cleanMd(res.text);
-    $("#refineInput").value = "";
-    await saveLesson({ ...L, id: L.id + "-v" + Date.now().toString(36), title: L.title + " (до правки)", docs: { ...L.docs, [f]: before } });
-    toast("Правка внесена. Версия до правки — в «Моих уроках».");
-  } catch (e) { L.docs[f] = before; toast(sampleErr(e)); }
+    const res = await caps.sample(promptRefineSlide(L, index, total, title, md, instruction), {
+      modelTier: "default", cache: false, signal: state.gen.ctl.signal,
+      onText: ({ text }) => { state.gen.pct = Math.min(95, Math.round(text.length / Math.max(md.length, 400) * 100)); updateProgress(); }
+    });
+    // один слайд: чистим как презентацию (чтобы не пропали разделители), берём первый слайд ответа
+    const deck = cleanDeck(res.text);
+    const pieces = splitSlides(deck);
+    const one = (pieces[0] || "").trim() || deck;
+    SlideEditor.replaceSlideMarkdown(index, one);
+    await saveLesson({ ...L, id: L.id + "-v" + Date.now().toString(36), title: L.title + " (до правки)", docs: { ...L.docs, slides: before } });
+    toast(`Слайд ${index + 1} переписан. Версия до правки — в «Моих уроках».`, 5000);
+  } catch (e) { L.docs.slides = before; toast(sampleErr(e)); }
   finally { state.gen = null; await saveLesson(L); renderLesson(); }
 }
+function askSlideEdit(index) {
+  const total = window.SlideEditor ? SlideEditor.count() : 0;
+  if (!total) { toast("Слайдов пока нет."); return; }
+  const title = SlideEditor.slideTitle(index) || `Слайд ${index + 1}`;
+  const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Правка слайда ${index + 1}</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+    <p class="hint">Слайд «${esc(title)}». Напишите, что изменить: сократить текст, добавить схему или вопросы, заменить картинку, сделать крупнее…</p>
+    <textarea id="sleInstr" rows="3" class="inp" placeholder="Например: оставь 3 пункта, добавь схему со стрелками и 2 вопроса"></textarea>
+    <div class="pk-foot"><button class="btn flame" id="sleGo">Переписать слайд</button><span class="small" id="sleMsg"></span></div></div></div>`);
+  const go = m.querySelector("#sleGo"), box = m.querySelector("#sleInstr");
+  box.focus();
+  go.onclick = async () => { const t = box.value.trim(); if (t.length < 3) { m.querySelector("#sleMsg").textContent = "Напишите просьбу подробнее."; return; } closeModal(); await refineSlide(index, t); };
+  box.addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) go.click(); });
+}
+function askDeckEdit() {
+  const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Правка всей презентации</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+    <p class="hint">ИИ перепишет все слайды по одной просьбе: стиль, объём, картинки, схемы, запоминалки. Один слайд — кнопка «✎ Слайд с ИИ».</p>
+    <textarea id="sldInstr" rows="3" class="inp" placeholder="Например: больше картинок и схем, меньше текста, добавь слайд-запоминалку"></textarea>
+    <div class="pk-foot"><button class="btn flame" id="sldGo">Переписать презентацию</button><span class="small" id="sldMsg"></span></div></div></div>`);
+  const go = m.querySelector("#sldGo"), box = m.querySelector("#sldInstr");
+  box.focus();
+  go.onclick = async () => { const t = box.value.trim(); if (t.length < 3) { m.querySelector("#sldMsg").textContent = "Напишите просьбу подробнее."; return; } closeModal(); if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) { openAiSettings(); return; } await refineDocs(["slides"], t); };
+}
+window.LessonAI = { refineSlide, refineDocs, askSlideEdit, askDeckEdit, refineScopeNow, syncRefineScope };
 // плавный прогресс, пока лист собирается «за кадром» (нейросеть продумывает замысел и техкарту)
 setInterval(() => { const g = state.gen; if (!g?.fake) return; g.pct = Math.min(92, Math.round((g.pct + Math.max(0.4, (92 - g.pct) * 0.02)) * 10) / 10); updateProgress(); }, 1000);
 function updateProgress() {
@@ -1634,6 +1824,7 @@ function renderLesson() {
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
   const busy = isGenerating(L, state.active);
   $("#refineBar").hidden = busy || !L.docs[state.active] || !!state.gen;
+  try { syncRefineScope(); } catch { }
   $("#editHint").hidden = true;
   const md = L.docs[state.active] || "";
   if (document.activeElement !== $("#md") || busy) $("#md").value = md;
@@ -1689,7 +1880,7 @@ function renderEmpty() {
   sh.innerHTML = `<div class="empty"><h2>Здесь появится урок</h2>
   <ol class="steps">
     <li><span class="num">1</span><b>Тема и номер урока</b><span>Введите тему или выберите её стрелкой из списка. Тип урока определится сам.</span></li>
-    <li><span class="num">2</span><b>«Создать урок»</b><span>Без ИИ — мгновенно по алгоритму и вашим материалам. С ИИ — подробнее.</span></li>
+    <li><span class="num">2</span><b>«Создать урок»</b><span>Нейросеть соберёт урок по вашим пожеланиям и ФРП: конспект, презентацию, рабочий лист.</span></li>
     <li><span class="num">3</span><b>Правка и выгрузка</b><span>Правьте прямо на листе, скачивайте Word, PowerPoint, PDF.</span></li>
   </ol>
   <div id="emptySamples"></div></div>`;
@@ -2108,7 +2299,7 @@ async function addExtraSheet() {
 }
 async function decorateWorksheet(L0, auto, setPct) {
   const L = L0 && L0.docs ? L0 : state.lesson; if (!L || !L.docs.worksheet) return;
-  if (window.Access && !Access.imagesAllowed()) { auto ? imgFail("Красивые рабочие листы с картинками доступны в тарифах «Учитель + ИИ» и «Методист».") : Access.open("Красивые рабочие листы с картинками — в тарифах «Учитель + ИИ» и «Методист»."); return; }
+  if (window.Access && !Access.imagesAllowed()) { auto ? imgFail("Красивые рабочие листы с картинками входят в тариф «С ИИ».") : Access.open("Красивые рабочие листы с картинками входят в тариф «С ИИ»."); return; }
   if (!ImageGen.configured()) { if (ImageGen.isDevUser()) { imgFail("Ключ для картинок не подключён."); return; } imgFail("Картинки для рабочих листов пока подключаются, скоро заработают."); return; }
   if (window.Access && Access.imageLeft() <= 0) { imgFail("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца."); return; }
   const b = $("#btnDeco") || { disabled: false, textContent: "" }; b.disabled = true; const t = b.textContent; b.textContent = "Рисую…"; toast("Составляю описание оформления…", 30000);
@@ -2522,7 +2713,7 @@ function openModal(html) {
 function escClose(e) { if (e.key === "Escape") closeModal(); }
 function closeModal() { $("#modalRoot").innerHTML = ""; document.removeEventListener("keydown", escClose); }
 function openAiSettings() {
-  if (window.Access && Access.commercial() && !Access.ownAi()) { Access.open(Access.aiAllowed() ? "Уроки с ИИ скоро будут доступны. Пока можно собирать уроки без ИИ." : "Уроки с ИИ — в тарифах «Учитель + ИИ» и «Методист»."); return; } if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl(); else toast("Нейросеть подключается в автономной версии сайта."); }
+  if (window.Access && Access.commercial() && !Access.ownAi()) { Access.open(Access.aiAllowed() ? "Тариф «С ИИ» уже подключён — нейросеть сайта доступна. Если что-то не работает, обновите страницу." : "Уроки с ИИ входят в тариф «С ИИ»: 400 ₽/мес, 50 уроков."); return; } if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl(); else toast("Нейросеть подключается в автономной версии сайта."); }
 
 function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });
@@ -2566,7 +2757,7 @@ function bind() {
   });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
-  $$("#segBuild button").forEach(b => b.onclick = () => { state.build = b.dataset.v; readForm(); syncBuild(); if (state.build === "ai" && window.UCHU && !window.UCHU.configured()) openAiSettings(); });
+  $$("#segBuild button").forEach(b => b.onclick = () => { state.build = "ai"; readForm(); syncBuild(); if (window.UCHU && !window.UCHU.configured()) openAiSettings(); });
   { const sel = $("#slTheme"); if (sel && window.ThemeKit && window.SlideEditor) {
     const baseHtml = sel.innerHTML;
     const buildThemeOptions = () => {
@@ -2592,12 +2783,12 @@ function bind() {
   $("#topic").addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); openTopicPanel(); $("#topicPanel button")?.focus(); } if (e.key === "Escape") $("#topicPanel").hidden = true; });
   $("#topicBtn").onclick = () => { if ($("#topicPanel").hidden) openTopicPanel(); else { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } };
   document.addEventListener("click", e => { if (!e.target.closest(".combo")) { $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false"); } });
-  $$("#formats > .check > input:not([id])").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП — в тарифе «Методист»: для проверки оформления и сдачи."); } readForm(); syncStyleChoices(); });
+  $$("#formats > .check > input:not([id])").forEach(i => i.onchange = () => { if (i.value === "conspect" && i.checked && window.Access && !Access.techAllowed()) { i.checked = false; Access.open("Технологическая карта по ФРП входит в тариф «С ИИ» — для проверки оформления и сдачи."); } readForm(); syncStyleChoices(); });
   syncTechCheck(); document.addEventListener("uchu:access", syncTechCheck);
   // подсветка в шапке следует за курсором (пальцем)
   const hero = document.querySelector(".hero"), gd = hero?.querySelector(".glow-dot");
   if (hero && gd) hero.addEventListener("pointermove", e => { const r = hero.getBoundingClientRect(); gd.style.setProperty("--gx", ((e.clientX - r.left) / r.width * 100) + "%"); gd.style.setProperty("--gy", ((e.clientY - r.top) / r.height * 100) + "%"); });
-  ["#optCtrl", "#optMemo", "#chkHw"].forEach(id => $(id).addEventListener("click", e => { if (window.Access && !Access.techAllowed()) { e.preventDefault(); Access.open("Контроль, листы для запоминания и домашняя работа — в тарифе «Методист»."); } }));
+  ["#optCtrl", "#optMemo", "#chkHw"].forEach(id => $(id).addEventListener("click", e => { if (window.Access && !Access.techAllowed()) { e.preventDefault(); Access.open("Контроль, листы для запоминания и домашняя работа входят в тариф «С ИИ»."); } }));
   ["#xCtrl", "#xVar", "#xKeys", "#xMemoSheet", "#xMemo", "#xHw"].forEach(id => $(id).addEventListener("change", () => { paintExtra(); readExtra(); }));
   // раскрыт один список за раз; щелчок мимо — закрыть
   $$(".xopt").forEach(d => d.addEventListener("toggle", () => { if (d.open) $$(".xopt").forEach(x => { if (x !== d) x.open = false; }); }));
@@ -2613,6 +2804,8 @@ function bind() {
   $("#btnMdToggle").onclick = () => { const p = $("#mdPane"); p.hidden = !p.hidden; $("#split").classList.toggle("with-md", !p.hidden); syncTools(); };
   $("#btnRefine").onclick = refineDoc;
   $("#refineInput").addEventListener("keydown", e => { if (e.key === "Enter") refineDoc(); });
+  $("#refineScope")?.addEventListener("change", () => { syncRefineScope(); paintCosts(); });
+  window.addEventListener("uchu:access", () => { try { syncRefineScope(); } catch { } });
   $("#btnMore").onclick = () => addExtraSheet();
   $("#btnDeco").onclick = () => decorateWorksheet();
   $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnAppx").onclick = guarded(exportAppx); $("#btnPng").onclick = guarded(exportPng); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);

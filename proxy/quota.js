@@ -3,14 +3,23 @@
    Работает, если в функции заданы SUPABASE_URL и SUPABASE_SERVICE_KEY (секретный ключ
    service_role — только на сервере!). Без них ограничений нет (как раньше).
    Таблица profiles (SQL — в ЛИЧНЫЙ_КАБИНЕТ_И_ОПЛАТА.md):
-     id uuid (= пользователь), plan text, ai_left int, paid_until timestamptz
-   Бесплатно (без тарифа) каждому — FREE_AI запросов в месяц (по умолчанию 15).
+     id uuid (= пользователь), plan text, ai_left int, tokens_used/tokens_limit bigint,
+     img_month text, img_used int, paid_until timestamptz
+   Тарифы: единственный платный — «С ИИ» (400 ₽/мес) и «С ИИ, год» (3900 ₽/год).
+   Лимиты «С ИИ»: 50 уроков с ИИ в месяц (≈ 2,7 млн токенов с запасом на правки),
+   6 листов с картинками в месяц и 20 дополнительных листов в месяц; после лимита —
+   докупка уроков (пакеты 10/30/50 или своё количество 10–200).
+   Бесплатно (пробный доступ, 2 дня по 3 урока) — FREE_AI уроков с ИИ в месяц (по умолчанию 6).
+   Учёт картинок и доп. листов — в image-pool.js и на сайте (те же константы LIMITS).
    =================================================================== */
 const URL0 = () => (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const KEY = () => process.env.SUPABASE_SERVICE_KEY || "";
-const FREE = () => Number(process.env.FREE_AI || 2);
+const FREE = () => Number(process.env.FREE_AI || 6); // пробный доступ: 6 уроков ≈ 2 дня по 3 урока
 const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
 const FREE_TOK = () => FREE() * PER_LESSON;
+/* Месячные лимиты тарифа «С ИИ» (и «С ИИ, год»): 50 уроков, 6 листов с картинками, 20 доп. листов */
+const LIMITS = { lessons: 50, images: 6, extraSheets: 20 };
+const LIMIT_TOKENS = LIMITS.lessons * PER_LESSON; // ≈ 2 млн токенов «чистого» текста без запаса на правки
 const on = () => !!(URL0() && KEY());
 async function sb(request, readAll, path, { method = "GET", body, token, prefer } = {}) {
   const res = await request(URL0() + path, { method, headers: { apikey: KEY(), Authorization: "Bearer " + (token || KEY()), "Content-Type": "application/json", Prefer: "return=representation" + (prefer ? "," + prefer : "") }, body: body ? JSON.stringify(body) : undefined, timeout: 15000 });
@@ -26,7 +35,7 @@ async function check(userToken, request, readAll) {
   const id = u.json.id;
   let p = (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0];
   const month = new Date().toISOString().slice(0, 7);
-  if (!p) p = (await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: FREE(), free_month: month } })).json?.[0] || { id, plan: "free", ai_left: FREE(), free_month: month };
+  if (!p) p = (await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: FREE(), free_month: month, tokens_limit: FREE_TOK(), tokens_used: 0 } })).json?.[0] || { id, plan: "free", ai_left: FREE(), free_month: month };
   else if (!p.email && u.json.email) await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: { email: u.json.email.toLowerCase() } });
   // бесплатный доступ по промокоду: без лимитов, пока код существует и включён (удалили код — доступ закончился)
   if (await freeOk(p, request, readAll)) return { ok: true, promoFree: true };
@@ -34,8 +43,10 @@ async function check(userToken, request, readAll) {
   const tok = typeof p.tokens_limit === "number"; // учёт в токенах (если в облаке есть колонки tokens_limit / tokens_used)
   const patch = b => sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: b });
   if (p.plan === "promo" && p.free_month !== month) { p.ai_left = FREE(); p.free_month = month; const b = { ai_left: p.ai_left, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
+  // пробный доступ: 2 дня по 3 урока с ИИ — токены начисляем один раз (старые профили, созданные без лимита)
+  if (p.plan === "free" && tok && (p.tokens_limit || 0) <= 0 && (p.tokens_used || 0) <= 0) { p.tokens_limit = FREE_TOK(); await patch({ tokens_limit: FREE_TOK(), tokens_used: 0 }); }
   if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = 0; const b = { plan: "free", ai_left: 0, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
-  const NO = { ok: false, status: 402, reason: "quota", message: "ИИ по вашему тарифу на этот месяц закончился. Можно собрать урок без ИИ, докупить уроки с ИИ или сменить тариф в кабинете." };
+  const NO = { ok: false, status: 402, reason: "quota", message: "Лимит 50 уроков с ИИ на этот месяц закончился. Докупите уроки в личном кабинете: пакет 10, 30 или 50 уроков — или своё количество от 10 до 200. Лимит обновится в начале месяца." };
   if (tok) { const left = (p.tokens_limit || 0) - (p.tokens_used || 0); if (left <= 0) return NO; return { ok: true, id, tok: true, left, used: p.tokens_used || 0, limit: p.tokens_limit || 0 }; }
   if (!(p.ai_left > 0)) return NO;
   return { ok: true, id, left: p.ai_left };
@@ -75,8 +86,8 @@ async function promo(userToken, code, request, readAll) {
   // код бесплатного доступа (он один): все возможности сайта без оплаты, пока код существует и включён
   if (row?.free) {
     let r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { promo_free_code: row.code, promo: false } });
-    // облако ещё не обновлено (нет колонки) — открываем всё через самый полный тариф без срока
-    const FULL = { plan: "pro", paid_until: "2099-12-31T00:00:00Z", ai_left: 100000 };
+    // облако ещё не обновлено (нет колонки) — открываем всё через тариф «С ИИ» без срока
+    const FULL = { plan: "ai", paid_until: "2099-12-31T00:00:00Z", ai_left: 100000 };
     if (r.status >= 300) { r = await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: { ...FULL, tokens_limit: 1e12, tokens_used: 0 } }); if (r.status >= 300) await sb(request, readAll, `/rest/v1/profiles?id=eq.${u.json.id}`, { method: "PATCH", body: FULL }); }
     return { ok: true, free: true };
   }
@@ -167,4 +178,4 @@ async function validUser(userToken, request, readAll) {
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
   return u.status === 200 && u.json?.id ? u.json : null;
 }
-module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk, freeOk, validUser };
+module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk, freeOk, validUser, LIMITS, LIMIT_TOKENS, PER_LESSON };

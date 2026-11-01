@@ -108,7 +108,17 @@ const OCR = (() => {
     if (o.status === "error") return { cls: "red", text: "OCR: ошибка" };
     return null;
   }
-  return { enqueue, run, keepFile, hasFile, label, onChange: fn => listeners.add(fn), off: fn => listeners.delete(fn) };
+  /* Распознать одну картинку (фото страницы учебника, скан задания) прямо в текст.
+     Используется кнопкой «Фото учебника» в заметках к уроку. */
+  async function text(file) {
+    const w = await getWorker();
+    const r = await w.recognize(file);
+    const raw = String(r?.data?.text || "").trim();
+    if (!raw) return "";
+    const cl = window.Cleaner ? Cleaner.clean(raw, {}) : { text: raw };
+    return String(cl.text || raw).trim();
+  }
+  return { enqueue, run, keepFile, hasFile, label, text, onChange: fn => listeners.add(fn), off: fn => listeners.delete(fn) };
 })();
 window.OCR = OCR;
 document.addEventListener("uchu:ready", () => OCR.run().catch(() => { }));

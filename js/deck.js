@@ -23,9 +23,9 @@ const Deck = (() => {
   "use strict";
   const KEY = "uchu:deck";
   const AMOUNT = {
-    brief: { label: "Минимум текста", max: 2, paren: false, len: 90 },
-    medium: { label: "Кратко", max: 3, paren: false, len: 130 },
-    detailed: { label: "Подробнее", max: 4, paren: true, len: 220 }
+    brief: { label: "Минимум текста", max: 2, slides: 10, paren: false, len: 90 },
+    medium: { label: "Кратко", max: 5, slides: 18, paren: false, len: 220 },
+    detailed: { label: "Подробнее", max: 7, slides: 28, paren: true, len: 260 }
   };
   const IMAGES = { key: "Картинки на ключевых слайдах", all: "Картинка почти на каждом слайде", none: "Без картинок" };
   const KINDS = {
@@ -33,10 +33,12 @@ const Deck = (() => {
     list: "Список", big: "Крупный вопрос", quote: "Цитата (дословно)", poem: "Стихотворение (дословно)",
     task: "Упражнение (дословно)", rule: "Правило (дословно)", hw: "Домашнее задание", image: "Картинка во весь слайд",
     fragment: "Фрагмент текста (дословно)", glossary: "Словарная работа", terms: "Работа с терминами", table: "Таблица для заполнения", concl: "Выводы",
-    board: "На доске (что записать)", mnemo: "Как запомнить", flip: "Проверь себя (карточки)", video: "Видеофрагмент", section: "Разделитель"
+    board: "На доске (что записать)", mnemo: "«Запомни» (мнемоника)", scheme: "Схема-опора", check: "«Проверь себя» (вопросы)",
+    art: "«Картина» (репродукция)", algo: "Алгоритм", flip: "Проверь себя (карточки)", video: "Видеофрагмент", section: "Разделитель"
   };
   const VERBATIM = new Set(["quote", "poem", "task", "rule", "fragment"]);
-  function opts() { let o = {}; try { o = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { } return { amount: AMOUNT[o.amount] ? o.amount : "medium", images: IMAGES[o.images] ? o.images : "key" }; }
+  const CREATIVE = new Set(["izo", "mhk", "mus", "lit"]);
+  function opts() { let o = {}; try { o = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { } return { amount: AMOUNT[o.amount] ? o.amount : "medium", images: IMAGES[o.images] ? o.images : "all" }; }
   function saveOpts(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch { } }
 
   /* ---------- текст: очистка и лаконичные формулировки ---------- */
@@ -158,6 +160,7 @@ const Deck = (() => {
   /* Литература: на слайдах только то, с чем работают и что записывают — без вопросов учителя.
      Тема и цель, проблемный вопрос, справка, словарь, текст (фрагменты, дословно, слова с подсказками),
      иллюстрации с подписью (художник, название), термины, таблица, выводы, творческое задание, д/з. */
+  const subjectName = p => (typeof Subjects !== "undefined" && Subjects.name ? Subjects.name(p.subject) : (p.subject === "lit" ? "Литература" : "Русский язык"));
   function litOutline(md, p, type, o) {
     const kit = p.plan.kit, c = parseConspect(md), cards = []; let n = 0;
     const add = card => { cards.push({ id: "c" + (++n), on: true, ...card }); return cards[cards.length - 1]; };
@@ -251,22 +254,112 @@ const Deck = (() => {
     }
     return { kind: "board", title: lit ? (p.topic.match(/«[^»]+»/) || [p.topic])[0] : capF(core), points: [`${dateWords()}.`, "Классная работа."], notes: "Запись в тетради: число, «Классная работа», тема. Больше ничего на слайде нет. Дату поправьте под день урока." };
   }
+  /* ---------- карточка «Схема-опора» из Schemes: обычный Markdown, без HTML ---------- */
+  function schemeCard(sc) {
+    if (!sc) return null;
+    const P = x => (window.Schemes && Schemes.plain ? Schemes.plain(x) : String(x == null ? "" : x));
+    const points = (sc.s || []).map(P).filter(Boolean);
+    if (!points.length) return null;
+    const card = { kind: "scheme", title: sc.t ? "Схема-опора: " + sc.t : "Схема-опора", points, ex: (sc.ex || []).map(P).filter(Boolean), l: sc.l ? P(sc.l) : "", notes: "Схема — та же, что в конспекте, памятке и рабочем листе. Пройдите по ней на примере из задания; знаки — по школьной традиции (см. легенду)." };
+    if (sc.head && sc.rows) { card.head = sc.head; card.rows = sc.rows; card.full = true; }
+    return card;
+  }
+  /* «Проверь себя»: 2–3 вопроса, ответы — в заметках учителя. Источник — Mnemo.quiz или алгоритм урока. */
+  function checkCard(MN, RK) {
+    const q = (MN?.quiz || []).filter(x => Array.isArray(x) && x[0]);
+    if (q.length >= 2) return { kind: "check", title: "Проверь себя", points: q.slice(0, 3).map(([g]) => g), answers: q.slice(0, 3).map(([, a]) => a), notes: "Ответы: " + q.slice(0, 3).map(([, a]) => a).join("; ") + ". Сначала ученики отвечают сами, потом открываем." };
+    const st = (RK?.algo?.steps || []).map(x => String(x).replace(/\s*\(.*?\)/g, "").trim()).filter(Boolean);
+    if (st.length >= 3) return { kind: "check", title: "Проверь себя", points: ["Сформулируй правило своими словами: с чего начинаем и почему?", "Назови шаги алгоритма по порядку.", "Приведи свой пример и объясни его по шагам."], notes: `Ответы: опора — алгоритм «${RK.algo.name || "как применять правило"}»: ${st.slice(0, 5).map((x, i) => `${i + 1}) ${x}`).join("; ")}. Ученики отвечают своими словами, сверяем с алгоритмом.` };
+    return null;
+  }
+  /* «Картина»: репродукция или иллюстрация с подписью и 2–3 вопросами — для ИЗО, МХК, музыки, литературы */
+  function artCard(p) {
+    if (!CREATIVE.has(p.subject)) return null;
+    const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "";
+    const author = typeof Engine !== "undefined" && Engine.authorOf ? (Engine.authorOf(p.topic) || "") : "";
+    const core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
+    const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
+    const shortW = work && work.length > 44 ? work.split(/,\s*/)[0] + "…" : work;
+    const img = work ? `commons:${[work, sur].filter(Boolean).join(" ")} картина` : `commons:${core} картина репродукция`;
+    const Q = p.subject === "lit"
+      ? ["Что изображено? Какой момент произведения выбрал художник?", "Какие детали важны для понимания героя и идеи?", "Совпадает ли картина с вашим представлением о героях и событиях?"]
+      : p.subject === "mus"
+        ? ["Какие образы и настроение ты видишь на полотне?", "Какая музыка подошла бы этой картине (темп, тембр, динамика)?", "Что общего у живописи и музыки в передаче настроения?"]
+        : p.subject === "mhk"
+          ? ["Что изображено и к какому виду искусства относится работа?", "Какие признаки стиля и эпохи ты видишь?", "Какое место произведение занимает в культуре своего времени?"]
+          : ["Что изображено? Как построена композиция (центр, планы, движение)?", "Какие цвета, свет и мазок использует художник?", "Какое настроение создаёт картина и как ей это удаётся?"];
+    return { kind: "art", title: work ? `«${shortW}»: картина` : "Рассматриваем картину", img, cap: work ? `Иллюстрация к «${shortW}»` : "Репродукция картины", points: Q, notes: "Репродукция подбирается автоматически; подпись (художник, название, год) уточните по источнику. Вопросы — для обсуждения, ответы запишите в тетрадь." };
+  }
+  /* Больше слайдов по умолчанию: длинные списки делим на части, а если слайдов меньше целевого — добавляем рефлексию. */
+  function expandCards(cards, p, o) {
+    const amt = AMOUNT[o?.amount] || AMOUNT.medium, max = Math.max(3, amt.max || 5), target = amt.slides || 18;
+    const out = [];
+    for (const c of cards) {
+      if (c.on === false || !["cards", "list", "concl"].includes(c.kind) || (c.points || []).length <= max + 1) { out.push(c); continue; }
+      const pts = c.points, parts = Math.ceil(pts.length / max), size = Math.ceil(pts.length / parts);
+      for (let i = 0, k = 0; i < pts.length; i += size, k++) out.push({ ...c, id: `${c.id || "s"}_${k}`, title: (c.title || "") + (k ? " (продолжение)" : ""), points: pts.slice(i, i + size) });
+    }
+    if (o?.amount !== "brief" && out.length < target && !out.some(c => /рефлекс/i.test(c.title || ""))) {
+      const i = out.findIndex(c => c.kind === "hw" || c.kind === "section");
+      out.splice(i >= 0 ? i : out.length, 0, { id: "refl", on: true, kind: "cards", title: "Рефлексия", points: ["Что было главным на уроке?", "Что осталось непонятным? Сформулируйте вопрос.", "Оцените себя: «могу объяснить сам», «понял с подсказкой», «остались вопросы»."], notes: "Если осталось время; в хронометраж урока не входит, слайд можно выключить." });
+    }
+    return out;
+  }
+  /* Картинки-акценты: почти на каждом слайде, кроме дословных цитат/стихов/упражнений, доски и карточки-картины. */
+  function fillImages(cards, p, o) {
+    const mode = (o && o.images) || "all";
+    const lit = p.subject === "lit";
+    const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "";
+    const author = typeof Engine !== "undefined" && Engine.authorOf ? (Engine.authorOf(p.topic) || "") : "";
+    const core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
+    const base = lit ? (work || author || p.topic) : core;
+    const ON_ALL = new Set(["cards", "list", "big", "steps", "goal", "concl", "mnemo", "check", "scheme"]);
+    const ON_KEY = new Set(["cards", "list", "big", "steps", "goal"]);
+    let side = 0;
+    for (const card of cards) {
+      if (card.kind === "image" || card.kind === "art" || VERBATIM.has(card.kind)) continue;
+      if (mode === "none") { card.img = ""; card.acc = undefined; continue; }
+      if (card.img) continue;
+      if (!(mode === "all" ? ON_ALL.has(card.kind) : ON_KEY.has(card.kind))) continue;
+      if ((card.points || []).map(String).some(x => x.length > 150)) continue;
+      card.img = `${card.kind === "big" ? "" : (card.title || "") + " "}${base}`.replace(/\s+/g, " ").trim();
+      card.acc = ++side % 2 ? "right" : "left";
+    }
+    if (mode === "key" && !lit) {
+      const mot = cards.find(x => ["cards", "big"].includes(x.kind) && /начн|вспомн|задача/i.test(x.title || ""));
+      if (mot && !mot.img) { mot.img = core; mot.acc = "right"; }
+    }
+    return cards;
+  }
   function enrich(cards, p, o) {
     const lit = p.subject === "lit", RK = !lit ? p.plan?.rukit : null;
     let n = cards.length;
     const at = (i, card) => { cards.splice(Math.max(0, Math.min(cards.length, i)), 0, { id: "x" + (++n), on: true, ...card }); };
     const idx = k => cards.findIndex(c => c.kind === k);
-    // запоминалки для литературы (тропы, размеры, композиция…) — после терминов/фрагментов
+    const beforeEnd = () => (idx("concl") >= 0 ? idx("concl") : idx("hw") >= 0 ? idx("hw") : cards.length);
     const MN = window.Mnemo ? Mnemo.find(p.topic, RK?.algo?.name || "", p.subject) : null;
-    if (lit && MN && !cards.some(c => c.title === "Как запомнить")) {
-      const before = idx("concl") >= 0 ? idx("concl") : idx("hw") >= 0 ? idx("hw") : cards.length;
-      Mnemo.cards(MN, plainMd).forEach((c, k) => at(before + k, c));
-    }
     // доска — сразу после цели
     const g = idx("goal");
     at(g >= 0 ? g + 1 : 1, boardCard(p, cards, RK, MN));
-    // условные обозначения: одна карточка перед практикой (только если тема их требует и ученик встретит знаки на слайдах)
-    if (window.Conv && !cards.some(c => c.title === "Условные обозначения")) { const lp = Conv.legendPoints(p); if (lp.length >= 3) at(g >= 0 ? g + 2 : 2, { kind: "list", title: "Условные обозначения", points: lp, notes: "Покажите знаки один раз и договоритесь: дальше в слайдах, листе и памятке они означают одно и то же." }); }
+    // условные обозначения — текстом (слайд должен работать и в Word, и в PowerPoint)
+    if (window.Conv && !cards.some(c => c.title === "Условные обозначения")) { const lp = Conv.legendPoints(p, 8, { plain: true }); if (lp.length >= 3) at(g >= 0 ? g + 2 : 2, { kind: "list", title: "Условные обозначения", points: lp, notes: "Покажите знаки один раз и договоритесь: дальше в слайдах, листе и памятке они означают одно и то же." }); }
+    // «Схема-опора» — перед запоминалками и проверкой (русский, литература, другие предметы)
+    if (!cards.some(c => c.kind === "scheme")) {
+      const sc = schemeCard(RK?.scheme || (window.Schemes ? Schemes.find(p.subject, p.topic) : null));
+      if (sc) { const i0 = cards.findIndex(c => ["mnemo", "check"].includes(c.kind)); at(i0 >= 0 ? i0 : beforeEnd(), sc); }
+    }
+    // «Запомни», «Схема», таблица примеров и «Проверь себя» из банка Mnemo — к концу урока
+    if (MN && !cards.some(c => c.kind === "mnemo")) {
+      const before = beforeEnd();
+      Mnemo.cards(MN, plainMd).forEach((c, k) => {
+        const cc = (c.kind === "scheme" && cards.some(x => x.kind === "scheme")) ? { ...c, kind: "list", title: "Порядок действий по правилу" } : c;
+        at(before + k, cc);
+      });
+    }
+    // «Проверь себя», если банка Mnemo нет, а алгоритм урока есть
+    if (!cards.some(c => c.kind === "check")) { const cc = checkCard(MN, RK); if (cc) at(beforeEnd(), cc); }
+    // «Картина» для творческих предметов: репродукция + вопросы
+    if ((!o || o.images !== "none") && CREATIVE.has(p.subject) && !cards.some(c => c.kind === "art")) { const ac = artCard(p); if (ac) at(beforeEnd(), ac); }
     // аудио и видео — только там, где это работает на урок; ссылку ищет сайт (Яндекс), не нашёл — слайд выключается
     if (lit) {
       const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "", author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "";
@@ -288,7 +381,10 @@ const Deck = (() => {
     }
     return cards;
   }
-  function outline(md, p, type, o = opts()) { return enrich(outline0(md, p, type, o), p, o); }
+  function outline(md, p, type, o = opts()) {
+    const cards = expandCards(enrich(outline0(md, p, type, o), p, o), p, o);
+    return fillImages(cards, p, o);
+  }
   function outline0(md, p, type, o = opts()) {
     curTopic = p.topic; curKit = p.plan?.kit || null;
     if (p.subject === "lit" && p.plan?.kit?.fragments?.length) return litOutline(md, p, type, o);
@@ -305,7 +401,7 @@ const Deck = (() => {
     // название: для литературы — произведение крупно, автор отдельной строкой (без лишних пометок)
     const shortWork = work && work.length > 44 ? work.split(/,\s*/)[0] + "…" : work;
     const titleText = lit && work ? `«${work}»` : (c.title || p.topic);
-    add({ kind: "title", title: titleText, points: [lit && author ? author : "", `${p.grade} класс · ${lit ? "Литература" : "Русский язык"}`].filter(Boolean), img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "right", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
+    add({ kind: "title", title: titleText, points: [lit && author ? author : "", `${p.grade} класс · ${subjectName(p)}`].filter(Boolean), img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "right", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
     // 2. Автор: портрет и короткая справка из открытого источника (годы жизни, кто это)
     if (lit && author && c.wiki) { // слайд об авторе — только если есть проверенная справка (без пустого слайда)
       const pts = [];
@@ -328,18 +424,18 @@ const Deck = (() => {
     // 5а. Русский язык: опора урока по профилю (теория, алгоритм, тексты-документы, таблица)
     const RK = !lit ? p.plan?.rukit : null;
     if (RK && RK.kind !== "general") {
-      if (RK.algo) add({ kind: "steps", title: RK.algo.name, points: RK.algo.steps.map(x => x.replace(/\s*\(.*?\)/g, "").slice(0, 160)), notes: "Алгоритм — тот же, что в конспекте и рабочем листе." });
+      if (RK.algo) add({ kind: "algo", title: RK.algo.name, points: RK.algo.steps.map(x => x.replace(/\s*\(.*?\)/g, "").slice(0, 160)), tip: "Порядок шагов — как в конспекте и рабочем листе.", notes: "Алгоритм — тот же, что в конспекте и рабочем листе. Пройдите его на примере из упражнения." });
       else if (RK.theory?.length) add({ kind: RK.theory.length > 3 ? "list" : "cards", title: "Запомним", points: RK.theory.slice(0, 6), notes: "Опорная теория — для записи в тетрадь." });
       (RK.handouts || []).forEach(h => add({ kind: "quote", title: h.title, quote: h.text, by: "", notes: h.key ? "Для учителя: " + h.key : "" }));
       if (RK.table) add({ kind: "table", title: RK.table.title, head: RK.table.head, rows: RK.table.rows.map(r => [r[0]]), notes: "Таблица — та же, что в рабочем листе." });
       if (RK.table && RK.table.rows.some(r => r.length > 1 && r.slice(1).some(x => String(x || "").trim()))) add({ kind: "table", title: RK.table.title + " — проверяем", head: RK.table.head, rows: RK.table.rows, notes: "Заполненная таблица: сверьте с записями класса." });
     }
-    // 5б. Запоминалки и интерактивные примеры (в показе — карточки-перевороты: пропуск → ответ)
+    // 5а-схема. Схема-опора из Schemes — текстом, без HTML: её видно и в Word, и в PowerPoint
+    { const sc = schemeCard(RK?.scheme || (window.Schemes ? Schemes.find(p.subject, p.topic) : null)); if (sc) add(sc); }
+    // 5б. Запоминалки и «Проверь себя» (Mnemo): «Запомни», «Схема», таблица примеров, вопросы с ответами в заметках
     if (!lit && window.Mnemo) {
-      const MN = Mnemo.find(p.topic, RK?.algo?.name || "");
-      if (MN) {
-        Mnemo.cards(MN, plainMd).forEach(c => add(c));
-      }
+      const MN = Mnemo.find(p.topic, RK?.algo?.name || "", p.subject);
+      if (MN) Mnemo.cards(MN, plainMd).forEach(c => add(c.kind === "scheme" && cards.some(x => x.kind === "scheme") ? { ...c, kind: "list", title: "Порядок действий по правилу" } : c));
     }
     // 6. Этапы техкарты
     const poem = lit && p.plan?.analysis?.verse && p.plan.analysis.stanzas?.length ? p.plan.analysis.stanzas : null;
@@ -410,26 +506,19 @@ const Deck = (() => {
     for (const r of c.rules.filter(looksRule)) if (!cards.some(x => x.rule === plainMd(r) || x.callout === plainMd(r))) add({ kind: "rule", title: "Запомним", rule: plainMd(r.replace(/\*\((?:[^()]|\([^)]*\))*\)\*\s*$/, "")), src: (r.match(/\*\(([^)]*)\)\*\s*$/) || [])[1] || "", notes: "Формулировка — дословно из материала." });
     // 8. Домашнее задание
     if (c.hw.length) add({ kind: "hw", title: "Домашнее задание", points: c.hw.slice(0, 4), notes: "Задания — как в конспекте." });
-    // картинки-акценты
-    const imgMode = o.images;
-    let side = 0;
-    for (const card of cards) {
-      if (imgMode === "none") { card.img = ""; continue; }
-      if (card.img) continue;
-      if (imgMode === "all" && ["cards", "list", "big", "steps", "goal"].includes(card.kind) && !(card.points || []).some(x => x.length > 150)) {
-        card.img = `${card.kind === "big" ? "" : card.title + " "}${lit ? (work || author || p.topic) : core}`.replace(/\s+/g, " ").trim();
-        card.acc = ++side % 2 ? "right" : "left";
-      }
-    }
-    if (imgMode === "key" && !lit) { // по русскому языку — ещё одна иллюстрация к теме для мотивации
-      const mot = cards.find(x => ["cards", "big"].includes(x.kind) && /начн|вспомн|задача/i.test(x.title));
-      if (mot && !mot.img) { mot.img = core; mot.acc = "right"; }
-    }
+    // картинки-акценты добавляются после enrich (fillImages): так новые карточки тоже получают картинку
     return cards;
   }
 
   /* ---------- план → Markdown слайдов ---------- */
   const md1 = s => String(s || "").replace(/\n+/g, " ").trim();
+  /* Таблица в обычном Markdown: её понимают SlideEditor, Word, PDF и PowerPoint (без HTML). */
+  function tableMd(card) {
+    const head = card.head || [], rows = card.rows || [];
+    if (!head.length) return "";
+    const full = card.full || rows.every(r => Array.isArray(r) && r.length >= head.length);
+    return `| ${head.map(md1).join(" | ")} |\n|${head.map(() => "---").join("|")}|\n` + rows.map(r => full ? `| ${head.map((_, i) => md1(r[i])).join(" | ")} |` : `| ${md1(r[0])} |${" |".repeat(head.length - 1)}`).join("\n");
+  }
   function cardMd(card) {
     const set = {};
     let title = card.title || "", level = 2, body = "";
@@ -451,12 +540,30 @@ const Deck = (() => {
       case "glossary": set.layout = "cards"; set.kind = "glossary"; body = (card.items || []).map(g => `- **${md1(g.word)}** — ${md1(g.def)}`).join("\n"); break;
       case "terms": set.layout = "cards"; body = (card.items || []).map(t => `- **${md1(t.term)}** — ${md1(t.def)}${t.ex ? `  \n*Пример:* «${md1(t.ex).replace(/[«»]/g, "")}»` : ""}`).join("\n"); break;
       case "fragment": set.layout = card.verse ? "poem" : "task"; set.vb = 1; body = (card.mdBody || verbatimMd(card.text, { verse: card.verse })) + (card.by ? `\n\n*${md1(card.by)}*` : ""); break;
-      case "table": set.layout = "one"; body = `| ${card.head.map(md1).join(" | ")} |\n|${card.head.map(() => "---").join("|")}|\n${card.rows.map(r => card.full ? `| ${card.head.map((_, i) => md1(r[i])).join(" | ")} |` : `| ${md1(r[0])} |${" |".repeat(card.head.length - 1)}`).join("\n")}`; break;
+      case "table": set.layout = "one"; body = tableMd(card); break;
       case "concl": set.layout = "list"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "image": set.layout = "image"; break;
       case "board": { set.layout = "one"; const pp = card.points || []; body = `${md1(pp[0] || "")}  \n${md1(pp[1] || "")}` + (pp.length > 2 ? "\n\n" + pp.slice(2).map(x => `- ${md1(x)}`).join("\n") : ""); break; }
       case "video": set.layout = "video"; set.vq = card.vq || card.mq || card.title; if (card.video) set.video = card.video; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "section": level = 1; set.layout = "section"; body = (card.points || []).join("\n\n"); break;
+      /* «Запомни»: приёмы мнемоники списком (Mnemo) */
+      case "mnemo": set.layout = "cards"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
+      /* «Схема-опора»: текстовые шаги + (если есть) таблица + примеры и легенда — всё обычным Markdown */
+      case "scheme": {
+        const hasT = !!(card.head && card.rows && card.rows.length);
+        set.layout = hasT ? "one" : "list";
+        body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
+        if (hasT) body += (body ? "\n\n" : "") + tableMd(card);
+        if (card.ex && card.ex.length) body += `\n\n**Примеры:** ${card.ex.map(md1).join(" · ")}`;
+        if (card.l) body += `\n\n*${md1(card.l)}*`;
+        break;
+      }
+      /* «Проверь себя»: 2–4 вопроса; ответы — в заметках учителя (комментарий <!-- … -->) */
+      case "check": set.layout = "list"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
+      /* «Алгоритм»: нумерованные шаги + опора */
+      case "algo": set.layout = "steps"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n") + (card.tip ? `\n\n> **Опора:** ${md1(card.tip)}` : ""); break;
+      /* «Картина»: репродукция + вопросы к ней (для ИЗО, МХК, музыки, литературы) */
+      case "art": set.layout = "two"; set.acc = card.acc || "right"; set.ov = card.ov || "faded"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n") + (card.note ? `\n\n*${md1(card.note)}*` : ""); break;
       default: body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
     }
     if (img && card.kind !== "image") { set.acc = card.acc || "right"; body = `${img}\n\n${body}`.trim(); }
@@ -474,7 +581,8 @@ const Deck = (() => {
   async function condenseAi(cards, p, amtKey, signal) {
     if (!window.UCHU?.configured?.() || typeof caps === "undefined") return cards;
     const amt = AMOUNT[amtKey] || AMOUNT.medium;
-    const editable = cards.filter(c => !VERBATIM.has(c.kind) && c.kind !== "title" && c.kind !== "author" && (c.points?.length || c.lead));
+    const FIXED = new Set(["title", "author", "art", "check", "board", "video", "image", "section", "terms", "glossary"]);
+    const editable = cards.filter(c => !VERBATIM.has(c.kind) && !FIXED.has(c.kind) && (c.points?.length || c.lead));
     if (!editable.length) return cards;
     const payload = editable.map(c => ({ id: c.id, title: c.title, lead: c.lead || "", points: c.points || [] }));
     const prompt = `Ты — редактор учебных презентаций в стиле Gamma. Сделай формулировки слайдов к уроку «${p.topic}» (${p.grade} класс) лаконичными: одна мысль — один пункт, ${amt.max} пункта максимум, каждый пункт короче ${amt.len} знаков, заголовок — до 5 слов.
@@ -503,10 +611,13 @@ ${JSON.stringify(payload)}`;
 
   /* Запоминалки от нейросети — для тем, которых нет в готовом списке */
   async function aiMnemo(cards, p) {
-    if (cards.some(c => c.title === "Как запомнить") || !window.Mnemo?.ai) return cards;
+    if (cards.some(c => c.kind === "mnemo" || /запомни/i.test(c.title || "")) || !window.Mnemo?.ai) return cards;
     const MN = await Mnemo.ai(p.topic, p.grade, p.subject); if (!MN) return cards;
     const i = cards.findIndex(c => ["concl", "hw"].includes(c.kind)), pos = i >= 0 ? i : cards.length;
-    const add = Mnemo.cards(MN, plainMd).map((c, k) => ({ id: "m" + (k + 1), on: true, ...c, notes: c.notes + " Предложено нейросетью по школьной методике — проверьте перед уроком." }));
+    const add = Mnemo.cards(MN, plainMd).map((c, k) => {
+      const cc = (c.kind === "scheme" && cards.some(x => x.kind === "scheme")) ? { ...c, kind: "list", title: "Порядок действий по правилу" } : c;
+      return { id: "m" + (k + 1), on: true, ...cc, notes: (cc.notes || "") + " Предложено нейросетью по школьной методике — проверьте перед уроком." };
+    });
     cards.splice(pos, 0, ...add); return cards;
   }
   /* Аудио и видео: сайт ищет чтение артистов и экранизации; не нашёл — слайд остаётся в плане выключенным */

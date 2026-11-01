@@ -334,6 +334,8 @@ const SlideEditor = (() => {
     const lay = autoLayout(sl, cur);
     sheet.innerHTML = `<div class="sx-topbar" role="toolbar" aria-label="Презентация">
         <button class="btn sm flame" id="sxDesign" title="Тема оформления и шрифты всей презентации">🎨 Оформление</button>
+        <button class="btn sm" id="sxAiText" title="Переписать только этот слайд по просьбе (ИИ)">✎ Слайд с ИИ</button>
+        <button class="btn sm ghost" id="sxAiDeck" title="Переписать всю презентацию по просьбе (ИИ)">✎ Вся презентация</button>
         <button class="btn sm" id="sxLayPick" title="Шаблон этого слайда">▦ Шаблон слайда</button>
         <button class="btn sm" id="sxMenuTop" title="Все действия со слайдом">⋯ Слайд</button>
         <button class="btn sm" id="sxPlan2" title="План слайдов">☰ План презентации</button>
@@ -481,6 +483,8 @@ const SlideEditor = (() => {
     // картинки Яндекса к слайду: поиск предлагает, учитель решает, вставлять ли
     const runSugg = q => suggest(q, $s("#sxSugg"), $s("#sxSuggNote"));
     $s("#sxQGo").onclick = () => runSugg($s("#sxQ").value.trim());
+    $s("#sxAiText").onclick = () => { if (window.LessonAI?.askSlideEdit) window.LessonAI.askSlideEdit(cur); else toast("Правка слайда с ИИ доступна в кабинете учителя."); };
+    $s("#sxAiDeck").onclick = () => { if (window.LessonAI?.askDeckEdit) window.LessonAI.askDeckEdit(); else toast("Правка всей презентации с ИИ доступна в кабинете учителя."); };
     $s("#sxQ").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); runSugg($s("#sxQ").value.trim()); } });
     $s("#sxQYa").onclick = () => window.open(Media.yandexUrl($s("#sxQ").value.trim()), "_blank", "noopener");
     runSugg($s("#sxQ").value.trim());
@@ -990,7 +994,7 @@ const SlideEditor = (() => {
   }
   /* Создать изображение ИИ: пожелания учителя + тема слайда; картинка встаёт на слайд так же, как найденная в Яндексе */
   function aiPicture() {
-    if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { Access.open("Картинки ИИ — в тарифах «Учитель + ИИ» и «Методист» (в пределах месячного лимита)."); return; }
+    if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { Access.open("Картинки ИИ входят в тариф «С ИИ» (6 листов в месяц)."); return; }
     if (!window.ImageGen || !ImageGen.configured()) { toast("Ключ для картинок ещё не подключён.", 6000); return; }
     const sl = slides()[cur], title = String(sl.title || "").replace(/[*_`]/g, "");
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Изображение для слайда</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p class="small">Нейросеть нарисует иллюстрацию к слайду «${esc(title)}». Текст на картинку не попадает. Реальные картинки из поиска остаются, как были.</p><label class="small"><b>Пожелания (необязательно)</b></label><textarea id="aiWish" rows="3" style="width:100%" placeholder="Например: зима, ночной город, без людей; тёплые цвета; в стиле акварели"></textarea><div id="aiOut" class="small" style="margin:8px 0;min-height:22px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm flame" id="aiGo">Создать и вставить</button><button class="btn plain sm" data-close>Закрыть</button></div></div></div>`);
@@ -1317,7 +1321,16 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     Ls.docs.slides = md; Ls.slidesFitted = false; cur = 0;
     $("#md").value = md; saveLesson(Ls); rerender();
   }
-  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  function slideMarkdown(i) { const s = slides()[i]; return s ? build(s) : ""; }
+  function slideTitle(i) { const s = slides()[i]; return s ? String(s.title || "") : ""; }
+  function replaceSlideMarkdown(i, md) {
+    const a = slides(), old = a[i]; if (!old) return false;
+    const first = (splitSlides(String(md || "").trim())[0] || String(md || "")).trim();
+    const n = parse(first); if (!n || (!n.title && !n.body)) return false;
+    a[i] = { ...n, set: { ...old.set, ...(n.set || {}) } };
+    write(a); rerender(); return true;
+  }
+  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;
 

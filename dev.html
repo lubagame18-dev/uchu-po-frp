@@ -30,11 +30,10 @@ textarea{min-height:110px}
   <div class="card">
     <b>Цены тарифов (₽)</b>
     <div class="grid">
-      <div><label>Без ИИ, мес</label><input id="pBasic" type="number" min="1" step="1"></div>
-      <div><label>С ИИ, мес</label><input id="pAi" type="number" min="1" step="1"></div>
-      <div><label>Без ИИ, год</label><input id="pBasicYear" type="number" min="1" step="1"></div>
-      <div><label>С ИИ, год</label><input id="pAiYear" type="number" min="1" step="1"></div>
+      <div><label>«С ИИ», мес</label><input id="pAi" type="number" min="1" step="1"></div>
+      <div><label>«С ИИ», год</label><input id="pAiYear" type="number" min="1" step="1"></div>
     </div>
+    <p class="small">Единственный платный тариф: «С ИИ» — 400 ₽/мес или 3 900 ₽/год, 50 уроков с ИИ в месяц, всё доступно. Докупка уроков: пакеты 10/30/50 — 70/190/300 ₽; своё количество 10–200 — 7 ₽ за урок (не меньше 70 ₽). Цены сохраняются для витрины и страниц «Тарифы»/«Оферта»; настоящие суммы при оплате считает сервер.</p>
   </div>
 
   <div class="card">
@@ -105,11 +104,9 @@ textarea{min-height:110px}
   var msg=document.getElementById("msg"), panel=document.getElementById("panel");
   function cfg(){ try{return JSON.parse(localStorage.getItem("uchu:dev:cfg")||"{}")||{};}catch(e){return{};} }
   function fill(){
-    var c=cfg(), p=c.prices||{};
-    document.getElementById("pBasic").value=p.basic||250;
-    document.getElementById("pAi").value=p.ai||500;
-    document.getElementById("pBasicYear").value=p.basicYear||2000;
-    document.getElementById("pAiYear").value=p.aiYear||4000;
+    var c=cfg(), p=c.prices||{}, v2=c.pricesVersion===2; // старый конфиг (с basic/pro) не применяем: показываем новые цены
+    document.getElementById("pAi").value=v2&&p.ai?p.ai:400;
+    document.getElementById("pAiYear").value=v2&&p.aiYear?p.aiYear:3900;
     document.getElementById("promptExtra").value=c.promptExtra||"";
     document.getElementById("materials").value=(c.materials||"");
     try{ document.getElementById("linkDev").value=location.origin+"/dev.html?key=pedagogural"; }catch(e){}
@@ -142,7 +139,9 @@ textarea{min-height:110px}
   };
   document.getElementById("save").onclick=function(){
     var c=cfg();
-    c.prices={basic:+document.getElementById("pBasic").value||250, ai:+document.getElementById("pAi").value||500, basicYear:+document.getElementById("pBasicYear").value||2000, aiYear:+document.getElementById("pAiYear").value||4000};
+    // только действующие тарифы: «С ИИ» и «С ИИ, год» (старые ключи basic/basicYear/pro в конфиге больше не нужны)
+    c.prices={ai:+document.getElementById("pAi").value||400, aiYear:+document.getElementById("pAiYear").value||3900};
+    c.pricesVersion=2; // помечаем конфиг как новый: старые сохранённые цены больше не подставляются
     c.promptExtra=document.getElementById("promptExtra").value.slice(0,6000);
     c.materials=document.getElementById("materials").value.slice(0,60000);
     try{localStorage.setItem("uchu:dev:cfg",JSON.stringify(c));}catch(e){}

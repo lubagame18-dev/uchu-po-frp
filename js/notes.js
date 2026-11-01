@@ -22,7 +22,8 @@ const Notes = (() => {
     box.innerHTML = `<summary><span class="nb-t">Пожелания к уроку</span> <span class="nb-count" id="nbCount"></span></summary>
       <textarea class="inp" id="nbPrompt" rows="3" placeholder="Например: класс слабый — больше работы в группах; сравнить с Тютчевым"></textarea>
       <div class="nb-files" id="nbFiles"></div>
-      <div class="nb-foot"><label class="btn sm ghost file-btn">📎 Прикрепить файлы<input type="file" id="nbFileIn" multiple hidden></label><button type="button" class="btn plain" id="nbClear">Очистить</button></div>
+      <div class="nb-foot"><label class="btn sm ghost file-btn">📎 Прикрепить файлы<input type="file" id="nbFileIn" multiple hidden></label><label class="btn sm flame file-btn" title="Сфотографируйте страницу учебника — сайт распознает задания и учтёт их в уроке">📷 Фото учебника<input type="file" id="nbPhotoIn" accept="image/*" capture="environment" multiple hidden></label><button type="button" class="btn plain" id="nbClear">Очистить</button></div>
+      <p class="small nb-photo-msg" id="nbPhotoMsg" role="status"></p>
       <div hidden><textarea id="nbObserve"></textarea><textarea id="nbLinks"></textarea><textarea id="nbText"></textarea><div id="nbCheck"></div><input id="nbCheckIn"><button type="button" id="nbCheckAdd"></button></div>`;
     btn.parentNode.insertBefore(box, btn);
     // старое поле «Пожелания» (было только для ИИ) теперь живёт в заметках
@@ -43,6 +44,22 @@ const Notes = (() => {
       }
       e.target.value = ""; renderFiles(); save();
     };
+    $n("nbPhotoIn").onchange = async e => {
+      const msg = $n("nbPhotoMsg"), files = [...e.target.files];
+      if (!files.length) return;
+      if (!window.OCR || !OCR.text) { toast("Распознавание фото не загрузилось — проверьте интернет и попробуйте ещё раз.", 7000); return; }
+      for (let i = 0; i < files.length; i++) {
+        msg.textContent = `Распознаю фото ${i + 1} из ${files.length}… Первый раз загружается модель распознавания (около 40 МБ), это может занять до минуты.`;
+        try {
+          const t = await OCR.text(files[i]);
+          if (!t || t.replace(/\s/g, "").length < 20) { toast(`На фото «${files[i].name}» не удалось прочитать текст — сфотографируйте страницу ровнее и крупнее.`, 8000); continue; }
+          draft.files.push({ id: uid(), name: `Фото учебника: ${files[i].name || "страница " + (i + 1)}`, text: t.slice(0, 300000), chars: t.length, scanned: false, fromPhoto: true });
+          msg.textContent = `Распознано: ${t.length} знаков. Задания из фото пойдут в урок.`;
+        } catch (err) { toast(`Не получилось распознать «${files[i].name}»: ${err.message || err}`, 8000); }
+      }
+      e.target.value = ""; renderFiles(); save();
+      setTimeout(() => { if ($n("nbPhotoMsg")) $n("nbPhotoMsg").textContent = ""; }, 7000);
+    };
     $n("nbClear").onclick = () => { draft = empty(); ["nbPrompt", "nbObserve", "nbLinks", "nbText"].forEach(id => $n(id).value = ""); renderCheck(); renderFiles(); save(); };
     renderCheck(); renderFiles(); paintCount();
     if (filled()) box.open = true;
@@ -57,7 +74,7 @@ const Notes = (() => {
   }
   function renderFiles() {
     const el = document.getElementById("nbFiles"); if (!el) return;
-    el.innerHTML = draft.files.map((f, i) => `<div class="nb-file"><b>${esc(f.name)}</b> ${f.scanned ? ' <span class="small">(скан — текст не читается)</span>' : ""} <button type="button" class="btn plain" data-fdel="${i}">Убрать</button></div>`).join("");
+    el.innerHTML = draft.files.map((f, i) => `<div class="nb-file"><b>${esc(f.name)}</b> ${f.fromPhoto ? ' <span class="small">(фото учебника, распознано)</span>' : f.scanned ? ' <span class="small">(скан — текст не читается)</span>' : f.chars ? ` <span class="small">(${f.chars} знаков)</span>` : ""} <button type="button" class="btn plain" data-fdel="${i}">Убрать</button></div>`).join("");
     el.querySelectorAll("[data-fdel]").forEach(b => b.onclick = () => { draft.files.splice(+b.dataset.fdel, 1); renderFiles(); save(); });
   }
   function paintCount() {
@@ -77,11 +94,12 @@ const Notes = (() => {
       format: (window.Variety ? Variety.FORMATS : []).find(f => text.includes(f.name.toLowerCase().split(" ")[0].slice(0, 6)))?.id || null
     };
     const links = draft.links.split(/\s+/).filter(x => /^https?:\/\//.test(x));
-    return { prompt: draft.prompt.trim(), observe: draft.observe.trim(), links, checklist: draft.checklist.filter(c => c.on).map(c => c.t), text: draft.text.trim(), files: draft.files.map(f => ({ name: f.name, text: f.text })), cues };
+    return { prompt: draft.prompt.trim(), observe: draft.observe.trim(), links, checklist: draft.checklist.filter(c => c.on).map(c => c.t), text: draft.text.trim(), files: draft.files.map(f => ({ name: f.name, text: f.text, fromPhoto: !!f.fromPhoto })), cues };
   }
   /* Материалы урока из прикреплённых к заметкам файлов: идут первыми, в общие материалы не попадают */
   function lessonMaterials(n) {
-    return (n?.files || []).filter(f => f.text).map((f, i) => ({ id: "note-file-" + i, name: f.name, title: "заметки: " + f.name, kind: "other", subject: null, grade: null, text: f.text, chars: f.text.length, fromNotes: true }));
+    // фото учебника идёт отдельным блоком в промт (Notes.promptBlock) — в материалы не дублируем, чтобы не тратить токены
+    return (n?.files || []).filter(f => f.text && !f.fromPhoto).map((f, i) => ({ id: "note-file-" + i, name: f.name, title: "заметки: " + f.name, kind: "other", subject: null, grade: null, text: f.text, chars: f.text.length, fromNotes: true }));
   }
   /* Блок в конспект (без ИИ): что учтено из заметок */
   function conspectBlock(p) {
@@ -99,8 +117,9 @@ const Notes = (() => {
   /* Блок для ИИ: заметки — приоритетнее базы и интернета */
   function promptBlock(p) {
     const n = p.notes; if (!n) return "";
+    const photos = (n.files || []).filter(f => f.fromPhoto && f.text);
     return `## Заметки учителя (приоритет выше базы и интернета; учти всё)
-${n.prompt ? `Промт: ${n.prompt}\n` : ""}${n.observe ? `Заметки и наблюдения (встрой в урок): ${n.observe}\n` : ""}${n.checklist.length ? `Обязательные акценты: ${n.checklist.join("; ")}\n` : ""}${n.links.length ? `Ссылки учителя (укажи в источниках): ${n.links.join(" ")}\n` : ""}${n.text ? `Текст произведения (цитируй только его):\n<text>\n${n.text.slice(0, 12000)}\n</text>\n` : ""}${n.files.length ? `Файлы к уроку: ${n.files.map(f => f.name).join(", ")} (выдержки — в опорных материалах)\n` : ""}`;
+${n.prompt ? `Промт заказчика — выполни буквально, это главное требование: ${n.prompt}\n` : ""}${n.observe ? `Заметки и наблюдения (встрой в урок): ${n.observe}\n` : ""}${n.checklist.length ? `Обязательные акценты: ${n.checklist.join("; ")}\n` : ""}${n.links.length ? `Ссылки учителя (укажи в источниках): ${n.links.join(" ")}\n` : ""}${n.text ? `Текст произведения (цитируй только его):\n<text>\n${n.text.slice(0, 12000)}\n</text>\n` : ""}${photos.length ? `Фото учебника (страницы приложены и распознаны — возьми из них упражнения и задания ДОСЛОВНО, с пометкой «по фото учебника» в скобках; не выдумывай номера упражнений и формулировки):\n${photos.map(f => `<учебник название="${f.name}">\n${String(f.text).slice(0, 9000)}\n</учебник>`).join("\n")}\n` : ""}${n.files.length ? `Файлы к уроку: ${n.files.map(f => f.name).join(", ")} (выдержки — в опорных материалах)\n` : ""}`;
   }
   return { mount, reset, snapshot, lessonMaterials, conspectBlock, promptBlock, get draft() { return draft; } };
 })();

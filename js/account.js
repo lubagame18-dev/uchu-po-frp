@@ -170,7 +170,7 @@ const Account = (() => {
   async function sharedGet(id) { await refresh(); return (await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}&select=*`))?.[0] || null; }
   async function sharedDel(id) { await refresh(); await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" }); }
 
-  const PLAN_NAMES = { promo: "бесплатный", free: "бесплатный", basic: "«Учитель» (без ИИ)", ai: "«Учитель + ИИ»", pro: "«Методист»" };
+  const PLAN_NAMES = { promo: "бесплатный", free: "пробный", ai: "«С ИИ»", aiYear: "«С ИИ, год»" };
   async function plan() {
     try {
       if (!(await refresh())) return null;
@@ -178,15 +178,18 @@ const Account = (() => {
       const p = (await q("plan,ai_left,paid_until,promo,promo_pct,promo_free_code,tokens_used,tokens_limit").catch(() => q("plan,ai_left,paid_until,promo,tokens_used,tokens_limit")).catch(() => q("plan,ai_left,paid_until,promo")).catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // новых колонок может ещё не быть
       // бесплатный доступ по промокоду — только пока код существует и включён (проверяет облако, сами коды не видны)
       const freeOk = p?.promo_free_code ? !!(await api("/rest/v1/rpc/promo_free_ok", { method: "POST", body: "{}" }).catch(() => false)) : false;
-      const forever = p?.plan === "pro" && p?.paid_until && new Date(p.paid_until).getFullYear() >= 2090; // бесплатный доступ, открытый через тариф без срока
+      // бесплатный доступ «без срока»: сервер выдаёт тариф «С ИИ» с далёкой датой окончания
+      const forever = (p?.plan === "ai" || p?.plan === "aiYear") && p?.paid_until && new Date(p.paid_until).getFullYear() >= 2090;
       if (p && S) { S.plan = p.plan; S.promoFree = freeOk || forever; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
       return p;
     } catch { return null; }
   }
   /* Карточка тарифа в кабинете: всё, что оплачено и сколько осталось — с самого начала */
-  const TOK = { free: 0, basic: 0, ai: 2000000, pro: 4800000 };
+  const TOK = { free: 0, ai: 2700000, aiYear: 2700000 }; // запас токенов тарифа «С ИИ»: 50 уроков + правки
   function planCard(p) {
-    const plan = S?.promoFree ? "pro" : p ? (p.plan === "promo" ? "free" : p.plan) : "free";
+    // старые тарифы («Без ИИ», «Методист») показываем как «С ИИ» — доступ сохранён
+    const raw = p ? (p.plan === "promo" ? "free" : p.plan) : "free";
+    const plan = S?.promoFree ? "ai" : (raw === "basic" || raw === "basicYear" || raw === "pro" ? "ai" : raw);
     const name = PLAN_NAMES[plan] || plan, dev = window.Access?.isDev?.();
     const until = p?.paid_until && plan !== "free" ? new Date(p.paid_until) : null, days = until ? Math.max(0, Math.ceil((until - Date.now()) / 864e5)) : null;
     const hasTok = typeof p?.tokens_limit === "number";
@@ -196,7 +199,7 @@ const Account = (() => {
     let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promoFree ? `<span class="tag ok">бесплатный доступ по промокоду</span>` : S.promo ? `<span class="tag ok">промокод −${S.promoPct || 50}%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
     if (S?.promoFree) { h += row("Доступ", "все возможности сайта, без оплаты и без срока") + (window.Usage ? Usage.html({}) : "") + "</div>"; return h; }
     h += row("Оплачено до", until ? `${until.toLocaleDateString("ru-RU")} (ещё ${days} дн.)` : plan === "free" ? "бесплатно, без срока" : "—");
-    h += row("Уроки без ИИ", plan === "free" ? `3 в месяц (осталось ${window.Access?.lessonsLeft?.() === Infinity ? "∞" : window.Access?.lessonsLeft?.() ?? 3})` : "без ограничений");
+    { const leftL = window.Access?.lessonsLeft?.(), n = leftL === Infinity ? "∞" : (leftL ?? (plan === "free" ? 3 : 50)); h += row("Уроки с ИИ", plan === "free" ? `пробный доступ: 3 урока в день, 2 дня (сегодня осталось ${n})` : `50 в месяц (осталось ${n})`); }
     if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");
     else if (!lim && !dev) h += row("ИИ сайта", "не входит в тариф");
     // расход в ⚡ (1 ⚡ = 4 000 токенов): по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера

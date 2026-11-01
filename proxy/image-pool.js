@@ -12,7 +12,9 @@ const MAX_SLOT = 100; /* ключей может быть сколько уго�
 function dbMark(a, body, request, readAll) { try { if (a && a.slot != null && /^s/.test(String(a.id))) sb(request, readAll, "/rest/v1/img_keys?slot=eq." + a.slot, { method: "PATCH", body }).catch(() => { }); } catch (e) { } }
 const DEF_URL = () => process.env.IMG_API_URL || "https://api.aitunnel.ru/v1";
 const DEF_MODEL = () => process.env.IMG_MODEL || "flux-schnell";
-const QUOTA = { ai: +process.env.IMG_QUOTA_AI || 8, pro: +process.env.IMG_QUOTA_PRO || 18 };
+/* Лимит листов с картинками входит в тариф «С ИИ» (и «С ИИ, год»): 6 в месяц, переменная IMG_QUOTA_AI */
+const IMG_MONTH = () => +process.env.IMG_QUOTA_AI || 6;
+const QUOTA = { ai: IMG_MONTH(), aiYear: IMG_MONTH() }; // справочно; проверка — в check() ниже
 const SB = () => ({ url: (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key: process.env.SUPABASE_SERVICE_KEY || "" });
 const isPlaceholder = k => !k || /^\.+$/.test(k) || k.length < 10;
 const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
@@ -97,8 +99,9 @@ async function check(userToken, request, readAll) {
   const id = u.json.id, p = (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0] || {};
   const month = new Date().toISOString().slice(0, 7);
   const paid = !p.paid_until || new Date(p.paid_until) >= new Date();
-  const q = paid ? QUOTA[p.plan] : 0;
-  if (!q) return { ok: false, status: 403, reason: "plan", message: "Картинки для листов доступны в тарифах «Учитель + ИИ» и «Методист»." };
+  // картинки входят в платный тариф «С ИИ» (старые тарифы сайт переводит на него); у пробного и промокода их нет
+  const q = paid && p.plan && p.plan !== "free" && p.plan !== "promo" ? IMG_MONTH() : 0;
+  if (!q) return { ok: false, status: 403, reason: "plan", message: "Картинки для листов входят в тариф «С ИИ» — 6 листов в месяц. Подключите тариф в личном кабинете." };
   const used = p.img_month === month ? (p.img_used || 0) : 0;
   return { ok: true, id, month, used, left: q - used, q };
 }
@@ -112,7 +115,7 @@ async function handle(body, userToken, request, readAll) {
   if (!prompt) return { status: 400, json: { error: "нет описания картинки" } };
   const c = await check(userToken, request, readAll);
   if (!c.ok) return { status: c.status, json: { error: c.message, reason: c.reason } };
-  if (c.left !== undefined && c.left <= 0 && body.kind !== "part") return { status: 402, json: { error: "В этом месяце лимит листов с картинками исчерпан.", reason: "quota" } };
+  if (c.left !== undefined && c.left <= 0 && body.kind !== "part") return { status: 402, json: { error: "Лимит листов с картинками на этот месяц исчерпан (6 в месяц). Он обновится в начале следующего месяца.", reason: "quota" } };
   try {
     const r = await image(prompt, aspect, request, readAll);
     if (body.kind !== "part") await spend(c, request, readAll);

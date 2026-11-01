@@ -53,7 +53,7 @@ const ImageGen = (() => {
         const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect, kind: o.kind || "sheet" }) });
         const j2 = await r2.json().catch(() => ({}));
         if (r2.status === 401) throw new Error("войдите в личный кабинет");
-        if (r2.status === 403) throw new Error("картинки доступны в тарифах «Учитель + ИИ» и «Методист»");
+        if (r2.status === 403) throw new Error("картинки входят в тариф «С ИИ»: 6 листов в месяц");
         if (!r2.ok) throw err(r2, j2);
         const im = j2.image || j2.data || j2.url; if (!im) throw new Error("сервер не вернул картинку");
         return /^(data:|https?:)/.test(im) ? fromUrl(im, signal) : toDataUrl("image/png", im);

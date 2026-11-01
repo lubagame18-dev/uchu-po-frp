@@ -3,18 +3,32 @@
    Переменные функции:
      PRODAMUS_URL  — адрес вашей платёжной страницы, например https://uchupofrp.payform.ru
      PRODAMUS_KEY  — секретный ключ (Продамус → Настройки → платёжная страница → «Секретный ключ»)
-     PRODAMUS_SUB_BASIC, PRODAMUS_SUB_AI, PRODAMUS_SUB_PRO — номера подписок (для автооплаты)
+     PRODAMUS_SUB_AI, PRODAMUS_SUB_AIYEAR — номера подписок (для автооплаты)
      SITE_URL      — адрес сайта (куда вернуть учителя после оплаты)
      SUPABASE_URL, SUPABASE_SERVICE_KEY — облако кабинета (тариф записывается туда)
    Маршруты: POST /pay/create (сайт просит ссылку на оплату), POST /pay/notify (Продамус сообщает об оплате).
+   Тарифы: единственный платный — «С ИИ» (400 ₽/мес) и «С ИИ, год» (3900 ₽/год): всё доступно, 50 уроков с ИИ в месяц.
+   Докупка уроков: пакеты 10/30/50 (70/190/300 ₽) и «своё количество» от 10 до 200 (7 ₽ за урок, не меньше 70 ₽).
    Цены — только здесь, на сервере: подменить цену со стороны браузера нельзя.
    =================================================================== */
 const crypto = require("crypto");
-/* tokens — сколько токенов ИИ сайта (DeepSeek) входит в тариф на месяц: ≈ 40 тыс. на урок с ИИ */
-const PLANS = { basic: { name: "Без ИИ", price: 250, ai: 0, tokens: 0, days: 30 }, ai: { name: "С ИИ", price: 500, ai: 90, tokens: 4860000, days: 30 }, basicYear: { name: "Без ИИ, год", price: 2000, ai: 0, tokens: 0, days: 365 }, aiYear: { name: "С ИИ, год", price: 4000, ai: 1080, tokens: 58320000, days: 365 }, pro: { name: "Методист", price: 1190, ai: 140, tokens: 7560000, days: 30 } };
+/* tokens — запас токенов ИИ сайта (DeepSeek) на 50 уроков (≈ 40 тыс. токенов на урок) плюс правки и пересборки */
+const PLANS = {
+  ai: { name: "С ИИ", price: 400, ai: 50, tokens: 2700000, days: 30 },
+  aiYear: { name: "С ИИ, год", price: 3900, ai: 50, tokens: 2700000, days: 365 }
+};
 const PROMO_K = 0.5; // скидка по промокоду, если у кода не задан свой процент
 const kOf = p => (!!p.promo || p.plan === "promo") ? (p.promo_pct ? 1 - Math.max(1, Math.min(99, +p.promo_pct)) / 100 : PROMO_K) : 1;
-const PACKS = { ai10: { name: "10 конспектов с ИИ", price: 70, ai: 10, tokens: 540000 }, ai30: { name: "30 конспектов с ИИ", price: 190, ai: 30, tokens: 1620000 } };
+const PACKS = {
+  ai10: { name: "10 уроков с ИИ", price: 70, ai: 10, tokens: 400000 },
+  ai30: { name: "30 уроков с ИИ", price: 190, ai: 30, tokens: 1200000 },
+  ai50: { name: "50 уроков с ИИ", price: 300, ai: 50, tokens: 2000000 }
+};
+const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
+/* «Своё количество» уроков: 10–200, цена max(70, ceil(n×7)) ₽ — считается только на сервере */
+const CUSTOM = { min: 10, max: 200, per: 7, minPrice: 70 };
+const customPrice = n => Math.max(CUSTOM.minPrice, Math.ceil(n * CUSTOM.per));
+const customN = v => { const n = Number(v); return Number.isInteger(n) && n >= CUSTOM.min && n <= CUSTOM.max ? n : 0; };
 const DAY = 864e5;
 const env = k => process.env[k] || "";
 /* ЮKassa (самозанятые): YOOKASSA_SHOP_ID и YOOKASSA_KEY — если заданы, оплата идёт через неё (основной способ — СБП) */
@@ -45,6 +59,13 @@ async function sb(request, readAll, path, { method = "GET", body, token } = {}) 
 }
 async function userOf(token, request, readAll) { if (!token) return null; const u = await sb(request, readAll, "/auth/v1/user", { token }); return u.status === 200 && u.json?.id && (u.json.email_confirmed_at || u.json.confirmed_at || u.json.phone_confirmed_at) ? u.json : null; }
 async function profile(id, request, readAll) { return (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0] || null; }
+/* Сколько должен стоить платёж: сумму сверяем с ценой сервера, а не с тем, что прислал браузер */
+function expectOf(type, item, p) {
+  if (type === "pack") return PACKS[item]?.price;
+  if (type === "custom") return customN(item) ? customPrice(+item) : undefined;
+  if (type === "plan") return Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined;
+  return 10; // повышение тарифа
+}
 
 /* ---------- 1. Ссылка на оплату ---------- */
 async function create(body, userToken, request, readAll) {
@@ -56,18 +77,26 @@ async function create(body, userToken, request, readAll) {
   const promo = !!p.promo || p.plan === "promo", k = kOf(p), pct = Math.round((1 - k) * 100); // по промокоду — скидка, которую задал выдавший код
   if (p.plan === "promo") p.plan = "free";
   const item = String(body.item || "");
+  // «своё количество» уроков: n — целое 10–200, цену считаем здесь, а не в браузере
+  const custom = item === "aiCustom" ? customN(body.n) : 0;
+  if (item === "aiCustom" && !custom) return { status: 400, json: { error: "количество уроков — целое число от 10 до 200" } };
   let kind, price, name, sub = "";
   if (PACKS[item]) {
     if (promo) return { status: 400, json: { error: "по промокоду в тарифах с ИИ работает ваша нейросеть — докупать уроки не нужно" } };
-    if (!PLANS[p.plan]?.ai) return { status: 400, json: { error: "дополнительные уроки с ИИ — для тарифов «Учитель + ИИ» и «Методист»" } };
+    if (!PLANS[p.plan]?.ai) return { status: 400, json: { error: "дополнительные уроки с ИИ — для тарифа «С ИИ»" } };
     kind = "pack_" + item; price = PACKS[item].price; name = PACKS[item].name;
+  } else if (item === "aiCustom") {
+    if (promo) return { status: 400, json: { error: "по промокоду в тарифах с ИИ работает ваша нейросеть — докупать уроки не нужно" } };
+    if (!PLANS[p.plan]?.ai) return { status: 400, json: { error: "дополнительные уроки с ИИ — для тарифа «С ИИ»" } };
+    kind = "custom_" + custom; price = customPrice(custom); name = `${custom} уроков с ИИ (докупка)`;
   } else if (PLANS[item]) {
     const cur = PLANS[p.plan], left = p.paid_until ? new Date(p.paid_until) - Date.now() : 0;
     if (cur && left > 0 && PLANS[item].price > cur.price) {
       // повышение тарифа: доплата разницы только за оставшиеся дни
       kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / ((PLANS[item]?.days || 30) * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
     } else {
-      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», 1 месяц${promo ? ` (промокод −${pct}%)` : ""}`;
+      const per = (PLANS[item].days || 30) >= 365 ? "1 год" : "1 месяц";
+      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», ${per}${promo ? ` (промокод −${pct}%)` : ""}`;
       if (body.autopay && !promo) sub = env("PRODAMUS_SUB_" + item.toUpperCase());
     }
   } else return { status: 400, json: { error: "нет такого тарифа" } };
@@ -114,12 +143,12 @@ async function ykNotify(raw, request, readAll) {
   if (!id || !yk()) return { status: 200 };
   const r = await ykApi("GET", "/payments/" + encodeURIComponent(id), null, "", request, readAll);
   const pay = r.json; if (r.status !== 200 || pay?.status !== "succeeded" || !pay.paid) return { status: 200 };
-  const { order, uid, kind } = pay.metadata || {}; if (!uid || !/^(plan|up|pack)_/.test(kind || "")) return { status: 200 };
+  const { order, uid, kind } = pay.metadata || {}; if (!uid || !/^(plan|up|pack|custom)_/.test(kind || "")) return { status: 200 };
   const row = (await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order || "")}&select=status`)).json?.[0];
   if (row?.status === "paid") return { status: 200 }; // уже начислено (ЮKassa может прислать уведомление повторно)
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
   const [type, item] = kind.split("_"), sum = parseFloat(pay.amount?.value || "0");
-  const expect = type === "pack" ? PACKS[item]?.price : type === "plan" ? Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined : 10;
+  const expect = expectOf(type, item, p);
   if (!expect || sum + 0.01 < expect) return { status: 200 };
   // занимаем платёж одним действием в БД: два одинаковых уведомления подряд не начислят тариф дважды
   if (row) { const claim = await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order)}&status=neq.paid`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null); if (!claim || claim.status >= 300 || !Array.isArray(claim.json) || !claim.json.length) return { status: 200 }; }
@@ -136,7 +165,7 @@ async function notify(raw, headers, request, readAll) {
   const sum = parseFloat(String(data.sum || "0").replace(",", "."));
   let [uid, kind] = String(data.order_id || "").split(".");
   // автосписание по подписке: ищем учителя по почте, тариф — по номеру подписки
-  if (!kind || !/^(plan|up|pack)_/.test(kind)) {
+  if (!kind || !/^(plan|up|pack|custom)_/.test(kind)) {
     const email = String(data.customer_email || "").toLowerCase();
     const subId = String(data.subscription?.id || data.subscription_id || "");
     const plan = Object.keys(PLANS).find(k => env("PRODAMUS_SUB_" + k.toUpperCase()) && env("PRODAMUS_SUB_" + k.toUpperCase()) === subId);
@@ -147,13 +176,14 @@ async function notify(raw, headers, request, readAll) {
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
   const [type, item] = kind.split("_");
   const promo = !!p.promo || p.plan === "promo";
-  const expect = type === "pack" ? PACKS[item]?.price : type === "plan" ? Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined : 10;
+  const expect = expectOf(type, item, p);
   if (!expect || sum + 0.01 < expect) return { status: 200, text: "success" }; // сумма меньше цены — тариф не выдаём
   await apply(uid, p, type, item, promo, request, readAll);
   await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(String(data.order_id || ""))}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
   return { status: 200, text: "success" };
 }
-/* Начисление тарифа (после оплаты или тестовой оплаты): срок, уроки с ИИ и лимит токенов на месяц */
+/* Начисление тарифа (после оплаты или тестовой оплаты): срок, уроки с ИИ и лимит токенов.
+   Для годового тарифа срок 365 дней, лимит уроков остаётся месячным (50) — его обновляет кабинет/браузер. */
 function patchFor(p, type, item, promo) {
   if (p.plan === "promo") p = { ...p, plan: "free" };
   const aiOf = x => promo ? 0 : PLANS[x]?.ai || 0, tokOf = x => promo ? 0 : PLANS[x]?.tokens || 0;
@@ -161,7 +191,11 @@ function patchFor(p, type, item, promo) {
   const leftTok = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0));
   if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + (PLANS[item]?.days || 30) * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
   if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: (p.tokens_limit || 0) + Math.max(0, tokOf(item) - tokOf(p.plan)) };
-  return { ai_left: (p.ai_left || 0) + PACKS[item].ai, tokens_limit: (p.tokens_limit || 0) + PACKS[item].tokens };
+  // докупка: пакет (pack) или своё количество (custom) — уроки и токены добавляются к текущим.
+  // По промокоду докупка не нужна (ИИ — своя нейросеть), поэтому ничего не начисляем.
+  const n = promo ? 0 : (type === "custom" ? customN(item) : (PACKS[item]?.ai || 0));
+  const tok = promo ? 0 : (type === "custom" ? n * PER_LESSON : (PACKS[item]?.tokens || 0));
+  return { ai_left: (p.ai_left || 0) + n, tokens_limit: (p.tokens_limit || 0) + tok };
 }
 async function apply(uid, p, type, item, promo, request, readAll) {
   const patch = patchFor(p, type, item, promo);
@@ -174,8 +208,11 @@ async function apply(uid, p, type, item, promo, request, readAll) {
 async function test(body, userToken, request, readAll) {
   const user = await userOf(userToken, request, readAll);
   if (!user) return { status: 401, json: { error: "войдите в личный кабинет" } };
-  const item = String(body.item || ""), type = PLANS[item] ? "plan" : PACKS[item] ? "pack" : item === "free" ? "free" : "";
-  if (!type) return { status: 400, json: { error: "нет такого тарифа" } };
+  const item = String(body.item || "");
+  const n = item === "aiCustom" ? customN(body.n) : 0;
+  const type = PLANS[item] ? "plan" : PACKS[item] ? "pack" : item === "aiCustom" ? (n ? "custom" : "") : item === "free" ? "free" : "";
+  if (!type) return { status: 400, json: { error: item === "aiCustom" ? "количество уроков — целое число от 10 до 200" : "нет такого тарифа" } };
+  const key = item === "aiCustom" ? String(n) : item; // для custom в kind хранится количество: custom_30
   let uid = user.id;
   if (body.email && String(body.email).toLowerCase() !== String(user.email).toLowerCase()) { const pr = (await sb(request, readAll, `/rest/v1/profiles?email=eq.${encodeURIComponent(String(body.email).toLowerCase())}&select=id`)).json?.[0]; if (!pr) return { status: 404, json: { error: "учитель с такой почтой ещё не заходил на сайт" } }; uid = pr.id; }
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
@@ -186,8 +223,8 @@ async function test(body, userToken, request, readAll) {
     if (r.status >= 300) { const { tokens_limit, tokens_used, ...old } = b; await sb(request, readAll, `/rest/v1/profiles?id=eq.${uid}`, { method: "PATCH", body: old }); }
     return { status: 200, json: { ok: true, patch: b } };
   }
-  const patch = await apply(uid, p, type, item, !!p.promo, request, readAll);
-  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: `test.${uid}.${type}_${item}.${Date.now()}`, user_id: uid, kind: `${type}_${item}`, amount: 0, status: "test" } }).catch(() => null);
+  const patch = await apply(uid, p, type, key, !!p.promo, request, readAll);
+  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: `test.${uid}.${type}_${key}.${Date.now()}`, user_id: uid, kind: `${type}_${key}`, amount: 0, status: "test" } }).catch(() => null);
   return { status: 200, json: { ok: true, patch } };
 }
-module.exports = { provider: () => yk() ? "yookassa" : on() ? "prodamus" : "", create, notify, ykNotify, test, patchFor, sign, verify, parseForm, PLANS, PACKS, on };
+module.exports = { provider: () => yk() ? "yookassa" : on() ? "prodamus" : "", create, notify, ykNotify, test, patchFor, sign, verify, parseForm, PLANS, PACKS, CUSTOM, customPrice, expectOf, on };

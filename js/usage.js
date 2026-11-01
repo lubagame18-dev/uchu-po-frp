@@ -60,13 +60,21 @@ const Usage = (() => {
     const s = stats(), v = kind === "lesson" ? s.avgLesson || 40000 : kind === "redo" ? s.avgRedo || 12000 : s.avgEdit || 4000;
     return "≈ " + fmt(v);
   }
-  /* Экономика тарифа: сколько стоит ИИ при полном расходе и что остаётся после комиссии и налога */
+  /* Экономика тарифов: сколько стоит ИИ при полном расходе лимитов и что остаётся после комиссии и налога.
+     «С ИИ»: 400 ₽/мес, 50 уроков ≈ 2 млн токенов ≈ 125 ₽ текста, 6 листов с картинками ≈ 156 ₽,
+     комиссия и налог ≈ 10% (≈ 40 ₽) → остаётся ≈ 80 ₽.
+     «С ИИ, год»: 3900 ₽/год ≈ 325 ₽/мес (−19%), за год 600 уроков и 72 листа. */
   function econ(s) {
     const perTok = (0.6 * USD.in + 0.4 * USD.out) / 1e6 * RUB; // смесь: 60% входящих, 40% исходящих
-    const IMG_UNIT = 25; // ₽ за один лист с картинками при полном наборе (до 7 картинок × ≈3,5 ₽, Nano Banana 2.5 Flash Image ≈ $0,039)
-    const rows = [["Учитель", 350, 3.24e6, 0], ["Учитель + ИИ", 690, 4.86e6, 8], ["Методист", 1190, 7.56e6, 18]].map(([n, p, t, u]) => { const ai = t * perTok, im = u * IMG_UNIT, fee = p * 0.10, net = p - fee - ai - im; return `<tr><td>${n}</td><td>${p} ₽</td><td>${t ? fmt(t) : "—"}</td><td>${t ? "до " + Math.round(ai) + " ₽" : "—"}</td><td>${u ? u + " листов, до " + Math.round(im) + " ₽" : "—"}</td><td>${Math.round(fee)} ₽</td><td><b>${Math.round(net)} ₽</b></td></tr>`; }).join("");
-    return `<table class="pc-t"><tr><th>Тариф</th><th>Цена</th><th>ИИ в месяц</th><th>Себестоимость текста ИИ (если потратить всё)</th><th>Картинки (если потратить всё)</th><th>Комиссия и налог ≈ 10%</th><th>Остаётся вам</th></tr>${rows}</table>
-      <p class="small">Расчёт: DeepSeek flash днём $0,30 / $1,20 за 1 млн токенов (ночью вдвое дешевле), курс ${RUB} ₽ за $. 1 ⚡ ≈ ${fmtRub(PER * perTok)}. Урок с ИИ ≈ ${fmtRub((s.avgLesson || 40000) * perTok)}${s.avgLesson ? " (по вашим урокам)" : ""}. $2 на балансе DeepSeek ≈ ${Math.round(2 * RUB / ((s.avgLesson || 40000) * perTok))} уроков с ИИ.</p>`;
+    const IMG_UNIT = 26; // ₽ за один лист с картинками при полном наборе (6 листов ≈ 156 ₽)
+    const LESSON_TOK = 40000; // ≈ токенов на один урок с ИИ
+    const row = (name, price, lessons, imgs, priceCell) => {
+      const tok = lessons * LESSON_TOK, ai = tok * perTok, im = imgs * IMG_UNIT, fee = price * 0.10, net = price - fee - ai - im;
+      return `<tr><td>${name}</td><td>${priceCell}</td><td>${lessons}</td><td>${fmt(tok)} ≈ ${Math.round(ai)} ₽</td><td>${imgs} листов ≈ ${Math.round(im)} ₽</td><td>≈ ${Math.round(fee)} ₽</td><td><b>≈ ${Math.round(net)} ₽</b></td></tr>`;
+    };
+    const rows = row("С ИИ", 400, 50, 6, "400 ₽/мес") + row("С ИИ, год", 3900, 600, 72, `3900 ₽/год<br><span class="small">≈ 325 ₽/мес</span>`);
+    return `<table class="pc-t"><tr><th>Тариф</th><th>Цена</th><th>Уроков с ИИ (за период)</th><th>Себестоимость текста ИИ</th><th>Картинки</th><th>Комиссия и налог ≈ 10%</th><th>Остаётся вам</th></tr>${rows}</table>
+      <p class="small">Расчёт: DeepSeek flash днём $0,30 / $1,20 за 1 млн токенов (ночью вдвое дешевле), курс ${RUB} ₽ за $. Один урок с ИИ ≈ 40 тыс. токенов ≈ ${fmtRub(LESSON_TOK * perTok)}; лист с картинками ≈ ${IMG_UNIT} ₽. Комиссия платёжного сервиса и налог самозанятой — ≈ 10%: с 400 ₽ это ≈ 40 ₽. В пересчёте на месяц годовой тариф даёт ≈ 325 ₽, себестоимость ИИ при полном расходе лимитов ≈ 281 ₽, комиссия и налог ≈ 32 ₽ — остаётся ≈ 12 ₽/мес (≈ 133 ₽ за год). 1 ⚡ ≈ ${fmtRub(PER * perTok)}. Урок с ИИ по вашему журналу ≈ ${fmtRub((s.avgLesson || LESSON_TOK) * perTok)}${s.avgLesson ? " (по вашим урокам)" : ""}. $2 на балансе DeepSeek ≈ ${Math.round(2 * RUB / ((s.avgLesson || LESSON_TOK) * perTok))} уроков с ИИ.</p>`;
   }
   const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   return { begin, add, stats, html, cost, fmt, credits, PER };

@@ -55,7 +55,16 @@ begin
 end $$;
 revoke all on function free_use_bump(text[], int[], text, boolean) from public, anon, authenticated;
 
--- 5. Проверка, что всё применилось
+-- 5. Тарифная модель: структура БД не меняется.
+-- Действующие тарифы (значения пишет только сервер, proxy/payments.js):
+--   plan = 'free'   — пробный доступ: 2 дня по 3 урока, ai_left = 6 (FREE_AI), картинки недоступны;
+--   plan = 'ai'     — «С ИИ», 400 ₽/мес: ai_left = 50, tokens_limit = 2 700 000, картинки 6/мес;
+--   plan = 'aiYear' — «С ИИ, год», 3900 ₽/год: те же месячные лимиты, paid_until = +365 дней.
+-- Старые значения plan ('basic', 'basicYear', 'pro') больше не используются: сайт показывает их как «С ИИ».
+-- Значение по умолчанию для пробного доступа — 6 уроков с ИИ (было 15):
+alter table profiles alter column ai_left set default 6;
+
+-- 6. Проверка, что всё применилось
 -- new columns (должно быть 3 строки):
 select column_name from information_schema.columns
 where table_schema = 'public' and table_name = 'profiles'

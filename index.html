@@ -265,8 +265,11 @@ textarea.inp{resize:vertical;min-height:64px}
 .slide-notes b{font-weight:800}
 .slide-ctrl{display:flex;gap:6px;justify-content:flex-end}
 
-.refine{display:flex;gap:10px;padding:0 20px 20px;flex-wrap:wrap}
+.refine{display:flex;gap:10px;padding:0 20px 20px;flex-wrap:wrap;align-items:center}
 .refine input{flex:1 1 260px}
+.refine select{flex:0 1 auto;max-width:230px;border:2px solid var(--ink);border-radius:10px;background:#fff;padding:8px 10px;font:inherit;font-weight:700}
+.refine-note{padding:0 20px 18px;margin:-8px 0 0;color:var(--muted)}
+.refine-note[hidden]{display:none}
 
 /* ---------- библиотека ---------- */
 .page{padding-block:30px 60px;display:flex;flex-direction:column;gap:18px}
@@ -378,7 +381,9 @@ details summary{cursor:pointer;font-size:13.5px;font-weight:700}
   .empty{padding:22px 14px 26px 32px}
   .slides{padding:12px;gap:16px}
   .refine{padding:0 12px 14px}
+  .refine select{max-width:none;flex:1 1 100%}
   .refine .btn{flex:1}
+  .refine-note{padding:0 12px 14px}
   .dlg-h{padding:14px 16px}
   .dlg-b{padding:16px}
 }
@@ -611,11 +616,11 @@ window.UCHU_SITE = {
         </div>
         <p class="hint" id="controlHint"></p>
         <div class="field"><span class="lbl">Как собирать</span>
-          <div class="seg build" id="segBuild"><button data-v="noai" aria-pressed="true">Без ИИ</button><button data-v="ai" id="buildAi" aria-pressed="false">С ИИ</button></div>
-          <p class="hint" id="buildHint"></p>
+          <div class="seg build" id="segBuild"><button data-v="ai" id="buildAi" aria-pressed="true">С ИИ</button></div>
+          <p class="hint" id="buildHint">Урок собирает нейросеть: по вашим пожеланиям, встроенной базе и ФРП. Если сеть или нейросеть откажут, сайт соберёт черновик локально — вы не останетесь без материала.</p>
         </div>
-        <div id="aiOnly" hidden>
-          <div class="field"><label for="wishes">Пожелания <span class="small">(необязательно)</span></label><textarea class="inp" id="wishes" placeholder="Класс слабый, нужна групповая работа; связать с «Тарасом Бульбой»"></textarea></div>
+        <div id="aiOnly">
+          <div class="field"><label for="wishes">Пожелания <span class="small">(необязательно, но нейросеть выполнит их в первую очередь)</span></label><textarea class="inp" id="wishes" placeholder="Класс слабый, нужна групповая работа; связать с «Тарасом Бульбой»; больше схем и картинок"></textarea></div>
           <label class="check" style="align-self:flex-start;margin-top:10px"><input type="checkbox" id="deep"> Глубокая проработка</label>
         </div>
         <details class="field prevhw" id="prevHwBox"><summary>Д/з прошлого урока — для проверки</summary>
@@ -658,9 +663,16 @@ window.UCHU_SITE = {
         <p class="small">Каждый дополнительный лист — новые задания по теме и расходует месячный лимит.</p>
         <button class="btn sm" id="btnMore" title="Добавить ещё один лист (2 страницы, с двух сторон)">➕ Добавить лист</button></details>
       <div class="refine" id="refineBar" hidden>
-        <input type="text" id="refineInput" placeholder="Что изменить? Например: упрости задание 2">
+        <select id="refineScope" aria-label="Что править" title="Область правки: этот документ, отдельный рабочий лист, презентация или весь материал урока">
+          <option value="current">Этот документ</option>
+          <option value="worksheet">Рабочий лист</option>
+          <option value="slides">Презентация</option>
+          <option value="all">Весь материал урока</option>
+        </select>
+        <input type="text" id="refineInput" placeholder="Что изменить? Например: упрости задание 2, добавь схем и картинок">
         <button class="btn sm" id="btnRefine">Доработать</button>
       </div>
+      <p class="small refine-note" id="refineNote"></p>
     </section>
   </main>
 </div>
@@ -706,7 +718,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.300";</script>
+<script>window.UCHU_VER="5.301";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================
