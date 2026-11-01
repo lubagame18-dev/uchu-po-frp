@@ -585,6 +585,16 @@ function syncLevelHint() {
   const L = LEVELS[state.level] || LEVELS.medium;
   el.textContent = L.text;
 }
+/* Режиссура урока: учитель, презентация, учебник и рабочий лист — одна связка (требование заказчика) */
+function syncRules() {
+  return `## Режиссура урока: инструменты в одной связке (обязательно)
+Ты — методист и режиссёр урока. Слова учителя, презентация, учебник и рабочий лист работают как единая динамика, а не дублируют друг друга.
+1. Веди фокус словами учителя: в каждой ячейке «Деятельность учителя» — речевые маркеры и переходы: «Ребята, посмотрите на слайд „…“ — там схема», «А теперь откройте учебник на с. …, упражнение …», «Зафиксируйте это в рабочем листе, пункт …». Ссылайся на слайды по их будущим заголовкам (они совпадают с презентацией) и на номера заданий листа; не выдумывай номера страниц, если их нет в материалах.
+2. Чередуй форматы: презентация — визуальный стержень (схема, алгоритм, картина, ключевой вопрос); учебник — источник текста, правила, условия; рабочий лист или тетрадь — место фиксации (заполнить готовую матрицу, вписать слова в схему, решить в визуальном поле). Сначала показ/слово, затем работа с источником, затем фиксация — инструменты не перебивают друг друга.
+3. Строгий возрастной контур: только этот класс и предмет. Никаких произведений, терминов, фактов и заданий из других классов и предметов; лексика и сложность — строго по возрасту.
+4. Если в материалах есть скан или фото учебника (распознанный текст): сделай его упражнение основой этапа; в конспекте опиши, как учитель организует работу (устно, цепочкой, поисковое чтение); в рабочем листе создай каркас именно под это задание (таблица, пропуски, поля для ответа); шум распознавания убери, формулировку задания сохрани дословно.
+5. Запоминалки — только реальные школьные: опорные фразы, рифмовки и ассоциации из методики (например, «ЦЕЛУЮ, МИЛАЯ» для суффиксов причастий: У/Ю — I спряжение, И/Я — II; «Иван Родил Девчонку…» для падежей; «Стёпка, хочешь щец? — Фи!» для глухих согласных). Ключевые буквы выделяй **жирным**, не выдумывай случайные ассоциации.`;
+}
 function materialsBlock(p) {
   const mats = relevantMaterials(p.topic, p.grade, p.subject);
   const parts = [];
@@ -844,6 +854,8 @@ ${p.wishes ? `— ${p.wishes}\nВыполни буквально: это гла�
 
 ${levelBlock(p)}
 
+${syncRules(p)}
+
 ## Насыщенность и наглядность (обязательно)
 - Материала на урок должно быть много: 6–9 этапов, к каждому ключевому шагу — вопросы с верными ответами, примеры, «ловушки».
 - Включи 1–2 схемы-опоры (аккуратной таблицей или списком) и блок «Запомни» с мнемоникой по теме — так, как это делают в рабочих тетрадях.
@@ -938,6 +950,8 @@ ${p.wishes ? `— ${p.wishes}\nВыполни буквально: это важ�
 
 ${levelBlock(p)}
 
+${syncRules(p)}
+
 ## Правила
 - Презентация иллюстрирует урок: на слайдах выжимки, ключевые вопросы, правила и цитаты из конспекта, а не полный текст.
 - Слайдов много и они насыщенные: 16–24. Лучше больше коротких слайдов с картинкой и одним смыслом, чем мало и перегружено.
@@ -996,6 +1010,8 @@ ${window.Conv ? Conv.prompt(p) : ""}
 ${p.wishes ? `— ${p.wishes}\nВыполни буквально.` : "— не заданы"}
 
 ${levelBlock(p)}
+
+${syncRules(p)}
 
 ${exam ? `## Формат экзамена (${exam.label}) — как настоящий тест
 - Оформи рабочий лист как экзаменационный: «Часть 1. Задания с кратким ответом», затем «Задание 1», «Задание 2»…; у каждого — строка «Ответ: ______».
@@ -1487,7 +1503,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
           const webTxt = _wq.length >= 2 ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + (typeof syncRules === "function" ? "\n\n" + syncRules(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
           if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }

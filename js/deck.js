@@ -735,8 +735,8 @@ const Deck = (() => {
       case "board": { set.layout = "one"; const pp = card.points || []; body = `${md1(pp[0] || "")}  \n${md1(pp[1] || "")}` + (pp.length > 2 ? "\n\n" + pp.slice(2).map(x => `- ${md1(x)}`).join("\n") : ""); break; }
       case "video": set.layout = "video"; set.vq = card.vq || card.mq || card.title; if (card.video) set.video = card.video; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break;
       case "section": level = 1; set.layout = "section"; body = (card.points || []).join("\n\n"); break;
-      /* «Запомни»: приёмы мнемоники списком (Mnemo) */
-      case "mnemo": set.layout = "cards"; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
+      /* «Запомни»: приёмы мнемоники списком (Mnemo). lead — опорная фраза-«картинка» крупно */
+      case "mnemo": set.layout = "cards"; body = (card.lead ? `**${md1(card.lead)}**\n\n` : "") + (card.points || []).map(x => `- ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
       /* «Схема-опора»: текстовые шаги + (если есть) таблица + примеры и легенда — всё обычным Markdown */
       case "scheme": {
         const hasT = !!(card.head && card.rows && card.rows.length);
