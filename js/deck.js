@@ -562,6 +562,25 @@ const Deck = (() => {
     if (inter && !cards.some(c => c.kind === "selfcheck") && !["section"].includes((cards[cards.length - 1] || {}).kind)) {
       at(beforeEnd(), { kind: "selfcheck", title: "Как поняли тему?", points: ["Понял — могу объяснить товарищу", "Почти — нужна подсказка", "Не понял — разберём ещё раз"], notes: "Светофор: учитель видит, сколько человек выбрали каждый вариант." });
     }
+    /* Лента времени — истории: даты из конспекта, клик по дате показывает событие */
+    if (inter && p.subject === "hist" && !cards.some(c => c.kind === "timeline")) {
+      const evs = [], seen = new Set();
+      String(md || "").replace(/(\d{3,4})\s*(?:год|г\.|в\.)?[^.!?\n]{12,140}[.!?]/g, s => {
+        const d = (s.match(/\d{3,4}/) || [])[0], t = s.replace(/^\d{3,4}\s*/, "").replace(/[.!?]$/, "").trim();
+        if (d && !seen.has(d) && t.length > 18) { seen.add(d); evs.push({ date: d, title: t.slice(0, 70), detail: t }); }
+        return s;
+      });
+      if (evs.length >= 3) at(beforeEnd(), { kind: "timeline", title: "Лента времени", events: evs.slice(0, 6), notes: "Клик по дате — событие и подробности; можно идти по хронологии." });
+    }
+    /* Карта персонажей — литература: герои из конспекта, клик раскрывает характеристику */
+    if (inter && lit && !cards.some(c => c.kind === "charmap")) {
+      const hs = (kit?.heroes || []).filter(h => h && (h.name || typeof h === "string")).slice(0, 5);
+      if (hs.length >= 3) at(beforeEnd(), { kind: "charmap", title: "Карта персонажей", items: hs.map(h => ({ name: typeof h === "string" ? h : h.name, desc: (typeof h === "object" && (h.hint || h.desc)) || "", quote: (typeof h === "object" && h.quote) || "" })), notes: "Клик по герою — характеристика и цитата; спросите, кто кому кто." });
+    }
+    /* Итог тренажёра — экзаменационный формат */
+    if (inter && p.control !== "school" && !cards.some(c => c.kind === "score")) {
+      at(beforeEnd(), { kind: "score", title: "Итог тренировки", points: ["Считаем верные ответы", "Возвращаемся к ошибкам и разбираем"], notes: "Счёт ведётся по кликам на варианты: «верных из попыток»." });
+    }
     // «Картина» для творческих предметов: репродукция + вопросы
     if ((!o || o.images !== "none") && CREATIVE.has(p.subject) && !cards.some(c => c.kind === "art")) { const ac = artCard(p); if (ac) at(beforeEnd(), ac); }
     // Гуманитарные предметы: основа — реальная живопись и исторические фотографии (с подписью или без — по типу)
@@ -839,6 +858,20 @@ const Deck = (() => {
         body = (card.images || []).map(im => `![${md1(im.cap || im.title || "Иллюстрация")}](${im.src || im.img})`).join("\n\n");
         break;
       }
+      /* Лента времени (контракт slides.js): <!--@ {"tl":1} -->, строки «- дата | событие | подробности» */
+      case "timeline": {
+        set.tl = 1;
+        body = (card.events || []).map(e => `- ${md1(e.date)} | ${md1(e.title)}${e.detail ? ` | ${md1(e.detail)}` : ""}`).join("\n");
+        break;
+      }
+      /* Карта персонажей (контракт slides.js): <!--@ {"cmap":1} -->, строки «- имя | характеристика | цитата» */
+      case "charmap": {
+        set.cmap = 1;
+        body = (card.items || []).map(x => `- ${md1(x.name)} | ${md1(x.desc || "")}${x.quote ? ` | ${md1(x.quote)}` : ""}`).join("\n");
+        break;
+      }
+      /* Итог тренажёра (контракт slides.js): <!--@ {"score":1} --> */
+      case "score": { set.score = 1; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break; }
       default: body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
     }
     if (card.timer) set.timer = +card.timer || 300;
