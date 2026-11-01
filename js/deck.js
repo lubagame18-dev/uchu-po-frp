@@ -1,4 +1,4 @@
-/* ===================================================================
+﻿/* ===================================================================
    «Учу по ФРП» — презентация по конспекту «как в Gamma».
    Как это устроено у Gamma и что взято:
    1) Сначала ПЛАН (outline): список карточек-слайдов с заголовками и
@@ -357,6 +357,9 @@ const Deck = (() => {
   }
   /* Картинки-акценты: почти на каждом слайде, кроме дословных цитат/стихов/упражнений, доски и карточки-картины. */
   function fillImages(cards, p, o) {
+    /* Картинки — только там, где они действительно уместны (литература, история, МХК, ИЗО, музыка, карты).
+       Для остальных предметов слайды идут без изображений: лучше чисто, чем случайное фото. */
+    if (!["lit", "hist", "mhk", "izo", "mus", "geo"].includes(p.subject)) { for (const c of cards) { if (c.img) { c.img = ""; c.acc = undefined; } } return cards; }
     const mode = (o && o.images) || "all";
     const lit = p.subject === "lit";
     const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "";
@@ -546,52 +549,7 @@ const Deck = (() => {
     }
     // «Проверь себя», если банка Mnemo нет, а алгоритм урока есть
     if (!cards.some(c => c.kind === "check")) { const cc = checkCard(MN, RK); if (cc) at(beforeEnd(), cc); }
-    /* Интерактив — только там, где он помогает уроку (выбор на этапе практики, таймер, светофор) */
-    const lvl2 = levelOf(p), inter = !o || o.images !== "none";
-    if (inter && !cards.some(c => c.kind === "choice" || c.kind === "quiz")) {
-      const quiz = (MN?.quiz || []).filter(x => Array.isArray(x) && x[0] && x[1]);
-      const fitsSubject = ["ru", "math", "phys", "chem", "inf", "eng", "hist"].includes(p.subject);
-      if (quiz.length >= 3 && fitsSubject) {
-        const want = p.control !== "school" ? Math.min(3, quiz.length) : 1;
-        for (let qi = 0; qi < want; qi++) {
-          const pick = quiz[(hashOf(p.topic) + qi) % quiz.length], wrong = quiz.filter(x => x !== pick).slice(0, 2).map(x => x[1]);
-          const opts = [{ ok: 1, text: pick[1], exp: "верно" }, ...wrong.map(a => ({ ok: 0, text: a, exp: "это ответ к другому примеру" }))];
-          const order = (hashOf(p.topic + "|" + qi) % 2) ? opts : [opts[2], opts[0], opts[1]];
-          at(beforeEnd(), { kind: "choice", title: qi ? "Выбери верный ответ" : "Выбери верный ответ", q: pick[0], options: order, timer: p.control !== "school" ? 300 : undefined, notes: "Клик по варианту: верный подсвечивается, сразу видно пояснение." });
-        }
-      }
-    }
-    if (inter && !cards.some(c => c.timer)) {
-      const tc = cards.find(c => /самостоятельн|решаем|практик|контрольн|пробн|закреплен/i.test(c.title || ""));
-      if (tc) tc.timer = p.control !== "school" ? 600 : 300;
-    }
-    /* Лента времени — истории: даты из конспекта, клик по дате показывает событие */
-    if (inter && p.subject === "hist" && !cards.some(c => c.kind === "timeline")) {
-      const evs = [], seen = new Set();
-      String(md || "").replace(/(\d{3,4})\s*(?:год|г\.|в\.)?[^.!?\n]{12,140}[.!?]/g, s => {
-        const d = (s.match(/\d{3,4}/) || [])[0], t = s.replace(/^\d{3,4}\s*/, "").replace(/[.!?]$/, "").trim();
-        if (d && !seen.has(d) && t.length > 18) { seen.add(d); evs.push({ date: d, title: t.slice(0, 70), detail: t }); }
-        return s;
-      });
-      if (evs.length >= 3) at(beforeEnd(), { kind: "timeline", title: "Лента времени", events: evs.slice(0, 6), notes: "Клик по дате — событие и подробности; можно идти по хронологии." });
-    }
-    /* Карта персонажей — литература: герои из конспекта, клик раскрывает характеристику */
-    if (inter && lit && !cards.some(c => c.kind === "charmap")) {
-      const hs = (kit?.heroes || []).filter(h => h && (h.name || typeof h === "string")).slice(0, 5);
-      if (hs.length >= 3) at(beforeEnd(), { kind: "charmap", title: "Карта персонажей", items: hs.map(h => ({ name: typeof h === "string" ? h : h.name, desc: (typeof h === "object" && (h.hint || h.desc)) || "", quote: (typeof h === "object" && h.quote) || "" })), notes: "Клик по герою — характеристика и цитата; спросите, кто кому кто." });
-    }
-    /* Справочные материалы — заметкой с восклицательным знаком (из раздела «Правило/Опора/Справочно») */
-    if (inter && !cards.some(c => /Справочные материалы/i.test(c.title || ""))) {
-      const refSec = String(md || "").match(/##+[^\n]*(?:правил|справоч|опор|запомни)[^\n]*\n+([\s\S]{0,700}?)(?=\n##+|\n#|$)/i);
-      if (refSec) {
-        const pts = refSec[1].split("\n").filter(l => /^[-*]\s/.test(l)).map(l => l.replace(/^[-*]\s*/, "").trim()).filter(l => l.length > 12).slice(0, 5);
-        if (pts.length >= 2) at(beforeEnd(), { kind: "ref", title: "Справочные материалы", points: pts, notes: "Заметка-справка: правило/опора под рукой; оформляется как заметка с восклицательным знаком." });
-      }
-    }
-    /* Итог тренажёра — экзаменационный формат */
-    if (inter && p.control !== "school" && !cards.some(c => c.kind === "score")) {
-      at(beforeEnd(), { kind: "score", title: "Итог тренировки", points: ["Считаем верные ответы", "Возвращаемся к ошибкам и разбираем"], notes: "Счёт ведётся по кликам на варианты: «верных из попыток»." });
-    }
+        /* Интерактив не добавляем автоматически: слайды идут строго по логике конспекта. */
     // «Картина» для творческих предметов: репродукция + вопросы
     if ((!o || o.images !== "none") && CREATIVE.has(p.subject) && !cards.some(c => c.kind === "art")) { const ac = artCard(p); if (ac) at(beforeEnd(), ac); }
     // Гуманитарные предметы: основа — реальная живопись и исторические фотографии (с подписью или без — по типу)
@@ -904,7 +862,7 @@ const Deck = (() => {
     return [title ? `${level === 1 ? "#" : "##"} ${md1(title)}` : "", body, `<!--@ ${JSON.stringify(set)} -->`, notes ? `<!-- ${notes} -->` : ""].filter(Boolean).join("\n\n");
   }
   function toMarkdown(cards) {
-    return `---\nmarp: true\npaginate: true\n---\n\n` + cards.filter(c => c.on !== false).map(cardMd).join("\n\n---\n\n") + "\n";
+    const keyOf = c => (String(c.title || "") + "|" + String(c.lead || "") + "|" + [].concat(c.points || c.task || c.quote || c.poem || c.rule || "").join(" ")).toLowerCase().replace(/[^а-яёa-z0-9]+/g, " ").trim().slice(0, 160); const seen = new Set(); const uniq = cards.filter(c => c.on !== false).filter(c => { if (c.kind === "title" || c.kind === "section") return true; const k = keyOf(c); if (seen.has(k)) return false; seen.add(k); return true; }); return `---\nmarp: true\npaginate: true\n---\n\n` + uniq.map(cardMd).join("\n\n---\n\n") + "\n";
   }
 
   /* ---------- нейросеть (по желанию): сжать формулировки обычных слайдов ---------- */
