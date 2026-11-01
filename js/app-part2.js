@@ -1594,7 +1594,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     state.gen = null;
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? (window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type)) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(deckCardsExtras(convCards(PL.cards(p, type), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(deckCardsExtras(convCards(PL.cards(p, type), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -1658,7 +1658,7 @@ async function buildWithAi(L, p, type, formats) {
     // остаёмся на том листе, где учитель (обычно — первый готовый конспект); вкладки сами показывают, что готово
     if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = shown(f); renderLesson(); }
     if (EXTRA_DOCS.includes(f)) { L.docs[f] = buildDocNoAi(f, L, p, type); L.status[f] = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
-    if (f === "lesson") { L.docs.lesson = LessonNotes.build(techOf(L, p, type), p); L.status.lesson = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
+    if (f === "lesson") { L.docs.lesson = withTaskBlocks(LessonNotes.build(techOf(L, p, type), p), p); L.status.lesson = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
     if (f === "slides" && window.Deck) {
       // v5.4: презентация «как в Gamma» — план по конспекту; нейросеть только сжимает формулировки, дословные блоки не трогает
       try {
@@ -1778,9 +1778,11 @@ function finished(f, text) {
 // склейка продолжения: убираем повтор, если нейросеть начала с уже написанной строки
 function joinCont(a, b) { b = String(b || "").replace(/^\s*(```\w*\s*)?/, ""); const last = a.trimEnd().split("\n").pop(); if (last && last.length > 20 && b.startsWith(last)) b = b.slice(last.length); else if (last && b.startsWith(last.slice(0, 40)) && last.length > 40) b = b.slice(b.indexOf("\n") + 1); return a.trimEnd() + (/^\|/.test(b.trimStart()) || /\|$/.test(a.trimEnd()) ? "\n" : "\n") + b.trimStart(); }
 function techOf(L, p, type) { return L.docs.conspect || L.tech || (L.tech = injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect")); }
+/* задания и упражнения — отдельным блоком с алгоритмом, не внутри таблицы «Учитель – Ученики» */
+function withTaskBlocks(md, p) { try { return window.Layout?.taskBlocks ? Layout.taskBlocks(String(md || ""), p) : md; } catch (e) { console.warn("taskBlocks", e); return md; } }
 function buildDocNoAi(f, L, p, type) {
   if (f === "conspect") return injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
-  if (f === "lesson") { const md0 = LessonNotes.build(techOf(L, p, type), p); try { return window.Layout?.taskBlocks ? Layout.taskBlocks(md0, p) : md0; } catch (e) { console.warn("taskBlocks", e); return md0; } }
+  if (f === "lesson") return withTaskBlocks(LessonNotes.build(techOf(L, p, type), p), p);
   if (f === "worksheet") return Engine.worksheet(p, type, state.materials);
   if (EXTRA_DOCS.includes(f)) { techOf(L, p, type); return Engine.extra(f, p, type, state.materials, { ...(p.extra || state.extra), ctrl: (p.extra || state.extra).ctrl || "self" }); }
   const cmd = techOf(L, p, type);
