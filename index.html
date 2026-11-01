@@ -291,6 +291,9 @@ textarea.inp{resize:vertical;min-height:64px}
 .ctrl-mock.test{background:#fff}
 .ctrl-mock.test .ln{background:#d9d2c2}
 .ctrl-card.off{opacity:.45;cursor:not-allowed}
+/* поля появляются (с мягкой подсветкой), когда отмечен соответствующий документ */
+.field-reveal{animation:fieldReveal .28s ease both}
+@keyframes fieldReveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
 /* визуальные стили рабочего листа */
 #sheet.ws-doc-academic .ws-card{border-color:#111;border-radius:0;box-shadow:none}
 #sheet.ws-doc-academic h3{text-transform:none;letter-spacing:0}
@@ -658,7 +661,7 @@ window.UCHU_SITE = {
         <div class="row2">
           <div class="field" hidden><span class="lbl">Режим</span><div class="seg" id="segMode"><button data-v="school" aria-pressed="true">Школа</button><button data-v="tutor" aria-pressed="false">Репетитор</button></div></div>
         </div>
-        <div class="field"><span class="lbl">Формат заданий</span>
+        <div class="field" id="ctrlField" hidden><span class="lbl">Формат заданий</span>
           <div class="ctrl-grid" id="ctrlGrid" role="radiogroup" aria-label="Формат заданий"></div>
           <select id="control" hidden aria-label="Формат заданий"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select>
         </div>
@@ -766,7 +769,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.305";</script>
+<script>window.UCHU_VER="5.306";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================

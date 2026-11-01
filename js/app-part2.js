@@ -523,6 +523,7 @@ function syncControls() {
   if (efh) efh.textContent = state.examFocus === "topic" ? `Точечная отработка темы «${state.topic || "…"}» в формате ${ex ? ex.label : "экзамена"}.` : `Комплексный вариант-срез: все части и типы заданий ${ex ? ex.label : "экзамена"} по кодификатору.`;
   syncBuild();
   try { window.paintControlGrid?.(); } catch { }
+  try { syncFieldVisibility(); } catch { }
 }
 /* Сколько ⚡ уйдёт — прямо на кнопках: «Создать урок · ≈ 10 ⚡», «Доработать · ≈ 1 ⚡» */
 function paintCosts() {
@@ -548,6 +549,23 @@ function readForm() {
   $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
   if (window.updateLessonSeg) updateLessonSeg();
   local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, examFocus: state.examFocus, wsDesign: state.wsDesign, anyName: state.anyName });
+  try { syncFieldVisibility(); } catch { }
+}
+/* «Оформление презентации» показываем только при отмеченной презентации,
+   «Формат заданий» и стиль листа — только когда выбран рабочий лист/контроль/памятка/д/з. */
+function syncFieldVisibility() {
+  const on = k => !!state.formats[k];
+  const wsLike = on("worksheet") || on("control") || on("memo") || on("homework");
+  const show = (el, flag) => {
+    if (!el) return;
+    const was = !!el.hidden; el.hidden = !flag;
+    if (was && flag) { el.classList.remove("field-reveal"); void el.offsetWidth; el.classList.add("field-reveal"); }
+  };
+  show(document.getElementById("thField"), on("slides"));
+  show(document.getElementById("ctrlField"), wsLike);
+  show(document.getElementById("wsDesignBox"), on("worksheet"));
+  show(document.getElementById("examFocusBox"), wsLike && state.control !== "school");
+  const ch = document.getElementById("controlHint"); if (ch) ch.hidden = !wsLike || !ch.textContent;
 }
 function restoreForm() {
   const f = local.get("form", null);
@@ -2872,6 +2890,7 @@ function bind() {
   setSeg("segExamFocus", state.examFocus);
   $$("#segWsDesign button").forEach(b => b.onclick = () => { state.wsDesign = b.dataset.v; setSeg("segWsDesign", state.wsDesign); readForm(); });
   setSeg("segWsDesign", state.wsDesign);
+  try { syncFieldVisibility(); } catch { }
   /* Оформление презентации: живые превью тем вместо текстового списка */
   { const sel = $("#slTheme"), grid = $("#slThemeGrid"); if (sel && grid && window.ThemeKit && window.SlideEditor) {
     const sampleSl = { title: "Тема урока", level: 2, body: "## Ключевое понятие\n\n- Первый пункт плана\n- Второй важный пункт", set: {}, notes: "" };
