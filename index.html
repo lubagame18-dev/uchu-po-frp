@@ -291,6 +291,12 @@ textarea.inp{resize:vertical;min-height:64px}
 .ctrl-mock.test{background:#fff}
 .ctrl-mock.test .ln{background:#d9d2c2}
 .ctrl-card.off{opacity:.45;cursor:not-allowed}
+/* визуальные стили рабочего листа */
+#sheet.ws-doc-academic .ws-card{border-color:#111;border-radius:0;box-shadow:none}
+#sheet.ws-doc-academic h3{text-transform:none;letter-spacing:0}
+#sheet.ws-doc-interactive .ws-card{border-color:var(--flame);border-radius:14px}
+#sheet.ws-doc-art .ws-card{border-color:#8a6d3b;border-radius:12px;background:#fffdf6}
+#sheet.ws-doc-art .ws-card h3{color:#6b4f1d}
 /* ---------- пожелания к уроку: открытая панель с перетаскиванием ---------- */
 .notes-panel{border:2.5px solid var(--ink);border-radius:16px;background:#FFFDF6;padding:12px 14px;margin:14px 0 12px}
 .notes-panel .np-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:2px}
@@ -657,6 +663,14 @@ window.UCHU_SITE = {
           <select id="control" hidden aria-label="Формат заданий"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select>
         </div>
         <p class="hint" id="controlHint"></p>
+        <div class="field" id="examFocusBox" hidden><span class="lbl">Что тренируем</span>
+          <div class="seg" id="segExamFocus"><button data-v="full" aria-pressed="true" title="Полный вариант-срез: все части и типы заданий по кодификатору">Весь вариант</button><button data-v="topic" aria-pressed="false" title="Только введённая тема урока, но в формате экзамена">Только тему урока</button></div>
+          <p class="hint" id="examFocusHint">«Весь вариант» — случайный срез по кодификатору; «Только тему» — отработка темы в формате экзамена.</p>
+        </div>
+        <div class="field" id="wsDesignBox"><span class="lbl">Оформление рабочего листа</span>
+          <div class="seg level" id="segWsDesign"><button data-v="academic" aria-pressed="false" title="Строгий бланк: рамки, официальные шрифты, поля ответов">Строгий</button><button data-v="interactive" aria-pressed="true" title="Умеренная графика, подсказки 💡 ⏱ ❌, поля для заметок">Интерактивный</button><button data-v="art" aria-pressed="false" title="Репродукции и гравюры, если они работают на тему">Арт-поддержка</button></div>
+          <p class="hint" id="wsDesignHint">Визуальный стиль листа: строгий экзаменационный бланк, интерактивный с подсказками или с арт-поддержкой.</p>
+        </div>
         <details class="field prevhw" id="prevHwBox"><summary>Д/з прошлого урока — для проверки</summary>
           <textarea class="inp" id="prevHw" placeholder="Что задавали: упр. 245 или № 312, 315 (можно с ответами)"></textarea>
           <div class="prevhw-btns"><button class="btn sm" type="button" id="prevHwPick">📎 Файл</button><button class="btn sm" type="button" id="prevHwFind">🔎 Найти в «Моих уроках»</button><input type="file" id="prevHwFile" hidden></div>
@@ -752,7 +766,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.303";</script>
+<script>window.UCHU_VER="5.304";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================

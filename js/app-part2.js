@@ -57,7 +57,7 @@ const lessonLabel = n => Engine.lessonLabel(n);
 
 /* ---------- состояние ---------- */
 const state = {
-  subject: "ru", grade: 8, duration: 45, mode: "school", stage: "middle", lessonNo: 1, lessonTotal: 1, control: "school", topic: "", wishes: "", level: "medium",
+  subject: "ru", grade: 8, duration: 45, mode: "school", stage: "middle", lessonNo: 1, lessonTotal: 1, control: "school", topic: "", wishes: "", level: "medium", examFocus: "full", wsDesign: "interactive",
   formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "ai",
   extra: { ctrl: "", variants: false, keys: true, memoSheet: false, memo: false, hw: false, hwText: "", extraText: "" },
   type: null, lesson: null, active: "conspect",
@@ -518,6 +518,9 @@ function syncControls() {
   $("#control").value = state.control;
   const ex = KB.exams[state.control];
   $("#controlHint").textContent = ex ? ex.verify : ""; $("#controlHint").hidden = !ex;
+  const ef = document.getElementById("examFocusBox"); if (ef) ef.hidden = state.control === "school";
+  const efh = document.getElementById("examFocusHint");
+  if (efh) efh.textContent = state.examFocus === "topic" ? `Точечная отработка темы «${state.topic || "…"}» в формате ${ex ? ex.label : "экзамена"}.` : `Комплексный вариант-срез: все части и типы заданий ${ex ? ex.label : "экзамена"} по кодификатору.`;
   syncBuild();
   try { window.paintControlGrid?.(); } catch { }
 }
@@ -544,15 +547,16 @@ function readForm() {
   state.deep = !!$("#deep")?.checked;
   $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
   if (window.updateLessonSeg) updateLessonSeg();
-  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, anyName: state.anyName });
+  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, examFocus: state.examFocus, wsDesign: state.wsDesign, anyName: state.anyName });
 }
 function restoreForm() {
   const f = local.get("form", null);
-  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium" });
+  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium", examFocus: f.examFocus || "full", wsDesign: f.wsDesign || "interactive" });
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; if ($("#wishes")) $("#wishes").value = ""; state.wishes = "";
   $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
   setSeg("segLevel", state.level); syncLevelHint();
+  setSeg("segExamFocus", state.examFocus); setSeg("segWsDesign", state.wsDesign);
   syncPack(false);
   syncControls(); updateType();
 }
@@ -633,8 +637,26 @@ ${t.mustHave?.length ? "Обязательно: " + t.mustHave.join("; ") : ""}
 }
 function examBlock(p) {
   if (p.control === "school") return p.mode === "tutor" ? "## Контроль\nРепетиторский урок: больше тренировки." : "";
-  const ex = KB.exams[p.control];
-  return `## Требования экзамена (${ex.label})\n${p.subject === "ru" ? ex.ru : ex.lit}\n${ex.verify} Не выдумывай баллы и критерии, которых здесь нет.`;
+  const ex = KB.exams[p.control], focus = p.examFocus === "topic";
+  return `## Экзаменационный режим: ${ex.label} — строго официальный формат
+- Ориентир — спецификация, кодификатор и демоверсия ${p.control === "vpr" ? "ФИОКО/ФИПИ" : "ФИПИ"} для ${p.grade} класса, предмет: ${p.subject === "ru" ? "русский язык" : p.subject === "lit" ? "литература" : "предмет"}. Структура, число заданий, типы и баллы — как в демоверсии этого года.
+- Формулировки заданий копируй как в реальных КИМ и бланках; ответы оформляй как в бланке: «Ответ: ______», для развёрнутого — поля с линиями; в конце — критерии оценивания по спецификации.
+- Фокус варианта: ${focus ? `точечная отработка темы «${p.topic}» в формате ${ex.label} (все задания — на эту тему, но по форме экзамена)` : `комплексный вариант-срез по курсу ${p.grade} класса: случайная выборка тем по кодификатору, все части и типы заданий`}.
+- Уникальность варианта ${p.variantLabel || ""}: тексты, предложения, числа, задачи и примеры не повторяют предыдущие варианты — генерируй новые при каждом запросе, даже если тема та же.${p.prevVariants?.length ? `\n- Прошлые варианты этого класса и формата (не повторяй их задания, тексты, числа и примеры): ${p.prevVariants.join("; ")}.` : ""}
+- Материал других классов и предметов не используй. ${ex.verify} Не выдумывай баллы и критерии, которых нет в спецификации.`;
+}
+/* Визуальный стиль рабочего листа: строгий бланк, интерактивный или арт-поддержка */
+const WS_DESIGNS = {
+  academic: { name: "Строгий академический", text: "Оформляй как экзаменационный бланк: минимализм, чёткие рамки, официальные шрифты, без эмодзи и декора. Поля для ответов — линии и клетки, официальная шапка «Класс, ФИО, Вариант»." },
+  interactive: { name: "Интерактивный / тематический", text: "Умеренная графика и иконки-подсказки: 💡 Совет, ⏱ Время, ❌ Ловушка (только в листе, не в конспекте). Тематические поля для заметок, аккуратные карточки заданий, не перегружать." },
+  art: { name: "Арт-поддержка", text: "Добавь 1–2 репродукции, портрет художника/учёного или историческую гравюру — только если они служат материалом задания или создают атмосферу; подпиши автора и название, не занимай место зря." }
+};
+function wsStyleBlock(p) {
+  const d = WS_DESIGNS[p.wsDesign] || WS_DESIGNS.interactive;
+  return `## Оформление и эргономика рабочего листа (${d.name})
+${d.text}
+- Рассчитай место под ответ: текст задания не наползает на поле ответа; для краткого ответа — отдельная строка «Ответ: ______», для решения — клетки/линии, для развёрнутого — несколько линий; в таблицах оставляй пустые строки под заполнение.
+- Визуальные подпорки (схема, иконка, картинка) — только по теме и только если экономят место, а не украшают ради украшения.`;
 }
 const QUESTIONS = `## Методика (главное требование к конспекту)
 Каждый конспект — индивидуальная, глубокая и многогранная работа по ЭТОЙ теме и ЭТОМУ тексту, а не шаблон. Учитель не даёт готовых ответов — он аккуратно подводит к сути.
@@ -952,6 +974,8 @@ ${levelBlock(p)}
 
 ${syncRules(p)}
 
+${examBlock(p)}
+
 ## Правила
 - Презентация иллюстрирует урок: на слайдах выжимки, ключевые вопросы, правила и цитаты из конспекта, а не полный текст.
 - Слайдов много и они насыщенные: 16–24. Лучше больше коротких слайдов с картинкой и одним смыслом, чем мало и перегружено.
@@ -1018,6 +1042,8 @@ ${exam ? `## Формат экзамена (${exam.label}) — как насто
 - Без эмодзи и украшений; строгий бланк. В конце — таблица «Бланк ответов» (№ задания — ответ).
 - Типы и сложность заданий — как в ${exam.label}. ${exam.verify}
 ` : ""}
+
+${wsStyleBlock(p)}
 
 ## Логика заданий (обязательно)
 - Задания делай насыщенными: в каждом 2–3 подпункта или примера, а не один пункт; материала на листе должно быть много, но он должен помещаться.
@@ -1182,7 +1208,20 @@ async function createLesson() {
   $("#createHint").textContent = "";
   updateType();
   const type = state.type;
-  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type, level: state.level };
+  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type, level: state.level, examFocus: state.examFocus, wsDesign: state.wsDesign };
+  /* Вариант в формате экзамена: метка с датой/временем + seed, чтобы каждый новый запрос давал уникальные задания */
+  if (state.control !== "school") {
+    const now = new Date();
+    p.variantLabel = `Вариант от ${now.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}, ${now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}`;
+    p.variantSeed = Math.random().toString(36).slice(2, 8) + now.getTime().toString(36).slice(-4);
+    try {
+      const vk = "uchu:variants:" + [state.subject, state.grade, state.control].join("|");
+      const arr = JSON.parse(localStorage.getItem(vk) || "[]");
+      p.prevVariants = arr.slice(-3);
+      arr.push(p.variantLabel);
+      localStorage.setItem(vk, JSON.stringify(arr.slice(-10)));
+    } catch { }
+  }
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   rememberTopic(state.topic);
   // литература: текст произведения нужен до сборки — если сайт его не нашёл, спрашиваем учителя сейчас, а не после генерации
@@ -1222,7 +1261,8 @@ async function createLesson() {
   }
   if (window.Access) Access.countLesson();
   const { notes: _n, ...pParams } = p;
-  const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason } }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
+  const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason }, control: p.control, examFocus: p.examFocus, wsDesign: p.wsDesign }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
+  if (p.variantLabel) L.variant = { label: p.variantLabel, control: p.control, focus: p.examFocus, seed: p.variantSeed };
   // техкарта нужна для сборки конспекта, презентации и листа; если её не выбрали — собираем «за кадром»
   // у предметов-плагинов (ФРП-наборы) документы собираются независимо: техкарту без запроса не строим вовсе
   const hideTech = !formats.includes("conspect");
@@ -1877,7 +1917,7 @@ function renderLesson() {
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
-  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span><span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
+  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span>${L.variant?.label ? `<span class="tag blue">${esc(L.variant.label)}</span>` : ""}<span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
   { const dev = !window.Access || !Access.commercial() || Access.isDev(); const bp = $("#btnPrompts"); if (bp) { bp.hidden = !dev; bp.onclick = () => openPrompts(L); } const bv = $("#btnVerify"); if (bv) bv.hidden = !dev; }
   { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
@@ -2063,7 +2103,7 @@ async function renderPreview() {
   } else {
     // пока документ дописывается, перерисовка не сбрасывает то, куда учитель прокрутил (таблицы вбок, лист вниз)
     const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
-    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : ""); sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
+    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "") + (state.active === "worksheet" ? " ws-doc-" + (L.params?.wsDesign || state.wsDesign || "interactive") : ""); sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
     if (state.active === "lesson" && window.Layout) Layout.decorate(sheet);
     if (state.active === "memo") { sheet.classList.add("memo-sheet"); memoDecorate(sheet); } else if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
@@ -2828,6 +2868,10 @@ function bind() {
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
   $$("#segLevel button").forEach(b => b.onclick = () => { state.level = b.dataset.v; setSeg("segLevel", state.level); syncLevelHint(); readForm(); });
   setSeg("segLevel", state.level); syncLevelHint();
+  $$("#segExamFocus button").forEach(b => b.onclick = () => { state.examFocus = b.dataset.v; setSeg("segExamFocus", state.examFocus); syncControls(); readForm(); });
+  setSeg("segExamFocus", state.examFocus);
+  $$("#segWsDesign button").forEach(b => b.onclick = () => { state.wsDesign = b.dataset.v; setSeg("segWsDesign", state.wsDesign); readForm(); });
+  setSeg("segWsDesign", state.wsDesign);
   /* Оформление презентации: живые превью тем вместо текстового списка */
   { const sel = $("#slTheme"), grid = $("#slThemeGrid"); if (sel && grid && window.ThemeKit && window.SlideEditor) {
     const sampleSl = { title: "Тема урока", level: 2, body: "## Ключевое понятие\n\n- Первый пункт плана\n- Второй важный пункт", set: {}, notes: "" };
