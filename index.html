@@ -507,6 +507,18 @@ figure.pic{margin:12px 0;cursor:pointer;display:flex;flex-direction:column;gap:6
 figure.pic img{width:100%;max-height:420px;object-fit:cover;border:2.5px solid var(--ink);border-radius:12px;background:var(--soft);display:block}
 figure.pic figcaption{font-size:13px;font-style:italic;color:var(--muted);text-align:center}
 .sx figure.pic figcaption{font-size:.5em;line-height:1.25;opacity:.72;margin-top:.2em;font-style:italic}
+.sx .rv{margin:8px 0;border:2px dashed currentColor;border-radius:9px;padding:6px 9px}
+.sx .rv-b{display:none;margin-top:6px;background:#fff;color:#1a1a1a;border-radius:7px;padding:6px 8px;font-size:.92em}
+.sx .rv.on .rv-b{display:block}
+.sx .rv-t{border:0;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer;text-decoration:underline}
+.sx .chq{display:flex;flex-direction:column;gap:6px}
+.sx .ch{text-align:left;border:2px solid currentColor;border-radius:9px;background:rgba(255,255,255,.08);color:inherit;padding:7px 10px;font:inherit;cursor:pointer}
+.sx .ch.ok{background:#e6f4ec;color:#14532d;border-color:#2f8f5b}
+.sx .ch.no{background:#fdecea;color:#7f1d1d;border-color:#c0392b}
+.sx .tm{display:inline-flex;gap:8px;align-items:center;border:2px solid currentColor;border-radius:999px;padding:4px 10px;font-weight:700}
+.sx .tm-go{border:0;background:transparent;color:inherit;font:inherit;font-weight:800;cursor:pointer}
+.sx .sf{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.95em}
+.sx .sf-b{border:2px solid currentColor;background:transparent;color:inherit;border-radius:999px;padding:4px 9px;font:inherit;cursor:pointer}
 .slide figure.pic figcaption{font-size:3.125cqw}
 figure.pic .pic-empty{border:2.5px dashed var(--ink);border-radius:12px;background:var(--soft);min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px;text-align:center}
 figure.pic .pic-empty b{font-family:var(--f-display);font-size:15px}
@@ -784,7 +796,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.310";</script>
+<script>window.UCHU_VER="5.311";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================

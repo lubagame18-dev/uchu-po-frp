@@ -177,9 +177,9 @@ const SlideEditor = (() => {
     const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${st.aw ? `--aw:${+st.aw}%;` : ""}${st.ix || st.iy ? `--ix:${+st.ix || 0}%;--iy:${+st.iy || 0}%;` : ""}${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
     const srcBody = tieQuotes(resolveLinks(String(acc ? parts.rest : sl.body || "").replace(/\]\(#g\s+«([^»]*)»\)/g, (m, d) => "](#g \"" + String(d).replace(/"/g, "\x27") + "\")")));
-  const body = vid + linkify(mdToHtml(srcBody));
+  const body = vid + linkify(mdToHtml(interactiveMd(st, srcBody))) + slideExtras(st);
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
-    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.quiz ? "quiz" : "", st.appendix ? `appendix ap-${st.appendix}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
+    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.quiz ? "quiz" : "", st.choice || st.odd ? "choice" : "", st.odd ? "odd" : "", st.cmp ? "cmp" : "", st.selfcheck ? "selfcheck" : "", st.timer ? "timer" : "", st.appendix ? `appendix ap-${st.appendix}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
     const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(tieQuotes(parts.acc))}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
@@ -224,6 +224,25 @@ const SlideEditor = (() => {
     .replace(/«\u2060\s+/g, "«\u00A0")
     .replace(/\s+\u2060»/g, "\u00A0»")
     .replace(/\s+([,.;:!?])/g, "\u00A0$1");
+  /* Интерактив слайда: скрытые ответы/подсказки, выбор с проверкой, таймер, светофор.
+     Контракты (их генерирует Deck и может вписать учитель):
+       [!answer] текст / [!hint] текст — скрытый блок с кнопкой «показать»;
+       слайд с set.choice или set.odd: пункты списка «- [+] верно | пояснение» и «- [-] неверно | пояснение»;
+       set.timer: 180 — таймер; set.selfcheck: 1 — «светофор» самооценки. */
+  function interactiveMd(st, md) {
+    let b = String(md || "");
+    b = b.replace(/^\[!(answer|hint)\]\s*(.+)$/gm, (m, k, t) => `<div class="rv" data-k="${k}"><button type="button" class="rv-t">${k === "hint" ? "Подсказка" : "Ответ"} — показать</button><div class="rv-b">${t}</div></div>`);
+    if (st.choice || st.odd) {
+      b = b.replace(/^[-*]\s*\[([+\-x])\]\s*([^\n|]+?)(?:\s*\|([^\n]+))?$/gm, (m, mk, text, exp) => `<button type="button" class="ch" data-ok="${mk === "+" || mk === "x" ? "1" : "0"}" data-exp="${String(exp || "").replace(/"/g, "&quot;")}">${String(text).trim()}</button>`);
+      b = b.replace(/((?:<button type="button" class="ch"[\s\S]*?<\/button>\s*){1,})/g, '<div class="chq">$1</div>');
+    }
+    return b;
+  }
+  function slideExtras(st) {
+    const t = st.timer ? `<div class="tm" data-sec="${Math.max(30, +st.timer || 180)}"><button type="button" class="tm-go">▶ Таймер</button><span class="tm-v">00:00</span></div>` : "";
+    const s = st.selfcheck ? `<div class="sf"><b>Как поняли тему?</b><button type="button" class="sf-b" data-v="ok">Понял</button><button type="button" class="sf-b" data-v="mid">Почти</button><button type="button" class="sf-b" data-v="bad">Не понял</button><span class="sf-n">0 · 0 · 0</span></div>` : "";
+    return t + s;
+  }
   function fits(el) {
     const inner = el.querySelector(".sx-inner");
     if (inner.scrollHeight > inner.clientHeight + 2 || inner.scrollWidth > inner.clientWidth + 2) return false;
@@ -1079,6 +1098,33 @@ ${ixCss(anim())}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
 .sx-back{position:fixed;left:18px;bottom:16px;z-index:30;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:8px 16px;font:600 15px/1 Arial,sans-serif;cursor:pointer;backdrop-filter:blur(4px)}
 .sx-back:hover{background:rgba(0,0,0,.75)}
+.sx .rv{margin:.5em 0;border:2px dashed currentColor;border-radius:.55em;padding:.35em .55em}
+.sx .rv-b{display:none;margin-top:.4em;background:rgba(255,255,255,.92);color:#1a1a1a;border-radius:.45em;padding:.45em .55em;font-size:.92em}
+.sx .rv.on .rv-b{display:block}
+.sx .rv-t{border:0;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer;text-decoration:underline}
+.sx .chq{display:flex;flex-direction:column;gap:.45em;margin:.5em 0}
+.sx .ch{text-align:left;border:2px solid currentColor;border-radius:.55em;background:rgba(255,255,255,.08);color:inherit;padding:.45em .65em;font:inherit;cursor:pointer;transition:background .2s,color .2s}
+.sx .ch.ok{background:#e6f4ec;color:#14532d;border-color:#2f8f5b}
+.sx .ch.no{background:#fdecea;color:#7f1d1d;border-color:#c0392b}
+.sx .ch-ex{margin-top:.35em;font-size:.9em;font-weight:600}
+.sx .tm{display:inline-flex;align-items:center;gap:.6em;margin-top:.6em;border:2px solid currentColor;border-radius:999px;padding:.35em .8em;font-weight:700}
+.sx .tm-go{border:0;background:transparent;color:inherit;font:inherit;font-weight:800;cursor:pointer}
+.sx .tm-v.done{color:#c0392b}
+.sx .sf{display:flex;gap:.5em;align-items:center;flex-wrap:wrap;margin-top:.6em;font-size:.95em}
+.sx .sf-b{border:2px solid currentColor;background:transparent;color:inherit;border-radius:999px;padding:.3em .7em;font:inherit;cursor:pointer}
+.sx .sf-n{font-weight:800}
+.zoom-ov{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:80;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+.zoom-ov img{max-width:94vw;max-height:92vh;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ap-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;z-index:25;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.ap-b{border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:6px 12px;font:600 13px Arial;cursor:pointer}
+.ap-b:hover{background:rgba(0,0,0,.78)}
+.sx-menu{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);z-index:70;background:#fffdf7;border:2px solid #111;border-radius:12px;max-height:70vh;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:4px;min-width:min(86vw,420px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.sx-menu button{text-align:left;border:0;background:transparent;font:600 14px Arial;padding:7px 10px;border-radius:8px;cursor:pointer}
+.sx-menu button:hover{background:#f0e7d8}
+.sx.cmp .cmpbox{position:relative;width:100%;overflow:hidden;border-radius:.6em;margin:.3em 0}
+.sx.cmp .cmpbox img{display:block;width:100%;height:auto}
+.sx.cmp .cmpbox img.cmp2{position:absolute;left:0;top:0;clip-path:inset(0 calc(100% - var(--p,50%)) 0 0)}
+.sx.cmp .cmp-range{width:100%;margin:.3em 0 0;accent-color:#c0392b}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
 ${trCss()}
 </style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку, викторина: 1-й щелчок — задание, 2-й — ответ" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
@@ -1094,7 +1140,17 @@ const sp=document.querySelector('.ix-spot');addEventListener('pointermove',e=>{i
 const prep=x=>{if(!STEP)return;x.querySelectorAll('.sx-body li,.sx-body>p,.sx-body>blockquote').forEach((b,j)=>{if(j>0||b.tagName==='LI')b.classList.add('ix-hide');b.classList.remove('ix-show');});};
 const BACK=[];const go0=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});const pg=document.querySelector('.ix-prog i');if(pg)pg.style.width=((i+1)/s.length*100)+'%';prep(s[i]);};
 const go=k=>{if(STEP&&k===i+1){const h=s[i].querySelector('.ix-hide');if(h){h.classList.remove('ix-hide');h.classList.add('ix-show');return;}}go0(k);};go0(${opts.open ? cur : 0});
-addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const bk=e.target.closest('.sx-back');if(bk){e.preventDefault();e.stopPropagation();const t=BACK.pop();go0(t==null?0:t);return;}const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();if(m[1].startsWith('slide-'))BACK.push(i);go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});<\/script></body></html>`;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const bk=e.target.closest('.sx-back');if(bk){e.preventDefault();e.stopPropagation();const t=BACK.pop();go0(t==null?0:t);return;}const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();if(m[1].startsWith('slide-'))BACK.push(i);go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});;(function(){function A(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+A('.rv').forEach(function(rv){var b=rv.querySelector('.rv-t');if(!b)return;b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();rv.classList.toggle('on');var k=rv.getAttribute('data-k')==='hint'?'Подсказка':'Ответ';b.textContent=k+(rv.classList.contains('on')?' — скрыть':' — показать');});});
+A('.chq').forEach(function(q){A('.ch',q).forEach(function(btn){btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var ok=btn.getAttribute('data-ok')==='1';btn.classList.add(ok?'ok':'no');var ex=q.querySelector('.ch-ex');if(!ex){ex=document.createElement('div');ex.className='ch-ex';q.appendChild(ex);}ex.textContent=(ok?'Верно! ':'Неверно. ')+(btn.getAttribute('data-exp')||'');if(!ok)A('.ch',q).forEach(function(x){if(x.getAttribute('data-ok')==='1')x.classList.add('ok');});});});});
+A('.tm').forEach(function(tm){var left=+tm.getAttribute('data-sec')||180,run=false,tid=null,go=tm.querySelector('.tm-go'),v=tm.querySelector('.tm-v');function show(){var m=Math.floor(left/60),ss=left%60;v.textContent=(m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}go.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();run=!run;go.textContent=run?'Стоп':'Таймер';if(run){tid=setInterval(function(){left--;if(left<=0){clearInterval(tid);left=0;run=false;go.textContent='Таймер';v.classList.add('done');}show();},1000);}else clearInterval(tid);});show();});
+A('.sf').forEach(function(sf){var c={ok:0,mid:0,bad:0},n=sf.querySelector('.sf-n');A('.sf-b',sf).forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var k=b.getAttribute('data-v');c[k]=(c[k]||0)+1;n.textContent=c.ok+' · '+c.mid+' · '+c.bad;});});});
+A('.sx.cmp').forEach(function(sx){var figs=A('figure.pic',sx);if(figs.length<2)return;var i1=figs[0].querySelector('img'),i2=figs[1].querySelector('img');if(!i1||!i2)return;var box=document.createElement('div');box.className='cmpbox';figs[0].parentNode.insertBefore(box,figs[0]);box.appendChild(i1);i2.classList.add('cmp2');box.appendChild(i2);var r=document.createElement('input');r.type='range';r.min='0';r.max='100';r.value='50';r.className='cmp-range';box.parentNode.insertBefore(r,box.nextSibling);box.style.setProperty('--p','50%');r.addEventListener('input',function(){box.style.setProperty('--p',r.value+'%');});figs[0].remove();figs[1].remove();});
+A('figure.pic').forEach(function(f){f.addEventListener('click',function(e){var im=f.querySelector('img');if(!im||!im.src)return;e.preventDefault();e.stopPropagation();var ov=document.createElement('div');ov.className='zoom-ov';var big=document.createElement('img');big.src=im.src;ov.appendChild(big);ov.addEventListener('click',function(){ov.remove();});document.body.appendChild(ov);});});
+var APX={};A('.sx.appendix').forEach(function(sx){var k=null;Array.prototype.slice.call(sx.classList).forEach(function(c){if(c.indexOf('ap-')===0)k=c.slice(3);});var sec=sx.closest('.deck-s');if(k&&sec)APX[k]=A('.deck-s').indexOf(sec);});
+if(Object.keys(APX).length){var bar=document.createElement('div');bar.className='ap-nav';var NAMES={hist:'📖 Справка',terms:'📚 Словарь',map:'🗺 Карта',answers:'🔑 Ответы',bio:'👤 Биография'};Object.keys(APX).forEach(function(k){var b=document.createElement('button');b.type='button';b.className='ap-b';b.textContent=NAMES[k]||k;b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();BACK.push(i);go0(APX[k]);});bar.appendChild(b);});document.body.appendChild(bar);}
+addEventListener('keydown',function(e){if(!(e.key==='m'||e.key==='M'||e.key==='ь'||e.key==='Ь'))return;var ov=document.querySelector('.sx-menu');if(ov){ov.remove();return;}ov=document.createElement('div');ov.className='sx-menu';A('.deck-s').forEach(function(sec,idx){var t=sec.querySelector('.sx-title');var b=document.createElement('button');b.type='button';b.textContent=(idx+1)+'. '+(t?t.textContent:'слайд');b.addEventListener('click',function(){ov.remove();BACK.push(i);go0(idx);});ov.appendChild(b);});document.body.appendChild(ov);});
+})();<\/script></body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     if (opts.open) { const w = window.open(URL.createObjectURL(blob), "_blank"); if (!w) { toast("Браузер не дал открыть окно показа — разрешите всплывающие окна или скачайте HTML."); } return; }
     await saveFile(`${(L().title || "Урок").replace(/[\u0000-\u001f\\/:*?"<>|«»]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 70)} — Презентация (интерактивная).html`, blob);

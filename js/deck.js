@@ -543,6 +543,25 @@ const Deck = (() => {
     }
     // «Проверь себя», если банка Mnemo нет, а алгоритм урока есть
     if (!cards.some(c => c.kind === "check")) { const cc = checkCard(MN, RK); if (cc) at(beforeEnd(), cc); }
+    /* Интерактив — только там, где он помогает уроку (выбор на этапе практики, таймер, светофор) */
+    const lvl2 = levelOf(p), inter = !o || o.images !== "none";
+    if (inter && !cards.some(c => c.kind === "choice" || c.kind === "quiz")) {
+      const quiz = (MN?.quiz || []).filter(x => Array.isArray(x) && x[0] && x[1]);
+      const fitsSubject = ["ru", "math", "phys", "chem", "inf", "eng", "hist"].includes(p.subject);
+      if (quiz.length >= 3 && fitsSubject) {
+        const pick = quiz[(hashOf(p.topic) % quiz.length)], wrong = quiz.filter(x => x !== pick).slice(0, 2).map(x => x[1]);
+        const opts = [{ ok: 1, text: pick[1], exp: "верно" }, ...wrong.map(a => ({ ok: 0, text: a, exp: "это ответ к другому примеру" }))];
+        const order = (hashOf(p.topic + "|o") % 2) ? opts : [opts[2], opts[0], opts[1]];
+        at(beforeEnd(), { kind: "choice", title: "Выбери верный ответ", q: pick[0], options: order, timer: p.control !== "school" ? 600 : undefined, notes: "Клик по варианту: верный подсвечивается, сразу видно пояснение." });
+      }
+    }
+    if (inter && !cards.some(c => c.timer)) {
+      const tc = cards.find(c => /самостоятельн|решаем|практик|контрольн|пробн|закреплен/i.test(c.title || ""));
+      if (tc) tc.timer = p.control !== "school" ? 600 : 300;
+    }
+    if (inter && !cards.some(c => c.kind === "selfcheck") && !["section"].includes((cards[cards.length - 1] || {}).kind)) {
+      at(beforeEnd(), { kind: "selfcheck", title: "Как поняли тему?", points: ["Понял — могу объяснить товарищу", "Почти — нужна подсказка", "Не понял — разберём ещё раз"], notes: "Светофор: учитель видит, сколько человек выбрали каждый вариант." });
+    }
     // «Картина» для творческих предметов: репродукция + вопросы
     if ((!o || o.images !== "none") && CREATIVE.has(p.subject) && !cards.some(c => c.kind === "art")) { const ac = artCard(p); if (ac) at(beforeEnd(), ac); }
     // Гуманитарные предметы: основа — реальная живопись и исторические фотографии (с подписью или без — по типу)
@@ -798,8 +817,31 @@ const Deck = (() => {
         body = items.map(([q, a]) => `- Задание: ${md1(q)} || Ответ: ${md1(a)}`).join("\n");
         break;
       }
+      /* Выбор с проверкой и «найди лишнее» (контракт slides.js):
+         <!--@ {"choice":1} --> или {"odd":1}, пункты «- [+] верно | пояснение» / «- [-] неверно | пояснение» */
+      case "choice": case "odd": {
+        if (card.kind === "odd") set.odd = 1; else set.choice = 1;
+        const Q = card.q || card.lead || card.question || "";
+        const opts = card.options || card.items || card.points || [];
+        body = `${Q ? `**${md1(Q)}**\n\n` : ""}` + opts.map(o => {
+          const t = typeof o === "string" ? o : (o.text || o.t || "");
+          const ok = typeof o === "object" ? !!o.ok : false;
+          const ex = typeof o === "object" ? (o.exp || o.explain || "") : "";
+          return `- [${ok ? "+" : "-"}] ${md1(t)}${ex ? ` | ${md1(ex)}` : ""}`;
+        }).join("\n");
+        break;
+      }
+      /* «Светофор» самооценки в конце урока (контракт slides.js): <!--@ {"selfcheck":1} --> */
+      case "selfcheck": { set.selfcheck = 1; body = (card.points || []).map(x => `- ${md1(x)}`).join("\n"); break; }
+      /* Сравнение двух изображений «шторкой» (контракт slides.js): <!--@ {"cmp":1} -->, две картинки в теле */
+      case "compare": {
+        set.cmp = 1; set.vb = 1;
+        body = (card.images || []).map(im => `![${md1(im.cap || im.title || "Иллюстрация")}](${im.src || im.img})`).join("\n\n");
+        break;
+      }
       default: body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
     }
+    if (card.timer) set.timer = +card.timer || 300;
     if (card.links && card.links.length) body += `\n\n${card.links.map(linkMd).join("  \n")}`;
     if (img && card.kind !== "image") {
       // у приложений и викторины не добавляем служебных ключей: комментарий должен совпадать с контрактом
