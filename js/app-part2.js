@@ -219,6 +219,24 @@ async function embedMaterials() {
   await downloadDataJs("extra.js", "UCHU_EXTRA", { items });
   toast("Файл extra.js скачан. Загрузите его в папку data в репозитории сайта — материалы станут общими для всех учителей.", 9000);
 }
+/* Файл, брошенный на страницу, прикрепляется к урокам, который собирается: входит в него целиком и остаётся в «Моих материалах» */
+async function addToLesson(files) {
+  const names = new Set(files.map(f => f.name));
+  toast("Прикрепляю к уроку: " + files.length + " файл(ов)…", 4000);
+  await addMaterials(files);
+  let n = 0;
+  for (const m of state.materials) if (!m.builtin && names.has(m.name) && String(m.text || "").trim() && m.kind !== "frp") { m.pinned = true; m.pinTopic = ""; try { await Store.put("materials", m.id, m); } catch { } n++; }
+  paintPinned();
+  if (n) toast("Прикреплено к уроку: " + n + ". Нажмите «Создать» — текст войдёт в конспект, лист и презентацию.", 6000);
+}
+function paintPinned() {
+  let box = $("#pinChips");
+  if (!box) { const t = $("#topic")?.closest(".row-btn, .combo, div"); if (!t) return; box = document.createElement("div"); box.id = "pinChips"; box.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin:6px 0"; t.parentElement.insertBefore(box, t.nextSibling); }
+  const pins = state.materials.filter(m => m.pinned);
+  box.innerHTML = pins.map(m => `<span style="display:inline-flex;gap:6px;align-items:center;background:#efe9ff;border:1px solid #7c5cff;border-radius:999px;padding:3px 10px;font-size:14px">📎 ${esc(m.name)} — войдёт в урок <button type="button" data-unpin="${esc(m.id)}" aria-label="Открепить" style="border:0;background:none;cursor:pointer;font-size:16px">✕</button></span>`).join("");
+  box.querySelectorAll("[data-unpin]").forEach(b => b.onclick = async () => { const m = state.materials.find(x => x.id === b.dataset.unpin); if (m) { m.pinned = false; try { await Store.put("materials", m.id, m); } catch { } } paintPinned(); });
+}
+
 async function addMaterials(list, forceKind) {
   // v5: пакетная загрузка без дублей, автоочистка текста, автосортировка, OCR для сканов
   let added = 0, dup = 0, ocrN = 0, cloudN = 0, cloudErr = ""; const cleanedSum = [];
@@ -293,12 +311,18 @@ async function exportPack() {
 }
 function relevantMaterials(topic, grade, subject, budget = PROMPT_MATERIALS) {
   const st = FRP.stems(topic);
-  const scored = state.materials.filter(m => m.kind !== "frp" && (!m.subject || m.subject === subject)).map(m => {
+  const nt = String(topic || "").trim().toLowerCase();
+  // файлы, брошенные на страницу для этого урока, входят целиком (а не только абзацами по совпадению слов темы)
+  const isPin = m => m.kind !== "frp" && String(m.text || "").trim() && (m.pinned || (m.pinTopic && m.pinTopic === nt + "|" + subject));
+  const pins = state.materials.filter(isPin);
+  const pre = []; let usedPin = 0;
+  for (const m of pins) { const t = String(m.text).trim().slice(0, Math.max(3000, Math.floor(budget / Math.max(1, pins.length)))); pre.push({ name: m.name, kind: KINDS[m.kind] || "Материал", text: t, pinned: true }); usedPin += t.length; }
+  const scored = state.materials.filter(m => !isPin(m) && m.kind !== "frp" && (!m.subject || m.subject === subject)).map(m => {
     const paras = String(m.text).split(/\n\s*\n|\n(?=\s*\d{1,3}\.\s)/);
     const hits = paras.map((p, i) => ({ i, p, s: FRP.score(p, st) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s);
     return { m, hits, total: hits.reduce((a, x) => a + x.s, 0) + (m.grade === grade ? 2 : 0) };
   }).filter(x => x.hits.length).sort((a, b) => b.total - a.total);
-  const out = []; let used = 0;
+  const out = [...pre]; let used = usedPin;
   for (const { m, hits } of scored) {
     const chunk = hits.slice(0, 8).map(h => h.p.trim()).join("\n…\n").slice(0, Math.max(2000, (budget - used) / 2));
     if (used + chunk.length > budget) break;
@@ -1270,6 +1294,7 @@ async function createLesson() {
   if (window.Notes?.reset) Notes.reset();
   // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
   p.extra = { ...state.extra };
+  try { const tk = String(p.topic || "").trim().toLowerCase() + "|" + p.subject; for (const m of state.materials) if (m.pinned) { m.pinned = false; m.pinTopic = tk; Store.put("materials", m.id, m); } paintPinned(); } catch (e) { console.warn("pin", e); }
   state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
   if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
@@ -3022,11 +3047,12 @@ function bind() {
     document.addEventListener("drop", e => {
       dragDepth = 0; mark(false);
       if (!hasFiles(e) || e.defaultPrevented || own(e.target)) { if (hasFiles(e) && !e.defaultPrevented && !own(e.target)) e.preventDefault(); return; }
-      e.preventDefault(); const fl = Array.from(e.dataTransfer.files || []); if (fl.length) { toast("Добавляю в «Мои материалы»: " + fl.length + " файл(ов)…", 4000); addMaterials(fl); }
+      e.preventDefault(); const fl = Array.from(e.dataTransfer.files || []); if (fl.length) addToLesson(fl);
     });
-    document.addEventListener("paste", e => { if (own(e.target)) return; const fl = Array.from(e.clipboardData?.files || []); if (fl.length) { e.preventDefault(); addMaterials(fl); } });
+    document.addEventListener("paste", e => { if (own(e.target)) return; const fl = Array.from(e.clipboardData?.files || []); if (fl.length) { e.preventDefault(); addToLesson(fl); } });
     const st = document.createElement("style"); st.textContent = 'body.page-drop::after{content:"Отпустите файл — он добавится в «Мои материалы»";position:fixed;inset:12px;z-index:99999;display:flex;align-items:center;justify-content:center;border:3px dashed #7c5cff;border-radius:18px;background:rgba(124,92,255,.12);color:#3a2a8a;font:700 20px/1.3 system-ui,sans-serif;text-align:center;padding:24px;pointer-events:none}'; document.head.appendChild(st);
   } catch (e) { console.warn("page drop", e); }
+  setTimeout(() => { try { paintPinned(); } catch { } }, 1500);
   $("#matPick").onclick = () => $("#matInput").click();
   $("#matInput").onchange = e => { addMaterials(Array.from(e.target.files)); e.target.value = ""; };
   $("#frpPick").onclick = () => $("#frpInput").click();
