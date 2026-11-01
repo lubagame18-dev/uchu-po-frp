@@ -580,6 +580,14 @@ const Deck = (() => {
       const hs = (kit?.heroes || []).filter(h => h && (h.name || typeof h === "string")).slice(0, 5);
       if (hs.length >= 3) at(beforeEnd(), { kind: "charmap", title: "Карта персонажей", items: hs.map(h => ({ name: typeof h === "string" ? h : h.name, desc: (typeof h === "object" && (h.hint || h.desc)) || "", quote: (typeof h === "object" && h.quote) || "" })), notes: "Клик по герою — характеристика и цитата; спросите, кто кому кто." });
     }
+    /* Справочные материалы — заметкой с восклицательным знаком (из раздела «Правило/Опора/Справочно») */
+    if (inter && !cards.some(c => /Справочные материалы/i.test(c.title || ""))) {
+      const refSec = String(md || "").match(/##+[^\n]*(?:правил|справоч|опор|запомни)[^\n]*\n+([\s\S]{0,700}?)(?=\n##+|\n#|$)/i);
+      if (refSec) {
+        const pts = refSec[1].split("\n").filter(l => /^[-*]\s/.test(l)).map(l => l.replace(/^[-*]\s*/, "").trim()).filter(l => l.length > 12).slice(0, 5);
+        if (pts.length >= 2) at(beforeEnd(), { kind: "ref", title: "Справочные материалы", points: pts, notes: "Заметка-справка: правило/опора под рукой; оформляется как заметка с восклицательным знаком." });
+      }
+    }
     /* Итог тренажёра — экзаменационный формат */
     if (inter && p.control !== "school" && !cards.some(c => c.kind === "score")) {
       at(beforeEnd(), { kind: "score", title: "Итог тренировки", points: ["Считаем верные ответы", "Возвращаемся к ошибкам и разбираем"], notes: "Счёт ведётся по кликам на варианты: «верных из попыток»." });
@@ -878,6 +886,8 @@ const Deck = (() => {
       default: body = (card.points || []).map(x => `- ${md1(x)}`).join("\n");
     }
     if (card.timer) set.timer = +card.timer || 300;
+    if (card.kind === "rule" || card.kind === "ref") set.note = 1;
+    if (card.cut) set.cut = 1;
     if (card.links && card.links.length) body += `\n\n${card.links.map(linkMd).join("  \n")}`;
     if (img && card.kind !== "image") {
       // у приложений и викторины не добавляем служебных ключей: комментарий должен совпадать с контрактом
