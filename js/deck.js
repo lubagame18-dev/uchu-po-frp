@@ -517,7 +517,7 @@ const Deck = (() => {
     return null;
   }
   function enrich(cards, p, o, md) {
-    const lit = p.subject === "lit", RK = !lit ? p.plan?.rukit : null;
+    const lit = p.subject === "lit", RK = !lit ? p.plan?.rukit : null, kit = p.plan?.kit;
     let n = cards.length;
     const at = (i, card) => { cards.splice(Math.max(0, Math.min(cards.length, i)), 0, { id: "x" + (++n), on: true, ...card }); };
     const idx = k => cards.findIndex(c => c.kind === k);

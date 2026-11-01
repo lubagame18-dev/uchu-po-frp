@@ -227,6 +227,10 @@ async function addToLesson(files) {
   let n = 0;
   for (const m of state.materials) if (!m.builtin && names.has(m.name) && String(m.text || "").trim() && m.kind !== "frp") { m.pinned = true; m.pinTopic = ""; try { await Store.put("materials", m.id, m); } catch { } n++; }
   paintPinned();
+  try { // если под темой ждут текст произведения — брошенный файл и есть этот текст
+    let box = $("#textBox"); const pin = state.materials.find(m => m.pinned && names.has(m.name)); if (!box && $("#typeBox")) { box = document.createElement("div"); box.id = "textBox"; $("#typeBox").insertAdjacentElement("afterend", box); }
+    if (pin && (state.subject === "lit" || state.subject === "ru") && box) { const key = textBoxKey(); state.textOverride = { text: String(pin.text).slice(0, 60000), source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; const w = ((state.topic || $("#topic")?.value || "").match(/«([^»]+)»/) || [])[1] || ""; paintTextBox(box, "text", w, "", key); }
+  } catch (e) { console.warn("drop→text", e); }
   if (n) toast("Прикреплено к уроку: " + n + ". Нажмите «Создать» — текст войдёт в конспект, лист и презентацию.", 6000);
 }
 function paintPinned() {
@@ -628,9 +632,10 @@ const LEVELS = {
 };
 function levelBlock(p) { const L = LEVELS[p.level] || LEVELS.medium; return `## Уровень: ${L.name} — обязательно\n${L.text}`; }
 function syncLevelHint() {
-  const el = document.getElementById("levelHint"); if (!el) return;
-  const L = LEVELS[state.level] || LEVELS.medium;
-  el.textContent = L.text;
+  /* описание уровня — только всплывающей подсказкой при наведении на кнопку, без серого текста под ней */
+  const el = document.getElementById("levelHint"); if (el) { el.hidden = true; el.textContent = ""; }
+  const TIP = { weak: "Больше объяснений, образцов и подсказок", medium: "Сбалансированно: объяснение, образец и практика", high: "Больше заданий и олимпиадные задачи" };
+  document.querySelectorAll("#segLevel button").forEach(b => { b.title = TIP[b.dataset.v] || ""; });
 }
 /* Режиссура урока: учитель, презентация, учебник и рабочий лист — одна связка (требование заказчика) */
 function syncRules() {
@@ -906,7 +911,8 @@ const METHOD_RULES = `
 13. Отрывки текста, фрагменты произведений, задания, цитаты — ОТДЕЛЬНЫМ блоком или отдельной таблицей (до или после таблицы этапов). Не вставляй текст фрагмента/задания в колонку «что делает учитель / ученики» и в вопросы-ответы: для материалов это отдельная рамка/квадрат в конспекте.
 `;
 /* плавный прогресс: проценты двигаются, даже пока модель думает */
-setInterval(function () { try { var g = state.gen; if (!g) return; var pct = g.pct || 0; if (pct < 88) { g.pct = Math.min(88, pct + 1); updateProgress(); } } catch (e) { } }, 900);
+/* Полоса ползёт непрерывно и замедляется к концу (не упирается в 88% и не замирает): шаг пропорционален остатку, но не меньше 0,06% за полсекунды; реальные этапы сборки сдвигают её вперёд */
+setInterval(function () { try { var g = state.gen; if (!g) return; var pct = +g.pct || 0; if (pct < 98.5) { g.pct = Math.min(98.5, pct + Math.max(0.06, (99 - pct) * 0.006)); updateProgress(); } } catch (e) { } }, 500);
 
 function promptConspect(p) {
   const ru = p.subject === "ru", cols = ru ? KB.ru.techmap.columns : KB.lit.techmapColumns;
@@ -1399,14 +1405,14 @@ async function textLookup() {
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic, wishes: "", formats: [], type: state.type };
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, state.type); } catch { }
   if (seq !== textSeq) return; // тема уже изменилась
-  if (plan && (plan.kit || plan.textSource)) { pendingPlan = { key, plan }; box.innerHTML = `<div class="small" style="margin-top:8px;color:#2a7a3b">✓ Текст произведения найден, добавлять не нужно.</div>`; return; }
+  if (plan && (plan.kit || plan.textSource)) { pendingPlan = { key, plan }; box.innerHTML = `<div class="small" style="margin-top:8px;padding:10px 12px;border:1.5px solid #2a7a3b;border-radius:12px;background:#eaf7ee;color:#1d5e2d;font-weight:700">✓ Текст произведения найден, добавлять не нужно.</div>`; return; }
   paintTextBox(box, "need", work, author, key, plan);
 }
 function paintTextBox(box, mode, work, author, key, plan) {
   box.hidden = false;
-  if (mode === "text") { box.innerHTML = `<div class="small" style="margin-top:8px;color:#2a7a3b">✓ Ваш текст добавлен, урок пойдёт по нему.</div>`; return; }
+  if (mode === "text") { box.innerHTML = `<div class="small" style="margin-top:8px;padding:10px 12px;border:1.5px solid #2a7a3b;border-radius:12px;background:#eaf7ee;color:#1d5e2d;font-weight:700">✓ Текст произведения добавлен. Урок пойдёт по нему.</div>`; return; }
   if (mode === "skip") { box.innerHTML = `<div class="small" style="margin-top:8px">Урок соберётся без текста произведения (без цитат). <button type="button" class="btn sm ghost" id="tbBack">Добавить текст</button></div>`; $("#tbBack").onclick = () => { state.textChoice = null; textLookupSoon(); }; return; }
-  box.innerHTML = `<div style="margin-top:8px;padding:10px 12px;border:1.5px solid #c0392b;border-radius:12px;background:#fff1f0"><div class="small" style="color:#c0392b;font-weight:700">Текста «${esc(work || state.topic)}» на сайте нет.</div><div class="small" style="margin:4px 0 8px">Добавьте текст, и вопросы пойдут по строфам и эпизодам этого произведения. Или продолжите без него: цитат в уроке не будет.</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm flame" id="tbAdd">Добавить текст</button><button type="button" class="btn sm ghost" id="tbSkip">Продолжить без текста</button></div></div>`;
+  box.innerHTML = `<div style="margin-top:8px;padding:10px 12px;border:1.5px solid #c0392b;border-radius:12px;background:#fff1f0"><div class="small" style="color:#c0392b;font-weight:700">Текста «${esc(work || state.topic)}» на сайте нет.</div><div style="height:8px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm flame" id="tbAdd">Добавить текст</button><button type="button" class="btn sm ghost" id="tbSkip">Продолжить без текста</button></div></div>`;
   $("#tbAdd").onclick = async () => {
     const p = { subject: state.subject, grade: state.grade, topic: state.topic || $("#topic").value.trim() };
     const ans = await askWorkText(p, work || p.topic, author || "");
@@ -1723,7 +1729,7 @@ async function buildWithAi(L, p, type, formats) {
   if (window.Sync) Sync.inspect(L);
   state.gen = null; await saveLesson(L);
   if (state.lesson?.id === L.id) renderLesson();
-  if (p.subject === "lit" && !p.plan?.kit && !L.sample) toast("Текст произведения не найден. Нажмите «Добавить текст» над уроком — и вопросы пойдут по самому тексту.", 8000);
+  if (p.subject === "lit" && !p.plan?.kit && !L.sample) toast("Текст произведения не найден. Урок собран без цитат.", 8000);
   if (!lessonMaterialsNote && p.subject === "ru") toast("Совет: загрузите рабочие тетради в «Материалы» — задания будут браться из них.", 6000);
 }
 /* ---------- открытые образовательные источники ---------- */
@@ -1955,7 +1961,7 @@ function updateProgress() {
   $$(".doc-tab").forEach(b => { const d = b.dataset.doc, pct = $(".pct", b); if (!pct) return; pct.textContent = mine && g.doc === d ? ` ${Math.round(g.pct)}%` : ""; });
   const show = mine && g.doc === state.active;
   $("#progress").hidden = !show;
-  if (show) { $("#progressText").textContent = `${DOCS[g.doc].label}${g.label ? " · " + g.label : ""}: ${Math.round(g.pct)}%`; $("#progressBar").style.width = g.pct + "%"; }
+  if (show) { $("#progressText").textContent = `${DOCS[g.doc].label}${g.label ? " · " + g.label : ""}: ${Math.round(g.pct)}%`; const pb = $("#progressBar"); pb.style.transition = "width .5s linear"; pb.style.width = g.pct + "%"; }
 }
 
 /* ===================================================================
@@ -1983,7 +1989,7 @@ function renderLesson() {
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
-  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span>${L.variant?.label ? `<span class="tag blue">${esc(L.variant.label)}</span>` : ""}<span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}`;
+  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1>${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}`;
   { const bv = $("#btnVerify"); if (bv) { const dev = !window.Access || !Access.commercial() || Access.isDev(); bv.hidden = !dev; } }
   { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);

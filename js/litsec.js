@@ -96,8 +96,9 @@ window.LitSec = (() => {
   if (!window.LitKit || window.LitKit.__litSecPatched) return;
   const orig = window.LitKit.build;
   if (typeof orig !== "function") return;
-  window.LitKit.build = function (p) {
-    const K = orig.call(window.LitKit, p);
+  window.LitKit.build = function (p, plan) {
+    const K = orig.call(window.LitKit, p, plan);
+    if (!K) return K;
     try {
       const extra = window.LitSec && window.LitSec.fill(p);
       if (extra && (!K.theory || !K.theory.length)) {
