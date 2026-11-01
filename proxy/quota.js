@@ -8,7 +8,7 @@
    Тарифы: единственный платный — «С ИИ» (400 ₽/мес) и «С ИИ, год» (3900 ₽/год).
    Лимиты «С ИИ»: 50 уроков с ИИ в месяц (≈ 2,7 млн токенов с запасом на правки),
    6 листов с картинками в месяц и 20 дополнительных листов в месяц; после лимита —
-   докупка уроков (пакеты 10/30/50 или своё количество 10–200).
+   докупка уроков (пакеты 10/30/50 или своё количество 1–200).
    Бесплатно (пробный доступ, 2 дня по 3 урока) — FREE_AI уроков с ИИ в месяц (по умолчанию 6).
    Учёт картинок и доп. листов — в image-pool.js и на сайте (те же константы LIMITS).
    =================================================================== */
@@ -46,7 +46,7 @@ async function check(userToken, request, readAll) {
   // пробный доступ: 2 дня по 3 урока с ИИ — токены начисляем один раз (старые профили, созданные без лимита)
   if (p.plan === "free" && tok && (p.tokens_limit || 0) <= 0 && (p.tokens_used || 0) <= 0) { p.tokens_limit = FREE_TOK(); await patch({ tokens_limit: FREE_TOK(), tokens_used: 0 }); }
   if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = 0; const b = { plan: "free", ai_left: 0, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
-  const NO = { ok: false, status: 402, reason: "quota", message: "Лимит 50 уроков с ИИ на этот месяц закончился. Докупите уроки в личном кабинете: пакет 10, 30 или 50 уроков — или своё количество от 10 до 200. Лимит обновится в начале месяца." };
+  const NO = { ok: false, status: 402, reason: "quota", message: "Лимит 50 уроков с ИИ на этот месяц закончился. Докупите уроки в личном кабинете: пакет 10, 30 или 50 уроков — или своё количество от 1 до 200. Лимит обновится в начале месяца." };
   if (tok) { const left = (p.tokens_limit || 0) - (p.tokens_used || 0); if (left <= 0) return NO; return { ok: true, id, tok: true, left, used: p.tokens_used || 0, limit: p.tokens_limit || 0 }; }
   if (!(p.ai_left > 0)) return NO;
   return { ok: true, id, left: p.ai_left };

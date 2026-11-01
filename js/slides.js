@@ -107,6 +107,19 @@ const SlideEditor = (() => {
   }
   const L = () => state.lesson;
   function slides() { return splitSlides(L().docs.slides || "").map(parse); }
+  /* Внутренние ссылки на слайды-приложения: в документе они записаны как (#a:hist), (#a:terms),
+     (#a:map), (#a:answers), (#a:bio) — при показе превращаются в (#slide-N). */
+  const _amCache = { md: "", map: {} };
+  function appendixMap() {
+    const md = L()?.docs?.slides || "";
+    if (_amCache.md === md) return _amCache.map;
+    const map = {};
+    try { slides().forEach((s, i) => { const k = s.set && s.set.appendix; if (k) map[k] = i + 1; }); } catch { }
+    _amCache.md = md; _amCache.map = map; return map;
+  }
+  function resolveLinks(md) {
+    return String(md || "").replace(/\[([^\]]+)\]\(#a:([A-Za-z0-9_-]+)\)/g, (m, txt, key) => { const n = appendixMap()[key]; return n ? `[${txt}](#slide-${n})` : txt; });
+  }
   function write(arr, { record = true } = {}) {
     const Ls = L(), head = headOf(Ls.docs.slides || "");
     if (record) { undo.push(Ls.docs.slides); if (undo.length > 60) undo.shift(); redo.length = 0; }
@@ -163,10 +176,10 @@ const SlideEditor = (() => {
     const tkv = TK ? ThemeKit.vars(T, L()?.slidePalette) : "";
     const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${st.aw ? `--aw:${+st.aw}%;` : ""}${st.ix || st.iy ? `--ix:${+st.ix || 0}%;--iy:${+st.iy || 0}%;` : ""}${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
-    const srcBody = String(acc ? parts.rest : sl.body || "").replace(/\]\(#g\s+«([^»]*)»\)/g, (m, d) => "](#g \"" + String(d).replace(/"/g, "\x27") + "\")");
+    const srcBody = resolveLinks(String(acc ? parts.rest : sl.body || "").replace(/\]\(#g\s+«([^»]*)»\)/g, (m, d) => "](#g \"" + String(d).replace(/"/g, "\x27") + "\")"));
   const body = vid + linkify(mdToHtml(srcBody));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
-    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
+    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.quiz ? "quiz" : "", st.appendix ? `appendix ap-${st.appendix}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
     const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
@@ -1053,13 +1066,14 @@ ${ixCss(anim())}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
 ${trCss()}
-</style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
+</style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку, викторина: 1-й щелчок — задание, 2-й — ответ" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
 <script>${window.VideoKit ? VideoKit.SHOW_JS : ""}
 const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.classList.add('t'+(j%4)));
 document.querySelectorAll('.lay-title').forEach(t=>{const im=t.closest('.deck-s').querySelector('figure.pic img,img.sx-bgimg');if(im&&im.src){t.classList.add('has-cut');t.style.setProperty('--cut','url("'+im.src+'")');}});
 const IX=${anim().ix ? 1 : 0},STEP=${anim().step ? 1 : 0};
 const isTerm=li=>{if(li.querySelector('img,table,a'))return null;const t=li.textContent.trim(),k=t.indexOf(' — ');if(k<2||k>44||t.length-k<3)return null;const a=t.slice(0,k);if(a.split(' ').length>6||a!==a.replace(/[.!?:;]/g,''))return null;return [a,t.slice(k+3)];};
-if(IX){document.querySelectorAll('.deck-s .sx-body ul').forEach(ul=>{const items=[...ul.children].filter(x=>x.tagName==='LI');const ok=items.filter(isTerm),ttl=(ul.closest('.deck-s')?.querySelector('.sx-title')?.textContent||'').toLowerCase(),quiz=/переверни|проверь себя|термин/.test(ttl);if(ok.length<2||(!quiz&&ok.length<items.length))return;ok.forEach(li=>{const [a,b]=isTerm(li);li.classList.add('ix-flip');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent=a;const bk=document.createElement('span');bk.className='ix-b';bk.textContent=b;li.append(f,bk);li.title='Щёлкните, чтобы перевернуть';li.addEventListener('click',e=>{e.stopPropagation();li.classList.toggle('flipped');});});});
+if(IX){document.querySelectorAll('.deck-s .sx.quiz .sx-body ul').forEach(ul=>{const cards=[...ul.children].filter(x=>x.tagName==='LI');if(!cards.length)return;ul.classList.add('ix-quiz-list');cards.forEach((li,n)=>{const raw=li.textContent.trim(),k=raw.indexOf(' || ');if(k<3)return;const task=raw.slice(0,k).trim(),ans=raw.slice(k+4).trim();li.classList.add('ix-card');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent='Карточка '+(n+1);const t=document.createElement('span');t.className='ix-t';t.textContent=task;const a=document.createElement('span');a.className='ix-a';a.textContent='Ответ: '+ans;li.append(f,t,a);li.title='Щёлкните: задание, затем ответ';let st=0;li.addEventListener('click',e=>{e.stopPropagation();st=(st+1)%3;li.classList.toggle('q1',st===1);li.classList.toggle('q2',st===2);});});});}
+if(IX){document.querySelectorAll('.deck-s .sx-body ul:not(.ix-quiz-list)').forEach(ul=>{const items=[...ul.children].filter(x=>x.tagName==='LI');const ok=items.filter(isTerm),ttl=(ul.closest('.deck-s')?.querySelector('.sx-title')?.textContent||'').toLowerCase(),quiz=/переверни|проверь себя|термин/.test(ttl);if(ok.length<2||(!quiz&&ok.length<items.length))return;ok.forEach(li=>{const [a,b]=isTerm(li);li.classList.add('ix-flip');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent=a;const bk=document.createElement('span');bk.className='ix-b';bk.textContent=b;li.append(f,bk);li.title='Щёлкните, чтобы перевернуть';li.addEventListener('click',e=>{e.stopPropagation();li.classList.toggle('flipped');});});});
 document.querySelectorAll('.deck-s .sx-body li:not(.ix-flip),.deck-s figure.pic,.deck-s .sx-body blockquote').forEach(el=>{el.classList.add('ix-tilt');el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*10+'deg');});el.addEventListener('pointerleave',()=>{el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});});
 const sp=document.querySelector('.ix-spot');addEventListener('pointermove',e=>{if(sp){sp.style.setProperty('--mx',e.clientX+'px');sp.style.setProperty('--my',e.clientY+'px');}});}
 const prep=x=>{if(!STEP)return;x.querySelectorAll('.sx-body li,.sx-body>p,.sx-body>blockquote').forEach((b,j)=>{if(j>0||b.tagName==='LI')b.classList.add('ix-hide');b.classList.remove('ix-show');});};
@@ -1099,7 +1113,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
   /* Интерактив в показе: карточки-перевороты, объём при наведении, подсветка за курсором, прогресс, пошаговый показ */
   function ixCss(A) {
     if (!A.ix && !A.step) return "";
-    return `.ix-on ul:has(.ix-flip){display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,30%),1fr));gap:.5em .6em;padding:0;margin:0;font-size:1em}
+    return `.ix-on ul:has(.ix-flip),.ix-on ul:has(.ix-card){display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,30%),1fr));gap:.5em .6em;padding:0;margin:0;font-size:1em}
 .ix-on .ix-flip{position:relative;cursor:pointer;perspective:900px;list-style:none;min-height:2.4em;margin:0!important}
 .ix-on .ix-flip::before{display:none!important}
 .ix-on .ix-flip .ix-f,.ix-on .ix-flip .ix-b{display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .6s cubic-bezier(.2,.8,.2,1);border-radius:.6em;padding:.6em .7em;font-size:.9em}
@@ -1112,6 +1126,15 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
 .ix-prog{position:fixed;left:0;top:0;right:0;height:4px;background:rgba(255,255,255,.12);z-index:8}.ix-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8a4bff,#f05aa6,#ffcf3f);transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .ix-spot{position:fixed;inset:0;pointer-events:none;z-index:7;background:radial-gradient(circle 22vmin at var(--mx,-50vw) var(--my,-50vh),rgba(255,255,255,.13),transparent 70%);mix-blend-mode:soft-light}
 .ix-hide{opacity:0!important;transform:translateY(14px)!important;animation:none!important}.ix-show{animation:anBlock .55s cubic-bezier(.2,.8,.2,1) both!important}
+.ix-on .ix-card{position:relative;cursor:pointer;list-style:none;min-height:3.4em;margin:0!important}
+.ix-on .ix-card>span{display:block;border-radius:.6em;padding:.6em .7em;transition:opacity .25s ease,transform .25s ease}
+.ix-on .ix-card .ix-f{font-weight:800;background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 2px currentColor;text-align:center}
+.ix-on .ix-card .ix-t,.ix-on .ix-card .ix-a{display:none;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 2px currentColor}
+.ix-on .ix-card .ix-a{background:rgba(255,255,255,.92);color:#1a1a1a}
+.ix-on .ix-card.q1 .ix-f{display:none}.ix-on .ix-card.q1 .ix-t{display:block}
+.ix-on .ix-card.q2 .ix-f,.ix-on .ix-card.q2 .ix-t{display:none}.ix-on .ix-card.q2 .ix-a{display:block}
+.ix-on .ix-card::after{content:"задание →";position:absolute;right:.45em;top:.2em;font-size:.65em;opacity:.6}
+.ix-on .ix-card.q1::after{content:"ответ →"}.ix-on .ix-card.q2::after{content:"↺ снова"}
 @media (prefers-reduced-motion:reduce){.ix-on .ix-tilt{transform:none}.ix-spot{display:none}}`;
   }
   /* Для PDF: те же слайды, что в редакторе */

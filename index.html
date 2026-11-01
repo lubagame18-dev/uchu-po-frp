@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -270,6 +270,40 @@ textarea.inp{resize:vertical;min-height:64px}
 .refine select{flex:0 1 auto;max-width:230px;border:2px solid var(--ink);border-radius:10px;background:#fff;padding:8px 10px;font:inherit;font-weight:700}
 .refine-note{padding:0 20px 18px;margin:-8px 0 0;color:var(--muted)}
 .refine-note[hidden]{display:none}
+
+/* ---------- превью: оформление презентации и формат заданий ---------- */
+.pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin:8px 0 4px}
+.pv-card{border:2px solid #e8dfc8;border-radius:12px;background:#fff;padding:5px;cursor:pointer;text-align:center;transition:border-color .15s,transform .15s,box-shadow .15s;min-width:0}
+.pv-card:hover{transform:translateY(-1px)}
+.pv-card.on{border-color:var(--flame);box-shadow:0 0 0 2px rgba(240,90,60,.16)}
+.pv-thumb{aspect-ratio:16/9;border-radius:8px;overflow:hidden;position:relative;background:#f7f3e8}
+.pv-thumb .sx{position:absolute;inset:0;font-size:7px;pointer-events:none}
+.pv-card small{display:block;margin-top:4px;font-size:11px;font-weight:700;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctrl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:8px;margin:8px 0 4px}
+.ctrl-card{border:2px solid #e8dfc8;border-radius:12px;background:#fff;padding:7px;cursor:pointer;display:flex;flex-direction:column;gap:5px;transition:border-color .15s,box-shadow .15s;min-width:0}
+.ctrl-card.on{border-color:var(--flame);box-shadow:0 0 0 2px rgba(240,90,60,.16)}
+.ctrl-card b{font-size:12px;font-weight:800;line-height:1.15}
+.ctrl-mock{flex:1;border:1px solid #e6ddc9;border-radius:8px;padding:5px 6px;background:#fffdf6;font-size:8px;line-height:1.4;color:#6b6357;overflow:hidden}
+.ctrl-mock .qh{font-weight:800;color:#2c2820;margin-bottom:2px}
+.ctrl-mock .ln{display:block;height:3px;border-radius:2px;background:#e6dfcf;margin:2px 0}
+.ctrl-mock .ans{display:inline-block;min-width:30px;border-bottom:1px solid #a49b88;height:6px;margin-left:2px}
+.ctrl-mock .num{font-weight:800;color:#2c2820;margin-right:2px}
+.ctrl-mock.test{background:#fff}
+.ctrl-mock.test .ln{background:#d9d2c2}
+.ctrl-card.off{opacity:.45;cursor:not-allowed}
+/* ---------- пожелания к уроку: открытая панель с перетаскиванием ---------- */
+.notes-panel{border:2.5px solid var(--ink);border-radius:16px;background:#FFFDF6;padding:12px 14px;margin:14px 0 12px}
+.notes-panel .np-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+.notes-panel .np-h h3{margin:0;font-size:16px}
+.notes-panel .np-lead{margin:0 0 8px;font-size:12.5px;color:var(--muted);line-height:1.35}
+.np-drop{border:2px dashed #c9bfa6;border-radius:12px;padding:10px 12px;margin-top:8px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;transition:border-color .15s,background .15s}
+.np-drop.over{border-color:var(--flame);background:#fff3ef}
+.np-drop .np-dt{font-size:12.5px;color:var(--muted);max-width:60%}
+.np-files{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.np-file{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;border:1px solid #eee3cd;border-radius:10px;padding:5px 8px;background:#fff}
+.np-file .np-ok{color:#2f8f5b;font-weight:800;font-size:11px}
+.np-file .np-meta{color:var(--muted);font-size:11.5px}
+.np-file .btn{padding:2px 8px;font-size:12px}
 
 /* ---------- библиотека ---------- */
 .page{padding-block:30px 60px;display:flex;flex-direction:column;gap:18px}
@@ -576,6 +610,10 @@ window.UCHU_SITE = {
           <div class="field"><label for="grade">Класс</label><select id="grade"></select></div>
           <div class="field"><label for="duration">Длительность</label><select id="duration"><option value="40">40 мин</option><option value="45" selected>45 мин</option><option value="60">60 мин</option><option value="90">90 мин</option></select></div>
         </div>
+        <div class="field"><span class="lbl">Уровень класса</span>
+          <div class="seg level" id="segLevel"><button data-v="weak" aria-pressed="false" title="Больше объяснений, образцов и подсказок">Слабый</button><button data-v="medium" aria-pressed="true">Средний</button><button data-v="high" aria-pressed="false" title="Больше заданий и олимпиадные задачи">Высокий</button></div>
+          <p class="hint" id="levelHint">Слабый — больше объяснений и образцов; высокий — больше заданий и олимпиадные.</p>
+        </div>
         <div class="field combo"><label for="topic">Тема урока</label>
           <div class="row-btn"><input type="text" id="topic" placeholder="Введите тему или выберите стрелкой" autocomplete="off"><button type="button" class="arrow" id="topicBtn" aria-label="Список тем" aria-expanded="false">▾</button></div>
           <div class="topic-panel" id="topicPanel" hidden></div>
@@ -607,22 +645,18 @@ window.UCHU_SITE = {
           </div>
         </div>
         <div class="field th-field" id="thField"><span class="lbl">Оформление презентации</span>
-          <select id="slTheme" aria-label="Оформление презентации"><option value="auto">✨ Авто — по теме урока</option></select>
+          <div class="pv-grid th-grid" id="slThemeGrid" role="radiogroup" aria-label="Оформление презентации"></div>
+          <select id="slTheme" aria-label="Оформление презентации" hidden><option value="auto">✨ Авто — по теме урока</option></select>
           <span class="small" id="slThemeWhy"></span>
         </div>
         <div class="row2">
           <div class="field" hidden><span class="lbl">Режим</span><div class="seg" id="segMode"><button data-v="school" aria-pressed="true">Школа</button><button data-v="tutor" aria-pressed="false">Репетитор</button></div></div>
-          <div class="field"><label for="control">Формат заданий</label><select id="control"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select></div>
+        </div>
+        <div class="field"><span class="lbl">Формат заданий</span>
+          <div class="ctrl-grid" id="ctrlGrid" role="radiogroup" aria-label="Формат заданий"></div>
+          <select id="control" hidden aria-label="Формат заданий"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select>
         </div>
         <p class="hint" id="controlHint"></p>
-        <div class="field"><span class="lbl">Как собирать</span>
-          <div class="seg build" id="segBuild"><button data-v="ai" id="buildAi" aria-pressed="true">С ИИ</button></div>
-          <p class="hint" id="buildHint">Урок собирает нейросеть: по вашим пожеланиям, встроенной базе и ФРП. Если сеть или нейросеть откажут, сайт соберёт черновик локально — вы не останетесь без материала.</p>
-        </div>
-        <div id="aiOnly">
-          <div class="field"><label for="wishes">Пожелания <span class="small">(необязательно, но нейросеть выполнит их в первую очередь)</span></label><textarea class="inp" id="wishes" placeholder="Класс слабый, нужна групповая работа; связать с «Тарасом Бульбой»; больше схем и картинок"></textarea></div>
-          <label class="check" style="align-self:flex-start;margin-top:10px"><input type="checkbox" id="deep"> Глубокая проработка</label>
-        </div>
         <details class="field prevhw" id="prevHwBox"><summary>Д/з прошлого урока — для проверки</summary>
           <textarea class="inp" id="prevHw" placeholder="Что задавали: упр. 245 или № 312, 315 (можно с ответами)"></textarea>
           <div class="prevhw-btns"><button class="btn sm" type="button" id="prevHwPick">📎 Файл</button><button class="btn sm" type="button" id="prevHwFind">🔎 Найти в «Моих уроках»</button><input type="file" id="prevHwFile" hidden></div>
@@ -718,7 +752,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.301";</script>
+<script>window.UCHU_VER="5.302";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================

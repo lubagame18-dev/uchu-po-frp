@@ -8,7 +8,7 @@
      SUPABASE_URL, SUPABASE_SERVICE_KEY — облако кабинета (тариф записывается туда)
    Маршруты: POST /pay/create (сайт просит ссылку на оплату), POST /pay/notify (Продамус сообщает об оплате).
    Тарифы: единственный платный — «С ИИ» (400 ₽/мес) и «С ИИ, год» (3900 ₽/год): всё доступно, 50 уроков с ИИ в месяц.
-   Докупка уроков: пакеты 10/30/50 (70/190/300 ₽) и «своё количество» от 10 до 200 (7 ₽ за урок, не меньше 70 ₽).
+   Докупка уроков: пакеты 10/30/50 (70/190/300 ₽) и «своё количество» от 1 до 200 (7 ₽ за урок, не меньше 70 ₽).
    Цены — только здесь, на сервере: подменить цену со стороны браузера нельзя.
    =================================================================== */
 const crypto = require("crypto");
@@ -25,8 +25,8 @@ const PACKS = {
   ai50: { name: "50 уроков с ИИ", price: 300, ai: 50, tokens: 2000000 }
 };
 const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
-/* «Своё количество» уроков: 10–200, цена max(70, ceil(n×7)) ₽ — считается только на сервере */
-const CUSTOM = { min: 10, max: 200, per: 7, minPrice: 70 };
+/* «Своё количество» уроков: 1–200, цена max(70, ceil(n×7)) ₽ — считается только на сервере */
+const CUSTOM = { min: 1, max: 200, per: 7, minPrice: 70 };
 const customPrice = n => Math.max(CUSTOM.minPrice, Math.ceil(n * CUSTOM.per));
 const customN = v => { const n = Number(v); return Number.isInteger(n) && n >= CUSTOM.min && n <= CUSTOM.max ? n : 0; };
 const DAY = 864e5;
@@ -77,9 +77,9 @@ async function create(body, userToken, request, readAll) {
   const promo = !!p.promo || p.plan === "promo", k = kOf(p), pct = Math.round((1 - k) * 100); // по промокоду — скидка, которую задал выдавший код
   if (p.plan === "promo") p.plan = "free";
   const item = String(body.item || "");
-  // «своё количество» уроков: n — целое 10–200, цену считаем здесь, а не в браузере
+  // «своё количество» уроков: n — целое 1–200, цену считаем здесь, а не в браузере
   const custom = item === "aiCustom" ? customN(body.n) : 0;
-  if (item === "aiCustom" && !custom) return { status: 400, json: { error: "количество уроков — целое число от 10 до 200" } };
+  if (item === "aiCustom" && !custom) return { status: 400, json: { error: "количество уроков — целое число от 1 до 200" } };
   let kind, price, name, sub = "";
   if (PACKS[item]) {
     if (promo) return { status: 400, json: { error: "по промокоду в тарифах с ИИ работает ваша нейросеть — докупать уроки не нужно" } };
@@ -211,7 +211,7 @@ async function test(body, userToken, request, readAll) {
   const item = String(body.item || "");
   const n = item === "aiCustom" ? customN(body.n) : 0;
   const type = PLANS[item] ? "plan" : PACKS[item] ? "pack" : item === "aiCustom" ? (n ? "custom" : "") : item === "free" ? "free" : "";
-  if (!type) return { status: 400, json: { error: item === "aiCustom" ? "количество уроков — целое число от 10 до 200" : "нет такого тарифа" } };
+  if (!type) return { status: 400, json: { error: item === "aiCustom" ? "количество уроков — целое число от 1 до 200" : "нет такого тарифа" } };
   const key = item === "aiCustom" ? String(n) : item; // для custom в kind хранится количество: custom_30
   let uid = user.id;
   if (body.email && String(body.email).toLowerCase() !== String(user.email).toLowerCase()) { const pr = (await sb(request, readAll, `/rest/v1/profiles?email=eq.${encodeURIComponent(String(body.email).toLowerCase())}&select=id`)).json?.[0]; if (!pr) return { status: 404, json: { error: "учитель с такой почтой ещё не заходил на сайт" } }; uid = pr.id; }

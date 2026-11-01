@@ -2175,9 +2175,42 @@ const Media = (() => {
     } catch { }
     const seen = new Set(); return [...art, ...ya, ...results].filter(r => !seen.has(r.url) && seen.add(r.url)).slice(0, Math.max(limit, ya.length));
   }
+  /* ---------- достоверность картинок: art- и map-интент ----------
+     Картины и репродукции ищем только с проверкой подписи: в названии файла должна быть фамилия
+     художника/героя из запроса или жанровое слово; для карт — «карта/map/атлас». Если ничего
+     не подтвердилось, место остаётся пустым с подсказкой «подберите репродукцию» — случайное фото
+     ресторана вместо картины не ставим. Обычные иллюстрации (без art/map-интента) работают как раньше. */
+  const ART_INTENT = /картин|репродукц|портрет|иллюстрац|пейзаж|натюрморт|живопис|художник|эскиз|фреск|икон|скульптур|гравюр|литограф|рисун|полотно|\bart\b|painting/i;
+  const MAP_INTENT = /карт[аеуы]|карты|картосхем|\bmap\b|атлас|atlas|план местности/i;
+  const ART_GENRE = /картин|репродукц|портрет|иллюстрац|пейзаж|натюрморт|живопис|рисун|эскиз|фреск|икон|скульптур|гравюр|литограф|холст|полотно|музей|галере/i;
+  const MAP_OK = /карт|map|атлас|atlas|план местности/i;
+  const GENRE_STOP = /^(картина|репродукция|иллюстрация|портрет|пейзаж|натюрморт|работа|художник|музей|карта|фото|русский|россия|история|литература|урок)$/i;
+  const nrm = s => String(s || "").toLowerCase().replace(/ё/g, "е");
+  const artIntent = q => ART_INTENT.test(String(q)) ? "art" : MAP_INTENT.test(String(q)) ? "map" : "";
+  const qNames = q => (String(q).match(/[А-ЯЁA-Z][а-яёa-z-]{2,}/g) || []).filter(w => !GENRE_STOP.test(w)).map(nrm).filter(w => w.length >= 4);
+  function commonsOk(it, intent, q) {
+    if (!it) return false;
+    const t = nrm([it.title, it.cap, it.artist].join(" "));
+    if (intent === "map") return MAP_OK.test(t);
+    if (intent === "art") return ART_GENRE.test(t) || qNames(q).some(n => t.includes(n));
+    return true;
+  }
+  const commonsQueries = (q, intent) => {
+    const out = [q];
+    const q2 = q.replace(/картина|репродукция|иллюстрация|пейзаж|натюрморт|портрет|работа|фото/gi, " ").replace(/\s+/g, " ").trim();
+    if (q2 && q2 !== q) out.push(intent === "map" ? `${q2} карта` : q2);
+    return out;
+  };
+  async function commonsBest(q, intent) {
+    for (const query of commonsQueries(q, intent)) {
+      const hits = await commons(query, 10, { intent });
+      if (hits.length) return hits[0];
+    }
+    return null;
+  }
   /* Иллюстрации и картины с подписью: Викисклад хранит автора, название и дату — подпись берётся оттуда, а не придумывается */
   const strip = h => String(h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  async function commons(query, limit = 8) {
+  async function commons(query, limit = 8, opts = {}) {
     try {
       const j = await getJson(`${C}?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(query)}&gsrlimit=${limit}&prop=imageinfo&iiprop=url|mime|extmetadata&iiurlwidth=1600`);
       return Object.values(j.query?.pages || {}).sort((a, b) => a.index - b.index).map(pg => {
@@ -2188,7 +2221,7 @@ const Media = (() => {
         const year = (strip(md.DateTimeOriginal?.value).match(/1[5-9]\d\d|20[0-2]\d/) || [])[0] || "";
         if (!artist || /unknown|неизвест/i.test(artist)) return null; // без автора подпись не ставим — такую картинку не берём
         return { url: ii.thumburl || ii.url, thumb: (ii.thumburl || ii.url).replace(/\/\d+px-/, "/320px-"), title: name, artist, year, cap: `${artist}. «${name.replace(/[«»]/g, "")}»${year ? ", " + year : ""}`, src: "Викисклад", page: ii.descriptionurl };
-      }).filter(Boolean);
+      }).filter(Boolean).filter(it => !opts.intent || commonsOk(it, opts.intent, query));
     } catch { return []; }
   }
   /* Выбор картинки: самая популярная (выше в выдаче) из тех, что подходят по названию и подписи;
@@ -2217,12 +2250,22 @@ const Media = (() => {
     return scored[0]?.it || null;
   }
   async function autoFill(md, onProgress) {
-    // commons: — иллюстрация с подписью (художник, название, год); если не нашлась — поиск Яндекса с пометкой «укажите художника и название»
+    // commons: — картина/иллюстрация с подписью (художник, название, год). Для art/map-интента —
+    // строгая проверка подписи и второй запрос; если не подтвердилось, остаётся место «подберите репродукцию».
     for (const m of [...md.matchAll(RE)].filter(m => m[2].startsWith("commons:"))) {
       const q = decodeURIComponent(m[2].slice(8)).trim();
-      const hit = (await commons(q, 8))[0];
+      const intent = artIntent(q);
+      const hit = intent ? await commonsBest(q, intent) : (await commons(q, 8))[0];
       let rep = null;
       if (hit) { const b = await toBlob(hit.url); let src = hit.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } rep = mdImage(hit.cap, src, { q, from: "Викисклад" }); }
+      else if (intent) { // случайное фото вместо картины не ставим: пустое место с подсказкой
+        const isMap = intent === "map";
+        const cap = `${m[1] || (isMap ? "Карта" : "Репродукция")} — ${isMap ? "подберите карту" : "подберите репродукцию"}`;
+        const need = isMap
+          ? `Карту не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите карту или картосхему с подписью.`
+          : `Репродукцию не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите картину или иллюстрацию с подписью — художник, название, год.`;
+        rep = mdImage(cap, m[2], { q, need });
+      }
       else rep = mdImage(`${m[1]} (укажите художника и название)`, "search:" + q, { q });
       md = md.replace(m[0], rep);
     }
@@ -2232,16 +2275,20 @@ const Media = (() => {
     const usedUrl = new Set(), fresh = list => list.filter(x => !usedUrl.has(x.url)); // одна и та же картинка не повторяется на разных слайдах
     for (const [k, m] of todo.entries()) {
       const P = plan[k] || {}, q0 = decodeURIComponent(m[2].slice(7)), q = P.query || q0;
+      const intent0 = artIntent(q0); // art/map-интент: проверяем, что пришла картина/карта, а не случайное фото
       let found = pickBest(q, fresh(await search(q, 12)), P.must);
+      if (found && intent0 && !commonsOk(found, intent0, q0)) found = null;
       if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12)), P.must);
       // строгий подбор не нашёл — берём первую подходящую картинку из выдачи Яндекса (без плакатов, схем и текста)
-      if (!found) { const ya = fresh(await yandexSearch(q, 12)); found = ya.find(x => !TEXTY.test(String(x.title || "").toLowerCase())) || null; if (!found && q !== q0) { const y2 = fresh(await yandexSearch(q0, 12)); found = y2.find(x => !TEXTY.test(String(x.title || "").toLowerCase())) || null; } }
+      if (!found) { const ya = fresh(await yandexSearch(q, 12)); found = ya.find(x => !TEXTY.test(String(x.title || "").toLowerCase()) && (!intent0 || commonsOk(x, intent0, q0))) || null; if (!found && q !== q0) { const y2 = fresh(await yandexSearch(q0, 12)); found = y2.find(x => !TEXTY.test(String(x.title || "").toLowerCase()) && (!intent0 || commonsOk(x, intent0, q0))) || null; } }
+      if (found && intent0 && !commonsOk(found, intent0, q0)) found = null;
       if (found) usedUrl.add(found.url);
       else { // не нашлось: пустое место с подсказкой — о чём слайд и какую картинку подобрать
         const sl = slideOf(out, out.indexOf(m[0])), title = ((sl.match(/^#{1,2}\s+(.+)$/m) || [])[1] || "").replace(/[🖼🎯💬📖🔍✍️🪞🏠🧩📝*_]/gu, "").trim();
         const kw = P.must?.[0] && P.must[0] !== "\u0000" ? P.must[0] : "", lit = /«|портрет|иллюстрац/i.test(q0);
         const need = `На слайде — «${title || m[1] || q0}». Подходящую картинку сайт не нашёл, искал «${kw || q0}». Подберите сами: ${/портрет/i.test(q0) ? "портрет писателя с подписью — художник, год" : lit ? "иллюстрацию к этой сцене или герою — художник, название" : kw ? `фото или рисунок, где есть «${kw}» — как в примере на слайде` : "картинку к примеру или тексту на слайде"}.`;
-        out = out.replace(m[0], mdImage(m[1], m[2].split(" ")[0] === m[2] ? m[2] : m[2], { ...Media_parse(m[3]), q: q0, need }));
+        const cap = intent0 ? `${m[1] || (intent0 === "map" ? "Карта" : "Репродукция")} — ${intent0 === "map" ? "подберите карту" : "подберите репродукцию"}` : m[1];
+        out = out.replace(m[0], mdImage(cap, m[2].split(" ")[0] === m[2] ? m[2] : m[2], { ...Media_parse(m[3]), q: q0, need }));
       }
       if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(m[1], src, { q, from: found.src })); }
       onProgress && onProgress(++done, todo.length);
@@ -2379,7 +2426,7 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
     g.drawImage(bmp, sx, sy, sw, sh, 0, 0, cw, ch);
     return { data: c.toDataURL("image/png"), w: cw, h: ch };
   }
-  return { commons, yandexSearch, toBlob, proxyBase, get yandexState() { return yandexState; }, RE, preprocess, postprocess, hydrate, figToMd, search, autoFill, openPicker, exportData, parseOpts, mdImage, yandexUrl };
+  return { commons, yandexSearch, toBlob, proxyBase, get yandexState() { return yandexState; }, RE, preprocess, postprocess, hydrate, figToMd, search, autoFill, openPicker, exportData, parseOpts, mdImage, yandexUrl, artIntent, commonsOk };
 })();
 
-const HELP_MD = "# Как работать с сайтом\n\n## Создать урок\n1. **Конструктор** → предмет, класс, тема (стрелка ▾ — темы из ФРП).\n2. Номер урока по теме: 1-й, 2-й… Тип урока сайт определит сам.\n3. Отметьте: техкарта, презентация, рабочий лист → **«Создать урок»**. Урок собирает нейросеть: она опирается на ваши пожелания, встроенную базу и ФРП.\n\n**Пожелания к уроку** — раскройте блок под параметрами и напишите, что важно (класс слабый, нужна групповая работа, больше схем и картинок). Нейросеть выполнит их в первую очередь.\n\n**Фото учебника**: в пожеланиях кнопка «📷 Фото учебника» — сфотографируйте страницу, сайт распознает текст и задания, и урок пойдёт по ним дословно.\n\n## Поправить и скачать\n- Конспект и рабочий лист правятся прямо на странице: щёлкните по тексту.\n- **Правка с ИИ**: строка «Что изменить?» под документом. Слева выберите область: этот документ, **рабочий лист**, **презентацию** или **весь материал урока** — правка затронет только выбранное.\n- **Презентация**: в редакторе слайдов «✎ Слайд с ИИ» переписывает только выбранный слайд, «✎ Вся презентация» — всю презентацию по одной просьбе. «🎨 Оформление» меняет цвета и шрифты, «▶ Показ» — на весь экран.\n- **«Скачать»**: Word, PDF, PowerPoint или всё архивом.\n\n## Где хранятся уроки\nВ **«Моих уроках»**. Войдите в личный кабинет (**«Войти»** вверху справа) — уроки сохранятся в облаке и откроются на любом устройстве.\n\n## Свои материалы\n**«Материалы»** → **«Прикрепить и встроить»**. Сайт будет брать из них задания для уроков.\n\n## Тариф\nОдин тариф — **«С ИИ»**: 400 ₽/мес или 3900 ₽/год (≈325 ₽/мес, скидка 19%). Входит всё: конспект, техкарта, презентация, рабочий лист, контроль и памятки, картинки, выгрузка, облако — 50 уроков с ИИ в месяц. Не хватило — докупите уроки пакетом или любым количеством от 10 до 200 (7 ₽ за урок). Пробный доступ — 2 дня по 3 урока в день.\n\n## Промокод\nКнопка тарифа вверху → войдите → внизу окна «Промокод».\n";
+const HELP_MD = "# Как работать с сайтом\n\n## Создать урок\n1. **Конструктор** → предмет, класс, тема (стрелка ▾ — темы из ФРП).\n2. Номер урока по теме: 1-й, 2-й… Тип урока сайт определит сам.\n3. Отметьте: техкарта, презентация, рабочий лист → **«Создать урок»**. Урок собирает нейросеть: она опирается на ваши пожелания, встроенную базу и ФРП.\n\n**Уровень класса** — слабый / средний / высокий: слабый — больше объяснений и образцов, высокий — больше заданий и олимпиадные задачи. **Формат заданий** — школьный, ВПР, ОГЭ или ЕГЭ: выбирается карточками с превью теста.\n\n**Пожелания к уроку** — открытое окно под параметрами: напишите, что важно (класс слабый, нужна групповая работа, больше схем и картинок). Нейросеть выполнит их в первую очередь.\n\n**Фото учебника**: в пожеланиях кнопка «📷 Фото учебника» — сфотографируйте страницу, сайт распознает текст и задания, и урок пойдёт по ним дословно.\n\n## Поправить и скачать\n- Конспект и рабочий лист правятся прямо на странице: щёлкните по тексту.\n- **Правка с ИИ**: строка «Что изменить?» под документом. Слева выберите область: этот документ, **рабочий лист**, **презентацию** или **весь материал урока** — правка затронет только выбранное.\n- **Презентация**: в редакторе слайдов «✎ Слайд с ИИ» переписывает только выбранный слайд, «✎ Вся презентация» — всю презентацию по одной просьбе. «🎨 Оформление» меняет цвета и шрифты, «▶ Показ» — на весь экран.\n- **«Скачать»**: Word, PDF, PowerPoint или всё архивом.\n\n## Где хранятся уроки\nВ **«Моих уроках»**. Войдите в личный кабинет (**«Войти»** вверху справа) — уроки сохранятся в облаке и откроются на любом устройстве.\n\n## Свои материалы\n**«Материалы»** → **«Прикрепить и встроить»**. Сайт будет брать из них задания для уроков.\n\n## Тариф\nОдин тариф — **«С ИИ»**: 400 ₽/мес или 3900 ₽/год (≈325 ₽/мес, скидка 19%). Входит всё: конспект, техкарта, презентация, рабочий лист, контроль и памятки, картинки, выгрузка, облако — 50 уроков с ИИ в месяц. Не хватило — докупите уроки пакетом или любым количеством от 1 до 200 (7 ₽ за урок, минимум 70 ₽). Пробный доступ — 2 дня по 3 урока в день.\n\n## Промокод\nКнопка тарифа вверху → войдите → внизу окна «Промокод».\n";

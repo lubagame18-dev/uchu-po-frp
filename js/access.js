@@ -5,7 +5,7 @@
      • «С ИИ» — 400 ₽/мес или «С ИИ, год» — 3900 ₽/год: всё доступно (техкарта, контроль,
        памятки, домашние задания, конспекты и правки с ИИ, листы с картинками, доп. листы,
        выгрузка, облако), 50 уроков с ИИ в месяц; расход ИИ считает сервер;
-     • докупка уроков с ИИ: пакеты и своё количество (10–200), цену считает только сервер;
+     • докупка уроков с ИИ: пакеты и своё количество (1–200), цену считает только сервер;
      • ПРОМОКОД — «свободная зона»: все тарифы обнуляются, всё бесплатно, а ИИ человек
        подключает сам («⚙ ИИ»: свои ключи, любые нейросети) — как в некоммерческой версии.
    Промокод проверяется по хэшу (data/promo.js); при входе в кабинет — ещё и на сервере.
@@ -39,8 +39,8 @@ const Access = (() => {
 
   };
   const PACKS = { ai10: { name: "+10 уроков с ИИ", price: 70, lessons: 10 }, ai30: { name: "+30 уроков с ИИ", price: 190, lessons: 30 }, ai50: { name: "+50 уроков с ИИ", price: 300, lessons: 50 } };
-  /* Докупка своего количества: 10–200 уроков, цена max(70, ceil(n×7)) ₽ — окончательную сумму считает сервер (proxy/payments.js) */
-  const CUSTOM = { min: 10, max: 200, per: 7, minPrice: 70 };
+  /* Докупка своего количества: 1–200 уроков, цена max(70, ceil(n×7)) ₽ — окончательную сумму считает сервер (proxy/payments.js) */
+  const CUSTOM = { min: 1, max: 200, per: 7, minPrice: 70 }, CUSTOM_DEFAULT = 10;
   const customPrice = n => Math.max(CUSTOM.minPrice, Math.ceil(n * CUSTOM.per));
   /* Служебный «полный доступ» для промокода: все функции и без лимитов; в витрине тарифов не показывается */
   const FULL = { name: "Всё открыто", price: 0, lessons: Infinity, extraSheets: Infinity, ai: true, img: true, imgQuota: Infinity, tech: true, feats: [] };
@@ -172,30 +172,31 @@ const Access = (() => {
       ${cur && planOf(cur).ai && !pr && !promoFree() ? `<div class="tr-packs"><b>Не хватает уроков с ИИ?</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}
         <div style="flex:1 1 100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px;border-top:1px dashed #e3d7b8;padding-top:8px">
           <label class="small" for="packN">Своё количество (${CUSTOM.min}–${CUSTOM.max}):</label>
-          <input type="number" id="packN" min="${CUSTOM.min}" max="${CUSTOM.max}" step="1" value="${CUSTOM.min}" inputmode="numeric" aria-label="Сколько уроков с ИИ докупить" style="width:96px;padding:6px 8px;border:1.5px solid #1b1b1b;border-radius:10px;font:inherit;background:#fff">
-          <span class="small">уроков — <b id="packPrice">${customPrice(CUSTOM.min)} ₽</b></span>
-          <button class="btn sm flame" type="button" id="packBuy">Купить ${CUSTOM.min} уроков</button>
+          <input type="number" id="packN" min="${CUSTOM.min}" max="${CUSTOM.max}" step="1" value="${CUSTOM_DEFAULT}" inputmode="numeric" aria-label="Сколько уроков с ИИ докупить" style="width:96px;padding:6px 8px;border:1.5px solid #1b1b1b;border-radius:10px;font:inherit;background:#fff">
+          <span class="small">уроков — <b id="packPrice">${customPrice(CUSTOM_DEFAULT)} ₽</b></span>
+          <button class="btn sm flame" type="button" id="packBuy">Купить ${CUSTOM_DEFAULT} уроков</button>
         </div>
-        <div class="small" style="flex:1 1 100%">Своё количество: 7 ₽ за урок, но не меньше 70 ₽. Итоговую сумму считает сервер.</div>
+        <div class="small" style="flex:1 1 100%">Цена: 7 ₽ за урок, но не меньше 70 ₽ — можно взять и меньше 10 уроков. Итоговую сумму считает сервер.</div>
       </div>` : ""}
       ${promoFree() ? "" : !me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>${pr ? "Другой промокод" : "Промокод"}</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
     m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
     m.querySelectorAll("[data-pack]").forEach(b => b.onclick = () => buy(b.dataset.pack));
-    // своё количество уроков: поле 10–200 и живой расчёт цены max(70, ceil(n×7)); сумму всё равно проверяет сервер
+    // своё количество уроков: поле 1–200 и живой расчёт цены max(70, ceil(n×7)); сумму всё равно проверяет сервер
     const pn = m.querySelector("#packN");
     if (pn) {
+      const clampN = v => { const n = Math.round(+v); return Number.isFinite(n) ? Math.max(CUSTOM.min, Math.min(CUSTOM.max, n)) : CUSTOM_DEFAULT; };
       const updPack = () => {
-        let n = Math.round(+pn.value); if (!Number.isFinite(n)) n = CUSTOM.min;
-        n = Math.max(CUSTOM.min, Math.min(CUSTOM.max, n)); pn.dataset.n = String(n);
+        const n = clampN(pn.value); pn.dataset.n = String(n);
         const pp = m.querySelector("#packPrice"), pb = m.querySelector("#packBuy");
         if (pp) pp.textContent = customPrice(n) + " ₽";
         if (pb) pb.textContent = `Купить ${n} уроков`;
       };
       pn.addEventListener("input", updPack);
-      pn.addEventListener("change", () => { let n = Math.round(+pn.value); if (!Number.isFinite(n)) n = CUSTOM.min; pn.value = String(Math.max(CUSTOM.min, Math.min(CUSTOM.max, n))); updPack(); });
+      // ушли из поля — поправляем только выход за пределы 1..200; набранное «5» остаётся пятёркой
+      pn.addEventListener("change", () => { pn.value = String(clampN(pn.value)); updPack(); });
       updPack();
-      m.querySelector("#packBuy")?.addEventListener("click", () => buy("aiCustom:" + (pn.dataset.n || CUSTOM.min)));
+      m.querySelector("#packBuy")?.addEventListener("click", () => buy("aiCustom:" + (pn.dataset.n || CUSTOM_DEFAULT)));
     }
     m.querySelector("#trReset")?.addEventListener("click", () => { closeModal(); const mm = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Вернуть бесплатный тариф</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${testBox("Вернуть бесплатный")}</div></div>`); bindTest(mm, "free"); });
     const lg = m.querySelector("#trLogin"); if (lg) lg.onclick = () => { closeModal(); Access.wantPromo = true; window.Account?.open(); };

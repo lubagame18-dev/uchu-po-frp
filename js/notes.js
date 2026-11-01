@@ -17,17 +17,21 @@ const Notes = (() => {
 
   function mount() {
     const btn = document.getElementById("btnCreate"); if (!btn || document.getElementById("notesBox")) return;
-    const box = document.createElement("details");
-    box.className = "notes-box"; box.id = "notesBox";
-    box.innerHTML = `<summary><span class="nb-t">Пожелания к уроку</span> <span class="nb-count" id="nbCount"></span></summary>
-      <textarea class="inp" id="nbPrompt" rows="3" placeholder="Например: класс слабый — больше работы в группах; сравнить с Тютчевым"></textarea>
-      <div class="nb-files" id="nbFiles"></div>
-      <div class="nb-foot"><label class="btn sm ghost file-btn">📎 Прикрепить файлы<input type="file" id="nbFileIn" multiple hidden></label><label class="btn sm flame file-btn" title="Сфотографируйте страницу учебника — сайт распознает задания и учтёт их в уроке">📷 Фото учебника<input type="file" id="nbPhotoIn" accept="image/*" capture="environment" multiple hidden></label><button type="button" class="btn plain" id="nbClear">Очистить</button></div>
+    const box = document.createElement("div");
+    box.className = "notes-panel"; box.id = "notesBox";
+    box.innerHTML = `<div class="np-h"><h3>🧩 Пожелания к уроку</h3><span class="small" id="nbCount"></span></div>
+      <p class="np-lead">Окно всегда открыто: напишите, что важно для этого урока — класс, акцент, что сравнить, каких заданий больше. Нейросеть выполнит пожелания в первую очередь, а прикреплённые файлы и фото учебника будут реально использованы в уроке.</p>
+      <textarea class="inp" id="nbPrompt" rows="3" placeholder="Например: класс слабый — больше объяснений; нужна групповая работа; сравнить с Тютчевым; больше схем и картинок"></textarea>
+      <div class="np-drop" id="nbDrop">
+        <span class="np-dt">Перетащите сюда файлы (Word, PDF, фото, txt) — они попадут в урок. Можно нажать кнопку.</span>
+        <span class="np-actions"><label class="btn sm ghost file-btn">📎 Прикрепить файлы<input type="file" id="nbFileIn" multiple hidden></label><label class="btn sm flame file-btn" title="Сфотографируйте страницу учебника — сайт распознает задания и учтёт их в уроке">📷 Фото учебника<input type="file" id="nbPhotoIn" accept="image/*" capture="environment" multiple hidden></label><button type="button" class="btn plain" id="nbClear">Очистить</button></span>
+      </div>
       <p class="small nb-photo-msg" id="nbPhotoMsg" role="status"></p>
+      <div class="np-files" id="nbFiles"></div>
       <div hidden><textarea id="nbObserve"></textarea><textarea id="nbLinks"></textarea><textarea id="nbText"></textarea><div id="nbCheck"></div><input id="nbCheckIn"><button type="button" id="nbCheckAdd"></button></div>`;
     btn.parentNode.insertBefore(box, btn);
-    // старое поле «Пожелания» (было только для ИИ) теперь живёт в заметках
-    const w = document.getElementById("wishes"); if (w) { w.value = ""; w.closest(".field").hidden = true; } // старое поле больше не используется: пожелания — только здесь
+    // старое поле «Пожелания» (если осталось в разметке) скрываем: пожелания живут только здесь
+    const w = document.getElementById("wishes"); if (w) { w.value = ""; w.closest(".field").hidden = true; }
     const $n = id => document.getElementById(id);
     $n("nbPrompt").value = draft.prompt; $n("nbObserve").value = draft.observe; $n("nbLinks").value = draft.links; $n("nbText").value = draft.text;
     [["nbPrompt", "prompt"], ["nbObserve", "observe"], ["nbLinks", "links"], ["nbText", "text"]].forEach(([id, k]) => $n(id).addEventListener("input", e => { draft[k] = e.target.value; save(); }));
@@ -37,35 +41,47 @@ const Notes = (() => {
     });
     const addItem = () => { const v = $n("nbCheckIn").value.trim(); if (!v) return; draft.checklist.push({ t: v, on: true }); $n("nbCheckIn").value = ""; renderCheck(); save(); };
     $n("nbCheckAdd").onclick = addItem; $n("nbCheckIn").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addItem(); } });
-    $n("nbFileIn").onchange = async e => {
-      for (const f of e.target.files) {
-        try { const r = await readFile(f); const text = (r.text || "").slice(0, 300000); const cl = window.Cleaner ? Cleaner.clean(text, { pdf: /\.pdf$/i.test(f.name) }).text : text; draft.files.push({ id: uid(), name: f.name, text: cl, chars: cl.length, scanned: !!r.scanned }); }
-        catch (err) { toast(`Не удалось прочитать «${f.name}»: ${err.message || err}`); }
+    /* файл → текст урока: документы читаем как раньше, картинки/фото распознаём (OCR) */
+    const addFile = async (f) => {
+      const isImg = /^image\//.test(f.type || "") || /\.(png|jpe?g|webp|bmp|gif|tiff?|heic)$/i.test(f.name || "");
+      if (isImg && window.OCR?.text) {
+        const t = await OCR.text(f);
+        if (!t || t.replace(/\s/g, "").length < 20) throw new Error("на фото не удалось прочитать текст — сфотографируйте ровнее и крупнее");
+        draft.files.push({ id: uid(), name: `Фото: ${f.name || "страница"}`, text: t.slice(0, 300000), chars: t.length, scanned: false, fromPhoto: true });
+        return t.length;
       }
-      e.target.value = ""; renderFiles(); save();
+      const r = await readFile(f);
+      if (r.image) throw new Error("это картинка — используйте «Фото учебника», чтобы распознать текст");
+      const text = (r.text || "").slice(0, 300000);
+      const cl = window.Cleaner ? Cleaner.clean(text, { pdf: /\.pdf$/i.test(f.name) }).text : text;
+      draft.files.push({ id: uid(), name: f.name, text: cl, chars: cl.length, scanned: !!r.scanned && !cl });
+      return cl.length;
     };
-    $n("nbPhotoIn").onchange = async e => {
-      const msg = $n("nbPhotoMsg"), files = [...e.target.files];
-      if (!files.length) return;
-      if (!window.OCR || !OCR.text) { toast("Распознавание фото не загрузилось — проверьте интернет и попробуйте ещё раз.", 7000); return; }
-      for (let i = 0; i < files.length; i++) {
-        msg.textContent = `Распознаю фото ${i + 1} из ${files.length}… Первый раз загружается модель распознавания (около 40 МБ), это может занять до минуты.`;
-        try {
-          const t = await OCR.text(files[i]);
-          if (!t || t.replace(/\s/g, "").length < 20) { toast(`На фото «${files[i].name}» не удалось прочитать текст — сфотографируйте страницу ровнее и крупнее.`, 8000); continue; }
-          draft.files.push({ id: uid(), name: `Фото учебника: ${files[i].name || "страница " + (i + 1)}`, text: t.slice(0, 300000), chars: t.length, scanned: false, fromPhoto: true });
-          msg.textContent = `Распознано: ${t.length} знаков. Задания из фото пойдут в урок.`;
-        } catch (err) { toast(`Не получилось распознать «${files[i].name}»: ${err.message || err}`, 8000); }
+    const accept = async (files, msgEl) => {
+      const list = [...(files || [])];
+      if (!list.length) return;
+      for (let i = 0; i < list.length; i++) {
+        if (msgEl) msgEl.textContent = `Читаю файл ${i + 1} из ${list.length}: ${list[i].name}…`;
+        try { const n = await addFile(list[i]); if (msgEl && n) msgEl.textContent = `Готово: «${list[i].name}» — ${n} знаков, попадёт в урок.`; }
+        catch (err) { toast(`Не удалось прочитать «${list[i].name}»: ${err.message || err}`, 8000); }
       }
-      e.target.value = ""; renderFiles(); save();
-      setTimeout(() => { if ($n("nbPhotoMsg")) $n("nbPhotoMsg").textContent = ""; }, 7000);
+      renderFiles(); save();
+      if (msgEl) setTimeout(() => { if (msgEl.isConnected) msgEl.textContent = ""; }, 5000);
     };
+    const msg = $n("nbPhotoMsg"), drop = $n("nbDrop");
+    $n("nbFileIn").onchange = async e => { await accept(e.target.files, msg); e.target.value = ""; };
+    $n("nbPhotoIn").onchange = async e => { await accept(e.target.files, msg); e.target.value = ""; };
+    /* перетаскивание файлов прямо в панель */
+    ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+    ["dragleave", "dragend"].forEach(ev => drop.addEventListener(ev, () => drop.classList.remove("over")));
+    drop.addEventListener("drop", async e => { e.preventDefault(); drop.classList.remove("over"); await accept(e.dataTransfer?.files, msg); });
+    box.addEventListener("dragover", e => { if ([...(e.dataTransfer?.types || [])].includes("Files")) e.preventDefault(); });
+    box.addEventListener("drop", async e => { if (!e.target.closest("#nbDrop")) { e.preventDefault(); await accept(e.dataTransfer?.files, msg); } });
     $n("nbClear").onclick = () => { draft = empty(); ["nbPrompt", "nbObserve", "nbLinks", "nbText"].forEach(id => $n(id).value = ""); renderCheck(); renderFiles(); save(); };
     renderCheck(); renderFiles(); paintCount();
-    if (filled()) box.open = true;
   }
   // после сборки урока пожелания и файлы обнуляются — к следующему уроку они не переходят
-  function reset() { draft = empty(); try { localStorage.removeItem(KEY); } catch { } const $n = id => document.getElementById(id); ["nbPrompt", "nbObserve", "nbLinks", "nbText"].forEach(id => { if ($n(id)) $n(id).value = ""; }); if ($n("nbCheck")) renderCheck(); if ($n("nbFiles")) renderFiles(); paintCount(); const box = $n("notesBox"); if (box) box.open = false; }
+  function reset() { draft = empty(); try { localStorage.removeItem(KEY); } catch { } const $n = id => document.getElementById(id); ["nbPrompt", "nbObserve", "nbLinks", "nbText"].forEach(id => { if ($n(id)) $n(id).value = ""; }); if ($n("nbCheck")) renderCheck(); if ($n("nbFiles")) renderFiles(); paintCount(); }
   function renderCheck() {
     const el = document.getElementById("nbCheck"); if (!el) return;
     el.innerHTML = draft.checklist.length ? draft.checklist.map((c, i) => `<label class="check"><input type="checkbox" data-ci="${i}" ${c.on ? "checked" : ""}> <span>${esc(c.t)}</span> <button type="button" class="btn plain" data-cdel="${i}" aria-label="Удалить пункт">×</button></label>`).join("") : `<p class="small">Пунктов пока нет.</p>`;
@@ -74,13 +90,18 @@ const Notes = (() => {
   }
   function renderFiles() {
     const el = document.getElementById("nbFiles"); if (!el) return;
-    el.innerHTML = draft.files.map((f, i) => `<div class="nb-file"><b>${esc(f.name)}</b> ${f.fromPhoto ? ' <span class="small">(фото учебника, распознано)</span>' : f.scanned ? ' <span class="small">(скан — текст не читается)</span>' : f.chars ? ` <span class="small">(${f.chars} знаков)</span>` : ""} <button type="button" class="btn plain" data-fdel="${i}">Убрать</button></div>`).join("");
+    if (!draft.files.length) { el.innerHTML = ""; return; }
+    el.innerHTML = draft.files.map((f, i) => {
+      const used = !!(f.text && f.text.trim());
+      const meta = f.fromPhoto ? "фото учебника, распознано" : f.scanned && !used ? "скан — текст не прочитан" : f.chars ? `${f.chars} знаков` : "";
+      return `<div class="np-file"><b>${esc(f.name)}</b> ${used ? '<span class="np-ok">✓ используется в уроке</span>' : '<span class="np-meta" style="color:#c0392b">не прочитан</span>'} <span class="np-meta">${meta}</span> <button type="button" class="btn plain" data-fdel="${i}">Убрать</button></div>`;
+    }).join("");
     el.querySelectorAll("[data-fdel]").forEach(b => b.onclick = () => { draft.files.splice(+b.dataset.fdel, 1); renderFiles(); save(); });
   }
   function paintCount() {
     const el = document.getElementById("nbCount"); if (!el) return;
     const n = [draft.prompt.trim(), draft.observe.trim(), draft.links.trim(), draft.text.trim()].filter(Boolean).length + (draft.checklist.length ? 1 : 0) + (draft.files.length ? 1 : 0);
-    el.textContent = n ? "✓" : "";
+    el.textContent = n ? `✓ ${n} учтено в уроке` : "";
   }
 
   /* Снимок заметок для урока + разбор подсказок (какие типы вопросов и форматы просит учитель) */

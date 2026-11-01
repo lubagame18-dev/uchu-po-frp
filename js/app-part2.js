@@ -57,7 +57,7 @@ const lessonLabel = n => Engine.lessonLabel(n);
 
 /* ---------- состояние ---------- */
 const state = {
-  subject: "ru", grade: 8, duration: 45, mode: "school", stage: "middle", lessonNo: 1, lessonTotal: 1, control: "school", topic: "", wishes: "",
+  subject: "ru", grade: 8, duration: 45, mode: "school", stage: "middle", lessonNo: 1, lessonTotal: 1, control: "school", topic: "", wishes: "", level: "medium",
   formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "ai",
   extra: { ctrl: "", variants: false, keys: true, memoSheet: false, memo: false, hw: false, hwText: "", extraText: "" },
   type: null, lesson: null, active: "conspect",
@@ -519,6 +519,7 @@ function syncControls() {
   const ex = KB.exams[state.control];
   $("#controlHint").textContent = ex ? ex.verify : ""; $("#controlHint").hidden = !ex;
   syncBuild();
+  try { window.paintControlGrid?.(); } catch { }
 }
 /* Сколько ⚡ уйдёт — прямо на кнопках: «Создать урок · ≈ 10 ⚡», «Доработать · ≈ 1 ⚡» */
 function paintCosts() {
@@ -533,31 +534,25 @@ function paintCosts() {
 }
 window.addEventListener("uchu:usage", () => { try { paintCosts(); } catch { } });
 function syncBuild() {
-  const U = window.UCHU, ok = window.AI ? AI.configured() : U ? U.configured() : !!caps.sample;
-  const name = window.AI ? (AI.label() || "") : "Claude";
-  // какая нейросеть подключена — видно только разработчику и по промокоду (кто подключает ИИ сам)
-  const own = !window.Access || !Access.commercial() || Access.ownAi();
-  $("#buildAi").innerHTML = !own || ok ? "С ИИ" : `С ИИ <small>не подключён</small>`; // какая именно нейросеть работает — не показываем
-  setSeg("segBuild", "ai");
+  // отдельной кнопки «С ИИ» больше нет: урок всегда собирает нейросеть
   state.build = "ai";
-  $("#aiOnly").hidden = false; // пожелания учителя — всегда на виду: ИИ выполняет их первыми
-  $("#buildHint").hidden = false;
   paintCosts();
 }
 function readForm() {
   state.grade = +$("#grade").value; state.duration = +$("#duration").value;
-  state.anyName = ($("#anyName")?.value || state.anyName || "").trim(); state.control = $("#control").value; state.topic = $("#topic").value.trim(); state.wishes = $("#wishes").value.trim();
-  state.deep = $("#deep").checked;
+  state.anyName = ($("#anyName")?.value || state.anyName || "").trim(); state.control = $("#control").value; state.topic = $("#topic").value.trim(); state.wishes = $("#wishes")?.value.trim() || "";
+  state.deep = !!$("#deep")?.checked;
   $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
   if (window.updateLessonSeg) updateLessonSeg();
-  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: state.build, anyName: state.anyName });
+  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, anyName: state.anyName });
 }
 function restoreForm() {
   const f = local.get("form", null);
-  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai" });
+  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium" });
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
-  fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; $("#wishes").value = ""; state.wishes = "";
+  fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; if ($("#wishes")) $("#wishes").value = ""; state.wishes = "";
   $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
+  setSeg("segLevel", state.level); syncLevelHint();
   syncPack(false);
   syncControls(); updateType();
 }
@@ -574,8 +569,21 @@ function paramsBlock(p) {
 - Режим: ${p.mode === "tutor" ? "Репетиторство (подготовка к экзамену, интенсив)" : "Школьный курс по ФРП"}
 - Тема: ${p.topic}
 - Урок по теме: ${lessonLabel(p.lessonNo)}${p.lessonNo !== 1 ? " (правило уже введено на прошлом уроке: не открывать его заново, а отрабатывать и углублять)" : ""}
+- Уровень класса: ${(LEVELS[p.level] || LEVELS.medium).name}
 - Тип урока (определён автоматически): ${p.type.name} — ${p.type.reason}
 - Формат контроля: ${p.control === "school" ? "Текущий школьный контроль" : KB.exams[p.control].label}${p.wishes ? `\n- Пожелания учителя: ${p.wishes}` : ""}`;
+}
+/* Уровень класса: подбирает глубину объяснений и нагрузку */
+const LEVELS = {
+  weak: { name: "слабый", text: "Класс слабый: объясняй подробно и по шагам, давай образцы и подсказки, больше примеров и опор, темп спокойнее. Задания — базовые, с опорой на образец; сложные только после разобранного примера." },
+  medium: { name: "средний", text: "Средний уровень: сбалансированно — объяснение, образец и практика; задания базовые и повышенные." },
+  high: { name: "высокий", text: "Сильный класс: больше заданий и темпа, меньше подсказок. Добавь 1–2 олимпиадные/нестандартные задачи, задания на перенос и анализ, вопросы «докажи/сравни/найди ошибку»." }
+};
+function levelBlock(p) { const L = LEVELS[p.level] || LEVELS.medium; return `## Уровень класса (${L.name}) — обязательно\n${L.text}`; }
+function syncLevelHint() {
+  const el = document.getElementById("levelHint"); if (!el) return;
+  const L = LEVELS[state.level] || LEVELS.medium;
+  el.textContent = L.text;
 }
 function materialsBlock(p) {
   const mats = relevantMaterials(p.topic, p.grade, p.subject);
@@ -834,6 +842,8 @@ ${paramsBlock(p)}
 ## Пожелания заказчика (обязательно, важнее общих правил)
 ${p.wishes ? `— ${p.wishes}\nВыполни буквально: это главное требование к уроку.` : "— не заданы"}
 
+${levelBlock(p)}
+
 ## Насыщенность и наглядность (обязательно)
 - Материала на урок должно быть много: 6–9 этапов, к каждому ключевому шагу — вопросы с верными ответами, примеры, «ловушки».
 - Включи 1–2 схемы-опоры (аккуратной таблицей или списком) и блок «Запомни» с мнемоникой по теме — так, как это делают в рабочих тетрадях.
@@ -926,6 +936,8 @@ ${window.Notes ? Notes.promptBlock(p) : ""}
 ## Пожелания заказчика (обязательно)
 ${p.wishes ? `— ${p.wishes}\nВыполни буквально: это важнее общих правил оформления.` : "— не заданы; сделай презентацию максимально наглядной."}
 
+${levelBlock(p)}
+
 ## Правила
 - Презентация иллюстрирует урок: на слайдах выжимки, ключевые вопросы, правила и цитаты из конспекта, а не полный текст.
 - Слайдов много и они насыщенные: 16–24. Лучше больше коротких слайдов с картинкой и одним смыслом, чем мало и перегружено.
@@ -982,6 +994,14 @@ ${window.Conv ? Conv.prompt(p) : ""}
 
 ## Пожелания заказчика (обязательно, важнее общих правил)
 ${p.wishes ? `— ${p.wishes}\nВыполни буквально.` : "— не заданы"}
+
+${levelBlock(p)}
+
+${exam ? `## Формат экзамена (${exam.label}) — как настоящий тест
+- Оформи рабочий лист как экзаменационный: «Часть 1. Задания с кратким ответом», затем «Задание 1», «Задание 2»…; у каждого — строка «Ответ: ______».
+- Без эмодзи и украшений; строгий бланк. В конце — таблица «Бланк ответов» (№ задания — ответ).
+- Типы и сложность заданий — как в ${exam.label}. ${exam.verify}
+` : ""}
 
 ## Логика заданий (обязательно)
 - Задания делай насыщенными: в каждом 2–3 подпункта или примера, а не один пункт; материала на листе должно быть много, но он должен помещаться.
@@ -1146,7 +1166,7 @@ async function createLesson() {
   $("#createHint").textContent = "";
   updateType();
   const type = state.type;
-  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type };
+  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type, level: state.level };
   // v5: заметки к уроку (необязательные) — промт, наблюдения, ссылки, чек-лист, текст, файлы
   rememberTopic(state.topic);
   // литература: текст произведения нужен до сборки — если сайт его не нашёл, спрашиваем учителя сейчас, а не после генерации
@@ -1401,8 +1421,31 @@ function deckCardsExtras(cards, p) {
     const creative = /^(izo|mhk|mus|lit)$/.test(String(p.subject || ""));
     if (creative && !hasKind("art")) insert({ id: "pa1", on: true, kind: "art", title: "Картина", img: `commons:${p.topic} картина`, cap: "Репродукция картины", points: ["Что изображено и как построена композиция?", "Какие цвета, свет и детали важны для понимания темы?", "Какое настроение создаёт произведение и как это связано с уроком?"], note: "Подпись (художник, название, год) уточните по источнику изображения." });
   } catch (e) { console.warn("deck extras art", e); }
+  /* Викторина (детерминированно, не на каждом уроке) и приложение «Ответы» со ссылкой — как у Deck */
+  try {
+    if (window.Mnemo?.find && !hasKind("quiz")) {
+      const h = [...(String(p.subject) + "|" + String(p.topic) + "|" + String(p.grade))].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 1000003, 7);
+      if (h % 3 === 0) {
+        const mn = Mnemo.find(p.topic, "", p.subject);
+        const qz = (mn?.quiz || []).filter(x => Array.isArray(x) && x[0] && x[1]).slice(0, 4);
+        if (qz.length >= 2) insert({ id: "pq1", on: true, kind: "quiz", title: "Викторина: задание — ответ", items: qz.map(([q, a]) => [String(q), String(a)]), notes: "В показе первый клик — задание, второй — ответ." });
+      }
+    }
+  } catch (e) { console.warn("deck extras quiz", e); }
+  try {
+    const qc = out.find(c => c.kind === "quiz") || out.find(c => c.kind === "check");
+    if (qc) {
+      const ans = [];
+      if (qc.kind === "quiz") (qc.items || []).forEach(([q, a]) => ans.push(`${plain(q)} — ${plain(a)}`));
+      else if (qc.answers?.length) (qc.points || []).forEach((q, i) => qc.answers[i] && ans.push(`${plain(q)} — ${plain(qc.answers[i])}`));
+      if (ans.length) {
+        qc.links = [...(qc.links || []), "answers"];
+        out.push({ id: "px-ans", on: true, kind: "appendix", appendix: "answers", title: "Ответы", points: ans.slice(0, 10), notes: "Ответы к вопросам и викторине — для учителя: показывайте после ответов класса." });
+      }
+    }
+  } catch (e) { console.warn("deck extras answers", e); }
   // картинки-акценты: почти на каждом слайде, кроме дословных блоков
-  const NOIMG = new Set(["quote", "poem", "task", "rule", "fragment", "board", "image", "art", "video", "section", "hw", "title"]);
+  const NOIMG = new Set(["quote", "poem", "task", "rule", "fragment", "board", "image", "art", "video", "section", "hw", "title", "appendix"]);
   try {
     for (const c of out) {
       if (c.img || c.on === false || NOIMG.has(c.kind)) continue;
@@ -1444,7 +1487,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
           const webTxt = _wq.length >= 2 ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
           if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
@@ -1959,7 +2002,17 @@ function decorate(root) {
   $$("h3", root).forEach(h => { const t = h.textContent; if (/Задание\s*\d/.test(t)) h.classList.add("task"); if (t.includes("🚀")) h.classList.add("lvl2"); if (t.includes("🔑")) h.classList.add("answers"); });
   $$("p", root).forEach(p => { if (/^✍️\s*ФИО/.test(p.textContent.trim())) p.classList.add("ws-head"); const t = p.textContent; if (/⟦[^⟧]+⟧/.test(t)) p.classList.add("todo"); });
   $$("a", root).forEach(a => { a.target = "_blank"; a.rel = "noopener"; });
+  dropAsterisks(root);
   Media.hydrate(root);
+}
+/* Одиночные «*» (артефакты Markdown) в тексте документа: убираем из видимого текста,
+   не трогая код, картинки и служебные блоки. Разметку документа это не меняет. */
+function dropAsterisks(root) {
+  const walk = n => {
+    if (n.nodeType === 3) { if (!n.parentElement || n.parentElement.closest("pre,code,script,style")) return; const v = n.nodeValue; if (v && v.includes("*")) n.nodeValue = v.replace(/\*/g, ""); return; }
+    if (n.nodeType === 1) { if (/^(pre|code|script|style)$/i.test(n.tagName)) return; n.childNodes.forEach(walk); }
+  };
+  root.childNodes.forEach(walk);
 }
 function splitSlides(md) { const s = md.replace(/^\s*---\s*\n[\s\S]*?\n---\s*\n/, m => /marp\s*:/.test(m) ? "" : m); return s.split(/\n-{3,}\s*\n/).map(x => x.trim()).filter(Boolean); }
 async function renderPreview() {
@@ -2197,7 +2250,7 @@ function inlineRuns(tokens, D, base = {}) {
       else if (t.tokens) walk(t.tokens, st);
       else {
         const parts = decodeEnt(t.text || t.raw || "").split(/<br\s*\/?>/i);
-        parts.forEach((p, i) => { if (i) runs.push(new D.TextRun({ text: "", break: 1 })); p = p.replace(/\[ ?_{3,} ?\]/g, "____________________________________"); if (p) pushText(p, st); });
+        parts.forEach((p, i) => { if (i) runs.push(new D.TextRun({ text: "", break: 1 })); p = p.replace(/\[ ?_{3,} ?\]/g, "____________________________________").replace(/\*/g, ""); if (p) pushText(p, st); });
       }
     }
   };
@@ -2757,27 +2810,52 @@ function bind() {
   });
   $$("#segMode button").forEach(b => b.onclick = () => { state.mode = b.dataset.v; setSeg("segMode", state.mode); syncControls(); readForm(); });
   $$("#segLesson button").forEach(b => b.onclick = () => { state.lessonNo = b.dataset.v === "продолжение" ? "продолжение" : +b.dataset.v; setSeg("segLesson", b.dataset.v); readForm(); updateType(); });
-  $$("#segBuild button").forEach(b => b.onclick = () => { state.build = "ai"; readForm(); syncBuild(); if (window.UCHU && !window.UCHU.configured()) openAiSettings(); });
-  { const sel = $("#slTheme"); if (sel && window.ThemeKit && window.SlideEditor) {
-    const baseHtml = sel.innerHTML;
+  $$("#segLevel button").forEach(b => b.onclick = () => { state.level = b.dataset.v; setSeg("segLevel", state.level); syncLevelHint(); readForm(); });
+  setSeg("segLevel", state.level); syncLevelHint();
+  /* Оформление презентации: живые превью тем вместо текстового списка */
+  { const sel = $("#slTheme"), grid = $("#slThemeGrid"); if (sel && grid && window.ThemeKit && window.SlideEditor) {
+    const sampleSl = { title: "Тема урока", level: 2, body: "## Ключевое понятие\n\n- Первый пункт плана\n- Второй важный пункт", set: {}, notes: "" };
+    const preview = k => { const th = k === "auto" ? ThemeKit.auto({ topic: $("#topic")?.value || "", subject: state.subject, grade: state.grade }) : k;
+      try { return SlideEditor.slideHtml(sampleSl, 0, { th }); } catch (e) { return `<div style="position:absolute;inset:0;background:#fff;color:#333;font:10px/1.2 system-ui;padding:6px">${esc(ThemeKit.META[th]?.name || "Слайд")}</div>`; } };
     const buildThemeOptions = () => {
       const pack = ThemeKit.packFor ? ThemeKit.packFor(state.subject) : null;
       const keys = (pack && pack.length) ? pack : Object.keys(ThemeKit.META);
-      const cur = sel.value;
-      sel.innerHTML = baseHtml + keys.map(k => `<option value="${k}">${ThemeKit.META[k].name} — ${ThemeKit.META[k].desc}</option>`).join("")
-        + (pack && pack.length ? "" : Object.entries(SlideEditor.THEMES).filter(([k]) => !keys.includes(k) && !ThemeKit.has(k)).map(([k, v]) => `<option value="${k}">${v}</option>`).join(""));
-      sel.value = (cur === "auto" || keys.includes(cur)) ? cur : "auto";
+      const extra = pack && pack.length ? [] : Object.entries(SlideEditor.THEMES).filter(([k]) => !keys.includes(k) && !ThemeKit.has(k));
+      if (sel.value !== "auto" && !keys.includes(sel.value) && !extra.some(([k]) => k === sel.value)) sel.value = "auto";
+      const cur = sel.value || "auto";
+      const card = (k, name) => `<button type="button" class="pv-card ${cur === k ? "on" : ""}" data-th="${k}" title="${esc(name)}"><div class="pv-thumb">${preview(k)}</div><small>${esc(name)}</small></button>`;
+      grid.innerHTML = card("auto", "✨ Авто — по теме") + keys.map(k => card(k, ThemeKit.META[k].name)).join("") + extra.map(([k, v]) => card(k, v)).join("");
+      grid.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { sel.value = b.dataset.th; try { localStorage.setItem("uchu:theme", sel.value); } catch { } buildThemeOptions(); why(); });
     };
     window.syncThemeOptions = buildThemeOptions;
-    buildThemeOptions();
     try { sel.value = localStorage.getItem("uchu:theme") || "auto"; } catch { }
     const why = () => { const t = $("#topic")?.value || ""; $("#slThemeWhy").textContent = sel.value === "auto" && t.trim() ? "сейчас: " + ThemeKit.why({ topic: t, subject: state.subject }) : ""; };
-    sel.onchange = () => { try { localStorage.setItem("uchu:theme", sel.value); } catch { } why(); };
-    $("#topic")?.addEventListener("input", why); why();
+    sel.onchange = () => { try { localStorage.setItem("uchu:theme", sel.value); } catch { } buildThemeOptions(); why(); };
+    buildThemeOptions();
+    // миниатюры рисуются через Markdown-конвертер: перерисуем, когда он загрузится
+    if (typeof ensureMarked === "function") ensureMarked().then(() => { try { buildThemeOptions(); } catch { } }).catch(() => { });
+    setTimeout(() => { try { buildThemeOptions(); } catch { } }, 1200);
+    setTimeout(() => { try { buildThemeOptions(); } catch { } }, 3000);
+    $("#topic")?.addEventListener("input", () => setTimeout(buildThemeOptions, 400)); $("#topic")?.addEventListener("input", why); why();
+  } }
+  /* Формат заданий: карточки с мини-превью теста */
+  { const sel = $("#control"), grid = $("#ctrlGrid"); if (sel && grid) {
+    const MOCK = {
+      school: `<div class="ctrl-mock"><div class="qh">Рабочий лист</div><div><span class="num">1.</span>Задание <span class="ans"></span></div><div><span class="num">2.</span>Задание <span class="ans"></span></div><span class="ln"></span></div>`,
+      vpr: `<div class="ctrl-mock test"><div class="qh">ВПР · вариант</div><div><span class="num">1</span>Ответ: <span class="ans"></span></div><div><span class="num">2</span>Ответ: <span class="ans"></span></div><div><span class="num">3</span>Ответ: <span class="ans"></span></div></div>`,
+      oge: `<div class="ctrl-mock test"><div class="qh">ОГЭ · КИМ</div><div><span class="num">1</span>Задание <span class="ans"></span></div><div><span class="num">2</span>Задание <span class="ans"></span></div><div class="qh" style="margin-top:3px">Часть 2</div><span class="ln"></span></div>`,
+      ege: `<div class="ctrl-mock test"><div class="qh">ЕГЭ · КИМ</div><div><span class="num">1</span>Задание <span class="ans"></span></div><div><span class="num">2</span>Задание <span class="ans"></span></div><div class="qh" style="margin-top:3px">Бланк ответов</div><span class="ln"></span></div>`
+    };
+    const NAMES = { school: "Школьный", vpr: "ВПР", oge: "ОГЭ", ege: "ЕГЭ" };
+    const paint = () => {
+      grid.innerHTML = Object.entries(NAMES).map(([k, n]) => `<button type="button" class="ctrl-card ${sel.value === k ? "on" : ""} ${controlAllowed(k, state.grade) ? "" : "off"}" data-c="${k}" title="${n}${controlAllowed(k, state.grade) ? "" : " — не для этого класса"}"><b>${n}</b>${MOCK[k]}</button>`).join("");
+      grid.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { const k = b.dataset.c; if (!controlAllowed(k, state.grade)) { toast("Этот формат не для " + state.grade + " класса."); return; } sel.value = k; sel.dispatchEvent(new Event("change")); });
+    };
+    window.paintControlGrid = paint; paint();
   } }
   $("#grade").onchange = () => { state.grade = +$("#grade").value; syncControls(); clearTopic(); refreshTopics(); };
   $("#control").onchange = () => { state.control = $("#control").value; syncControls(); readForm(); };
-  ["#wishes", "#duration", "#deep"].forEach(s => $(s).addEventListener("change", readForm));
+  if ($("#duration")) $("#duration").addEventListener("change", readForm);
   $("#topic").addEventListener("input", debounce(() => { readForm(); updateType(); if (!$("#topicPanel").hidden) renderTopicPanel(); }, 250));
   $("#topic").addEventListener("focus", () => { if (!$("#topic").value) openTopicPanel(); });
   $("#topic").addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); openTopicPanel(); $("#topicPanel button")?.focus(); } if (e.key === "Escape") $("#topicPanel").hidden = true; });
