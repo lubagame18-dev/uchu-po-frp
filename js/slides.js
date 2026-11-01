@@ -134,6 +134,7 @@ const SlideEditor = (() => {
     const pics = (sl.body.match(Media.RE) || []).length; Media.RE.lastIndex = 0;
     const text = sl.body.replace(Media.RE, "").trim(); Media.RE.lastIndex = 0;
     if (i === 0 || sl.level === 1) return "title";
+    if (!text && !pics) return "section";
     if (pics >= 2) return "gallery";
     if (pics === 1 && !text) return "image";
     if (/^>\s/m.test(text) && text.split("\n").filter(l => l.trim()).every(l => /^>/.test(l) || l.length < 70)) return "quote";
@@ -184,7 +185,7 @@ const SlideEditor = (() => {
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
     const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(tieQuotes(parts.acc))}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
-      <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(tieQuotes(sl.title))}</${H}>
+      <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(shortTitle(tieQuotes(sl.title)))}</${H}>
       <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${bodyHtml}</div></div>${window.ThemeKit && stk.length ? ThemeKit.stickersHtml(stk, edit) : ""}</div>`;
     return st.free ? applyFree(html, st) : html;
   }
@@ -218,6 +219,15 @@ const SlideEditor = (() => {
     meter.className = "sx-meter theme-" + theme();
     return meter;
   }
+  /* Заголовок слайда: убираем служебное «Урок №2», «Практическая работа №2» — учитель это знает;
+     если заголовок всё равно длинный, оставляем главное название до двоеточия/тире */
+  const shortTitle = s => {
+    let t = String(s || "").replace(/^(урок|тема|занятие)\s*(№\s*)?\d*\s*[.:—–-]?\s*/i, "");
+    t = t.replace(/\s*[—–-]\s*(практическ|лабораторн|контрольн|самостоятельн|проверочн)\w*.*$/i, "");
+    t = t.replace(/\s*\([^)]*(практическ|лабораторн|контрольн|самостоятельн)[^)]*\)\s*$/i, "");
+    if (t.length > 84) { const cut = t.search(/[:—–]\s/); if (cut > 20) t = t.slice(0, cut); }
+    return t.trim() || String(s || "");
+  };
   /* Кавычки и скобки не отрываются от слова: «ёлочки» не переносятся на другую строку */
   const tieQuotes = s => String(s || "")
     .replace(/«\s*/g, "«\u2060")
@@ -1163,6 +1173,11 @@ ${ixCss(anim())}
 .sx-note-i{flex:0 0 auto;width:1.9em;height:1.9em;border:3px solid currentColor;border-radius:.35em;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.5em;line-height:1}
 .sx-note-b{flex:1 1 auto;min-width:0}
 .sx.cut figure.pic img{border:0;background:transparent;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.25))}
+.sx.lay-section .sx-title,.sx.lay-title .sx-title{text-align:center}
+.sx.lay-section .sx-inner{justify-content:center;text-align:center}
+.sx-title,.sx-body{overflow-wrap:break-word}
+.sx .pl-i{cursor:pointer;text-decoration:underline dotted;text-underline-offset:.15em}
+.sx .ix-card{cursor:pointer}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
 ${trCss()}
 </style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку, викторина: 1-й щелчок — задание, 2-й — ответ" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
@@ -1171,7 +1186,7 @@ const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.cla
 document.querySelectorAll('.lay-title').forEach(t=>{const im=t.closest('.deck-s').querySelector('figure.pic img,img.sx-bgimg');if(im&&im.src){t.classList.add('has-cut');t.style.setProperty('--cut','url("'+im.src+'")');}});
 const IX=${anim().ix ? 1 : 0},STEP=${anim().step ? 1 : 0};
 const isTerm=li=>{if(li.querySelector('img,table,a'))return null;const t=li.textContent.trim(),k=t.indexOf(' — ');if(k<2||k>44||t.length-k<3)return null;const a=t.slice(0,k);if(a.split(' ').length>6||a!==a.replace(/[.!?:;]/g,''))return null;return [a,t.slice(k+3)];};
-if(IX){document.querySelectorAll('.deck-s .sx.quiz .sx-body ul').forEach(ul=>{const cards=[...ul.children].filter(x=>x.tagName==='LI');if(!cards.length)return;ul.classList.add('ix-quiz-list');cards.forEach((li,n)=>{const raw=li.textContent.trim(),k=raw.indexOf(' || ');if(k<3)return;const task=raw.slice(0,k).trim(),ans=raw.slice(k+4).trim();li.classList.add('ix-card');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent='Карточка '+(n+1);const t=document.createElement('span');t.className='ix-t';t.textContent=task;const a=document.createElement('span');a.className='ix-a';a.textContent='Ответ: '+ans;li.append(f,t,a);li.title='Щёлкните: задание, затем ответ';let st=0;li.addEventListener('click',e=>{e.stopPropagation();st=(st+1)%3;li.classList.toggle('q1',st===1);li.classList.toggle('q2',st===2);});});});}
+if(IX){document.querySelectorAll('.deck-s .sx.quiz .sx-body ul').forEach(ul=>{const cards=[...ul.children].filter(x=>x.tagName==='LI');if(!cards.length)return;ul.classList.add('ix-quiz-list');cards.forEach((li,n)=>{const raw=li.textContent.trim(),k=raw.indexOf(' || ');if(k<3)return;const task=raw.slice(0,k).trim(),ans=raw.slice(k+4).trim();li.classList.add('ix-card');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent='Карточка '+(n+1);const t=document.createElement('span');t.className='ix-t';t.textContent=task;const a=document.createElement('span');a.className='ix-a';a.textContent='Ответ: '+ans;li.append(f,t,a);li.title='Щёлкните: откроется ответ на отдельном слайде';li.addEventListener('click',e=>{e.stopPropagation();if(li._ans==null){var sec=document.createElement('section');sec.className='deck-s';var sx=document.createElement('div');sx.className='sx appendix';sx.innerHTML='<div class="sx-inner"><h2 class="sx-title">Ответ '+(n+1)+'</h2><div class="sx-body"><p>'+ans+'</p><p style="opacity:.65;font-size:.85em">'+task+'</p></div></div>';sec.appendChild(sx);var bk=document.createElement('button');bk.type='button';bk.className='sx-back';bk.textContent='← Назад';sec.appendChild(bk);(document.querySelector('.deck')||document.body).appendChild(sec);s.push(sec);li._ans=s.length-1;}var si=s.indexOf(li.closest('.deck-s'));BACK.push(si);go0(li._ans);});});});}
 if(IX){document.querySelectorAll('.deck-s .sx-body ul:not(.ix-quiz-list)').forEach(ul=>{const items=[...ul.children].filter(x=>x.tagName==='LI');const ok=items.filter(isTerm),ttl=(ul.closest('.deck-s')?.querySelector('.sx-title')?.textContent||'').toLowerCase(),quiz=/переверни|проверь себя|термин/.test(ttl);if(ok.length<2||(!quiz&&ok.length<items.length))return;ok.forEach(li=>{const [a,b]=isTerm(li);li.classList.add('ix-flip');li.innerHTML='';const f=document.createElement('span');f.className='ix-f';f.textContent=a;const bk=document.createElement('span');bk.className='ix-b';bk.textContent=b;li.append(f,bk);li.title='Щёлкните, чтобы перевернуть';li.addEventListener('click',e=>{e.stopPropagation();li.classList.toggle('flipped');});});});
 document.querySelectorAll('.deck-s .sx-body li:not(.ix-flip),.deck-s figure.pic,.deck-s .sx-body blockquote').forEach(el=>{el.classList.add('ix-tilt');el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*10+'deg');});el.addEventListener('pointerleave',()=>{el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});});
 const sp=document.querySelector('.ix-spot');addEventListener('pointermove',e=>{if(sp){sp.style.setProperty('--mx',e.clientX+'px');sp.style.setProperty('--my',e.clientY+'px');}});}
@@ -1191,6 +1206,8 @@ A('figure.pic').forEach(function(f){f.addEventListener('click',function(e){var i
 var APX={};A('.sx.appendix').forEach(function(sx){var k=null;Array.prototype.slice.call(sx.classList).forEach(function(c){if(c.indexOf('ap-')===0)k=c.slice(3);});var sec=sx.closest('.deck-s');if(k&&sec)APX[k]=A('.deck-s').indexOf(sec);});
 if(Object.keys(APX).length){var bar=document.createElement('div');bar.className='ap-nav';var NAMES={hist:'📖 Справка',terms:'📚 Словарь',map:'🗺 Карта',answers:'🔑 Ответы',bio:'👤 Биография'};Object.keys(APX).forEach(function(k){var b=document.createElement('button');b.type='button';b.className='ap-b';b.textContent=NAMES[k]||k;b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();BACK.push(i);go0(APX[k]);});bar.appendChild(b);});document.body.appendChild(bar);}
 addEventListener('keydown',function(e){if(!(e.key==='m'||e.key==='M'||e.key==='ь'||e.key==='Ь'))return;var ov=document.querySelector('.sx-menu');if(ov){ov.remove();return;}ov=document.createElement('div');ov.className='sx-menu';A('.deck-s').forEach(function(sec,idx){var t=sec.querySelector('.sx-title');var b=document.createElement('button');b.type='button';b.textContent=(idx+1)+'. '+(t?t.textContent:'слайд');b.addEventListener('click',function(){ov.remove();BACK.push(i);go0(idx);});ov.appendChild(b);});document.body.appendChild(ov);});
+A('figure.pic img').forEach(function(im){im.addEventListener('error',function(){var f=im.closest('figure.pic');if(f)f.remove();});if(im.complete&&!im.naturalWidth){var f2=im.closest('figure.pic');if(f2)f2.remove();}});
+A('.deck-s').forEach(function(sec,idx){var ttl=sec.querySelector('.sx-title');if(!ttl)return;var tt=ttl.textContent.toLowerCase();if(!/план урока|маршрут/.test(tt))return;A('.sx-body li',sec).forEach(function(li){li.classList.add('pl-i');li.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var words=li.textContent.toLowerCase().replace(/[^а-яёa-z0-9 ]+/g,' ').split(/\s+/).filter(function(w){return w.length>3;});if(!words.length)return;for(var j=idx+1;j<s.length;j++){var t2=(s[j].querySelector('.sx-title')||{textContent:''}).textContent.toLowerCase();var hit=words.some(function(w){return t2.indexOf(w.slice(0,6))>=0;});if(hit){BACK.push(i);go0(j);return;}}});});});
 })();<\/script></body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     if (opts.open) { const w = window.open(URL.createObjectURL(blob), "_blank"); if (!w) { toast("Браузер не дал открыть окно показа — разрешите всплывающие окна или скачайте HTML."); } return; }
