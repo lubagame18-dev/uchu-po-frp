@@ -592,17 +592,17 @@ function paramsBlock(p) {
 - Режим: ${p.mode === "tutor" ? "Репетиторство (подготовка к экзамену, интенсив)" : "Школьный курс по ФРП"}
 - Тема: ${p.topic}
 - Урок по теме: ${lessonLabel(p.lessonNo)}${p.lessonNo !== 1 ? " (правило уже введено на прошлом уроке: не открывать его заново, а отрабатывать и углублять)" : ""}
-- Уровень класса: ${(LEVELS[p.level] || LEVELS.medium).name}
+- Уровень: ${(LEVELS[p.level] || LEVELS.medium).name}
 - Тип урока (определён автоматически): ${p.type.name} — ${p.type.reason}
 - Формат контроля: ${p.control === "school" ? "Текущий школьный контроль" : KB.exams[p.control].label}${p.wishes ? `\n- Пожелания учителя: ${p.wishes}` : ""}`;
 }
-/* Уровень класса: подбирает глубину объяснений и нагрузку */
+/* Уровень: подбирает глубину объяснений и нагрузку (без слов «слабый/сильный класс») */
 const LEVELS = {
-  weak: { name: "слабый", text: "Класс слабый: объясняй подробно и по шагам, давай образцы и подсказки, больше примеров и опор, темп спокойнее. Заданий меньше, но каждое — с образцом: 4–5 в рабочем листе, 8–12 слайдов; сложные только после разобранного примера." },
+  weak: { name: "базовый", text: "Базовый уровень: объясняй подробно и по шагам, давай образцы и подсказки, больше примеров и опор, темп спокойнее. Заданий меньше, но каждое — с образцом: 4–5 в рабочем листе, 8–12 слайдов; сложные только после разобранного примера." },
   medium: { name: "средний", text: "Средний уровень: сбалансированно — объяснение, образец и практика; 5–6 заданий в листе, 14–18 слайдов, задания базовые и повышенные." },
-  high: { name: "высокий", text: "Сильный класс быстро решает: больше заданий и темпа, меньше подсказок. В рабочем листе 7–8 заданий (включая 1–2 олимпиадные/нестандартные), в презентации 20–26 слайдов и больше практики; вопросы «докажи/сравни/найди ошибку», задания на перенос." }
+  high: { name: "сильный", text: "Сильный уровень: быстрый темп, больше заданий, меньше подсказок. В рабочем листе 7–8 заданий (включая 1–2 олимпиадные/нестандартные), в презентации 20–26 слайдов и больше практики; вопросы «докажи/сравни/найди ошибку», задания на перенос." }
 };
-function levelBlock(p) { const L = LEVELS[p.level] || LEVELS.medium; return `## Уровень класса (${L.name}) — обязательно\n${L.text}`; }
+function levelBlock(p) { const L = LEVELS[p.level] || LEVELS.medium; return `## Уровень: ${L.name} — обязательно\n${L.text}`; }
 function syncLevelHint() {
   const el = document.getElementById("levelHint"); if (!el) return;
   const L = LEVELS[state.level] || LEVELS.medium;
@@ -1959,8 +1959,8 @@ function renderLesson() {
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
-  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span>${L.variant?.label ? `<span class="tag blue">${esc(L.variant.label)}</span>` : ""}<span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}<p class="verify-line"><button class="btn sm ghost" id="btnPrompts" title="Промт этого урока и общий промт — чтобы переделать урок в любой нейросети">📝 Промты урока</button></p>`;
-  { const dev = !window.Access || !Access.commercial() || Access.isDev(); const bp = $("#btnPrompts"); if (bp) { bp.hidden = !dev; bp.onclick = () => openPrompts(L); } const bv = $("#btnVerify"); if (bv) bv.hidden = !dev; }
+  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1><div class="tags"><span class="tag">${P.grade} класс</span>${L.variant?.label ? `<span class="tag blue">${esc(L.variant.label)}</span>` : ""}<span class="tag">${P.subject !== "ru" && P.subject !== "lit" && window.Subjects ? Subjects.name(P.subject) : P.subject === "ru" ? "Русский язык" : "Литература"}</span><span class="tag sun" title="${esc(P.type?.reason || "")}">${esc(P.type?.name || "")}</span>${P.lessonNo ? `<span class="tag">${esc(lessonLabel(P.lessonNo))}</span>` : ""}${P.mode === "tutor" ? '<span class="tag red">Репетитор</span>' : ""}${P.control && P.control !== "school" ? `<span class="tag blue">${KB.exams[P.control].label}</span>` : ""}<span class="tag">${L.built === "ai" ? "с ИИ" : L.sample ? "образец" : "без ИИ"}</span>${L.plan?.format ? `<span class="tag">формат: ${esc(L.plan.format.name.toLowerCase())}</span>` : ""}</div>${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. Помогите сайту: добавьте текст, и вопросы пойдут по строфам и эпизодам именно этого произведения. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}`;
+  { const bv = $("#btnVerify"); if (bv) { const dev = !window.Access || !Access.commercial() || Access.isDev(); bv.hidden = !dev; } }
   { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
   const busy = isGenerating(L, state.active);

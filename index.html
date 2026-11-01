@@ -185,7 +185,7 @@ textarea.inp{resize:vertical;min-height:64px}
 .ws-tools{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto;align-items:center}
 .lesson-title{padding:16px 20px 0;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
 .lesson-title h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:20px;line-height:1.25;min-width:0;overflow-wrap:anywhere}
-.lesson-title .tags{display:flex;gap:6px;flex-wrap:wrap}
+.lesson-title .tags{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px;border:2px solid var(--ink);border-radius:14px;background:var(--soft);width:fit-content}
 .tag{font-size:12px;font-weight:800;border-radius:100px;padding:3px 10px;background:var(--card);border:2px solid var(--ink)}
 .tag.red{background:var(--coral)}
 .tag.blue{background:var(--sky)}
@@ -648,7 +648,7 @@ window.UCHU_SITE = {
           <div class="field"><label for="duration">Длительность</label><select id="duration"><option value="40">40 мин</option><option value="45" selected>45 мин</option><option value="60">60 мин</option><option value="90">90 мин</option></select></div>
         </div>
         <div class="field"><span class="lbl">Уровень класса</span>
-          <div class="seg level" id="segLevel"><button data-v="weak" aria-pressed="false" title="Больше объяснений, образцов и подсказок">Слабый</button><button data-v="medium" aria-pressed="true">Средний</button><button data-v="high" aria-pressed="false" title="Больше заданий и олимпиадные задачи">Высокий</button></div>
+          <div class="seg level" id="segLevel"><button data-v="weak" aria-pressed="false" title="Больше объяснений, образцов и подсказок">Базовый</button><button data-v="medium" aria-pressed="true">Средний</button><button data-v="high" aria-pressed="false" title="Больше заданий и олимпиадные задачи">Высокий</button></div>
           <p class="hint" id="levelHint">Слабый — больше объяснений и образцов; высокий — больше заданий и олимпиадные.</p>
         </div>
         <div class="field combo"><label for="topic">Тема урока</label>
@@ -796,7 +796,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.314";</script>
+<script>window.UCHU_VER="5.315";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================
