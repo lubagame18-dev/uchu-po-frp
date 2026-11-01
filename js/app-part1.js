@@ -2258,6 +2258,11 @@ const Media = (() => {
     return scored[0]?.it || null;
   }
   async function autoFill(md, onProgress) {
+    // викторина, выбор ответа, самопроверка, справка и «Ответы» картинок не получают: вместо заглушки, вылезающей за рамку, токен просто убираем
+    for (const m of [...md.matchAll(RE)].filter(m => /^(search|commons):/.test(m[2]))) {
+      const sl0 = slideOf(md, md.indexOf(m[0]));
+      if (/"(quiz|choice|odd|selfcheck|appendix)"\s*:|"kind"\s*:\s*"(ref|check|choice|selfcheck|quiz)"/.test(sl0)) md = md.replace(m[0], "");
+    }
     // commons: — картина/иллюстрация с подписью (художник, название, год). Для art/map-интента —
     // строгая проверка подписи и второй запрос; если не подтвердилось, остаётся место «подберите репродукцию».
     for (const m of [...md.matchAll(RE)].filter(m => m[2].startsWith("commons:"))) {
