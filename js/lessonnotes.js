@@ -146,15 +146,20 @@ const LessonNotes = (() => {
       const writes = (strip(c[1]).match(/[Зз]апиш(?:ите|ем)\s+([^.?!]{4,80})/) || [])[1] || "";
       out += X.meta(S.mat !== "беседа" ? S.mat : "", writes);
       // слово учителя: переходы, пояснения (без вариантов «если не ответили…»)
-      const word = [];
+      const word = [], frBlocks = [];
       const hasEx = ru && t && t.text && !/⟦/.test(t.text);
       for (const n of T.notes) {
         if (hasEx && /^Форма работы:/i.test(n)) continue;
         if (/^Алгоритм «.*на слайде/.test(n) || /если затрудня|если не (ответ|справ)|наводящ/i.test(n)) continue;
         if (/^(Медленное чтение|Итог анализа|Прогноз|Как автор этого добивается|Предварительный комментарий|Нравственный выбор)[^<]*:$/.test(n.trim())) continue;
+        // отрывок произведения — отдельным блоком с полным текстом, а не обрывком внутри слов учителя
+        const fm = !ru && K?.fragments?.length && n.trim().match(/^\*\*Работа (?:с фрагментом|с частью)\s+(\d+)[^*]*\*\*/);
+        const ff = fm && K.fragments.find(f => String(f.n) === fm[1]);
+        if (ff) { frBlocks.push(ff); continue; }
         word.push(n.replace(/^🔗\s*\*?Переход:\*?\s*/, "").replace(/^📌\s*/, ""));
       }
       if (word.length) out += X.row("Учитель", word);
+      for (const ff of frBlocks) out += X.box(`Отрывок ${ff.n}. ${ff.label}${ff.whole ? "" : ` (строки ${ff.from}–${ff.to})`}`, ff.text.split("\n").filter(l => l.trim()).map(l => `*${clean(l)}*`));
       // вопрос учителя — рядом ответ учеников
       if (T.qs.length) out += X.qa(T.qs.map((x, k) => [x.q, x.a || (k === 0 && students ? students : "")]));
       // схема на доске — на этапе открытия нового знания (по учебнику: принятые обозначения)

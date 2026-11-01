@@ -1780,7 +1780,7 @@ function joinCont(a, b) { b = String(b || "").replace(/^\s*(```\w*\s*)?/, ""); c
 function techOf(L, p, type) { return L.docs.conspect || L.tech || (L.tech = injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect")); }
 function buildDocNoAi(f, L, p, type) {
   if (f === "conspect") return injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect");
-  if (f === "lesson") return LessonNotes.build(techOf(L, p, type), p);
+  if (f === "lesson") { const md0 = LessonNotes.build(techOf(L, p, type), p); try { return window.Layout?.taskBlocks ? Layout.taskBlocks(md0, p) : md0; } catch (e) { console.warn("taskBlocks", e); return md0; } }
   if (f === "worksheet") return Engine.worksheet(p, type, state.materials);
   if (EXTRA_DOCS.includes(f)) { techOf(L, p, type); return Engine.extra(f, p, type, state.materials, { ...(p.extra || state.extra), ctrl: (p.extra || state.extra).ctrl || "self" }); }
   const cmd = techOf(L, p, type);

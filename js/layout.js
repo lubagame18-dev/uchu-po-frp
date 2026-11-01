@@ -52,7 +52,18 @@ const Layout = (() => {
     marker: () => "",
     // строка с меткой слева; соседние строки потом сливаются в одну таблицу
     row: (label, text) => { const t = Array.isArray(text) ? text.map(x => cell(x)).filter(Boolean).join("<br>") : cell(text); if (!t) return ""; return `| ${clean(label).toUpperCase()} | ${t} |\n|---|---|\n\n`; },
-    qa: (pairs, head = ["Вопрос учителя", "Ответ учеников"]) => { const P = pairs.filter(x => clean(x[0])); if (!P.length) return ""; return `| ${head[0]} | ${head[1]} |\n|---|---|\n${P.map(([q, a], i) => `| ${P.length > 1 ? `${i + 1}) ` : ""}${cell(q)} | ${a ? `*${cell(a).replace(/\*/g, "")}*` : "*высказывают своё мнение*"} |`).join("\n")}\n\n`; },
+    /* Задания, упражнения и отрывки текста не живут внутри таблицы «вопрос – ответ»: они выносятся отдельным блоком над ней, а в вопросе остаётся ссылка */
+    splitTasks: q => {
+      let text = String(q || ""), task = "", kind = "";
+      const quote = text.match(/«([^»]{50,})»/);
+      if (quote && !/[….]{1,3}\s*$/.test(quote[1].replace(/[.!?]$/, "")) && !/…\s*$/.test(quote[1])) { task = quote[1].trim(); kind = "Отрывок"; text = text.replace(quote[0], "отрывок выше"); }
+      else {
+        const m = text.match(/^((?:Решите|Вычислите|Упростите|Сократите|Найдите|Выполните|Запишите|Составьте|Расставьте|Определите|Постройте|Разложите|Выразите|Преобразуйте|Докажите|Сравните|Переведите|Translate|Complete)[^:]{0,70}):\s*(.{8,})$/);
+        if (m && /[=+×*\/^²³()]|\d|\b[A-Z][a-z]?\d?\b/.test(m[2]) && !/\?\s*$/.test(m[2])) { task = m[2].trim(); kind = "Задание"; text = m[1].trim() + " (задание выше)"; }
+      }
+      return { q: text, task, kind };
+    },
+    qa: (pairs0, head = ["Вопрос учителя", "Ответ учеников"]) => { let pre = ""; const seenT = new Set(); const pairs = pairs0.map(pr => { const sp = md.splitTasks(pr[0]); if (sp.task && !seenT.has(sp.task)) { seenT.add(sp.task); pre += md.row(sp.kind, sp.task); } return [sp.q, pr[1]]; }); const P = pairs.filter(x => clean(x[0])); if (!P.length) return pre; return pre + `| ${head[0]} | ${head[1]} |\n|---|---|\n${P.map(([q, a], i) => `| ${P.length > 1 ? `${i + 1}) ` : ""}${cell(q)} | ${a ? `*${cell(a).replace(/\*/g, "")}*` : "*высказывают своё мнение*"} |`).join("\n")}\n\n`; },
     // упражнение и рядом алгоритм его выполнения
     ex: (title, lines, steps, algoName) => `| ${cell(title)} | Алгоритм выполнения${algoName ? ` «${cell(algoName)}»` : ""} |\n|---|---|\n| ${lines.map(x => cell(x)).filter(Boolean).join("<br>")} | ${steps.map((s, i) => `${i + 1}) ${cell(String(s).replace(/^\d+[.)]\s*/, ""))}`).join("<br>")} |\n\n`,
     box: (label, lines) => {
@@ -187,6 +198,58 @@ const Layout = (() => {
   };
   const docxKind = label => DOCX[kindOf(label)] || DOCX.box;
 
-  return { md, merge, restyle, decorate, kindOf, docxKind, cell, clean, isLabel, KINDS, LEGEND };
+
+  /* ---------- задания вне таблицы «Учитель – Ученики» (математика, химия, физика и др.) ----------
+     Нумерованные задания и «примеры/уравнения» выносятся из слов учителя в отдельный блок «Задание | Алгоритм выполнения»;
+     в тексте учителя остаётся ссылка на блок. */
+  function taskBlocks(md, p) {
+    const subj = p?.subject || ""; if (!md || subj === "ru" || subj === "lit") return md;
+    const L = String(md).split("\n"), out = []; let stage = "", pend = [];
+    const HEAD = /задани|упражнен|вопрос|пример|уравнен|задач|решите|вычислите|тренаж|практик|формул/i;
+    const algoFor = lines => {
+      const t = lines.join(" ");
+      if (/[₀-₉]|=\s*[A-ZА-Я]|\b[A-Z][a-z]?\d?\s*\+\s*[A-Z]/.test(t) && subj === "chem") return ["Запишите формулы веществ, вступающих в реакцию, и продуктов.", "Расставьте коэффициенты: число атомов каждого элемента слева и справа должно совпасть.", "Проверьте баланс по каждому элементу.", "Назовите вещества и тип реакции."];
+      if (subj === "chem" && /расч[её]т|масс[аы]|моль|объ[её]м|доля|вычисл/i.test(t)) return ["Запишите «Дано» и уравнение реакции с коэффициентами.", "Найдите по уравнению соотношение количеств веществ (моль).", "Рассчитайте искомую величину и проверьте единицы измерения.", "Запишите ответ."];
+      if (/math|alg|geom/.test(subj) || /[=+×÷\d]\s*[=+×÷]/.test(t)) return ["Прочитайте условие: что дано и что найти.", "Выберите правило или формулу и запишите её.", "Выполните преобразования по шагам, каждый шаг – на новой строке.", "Проверьте ответ подстановкой или прикидкой и запишите его."];
+      if (subj === "phys") return ["Запишите «Дано» и переведите единицы в СИ.", "Выберите формулу, выразите искомую величину.", "Подставьте числа и вычислите.", "Оцените ответ: правдоподобно ли значение, верна ли единица."];
+      if (subj === "inf") return ["Определите входные данные и результат.", "Разбейте задачу на шаги (алгоритм).", "Выполните шаги, записывая промежуточные результаты.", "Проверьте на тестовом примере."];
+      return ["Прочитайте задание и найдите, что требуется.", "Найдите опору: правило, схему, источник или текст.", "Выполните задание и запишите ответ полностью.", "Сверьтесь с эталоном и исправьте ошибки."];
+    };
+    const flush = () => {
+      pend.forEach((b, k) => {
+        const steps = algoFor(b.lines).map((x, i) => `${i + 1}) ${x}`).join("<br>");
+        out.push(`| 📝 Задание${b.stage ? " · " + b.stage : ""}${pend.length > 1 ? " " + (k + 1) : ""} | 🧭 Алгоритм выполнения |`, "|---|---|", `| ${b.lines.join("<br>")} | ${steps} |`, "");
+      });
+      pend = [];
+    };
+    let inTbl = false;
+    for (const line of L) {
+      const hs = line.match(/^##\s+(?:ЭТАП|БЛОК)\s+(\d+)/); if (hs) stage = "этап " + hs[1];
+      if (inTbl && !/^\|/.test(line)) { inTbl = false; if (pend.length) { out.push(""); flush(); } }
+      const m = line.match(/^\|\s*(.+?)\s*\|\s*(.+?)\s*\|$/);
+      if (/^\|\s*Учитель\s*\|\s*Ученики\s*\|/.test(line)) inTbl = true;
+      if (inTbl && m && !/^-+$/.test(m[1]) && m[1] !== "Учитель") {
+        const parts = m[1].split("<br>"), keep = [], task = [];
+        let capture = false;
+        for (const part of parts) {
+          const t = part.trim(), plain = t.replace(/\*\*|\*/g, "");
+          const inl = plain.match(/^(.{0,60}?(?:уравнени|пример|задани|формул)[^:]{0,60}):\s*(.{6,})$/i);
+          if (inl && /[=+×÷]|\d/.test(inl[2]) && !/\?$/.test(inl[2])) { keep.push(`${inl[1]}: в блоке «Задание» ниже.`); task.push(...inl[2].split(/;\s+/).map(x => x.trim().replace(/\.$/, "")).filter(Boolean)); capture = false; continue; }
+          if (/^\d+\)\s/.test(plain) && capture) { task.push(plain); continue; }
+          if (/:\s*$/.test(plain) || /\(устно[^)]*\):?\s*$/.test(plain)) { capture = HEAD.test(plain); keep.push(t); continue; }
+          if (/^[—-]\s/.test(plain)) capture = false;
+          keep.push(t);
+        }
+        if (task.length >= 2 || (task.length === 1 && task[0].length > 12)) {
+          pend.push({ lines: task, stage });
+          out.push(`| ${keep.join("<br>")} | ${m[2]} |`); continue;
+        }
+      }
+      out.push(line);
+    }
+    if (pend.length) { out.push(""); flush(); }
+    return out.join("\n");
+  }
+  return { taskBlocks, md, merge, restyle, decorate, kindOf, docxKind, cell, clean, isLabel, KINDS, LEGEND };
 })();
 window.Layout = Layout;
