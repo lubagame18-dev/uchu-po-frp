@@ -574,7 +574,8 @@ function restoreForm() {
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; if ($("#wishes")) $("#wishes").value = ""; state.wishes = "";
   $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
   setSeg("segLevel", state.level); syncLevelHint();
-  setSeg("segExamFocus", state.examFocus); setSeg("segWsDesign", state.wsDesign);
+  setSeg("segExamFocus", state.examFocus);
+  try { window.syncWsDesign?.(); } catch { }
   syncPack(false);
   syncControls(); updateType();
 }
@@ -2888,8 +2889,16 @@ function bind() {
   setSeg("segLevel", state.level); syncLevelHint();
   $$("#segExamFocus button").forEach(b => b.onclick = () => { state.examFocus = b.dataset.v; setSeg("segExamFocus", state.examFocus); syncControls(); readForm(); });
   setSeg("segExamFocus", state.examFocus);
-  $$("#segWsDesign button").forEach(b => b.onclick = () => { state.wsDesign = b.dataset.v; setSeg("segWsDesign", state.wsDesign); readForm(); });
-  setSeg("segWsDesign", state.wsDesign);
+  /* Оформление рабочего листа: карточки с мини-превью стилей */
+  { const grid = document.getElementById("wsDesignGrid"); if (grid) {
+    const MOCK = { academic: `<div class="m-ac"></div>`, interactive: `<div class="m-int"></div>`, art: `<div class="m-art"></div>` };
+    const NAMES = { academic: "Строгий", interactive: "Интерактивный", art: "Арт-поддержка" };
+    const sync = () => {
+      grid.innerHTML = Object.entries(NAMES).map(([k, n]) => `<button type="button" class="pv-card ${state.wsDesign === k ? "on" : ""}" data-wd="${k}" title="${n}"><div class="wd-thumb">${MOCK[k]}</div><small>${n}</small></button>`).join("");
+      grid.querySelectorAll("[data-wd]").forEach(b => b.onclick = () => { state.wsDesign = b.dataset.wd; readForm(); sync(); });
+    };
+    window.syncWsDesign = sync; sync();
+  } }
   try { syncFieldVisibility(); } catch { }
   /* Оформление презентации: живые превью тем вместо текстового списка */
   { const sel = $("#slTheme"), grid = $("#slThemeGrid"); if (sel && grid && window.ThemeKit && window.SlideEditor) {
