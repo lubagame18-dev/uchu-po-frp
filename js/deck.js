@@ -377,7 +377,10 @@ const Deck = (() => {
       if (card.img) continue;
       if (!(mode === "all" ? ON_ALL.has(card.kind) : ON_KEY.has(card.kind))) continue;
       if ((card.points || []).map(String).some(x => x.length > 150)) continue;
-      card.img = `${card.kind === "big" ? "" : (card.title || "") + " "}${base}`.replace(/\s+/g, " ").trim();
+      const qImg = `${card.kind === "big" ? "" : (card.title || "") + " "}${base}`.replace(/\s+/g, " ").trim();
+      /* Литература, МХК, ИЗО, музыка: берём только проверенную живопись/иллюстрацию (commons:),
+         а не случайное фото. Нет подходящей картины/иллюстрации — слайд остаётся без картинки. */
+      card.img = ["lit", "mhk", "izo", "mus"].includes(p.subject) ? `commons:${qImg}` : qImg;
       card.acc = ++side % 2 ? "right" : "left";
     }
     if (mode === "key" && !lit) {
