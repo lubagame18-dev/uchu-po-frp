@@ -3011,6 +3011,22 @@ function bind() {
   ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
   ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
   drop.addEventListener("drop", e => addMaterials(Array.from(e.dataTransfer.files || [])));
+  /* Файл можно бросить в любое место страницы (в том числе прямо из панели загрузок браузера) или вставить из буфера — он попадёт в «Мои материалы» */
+  try {
+    const hasFiles = e => [...(e.dataTransfer?.types || [])].includes("Files");
+    const own = t => t && t.closest && t.closest("#matDrop,#nbDrop,#nbBox,#sxFrame,.sxed,[contenteditable=true],input,textarea");
+    let dragDepth = 0; const mark = on => document.body.classList.toggle("page-drop", on);
+    document.addEventListener("dragenter", e => { if (hasFiles(e)) { dragDepth++; mark(true); } });
+    document.addEventListener("dragleave", e => { if (hasFiles(e) && --dragDepth <= 0) { dragDepth = 0; mark(false); } });
+    document.addEventListener("dragover", e => { if (hasFiles(e)) e.preventDefault(); });
+    document.addEventListener("drop", e => {
+      dragDepth = 0; mark(false);
+      if (!hasFiles(e) || e.defaultPrevented || own(e.target)) { if (hasFiles(e) && !e.defaultPrevented && !own(e.target)) e.preventDefault(); return; }
+      e.preventDefault(); const fl = Array.from(e.dataTransfer.files || []); if (fl.length) { toast("Добавляю в «Мои материалы»: " + fl.length + " файл(ов)…", 4000); addMaterials(fl); }
+    });
+    document.addEventListener("paste", e => { if (own(e.target)) return; const fl = Array.from(e.clipboardData?.files || []); if (fl.length) { e.preventDefault(); addMaterials(fl); } });
+    const st = document.createElement("style"); st.textContent = 'body.page-drop::after{content:"Отпустите файл — он добавится в «Мои материалы»";position:fixed;inset:12px;z-index:99999;display:flex;align-items:center;justify-content:center;border:3px dashed #7c5cff;border-radius:18px;background:rgba(124,92,255,.12);color:#3a2a8a;font:700 20px/1.3 system-ui,sans-serif;text-align:center;padding:24px;pointer-events:none}'; document.head.appendChild(st);
+  } catch (e) { console.warn("page drop", e); }
   $("#matPick").onclick = () => $("#matInput").click();
   $("#matInput").onchange = e => { addMaterials(Array.from(e.target.files)); e.target.value = ""; };
   $("#frpPick").onclick = () => $("#frpInput").click();
