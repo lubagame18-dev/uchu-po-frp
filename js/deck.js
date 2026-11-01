@@ -549,10 +549,13 @@ const Deck = (() => {
       const quiz = (MN?.quiz || []).filter(x => Array.isArray(x) && x[0] && x[1]);
       const fitsSubject = ["ru", "math", "phys", "chem", "inf", "eng", "hist"].includes(p.subject);
       if (quiz.length >= 3 && fitsSubject) {
-        const pick = quiz[(hashOf(p.topic) % quiz.length)], wrong = quiz.filter(x => x !== pick).slice(0, 2).map(x => x[1]);
-        const opts = [{ ok: 1, text: pick[1], exp: "верно" }, ...wrong.map(a => ({ ok: 0, text: a, exp: "это ответ к другому примеру" }))];
-        const order = (hashOf(p.topic + "|o") % 2) ? opts : [opts[2], opts[0], opts[1]];
-        at(beforeEnd(), { kind: "choice", title: "Выбери верный ответ", q: pick[0], options: order, timer: p.control !== "school" ? 600 : undefined, notes: "Клик по варианту: верный подсвечивается, сразу видно пояснение." });
+        const want = p.control !== "school" ? Math.min(3, quiz.length) : 1;
+        for (let qi = 0; qi < want; qi++) {
+          const pick = quiz[(hashOf(p.topic) + qi) % quiz.length], wrong = quiz.filter(x => x !== pick).slice(0, 2).map(x => x[1]);
+          const opts = [{ ok: 1, text: pick[1], exp: "верно" }, ...wrong.map(a => ({ ok: 0, text: a, exp: "это ответ к другому примеру" }))];
+          const order = (hashOf(p.topic + "|" + qi) % 2) ? opts : [opts[2], opts[0], opts[1]];
+          at(beforeEnd(), { kind: "choice", title: qi ? "Выбери верный ответ" : "Выбери верный ответ", q: pick[0], options: order, timer: p.control !== "school" ? 300 : undefined, notes: "Клик по варианту: верный подсвечивается, сразу видно пояснение." });
+        }
       }
     }
     if (inter && !cards.some(c => c.timer)) {
