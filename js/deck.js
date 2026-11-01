@@ -358,11 +358,16 @@ const Deck = (() => {
     const author = typeof Engine !== "undefined" && Engine.authorOf ? (Engine.authorOf(p.topic) || "") : "";
     const core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
     const base = lit ? (work || author || p.topic) : core;
-    const ON_ALL = new Set(["cards", "list", "big", "steps", "goal", "concl", "mnemo", "check", "scheme"]);
+    /* где картинка уместна: тезисы, списки, цель, вывод. Схемы, алгоритмы, запоминалки, викторины,
+       «план/маршрут» и приложения — рисуем текстом, без случайных фото. */
+    const ON_ALL = new Set(["cards", "list", "big", "steps", "goal", "concl"]);
     const ON_KEY = new Set(["cards", "list", "big", "steps", "goal"]);
     let side = 0;
     for (const card of cards) {
       if (card.kind === "image" || card.kind === "art" || VERBATIM.has(card.kind)) continue;
+      if (["scheme", "algo", "mnemo", "check", "quiz", "table", "appendix", "board", "glossary", "terms", "flip"].includes(card.kind)) { if (mode === "none") { card.img = ""; card.acc = undefined; } continue; }
+      // «маршрут/план/схема/алгоритм/таблица» — рисуем текстом, без случайных фото
+      if (/схем|алгоритм|маршрут|план (урока|изучен)|таблиц|инфографик|викторин|проверь себя/i.test(String(card.title || ""))) continue;
       if (mode === "none") { card.img = ""; card.acc = undefined; continue; }
       if (card.img) continue;
       if (!(mode === "all" ? ON_ALL.has(card.kind) : ON_KEY.has(card.kind))) continue;
@@ -609,7 +614,7 @@ const Deck = (() => {
     { const g = childGoal(p, c); add({ kind: "goal", title: "Цель урока", lead: g.head, points: g.points, notes: c.goal ? "Цель из конспекта: " + cleanLine(c.goal) : "" }); }
     // 5. Маршрут урока (как agenda у Gamma) — если этапов много
     const route = c.plan.filter(s => !/организац|домашн|рефлекс/i.test(s)).map(stageTitle);
-    if (route.length >= 5) add({ kind: "steps", title: "Маршрут урока", points: [...new Set(route)].slice(0, 6), on: route.length >= 6, notes: "План урока по техкарте. Можно выключить в плане презентации." });
+    if (route.length >= 5) add({ kind: "steps", title: p.subject === "hist" ? "Маршрут урока" : "План урока", points: [...new Set(route)].slice(0, 6).map(x => p.subject === "hist" ? x : x), on: route.length >= 6, notes: p.subject === "hist" ? "Хронология этапов урока; на доске можно показать стрелкой времени." : "План урока по техкарте. Можно выключить в плане презентации." });
     // 5а. Русский язык: опора урока по профилю (теория, алгоритм, тексты-документы, таблица)
     const RK = !lit ? p.plan?.rukit : null;
     if (RK && RK.kind !== "general") {

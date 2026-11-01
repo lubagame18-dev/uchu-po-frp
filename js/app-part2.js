@@ -1906,6 +1906,13 @@ window.LessonAI = { refineSlide, refineDocs, askSlideEdit, askDeckEdit, refineSc
 setInterval(() => { const g = state.gen; if (!g?.fake) return; g.pct = Math.min(92, Math.round((g.pct + Math.max(0.4, (92 - g.pct) * 0.02)) * 10) / 10); updateProgress(); }, 1000);
 function updateProgress() {
   const g = state.gen, L = state.lesson;
+  /* Полоса не «прыгает» назад: внутри одного документа прогресс только растёт.
+     При переходе к следующему документу отсчёт начинается заново. */
+  if (g) {
+    if (g._pdoc !== g.doc) { g._pdoc = g.doc; g._pshown = Math.max(0, Math.min(100, +g.pct || 0)); }
+    else { g.pct = Math.max(+g.pct || 0, g._pshown || 0); g._pshown = Math.max(g._pshown || 0, +g.pct || 0); }
+    if (g.pct > 100) g.pct = 100;
+  }
   const mine = g && L && g.lessonId === L.id;
   $$(".doc-tab").forEach(b => { const d = b.dataset.doc, pct = $(".pct", b); if (!pct) return; pct.textContent = mine && g.doc === d ? ` ${Math.round(g.pct)}%` : ""; });
   const show = mine && g.doc === state.active;
@@ -2457,7 +2464,7 @@ async function wsMirror(blob) {
 }
 /* ---------- Рабочий лист: ровно 2 страницы A4 (стр. 1 — первая половина урока, стр. 2 — вторая) ---------- */
 const WS_PAGE = { w: 498, h: 770 }; // полезная область страницы в pt (поля 11,5 мм сверху/снизу, 19 и 15 мм по бокам)
-function wsClean(md) { return md.replace(Media.RE, (m, cap) => cap ? `*Иллюстрация: ${cap}*` : "").replace(/<!--[\s\S]*?-->/g, ""); }
+function wsClean(md) { return wsStripTech(md).replace(Media.RE, (m, cap) => cap ? `*Иллюстрация: ${cap}*` : "").replace(/<!--[\s\S]*?-->/g, ""); }
 function wsEstimate(toks, k) {
   const f = 11 * k, line = f * 1.22, cpl = (w, fs = f) => Math.max(6, Math.floor(w / (fs * 0.5)));
   const nl = (txt, w, fs) => String(txt || "").split(/\n|<br\s*\/?>/i).reduce((a, p) => a + Math.max(1, Math.ceil(p.length / cpl(w, fs))), 0);
@@ -2732,8 +2739,17 @@ function wsDecorate(root, L) {
 /* PDF рабочего листа: те же 2 страницы, масштаб подбирается по числу страниц готового файла; в файле записана двусторонняя печать (переворот по длинному краю) */
 const pdfPages = blob => blob.text ? blob.text().then(t => (t.match(/\/Type\s*\/Page[^s]/g) || []).length) : Promise.resolve(0);
 const pdfDuplex = pdf => { try { if (pdf.viewerPreferences) pdf.viewerPreferences({ Duplex: "DuplexFlipLongEdge", PrintScaling: "None" }, true); } catch (e) { console.warn("duplex", e); } };
+/* Чистка рабочего листа от технических символов: ⟦…⟧, {ор:…}, пустые квадратные скобки,
+   служебные комментарии. Смысл и задания не меняются. */
+function wsStripTech(md) {
+  return String(md || "")
+    .replace(/⟦[^⟧]*⟧/g, "")
+    .replace(/\{(?:п|с|д|о|об|ос|к|пр|суф|ок|осн|ор|х):([^{}]*)\}/g, "$1")
+    .replace(/\[\s*[–—-]?\s*…?\s*\]/g, "[ ________________________________________ ]")
+    .replace(/\[\s*\]/g, "[ ________________________________________ ]");
+}
 function wsMainMd(md) {
-  md = wsKeysToH1(String(md || ""));
+  md = wsStripTech(wsKeysToH1(String(md || "")));
   const toks = window.marked.lexer(md), i = toks.findIndex((t, n) => n > 0 && t.type === "heading" && t.depth === 1);
   return i > 0 ? toks.slice(0, i).map(t => t.raw).join("") : md;
 }

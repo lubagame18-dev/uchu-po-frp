@@ -48,7 +48,7 @@ const SlideEditor = (() => {
     board: ["Тема урока", "Число, месяц.  \nКлассная работа.\n\n**Правило / схема**\n\n- Пример: *выделите орфограмму*"], video: ["Видеофрагмент", "Смотрим и отвечаем: …"]
   };
   let selBlock = -1, moreOpen = false;
-  const MIN_VB = 0.56; // для дословных блоков (упражнение, цитата, стихи): шрифт можно уменьшить сильнее, но не меньше ~18 pt
+  const MIN_VB = 0.7; // для дословных блоков (упражнение, цитата, стихи): шрифт можно уменьшить сильнее, но не мельче 80% от нормы
   const THEMES = { bordo: "Бордо + светлая плашка (фирменная)", navy: "Тёмно-синяя рамка + плашка", forest: "Зелёная рамка + плашка", light: "Светлая", warm: "Тёплая бумага", sea: "Морская", sage: "Шалфей", contrast: "Контрастная (чёрное на белом)", ...Object.fromEntries(Object.entries(window.ThemeKit?.META || {}).map(([k, v]) => [k, "✦ " + v.name])) };
   /* Шрифты: заголовки + текст. Все с кириллицей; Google Fonts подгружаются по выбору */
   const FONTS = {
@@ -84,7 +84,7 @@ const SlideEditor = (() => {
     return new Promise(r => { l.onload = () => (document.fonts?.ready || Promise.resolve()).then(r); l.onerror = r; setTimeout(r, 4000); });
   }
   const fontCss = (fk) => { const f = (fk && FONTS[fk]) || fontSet(); return `--sx-fh:'${f.h}', Georgia, serif;--sx-fb:'${f.b}', Arial, sans-serif;`; }; // одинарные кавычки: стиль стоит внутри атрибута style="…"
-  const MIN = 0.72, MAX = 1.3; // пределы автоподбора шрифта
+  const MIN = 0.82, MAX = 1.3; // пределы автоподбора шрифта: мельче не делаем — лучше делим слайд
   let cur = 0, clipboard = null;
   const undo = [], redo = [];
 
@@ -176,14 +176,14 @@ const SlideEditor = (() => {
     const tkv = TK ? ThemeKit.vars(T, L()?.slidePalette) : "";
     const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${st.aw ? `--aw:${+st.aw}%;` : ""}${st.ix || st.iy ? `--ix:${+st.ix || 0}%;--iy:${+st.iy || 0}%;` : ""}${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
-    const srcBody = resolveLinks(String(acc ? parts.rest : sl.body || "").replace(/\]\(#g\s+«([^»]*)»\)/g, (m, d) => "](#g \"" + String(d).replace(/"/g, "\x27") + "\")"));
+    const srcBody = tieQuotes(resolveLinks(String(acc ? parts.rest : sl.body || "").replace(/\]\(#g\s+«([^»]*)»\)/g, (m, d) => "](#g \"" + String(d).replace(/"/g, "\x27") + "\")")));
   const body = vid + linkify(mdToHtml(srcBody));
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
     const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.quiz ? "quiz" : "", st.appendix ? `appendix ap-${st.appendix}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
-    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(parts.acc)}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
-      <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(sl.title)}</${H}>
+    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${st.bgimg ? `<img class="sx-bgimg" data-src="${esc(st.bgimg)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(tieQuotes(parts.acc))}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
+      <div class="sx-inner"><${H} class="sx-title" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(tieQuotes(sl.title))}</${H}>
       <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${body}</div></div>${window.ThemeKit && stk.length ? ThemeKit.stickersHtml(stk, edit) : ""}</div>`;
     return st.free ? applyFree(html, st) : html;
   }
@@ -217,6 +217,13 @@ const SlideEditor = (() => {
     meter.className = "sx-meter theme-" + theme();
     return meter;
   }
+  /* Кавычки и скобки не отрываются от слова: «ёлочки» не переносятся на другую строку */
+  const tieQuotes = s => String(s || "")
+    .replace(/«\s*/g, "«\u2060")
+    .replace(/\s*»/g, "\u2060»")
+    .replace(/«\u2060\s+/g, "«\u00A0")
+    .replace(/\s+\u2060»/g, "\u00A0»")
+    .replace(/\s+([,.;:!?])/g, "\u00A0$1");
   function fits(el) {
     const inner = el.querySelector(".sx-inner");
     if (inner.scrollHeight > inner.clientHeight + 2 || inner.scrollWidth > inner.clientWidth + 2) return false;
@@ -315,17 +322,21 @@ const SlideEditor = (() => {
   function fitAll({ allowSplit = true } = {}) {
     const arr = slides(); let changed = false, splits = 0;
     const out = [];
-    arr.forEach((sl, i) => {
-      if (sl.set.fs || sl.set.free) { out.push(sl); return; } // шрифт или вёрстка заданы вручную — не трогаем
-      const r = autoScale(sl, i);
-      const vbSmall = (sl.set.vb || ["task", "poem"].includes(autoLayout(sl, i))) && r.fs < 0.7;
-      const noSplit = ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, i)) || ["goal", "video", "hw"].includes(sl.set.kind); // титульный и крупный вопрос не делим — только уменьшаем шрифт
-      if ((!r.ok || vbSmall) && allowSplit && !noSplit && sl.set.fit !== "off") {
-        const parts = splitSlide(sl, i);
-        if (parts) { parts.forEach(p => { const rr = autoScale(p, i); out.push({ ...p, set: { ...p.set, afs: rr.fs } }); }); changed = true; splits++; return; }
+    const noSplitOf = sl => ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, 0)) || ["goal", "video", "hw"].includes(sl.set.kind);
+    // делим на части и подбираем шрифт каждой; если часть всё ещё не влезает — делим ещё раз (не мельчая текст)
+    const emitFit = (sl, depth = 0) => {
+      const r = autoScale(sl, 0);
+      if (r.ok) { if (sl.set.afs !== r.fs) changed = true; out.push({ ...sl, set: { ...sl.set, afs: r.fs } }); return; }
+      if (allowSplit && depth < 2 && !noSplitOf(sl) && sl.set.fit !== "off") {
+        const parts = splitSlide(sl, 0);
+        if (parts) { changed = true; splits++; parts.forEach(p => emitFit(p, depth + 1)); return; }
       }
-      if (sl.set.afs !== r.fs) { changed = true; }
+      if (sl.set.afs !== r.fs) changed = true;
       out.push({ ...sl, set: { ...sl.set, afs: r.fs } });
+    };
+    arr.forEach(sl => {
+      if (sl.set.fs || sl.set.free) { out.push(sl); return; } // шрифт или вёрстка заданы вручную — не трогаем
+      emitFit(sl);
     });
     if (changed) write(out, { record: splits > 0 });
     if (splits) toast(`Длинные слайды разделены, чтобы весь текст был виден (${splits}).`, 5000);
@@ -1048,6 +1059,8 @@ const SlideEditor = (() => {
     const toData = async src => { try { const b = src.startsWith("idb:") ? await Store.get("images", src.slice(4)) : await (await fetch(src, { mode: "cors" })).blob(); return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); }); } catch { return src.startsWith("idb:") ? "" : src; } };
     const box = document.createElement("div");
     box.innerHTML = arr.map((s, i) => `<section class="deck-s">${slideHtml(s, i)}</section>`).join("");
+    // на слайдах-приложениях — кнопка «Назад» к тому месту, откуда пришли
+    box.querySelectorAll(".deck-s .sx.appendix").forEach(sx => { const b = document.createElement("button"); b.type = "button"; b.className = "sx-back"; b.textContent = "← Назад"; sx.appendChild(b); });
     // видеослайд без ссылки в показ не попадает; пустой плеер на обычном слайде убирается
     box.querySelectorAll(".sx-video.empty").forEach(v => { const sec = v.closest(".deck-s"); if (sec?.querySelector(".sx.k-video, .sx.lay-video")) sec.remove(); else v.remove(); });
     box.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
@@ -1064,6 +1077,8 @@ html,body{margin:0;height:100%;background:#222}body{font-family:Arial,"Segoe UI"
 ${anCss(anim())}
 ${ixCss(anim())}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
+.sx-back{position:fixed;left:18px;bottom:16px;z-index:30;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:8px 16px;font:600 15px/1 Arial,sans-serif;cursor:pointer;backdrop-filter:blur(4px)}
+.sx-back:hover{background:rgba(0,0,0,.75)}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
 ${trCss()}
 </style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку, викторина: 1-й щелчок — задание, 2-й — ответ" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
@@ -1077,9 +1092,9 @@ if(IX){document.querySelectorAll('.deck-s .sx-body ul:not(.ix-quiz-list)').forEa
 document.querySelectorAll('.deck-s .sx-body li:not(.ix-flip),.deck-s figure.pic,.deck-s .sx-body blockquote').forEach(el=>{el.classList.add('ix-tilt');el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*10+'deg');});el.addEventListener('pointerleave',()=>{el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});});
 const sp=document.querySelector('.ix-spot');addEventListener('pointermove',e=>{if(sp){sp.style.setProperty('--mx',e.clientX+'px');sp.style.setProperty('--my',e.clientY+'px');}});}
 const prep=x=>{if(!STEP)return;x.querySelectorAll('.sx-body li,.sx-body>p,.sx-body>blockquote').forEach((b,j)=>{if(j>0||b.tagName==='LI')b.classList.add('ix-hide');b.classList.remove('ix-show');});};
-const go0=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});const pg=document.querySelector('.ix-prog i');if(pg)pg.style.width=((i+1)/s.length*100)+'%';prep(s[i]);};
+const BACK=[];const go0=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});const pg=document.querySelector('.ix-prog i');if(pg)pg.style.width=((i+1)/s.length*100)+'%';prep(s[i]);};
 const go=k=>{if(STEP&&k===i+1){const h=s[i].querySelector('.ix-hide');if(h){h.classList.remove('ix-hide');h.classList.add('ix-show');return;}}go0(k);};go0(${opts.open ? cur : 0});
-addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});<\/script></body></html>`;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const bk=e.target.closest('.sx-back');if(bk){e.preventDefault();e.stopPropagation();const t=BACK.pop();go0(t==null?0:t);return;}const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();if(m[1].startsWith('slide-'))BACK.push(i);go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});<\/script></body></html>`;
     const blob = new Blob([html], { type: "text/html" });
     if (opts.open) { const w = window.open(URL.createObjectURL(blob), "_blank"); if (!w) { toast("Браузер не дал открыть окно показа — разрешите всплывающие окна или скачайте HTML."); } return; }
     await saveFile(`${(L().title || "Урок").replace(/[\u0000-\u001f\\/:*?"<>|«»]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 70)} — Презентация (интерактивная).html`, blob);

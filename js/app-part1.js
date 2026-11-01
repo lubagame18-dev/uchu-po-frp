@@ -2186,19 +2186,26 @@ const Media = (() => {
   const MAP_OK = /карт|map|атлас|atlas|план местности/i;
   const GENRE_STOP = /^(картина|репродукция|иллюстрация|портрет|пейзаж|натюрморт|работа|художник|музей|карта|фото|русский|россия|история|литература|урок)$/i;
   const nrm = s => String(s || "").toLowerCase().replace(/ё/g, "е");
-  const artIntent = q => ART_INTENT.test(String(q)) ? "art" : MAP_INTENT.test(String(q)) ? "map" : "";
+  /* Мусорные для урока фото: тетради, офис, документы, бумага, школьные принадлежности.
+     Такие не ставим, если сама тема не про них. */
+  const BAD_PHOTO = /тетрад|notebook|блокнот|канцеляр|ручк|карандаш|офис|документ|бумаг|бланк|стол письмен|письменн.*стол|школьн.*принадлежн|печатн.*страниц/i;
+  const badPhoto = (t, q) => BAD_PHOTO.test(nrm(t)) && !BAD_PHOTO.test(nrm(q));
+  const SCHEME_INTENT = /схем[аыуе]|алгоритм|диаграмм|график|блок-?схем|инфографик|таблиц[аеуы]|\bплан\b|маршрут/i;
+  const artIntent = q => ART_INTENT.test(String(q)) ? "art" : MAP_INTENT.test(String(q)) ? "map" : SCHEME_INTENT.test(String(q)) ? "scheme" : "";
   const qNames = q => (String(q).match(/[А-ЯЁA-Z][а-яёa-z-]{2,}/g) || []).filter(w => !GENRE_STOP.test(w)).map(nrm).filter(w => w.length >= 4);
   function commonsOk(it, intent, q) {
     if (!it) return false;
     const t = nrm([it.title, it.cap, it.artist].join(" "));
+    if (badPhoto(t, q)) return false;
     if (intent === "map") return MAP_OK.test(t);
     if (intent === "art") return ART_GENRE.test(t) || qNames(q).some(n => t.includes(n));
+    if (intent === "scheme") return /схем|diagram|scheme|алгоритм|chart|graph|график|таблиц|инфографик/i.test(t);
     return true;
   }
   const commonsQueries = (q, intent) => {
     const out = [q];
     const q2 = q.replace(/картина|репродукция|иллюстрация|пейзаж|натюрморт|портрет|работа|фото/gi, " ").replace(/\s+/g, " ").trim();
-    if (q2 && q2 !== q) out.push(intent === "map" ? `${q2} карта` : q2);
+    if (q2 && q2 !== q) out.push(intent === "map" ? `${q2} карта` : intent === "scheme" ? `${q2} схема diagram` : q2);
     return out;
   };
   async function commonsBest(q, intent) {
@@ -2221,7 +2228,8 @@ const Media = (() => {
         const year = (strip(md.DateTimeOriginal?.value).match(/1[5-9]\d\d|20[0-2]\d/) || [])[0] || "";
         if (!artist || /unknown|неизвест/i.test(artist)) return null; // без автора подпись не ставим — такую картинку не берём
         return { url: ii.thumburl || ii.url, thumb: (ii.thumburl || ii.url).replace(/\/\d+px-/, "/320px-"), title: name, artist, year, cap: `${artist}. «${name.replace(/[«»]/g, "")}»${year ? ", " + year : ""}`, src: "Викисклад", page: ii.descriptionurl };
-      }).filter(Boolean).filter(it => !opts.intent || commonsOk(it, opts.intent, query));
+      }).filter(Boolean).filter(it => !opts.intent || commonsOk(it, opts.intent, query))
+        .filter(it => !badPhoto([it.title, it.cap, it.artist].join(" "), query));
     } catch { return []; }
   }
   /* Выбор картинки: самая популярная (выше в выдаче) из тех, что подходят по названию и подписи;
@@ -2233,7 +2241,7 @@ const Media = (() => {
     // проверка по названию и описанию картинки: главное слово слайда обязано там быть
     if (must?.length) {
       const st = must.map(w => String(w).toLowerCase().replace(/ё/g, "е").slice(0, Math.max(4, Math.min(6, String(w).length - 1))));
-      items = items.filter(it => { const t = String((it.title || "") + " " + (it.cap || "") + " " + (it.artist || "")).toLowerCase().replace(/ё/g, "е"); return !it.noTitle && !TEXTY.test(t) && st.some(s => t.includes(s)); });
+      items = items.filter(it => { const t = String((it.title || "") + " " + (it.cap || "") + " " + (it.artist || "")).toLowerCase().replace(/ё/g, "е"); return !it.noTitle && !TEXTY.test(t) && !badPhoto(t, q) && st.some(s => t.includes(s)); });
       if (!items.length) return null;
     }
     const st = FRP.stems(q.replace(/иллюстрац\S*|картин\S*|портрет\S*|фото\S*/gi, ""));
@@ -2258,12 +2266,14 @@ const Media = (() => {
       const hit = intent ? await commonsBest(q, intent) : (await commons(q, 8))[0];
       let rep = null;
       if (hit) { const b = await toBlob(hit.url); let src = hit.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } rep = mdImage(hit.cap, src, { q, from: "Викисклад" }); }
-      else if (intent) { // случайное фото вместо картины не ставим: пустое место с подсказкой
-        const isMap = intent === "map";
-        const cap = `${m[1] || (isMap ? "Карта" : "Репродукция")} — ${isMap ? "подберите карту" : "подберите репродукцию"}`;
+      else if (intent) { // случайное фото вместо картины/карты/схемы не ставим: пустое место с подсказкой
+        const isMap = intent === "map", isScheme = intent === "scheme";
+        const cap = `${m[1] || (isMap ? "Карта" : isScheme ? "Схема" : "Репродукция")} — ${isMap ? "подберите карту" : isScheme ? "подберите схему" : "подберите репродукцию"}`;
         const need = isMap
           ? `Карту не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите карту или картосхему с подписью.`
-          : `Репродукцию не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите картину или иллюстрацию с подписью — художник, название, год.`;
+          : isScheme
+            ? `Схему не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите схему или диаграмму — либо оставьте текстовую схему на слайде.`
+            : `Репродукцию не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите картину или иллюстрацию с подписью — художник, название, год.`;
         rep = mdImage(cap, m[2], { q, need });
       }
       else rep = mdImage(`${m[1]} (укажите художника и название)`, "search:" + q, { q });
