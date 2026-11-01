@@ -897,6 +897,23 @@ ${JSON.stringify(payload)}`;
     } catch (e) { console.warn("Deck AI", e); return cards; }
   }
 
+  /* Схема-опора от нейросети: одна компактная генерация на тему, с кэшем (для тем, которых нет в банке) */
+  async function aiScheme(cards, p) {
+    if (cards.some(c => c.kind === "scheme" || /схем/i.test(c.title || ""))) return cards;
+    if (!window.UCHU?.configured?.() || typeof caps === "undefined") return cards;
+    const key = "uchu:aischene:" + [p.subject, p.grade, p.topic].join("|").toLowerCase();
+    let j = null; try { j = JSON.parse(localStorage.getItem(key) || "null"); } catch { }
+    if (!j) {
+      const prompt = `Ты методист. Тема: «${p.topic}», ${p.grade} класс, ${p.subject}. Верни ТОЛЬКО JSON {"title":"Схема-опора","steps":["шаг 1","шаг 2","шаг 3"],"example":"один короткий пример"}. 3–4 шага, каждый до 80 знаков, по-русски, без вступлений.`;
+      try { const r = await caps.sample(prompt, { modelTier: "default", cache: false }); j = JSON.parse((r.text.match(/\{[\s\S]*\}/) || ["null"])[0]); } catch (e) { return cards; }
+      if (j) try { localStorage.setItem(key, JSON.stringify(j)); } catch { }
+    }
+    if (!j || !Array.isArray(j.steps) || j.steps.length < 2) return cards;
+    const card = { id: "ai-scheme", on: true, kind: "list", title: j.title || "Схема-опора", points: j.steps.map((x, i) => `${i + 1}. ${String(x).slice(0, 90)}`), notes: (j.example ? "Пример: " + j.example : "Схема предложена нейросетью — проверьте перед уроком.") };
+    const ai = cards.findIndex(c => c.kind === "concl" || c.kind === "hw" || c.kind === "appendix");
+    if (ai >= 0) cards.splice(ai, 0, card); else cards.push(card);
+    return cards;
+  }
   /* Запоминалки от нейросети — для тем, которых нет в готовом списке */
   async function aiMnemo(cards, p) {
     if (cards.some(c => c.kind === "mnemo" || /запомни/i.test(c.title || "")) || !window.Mnemo?.ai) return cards;
@@ -973,7 +990,7 @@ ${JSON.stringify(frs)}`;
   /* ---------- сборка ---------- */
   async function build(md, p, type, { ai = false, signal, o = opts() } = {}) {
     let cards = outline(md, p, type, o);
-    if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); }
+    if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiScheme(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); }
     cards = await mediaFill(cards).catch(() => cards);
     return { cards, md: toMarkdown(cards) };
   }
@@ -1068,7 +1085,7 @@ ${JSON.stringify(frs)}`;
       saveOpts(cur());
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Нейросеть сжимает формулировки…"; cards = await condenseAi(cards, p, cur().amount); }
       if (window.ThemeKit && window.SlideEditor) { const k = thPick === "auto" ? ThemeKit.auto(p) : thPick; SlideEditor.applyTheme(k, { auto: thPick === "auto" }); }
-      if ($("#dkAi", m)?.checked) cards = await aiMnemo(cards, p).catch(() => cards);
+      if ($("#dkAi", m)?.checked) cards = await aiMnemo(cards, p).catch(() => cards);      if ($("#dkAi", m)?.checked) cards = await aiScheme(cards, p).catch(() => cards);
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Пояснения к словам и выводы…"; cards = await aiLit(cards, p).catch(() => cards); }
       $("#dkMsg", m).textContent = "Ищу чтение артистов и фрагменты фильмов…"; cards = await mediaFill(cards).catch(() => cards);
       L.deckOutline = cards;
