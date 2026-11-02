@@ -29,7 +29,8 @@ tr.det td{background:var(--paper2);font-size:14.5px}
 .sc{font-family:var(--f-title);font-size:22px}
 .lo{color:var(--bad)}.hi{color:var(--ok)}
 .msg{margin-top:8px;color:var(--mute);font-size:14px}
-.err{color:#f3c6b8}
+.err{color:#9b2c2c;font-weight:700;font-size:15px}
+.ok{color:#2f6b3a;font-weight:700}
 .dup{font-size:12px;color:var(--mute)}
 @media (max-width:640px){.hide-s{display:none}}
 </style>
@@ -40,7 +41,7 @@ tr.det td{background:var(--paper2);font-size:14.5px}
   <p class="sub">«Тарас Бульба», урок 2 · страница для учителя</p>
 
   <div class="card" id="login">
-    <div class="bar"><input id="code" type="password" placeholder="Код учителя" style="flex:1"><button id="go">Показать</button></div>
+    <div class="bar"><input id="code" type="password" placeholder="Код учителя" style="flex:1" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false"><button class="ghost" id="eye" type="button" title="Показать код">👁</button><button id="go">Показать</button></div>
     <p class="msg">Код задаётся один раз в Supabase (см. инструкцию). Страница запомнит его на этом устройстве.</p>
     <p class="msg err" id="lerr"></p>
   </div>
@@ -66,21 +67,35 @@ const $ = s => document.querySelector(s);
 const ls = { get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 let rows = [], sortKey = "created_at", sortDir = -1, open = new Set(), timer = null;
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let goodCode = "";
+async function ask(code) {
+  let r;
+  try { r = await fetch(CLOUD.url + "/rest/v1/rpc/lesson_results_get", { method: "POST", headers: { apikey: CLOUD.key, "Content-Type": "application/json" }, body: JSON.stringify({ p_lesson: CLOUD.lesson, p_code: code }) }); }
+  catch { throw new Error("Нет связи с сервером. Проверьте интернет и попробуйте ещё раз."); }
+  if (r.ok) return r.json();
+  let m = ""; try { const j = await r.json(); m = (j.message || "") + " " + (j.hint || ""); } catch {}
+  if (/код/i.test(m)) { const e = new Error("Неверный код учителя."); e.bad = 1; throw e; }
+  if (r.status === 404 || /could not find|does not exist/i.test(m)) throw new Error("На сервере ещё нет таблицы результатов: запустите в Supabase файл «Тарас Бульба_результаты_SQL для Supabase.sql» (SQL Editor → Run).");
+  throw new Error("Сервер ответил " + r.status + (m.trim() ? ": " + m.trim() : "") + ".");
+}
+/* код проверяем как введён, а потом без заглавных букв и пробелов (телефон сам ставит заглавную первую букву) */
 async function load() {
-  const code = $("#code").value.trim();
-  const r = await fetch(CLOUD.url + "/rest/v1/rpc/lesson_results_get", { method: "POST", headers: { apikey: CLOUD.key, "Content-Type": "application/json" }, body: JSON.stringify({ p_lesson: CLOUD.lesson, p_code: code }) });
-  if (!r.ok) { let m = ""; try { m = (await r.json()).message || ""; } catch {} throw new Error(/код/.test(m) ? "Неверный код учителя." : "Сервер ответил " + r.status + ". Запущена ли SQL-команда из инструкции?"); }
-  rows = await r.json();
-  return rows;
+  if (goodCode) { rows = await ask(goodCode); return rows; }
+  const typed = $("#code").value.trim(), variants = [...new Set([typed, typed.toLowerCase(), typed.replace(/\s+/g, ""), typed.toLowerCase().replace(/\s+/g, "")])].filter(Boolean);
+  if (!variants.length) throw new Error("Введите код учителя.");
+  let last;
+  for (const v of variants) { try { rows = await ask(v); goodCode = v; return rows; } catch (e) { last = e; if (!e.bad) throw e; } }
+  throw new Error("Неверный код учителя. Проверьте, какой код вы вписали вместо ВАШ_КОД в последней строке SQL (регистр букв и кавычки).");
 }
 async function enter() {
-  $("#lerr").textContent = "";
+  $("#lerr").className = "msg"; $("#lerr").textContent = "Проверяю код…"; $("#go").disabled = true; goodCode = "";
   try {
     await load();
-    ls.set("tb2code", $("#code").value.trim());
+    ls.set("tb2code", goodCode);
     $("#login").style.display = "none"; $("#main").style.display = "block";
     draw(); clearInterval(timer); timer = setInterval(() => load().then(draw).catch(() => {}), 15000);
-  } catch (e) { $("#lerr").textContent = e.message; }
+  } catch (e) { $("#lerr").className = "msg err"; $("#lerr").textContent = e.message; try { localStorage.removeItem("tb2code"); } catch {} }
+  finally { $("#go").disabled = false; }
 }
 function view() {
   const f = $("#flt").value.trim().toLowerCase();
@@ -110,7 +125,7 @@ $("#csv").onclick = () => {
   const csv = "﻿" + [head, ...lines].map(l => l.map(x => `"${String(x ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "Тарас Бульба – результаты.csv"; a.click();
 };
-$("#go").onclick = enter; $("#code").onkeydown = e => { if (e.key === "Enter") enter(); };
+$("#go").onclick = enter; $("#eye").onclick = () => { const c = $("#code"); c.type = c.type === "password" ? "text" : "password"; }; $("#code").onkeydown = e => { if (e.key === "Enter") enter(); };
 const saved = ls.get("tb2code"); if (saved) { $("#code").value = saved; enter(); }
 </script>
 </body>
