@@ -748,7 +748,7 @@ function exemplarRows(ru) {
 /* v5.44: нейросеть сначала продумывает методический замысел урока, потом пишет конспект по нему */
 function promptDesign(p) {
   const ru = p.subject === "ru";
-  return `Ты — методист-словесник с большим опытом. Прежде чем писать конспект, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока — осознанно, для этой темы и этого класса, без шаблонов.
+  return (window.TeacherRules ? TeacherRules.brief(p, "conspect") + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + `Ты — методист-словесник с большим опытом. Прежде чем писать конспект, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока — осознанно, для этой темы и этого класса, без шаблонов.
 Тема: «${p.topic}». ${p.grade} класс. ${ru ? "Русский язык" : "Литература"}. Тип урока: ${p.type?.name || "—"}. Длительность: ${p.duration} мин.${p.mode === "tutor" ? " Индивидуальное занятие с репетитором." : ""}
 
 ${window.MethodBase ? MethodBase.promptBlock(p, p.plan?.analysis) + "\n" : ""}
@@ -931,7 +931,7 @@ const METHOD_BANS = `## Методические запреты (обязате�
 - Фрагменты текста — в конспекте и на слайде; в технологической карте не дублируй.`;
 function promptConspect(p) {
   const ru = p.subject === "ru", cols = ru ? KB.ru.techmap.columns : KB.lit.techmapColumns;
-  return `Ты — ведущий методист: русский язык и литература, ФГОС, ФРП. Составь конспект урока в форме технологической карты.
+  return (window.TeacherRules ? TeacherRules.brief(p, "conspect") + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + `Ты — ведущий методист: русский язык и литература, ФГОС, ФРП. Составь конспект урока в форме технологической карты.
 
 Правила качества и источников: опирайся на собственные знания и найденные факты, но излагай СВОИМИ СЛОВАМИ; не копируй предложения и абзацы из учебников и сайтов; примеры, задачи, формулировки заданий придумай сам; при первом употреблении расшифровывай аббревиатуры (например, НОД — наибольший общий делитель, НОК — наименьшее общее кратное); соблюдай требования к наполненности, структуре и методике ниже.
 
@@ -1077,7 +1077,7 @@ function promptWorksheet(p, conspect) {
   const ru = p.subject === "ru", exam = p.control !== "school" ? KB.exams[p.control] : null;
   const mech = ru ? KB.ru.mechanics.filter(m => gradeIn(m.grades, p.grade) && !/^(lingEssay|speech|creative)$/.test(m.id)) : [];
   const lvl2 = exam ? `Повышенный уровень (${exam.label})` : "Повышенный уровень";
-return `
+return (window.TeacherRules ? TeacherRules.brief(p, "worksheet") + "\n\n" : "") + (window.Dossier ? Dossier.build(p, { max: 4000 }) + "\n\n" : "") + `
 
 Ты — методист. Сделай рабочий лист ученика к уроку. Правила качества и источников: опирайся на собственные знания и найденные факты, но излагай СВОИМИ СЛОВАМИ; не копируй предложения и абзацы из учебников и сайтов; примеры, задачи, формулировки заданий придумай сам; при первом употреблении расшифровывай аббревиатуры (например, НОД — наибольший общий делитель, НОК — наименьшее общее кратное); соблюдай требования к наполненности, структуре и методике ниже.
 
@@ -1594,6 +1594,21 @@ function deckCardsExtras(cards, p) {
   } catch (e) { console.warn("deck extras img", e); }
   return out;
 }
+/* Методический замысел для любого предмета: нейросеть продумывает логику урока именно для этого предмета, класса и темы */
+function promptDesignAny(p) {
+  const name = window.Subjects?.name ? Subjects.name(p.subject) : p.subject;
+  return (window.TeacherRules ? TeacherRules.brief(p, "conspect") + "\n\n" : "") + (window.Dossier ? Dossier.build(p, { max: 5000 }) + "\n\n" : "") + `Ты – опытный методист по предмету «${name}». Прежде чем писать материалы, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока – для этой темы, этого класса и этого типа урока, без шаблонов.
+Тема: «${p.topic}». ${p.grade} класс. Тип урока: ${p.type?.name || "—"}. Длительность: ${p.duration} мин.${p.mode === "tutor" ? " Индивидуальное занятие." : ""}
+${typeof SUBJECT_METHOD !== "undefined" && SUBJECT_METHOD[p.subject] ? `Предметная методика: ${SUBJECT_METHOD[p.subject]}\n` : ""}
+Ответь кратко (до 2200 знаков), по пунктам:
+1. Что ученик должен понять и уметь к концу урока (2–3 конкретных результата, проверяемых заданием).
+2. Противоречие или проблемная ситуация, из которой вырастает вопрос урока (опыт, задача, факт, источник), и сам вопрос.
+3. Логика урока по шагам: как от того, что уже знают (см. место темы в курсе), прийти к новому; где учитель объясняет сам, где ученики ищут.
+4. Ключевые задания и материал (из досье с номерами [И…] или по учебнику): 3–5 штук, от простого к сложному, с ответами; где нужен алгоритм.
+5. Типичные ошибки учеников по этой теме и как их предупредить.
+6. Как проверить, что тема усвоена (короткая проверка в конце, 3–4 задания с ответами).
+Не пиши сам конспект – только замысел. Не выдумывай факты, даты, формулы и цитаты: бери их из досье или учебника.`;
+}
 async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   // материал из российских образовательных источников — к каждому уроку (по теме урока или по запросу учителя)
@@ -1610,6 +1625,11 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     else if (p.find) toast(p.web?.reason === "no_keys" ? "Поиск по источникам не настроен на сервере (нужен ключ Яндекс-поиска)." : "По запросу в образовательных источниках ничего не нашлось.", 7000);
     state.gen = null;
   }
+  // методический замысел урока (только с нейросетью): одна короткая генерация – дальше все документы следуют ему
+  if (useAi && !p.design && (window.AI ? AI.configured() : caps.sample)) {
+    try { state.gen = { lessonId: L.id, doc: gen[0], pct: 8, fake: true, ctl: new AbortController() }; updateProgress(); const d = await caps.sample(promptDesignAny(p), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal }); p.design = String(d.text || "").trim(); L.design = p.design; }
+    catch (e) { if (e?.code === "cancelled") throw e; } finally { state.gen = null; }
+  }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
   const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(deckCardsExtras(convCards(PL.cards(p, type), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
@@ -1625,7 +1645,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
           const webTxt = _wq.length >= 2 ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample((window.TeacherRules ? TeacherRules.brief(p, f) + "\n\n" : "") + PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + (typeof syncRules === "function" ? "\n\n" + syncRules(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample((window.TeacherRules ? TeacherRules.brief(p, f) + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + (p.design ? `## Методический замысел урока (следуй ему)\n${p.design}\n\n` : "") + PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + (typeof syncRules === "function" ? "\n\n" + syncRules(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
           if (["conspect", "lesson", "worksheet"].includes(f) && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
@@ -1715,7 +1735,7 @@ async function buildWithAi(L, p, type, formats) {
       let md = cleanMd(raw);
       if (f === "conspect" && md.length > 1500) { // вторая проверка со стороны: лишние темы и странные формулировки
         state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress();
-        const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
+        const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
       }
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
       else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md).catch(() => md); }
