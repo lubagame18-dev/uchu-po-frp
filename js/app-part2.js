@@ -1640,7 +1640,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = deckCardsExtras(convCards(PL.cards(p, type), p), p); state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = deckCardsExtras(convCards(PL.cards(p, type), p), p); if (useAi && window.Deck?.aiWishes) { L.deckOutline = await Deck.aiWishes(L.deckOutline, p, state.gen.ctl.signal).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline); } state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);

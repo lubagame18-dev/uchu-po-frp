@@ -999,9 +999,37 @@ ${JSON.stringify(frs)}`;
     return cards;
   }
   /* ---------- сборка ---------- */
+  /* Презентация по запросу учителя: пожелания к уроку (поле пожеланий, заметки) применяются к плану слайдов –
+     нейросеть может убрать, добавить, переставить и переписать слайды; дословные тексты и упражнения не трогает. */
+  async function aiWishes(cards, p, signal) {
+    const n = p.notes || {}, wish = [p.wishes, n.prompt, n.observe].map(x => String(x || "").trim()).filter(Boolean).join("\n");
+    if (!wish || !window.UCHU?.configured?.() || typeof caps === "undefined") return cards;
+    const LOCK = new Set(["fragment", "poem", "task", "quote", "rule", "title", "date"]);
+    const payload = cards.filter(c => c.on !== false).map(c => ({ id: c.id, kind: c.kind, title: c.title || "", lead: c.lead || "", points: c.points || [], locked: LOCK.has(c.kind) }));
+    const prompt = `Ты – помощник учителя. Ниже план презентации к уроку «${p.topic}» (${p.grade} класс) – список слайдов в порядке показа. Учитель написал пожелания к уроку:
+«${wish}»
+Примени к презентации ТОЛЬКО то в пожеланиях, что касается слайдов и хода урока (что показать, что убрать, порядок, формулировки, количество, акценты). Если пожелания не касаются презентации – верни план без изменений.
+Правила: слайды с "locked": true (тексты произведений, упражнения, цитаты, правила) не переписывай – их можно только оставить, убрать или переставить; новые слайды добавляй с "id":"new"; факты не придумывай; не выводи на слайды вопросы и ответы учителя.
+Верни только JSON-массив слайдов в новом порядке: [{"id":"…","kind":"…","title":"…","lead":"…","points":["…"]}].
+${JSON.stringify(payload).slice(0, 14000)}`;
+    try {
+      const res = await caps.sample(prompt, { modelTier: "default", cache: false, signal });
+      const j = JSON.parse((String(res.text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
+      if (!Array.isArray(j) || !j.length) return cards;
+      const byId = new Map(cards.map(c => [c.id, c])); let k = 0; const out = [];
+      for (const x of j) {
+        const old = x && byId.get(x.id);
+        if (old) { out.push(LOCK.has(old.kind) ? old : { ...old, title: String(x.title ?? old.title), lead: String(x.lead ?? old.lead ?? ""), points: Array.isArray(x.points) ? x.points.map(String) : old.points }); byId.delete(x.id); }
+        else if (x && x.id === "new" && (x.title || x.points?.length)) out.push({ id: "w" + (++k), on: true, kind: ["cards", "list", "big", "steps"].includes(x.kind) ? x.kind : "list", title: String(x.title || ""), lead: String(x.lead || ""), points: Array.isArray(x.points) ? x.points.map(String) : [], notes: "Добавлено по пожеланию учителя." });
+      }
+      // служебные и выключенные слайды, которых нет в ответе: выключенные остаются выключенными, титул и «Классная работа» не теряем
+      for (const c of cards) if (byId.has(c.id) && (c.on === false || ["title", "date"].includes(c.kind))) out.splice(c.kind === "title" ? 0 : out.length, 0, c);
+      return out.length >= 3 ? out : cards;
+    } catch (e) { if (e?.code === "cancelled") throw e; return cards; }
+  }
   async function build(md, p, type, { ai = false, signal, o = opts() } = {}) {
     let cards = outline(md, p, type, o);
-    if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiScheme(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); }
+    if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiScheme(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); cards = await aiWishes(cards, p, signal).catch(() => cards); }
     cards = await mediaFill(cards).catch(() => cards);
     return { cards, md: toMarkdown(cards) };
   }
@@ -1110,6 +1138,6 @@ ${JSON.stringify(frs)}`;
     };
   }
 
-  return { childGoal, outline, toMarkdown, build, mediaFill, aiLit, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
 })();
 window.Deck = Deck;
