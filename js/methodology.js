@@ -36,7 +36,7 @@ window.Methodology = (() => {
     const S = SUBJ[p.subject] || null, g = +p.grade || 0;
     const stages = (p.type?.stages || []).slice(0, 12);
     const purpose = s => { try { return window.Heur?.purpose ? Heur.purpose(s) : ""; } catch { return ""; } };
-    const L = ["## Методика занятия", `Технология: ${tech(p)}`];
+    const L = ["## Методика занятия (ориентиры, а не шаблон: бери то, что подходит этому уроку)", `Технология: ${tech(p)}`];
     if (stages.length) L.push(`Этапы этого типа урока: ${stages.map(s => { const w = purpose(s); return w ? `${s} (${w})` : s; }).join("; ")}.`);
     if (S) L.push(`Логика открытия нового в предмете: ${S.logic}.`, `Ведущие приёмы предмета (выбери подходящие теме): ${S.tricks.join("; ")}.`);
     if ((p.subject === "ru" || p.subject === "lit") && window.MethodBase?.forLesson) { try { const M = MethodBase.forLesson(p, p.plan?.analysis); if (M?.logic) L.push(`Методика словесника для этого урока: ${M.logic}${M.must?.length ? `. Обязательно: ${M.must.slice(0, 5).join("; ")}` : ""}.`); } catch { } }
@@ -47,7 +47,7 @@ window.Methodology = (() => {
         const subj = /^lit/.test(p.subject) ? "lit" : /^ru/.test(p.subject) ? "ru" : p.subject;
         if (subj === "lit" && Learn.CATS) {
           const cats = (Learn.ORDER || Object.keys(Learn.CATS)).map(k => Learn.CATS[k]).filter(Boolean);
-          L.push(`Типы вопросов по методике учителя (чередуй их по этапам): ${cats.map(c => c.label).join("; ")}.`);
+          L.push(`Типы вопросов по методике учителя (используй те, что подходят материалу): ${cats.map(c => c.label).join("; ")}.`);
         }
         const smp = Learn.lessonsFor ? Learn.lessonsFor(p.topic, p.grade, 1, subj) : [];
         if (smp?.[0]?.questions?.length) {
@@ -58,7 +58,7 @@ window.Methodology = (() => {
         const tl = (Array.isArray(tech) ? tech : Object.keys(tech)).slice(0, 12).map(x => typeof x === "string" ? x : x.name || "").filter(Boolean);
         if (tl.length) L.push(`Приёмы из разработок учителя: ${tl.join("; ")}.`);
       }
-      if (window.Heur && /^(lit|ru)/.test(p.subject)) L.push("Эвристическая беседа (так учитель строит вопросы): наблюдение (ученик замечает особенность, термин не называется) → подводящий вопрос (сравнение, «уберём слово – что изменится?») → обобщение (ученики сами называют явление, учитель уточняет термин) → функция (зачем это автору именно здесь) → запись в тетрадь (термин, определение, пример, роль). После каждого вопроса – ожидаемый ответ ученика.");
+      if (window.Heur && /^(lit|ru)/.test(p.subject)) L.push("Эвристическая беседа (так учитель строит вопросы, когда в материале есть что «открывать»): наблюдение (ученик замечает особенность, термин не называется) → подводящий вопрос (сравнение, «уберём слово – что изменится?») → обобщение (ученики сами называют явление, учитель уточняет термин) → функция (зачем это автору именно здесь) → запись в тетрадь (термин, определение, пример, роль). После каждого вопроса – ожидаемый ответ ученика.");
     } catch (e) { console.warn("Methodology/Learn", e); }
     L.push(RETAIN);
     return L.join("\n");
