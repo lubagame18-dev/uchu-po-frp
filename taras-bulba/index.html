@@ -698,7 +698,11 @@ function finish() {
 async function send() {
   const m = $("#sendMsg"); m.className = "send"; m.textContent = "Отправляю учителю…"; $("#resend").classList.add("hidden");
   try {
-    const r = await fetch(CLOUD.url + "/rest/v1/lesson_results", { method: "POST", headers: { apikey: CLOUD.key, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify(payload) });
+    /* ?q=… – интерактив учителя с сайта «Учу по ФРП»: результат уходит ему в кабинет; без q – общая таблица урока */
+    const qid = new URLSearchParams(location.search).get("q");
+    const path = qid ? "/rest/v1/quiz_results" : "/rest/v1/lesson_results";
+    const body = qid ? { quiz_id: qid, student: payload.student, klass: payload.klass, score: payload.score, total: payload.total, details: payload.details } : payload;
+    const r = await fetch(CLOUD.url + path, { method: "POST", headers: { apikey: CLOUD.key, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify(body) });
     if (!r.ok) throw new Error(r.status);
     m.className = "send ok"; m.textContent = "✓ Результат отправлен учителю";
   } catch (e) { m.className = "send bad"; m.textContent = "Не получилось отправить (нет интернета?). Нажми ещё раз или покажи экран учителю."; $("#resend").classList.remove("hidden"); }

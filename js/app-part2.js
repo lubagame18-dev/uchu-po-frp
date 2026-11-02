@@ -1685,6 +1685,7 @@ async function buildWithAi(L, p, type, formats) {
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
         L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => r.md);
         if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
+        if (window.QuizLink) L.docs.slides = await QuizLink.addToDeck(L.docs.slides, p).catch(() => L.docs.slides); // 📱 QR-код на интерактив в конце
         L.status.slides = "ok";
       } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); L.status.slides = "ok"; }
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();

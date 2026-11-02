@@ -247,7 +247,9 @@ const Account = (() => {
           </div>
         </form>
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
+        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
+      m.querySelector("#acQuiz").onclick = () => { closeModal(); window.QuizLink?.openResults(); };
+      if (window.QuizLink && !S.local) { QuizLink.badge(m.querySelector("#acQuizN")); }
       bindDev(m);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
       const pm = m.querySelector("#acPMsg");
