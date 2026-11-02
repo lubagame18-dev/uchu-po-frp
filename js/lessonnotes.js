@@ -33,7 +33,8 @@ const LessonNotes = (() => {
     return (j < 0 ? rest : rest.slice(0, j)).trim();
   }
   function rows(md) {
-    const i = md.search(/^##\s+Технологическая карта/m); if (i < 0) return [];
+    let i = md.search(/^##\s+Технологическая карта/m);
+    if (i < 0) { const t = md.search(/^\|\s*(Этап|№)[^\n]*\|[^\n]*(Учител|учител|Деятельность)/m); if (t < 0) return []; i = md.lastIndexOf("\n", Math.max(0, t - 2)); if (i < 0) i = 0; } // нейросеть могла не поставить заголовок
     const out = [];
     for (const line of md.slice(i).split("\n").slice(1)) {
       if (/^##\s/.test(line)) break;

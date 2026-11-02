@@ -748,7 +748,7 @@ function exemplarRows(ru) {
 /* v5.44: нейросеть сначала продумывает методический замысел урока, потом пишет конспект по нему */
 function promptDesign(p) {
   const ru = p.subject === "ru";
-  return (window.TeacherRules ? TeacherRules.brief(p, "conspect") + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + `Ты — методист-словесник с большим опытом. Прежде чем писать конспект, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока — осознанно, для этой темы и этого класса, без шаблонов.
+  return (window.TeacherRules ? TeacherRules.brief(p, "techmap") + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + `Ты — методист-словесник с большим опытом. Прежде чем писать конспект, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока — осознанно, для этой темы и этого класса, без шаблонов.
 Тема: «${p.topic}». ${p.grade} класс. ${ru ? "Русский язык" : "Литература"}. Тип урока: ${p.type?.name || "—"}. Длительность: ${p.duration} мин.${p.mode === "tutor" ? " Индивидуальное занятие с репетитором." : ""}
 
 ${window.MethodBase ? MethodBase.promptBlock(p, p.plan?.analysis) + "\n" : ""}
@@ -931,7 +931,7 @@ const METHOD_BANS = `## Методические запреты (обязате�
 - Фрагменты текста — в конспекте и на слайде; в технологической карте не дублируй.`;
 function promptConspect(p) {
   const ru = p.subject === "ru", cols = ru ? KB.ru.techmap.columns : KB.lit.techmapColumns;
-  return (window.TeacherRules ? TeacherRules.brief(p, "conspect") + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + `Ты — ведущий методист: русский язык и литература, ФГОС, ФРП. Составь конспект урока в форме технологической карты.
+  return (window.TeacherRules ? TeacherRules.brief(p, "techmap") + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + `Ты — ведущий методист: русский язык и литература, ФГОС, ФРП. Составь конспект урока в форме технологической карты.
 
 Правила качества и источников: опирайся на собственные знания и найденные факты, но излагай СВОИМИ СЛОВАМИ; не копируй предложения и абзацы из учебников и сайтов; примеры, задачи, формулировки заданий придумай сам; при первом употреблении расшифровывай аббревиатуры (например, НОД — наибольший общий делитель, НОК — наименьшее общее кратное); соблюдай требования к наполненности, структуре и методике ниже.
 
@@ -1597,7 +1597,7 @@ function deckCardsExtras(cards, p) {
 /* Методический замысел для любого предмета: нейросеть продумывает логику урока именно для этого предмета, класса и темы */
 function promptDesignAny(p) {
   const name = window.Subjects?.name ? Subjects.name(p.subject) : p.subject;
-  return (window.TeacherRules ? TeacherRules.brief(p, "conspect") + "\n\n" : "") + (window.Dossier ? Dossier.build(p, { max: 5000 }) + "\n\n" : "") + `Ты – опытный методист по предмету «${name}». Прежде чем писать материалы, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока – для этой темы, этого класса и этого типа урока, без шаблонов.
+  return (window.TeacherRules ? TeacherRules.brief(p, "techmap") + "\n\n" : "") + (window.Dossier ? Dossier.build(p, { max: 5000 }) + "\n\n" : "") + `Ты – опытный методист по предмету «${name}». Прежде чем писать материалы, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока – для этой темы, этого класса и этого типа урока, без шаблонов.
 Тема: «${p.topic}». ${p.grade} класс. Тип урока: ${p.type?.name || "—"}. Длительность: ${p.duration} мин.${p.mode === "tutor" ? " Индивидуальное занятие." : ""}
 ${typeof SUBJECT_METHOD !== "undefined" && SUBJECT_METHOD[p.subject] ? `Предметная методика: ${SUBJECT_METHOD[p.subject]}\n` : ""}
 Ответь кратко (до 2200 знаков), по пунктам:
@@ -1695,7 +1695,7 @@ async function buildWithAi(L, p, type, formats) {
     // остаёмся на том листе, где учитель (обычно — первый готовый конспект); вкладки сами показывают, что готово
     if (state.lesson?.id === L.id) { if (f === formats[0]) state.active = shown(f); renderLesson(); }
     if (EXTRA_DOCS.includes(f)) { L.docs[f] = buildDocNoAi(f, L, p, type); L.status[f] = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
-    if (f === "lesson") { L.docs.lesson = withTaskBlocks(LessonNotes.build(techOf(L, p, type), p), p); L.status.lesson = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
+    if (f === "lesson") { L.docs.lesson = withTaskBlocks(LessonNotes.build(techOf(L, p, type), p), p); if (/Этапы урока не найдены/.test(L.docs.lesson)) { try { L.docs.lesson = withTaskBlocks(LessonNotes.build(injectResults(Engine.conspect(p, type, state.materials), p, type, "conspect"), p), p); } catch (e2) { console.warn("lesson fallback", e2); } } L.status.lesson = "ok"; state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; }
     if (f === "slides" && window.Deck) {
       // v5.4: презентация «как в Gamma» — план по конспекту; нейросеть только сжимает формулировки, дословные блоки не трогает
       try {

@@ -342,12 +342,12 @@ const LitKit = (() => {
   function conclusions(p, A, frs, terms, W) {
     const out = [];
     const dev = terms.filter(t => t.ex && !/песня|поэма|баллада|былина|стилизация|лиро|композиция|конфликт|лирический/.test(t.term)).slice(0, 4).map(t => `${t.term} («${t.ex.replace(/[«»]/g, "")}»)`);
-    if (dev.length) out.push(`Средства выразительности: ${dev.join("; ")}.`);
+    if (dev.length && A?.verse !== false) out.push(`Средства выразительности: ${dev.join("; ")}.`); // в прозе тропы по шаблону не выписываем
     const g = terms.find(t => /стилизация|поэма|баллада|былина|лиро/.test(t.term));
     if (g) out.push(`Жанр и форма: ${g.term} — ${g.def.charAt(0).toLowerCase() + g.def.slice(1)}`);
-    const H2 = W?.compare || A?.heroes || [];
+    const H2 = W?.compare || (A?.verse !== false ? A?.heroes : null) || []; // в прозе пару героев «на конфликт» не угадываем по частоте имён
     if (H2.length >= 2) out.push(`Герои: ${H2[0]} и ${H2[1]} противопоставлены; их столкновение — основа конфликта.`);
-    if (A?.keywords?.length >= 3) out.push(`Ключевые образы: «${A.keywords.slice(0, 4).join("», «")}».`);
+    if (A?.verse !== false && A?.keywords?.length >= 3) out.push(`Ключевые образы: «${A.keywords.slice(0, 4).join("», «")}».`);
     if (A?.ring) out.push("Композиция кольцевая: начало и финал перекликаются.");
     if (frs.length > 1) out.push(`На уроке мы работали с фрагментами: ${frs.map(f => `${f.n} — ${f.label.charAt(0).toLowerCase() + f.label.slice(1)} (строки ${f.from}–${f.to})`).join("; ")}.`);
     if (W?.idea) out.push(`Главная мысль: ${W.idea}`);
