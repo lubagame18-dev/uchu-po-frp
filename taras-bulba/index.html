@@ -38,6 +38,17 @@ button{font-family:var(--f-text);font-size:16px;cursor:pointer;border:none}
 .name{display:flex;gap:8px;margin-top:14px}
 .name input{flex:1;min-width:0;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid #8a5a4e;background:rgba(20,6,8,.75);color:var(--paper)}
 .name input::placeholder{color:#b9a096}
+.btn.gold{background:var(--gold);color:var(--ink)}
+.gmsg{color:#f3c6b8;font-size:14px;min-height:18px;margin-top:6px}
+.who-line{margin-top:12px;font-size:15px;color:var(--gold2)}
+.who-line b{color:var(--paper)}
+body.locked .tabs,body.locked .part,body.locked .dictbtn{display:none!important}
+.send{margin-top:10px;font-size:15px}
+.send.ok{color:var(--ok)}.send.bad{color:var(--bad)}
+.rev{font-size:14.5px;text-align:left;margin-top:10px}
+.rev div{border-bottom:1px dashed #cdb68c;padding:6px 2px}
+.rev .w{color:var(--bad)}.rev .r{color:var(--ok)}
+.tq .opt.pick{background:#f3e2b9;border-color:var(--wine);font-weight:700}
 .ask{margin-top:14px;border:1px solid var(--gold);border-radius:14px;padding:12px 14px;background:rgba(201,164,92,.08)}
 .ask small{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);margin-bottom:4px}
 .ask b{font-family:var(--f-title);font-weight:400;font-size:22px;line-height:1.15;color:var(--paper)}
@@ -175,7 +186,7 @@ textarea{width:100%;font:inherit;font-size:16px;border-radius:12px;border:1px so
 .foot{text-align:center;color:#b99e93;font-size:12.5px;margin-top:24px}
 </style>
 </head>
-<body>
+<body class="locked">
 <div class="wrap">
 
 <!-- ================= ОБЛОЖКА ================= -->
@@ -185,7 +196,12 @@ textarea{width:100%;font:inherit;font-size:16px;border-radius:12px;border:1px so
     <span class="tag">Н. В. Гоголь · 7 класс</span>
     <h1>Тарас Бульба</h1>
     <p>История · сюжет · герои и их выбор · смысл повести</p>
-    <div class="name"><input id="nm" placeholder="Впиши имя и фамилию" autocomplete="name"></div>
+    <div class="gate" id="gate">
+      <div class="name"><input id="fam" placeholder="Фамилия" autocomplete="family-name"><input id="im" placeholder="Имя" autocomplete="given-name"></div>
+      <div class="name"><input id="kl" placeholder="Класс (7Б)" style="flex:0 0 45%"><button class="btn gold" id="start">Начать</button></div>
+      <div class="gmsg" id="gmsg"></div>
+    </div>
+    <div class="who-line hidden" id="whoLine"></div>
     <div class="ask"><small>Вопрос урока</small><b>Тарас убивает родного сына – и всё же Гоголь восхищается Тарасом. Почему?</b></div>
   </div>
 </header>
@@ -409,9 +425,13 @@ textarea{width:100%;font:inherit;font-size:16px;border-radius:12px;border:1px so
 
 <!-- ================= VI. ТЕСТ ================= -->
 <section class="part hidden" id="p6">
-  <div class="sec-head"><div class="n">ЧАСТЬ VI</div><h2>Итоговый тест</h2><p>Шесть вопросов. Засчитывается первый ответ.</p></div>
+  <div class="sec-head"><div class="n">ЧАСТЬ VI</div><h2>Итоговый тест</h2><p>12 вопросов. Решай сам: правильные ответы появятся после проверки, а результат уйдёт учителю.</p></div>
   <div class="card"><div id="test"></div>
-    <div id="result" class="hidden"><div class="cert"><h4>Тарас Бульба</h4><div class="who" id="certName">—</div><div class="score" id="score">0/6</div><div id="rows" style="margin-top:8px"></div><p style="margin-top:10px;font-style:italic">Покажи этот экран учителю</p></div></div>
+    <div class="btns" id="tbtns"><button class="btn" id="tcheck">Проверить и отправить учителю</button></div>
+    <div class="fb" id="tfb"></div>
+    <div id="result" class="hidden"><div class="cert"><h4>Тарас Бульба</h4><div class="who" id="certName">—</div><div class="score" id="score">0/12</div><div id="rows" style="margin-top:8px"></div>
+      <div class="send" id="sendMsg">Отправляю учителю…</div><button class="btn ghost hidden" id="resend" style="margin-top:8px">Отправить ещё раз</button></div>
+      <div class="rev" id="review"></div></div>
   </div>
 </section>
 
@@ -445,7 +465,22 @@ const res = { hist: 0, s1: null, s2: 0, s2n: 0, ch: 0, s3: null, s4: 0 };
 const fb = (el, cls, html) => { el.className = "fb show " + cls; el.innerHTML = html; };
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-const nm = $("#nm"); nm.value = store.get("name", ""); nm.addEventListener("input", () => store.set("name", nm.value.trim()));
+/* ученик: фамилия, имя, класс – до начала работы */
+const CLOUD = { url: "https://omnqygnlibkcybwryrrh.supabase.co", key: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj", lesson: "taras-bulba-2" };
+window.ME = store.get("me", null);
+["fam", "im", "kl"].forEach(k => { if (window.ME && window.ME[k]) $("#" + k).value = window.ME[k]; });
+const fullName = () => window.ME ? `${window.ME.fam} ${window.ME.im}` : "";
+function startLesson() {
+  const fam = $("#fam").value.trim(), im = $("#im").value.trim(), kl = $("#kl").value.trim();
+  if (fam.length < 2 || im.length < 2) { $("#gmsg").textContent = "Впиши фамилию и имя полностью – так учитель увидит твой результат."; return; }
+  Object.assign(window, { ME: { fam, im, kl } }); store.set("me", window.ME);
+  $("#gate").classList.add("hidden"); $("#whoLine").classList.remove("hidden");
+  $("#whoLine").innerHTML = `Работает: <b>${fam} ${im}</b>${kl ? ", " + kl : ""} · <a href="#" id="chg" style="color:var(--gold2)">изменить</a>`;
+  $("#chg").onclick = e => { e.preventDefault(); $("#gate").classList.remove("hidden"); $("#whoLine").classList.add("hidden"); document.body.classList.add("locked"); };
+  document.body.classList.remove("locked");
+}
+$("#start").onclick = startLesson;
+if (window.ME) startLesson();
 
 /* разделы */
 function go(n) {
@@ -498,7 +533,7 @@ const SINGLE = {
 $$("[data-single]").forEach(b => {
   const key = b.dataset.single;
   single(b, SINGLE[key], first => {
-    if (key.startsWith("h")) { if (first) res.hist++; if ($$('#p1 .opt.right').length === 3) done(1); }
+    if (key.startsWith("h")) { res.histN = (res.histN || 0) + 1; if (first) res.hist++; if ($$('#p1 .opt.right').length === 3) done(1); }
   });
 });
 
@@ -591,7 +626,7 @@ $("#choices").innerHTML = CH.map((c, i) => `<div class="card choice" data-i="${i
   <div class="sit">${c.sit}</div><div class="q vstack s1"></div><div class="step2"><div class="q vstack s2"></div><div class="note hidden">${c.note}</div></div></div>`).join("");
 $$("#choices .choice").forEach(card => { const c = CH[+card.dataset.i];
   single(card.querySelector(".s1"), { t: "Что сделал герой?", o: c.o, a: c.a, why: c.o.map((_, k) => k === c.a ? "<b>Так и было.</b>" : "Нет, в повести иначе.") }, first => { if (first) res.ch++; card.querySelector(".step2").classList.add("show"); });
-  single(card.querySelector(".s2"), { t: c.m.t, o: c.m.o, a: c.m.a, why: c.m.o.map((_, k) => k === c.m.a ? "<b>Верно.</b>" : "Нет. Подумай, что для героя главное.") }, first => { if (first) res.ch++; card.querySelector('.note').classList.remove('hidden'); if ($$('#choices .s2 .opt.right').length === CH.length) done(4); });
+  single(card.querySelector(".s2"), { t: c.m.t, o: c.m.o, a: c.m.a, why: c.m.o.map((_, k) => k === c.m.a ? "<b>Верно.</b>" : "Нет. Подумай, что для героя главное.") }, first => { res.chN = (res.chN || 0) + 1; if (first) res.ch++; card.querySelector('.note').classList.remove('hidden'); if ($$('#choices .s2 .opt.right').length === CH.length) done(4); });
 });
 
 /* ===== идея ===== */
@@ -613,34 +648,62 @@ $("#chk3").onclick = () => {
 };
 const own = $("#own"); own.value = store.get("own", ""); own.addEventListener("input", () => store.set("own", own.value));
 
-/* ===== тест ===== */
+/* ===== тест: решают сами, ответы – после проверки ===== */
 const TQ = [
-  { t: "Где учились Остап и Андрий?", o: ["В киевской бурсе", "В Варшаве", "На Сечи"], a: 0 },
-  { t: "Что такое Речь Посполитая?", o: ["Казачий совет", "Государство Польши и Литвы", "Название Сечи"], a: 1 },
-  { t: "Что такое Брестская уния 1596 года?", o: ["Договор казаков с татарами", "Подчинение части православной церкви папе римскому", "Восстание Остряницы"], a: 1 },
-  { t: "Что для Тараса значит товарищество?", o: ["Родство по душе, святее родства по крови", "Дружба на время похода", "Служба королю"], a: 0 },
-  { t: "Что сказал Андрий полячке?", o: ["«Слышу!»", "«Отчизна моя — ты!»", "«Есть ещё порох в пороховницах?»"], a: 1 },
-  { t: "Что прославляет Гоголь в повести?", o: ["Богатство и добычу", "Верность родине, вере и товариществу, силу духа", "Жестокость войны"], a: 1 },
+  { t: "Где учились Остап и Андрий до приезда к отцу?", o: ["В киевской бурсе", "В Варшаве", "На Сечи"], a: 0 },
+  { t: "Как Тарас встретил старшего сына?", o: ["Подарил ему саблю", "Посмеялся над его одеждой и подрался с ним на кулаках", "Отправил его к матери"], a: 1 },
+  { t: "Где находилась Запорожская Сечь в повести?", o: ["В Киеве", "На острове Хортица за порогами Днепра", "У Днестра"], a: 1 },
+  { t: "Почему казаки пошли походом на Польшу?", o: ["Хотели захватить Варшаву", "Мстили за притеснение православных: храмы отдавали униатам", "Их позвал польский король"], a: 1 },
+  { t: "Какой город осаждали казаки?", o: ["Киев", "Дубно", "Краков"], a: 1 },
+  { t: "Почему Андрий перешёл к врагам?", o: ["Его взяли в плен", "Ради любви к полячке он отрёкся от отца, товарищей и родины", "Его обидел Тарас"], a: 1 },
+  { t: "Кого казаки выбрали куренным атаманом вместо погибшего Бородатого?", o: ["Остапа", "Андрия", "Товкача"], a: 0 },
+  { t: "Почему Тарас остался под Дубном, когда половина войска ушла за татарами?", o: ["Хотел добычи", "Не мог бросить товарищей в плену у поляков", "Ждал Андрия"], a: 1 },
+  { t: "Что крикнул Остап перед смертью?", o: ["«Прощайте, товарищи!»", "«Батько! где ты? Слышишь ли ты?»", "«Отчизна моя — ты!»"], a: 1 },
+  { t: "Из-за чего поляки схватили Тараса?", o: ["Он уснул на посту", "Он нагнулся за упавшей люлькой", "Его выдал Андрий"], a: 1 },
+  { t: "Как называется противопоставление Остапа и Андрия?", o: ["Антитеза", "Гипербола", "Эпитет"], a: 0 },
+  { t: "В чём идея повести?", o: ["Война приносит богатство", "Прославление верности родине, вере и товариществу, силы духа и осуждение предательства", "Дети должны слушаться матери"], a: 1 },
 ];
-let tD = 0, tG = 0;
-$("#test").innerHTML = TQ.map((q, i) => `<div class="q vstack" data-i="${i}"><div class="qt">${i + 1}. ${q.t}</div>${q.o.map((o, k) => `<button class="opt" data-k="${k}">${o}</button>`).join("")}</div>`).join("");
-$$("#test .q").forEach(qd => { const q = TQ[+qd.dataset.i];
-  qd.querySelectorAll(".opt").forEach(b => b.onclick = () => {
-    qd.querySelectorAll(".opt").forEach(x => x.disabled = true);
-    qd.querySelector(`.opt[data-k="${q.a}"]`).classList.add("right");
-    if (+b.dataset.k !== q.a) b.classList.add("wrongp"); else tG++;
-    if (++tD === TQ.length) finish(); }); });
+const tAns = Array(TQ.length).fill(null);
+$("#test").innerHTML = TQ.map((q, i) => `<div class="q vstack tq" data-i="${i}"><div class="qt">${i + 1}. ${q.t}</div>${q.o.map((o, k) => `<button class="opt" data-k="${k}">${o}</button>`).join("")}</div>`).join("");
+$$("#test .q").forEach(qd => qd.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+  if ($("#tcheck").disabled) return;
+  tAns[+qd.dataset.i] = +b.dataset.k; qd.querySelectorAll(".opt").forEach(x => x.classList.toggle("pick", x === b)); }));
+$("#tcheck").onclick = () => {
+  const left = tAns.map((v, i) => v === null ? i + 1 : null).filter(Boolean);
+  if (left.length) { fb($("#tfb"), "hint", `Ответь на все вопросы. Без ответа: ${left.join(", ")}.`); return; }
+  $("#tcheck").disabled = true; $("#tfb").className = "fb"; finish();
+};
+let payload = null;
 function finish() {
   done(6);
-  $("#certName").textContent = nm.value.trim() || "Имя не указано";
-  $("#score").textContent = `${tG}/${TQ.length}`;
-  $("#rows").innerHTML = [
-    ["I. История", `${res.hist}/3`], ["II. Сюжет", res.s1 === null ? "—" : `${res.s1}/8`],
-    ["III. Герои", res.s2n ? `${res.s2}/${res.s2n}` : "—"], ["IV. Выбор", `${res.ch}/10`],
-    ["V. Идея", res.s3 === null ? "—" : (res.s3 ? "верно" : "с ошибкой")], ["VI. Тест", `${tG}/${TQ.length}`],
-  ].map(r => `<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  let good = 0;
+  $$("#test .q").forEach(qd => { const i = +qd.dataset.i, q = TQ[i];
+    qd.querySelectorAll(".opt").forEach(x => { x.disabled = true; x.classList.remove("pick"); });
+    qd.querySelector(`.opt[data-k="${q.a}"]`).classList.add("right");
+    if (tAns[i] !== q.a) qd.querySelector(`.opt[data-k="${tAns[i]}"]`).classList.add("wrongp"); else good++; });
+  const rows = [
+    ["I. История", res.histN ? `${res.hist}/3` : "не делал"], ["II. Сюжет", res.s1 === null ? "не делал" : `${res.s1}/8`],
+    ["III. Герои", res.s2n ? `${res.s2}/${res.s2n}` : "не закончил"], ["IV. Выбор", res.chN ? `${res.ch}/10` : "не делал"],
+    ["V. Идея", res.s3 === null ? "не делал" : (res.s3 ? "верно" : "с ошибкой")], ["VI. Тест", `${good}/${TQ.length}`],
+  ];
+  $("#certName").textContent = fullName() + (window.ME && window.ME.kl ? ", " + window.ME.kl : "");
+  $("#score").textContent = `${good}/${TQ.length}`;
+  $("#rows").innerHTML = rows.map(r => `<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  $("#review").innerHTML = "<b>Ошибки в тесте:</b>" + (TQ.map((q, i) => tAns[i] === q.a ? "" : `<div>${i + 1}. ${q.t}<br><span class="w">твой ответ: ${q.o[tAns[i]]}</span><br><span class="r">верно: ${q.o[q.a]}</span></div>`).join("") || "<div>нет – молодец!</div>");
   $("#result").classList.remove("hidden"); $("#result").scrollIntoView({ behavior: "smooth" });
+  payload = { lesson: CLOUD.lesson, student: fullName(), klass: (window.ME && window.ME.kl) || null, score: good, total: TQ.length,
+    details: { sections: Object.fromEntries(rows), wrong: TQ.map((q, i) => tAns[i] === q.a ? null : i + 1).filter(Boolean), own: $("#own").value.trim().slice(0, 1000) } };
+  send();
 }
+async function send() {
+  const m = $("#sendMsg"); m.className = "send"; m.textContent = "Отправляю учителю…"; $("#resend").classList.add("hidden");
+  try {
+    const r = await fetch(CLOUD.url + "/rest/v1/lesson_results", { method: "POST", headers: { apikey: CLOUD.key, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify(payload) });
+    if (!r.ok) throw new Error(r.status);
+    m.className = "send ok"; m.textContent = "✓ Результат отправлен учителю";
+  } catch (e) { m.className = "send bad"; m.textContent = "Не получилось отправить (нет интернета?). Нажми ещё раз или покажи экран учителю."; $("#resend").classList.remove("hidden"); }
+}
+$("#resend").onclick = send;
 </script>
 </body>
 </html>
