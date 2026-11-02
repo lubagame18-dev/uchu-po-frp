@@ -1826,10 +1826,15 @@ const Engine = (() => {
       const ex = p.exFull?.length ? p.exFull.map(e => ({ ...e, fromLesson: true })) : pickEx(p, materials, RK && /styles|lex/.test(RK.kind) ? 2 : 5).sort((a, b) => a.hard - b.hard);
       for (const e of ex) { md += `${lvl(e.hard)}${e.stage ? ` · ${e.stage}` : ""}\n\n${trimEx(e.text, 4000)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`; const k = e.key || (typeof Base !== "undefined" && Base.keyFor ? Base.keyFor(e.text) : ""); if (k) wsKeys.push(`**Задание ${n}.** ${k}`); }
       if (ex.length < 3) {
-        const mech = KB.ru.mechanics.filter(m => { const [a, b] = m.grades.split("-").map(Number); return p.grade >= a && p.grade <= (b || a); });
-        const mechs = window.Variety && p.plan ? Variety.pick(mech, "mech", m => m.id, 4 - ex.length) : mech.slice(0, 4 - ex.length);
-        for (const m of mechs) md += `${lvl(/В каком|!/.test(m.formula))}\n\n${m.formula}\n\n⟦материал по теме «${p.topic}»: подберите из учебника⟧\n\n${BL}\n\n${BL}\n\n`;
-        if (window.Variety && p.plan) Variety.history.mark("mech", mechs.map(m => m.id));
+        /* Упражнений по теме мало: вместо пустых «механик» с пометкой «подберите материал» – тренировка из банка темы
+           (с ключами для учителя) и упражнение учебника с местом для номера. Пустых заданий в листе нет. */
+        const bank = window.RuSec?.BANKS?.find(b => b.re.test(String(p.topic).toLowerCase().replace(/ё/g, "е")));
+        if (bank?.tasks?.length) {
+          md += `${lvl(false)} · Тренировка\n\n${bank.tasks.map(([q], i) => `${i + 1}) ${q.replace(/^[^:]*:\s*/, "")}`).join("  \n")}\n\n${BL}\n\n${BL}\n\n`;
+          wsKeys.push(`**Задание ${n}.** ${bank.tasks.map(([, a], i) => `${i + 1}) ${a}`).join("; ")}`);
+          if (bank.tasks[0] && /^[^:]{3,60}:/.test(bank.tasks[0][0])) md = md.replace(/(· Тренировка\n\n)/, `$1*${bank.tasks[0][0].split(":")[0]}.*\n\n`);
+        }
+        if (ex.length + (bank?.tasks?.length ? 1 : 0) < 3) md += `${lvl(false)} · Упражнение из учебника\n\nУпражнение № ______ (номер называет учитель). Выполните его в тетради, рядом запишите, какое правило применяли.\n\n${BL}\n\n`;
       }
       // v5: творческое задание — каждый раз другая механика из рабочих тетрадей (кроссворд, лингвистическое уравнение, перфокарта…)
       const own = RK?.wsTasks?.find(x => /Создаём/.test(x.name));

@@ -798,7 +798,7 @@ const SELFCHECK = `## Перед тем как выдать — проверь �
 const BALANCE = d => `## Распределение времени (обязательно)
 Урок длится ${d} мин. На открытие нового (наблюдение, гипотеза, формулировка правила) уходит не больше 30 % времени. На практику (упражнения, самостоятельная работа с самопроверкой, применение) отводится не меньше 45 %: для 45 минут это не меньше 5–6 заданий разной сложности, из них минимум два с проверкой по эталону. Главное действие темы (например, выделить оборот запятыми, решить задачу, составить предложение) ученики выполняют на многих примерах: сначала с комментированием, потом самостоятельно. Проставь минуты по этапам, сумма равна ${d}. Перед выдачей проверь: если практики меньше 45 %, перераспредели время и добавь упражнения.`;
 /* Вторая, независимая проверка готового конспекта: «взгляд со стороны», без методических запоминалок. Возвращает точечные замены, а не весь документ (дёшево по токенам). */
-function promptReview(p, md) {
+function promptReview(p, md, f = "conspect") {
   return `Ты — независимый проверяющий конспектов уроков. Ты не писал этот конспект и не знаешь методических шаблонов: оцени только то, что написано. Предмет: ${p.subject === "ru" ? "русский язык" : p.subject === "lit" ? "литература" : (window.Subjects?.name?.(p.subject) || p.subject)}, ${p.grade} класс. Тема урока: «${p.topic}».
 
 Найди в конспекте ТОЛЬКО это:
@@ -806,20 +806,22 @@ function promptReview(p, md) {
 2. Странные, неестественные или пафосные формулировки в мотивации, проблемном вопросе и цели: эмоциональные ловушки («обидно ли вам?»), оценочные вопросы без опоры на материал, высокопарное начало. Замени на спокойную, понятную детям формулировку по теме. Нормально, если проблемная ситуация — два примера, где в одном запятая есть, в другом нет.
 3. Явные ошибки: неверное правило, неверный пример, имя или термин не на своём месте.
 4. Вопросы учителя без верного ответа ученика: после вопроса должен стоять *(Верный ответ ученика: …)*. Если его нет, дополни: в «new» повтори фрагмент вопроса и добавь конкретный верный ответ.
-Не переписывай конспект целиком и не придирайся к стилю. Если всё в порядке, верни пустой список.
+5. Нарушения требований учителя (это его методические заметки, они главнее общих шаблонов):
+${window.TeacherRules ? TeacherRules.checklist(p, f).map(x => "– " + x).join("\n") : ""}
+Не переписывай документ целиком и не придирайся к стилю. Если всё в порядке, верни пустой список.
 
-Верни только JSON: {"fixes":[{"old":"ТОЧНЫЙ фрагмент из конспекта, 20–300 знаков, встречается один раз","new":"чем заменить (пустая строка — убрать)","why":"коротко"}]}. Не больше 8 замен.
+Верни только JSON: {"fixes":[{"old":"ТОЧНЫЙ фрагмент из конспекта, 20–300 знаков, встречается один раз","new":"чем заменить (пустая строка — убрать)","why":"коротко"}]}. Не больше 14 замен.
 
 <conspect>
 ${String(md).slice(0, 26000)}
 </conspect>`;
 }
-async function reviewConspect(md, p, signal) {
+async function reviewConspect(md, p, signal, f = "conspect") {
   try {
-    const res = await caps.sample(promptReview(p, md), { modelTier: "default", cache: false, signal });
+    const res = await caps.sample(promptReview(p, md, f), { modelTier: "default", cache: false, signal });
     const j = JSON.parse((String(res.text).match(/\{[\s\S]*\}/) || ["{}"])[0]);
     let out = md, n = 0; const done = [];
-    for (const x of (j.fixes || []).slice(0, 8)) {
+    for (const x of (j.fixes || []).slice(0, 14)) {
       const o = String(x?.old || ""), nw = String(x?.new ?? "");
       if (o.length < 20 || o.length > 400 || nw.length > o.length * 2 + 80) continue;
       if (out.split(o).length !== 2) continue; // фрагмент должен найтись ровно один раз
@@ -1623,9 +1625,9 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
           const webTxt = _wq.length >= 2 ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample(PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + (typeof syncRules === "function" ? "\n\n" + syncRules(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample((window.TeacherRules ? TeacherRules.brief(p, f) + "\n\n" : "") + PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + (typeof syncRules === "function" ? "\n\n" + syncRules(p) : "") + webTxt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
-          if (f === "conspect" && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
+          if (["conspect", "lesson", "worksheet"].includes(f) && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
       }
       try { if (["conspect", "lesson"].includes(f) && window.MaterialResolver) { const ex = window.MaterialResolver.md(p); if (ex && !String(md).includes("Материалы урока")) md = String(md) + ex; } } catch (e2) { }
