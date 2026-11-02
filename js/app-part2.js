@@ -1588,7 +1588,11 @@ function deckCardsExtras(cards, p) {
     for (const c of out) {
       if (c.img || c.on === false || NOIMG.has(c.kind)) continue;
       const t = plain(c.title || "");
-      c.img = t && t.length <= 48 ? `${p.topic} ${t}` : p.topic;
+      const GENERIC = /^(практика|упражнени|закреплени|самостоятельн|рефлекси|подвед|вывод|что заметили|проверь|план|цель|повторени|в ч[её]м затруднени|с чего начн|открываем|итог|домашн|разминк|запомни|задани|ответ)/i;
+      const work = (String(p.topic).match(/«([^»]+)»/) || [])[1], au = window.Engine?.authorOf ? Engine.authorOf(p.topic) : "";
+      // литература: картинка – иллюстрация художника к произведению (с фамилией автора, чтобы «Бульба» не стала картофелем)
+      if (p.subject === "lit" && work) c.img = `${work}${au ? " " + au.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация художник`;
+      else c.img = t && t.length <= 48 && !GENERIC.test(t) ? `${p.topic} ${t}` : p.topic;
       c.cap = c.cap || t || p.topic;
     }
   } catch (e) { console.warn("deck extras img", e); }
@@ -2304,7 +2308,7 @@ const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; c
    =================================================================== */
 /* Чистый текст для учителя: без пометок «⟦…⟧», без строк сверки фактов, без служебных ссылок */
 function scrubDoc(md, keepLinks) {
-  return String(md || "").replace(/[ \t]*⟦[^⟧\n]*⟧/g, "").replace(/^.*Сверка фактов:.*$\n?/gm, "").replace(/\(помечено [^)]*\)/g, "")
+  return String(md || "").replace(/\((?:Верный|Ожидаемый|Предполагаемый) ответ(?: ученика| учеников)?:\s*/g, "(").replace(/[ \t]*⟦[^⟧\n]*⟧/g, "").replace(/^.*Сверка фактов:.*$\n?/gm, "").replace(/\(помечено [^)]*\)/g, "")
     .replace(/^\s*(?:[-*]\s*)?\[(?:Открыть статью|Полный текст|Открыть)[^\]]*\]\([^)]*\)\s*$\n?/gm, "").replace(/ ?\[(?:Открыть статью|Полный текст)\]\([^)]*\)/g, "")
     .replace(/(?<!!)\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, t) => keepLinks ? m : t)
     .replace(/[ \t]+$/gm, "");

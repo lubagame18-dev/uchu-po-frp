@@ -231,6 +231,10 @@ h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 /* шаблон «изображение на весь слайд»: картинка от края до края; пока её нет — крупное окошко «подобрать» */
 .lay-image .sx-body { position: static; }
 .lay-image .sx-body figure.pic:first-of-type { inset: 0 !important; width: auto; }
+/* фото на весь слайд можно уменьшить и сдвинуть: потяните за уголок – картинка становится «свободной» */
+.lay-image .sx-body figure.pic.free:first-of-type { inset: auto !important; height: auto; z-index: 1; }
+.lay-image .sx-body figure.pic.free:first-of-type img { height: auto; object-fit: contain; }
+.sx-frame.big .lay-image figure.pic:first-of-type .sx-resize { opacity: 1; right: 1cqw; bottom: 1cqw; width: 2.4cqw; height: 2.4cqw; min-width: 16px; min-height: 16px; z-index: 7; }
 .lay-image .sx-body figure.pic.empty:first-of-type .pic-empty { position: absolute; inset: 14cqw 8cqw 6cqw; min-height: 0; height: auto; font-size: 2.6cqw; }
 .sx-body figure.pic .pic-empty b { font-size: 1em; }
 .sx-frame.big .lay-image .sx-body > figure.pic:first-of-type, .lay-image .sx-body > figure.pic:first-of-type { position: absolute; }

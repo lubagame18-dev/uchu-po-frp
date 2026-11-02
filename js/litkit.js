@@ -364,12 +364,23 @@ const LitKit = (() => {
     A.__text = typeof text === "string" ? text : (text.text || "");
     const W = workOf(p.topic);
     const frs = fragments(text, A, { verse: !!A.verse, topic: p.topic });
+    // проза: отрывок начинается с начала предложения и заканчивается его концом (не обрываем на середине)
+    if (!A.verse) {
+      const full = String(A.__text || "");
+      for (const f of frs) {
+        let t = String(f.text || "").trim(); if (!t) continue;
+        const at = full.indexOf(t.slice(0, 60)), before = at > 0 ? full.slice(Math.max(0, at - 3), at).trim() : "";
+        if (/^[а-яё,;:)\-–—]/.test(t) || (before && !/[.!?…»"]$/.test(before))) { const m = t.match(/[.!?…]+[»"]?\s+(?=[«"—–-]?\s*[А-ЯЁ])/); if (m && m.index + m[0].length < t.length * 0.6) t = t.slice(m.index + m[0].length); }
+        if (!/[.!?…»"]\s*$/.test(t)) { const k = Math.max(t.lastIndexOf(". "), t.lastIndexOf("! "), t.lastIndexOf("? "), t.lastIndexOf("… "), t.lastIndexOf(".\n")); if (k > t.length * 0.5) t = t.slice(0, k + 1); }
+        f.text = t;
+      }
+    }
     const qa = frs.map(f => ({ n: f.n, items: fragmentQA(f, p, W) }));
     const allQa = qa.flatMap(x => x.items);
     const terms = termsFor(p, A, allQa);
     const gloss = glossaryFor(frs.map(f => f.text));
     const heroes = W?.compare || (A.heroes || []).slice(0, 2);
-    return { fragments: frs.map(({ qa, ...f }) => f), qa, terms, glossary: gloss, problem: W?.problem || problemOf(p, A, plan), problemSrc: W?.problem ? "база произведения" : problemOf.src, problemNote: problemOf.note || "", answer: W?.answer || null, idea: W?.idea || null, heroes, rows: W?.rows || null, conclusions: conclusions(p, A, frs, terms, W) };
+    return { verse: A.verse !== false, fragments: frs.map(({ qa, ...f }) => f), qa, terms, glossary: gloss, problem: W?.problem || problemOf(p, A, plan), problemSrc: W?.problem ? "база произведения" : problemOf.src, problemNote: problemOf.note || "", answer: W?.answer || null, idea: W?.idea || null, heroes, rows: W?.rows || null, conclusions: conclusions(p, A, frs, terms, W) };
   }
 
   /* ---------- 8. Разметка фрагмента для слайда: слова с подсказками ---------- */
@@ -381,7 +392,7 @@ const LitKit = (() => {
     for (const t of kit.extraTips || []) tips.push({ w: t.w, tip: t.tip });
     const H = typeof Heur !== "undefined" ? Heur : window.Heur;
     if (H?.archaic) for (const a of H.archaic(md.replace(/\[[^\]]*\]\(#g "[^"]*"\)/g, ""))) if (!/старое|старая/.test(a.def)) tips.push({ w: a.w, tip: `${a.w} — устар.: ${a.def}` });
-    for (const t of kit.terms || []) if (t.ex && t.ex.split(/\s+/).length <= 3 && !/…$/.test(t.ex)) tips.push({ w: t.ex.replace(/[«»]/g, ""), tip: `${t.term.charAt(0).toUpperCase() + t.term.slice(1)}: ${t.def}` });
+    for (const t of (kit.verse === false ? [] : kit.terms || [])) if (t.ex && t.ex.split(/\s+/).length <= 3 && !/…$/.test(t.ex)) tips.push({ w: t.ex.replace(/[«»]/g, ""), tip: `${t.term.charAt(0).toUpperCase() + t.term.slice(1)}: ${t.def}` });
     let out = md; const done = new Set();
     for (const { w, tip } of tips) {
       const key = lowe(w); if (!w || done.has(key) || w.length < 3) continue;
@@ -390,7 +401,7 @@ const LitKit = (() => {
       // заменяем только вне уже поставленных подсказок
       const parts = out.split(/(\[[^\]]*\]\(#g "[^"]*"\))/);
       let hit = false;
-      for (let i = 0; i < parts.length && !hit; i += 2) if (re.test(parts[i])) { parts[i] = parts[i].replace(re, (m, pre, word) => `${pre}[${word}](#g "${tip.replace(/"/g, "'").replace(/[\[\]()]/g, "")}")`); hit = true; }
+      for (let i = 0; i < parts.length && !hit; i += 2) if (re.test(parts[i])) { parts[i] = parts[i].replace(re, (m, pre, word) => `${pre}[${word}](#g "${tip.replace(/["«»„“”]/g, "'").replace(/[\[\]()]/g, "")}")`); hit = true; }
       if (hit) { out = parts.join(""); done.add(key); }
     }
     return out;

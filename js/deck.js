@@ -191,10 +191,11 @@ const Deck = (() => {
     add({ kind: "title", title: work ? `«${work}»` : (c.title || p.topic), points: [author || "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${work || p.topic} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация` : "", acc: "right" });
     // 1. Биография автора — первый слайд урока (портрет + годы + 2–3 вопроса)
     if (first && author) add({ kind: "author", title: author, points: [wikiYears, wikiWho].filter(Boolean), qs: ["Что в судьбе автора помогает понять произведение?", "Какие события жизни и эпохи отразились в его творчестве?", "Что удивило вас в биографии писателя?"], img: imgOn ? `commons:${author} портрет` : "", acc: "left", notes: `Биография: ${clip(c.wiki || "", 500) || "по учебнику"}. Вопросы — короткое обсуждение до чтения (2–3 минуты).` });
-    // 1а. Больше портретов автора: живописный и фотографический — с подписями (художник/фотограф, название)
-    if (first && author && imgOn) {
-      add({ kind: "image", title: "Портреты автора", img: `commons:${author} портрет живопись`, cap: "Портрет: художник и год — в подписи", notes: "Второй портрет автора: покажите и спросите, что меняется в облике и настроении." });
-      add({ kind: "image", title: "Автор в разные годы", img: `commons:${author} фотография`, cap: "", notes: "Фотография автора — без подписи, если неизвестен автор снимка." });
+    // 1а. Из биографии: только то, что помогает понять это произведение (без «автора в разные годы» и случайных фото)
+    if (first && author) {
+      const ws = String(c.wiki || "").replace(/\([^)]*\)/g, "").split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 40 && x.length < 220).slice(1, 4);
+      const bio = (kit.bio || []).length ? kit.bio : ws;
+      if (bio.length) add({ kind: "cards", title: "Из биографии", points: bio.slice(0, 4).map(x => clip(x, 200)), notes: kit.bio?.length ? "Факты биографии, связанные с произведением." : "Справка по открытой энциклопедии; сверьте с учебником и оставьте то, что связано с произведением." });
     }
     // 2. Вводный слайд: о произведении, жанр, герои
     if (first) {
@@ -224,7 +225,7 @@ const Deck = (() => {
     const frags = first ? kit.fragments.slice(0, 5) : kit.fragments;
     const mid = Math.ceil(frags.length / 2);
     for (const f of frags) {
-      if (imgOn && f.n === mid + 1 && frags.length >= 4) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} ${frags[mid - 1].label.replace(/^[^:]*:\s*/, "")}`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) — с Викисклада." });
+      if (imgOn && f.n === mid + 1 && frags.length >= 4) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic}${author ? " " + author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация художник ${frags[mid - 1].label.replace(/^[^:]*:\s*/, "").replace(/^«|…?»$/g, "")}`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) — с Викисклада." });
       if (verse) {
         // текст перед глазами класса: строфы целиком, не больше ~12 строк на слайд; вопросы — в конспекте, не на слайде
         const stz = f.text.split(/\n\s*\n/).map(x => x.replace(/^\n+|\n+$/g, "")).filter(x => x.trim());
@@ -245,10 +246,10 @@ const Deck = (() => {
       if (first) {
         const qa = ((kit.qa || []).find(x => x.n === f.n) || {}).items || [];
         const qs = qa.slice(0, 2).map(x => x.q).filter(Boolean);
-        if (qs.length) add({ kind: "cards", title: "Что заметили?", points: qs, notes: `Ожидаемые ответы: ${qa.slice(0, 2).map(x => x.a).join("; ")}. Сначала спрашиваем класс, потом уточняем; ответы на слайде не показываем.` });
+        if (false && qs.length) add({ kind: "cards", title: "Что заметили?", points: qs, notes: `Ожидаемые ответы: ${qa.slice(0, 2).map(x => x.a).join("; ")}. Сначала спрашиваем класс, потом уточняем; ответы на слайде не показываем.` });
       }
     }
-    if (imgOn) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} иллюстрация`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) берётся с Викисклада. Если картинка подобрана из Яндекса — впишите подпись, щёлкнув по картинке." });
+    if (imgOn) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic}${author ? " " + author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация художник`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) берётся с Викисклада. Если картинка подобрана из Яндекса — впишите подпись, щёлкнув по картинке." });
     // понятия — в контексте анализа: сначала строка из текста и вопросы-наблюдения (термин не называется), потом запись
     if (kit.terms.length && window.Heur) {
       const DEV = { "эпитет": "epithet", "сравнение": "simile", "повтор": "repeat", "риторический вопрос": "rhetq" };
@@ -379,7 +380,8 @@ const Deck = (() => {
       if (card.img) continue;
       if (!(mode === "all" ? ON_ALL.has(card.kind) : ON_KEY.has(card.kind))) continue;
       if ((card.points || []).map(String).some(x => x.length > 150)) continue;
-      const qImg = `${card.kind === "big" ? "" : (card.title || "") + " "}${base}`.replace(/\s+/g, " ").trim();
+      const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
+      const qImg = (lit ? `${work || p.topic} ${sur} иллюстрация художник` : `${card.kind === "big" ? "" : (card.title || "") + " "}${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
       /* Литература, МХК, ИЗО, музыка: берём только проверенную живопись/иллюстрацию (commons:),
          а не случайное фото. Нет подходящей картины/иллюстрации — слайд остаётся без картинки. */
       card.img = ["lit", "mhk", "izo", "mus"].includes(p.subject) ? `commons:${qImg}` : qImg;
@@ -956,10 +958,11 @@ ${JSON.stringify(payload)}`;
     const frs = kit.fragments.slice(0, 8).map(f => ({ n: f.n, text: String(f.text).slice(0, 1800) }));
     const prompt = `Ты — методист-словесник. Урок: «${work}»${author ? ", " + author : ""}, ${p.grade} класс. Ниже фрагменты текста, с которыми класс работает на уроке.
 1) notes: слова и выражения из текста, которые ученику ${p.grade} класса непонятны или несут историко-культурный смысл (реалии, имена, устаревшие слова, исторические события). Не больше 8. "w" — ровно как в тексте (1–3 слова), "tip" — пояснение до 160 знаков: словарное значение или историческая справка. Очевидное не толковать. Числительные, даты, местоимения и имена без реалий («третьего сентября», «этот», «Тарас») не толкуй.
-2) concl: для каждого фрагмента — вывод, который класс записывает после работы с ним (1–2 предложения, с литературоведческими терминами, опора на конкретные слова текста, без пустых абстракций и без готовой трактовки всего произведения).
+2) concl: для каждого фрагмента — вывод о СМЫСЛЕ, который класс записывает после работы с ним (1–2 простых предложения): что мы поняли о героях, их поступках и выборе, о мысли автора; опора на конкретные слова текста; средства выразительности упоминай, только если без них смысл не объяснить. Без пафоса и громких слов.
 3) heroes: только для прозы и драмы (для стихотворения — пустой массив): 3–5 главных действующих лиц из этих фрагментов. "name" — имя как в тексте, "hint" — описание по поступку или черте в одном предложении, БЕЗ имени героя, до 110 знаков.
 4) events: только для прозы и драмы: 5–7 ключевых событий этих фрагментов в правильном порядке, каждое до 70 знаков, только то, что есть в тексте.
-Верни только JSON: {"notes":[{"w":"…","tip":"…"}],"concl":[{"n":1,"t":"…"}],"heroes":[{"name":"…","hint":"…"}],"events":["…"]}
+5) bio: 2–4 факта из жизни автора, которые помогают понять ИМЕННО это произведение (например, чем автор занимался, что изучал, откуда взял материал), каждый до 160 знаков; только достоверные, общеизвестные факты; если не уверен – пустой массив.
+Верни только JSON: {"notes":[{"w":"…","tip":"…"}],"concl":[{"n":1,"t":"…"}],"heroes":[{"name":"…","hint":"…"}],"events":["…"],"bio":["…"]}
 ${JSON.stringify(frs)}`;
     try {
       const res = await caps.sample(prompt, { modelTier: "default", cache: false, signal });
@@ -967,6 +970,8 @@ ${JSON.stringify(frs)}`;
       const all = kit.fragments.map(f => f.text).join("\n").toLowerCase();
       const notes = (j.notes || []).filter(x => x?.w && x?.tip && all.includes(String(x.w).toLowerCase())).slice(0, 8).map(x => ({ w: String(x.w), tip: String(x.tip).slice(0, 200) }));
       if (notes.length) { kit.extraTips = [...(kit.extraTips || []), ...notes]; for (const c of cards) if (c.kind === "fragment" && c.text) c.mdBody = LitKit.markup(verbatimMd(c.text, { verse: c.verse }), kit); }
+      const bio = (j.bio || []).map(x => String(x || "").trim()).filter(x => x.length > 20).slice(0, 4).map(x => x.slice(0, 200));
+      if (bio.length) { const bi = cards.findIndex(c => c.title === "Из биографии"); const card = { id: "bio", on: true, kind: "cards", title: "Из биографии", points: bio, notes: "Факты биографии, связанные с произведением (нейросеть); сверьте с учебником." }; if (bi >= 0) cards[bi] = { ...cards[bi], points: bio, notes: card.notes }; else { const ai = cards.findIndex(c => c.kind === "author"); cards.splice(ai >= 0 ? ai + 1 : 1, 0, card); } }
       const concl = new Map((j.concl || []).filter(x => x?.t && String(x.t).length > 15).map(x => [+x.n, String(x.t).slice(0, 260)]));
       if (concl.size && kit.fragments.length >= 2 || concl.size && cards.filter(c => c.kind === "fragment").length >= 2) {
         for (const n of [...concl.keys()].sort((a, b) => b - a)) {
