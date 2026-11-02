@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>«Тарас Бульба» – урок на телефоне</title>
+<meta name="theme-color" content="#2a0e11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Ruslan+Display&display=swap" rel="stylesheet">
+<style>
+/* ШРИФТЫ МЕНЯЮТСЯ ЗДЕСЬ */
+:root{
+  --f-title:"Oranienbaum","Times New Roman",serif;
+  --f-text:"PT Serif",Georgia,serif;
+  --f-accent:"Ruslan Display","Oranienbaum",serif;
+  --wine:#2a0e11; --wine2:#4a1a1f; --red:#8e2a2a; --gold:#c9a45c; --gold2:#e2c88f;
+  --paper:#f3e9d7; --paper2:#fbf5ea; --ink:#2a1214; --mute:#6e5550; --line:#d6c3a3; --ok:#2f6b3a; --bad:#9b2c2c;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--wine)}
+body{font-family:var(--f-text);color:var(--paper);min-height:100vh;line-height:1.45;font-size:17px;
+  background:radial-gradient(120% 50% at 50% 0%,#5a2026 0%,var(--wine) 65%) fixed}
+.wrap{max-width:600px;margin:0 auto;padding:12px 14px 96px}
+h1,h2,h3{font-family:var(--f-title);font-weight:400;line-height:1.08}
+button{font-family:var(--f-text);font-size:16px;cursor:pointer;border:none}
+.hidden{display:none!important}
+
+/* ===== обложка ===== */
+.cover{position:relative;border-radius:22px;overflow:hidden;min-height:440px;display:flex;flex-direction:column;justify-content:flex-end;
+  box-shadow:0 14px 40px rgba(0,0,0,.5);border:1px solid #6b3a3c}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.cover:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(42,14,17,.1) 0%,rgba(42,14,17,.35) 40%,rgba(42,14,17,.96) 78%)}
+.cover .in{position:relative;z-index:1;padding:20px 18px 18px}
+.tag{display:inline-block;background:var(--gold);color:var(--ink);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+.cover h1{font-family:var(--f-accent);font-size:52px;line-height:1;margin:12px 0 6px;color:var(--paper);text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.cover p{color:#e7d6c4;font-style:italic}
+.name{display:flex;gap:8px;margin-top:14px}
+.name input{flex:1;min-width:0;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid #8a5a4e;background:rgba(20,6,8,.75);color:var(--paper)}
+.name input::placeholder{color:#b9a096}
+.ask{margin-top:14px;border:1px solid var(--gold);border-radius:14px;padding:12px 14px;background:rgba(201,164,92,.08)}
+.ask small{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);margin-bottom:4px}
+.ask b{font-family:var(--f-title);font-weight:400;font-size:22px;line-height:1.15;color:var(--paper)}
+
+/* ===== оглавление ===== */
+.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px;margin:10px -14px 0;padding-left:14px;padding-right:14px;
+  background:linear-gradient(var(--wine) 78%,transparent);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:#1f0a0c;color:var(--paper);border:1px solid #6b3a3c;border-radius:12px;padding:7px 12px;font-size:14px;line-height:1.1;text-align:left}
+.tab b{display:block;font-family:var(--f-title);font-size:19px;font-weight:400;color:var(--gold)}
+.tab.on{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.tab.on b{color:var(--wine)}
+.tab.done b:after{content:" ✓"}
+
+/* ===== раздел ===== */
+.sec-head{margin:6px 2px 10px}
+.sec-head .n{font-family:var(--f-accent);color:var(--gold);font-size:15px;letter-spacing:.12em}
+.sec-head h2{font-size:40px;color:var(--paper);margin-top:2px}
+.sec-head p{color:#d9c6b0;font-size:15.5px;margin-top:4px}
+
+/* карусель-«слайды» */
+.deck{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:none}
+.deck::-webkit-scrollbar{display:none}
+.sl{flex:0 0 100%;scroll-snap-align:center;background:var(--paper);color:var(--ink);border-radius:20px;padding:20px 18px 22px;position:relative;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);min-height:430px;display:flex;flex-direction:column}
+.sl:before{content:"";position:absolute;inset:6px;border:1px solid #cdb68c;border-radius:16px;pointer-events:none}
+.sl.dark{background:linear-gradient(160deg,#5a2026,#2a0e11 70%);color:var(--paper)}
+.sl.dark:before{border-color:#8a5a4e}
+.sl.fire{background:radial-gradient(120% 80% at 50% 110%,#c9662c 0%,#8e2a2a 35%,#2a0e11 75%);color:var(--paper)}
+.sl.fire:before{border-color:#b56a3c}
+.sl .k{font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--red)}
+.sl.dark .k,.sl.fire .k{color:var(--gold2)}
+.sl h3{font-size:31px;margin:6px 0 8px;color:var(--wine)}
+.sl.dark h3,.sl.fire h3{color:var(--paper)}
+.sl p{font-size:16px;margin-bottom:8px}
+.sl .big{font-family:var(--f-title);font-size:64px;line-height:.9;color:var(--red)}
+.sl.dark .big{color:var(--gold)}
+.sl img.ill{width:100%;max-height:250px;object-fit:cover;border-radius:12px;margin:4px 0 10px;border:1px solid #cdb68c}
+.sl .sp{flex:1}
+.quote{font-style:italic;border-left:3px solid var(--red);padding:2px 0 2px 12px;margin:8px 0;font-size:16px}
+.sl.dark .quote,.sl.fire .quote{border-color:var(--gold)}
+.quote small{display:block;font-style:normal;opacity:.7;font-size:13px;margin-top:2px}
+.bigq{font-family:var(--f-title);font-size:30px;line-height:1.12}
+.pill{display:inline-block;background:var(--wine);color:var(--paper);border-radius:999px;padding:3px 10px;font-size:13.5px;margin:2px 4px 2px 0}
+.sl.dark .pill{background:var(--gold);color:var(--ink)}
+.eq{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0;flex-wrap:wrap}
+.eq span{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:700}
+.eq i{font-style:normal;font-family:var(--f-title);font-size:30px;color:var(--red)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;font-size:15px}
+.vs div{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:10px}
+.vs b{display:block;font-family:var(--f-title);font-weight:400;font-size:22px;color:var(--wine);margin-bottom:4px}
+.tree{display:flex;flex-direction:column;align-items:center;gap:4px;margin:8px 0}
+.tree div{background:var(--paper2);border:1.5px solid var(--wine);border-radius:12px;padding:7px 12px;text-align:center;font-size:15px;width:92%}
+.tree em{font-style:normal;color:var(--red);font-size:18px;line-height:1}
+.reveal{margin-top:6px;background:transparent;border:1.5px dashed var(--red);color:var(--red);border-radius:12px;padding:10px;font-weight:700;width:100%}
+.sl.dark .reveal{border-color:var(--gold);color:var(--gold2)}
+.ans{display:none;margin-top:8px;background:var(--paper2);border-left:4px solid var(--gold);border-radius:10px;padding:10px 12px;font-size:15.5px;color:var(--ink)}
+.ans.show{display:block}
+.nav{display:flex;align-items:center;justify-content:space-between;margin:8px 2px 4px}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:#6b3a3c}
+.dots i.on{background:var(--gold);width:20px;border-radius:6px}
+.arr{background:#1f0a0c;color:var(--gold2);border:1px solid #6b3a3c;border-radius:12px;padding:8px 14px;font-size:18px}
+.mapbox{background:#efe2c8;border-radius:12px;border:1px solid #cdb68c;overflow:hidden;margin:4px 0 8px}
+.mapbox svg{display:block;width:100%;height:auto}
+
+/* ===== задания ===== */
+.card{background:var(--paper);color:var(--ink);border-radius:20px;padding:18px 16px 20px;margin-top:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);position:relative}
+.card:before{content:"";position:absolute;inset:6px;border:1px solid #cdb68c;border-radius:16px;pointer-events:none}
+.card .k{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);font-weight:700}
+.card h3{font-size:28px;color:var(--wine);margin:4px 0 6px}
+.lead{color:var(--mute);font-size:15px;margin-bottom:10px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{background:var(--wine);color:var(--paper);padding:12px 16px;border-radius:12px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--wine);border:1.5px solid var(--wine)}
+.fb{margin-top:12px;border-radius:12px;padding:10px 12px;font-size:15.5px;display:none}
+.fb.show{display:block}
+.fb.ok{background:#e3efe2;color:#1f4a28;border:1px solid #9fc6a3}
+.fb.bad{background:#f6e0dc;color:#6e1f1f;border:1px solid #d9a39b}
+.fb.hint{background:#fbf0d6;color:#5a4417;border:1px solid #e0c487}
+.slots{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.slot{display:flex;gap:10px;align-items:flex-start;min-height:44px;border:1.5px dashed #c8b08a;border-radius:12px;padding:8px 10px;background:var(--paper2)}
+.slot .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--wine);color:var(--paper);font-family:var(--f-title);font-size:18px;display:flex;align-items:center;justify-content:center}
+.slot .t{flex:1;font-size:15px;line-height:1.3}
+.slot.empty .t{color:#a5917e;font-style:italic}
+.slot.good{border-style:solid;border-color:#5f9b67;background:#eaf3e7}
+.slot.wrong{border-style:solid;border-color:#c46a62;background:#f8e6e2}
+.pool{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.chip{text-align:left;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;line-height:1.3;box-shadow:0 2px 0 var(--line)}
+.chip.used{display:none}
+.ch{display:inline-block;font-size:11.5px;letter-spacing:.06em;color:var(--red);font-weight:700;margin-left:4px}
+.q{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+.q .qt{font-size:15.5px;margin-bottom:8px}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{flex:1 1 auto;background:#fff;color:var(--ink);border:1.5px solid #cdb68c;border-radius:10px;padding:9px 10px;font-size:15px}
+.vstack .opt{display:block;width:100%;text-align:left;margin-bottom:6px}
+.opt.right{background:#dfeedd;border-color:#4f8a57;color:#1d4424;font-weight:700}
+.opt.wrongp{background:#f6dcd7;border-color:#b9574f;color:#6e1f1f;text-decoration:line-through}
+.opt:disabled{cursor:default}
+.ex{display:none;font-size:14.5px;color:#4b3632;margin-top:8px;border-top:1px dashed #cdb68c;padding-top:7px}
+.ex.show{display:block}
+.heroes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 2px}
+.hcard{background:var(--paper2);border:1px solid var(--line);border-radius:12px;overflow:hidden;text-align:center}
+.hcard img{width:100%;height:110px;object-fit:cover;object-position:top;display:block}
+.hcard b{display:block;font-family:var(--f-title);font-weight:400;font-size:20px;padding:3px 0 5px;color:var(--wine)}
+.sent{font-size:17px;line-height:2;background:var(--paper2);border-radius:12px;padding:10px 12px;border:1px solid var(--line)}
+.gap{display:inline-block;min-width:110px;border-bottom:2px solid var(--wine);padding:0 6px;text-align:center;color:var(--red);font-weight:700;line-height:1.4}
+.gap.sel{background:#f3e2b9;border-radius:6px 6px 0 0}
+.gap.good{color:var(--ok);border-color:var(--ok)}
+.gap.wrong{color:var(--bad);border-color:var(--bad)}
+.words{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.words .chip{padding:8px 10px}
+textarea{width:100%;font:inherit;font-size:16px;border-radius:12px;border:1px solid #cdb68c;padding:10px 12px;background:#fff;color:var(--ink);min-height:84px;margin-top:8px}
+
+/* выбор героя */
+.choice .sit{background:var(--wine);color:var(--paper);border-radius:14px;padding:12px 14px;margin:6px 0 10px;font-size:15.5px}
+.choice .sit b{color:var(--gold2)}
+.step2{display:none}
+.step2.show{display:block}
+.note{background:#fbf0d6;border:1px solid #e0c487;border-radius:12px;padding:10px 12px;font-size:15px;margin-top:8px}
+
+/* итог */
+.cert{border:2px solid var(--gold);border-radius:16px;padding:16px;text-align:center;background:var(--paper2);margin-top:12px}
+.cert h4{font-family:var(--f-accent);font-weight:400;font-size:26px;color:var(--wine)}
+.cert .who{font-size:22px;font-family:var(--f-title);margin:6px 0}
+.score{font-family:var(--f-title);font-size:64px;color:var(--wine);line-height:1}
+.row{display:flex;justify-content:space-between;border-bottom:1px dashed #cdb68c;padding:6px 2px;font-size:15px;text-align:left}
+
+/* словарик */
+.dictbtn{position:fixed;right:14px;bottom:16px;z-index:9;background:var(--gold);color:var(--ink);border-radius:999px;padding:12px 16px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.dict{position:fixed;inset:auto 0 0 0;z-index:10;background:var(--paper);color:var(--ink);border-radius:20px 20px 0 0;padding:18px 18px 28px;max-height:75vh;overflow:auto;transform:translateY(105%);transition:transform .25s;box-shadow:0 -10px 30px rgba(0,0,0,.4)}
+.dict.open{transform:none}
+.dict h3{font-size:28px;color:var(--wine);margin-bottom:6px}
+.dict dt{font-weight:700;color:var(--wine);margin-top:8px}
+.foot{text-align:center;color:#b99e93;font-size:12.5px;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= ОБЛОЖКА ================= -->
+<header class="cover">
+  <img src="img/vstrecha.jpg" alt="Тарас встречает сыновей. Иллюстрация П. П. Соколова">
+  <div class="in">
+    <span class="tag">Н. В. Гоголь · 7 класс</span>
+    <h1>Тарас Бульба</h1>
+    <p>История · сюжет · герои и их выбор · смысл повести</p>
+    <div class="name"><input id="nm" placeholder="Впиши имя и фамилию" autocomplete="name"></div>
+    <div class="ask"><small>Вопрос урока</small><b>Тарас убивает родного сына – и всё же Гоголь восхищается Тарасом. Почему?</b></div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab on" data-go="1"><b>I</b>История</button>
+  <button class="tab" data-go="2"><b>II</b>Сюжет</button>
+  <button class="tab" data-go="3"><b>III</b>Герои</button>
+  <button class="tab" data-go="4"><b>IV</b>Выбор</button>
+  <button class="tab" data-go="5"><b>V</b>Смысл</button>
+  <button class="tab" data-go="6"><b>VI</b>Тест</button>
+</nav>
+
+<!-- ================= I. ИСТОРИЯ ================= -->
+<section class="part" id="p1">
+  <div class="sec-head"><div class="n">ЧАСТЬ I</div><h2>Историческая справка</h2><p>Листай карточки вправо. Это эпоха, без которой повесть не понять.</p></div>
+  <div class="deck">
+    <article class="sl">
+      <div class="k">Где и когда</div>
+      <h3>Украина, XVI–XVII века</h3>
+      <div class="mapbox"><svg viewBox="0 0 100 71" role="img" aria-label="Схема-карта: Речь Посполитая, Днепр, Сечь, Крымское ханство">
+        <defs><marker id="ar" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="3.2" markerHeight="3.2" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#2a1214"/></marker></defs>
+        <!-- Чёрное море -->
+        <path d="M0 71 L0 64 L20 63.5 L40 63 L54 62 L56.5 57.5 L59.5 52.5 L66 52 L70 51.8 L74 53 L76.6 55.4 L75 57.2 L73.5 61 L74.5 63.3 L75 68.3 L78.9 69 L84 67.5 L88 64.5 L91.7 62 L94 61 L100 60 L100 71 Z" fill="#d8c6a3" stroke="#2a1214" stroke-width=".35"/>
+        <!-- Азовское море -->
+        <path d="M78 56 L84 53.5 L90 51.5 L93.4 50.8 L97 47.5 L100 46.5 L100 60 L94 61 L91.7 62 L90 59 L86 57.5 L82 57 Z" fill="#d8c6a3" stroke="#2a1214" stroke-width=".35"/>
+        <!-- Днепр -->
+        <path d="M57 0 C58 8 58.5 14 58.4 19.6 C62 24 70 28 74.5 31.1 C79 33 82 34 83.4 36.2 L84 41.5 C83 43 81 43.5 80 43.7 C77 46 75.5 48 74.5 50 C72.5 51 70 51.6 66 52" fill="none" stroke="#2a1214" stroke-width="1.1"/>
+        <!-- Днестр -->
+        <path d="M14 27 C24 31 30 33 36 35.8 C41 38 44 41 47 44 C51 48 54 52 56.8 56" fill="none" stroke="#2a1214" stroke-width=".8"/>
+        <!-- пороги -->
+        <g stroke="#2a1214" stroke-width=".5"><path d="M82 37.4 h3.4"/><path d="M82.2 38.9 h3.4"/><path d="M82.3 40.4 h3.4"/></g>
+        <!-- Хортица -->
+        <ellipse cx="83.2" cy="42.6" rx="1.7" ry=".9" fill="#f3e9d7" stroke="#2a1214" stroke-width=".45" transform="rotate(-35 83.2 42.6)"/>
+        <!-- маршруты -->
+        <path d="M60.5 21.5 C68 30 76 34 80.6 40.6" fill="none" stroke="#2a1214" stroke-width=".55" stroke-dasharray="1.6 1" marker-end="url(#ar)"/>
+        <path d="M80 44.6 C64 42 46 32 35 22.6" fill="none" stroke="#2a1214" stroke-width=".55" stroke-dasharray="1.6 1" marker-end="url(#ar)"/>
+        <!-- города -->
+        <g fill="#2a1214"><circle cx="58.4" cy="19.6" r=".9"/><circle cx="31.7" cy="20" r=".9"/><circle cx="5.6" cy="5" r=".9"/></g>
+        <!-- подписи -->
+        <g font-family="PT Serif, Georgia, serif" fill="#2a1214">
+          <text x="60.2" y="18.2" font-size="2.9" font-weight="800">Киев</text>
+          <text x="33" y="18.7" font-size="2.9" font-weight="800">Дубно</text>
+          <text x="7.2" y="5.9" font-size="2.9" font-weight="800">Варшава</text>
+          <text x="3" y="12" font-size="3" font-weight="900" letter-spacing=".2">РЕЧЬ ПОСПОЛИТАЯ</text>
+          <text x="3" y="14.8" font-size="2.2" fill="#5a4440">(Польша + Литва)</text>
+          <text x="70" y="4.5" font-size="2.4" font-weight="800">МОСКОВСКОЕ</text>
+          <text x="70" y="7.4" font-size="2.4" font-weight="800">ГОСУДАРСТВО ↗</text>
+          <text x="49.5" y="9" font-size="2.6" font-style="italic">Днепр</text>
+          <text x="86.4" y="39.6" font-size="2.3">пороги</text>
+          <text x="86" y="45.2" font-size="2.6" font-weight="900">СЕЧЬ</text>
+          <text x="86" y="47.8" font-size="2" fill="#5a4440">о. Хортица</text>
+          <text x="19" y="31" font-size="2.5" font-style="italic" transform="rotate(22 19 31)">Днестр</text>
+          <text x="56" y="46.5" font-size="2.3" font-weight="800">ДИКОЕ ПОЛЕ</text>
+          <text x="59" y="48.9" font-size="2" fill="#5a4440">(степь)</text>
+          <text x="76.4" y="61" font-size="2.2" font-weight="800">КРЫМСКОЕ</text>
+          <text x="76.4" y="63.6" font-size="2.2" font-weight="800">ХАНСТВО</text>
+          <text x="18" y="68.5" font-size="2.6" font-style="italic">Чёрное море</text>
+          <text x="40" y="30.5" font-size="2" fill="#5a4440" transform="rotate(30 40 30.5)">поход на Польшу</text>
+        </g>
+        <!-- номера мест -->
+        <g font-family="PT Serif, Georgia, serif" font-size="2.7" font-weight="800" text-anchor="middle">
+          <circle cx="55.3" cy="17" r="2.3" fill="#f3e9d7" stroke="#2a1214" stroke-width=".45"/><text x="55.3" y="18">1</text>
+          <circle cx="79.6" cy="46.2" r="2.3" fill="#f3e9d7" stroke="#2a1214" stroke-width=".45"/><text x="79.6" y="47.2">2</text>
+          <circle cx="28.5" cy="17.4" r="2.3" fill="#f3e9d7" stroke="#2a1214" stroke-width=".45"/><text x="28.5" y="18.4">3</text>
+          <circle cx="22.6" cy="4.9" r="2.3" fill="#f3e9d7" stroke="#2a1214" stroke-width=".45"/><text x="22.6" y="5.9">4</text>
+          <circle cx="35" cy="39.8" r="2.3" fill="#f3e9d7" stroke="#2a1214" stroke-width=".45"/><text x="35" y="40.8">5</text>
+        </g>
+      </svg></div>
+      <p style="font-size:15px">Цифрами отмечены места действия повести: <b>1</b> Киев, <b>2</b> Сечь, <b>3</b> Дубно, <b>4</b> Варшава, <b>5</b> Днестр. Пунктир – путь героев.</p>
+    </article>
+    <article class="sl">
+      <div class="k">Договор 1569 года</div>
+      <h3>Речь Посполитая</h3>
+      <div class="eq"><span>Польша</span><i>+</i><span>Литва</span><i>=</i><span>Речь Посполитая</span></div>
+      <p>В 1569 году Польша и Великое княжество Литовское заключили договор – <b>Люблинскую унию</b> (уния – <b>союз</b>) – и стали одним государством. «Речь Посполитая» – «общее дело». Столица – Варшава.</p>
+      <p>Земли Украины с Киевом перешли под власть польского короля. Польские паны получали поместья, <b>закрепощали крестьян</b>, вводили налоги – даже «с дыма», то есть с каждой хаты.</p>
+      <div class="quote">«Самоуправно входил в сёла, где только жаловались на притеснения арендаторов и на прибавку новых пошлин с дыма». <small>о Тарасе, с. 100</small></div>
+    </article>
+    <article class="sl">
+      <div class="k">Почему казаки воюют «за веру»</div>
+      <h3>Две веры</h3>
+      <div class="vs">
+        <div><b>Православные</b>народ Украины (как в Московском государстве); служба на церковнославянском; крестятся справа налево; храм – церковь</div>
+        <div><b>Католики</b>польские паны; глава церкви – папа римский; служба на латыни; крестятся слева направо; храм – костёл</div>
+      </div>
+      <div class="sp"></div>
+      <div class="quote">Тарас «считал себя законным защитником православия». <small>с. 100</small></div>
+    </article>
+    <article class="sl dark">
+      <div class="k">1596 год</div>
+      <h3>Брестская уния</h3>
+      <div class="big">1596</div>
+      <p>Снова «уния» – теперь союз церквей. Часть православных епископов подчинилась <b>папе римскому</b>: возникла униатская церковь. Православных стали притеснять, их храмы отдавали униатам. Для казаков это – измена вере отцов.</p>
+      <div class="quote">«…во вкусе того бранного, трудного времени, когда начались разыгрываться схватки и битвы на Украйне за унию». <small>гл. I, с. 97</small></div>
+      <div class="quote">«Такая пора теперь завелась, что уже церкви святые теперь не наши». <small>гл. IV, с. 113</small></div>
+    </article>
+    <article class="sl">
+      <div class="k">«Вольные люди»</div>
+      <h3>Казаки</h3>
+      <p>Слово «казак» значит <b>«вольный человек»</b>. От панской неволи в дикую степь бежали крестьяне, горожане, обедневшие шляхтичи – люди разных народов, но православные.</p>
+      <p>Казаки защищали землю от набегов <b>крымских татар и турок</b>, ходили в морские походы.</p>
+      <div class="vs"><div><b>Реестровые</b>служили польскому королю за плату; их записывали в реестр – список</div><div><b>Вольные</b>жили в Запорожской Сечи по своим законам</div></div>
+    </article>
+    <article class="sl">
+      <div class="k">За порогами Днепра</div>
+      <h3>Запорожская Сечь</h3>
+      <p>Укреплённый лагерь казаков <b>за днепровскими порогами</b> (отсюда «Запорожье»), на острове <b>Хортица</b>. Принимали любого православного мужчину, о прошлом не спрашивали. <b>Женщин не пускали.</b></p>
+      <div class="tree">
+        <div><b>Рада</b> – общее собрание, все равны</div><em>↓ выбирает</em>
+        <div><b>Кошевой атаман</b> – главный на Сечи</div><em>↓</em>
+        <div><b>Курени</b> – отряды и жилища; во главе – куренной атаман, «батька»</div>
+      </div>
+      <p style="text-align:center"><span class="pill">главный закон – товарищество</span></p>
+    </article>
+    <article class="sl dark">
+      <div class="k">Как это связано с повестью</div>
+      <h3>Восстания казаков</h3>
+      <p>Казаки не раз восставали против польских панов. Северина <b>Наливайко</b> (1590-е) казнили в Варшаве; в народе говорили, что его сожгли в медном быке. В 1638 году восстали <b>Остряница и Гуня</b>.</p>
+      <div class="quote">«…уж теперь гетьман, зажаренный в медном быке, лежит в Варшаве». <small>гл. IV, с. 113</small></div>
+      <div class="quote">«Молодой, но сильный духом гетьман Остраница предводил всею несметною козацкою силою. Возле был виден… Гуня». <small>гл. XII, с. 149</small></div>
+      <p><b>Историческая повесть</b> – вымышленные герои среди реальных событий.</p>
+    </article>
+    <article class="sl">
+      <div class="k">Проверь себя</div>
+      <h3>Свяжи историю с повестью</h3>
+      <div class="q vstack" data-single="h1"></div>
+      <div class="q vstack" data-single="h2"></div>
+      <div class="q vstack" data-single="h3"></div>
+    </article>
+  </div>
+  <div class="nav"><button class="arr" data-dir="-1">←</button><div class="dots"></div><button class="arr" data-dir="1">→</button></div>
+</section>
+
+<!-- ================= II. СЮЖЕТ ================= -->
+<section class="part hidden" id="p2">
+  <div class="sec-head"><div class="n">ЧАСТЬ II</div><h2>Сюжет в восьми кадрах</h2><p>Листай кадры, пока учитель пересказывает. Потом – восстанови порядок сам.</p></div>
+  <div class="deck">
+    <article class="sl"><div class="k">Кадр 1 · гл. I</div><h3>Встреча на хуторе</h3><img class="ill" src="img/vstrecha.jpg" alt="Встреча Тараса с сыновьями"><p>Сыновья возвращаются из киевской бурсы. Отец встречает старшего… кулачным боем – и доволен: «Добрый будет козак!» Наутро Тарас сам везёт сыновей на Сечь.</p><div class="quote">«Вот где наука, так наука!» <small>о Запорожье, с. 96</small></div></article>
+    <article class="sl dark"><div class="k">Кадр 2 · гл. II–III</div><h3>Сечь</h3><div class="bigq">«Так вот она, Сечь! Вот то гнездо, откуда вылетают все те гордые и крепкие, как львы!»</div><p style="opacity:.75;font-size:13px;margin-top:4px">с. 110</p><div class="sp"></div><p>Через степь – на остров Хортица. Кошевой спрашивает новичка только об одном: «Во Христа веруешь?» Братья быстро становятся своими.</p></article>
+    <article class="sl"><div class="k">Кадр 3 · гл. IV</div><h3>Весть с Украины</h3><p>Тарасу скучно без «настоящего дела». На паром прибывают казаки с бедой: храмы отбирают, гетмана казнили в Варшаве.</p><div class="quote">«Такая пора теперь завелась, что уже церкви святые теперь не наши». <small>с. 113</small></div><p>Сечь решает идти на Польшу. Уходя, казаки говорят Сечи: «Прощай, наша мать!»</p></article>
+    <article class="sl"><div class="k">Кадр 4 · гл. V</div><h3>Осада Дубна</h3><p>Город взять не удалось – казаки решают взять его голодом. Остап хладнокровен и расчётлив: «будет со временем добрый полковник». Андрий скучает. Ночью к нему подкрадывается татарка – служанка той самой полячки, которую он полюбил ещё в Киеве: панночка в городе умирает от голода.</p></article>
+    <article class="sl dark"><div class="k">Кадр 5 · гл. VI</div><h3>Выбор Андрия</h3><p>Андрий с мешками хлеба идёт подземным ходом в город – и остаётся там.</p><div class="bigq">«Отчизна моя — ты! Вот моя отчизна!»</div><p style="opacity:.75;font-size:13px;margin-top:4px">с. 123</p><div class="sp"></div><div class="quote">«И погиб козак! Пропал для всего козацкого рыцарства!»</div></article>
+    <article class="sl"><div class="k">Кадр 6 · гл. VII–IX</div><h3>Битвы. «Я тебя породил…»</h3><img class="ill" src="img/taras_andriy.jpg" alt="Тарас над убитым Андрием" style="max-height:220px;object-position:center 30%"><p>Остапа выбирают атаманом. Татары разорили Сечь – войско делится, Тарас остаётся выручать пленных. «Есть ещё порох в пороховницах?» Из ворот вылетает Андрий – и рубит своих.</p><div class="quote">«Стой и не шевелись! Я тебя породил, я тебя и убью!» <small>с. 143</small></div></article>
+    <article class="sl dark"><div class="k">Кадр 7 · гл. X–XI</div><h3>Казнь Остапа</h3><p>Остапа берут в плен, раненого Тараса спасает Товкач. Тарас тайно пробирается в Варшаву. Остап выносит пытки без стона, но в последнюю минуту зовёт:</p><div class="bigq">«Батько! где ты? Слышишь ли ты?»<br>— Слышу!</div><p style="opacity:.75;font-size:13px;margin-top:4px">с. 149</p></article>
+    <article class="sl fire"><div class="k">Кадр 8 · гл. XII</div><h3>Гибель Тараса</h3><p>Тарас мстит за сына. У Днестра он нагибается за упавшей люлькой – и его хватают. Его сжигают на костре, а он с высоты показывает товарищам путь к челнам.</p><div class="sp"></div><div class="bigq">«Да разве найдутся на свете такие огни, муки и такая сила, которая бы пересилила русскую силу!»</div><p style="opacity:.75;font-size:13px;margin-top:4px">с. 152</p></article>
+  </div>
+  <div class="nav"><button class="arr" data-dir="-1">←</button><div class="dots"></div><button class="arr" data-dir="1">→</button></div>
+
+  <div class="card">
+    <div class="k">Задание</div><h3>Восстанови сюжет</h3>
+    <p class="lead">Нажимай на события по порядку – они встанут в строки. Нажмёшь на строку – событие вернётся вниз.</p>
+    <div class="slots" id="slots"></div><div class="pool" id="pool"></div>
+    <div class="btns"><button class="btn" id="chk1">Проверить</button><button class="btn ghost" id="hint1">Подсказка</button><button class="btn ghost" id="reset1">Сначала</button></div>
+    <div class="fb" id="fb1"></div>
+  </div>
+</section>
+
+<!-- ================= III. ГЕРОИ ================= -->
+<section class="part hidden" id="p3">
+  <div class="sec-head"><div class="n">ЧАСТЬ III</div><h2>Герои и характеры</h2><p>Три карточки – три характера. Иллюстрации П. П. Соколова.</p></div>
+  <div class="deck">
+    <article class="sl dark"><div class="k">Отец</div><h3>Тарас Бульба</h3><img class="ill" src="img/taras.jpg" alt="Тарас" style="max-height:230px;object-position:top"><p><span class="pill">суровый</span><span class="pill">прямой</span><span class="pill">вольнолюбивый</span><span class="pill">верен вере и товариществу</span><span class="pill">беспощаден в мести</span></p><div class="quote">«…весь был он создан для бранной тревоги и отличался грубой прямотой своего нрава». <small>с. 100</small></div></article>
+    <article class="sl"><div class="k">Старший сын</div><h3>Остап</h3><img class="ill" src="img/ostap.jpg" alt="Остап" style="max-height:230px;object-position:top"><p><span class="pill">твёрдый</span><span class="pill">рассудительный</span><span class="pill">хладнокровный</span><span class="pill">верен товарищам</span></p><div class="quote">«…никогда, ни в каком случае, не выдавал своих товарищей». <small>с. 104</small></div></article>
+    <article class="sl"><div class="k">Младший сын</div><h3>Андрий</h3><img class="ill" src="img/andriy.jpg" alt="Андрий с матерью" style="max-height:230px;object-position:top"><p><span class="pill">пылкий</span><span class="pill">мечтательный</span><span class="pill">чувствительный</span><span class="pill">храбрый</span><span class="pill">живёт порывом</span></p><div class="quote">«…душа его была доступна и другим чувствам». <small>с. 105</small></div></article>
+    <article class="sl"><div class="k">Антитеза</div><h3>Остап и Андрий</h3><p>Братья выросли в одной семье, учились в одной бурсе – и пошли разными путями. Гоголь противопоставляет их: это <b>антитеза</b>.</p>
+      <div class="vs"><div><b>Остап</b>в бурсе – не выдал товарищей<br><br>в бою – «мог вымерить всю опасность»<br><br>перед смертью – зовёт отца</div><div><b>Андрий</b>в бурсе – умел «увёртываться от наказания»<br><br>в бою – «бешеная нега и упоенье»<br><br>перед смертью – шепчет имя полячки</div></div></article>
+  </div>
+  <div class="nav"><button class="arr" data-dir="-1">←</button><div class="dots"></div><button class="arr" data-dir="1">→</button></div>
+
+  <div class="card">
+    <div class="k">Задание</div><h3>Чья это черта?</h3>
+    <div class="heroes"><div class="hcard"><img src="img/taras.jpg" alt=""><b>Тарас</b></div><div class="hcard"><img src="img/ostap.jpg" alt=""><b>Остап</b></div><div class="hcard"><img src="img/andriy.jpg" alt=""><b>Андрий</b></div></div>
+    <div id="traits"></div>
+    <h3 style="margin-top:14px">Кто это сказал?</h3>
+    <div id="quotes"></div>
+    <div class="fb" id="fb2"></div>
+  </div>
+</section>
+
+<!-- ================= IV. ВЫБОР ================= -->
+<section class="part hidden" id="p4">
+  <div class="sec-head"><div class="n">ЧАСТЬ IV</div><h2>Выбор и решение</h2><p>Характер виден в поступке. Сначала угадай, что сделал герой, потом – почему.</p></div>
+  <div id="choices"></div>
+  <div class="card">
+    <div class="k">Вывод</div><h3>Что движет героями?</h3>
+    <p style="font-size:16px">Остап и Тарас выбирают <b>долг</b>: веру, родину, товарищество – даже ценой жизни. Андрий выбирает <b>личное чувство</b> – и становится предателем. Решения героев вырастают из их характеров и из эпохи: в «свирепый век» (с. 149) вера и товарищество были для казаков всем.</p>
+  </div>
+</section>
+
+<!-- ================= V. СМЫСЛ ================= -->
+<section class="part hidden" id="p5">
+  <div class="sec-head"><div class="n">ЧАСТЬ V</div><h2>Тема и идея</h2><p>Связываем историю и сюжет в главную мысль.</p></div>
+  <div class="card">
+    <div class="k">Вспомним</div>
+    <p style="font-size:16px"><b>Тема</b> – о чём произведение: какую жизнь и какие события изображает автор.<br><b>Идея</b> – главная мысль: что автор утверждает, чем восхищается, что осуждает.</p>
+    <p style="font-size:15px;color:var(--mute);margin-top:6px">В «Песне про… купца Калашникова»: тема – защита чести; идея – честь и правда дороже жизни.</p>
+  </div>
+  <div class="card">
+    <div class="k">Шаг 1</div><h3>Тема: при чём здесь история?</h3>
+    <p class="lead">Вспомни справку: Речь Посполитая, уния, казачество.</p>
+    <div class="q vstack" data-single="theme"></div>
+  </div>
+  <div class="card">
+    <div class="k">Шаг 2</div><h3>Собери идею</h3>
+    <div class="note"><b>Подсказки.</b> В. Г. Белинский назвал повесть «поэмой о любви к родине». Тарас: «Нет уз святее товарищества!» Автор об Андрии: «И погиб козак!»</div>
+    <p class="lead" style="margin-top:8px">Нажми на пропуск, потом на подходящие слова.</p>
+    <div class="sent" id="idea">Гоголь прославляет <span class="gap" data-k="0">?</span>, мужество и силу духа казаков и осуждает <span class="gap" data-k="1">?</span>.</div>
+    <div class="words" id="ideaWords"></div>
+    <div class="btns"><button class="btn" id="chk3">Проверить</button></div>
+    <div class="fb" id="fb3"></div>
+  </div>
+  <div class="card">
+    <div class="k">Шаг 3</div><h3>Ответ на вопрос урока</h3>
+    <div class="quote">«Стой и не шевелись! Я тебя породил, я тебя и убью!» <small>с. 143</small></div>
+    <div class="q vstack" data-single="prob"></div>
+    <p class="lead" style="margin-top:8px">Запиши ответ своими словами – потом перенеси в тетрадь:</p>
+    <textarea id="own" placeholder="Гоголь восхищается Тарасом, потому что…"></textarea>
+  </div>
+</section>
+
+<!-- ================= VI. ТЕСТ ================= -->
+<section class="part hidden" id="p6">
+  <div class="sec-head"><div class="n">ЧАСТЬ VI</div><h2>Итоговый тест</h2><p>Шесть вопросов. Засчитывается первый ответ.</p></div>
+  <div class="card"><div id="test"></div>
+    <div id="result" class="hidden"><div class="cert"><h4>Тарас Бульба</h4><div class="who" id="certName">—</div><div class="score" id="score">0/6</div><div id="rows" style="margin-top:8px"></div><p style="margin-top:10px;font-style:italic">Покажи этот экран учителю</p></div></div>
+  </div>
+</section>
+
+<p class="foot">Цитаты – по учебнику: Литература. 7 класс. Ч. 1 / В. Я. Коровина и др. – М.: Просвещение, 2024. Иллюстрации П. П. Соколова.</p>
+</div>
+
+<button class="dictbtn" id="dictBtn">Словарик</button>
+<div class="dict" id="dict">
+  <h3>Словарик</h3>
+  <dl>
+    <dt>Бурса</dt><dd>духовное училище</dd>
+    <dt>Речь Посполитая</dt><dd>государство Польши и Литвы (с 1569 года)</dd>
+    <dt>Уния</dt><dd>союз; Брестская уния (1596) – подчинение части православной церкви папе римскому</dd>
+    <dt>Костёл</dt><dd>католический храм</dd>
+    <dt>Запорожская Сечь</dt><dd>укреплённый лагерь казаков за порогами Днепра</dd>
+    <dt>Рада</dt><dd>общее собрание казаков</dd>
+    <dt>Кошевой атаман</dt><dd>главный на Сечи</dd>
+    <dt>Курень</dt><dd>отряд и жилище казаков; во главе – куренной атаман, «батька»</dd>
+    <dt>Ляхи</dt><dd>старое название поляков</dd>
+    <dt>Отчизна</dt><dd>родина, отечество</dd>
+    <dt>Люлька</dt><dd>курительная трубка</dd>
+  </dl>
+  <div class="btns"><button class="btn" id="dictClose">Закрыть</button></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const store = { get(k, d) { try { const v = localStorage.getItem("tb2_" + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+                set(k, v) { try { localStorage.setItem("tb2_" + k, JSON.stringify(v)); } catch {} } };
+const res = { hist: 0, s1: null, s2: 0, s2n: 0, ch: 0, s3: null, s4: 0 };
+const fb = (el, cls, html) => { el.className = "fb show " + cls; el.innerHTML = html; };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+const nm = $("#nm"); nm.value = store.get("name", ""); nm.addEventListener("input", () => store.set("name", nm.value.trim()));
+
+/* разделы */
+function go(n) {
+  $$(".part").forEach(s => s.classList.add("hidden")); $("#p" + n).classList.remove("hidden");
+  $$(".tab").forEach(t => t.classList.toggle("on", t.dataset.go == n));
+  $(`.tab[data-go="${n}"]`).scrollIntoView({ inline: "center", block: "nearest" });
+  window.scrollTo({ top: $("#tabs").offsetTop - 2, behavior: "smooth" });
+}
+$$(".tab").forEach(t => t.onclick = () => go(t.dataset.go));
+const done = n => $(`.tab[data-go="${n}"]`).classList.add("done");
+
+/* карусели */
+$$(".part").forEach(p => {
+  const deck = p.querySelector(".deck"); if (!deck) return;
+  const n = deck.children.length, dots = p.querySelector(".dots");
+  dots.innerHTML = Array.from({ length: n }, () => "<i></i>").join("");
+  const cur = () => Math.round(deck.scrollLeft / (deck.children[0].offsetWidth + 12));
+  const paint = () => [...dots.children].forEach((d, i) => d.classList.toggle("on", i === cur()));
+  deck.addEventListener("scroll", () => requestAnimationFrame(paint)); paint();
+  p.querySelectorAll(".arr").forEach(b => b.onclick = () => { const i = Math.max(0, Math.min(n - 1, cur() + +b.dataset.dir)); deck.scrollTo({ left: i * (deck.children[0].offsetWidth + 12), behavior: "smooth" }); });
+});
+
+$("#dictBtn").onclick = () => $("#dict").classList.add("open");
+$("#dictClose").onclick = () => $("#dict").classList.remove("open");
+
+/* вопрос с одним ответом и пояснением к каждому варианту */
+function single(box, q, onDone) {
+  box.innerHTML = `<div class="qt">${q.t}</div>` + q.o.map((o, k) => `<button class="opt" data-k="${k}">${o}</button>`).join("") + `<div class="ex"></div>`;
+  let first = true;
+  box.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    const k = +b.dataset.k, ex = box.querySelector(".ex");
+    ex.innerHTML = q.why[k]; ex.classList.add("show");
+    if (k === q.a) { b.classList.add("right"); box.querySelectorAll(".opt").forEach(x => x.disabled = true); onDone && onDone(first); }
+    else { b.classList.add("wrongp"); b.disabled = true; }
+    first = false;
+  });
+}
+const SINGLE = {
+  h1: { t: "1. Почему казаки идут походом на Польшу?", o: ["Хотят завоевать Варшаву", "Мстят за притеснение православных: храмы отдают униатам", "Их позвал король"], a: 1,
+    why: ["Нет: причина в повести названа прямо – «церкви святые теперь не наши».", "<b>Верно.</b> Это последствие Брестской унии 1596 года.", "Нет: король – глава Речи Посполитой, против панов которой воюют казаки."] },
+  h2: { t: "2. Почему кошевой спрашивает новичка «Во Христа веруешь?», а имени не спрашивает?", o: ["В Сечь принимали любого православного, о прошлом не спрашивали", "Кошевой был забывчив", "Имена записывали в реестр"], a: 0,
+    why: ["<b>Верно.</b> Сечь – братство вольных православных людей.", "Нет: это обычай Сечи, а не черта кошевого.", "Нет: в реестр записывали казаков на службе короля, а не запорожцев."] },
+  h3: { t: "3. Почему «Тарас Бульба» – историческая повесть?", o: ["Все герои жили на самом деле", "Вымышленные герои действуют среди реальных событий XVI–XVII веков", "Это учебник истории"], a: 1,
+    why: ["Нет: Тарас, Остап и Андрий – вымышленные герои.", "<b>Верно.</b> Реальны уния, Сечь, восстания (Наливайко, Остряница), а герои – вымышленные.", "Нет: Гоголь соединяет события разных лет, как в народной песне."] },
+  theme: { t: "Какая формулировка темы точнее?", o: ["О том, как Андрий влюбился в полячку", "О войне", "Героическая борьба запорожских казаков против польских панов за родную землю, православную веру и товарищество (XVI–XVII века); судьба Тараса и его сыновей"], a: 2,
+    why: ["Слишком узко: это одна сюжетная линия.", "Слишком широко: какая война, кого с кем, за что? Тема должна быть точной.", "<b>Верно.</b> Тема вырастает из истории: Речь Посполитая, уния, казачество – и в центре судьба одной семьи."] },
+  prob: { t: "Тарас убивает родного сына – и всё же Гоголь восхищается Тарасом. Почему?", o: ["Гоголь считает, что так поступать правильно", "Гоголь восхищается не убийством, а верностью Тараса вере, родине и товариществу и его силой духа – и показывает трагедию: автор называет Тараса «сыноубийцей»", "Андрий был хуже Остапа во всём"], a: 1,
+    why: ["Нет. Тарас долго глядит «на бездыханный труп», автор называет его «сыноубийцей»: Гоголь показывает, как страшен этот поступок.", "<b>Верно.</b> Для Тараса измена вере и товарищам страшнее смерти, и сам он умирает за товарищей. Гоголь восхищается силой духа, но не скрывает жестокости «свирепого века».", "Нет. «Чем бы не козак был?» – говорит Тарас над Андрием: он и красив, и храбр. Погубило его предательство."] },
+};
+$$("[data-single]").forEach(b => {
+  const key = b.dataset.single;
+  single(b, SINGLE[key], first => {
+    if (key.startsWith("h")) { if (first) res.hist++; if ($$('#p1 .opt.right').length === 3) done(1); }
+  });
+});
+
+/* ===== сюжет: порядок ===== */
+const EV = [
+  { t: "Тарас встречает сыновей из киевской бурсы и решает сам везти их на Сечь.", ch: "гл. I" },
+  { t: "Тарас с сыновьями приезжает на Запорожскую Сечь, на остров Хортица.", ch: "гл. II–III" },
+  { t: "Весть с Украины: храмы отбирают – казаки идут походом на Польшу.", ch: "гл. IV" },
+  { t: "Казаки осаждают город Дубно и хотят взять его голодом.", ch: "гл. V" },
+  { t: "Андрий подземным ходом уходит к полячке и переходит к врагам.", ch: "гл. VI" },
+  { t: "В бою Тарас убивает Андрия.", ch: "гл. IX" },
+  { t: "Остапа казнят в Варшаве; он зовёт отца – «Слышу!»", ch: "гл. XI" },
+  { t: "Тараса сжигают у Днестра, но он спасает товарищей.", ch: "гл. XII" },
+];
+let order = [], hints = false, pool = shuffle(EV.map((_, i) => i));
+function draw1(state) {
+  $("#slots").innerHTML = EV.map((_, i) => { const id = order[i];
+    const cls = id === undefined ? "slot empty" : "slot" + (state ? (id === i ? " good" : " wrong") : "");
+    const t = id === undefined ? "нажми на событие ниже" : EV[id].t + (hints ? ` <span class="ch">${EV[id].ch}</span>` : "");
+    return `<div class="${cls}" data-i="${i}"><span class="n">${i + 1}</span><span class="t">${t}</span></div>`; }).join("");
+  $("#pool").innerHTML = pool.map(id => `<button class="chip${order.includes(id) ? " used" : ""}" data-id="${id}">${EV[id].t}${hints ? ` <span class="ch">${EV[id].ch}</span>` : ""}</button>`).join("");
+  $$("#slots .slot").forEach(s => s.onclick = () => { const i = +s.dataset.i; if (order[i] === undefined) return; order.splice(i, 1); draw1(); });
+  $$("#pool .chip").forEach(c => c.onclick = () => { if (order.length < EV.length) { order.push(+c.dataset.id); draw1(); } });
+}
+draw1();
+$("#chk1").onclick = () => {
+  if (order.length < EV.length) { fb($("#fb1"), "hint", "Сначала расставь все восемь событий."); return; }
+  const r = order.filter((id, i) => id === i).length; draw1(true);
+  if (res.s1 === null) res.s1 = r;
+  if (r === 8) { fb($("#fb1"), "ok", "<b>Верно!</b> Хутор → Сечь → поход → Дубно → предательство Андрия → его гибель → казнь Остапа → гибель Тараса. Повесть начинается и заканчивается Тарасом."); done(2); }
+  else fb($("#fb1"), "bad", `На месте ${r} из 8. Красные строки – нажми на них, событие вернётся вниз. Можно открыть подсказку.`);
+};
+$("#hint1").onclick = () => { hints = true; draw1(); fb($("#fb1"), "hint", "Появились номера глав. И ещё: Андрий погибает раньше Остапа, последним гибнет Тарас."); };
+$("#reset1").onclick = () => { order = []; pool = shuffle(pool); $("#fb1").className = "fb"; draw1(); };
+
+/* ===== герои ===== */
+const H = ["Тарас", "Остап", "Андрий"];
+const TR = [
+  { t: "В бурсе никогда не выдавал товарищей – «никакие плети и розги не могли заставить его это сделать».", a: 1, e: "Остап (с. 104): твёрдость и верность товарищам." },
+  { t: "«Имел чувства несколько живее»; его душа «была доступна и другим чувствам».", a: 2, e: "Андрий (с. 105): чувствительный, мечтательный." },
+  { t: "Считал себя «законным защитником православия».", a: 0, e: "Тарас (с. 100): вера – главный мотив его поступков." },
+  { t: "В бою мог «в один миг вымерить всю опасность»; казаки выбрали его атаманом.", a: 1, e: "Остап (с. 115, 128): рассудительный, будущий «добрый полковник»." },
+  { t: "Видел в битве «бешеную негу и упоенье», не рассчитывал сил.", a: 2, e: "Андрий (с. 115): живёт порывом." },
+  { t: "На казни выносил муки «как исполин»: ни крика, ни стона.", a: 1, e: "Остап (с. 149): сила духа до конца." },
+  { t: "Не захотел уходить от Дубна, пока в плену у поляков остаются товарищи.", a: 0, e: "Тарас (с. 131): «Что ж за козак тот, который кинул в беде товарища?»" },
+];
+const QU = [
+  { t: "«Отчизна моя — ты!»", a: 2, e: "Андрий – полячке (с. 123)." },
+  { t: "«Батько! где ты? Слышишь ли ты?»", a: 1, e: "Остап перед казнью (с. 149)." },
+  { t: "«Нет уз святее товарищества!»", a: 0, e: "Тарас перед битвой (с. 135)." },
+  { t: "«Не смейся, не смейся, батьку!»", a: 1, e: "Старший сын, Остап, – при встрече (с. 95)." },
+];
+function heroQuiz(box, items, cb) {
+  box.innerHTML = items.map((q, i) => `<div class="q" data-i="${i}"><div class="qt">${q.t}</div><div class="opts">${H.map((h, k) => `<button class="opt" data-k="${k}">${h}</button>`).join("")}</div><div class="ex">${q.e}</div></div>`).join("");
+  box.querySelectorAll(".q").forEach(qd => { const q = items[+qd.dataset.i]; let first = true;
+    qd.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      if (+b.dataset.k === q.a) { b.classList.add("right"); qd.querySelectorAll(".opt").forEach(x => x.disabled = true); qd.querySelector(".ex").classList.add("show"); cb(first); }
+      else { b.classList.add("wrongp"); b.disabled = true; }
+      first = false; }); });
+}
+let hd = 0; const hn = TR.length + QU.length;
+const hcb = first => { hd++; if (first) res.s2++; if (hd === hn) { res.s2n = hn; done(3);
+  fb($("#fb2"), "ok", `<b>С первой попытки: ${res.s2} из ${hn}.</b> Остап – твёрдый, верный товарищам; Андрий – пылкий, мечтательный, ради любви предал своих; Тарас – суровый, прямой, верный вере и товариществу.`); } };
+heroQuiz($("#traits"), TR, hcb); heroQuiz($("#quotes"), QU, hcb);
+
+/* ===== выбор и решение ===== */
+const CH = [
+  { who: "Андрий", sit: "Ночь под Дубном. Татарка шепчет: панночка в городе умирает от голода. Есть подземный ход. Что сделал <b>Андрий</b>?",
+    o: ["Разбудил отца и рассказал о ходе", "Взял хлеб, ушёл в город и остался там, с врагами", "Отказал татарке"], a: 1,
+    m: { t: "Почему он так поступил?", o: ["Любовь к полячке оказалась для него сильнее долга перед отцом, товарищами и родиной", "Его взяли в плен", "Он хотел выведать тайны врага"], a: 0 },
+    note: "«Отчизна моя — ты!» (с. 123). Решение Андрия вырастает из его характера: он живёт чувством и порывом." },
+  { who: "Тарас", sit: "Татары разорили Сечь и увели казаков в плен. Кошевой ведёт половину войска в погоню. Но у поляков в Дубне тоже пленные товарищи. Что решил <b>Тарас</b>?",
+    o: ["Пойти за татарами вместе со всеми", "Остаться под Дубном и выручать пленных у поляков", "Вернуться домой"], a: 1,
+    m: { t: "Почему?", o: ["Он хотел добычи", "Бросить товарищей в беде – позор для казака: товарищество для него свято", "Ему не нравился кошевой"], a: 1 },
+    note: "«Что ж за козак тот, который кинул в беде товарища, кинул его, как собаку, пропасть на чужбине?» (с. 131)." },
+  { who: "Тарас", sit: "Из ворот вылетает гусарский полк, впереди – Андрий, рубит своих. Казаки заманивают его к лесу. Что сделал <b>Тарас</b>?",
+    o: ["Простил сына и отпустил", "Сам убил сына", "Отдал его на суд рады"], a: 1,
+    m: { t: "Почему?", o: ["Для Тараса измена вере и товарищам страшнее смерти: «продать веру? продать своих?»", "Он никогда не любил Андрия", "Так велел кошевой"], a: 0 },
+    note: "«Я тебя породил, я тебя и убью!» (с. 143). Это трагедия: автор называет Тараса «сыноубийцей», а Тарас говорит над сыном: «Чем бы не козак был?»" },
+  { who: "Остап", sit: "Варшава, площадь казни. Остап идёт первым. Что он говорит товарищам?",
+    o: ["Просит пощады у палачей", "Просит, чтобы никто не промолвил ни слова, – не показал врагам, как мучится христианин", "Выдаёт, где отец"], a: 1,
+    m: { t: "А почему в последнюю минуту он зовёт отца?", o: ["Сила его иссякла: ему нужен был рядом «твёрдый муж», свой человек", "Он хотел, чтобы отца схватили", "Он сдался врагам"], a: 0 },
+    note: "«Батько! где ты? Слышишь ли ты?» – «Слышу!» (с. 149). Остап – сильный, но живой человек; Тарас рискует жизнью ради сына." },
+  { who: "Тарас", sit: "У Днестра казаки прорываются сквозь войско Потоцкого. У Тараса выпадает люлька. Что он сделал?",
+    o: ["Поскакал дальше", "Остановился искать люльку – и его схватили", "Отправил за ней казака"], a: 1,
+    m: { t: "О чём он думает на костре?", o: ["О себе и своей боли", "О товарищах: кричит, где стоят челны, чтобы они спаслись", "О мести полякам"], a: 1 },
+    note: "«Не хочу, чтобы и люлька досталась вражьим ляхам!» (с. 151). Упрямая казацкая гордость губит Тараса, но и на костре он верен товариществу." },
+];
+$("#choices").innerHTML = CH.map((c, i) => `<div class="card choice" data-i="${i}"><div class="k">Решение ${i + 1} · ${c.who}</div>
+  <div class="sit">${c.sit}</div><div class="q vstack s1"></div><div class="step2"><div class="q vstack s2"></div><div class="note hidden">${c.note}</div></div></div>`).join("");
+$$("#choices .choice").forEach(card => { const c = CH[+card.dataset.i];
+  single(card.querySelector(".s1"), { t: "Что сделал герой?", o: c.o, a: c.a, why: c.o.map((_, k) => k === c.a ? "<b>Так и было.</b>" : "Нет, в повести иначе.") }, first => { if (first) res.ch++; card.querySelector(".step2").classList.add("show"); });
+  single(card.querySelector(".s2"), { t: c.m.t, o: c.m.o, a: c.m.a, why: c.m.o.map((_, k) => k === c.m.a ? "<b>Верно.</b>" : "Нет. Подумай, что для героя главное.") }, first => { if (first) res.ch++; card.querySelector('.note').classList.remove('hidden'); if ($$('#choices .s2 .opt.right').length === CH.length) done(4); });
+});
+
+/* ===== идея ===== */
+const W3 = ["верность родине, вере и товариществу", "предательство", "богатство и добычу", "любовь к полячке", "храбрость врагов"], RIGHT = [0, 1];
+let picked = [null, null], cur = 0;
+function draw3(state) {
+  $$("#idea .gap").forEach((g, i) => { g.textContent = picked[i] === null ? "?" : W3[picked[i]];
+    g.className = "gap" + (i === cur && !state ? " sel" : "") + (state ? (picked[i] === RIGHT[i] ? " good" : " wrong") : "");
+    g.onclick = () => { cur = i; draw3(); }; });
+  $("#ideaWords").innerHTML = W3.map((w, k) => `<button class="chip" data-k="${k}">${w}</button>`).join("");
+  $$("#ideaWords .chip").forEach(c => c.onclick = () => { picked[cur] = +c.dataset.k; const e = picked.indexOf(null); if (e !== -1) cur = e; draw3(); });
+}
+draw3();
+$("#chk3").onclick = () => {
+  if (picked.includes(null)) { fb($("#fb3"), "hint", "Заполни оба пропуска."); return; }
+  draw3(true); const ok = picked.every((p, i) => p === RIGHT[i]); if (res.s3 === null) res.s3 = ok;
+  if (ok) { fb($("#fb3"), "ok", "<b>Верно!</b> Идея: Гоголь прославляет верность родине, вере и товариществу, мужество и силу духа казаков и осуждает предательство. Поэтому Белинский и назвал повесть «поэмой о любви к родине»."); done(5); }
+  else fb($("#fb3"), "bad", "Не совсем. Чем Гоголь восхищается в Тарасе и Остапе? Что он называет гибелью казака в истории Андрия?");
+};
+const own = $("#own"); own.value = store.get("own", ""); own.addEventListener("input", () => store.set("own", own.value));
+
+/* ===== тест ===== */
+const TQ = [
+  { t: "Где учились Остап и Андрий?", o: ["В киевской бурсе", "В Варшаве", "На Сечи"], a: 0 },
+  { t: "Что такое Речь Посполитая?", o: ["Казачий совет", "Государство Польши и Литвы", "Название Сечи"], a: 1 },
+  { t: "Что такое Брестская уния 1596 года?", o: ["Договор казаков с татарами", "Подчинение части православной церкви папе римскому", "Восстание Остряницы"], a: 1 },
+  { t: "Что для Тараса значит товарищество?", o: ["Родство по душе, святее родства по крови", "Дружба на время похода", "Служба королю"], a: 0 },
+  { t: "Что сказал Андрий полячке?", o: ["«Слышу!»", "«Отчизна моя — ты!»", "«Есть ещё порох в пороховницах?»"], a: 1 },
+  { t: "Что прославляет Гоголь в повести?", o: ["Богатство и добычу", "Верность родине, вере и товариществу, силу духа", "Жестокость войны"], a: 1 },
+];
+let tD = 0, tG = 0;
+$("#test").innerHTML = TQ.map((q, i) => `<div class="q vstack" data-i="${i}"><div class="qt">${i + 1}. ${q.t}</div>${q.o.map((o, k) => `<button class="opt" data-k="${k}">${o}</button>`).join("")}</div>`).join("");
+$$("#test .q").forEach(qd => { const q = TQ[+qd.dataset.i];
+  qd.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    qd.querySelectorAll(".opt").forEach(x => x.disabled = true);
+    qd.querySelector(`.opt[data-k="${q.a}"]`).classList.add("right");
+    if (+b.dataset.k !== q.a) b.classList.add("wrongp"); else tG++;
+    if (++tD === TQ.length) finish(); }); });
+function finish() {
+  done(6);
+  $("#certName").textContent = nm.value.trim() || "Имя не указано";
+  $("#score").textContent = `${tG}/${TQ.length}`;
+  $("#rows").innerHTML = [
+    ["I. История", `${res.hist}/3`], ["II. Сюжет", res.s1 === null ? "—" : `${res.s1}/8`],
+    ["III. Герои", res.s2n ? `${res.s2}/${res.s2n}` : "—"], ["IV. Выбор", `${res.ch}/10`],
+    ["V. Идея", res.s3 === null ? "—" : (res.s3 ? "верно" : "с ошибкой")], ["VI. Тест", `${tG}/${TQ.length}`],
+  ].map(r => `<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  $("#result").classList.remove("hidden"); $("#result").scrollIntoView({ behavior: "smooth" });
+}
+</script>
+</body>
+</html>
