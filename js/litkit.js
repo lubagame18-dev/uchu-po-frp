@@ -312,17 +312,19 @@ const LitKit = (() => {
      3) открытые источники (статья о произведении); 4) конфликт в самом тексте: перелом против того, что ему
      предшествует; столкновение образов; герои. Нейросеть (если подключена) уточняет вопрос — см. Heur/index. */
   const PROBLEMISH = /почему|зачем|как (понять|объяснить|совместить|примирить)|в ч[её]м (смысл|причина|парадокс|противореч)|противореч|парадокс|разве|можно ли|прав ли|кто прав/i;
+  /* проблемный вопрос – мягкий и тактичный: без жестокости, насилия, смерти и морализаторских «разве не должен…» */
+  const HARSH = /виселиц|казн|убил|убий|смерт|мертв|жесток|кров|насили|пытк|разве [^?]{0,60}не должн|обидно|стыдно ли|виноват ли/i;
   function problemOf(p, A, plan) {
     const work = (p.topic.match(/«([^»]+)»/) || [])[1], wl = work ? work.toLowerCase().slice(0, 12) : "";
     problemOf.src = ""; problemOf.note = "";
     // 2а) образовательные сайты (найдено в интернете): проблемный вопрос из разработок учителей по этому произведению
     const short = x => String(x).replace(/\s+/g, " ").trim();
-    const eduP = (plan?.edu || []).flatMap(r => (r.problem || []).map(q => ({ q: short(q), src: r.domain, url: r.url }))).filter(x => x.q.length > 20 && x.q.length < 220 && /\?/.test(x.q) && PROBLEMISH.test(x.q));
+    const eduP = (plan?.edu || []).flatMap(r => (r.problem || []).map(q => ({ q: short(q), src: r.domain, url: r.url }))).filter(x => x.q.length > 20 && x.q.length < 220 && /\?/.test(x.q) && PROBLEMISH.test(x.q) && !HARSH.test(x.q));
     if (eduP.length) { const best = eduP.sort((x, y) => (/почему|противореч|парадокс|разве|если/i.test(y.q) ? 1 : 0) - (/почему|противореч|парадокс|разве|если/i.test(x.q) ? 1 : 0))[0]; problemOf.src = `образовательный сайт: ${best.src}`; problemOf.note = `Источник: ${best.url}`; return best.q; }
     // 2б) все встроенные разработки уроков по произведению
-    const sqAll = (plan?.sampleQs || []).filter(x => (!x.topic || !wl || String(x.topic).toLowerCase().includes(wl)) && x.q.length > 25 && x.q.length < 220 && /\?/.test(x.q) && PROBLEMISH.test(x.q) && /почему|противореч|парадокс|разве|если|как совместить/i.test(x.q));
+    const sqAll = (plan?.sampleQs || []).filter(x => (!x.topic || !wl || String(x.topic).toLowerCase().includes(wl)) && x.q.length > 25 && x.q.length < 220 && /\?/.test(x.q) && PROBLEMISH.test(x.q) && !HARSH.test(x.q) && /почему|противореч|парадокс|разве|если|как совместить/i.test(x.q));
     if (sqAll.length) { problemOf.src = `образовательный материал: ${sqAll[0].src || "разработка урока"}`; return sqAll[0].q.trim(); }
-    const sq = (plan?.sample?.questions || []).map(String).filter(q => q.length > 25 && q.length < 220 && /\?/.test(q) && PROBLEMISH.test(q) && (!plan.sample.topic || !wl || String(plan.sample.topic).toLowerCase().includes(wl)));
+    const sq = (plan?.sample?.questions || []).map(String).filter(q => q.length > 25 && q.length < 220 && /\?/.test(q) && PROBLEMISH.test(q) && !HARSH.test(q) && (!plan.sample.topic || !wl || String(plan.sample.topic).toLowerCase().includes(wl)));
     if (sq.length) { problemOf.src = `образовательный материал: ${plan.sample.src || "разработка урока"}`; return sq.sort((x, y) => (/почему|противореч|парадокс|разве/i.test(y) ? 1 : 0) - (/почему|противореч|парадокс|разве/i.test(x) ? 1 : 0))[0].trim(); }
     // 3) открытые источники: в статье о произведении названо противоречие (конфликт, протест, одиночество…)
     const ww = String(plan?.workWiki || ""); const cs = ww.split(/(?<=[.!?])\s+/).find(x => /противопостав|конфликт|протест|бунт|одиночеств|тоск|свобод|контраст|противореч/i.test(x));
@@ -332,7 +334,7 @@ const LitKit = (() => {
       const turn = A.turn?.line ? A.turn.line.replace(/[.,!…;:—–-]+$/, "") : "", ti = turn ? ls.findIndex(l => l.startsWith(turn.slice(0, 15))) : -1;
       if (ti > 0) { const prev = ls[ti - 1].replace(/[.,!…;:—–-]+$/, ""); problemOf.src = "смысловой конфликт в тексте" + (cs ? "; открытые источники" : ""); problemOf.note = cs || ""; return `Почему «${turn}» — если «${prev}»?`; }
     }
-    if (A?.heroes?.length >= 2) { problemOf.src = "конфликт героев"; return `Кто прав в столкновении героев — ${A.heroes[0]} или ${A.heroes[1]}? И почему автор не даёт простого ответа?`; }
+    if (A?.verse !== false && A?.heroes?.length >= 2) { problemOf.src = "конфликт героев"; return `Кто прав в столкновении героев — ${A.heroes[0]} или ${A.heroes[1]}? И почему автор не даёт простого ответа?`; }
     if (A?.pairs?.length) { problemOf.src = "столкновение образов в тексте"; return `Почему в тексте сталкиваются «${A.pairs[0][0]}» и «${A.pairs[0][1]}»? Что автор хочет, чтобы мы почувствовали в этом столкновении?`; }
     if (cs) { problemOf.src = "открытые источники"; problemOf.note = cs; return `Где в тексте мы видим то, о чём пишут исследователи: «${cs.replace(/[.]+$/, "").slice(0, 160)}»? Согласны ли вы?`; }
     problemOf.src = "общий вопрос (нужен текст или нейросеть)";
