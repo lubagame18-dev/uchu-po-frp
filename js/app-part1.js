@@ -1233,7 +1233,8 @@ const Base = (() => {
       if (st2.size ? tt < need2 : exact7(topic, T.t) < 1) continue;
       if (grade && T.g > +grade) continue; // упражнения старших классов (например, Н/НН в причастиях 8 кл.) в урок младших не берём
       // соседняя подтема (придаточные определительные вместо придаточных причины): особое слово темы не встречается в названии раздела — упражнение уходит вниз списка
-      const miss = [...st2].filter(x => !GEN.test(x) && !FRP.score(T.t + " " + (T.sec || ""), new Set([x]))).length;
+      const specN = [...st2].filter(x => !GEN.test(x)).length, miss = [...st2].filter(x => !GEN.test(x) && !FRP.score(T.t + " " + (T.sec || ""), new Set([x]))).length;
+      if (specN >= 2 && miss * 2 >= specN) continue; // раздел о другом (чередование вместо проверяемых безударных) – не берём
       T.ex.forEach((e, i) => { const head = FRP.score(e.t.slice(0, 300), st2); out.push({ text: e.t, key: e.a, source: "", sec: T.t, s: tt * 3 + head + g + 4 - i * 0.1 - miss * 8, hard: /мини-сочинение|сочинени|творческ|по схем/i.test(e.t), own: true }); });
     }
     return out.sort((a, b) => b.s - a.s).slice(0, max);
