@@ -159,6 +159,12 @@ const LessonNotes = (() => {
         word.push(n.replace(/^🔗\s*\*?Переход:\*?\s*/, "").replace(/^📌\s*/, ""));
       }
       if (word.length) out += X.row("Учитель", word);
+      // этап анализа с разбором по отрывкам: отрывки и вопросы к ним идут ниже подпунктами – здесь не повторяем;
+      // вопросы ко всему тексту (прогноз, перелом, финал, чтение вслух) – после разбора отрывков
+      const fragStageNow = !ru && K?.fragments?.length && !fragDone && /аналит|анализ|комментар|беседа/.test(low(name));
+      const PER_PART = /^\d+-я (строфа|часть)|^(Начало|Середина|Финал фрагмента) \(|Какое слово здесь рисует|Почему автору в этом месте важен|Попробуем убрать это слово/;
+      let afterQs = [];
+      if (fragStageNow) { frBlocks.length = 0; afterQs = T.qs.filter(x => !PER_PART.test(clean(x.q)) && !/^Представьте, что вы прочитали/.test(clean(x.q))); T.qs = []; }
       for (const ff of frBlocks) out += X.box(`Отрывок ${ff.n}. ${ff.label}${ff.whole ? "" : ` (строки ${ff.from}–${ff.to})`}`, ff.text.split("\n").filter(l => l.trim()).map(l => `*${clean(l)}*`));
       // вопрос учителя — рядом ответ учеников
       if (T.qs.length) out += X.qa(T.qs.map((x, k) => [x.q, x.a || (k === 0 && students ? students : "")]));
@@ -195,7 +201,8 @@ const LessonNotes = (() => {
           if (K.conclusions?.[j]) out += X.box("Вывод", [`Учитель: «${clean(K.conclusions[j])}»`]);
         });
         // понятия — после наблюдения над текстом, с проговариванием вслух
-        (K.terms || []).slice(0, 4).forEach(tm => { out += X.box(`Понятие «${tm.term}»`, [`Учитель: «${tm.def.replace(/[.\s]+$/, "").replace(/^./, ch => ch.toUpperCase())}${tm.ex ? `. Вспомним строки: «${tm.ex.replace(/[«»]/g, "")}»` : ""}»`]); out += X.box("Проговариваем вслух", [`Учитель: «Как называется этот приём?» — Класс: «${tm.term}».`]); });
+        if (afterQs.length) { out += X.sub(`${i + 1}.${K.fragments.length + 1}`, "Весь текст: перелом и финал"); out += X.qa(afterQs.map(x => [x.q, x.a || ""])); }
+        (K.terms || []).slice(0, 4).forEach(tm => { out += X.box(`Понятие «${tm.term}»`, [`Учитель: «${tm.def.replace(/[.\s]+$/, "").replace(/^./, ch => ch.toUpperCase())}${tm.ex ? `. Вспомним строки: «${tm.ex.replace(/[«»]/g, "")}»` : ""}»`]); out += X.box("Проговариваем вслух", [`Учитель: «Как называется ${/герой|композиц|тема|иде[яи]|жанр|конфликт|образ|сюжет|размер|рифм|строф|автор|рассказчик|пейзаж|портрет|деталь/i.test(tm.term) ? "это понятие" : "этот приём"}?» — Класс: «${tm.term}».`]); });
       }
       // работа с текстом на остальных этапах: сам текст (дословно) должен быть перед глазами учителя там, где о нём говорят
       if (!ru && K?.fragments?.length) {
@@ -229,7 +236,7 @@ const LessonNotes = (() => {
     if (!ru && K?.conclusions?.length) out += X.box("Тетрадь · выводы урока", K.conclusions);
     const hw = section(md, "Домашнее задание");
     if (hw) out += X.box("Домашнее задание", hw.split("\n").map(x => x.replace(/^[-*]\s*/, "").trim()).filter(Boolean));
-    return Layout.merge(out);
+    return Layout.merge(out).replace(/ +»/g, "»");
   }
   return { build, rows, talk };
 })();

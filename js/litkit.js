@@ -226,7 +226,7 @@ const LitKit = (() => {
       flush();
       if (parts.length < 2) return [{ n: 1, label: "Текст", from: 1, to: nonEmpty, text: lines.join("\n").trim(), whole: true }];
       let from = 1;
-      return parts.map((pt, k) => { const f = { n: k + 1, label: `Часть ${k + 1}`, from, to: from + pt.length - 1, text: pt.join("\n"), part: true }; from += pt.length; return f; });
+      return parts.map((pt, k) => { const f = { n: k + 1, label: `«${String(pt.find(l => l.trim()) || "").trim().replace(/[.,;:!?…—–-]+$/, "").split(/\s+/).slice(0, 5).join(" ")}…»`, from, to: from + pt.length - 1, text: pt.join("\n"), part: true }; from += pt.length; return f; });
     }
     if (!verse && text.length <= 1600) return [{ n: 1, label: "Текст", from: 1, to: nonEmpty, text: text.trim(), whole: true }];
     const size = verse ? 10 : 6;
@@ -247,7 +247,7 @@ const LitKit = (() => {
   }
 
   /* ---------- 4. Вопросы к фрагменту с ожидаемыми ответами ---------- */
-  const q = s => `«${shortLine(s).replace(/^[«"—–\s]+|[»"\s]+$/g, "").replace(/[.,;:—–-]+$/, "")}»`;
+  const q = s => `«${shortLine(s).replace(/^[«"—–\s]+|[»"\s]+$/g, "").replace(/[.,;:—–-]+$/, "").trim()}»`;
   const VERBY = /(ит|ет|ут|ют|ат|ят|ил|ел|ал|ял|ыл|ул|ла|ли|ть|ся|сь)$/;
   const ADJ = /(ый|ий|ой|ая|яя|ое|ее|ые|ие|ого|его|ому|ему|ым|им|ую|юю|ых|их|ыми|ими)$/;
   const plural = n => n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "раза" : "раз";

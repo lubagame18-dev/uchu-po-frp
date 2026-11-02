@@ -213,7 +213,7 @@ const Deck = (() => {
     { const g = childGoal(p, c); add({ kind: "goal", title: "Тема и цель урока", lead: g.head, points: g.points, notes: c.goal ? "Цель из конспекта: " + cleanLine(c.goal) : "" }); }
     // 4. Проблемный вопрос: на первом уроке — только после чтения, без «вопросов с пылу с жару»
     const problemCard = { kind: "big", title: "Проблемный вопрос", lead: kit.problem, notes: "Запишите в тетрадь. Ответ — в выводах в конце урока." };
-    if (!first) add(problemCard);
+    add(problemCard); // как в конспекте: вопрос урока ставится на мотивации, до чтения и анализа
     // 5. Автор: краткая справка (для уроков не первого)
     if (!first && author && c.wiki) {
       const pts = [wikiYears, wikiWho].filter(Boolean);
@@ -248,7 +248,6 @@ const Deck = (() => {
         if (qs.length) add({ kind: "cards", title: "Что заметили?", points: qs, notes: `Ожидаемые ответы: ${qa.slice(0, 2).map(x => x.a).join("; ")}. Сначала спрашиваем класс, потом уточняем; ответы на слайде не показываем.` });
       }
     }
-    if (first) add(problemCard);
     if (imgOn) add({ kind: "image", title: "Иллюстрация", img: `commons:${work || p.topic} иллюстрация`, cap: work ? `Иллюстрация к «${shortWork}»` : "Иллюстрация", notes: "Подпись (художник, название, год) берётся с Викисклада. Если картинка подобрана из Яндекса — впишите подпись, щёлкнув по картинке." });
     // понятия — в контексте анализа: сначала строка из текста и вопросы-наблюдения (термин не называется), потом запись
     if (kit.terms.length && window.Heur) {
@@ -543,7 +542,8 @@ const Deck = (() => {
     if (MN && !cards.some(c => c.kind === "mnemo")) {
       const before = beforeEnd();
       Mnemo.cards(MN, plainMd).forEach((c, k) => {
-        const cc = (c.kind === "scheme" && cards.some(x => x.kind === "scheme")) ? { ...c, kind: "list", title: "Порядок действий по правилу" } : c;
+        let cc = (c.kind === "scheme" && cards.some(x => x.kind === "scheme")) ? { ...c, kind: "list", title: "Порядок действий по правилу" } : c;
+        if (lit) cc = { ...cc, title: cc.title === "Порядок действий по правилу" ? "Порядок анализа" : cc.title === "Примеры: как применяем правило" ? "Примеры из текста" : cc.title }; // на литературе нет «правила»
         at(before + k, cc);
       });
     }
