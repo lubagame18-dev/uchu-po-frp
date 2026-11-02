@@ -619,7 +619,7 @@ const Deck = (() => {
     curTopic = p.topic; curKit = p.plan?.kit || null;
     const c = parseConspect(md);
     const cards = []; let n = 0;
-    const add = card => { cards.push({ id: "c" + (++n), on: true, ...card }); return cards[cards.length - 1]; };
+    let add = card => { cards.push({ id: "c" + (++n), on: true, ...card }); return cards[cards.length - 1]; };
     const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : null;
     const work = (p.topic.match(/«([^»]+)»/) || [])[1];
     const core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
@@ -650,6 +650,12 @@ const Deck = (() => {
     if (route.length >= 5) add({ kind: "steps", title: p.subject === "hist" ? "Маршрут урока" : "План урока", points: [...new Set(route)].slice(0, 6).map(x => p.subject === "hist" ? x : x), on: route.length >= 6, notes: p.subject === "hist" ? "Хронология этапов урока; на доске можно показать стрелкой времени." : "План урока по техкарте. Можно выключить в плане презентации." });
     // 5а. Русский язык: опора урока по профилю (теория, алгоритм, тексты-документы, таблица)
     const RK = !lit ? p.plan?.rukit : null;
+    /* Правило, схема, алгоритм и запоминалки не показываются до того, как класс сам «откроет» правило:
+       они встают сразу после этапа открытия нового знания (если такой этап есть в уроке). */
+    const DISC = /реализац|открыти|изучени[ея] нового|нового знани|наблюдени|работа над темой/i;
+    const hasDisc = !lit && c.rows.some(r => DISC.test(r.stage) && !/^домашн/i.test(r.stage));
+    const addNow = add, ruleCards = [];
+    if (hasDisc) add = card => { ruleCards.push(card); };
     if (RK && RK.kind !== "general") {
       if (RK.algo) add({ kind: "algo", title: RK.algo.name, points: RK.algo.steps.map(x => x.replace(/\s*\(.*?\)/g, "").slice(0, 160)), tip: "Порядок шагов — как в конспекте и рабочем листе.", notes: "Алгоритм — тот же, что в конспекте и рабочем листе. Пройдите его на примере из упражнения." });
       else if (RK.theory?.length) add({ kind: RK.theory.length > 3 ? "list" : "cards", title: "Запомним", points: RK.theory.slice(0, 6), notes: "Опорная теория — для записи в тетрадь." });
@@ -664,12 +670,16 @@ const Deck = (() => {
       const MN = Mnemo.find(p.topic, RK?.algo?.name || "", p.subject);
       if (MN) Mnemo.cards(MN, plainMd).forEach(c => add(c.kind === "scheme" && cards.some(x => x.kind === "scheme") ? { ...c, kind: "list", title: "Порядок действий по правилу" } : c));
     }
+    add = addNow;
+    let flushRules = false;
     // 6. Этапы техкарты
     const poem = lit && p.plan?.analysis?.verse && p.plan.analysis.stanzas?.length ? p.plan.analysis.stanzas : null;
     let poemDone = false;
     const exFull = p.exFull || [];
     for (const row of c.rows) {
       const stage = row.stage;
+      if (flushRules) { ruleCards.splice(0).forEach(add); flushRules = false; }
+      if (hasDisc && ruleCards.length && DISC.test(stage)) flushRules = true;
       if (/^домашн/i.test(stage)) continue;
       const lines = unbr(row.content).split("\n").map(s => s.trim()).filter(Boolean);
       const notes = cleanLine(lines.join(" ")).slice(0, 700) + (row.extra.length ? " · " + cleanLine(row.extra.join(" · ")).slice(0, 300) : "");
@@ -729,6 +739,7 @@ const Deck = (() => {
       }
       if (imp && imp.length > 160) add({ kind: "rule", title: "Запомним", rule: plainMd(imp), notes: "Правило — дословно из материала." });
     }
+    if (ruleCards.length) ruleCards.splice(0).forEach(add); // этап открытия оказался последним – опора идёт после него
     // 7. Правила из конспекта — дословно
     for (const r of c.rules.filter(looksRule)) if (!cards.some(x => x.rule === plainMd(r) || x.callout === plainMd(r))) add({ kind: "rule", title: "Запомним", rule: plainMd(r.replace(/\*\((?:[^()]|\([^)]*\))*\)\*\s*$/, "")), src: (r.match(/\*\(([^)]*)\)\*\s*$/) || [])[1] || "", notes: "Формулировка — дословно из материала." });
     // 8. Домашнее задание
