@@ -1,0 +1,48 @@
+name: Выкладка сайта в Яндекс Облако
+
+# После каждого изменения в main сайт копируется в бакет Object Storage «uchu-po-frp.ru».
+# Ключи – в секретах репозитория: YC_KEY_ID и YC_SECRET (статический ключ сервисного аккаунта с ролью storage.editor).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-yandex
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
+      AWS_DEFAULT_REGION: ru-central1
+      BUCKET: uchu-po-frp.ru
+      ENDPOINT: https://storage.yandexcloud.net
+    steps:
+      - name: Есть ли ключи
+        id: keys
+        run: |
+          if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then echo "ok=1" >> "$GITHUB_OUTPUT"; else echo "Ключи YC_KEY_ID / YC_SECRET не заданы – выкладка пропущена"; fi
+
+      - uses: actions/checkout@v4
+        if: steps.keys.outputs.ok == '1'
+
+      - name: Копирование в бакет (только файлы сайта)
+        if: steps.keys.outputs.ok == '1'
+        run: |
+          aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --no-progress \
+            --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" --exclude "tools/*" --exclude "docs/*" \
+            --exclude "*.md" --exclude "*.sql" --exclude "*.zip" --exclude "wrangler.toml" --exclude "vercel.json" --exclude "_worker.js" \
+            --exclude ".assetsignore" --exclude ".nojekyll" --exclude "CNAME" --exclude ".gitignore" \
+            --cache-control "public, max-age=300"
+          # служебный файл офлайн-режима и главная – всегда свежие
+          for f in sw.js index.html; do
+            aws s3 cp "$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress
+          done
