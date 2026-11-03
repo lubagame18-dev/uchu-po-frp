@@ -252,6 +252,36 @@ const Layout = (() => {
     if (pend.length) { out.push(""); flush(); }
     return out.join("\n");
   }
-  return { taskBlocks, md, merge, restyle, decorate, kindOf, docxKind, cell, clean, isLabel, KINDS, LEGEND };
+
+  /* ---------- технологическая карта: материалы – в конце, как нумерованные приложения ----------
+     Опорная теория, алгоритм, задания с ответами, схемы, справочные материалы и т. п. собираются после
+     хода урока, домашнего задания и источников в раздел «Приложения»: «Приложение 1. …», «Приложение 2. …»;
+     одинаковые разделы (из разных источников) не повторяются. */
+  function appendices(md) {
+    const text = String(md || ""); if (!/^##\s+Технологическая карта/m.test(text) || /^##\s+Приложения\s*$/m.test(text)) return text;
+    const KEEP = /^(технологическая карта|план урока|планируемые результаты|домашнее задание|источники|литература|ход урока|цел[ьи]|задачи|оборудование|тип урока)/i;
+    const MAT = /опорн|алгоритм|практик|задани[яе] с ответ|материал|уравнени|справочн|формат урока|формы работы|схем|таблиц|ключевые понятия|понятия урока|типовые задания|как разбирать|темы года|запомни|памятк|раздаточн|текст[ыа]? для|документ|источник[и]? для работы|карточк|ключи|ответы/i;
+    const norm = t => String(t).replace(/[^\p{L}\p{N} ]/gu, " ").replace(/\b(для учителя|кратко|для записи)\b/gi, "").replace(/\s+/g, " ").trim().toLowerCase();
+    const parts = text.split(/\n(?=##\s)/);
+    const keep = [], apx = [];
+    const pushApx = (title, body) => { const t = String(title).replace(/^[^\p{L}\p{N}]+/u, "").replace(/:\s*$/, "").trim(); const b = String(body || "").trim(); if (!t || !b) return; if (/^темы года/i.test(t)) return; const nt = norm(t).replace(/(кратко|для записи|для учителя)/g, "").trim(); const CAN = [[/^опорная теория|^теория/, "теория"], [/^алгоритм/, "алгоритм"], [/^практик|^задания с ответ/, "практика"], [/^опорная таблица/, "таблица"], [/^справочн/, "справка"], [/^ключевые понятия|^понятия/, "понятия"]]; const c = CAN.find(([re]) => re.test(nt)); const k = c ? c[1] : nt; const old = apx.find(a => a.k === k); if (old) { if (b.length > old.body.length) old.body = b; return; } apx.push({ k, title: t, body: b }); };
+    parts.forEach((part, i) => {
+      const m = part.match(/^##\s+(.+)\n?([\s\S]*)$/);
+      if (i === 0 || !m) { keep.push(part); return; }
+      const title = m[1].trim(), body = m[2] || "";
+      const clean = title.replace(/^[^\p{L}\p{N}]+/u, "");
+      if (KEEP.test(clean) || !MAT.test(clean)) { keep.push(part); return; }
+      // раздел с подразделами («Материалы урока»: ### Опорная теория, ### Алгоритм…) – каждый подраздел отдельным приложением
+      const subs = body.split(/\n(?=###\s)/);
+      if (subs.length > 1 && /^###\s/m.test(body)) {
+        const intro = subs[0].trim(); if (intro && !/^###/.test(intro)) pushApx(clean, intro);
+        for (const sb of subs) { const sm = sb.match(/^###\s+(.+)\n?([\s\S]*)$/); if (sm) pushApx(sm[1], sm[2]); }
+      } else pushApx(clean, body);
+    });
+    if (!apx.length) return text;
+    const out = keep.join("\n").replace(/\s+$/, "");
+    return `${out}\n\n## Приложения\n\n${apx.map((a, i) => `### Приложение ${i + 1}. ${a.title}\n\n${a.body}`).join("\n\n")}\n`;
+  }
+  return { appendices, taskBlocks, md, merge, restyle, decorate, kindOf, docxKind, cell, clean, isLabel, KINDS, LEGEND };
 })();
 window.Layout = Layout;

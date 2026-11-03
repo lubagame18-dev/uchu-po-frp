@@ -2315,7 +2315,7 @@ function scrubDoc(md, keepLinks) {
     .replace(/(?<!!)\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, t) => keepLinks ? m : t)
     .replace(/[ \t]+$/gm, "");
 }
-function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject, k); } }
+function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject, k); if (k === "conspect" && window.Layout?.appendices) { try { L.docs[k] = Layout.appendices(L.docs[k]); } catch (e) { console.warn("appendices", e); } } } }
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);
