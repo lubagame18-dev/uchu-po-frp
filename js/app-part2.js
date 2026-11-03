@@ -23,6 +23,7 @@ const LIBS = {
   docx: ["vendor/docx.umd.js", "https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"],
   pptx: ["vendor/pptxgen.bundle.js", "https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"],
   html2pdf: "https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js",
+  jspdf: "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
   jszip: ["vendor/jszip.min.js", "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"],
   qr: "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js",
   turndown: ["vendor/turndown.js", "https://cdn.jsdelivr.net/npm/turndown@7.1.2/dist/turndown.js"],
@@ -3041,6 +3042,44 @@ async function wsBuildPages(L, stage) {
   for (const k of [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65]) { st.textContent = css(k); await new Promise(r => setTimeout(r, 100)); if (!over(s1) && !over(s2)) break; }
   return [s1, s2];
 }
+/* Печатный лист рабочего листа: A4 альбомно, две одинаковые копии страницы на листе (2 в 1), всего 2 листа */
+async function wsPrintSheets(L, stage) {
+  const [s1, s2] = await wsBuildPages(L, stage);
+  const wrap = document.createElement("div");
+  wrap.className = "ws-pdf";
+  const mk = src => {
+    const sheet = document.createElement("div"); sheet.className = "ws-pdf-sheet"; sheet.style.cssText = "width:1120px;height:780px;display:flex;align-items:flex-start;overflow:hidden;background:#fff";
+    for (let k = 0; k < 2; k++) {
+      const half = document.createElement("div"); half.className = "ws-pdf-half"; half.style.cssText = "width:560px;height:780px;overflow:hidden;position:relative;flex:0 0 560px";
+      const c = src.cloneNode(true); c.classList.add("ws-pdf-copy");
+      half.appendChild(c); sheet.appendChild(half);
+    }
+    return sheet;
+  };
+  wrap.append(mk(s1), mk(s2));
+  stage.innerHTML = ""; stage.appendChild(wrap);
+  const st = document.createElement("style");
+  st.textContent = `#pdfstage .ws-pdf-sheet{width:1123px;height:760px;display:flex;align-items:flex-start;overflow:hidden;page-break-after:always;page-break-inside:avoid}#pdfstage .ws-pdf-sheet:last-child{page-break-after:auto}#pdfstage .ws-pdf-half{width:561px;height:760px;overflow:hidden;position:relative;flex:0 0 561px}#pdfstage .ws-pdf-copy{width:794px;height:1112px;transform:scale(.676);transform-origin:top left;position:absolute;top:0;left:0;box-sizing:border-box;border:0;box-shadow:none;border-radius:0;padding:18px 20px}#pdfstage .ws-pdf-copy .html2pdf__page-break{display:none}`;
+  stage.append(st);
+  await new Promise(r => setTimeout(r, 250));
+  return [wrap];
+}
+/* Рабочий лист в PDF: два A4-альбомных листа, на каждом — две копии страницы (2 в 1) */
+async function wsPdfBlob(L, stage) {
+  const pages = await wsBuildPages(L, stage);
+  await loadScript("jspdf");
+  const J = window.jspdf?.jsPDF;
+  if (!J) return null;
+  const pdf = new J({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
+  for (let i = 0; i < pages.length; i++) {
+    const canvas = await window.html2pdf().set({ html2canvas: { scale: 2, width: 794, height: 1112, windowWidth: 794, windowHeight: 1112, backgroundColor: "#ffffff", useCORS: true } }).from(pages[i]).toCanvas().get("canvas");
+    const img = canvas.toDataURL("image/jpeg", 0.95);
+    if (i) pdf.addPage();
+    pdf.addImage(img, "JPEG", 0, 0, 148.5, 210);
+    pdf.addImage(img, "JPEG", 148.5, 0, 148.5, 210);
+  }
+  return pdf.output("blob");
+}
 async function docToPdfBlob(L, doc) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
   const stage = $("#pdfstage"), md = doc === "worksheet" ? wsMainMd(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
@@ -3057,8 +3096,9 @@ async function docToPdfBlob(L, doc) {
   const h2p = () => window.html2pdf().set({ margin: [8, 6, 10, 6], image: { type: "jpeg", quality: 0.95 }, html2canvas: { scale: doc === "slides" ? 1.4 : 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: doc === "slides" || wide ? "landscape" : "portrait" }, pagebreak: { mode: ["css", "legacy"], before: ".ws-banner.pb", avoid: ["tr", "h2", "h3", "blockquote", "li", ".slide", "figure", ".ws-banner"] } }).from(stage.firstElementChild);
   let blob;
   if (doc === "worksheet") {
-    await wsBuildPages(L, stage);
-    blob = await h2p().set({ pagebreak: { mode: ["css", "legacy"] } }).toPdf().get("pdf").then(pdfDuplex).outputPdf("blob");
+    const b = await wsPdfBlob(L, stage).catch(() => null);
+    if (b) blob = b;
+    else { await wsPrintSheets(L, stage); blob = await window.html2pdf().set({ margin: 0, image: { type: "jpeg", quality: 0.96 }, html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: "landscape" }, pagebreak: { mode: ["css"] } }).from(stage.firstElementChild).outputPdf("blob"); }
   } else if (wsPrint) blob = await h2p().toPdf().get("pdf").then(pdfDuplex).outputPdf("blob");
   else blob = await h2p().outputPdf("blob");
   stage.innerHTML = ""; return blob;
