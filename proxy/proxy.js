@@ -164,6 +164,82 @@ async function factSearch(q, words, subj) {
   factCache.set(ck, { at: Date.now(), data }); if (factCache.size > 300) factCache.delete(factCache.keys().next().value);
   return data;
 }
+/* Полный текст произведения из электронных библиотек (ilibrary.ru, rvb.ru, lib.ru, ФЭБ и др.):
+   поиск через Yandex Search API, все страницы произведения подряд, из страницы – только сам текст (без меню, рекламы, шапок). */
+const LIB_OK = /(^|\.)(ilibrary\.ru|rvb\.ru|lib\.ru|az\.lib\.ru|feb-web\.ru|rustih\.ru|culture\.ru|klassika\.ru|ruslit\.traumlibrary\.net|traumlibrary\.ru|litmir\.me|litmir\.club|royallib\.com|rulit\.me|libking\.ru|bookz\.ru|100bestbooks\.ru|libru\.org|librebook\.me|knigogo\.net|booksonline\.com\.ua|rulibrary\.ru|libfox\.ru|libbook\.net|online-knigi\.com|readli\.net|litres\.ru|gutenberg\.org|bookscafe\.net|ruslit\.com\.ua|fb2\.top|lit-classic\.ru|russian-literature\.org|xn--80aahtbqoarc4bh\.xn--p1ai|pushkin-lit\.ru|gogol-lit\.ru|chehov-lit\.ru|tolstoy-lit\.ru|turgenev-lit\.ru|lermontov-lit\.ru|dostoevskiy-lit\.ru|bunin-lit\.ru|kuprin-lit\.ru|esenin-lit\.ru|blok-lit\.ru|gorkiy-lit\.ru|leskov-lit\.ru|nekrasov-lit\.ru|tutchev-lit\.ru|fet-lit\.ru|griboedov-lit\.ru|ostrovskiy-lit\.ru|saltykov-lit\.ru|bulgakov-lit\.ru|platonov-lit\.ru|sholohov-lit\.ru|paustovskiy-lit\.ru|prishvin-lit\.ru|lib\.rus\.ec|flibusta\.\w+|poetry\.ru|stihi-rus\.ru|rupoem\.ru|slova\.org\.ru|stihipoeta\.ru|stih\.su)$/i;
+const LIB_NO = /(briefly|kratk|summary|sochinen|obrazovaka|wikipedia|litrekon|otvet|znanija|brainly|youtube|vk\.com|ozon|wildberries|labirint|chitai-gorod|livelib)/i;
+const libCache = new Map();
+async function rawPage(url, depth = 0) {
+  const u = new URL(url); if (!/^https?:$/.test(u.protocol) || /^(localhost|127\.|10\.|192\.168\.|169\.254\.)/.test(u.hostname)) return null;
+  const res = await request(u.href, { method: "GET", headers: { "User-Agent": "Mozilla/5.0 (compatible; uchu-po-frp)", Accept: "text/html,text/plain" }, timeout: 12000 }).catch(() => null);
+  if (!res) return null;
+  if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && depth < 3) { res.resume(); return rawPage(new URL(res.headers.location, u).href, depth + 1); }
+  if (res.statusCode !== 200 || !/html|text/.test(String(res.headers["content-type"] || ""))) { res.resume(); return null; }
+  const ch = []; let size = 0; for await (const c of res) { size += c.length; if (size > 4 * 1024 * 1024) break; ch.push(c); }
+  const buf = Buffer.concat(ch), ct = String(res.headers["content-type"] || "");
+  let html = buf.toString("utf8");
+  const meta = (html.slice(0, 3000).match(/charset=["']?([\w-]+)/i) || [])[1] || (ct.match(/charset=([\w-]+)/i) || [])[1] || "";
+  if (/1251|cp1251/i.test(meta) || (html.match(/�/g) || []).length > 30) html = new TextDecoder("windows-1251").decode(buf);
+  else if (/koi8/i.test(meta)) html = new TextDecoder("koi8-r").decode(buf);
+  return { url: u.href, html, plain: /text\/plain/.test(ct) };
+}
+const ENT = { nbsp: " ", quot: '"', laquo: "«", raquo: "»", mdash: "—", ndash: "–", hellip: "…", amp: "&", lt: "<", gt: ">", bdquo: "„", ldquo: "“", rdquo: "”", shy: "", acute: "" };
+function htmlLines(html) {
+  return html.replace(/<!--[\s\S]*?-->/g, " ").replace(/<(script|style|nav|header|footer|aside|noscript|form|select|button|iframe|svg)[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<br\s*\/?>|<\/(p|li|h\d|div|tr|dd|dt|blockquote|pre|center)>|<(p|h\d|dd|div|blockquote)(\s[^>]*)?>/gi, "\n").replace(/<[^>]+>/g, "")
+    .replace(/&(#\d+|#x[0-9a-f]+|\w+);/gi, (m, e) => e[0] === "#" ? String.fromCodePoint(e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : +e.slice(1)) : (ENT[e.toLowerCase()] ?? m))
+    .replace(/́/g, "").replace(/[ \t ]+/g, " ").split("\n").map(l => l.trim());
+}
+const LJUNK = /(©|cookie|войти|вход|регистрац|скачать|реклам|https?:|www\.|\.ru\b|\.com\b|читать далее|комментари|оценк|рейтинг|подпис|меню|главная|поиск|предыдущая|следующая|оглавление|в избранное|поделиться|купить|цена|₽|руб\.|отзыв|читать онлайн|все книги|жанр|isbn|загрузк|fb2|epub|txt|pdf|страница \d|стр\. \d|^\d+$|^[«»"'.,:;!?—–-]*$)/i;
+/* основной текст страницы: самый длинный «связный» участок текстовых строк (алгоритм максимального подотрезка) */
+function mainText(lines) {
+  const sc = lines.map(l => { if (!l) return 0; if (LJUNK.test(l) && l.length < 160) return -3; if (l.length >= 50 && /[а-яё]/i.test(l) && /[.,!?…;:]/.test(l)) return 2 + Math.min(3, l.length / 200); if (l.length >= 8 && l.length <= 90 && /[а-яё]/.test(l) && !/[|{}<>]/.test(l)) return 0.6; return -1; });
+  let best = 0, bs = 0, be = -1, cur = 0, cs = 0;
+  for (let i = 0; i < sc.length; i++) { if (cur <= 0) { cur = 0; cs = i; } cur += sc[i]; if (cur > best) { best = cur; bs = cs; be = i; } }
+  return be < 0 ? "" : lines.slice(bs, be + 1).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+/* все страницы произведения: ilibrary (/text/N/p.K/), сайты *-lit.ru (/text/…/index_K.htm), royallib/litmir (?p=K) */
+function pageLinks(page) {
+  const u = new URL(page.url), hrefs = [...page.html.matchAll(/href=["']([^"'#]+)["']/gi)].map(m => { try { return new URL(m[1], u).href; } catch { return ""; } }).filter(Boolean);
+  let m = u.pathname.match(/^(\/text\/\d+\/)p\.(\d+)\//);
+  if (/ilibrary\.ru$/.test(u.hostname) && m) { const nums = hrefs.map(h => (h.match(new RegExp(m[1].replace(/\//g, "\\/") + "p\\.(\\d+)\\/")) || [])[1]).filter(Boolean).map(Number); const mx = Math.max(+m[2], ...nums); return Array.from({ length: Math.min(mx, 120) }, (_, i) => `${u.origin}${m[1]}p.${i + 1}/index.html`); }
+  m = u.pathname.match(/^(.*\/)index(?:_(\d+))?\.s?html?$/);
+  if (m && /-lit\.ru$/.test(u.hostname)) { const re = new RegExp("^" + (u.origin + m[1]).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "index_(\\d+)\\.s?html?$"); const nums = hrefs.map(h => (h.match(re) || [])[1]).filter(Boolean).map(Number); if (nums.length) { const mx = Math.min(120, Math.max(...nums)); return [u.origin + m[1] + "index.shtml", ...Array.from({ length: mx - 1 }, (_, i) => u.origin + m[1] + `index_${i + 2}.shtml`)]; } }
+  const qp = [...new Set(hrefs.filter(h => { try { const x = new URL(h); return x.origin === u.origin && x.pathname === u.pathname && /^\d+$/.test(x.searchParams.get("p") || x.searchParams.get("page") || ""); } catch { return false; } }))];
+  if (qp.length) { const key = new URL(qp[0]).searchParams.has("p") ? "p" : "page"; const mx = Math.min(120, Math.max(...qp.map(h => +new URL(h).searchParams.get(key)))); return Array.from({ length: mx }, (_, i) => { const x = new URL(u.href); x.searchParams.set(key, String(i + 1)); return x.href; }); }
+  return null;
+}
+const lnorm = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+async function workText(work, author, max = 600000) {
+  const ck = lnorm(work + "|" + author), hit = libCache.get(ck); if (hit && Date.now() - hit.at < 7 * 24 * 3600e3) return hit.data;
+  const sur = String(author || "").split(/\s|\./).filter(Boolean).pop() || "";
+  const qs = [`${work} ${sur} читать полностью текст`, `«${work}» ${author || ""} текст произведения`, `${work} ${sur} site:ilibrary.ru`, `${work} ${sur} site:rvb.ru`];
+  const lists = await Promise.all(qs.map(q => yandexWeb(q, 10).catch(e => { if (e.status === 401) throw e; return []; })));
+  const seen = new Set(), cands = [];
+  for (const list of lists) for (const r of list) { let host = ""; try { host = new URL(r.url).hostname; } catch { continue; } if (seen.has(r.url) || LIB_NO.test(host + r.url) || /кратко|краткое содержание|анализ|сочинени|отзыв|аудиокниг|купить/i.test(r.title)) continue; seen.add(r.url); const ok = LIB_OK.test(host); const tw = lnorm(work).split(" ").filter(w => w.length > 3); const inTitle = tw.filter(w => lnorm(r.title).includes(w.slice(0, 5))).length; if (!ok && !(inTitle && /текст|читать/i.test(r.title + r.snippet))) continue; cands.push({ ...r, host, score: (ok ? 4 : 0) + inTitle * 2 + (/ilibrary|rvb\.ru|feb-web|-lit\.ru/.test(host) ? 3 : 0) + (/полност|текст/i.test(r.title) ? 1 : 0) }); }
+  cands.sort((a, b) => b.score - a.score);
+  const tw = lnorm(work).split(" ").filter(w => w.length > 3).map(w => w.slice(0, 5)), sw = lnorm(sur).slice(0, 5);
+  for (const c of cands.slice(0, 5)) {
+    const pg = await rawPage(c.url).catch(() => null); if (!pg) continue;
+    const links = pageLinks(pg);
+    let parts = [];
+    if (links && links.length > 1) {
+      for (let i = 0; i < links.length; i += 8) {
+        const got = await Promise.all(links.slice(i, i + 8).map(h => h === pg.url ? pg : rawPage(h).catch(() => null)));
+        for (const g of got) if (g) parts.push(mainText(g.plain ? g.html.split("\n").map(x => x.trim()) : htmlLines(g.html)));
+        if (parts.join("\n\n").length > max) break;
+      }
+    } else parts = [mainText(pg.plain ? pg.html.split("\n").map(x => x.trim()) : htmlLines(pg.html))];
+    const text = parts.filter(Boolean).join("\n\n").slice(0, max);
+    if (text.length < 400) continue;
+    const head = lnorm(htmlLines(pg.html).slice(0, 400).join(" ") + " " + c.title);
+    if (tw.length && !tw.some(w => head.includes(w)) && !(sw && head.includes(sw))) continue;
+    const data = { ok: true, text, url: c.url, domain: c.host, title: c.title, pages: parts.length };
+    libCache.set(ck, { at: Date.now(), data }); if (libCache.size > 200) libCache.delete(libCache.keys().next().value);
+    return data;
+  }
+  return { ok: false, reason: "not_found" };
+}
 /* Аудио и видео к уроку: чтение стихов артистами, экранизации, спектакли — только страницы видеохостингов */
 const MEDIA = /(^|\.)(rutube\.ru|vkvideo\.ru|vk\.com|vk\.ru|smotrim\.ru|culture\.ru|youtube\.com|youtu\.be|ok\.ru)$/i;
 const MEDIA_PAGE = /rutube\.ru\/video\/|vkvideo\.ru\/video-?\d|vk\.(com|ru)\/video-?\d|youtube\.com\/watch|youtu\.be\/|smotrim\.ru\/(video|brand)|culture\.ru\/(movies|watch|s\/|audio)|ok\.ru\/video\//i;
@@ -671,6 +747,13 @@ async function handler(req, res) {
     const words = String(u.searchParams.get("w") || "").toLowerCase().split(/[,\s]+/).filter(w => w.length > 3).map(w => w.slice(0, 6)).slice(0, 8);
     try { return send(res, 200, await factSearch(q, words, String(u.searchParams.get("s") || "hist").slice(0, 10))); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
   }
+  if (req.method === "GET" && route === "/worktext") {
+    if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys" });
+    const w = String(u.searchParams.get("w") || "").slice(0, 160).trim(), a = String(u.searchParams.get("a") || "").slice(0, 80).trim(); if (!w) return send(res, 400, { error: "нужен w" });
+    const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+    if (limited(ip)) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
+    try { return send(res, 200, await workText(w, a)); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e) }); }
+  }
   if (req.method === "GET" && route === "/img") {
     if (limited((req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim())) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
     try { const r = await fetchImage(String(u.searchParams.get("url") || "")); res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "public, max-age=86400" }); return res.end(r.buf); }
@@ -823,5 +906,5 @@ function runBuffered({ method, url, headers, body }) {
     req.end(body || "");
   });
 }
-module.exports = { handler, runBuffered, gigaToken, request, ENV, ensureCa };
+module.exports = { workText, mainText, htmlLines, pageLinks, handler, runBuffered, gigaToken, request, ENV, ensureCa };
 if (require.main === module) http.createServer(handler).listen(ENV.port, () => console.log(`Прокси «Учу по ФРП» v5: :${ENV.port}`));

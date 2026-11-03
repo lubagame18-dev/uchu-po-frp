@@ -43,7 +43,7 @@ window.Dossier = (() => {
       }
       if (typeof relevantMaterials === "function") for (const m of relevantMaterials(p.topic, p.grade, S, 2500).slice(0, 3)) add(`Материал учителя «${m.name}»`, m.text, "материалы учителя");
       if (window.MaterialResolver?.md && !/^(ru|lit)/.test(S)) { const md = MaterialResolver.md(p); if (md) add("Предметная база сайта", md, "база сайта"); }
-      if (S === "lit" && p.plan?.text) add("Текст произведения (начало)", String(p.plan.text).slice(0, 2500), p.plan.textSource || "текст произведения");
+      if (S === "lit" && p.plan?.text) { const T = String(p.plan.text), F = p.plan.kit?.fragments || []; if (T.length <= 3000 || !F.length) add(T.length <= 3000 ? "Текст произведения" : "Текст произведения (начало)", T.slice(0, 2500), p.plan.textSource || "текст произведения"); else add("Ключевые эпизоды по всему тексту", F.slice(0, 5).map(f => `${f.label}: ${String(f.text).replace(/\s+/g, " ").slice(0, 380)}`), p.plan.textSource || "текст произведения"); }
       if (p.plan?.workWiki) add("О произведении", p.plan.workWiki, "Википедия");
       for (const it of (p.web?.items || []).slice(0, 4)) add("Из образовательного источника", it.text || it, it.src?.domain || "образовательный сайт");
       for (const r of (p.plan?.edu || []).slice(0, 2)) add("Из разработки учителя", [...(r.problem || []), ...(r.questions || [])].slice(0, 4), r.domain || r.src || "образовательный сайт");

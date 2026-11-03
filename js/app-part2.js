@@ -229,7 +229,7 @@ async function addToLesson(files) {
   paintPinned();
   try { // если под темой ждут текст произведения — брошенный файл и есть этот текст
     let box = $("#textBox"); const pin = state.materials.find(m => m.pinned && names.has(m.name)); if (!box && $("#typeBox")) { box = document.createElement("div"); box.id = "textBox"; $("#typeBox").insertAdjacentElement("afterend", box); }
-    if (pin && (state.subject === "lit" || state.subject === "ru") && box) { const key = textBoxKey(); state.textOverride = { text: String(pin.text).slice(0, 60000), source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; const w = ((state.topic || $("#topic")?.value || "").match(/«([^»]+)»/) || [])[1] || ""; paintTextBox(box, "text", w, "", key); }
+    if (pin && (state.subject === "lit" || state.subject === "ru") && box) { const key = textBoxKey(); state.textOverride = { text: String(pin.text).slice(0, 400000), source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; const w = ((state.topic || $("#topic")?.value || "").match(/«([^»]+)»/) || [])[1] || ""; paintTextBox(box, "text", w, "", key); }
   } catch (e) { console.warn("drop→text", e); }
   if (n) toast("Прикреплено к уроку: " + n + ". Нажмите «Создать» — текст войдёт в конспект, лист и презентацию.", 6000);
 }
@@ -1847,10 +1847,21 @@ function rememberVerbatim(L, p) {
 async function aiFragments(p) {
   const full = String(p.plan.text || ""); if (full.length < 1500) return null;
   const nrm = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]+/g, " ").trim();
-  const text = full.length > 24000 ? full.slice(0, 24000) : full;
+  // длинный текст (повесть, роман): нейросети – оглавление ВСЕГО произведения по абзацам [§N], а не только начало
+  let text = full, paras = null;
+  if (full.length > 24000) {
+    const P0 = []; let pos0 = 0; for (const chunk of full.split(/\n\s*\n|\n(?=\s*[—–-]\s)|\n(?=[А-ЯЁ])/)) { const at = full.indexOf(chunk, pos0); if (chunk.trim().length > 20) P0.push({ a: at, t: chunk.trim() }); pos0 = at + chunk.length; }
+    const merged = []; for (const x of P0) { const last = merged[merged.length - 1]; if (last && last.t.length < 400) { last.t += "\n" + x.t; } else merged.push({ ...x }); }
+    paras = merged;
+    const words = [...new Set((nrm(p.topic).match(/[а-я]{5,}/g) || []).filter(w => !/^(произвед|рассказ|повест|роман|глава|урока|анализ|литерат)/.test(w)).map(w => w.slice(0, 6)))].concat((p.plan.analysis?.heroes || []).map(h => nrm(h).split(" ")[0].slice(0, 6)).filter(w => w.length > 2));
+    const per = Math.max(70, Math.floor(22000 / paras.length));
+    let keep = paras.map((x, i) => i);
+    if (paras.length * 70 > 22000) { const sc = paras.map((x, i) => ({ i, s: words.reduce((n, w) => n + (nrm(x.t).includes(w) ? 1 : 0), 0) + (/^\s*[—–]/.test(x.t) ? 0.3 : 0) })); const step = Math.ceil(paras.length / 120); const even = paras.map((x, i) => i).filter(i => i % step === 0); const top = sc.sort((a, b) => b.s - a.s).slice(0, 180).map(x => x.i); keep = [...new Set([...even, ...top])].sort((a, b) => a - b); }
+    text = keep.map(i => `[§${i + 1}] ${paras[i].t.replace(/\s+/g, " ").slice(0, per)}${paras[i].t.length > per ? "…" : ""}`).join("\n");
+  }
   const prompt = `Ты – учитель литературы. Урок: «${p.topic}», ${p.grade} класс.${p.plan.kit?.problem ? ` Вопрос урока: «${p.plan.kit.problem}».` : ""}${p.wishes ? ` Пожелания учителя: ${p.wishes}.` : ""}
 Ниже текст произведения (возможно, с остатками разметки сайта – их не бери). Выбери 3–5 отрывков, с которыми класс будет работать на уроке: ключевые для смысла эпизоды (завязка, характеристика героя через поступок, перелом, кульминация, финал – то, что нужно для этой темы), а не случайные места. Каждый отрывок – 4–15 предложений, начинается с начала предложения и заканчивается концом предложения; отрывки идут в порядке текста.
-Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","start":"первые 6–10 слов отрывка ДОСЛОВНО","end":"последние 6–10 слов отрывка ДОСЛОВНО"}]
+${paras ? `Текст длинный, поэтому ниже он дан по абзацам [§N] – начало каждого абзаца, по всему произведению от начала до конца. Выбирай эпизоды из ВСЕГО текста, а не только из начала. Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","from":номер первого абзаца,"to":номер последнего абзаца}] (отрывок – 1–6 абзацев подряд).` : `Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","start":"первые 6–10 слов отрывка ДОСЛОВНО","end":"последние 6–10 слов отрывка ДОСЛОВНО"}]`}
 ТЕКСТ:
 ${text}`;
   const r = await caps.sample(prompt, { modelTier: state.deep ? "complex" : "default", cache: true });
@@ -1862,6 +1873,8 @@ ${text}`;
   const find = (q, from) => { const k = flat.indexOf(nrm(q), from); return k < 0 ? -1 : k; };
   const out = []; let pos = 0;
   for (const x of arr.slice(0, 6)) {
+    if (paras && +x.from >= 1) { const f0 = Math.min(paras.length, +x.from), t0 = Math.max(f0, Math.min(paras.length, +x.to || f0, f0 + 5)); let t = paras.slice(f0 - 1, t0).map(q => q.t).join("\n"); if (t.length > 6000) t = t.slice(0, 6000).replace(/[^.!?…]*$/, ""); if (t.length >= 120 && !out.some(o => o.a === paras[f0 - 1].a)) out.push({ label: String(x.label || "Эпизод").slice(0, 60), why: String(x.why || ""), text: t, a: paras[f0 - 1].a }); continue; }
+    if (!x.start) continue;
     const a = find(x.start, 0); if (a < 0) continue;
     const eq = nrm(x.end), b0 = flat.indexOf(eq, a); if (b0 < 0) continue;
     let s0 = map[a], e0 = map[Math.min(map.length - 1, b0 + eq.length - 1)] + 1;
@@ -1883,7 +1896,7 @@ async function preparePlan(L, p, type) {
   // нейросеть (урок «с ИИ»): проблемный вопрос — из смыслового конфликта текста, с опорой на найденные источники
   if (p.plan?.kit && L.built === "ai" && p.subject === "lit" && (window.AI ? AI.configured() : false)) {
     try {
-      const K = p.plan.kit, txt = String(p.plan.text || "").slice(0, 3500);
+      const K = p.plan.kit, full0 = String(p.plan.text || ""), txt = full0.length <= 4500 ? full0 : (K.fragments || []).map(f => `[${f.label}]\n${String(f.text).slice(0, 1400)}`).join("\n\n").slice(0, 6000) || full0.slice(0, 3500); // длинный текст: не начало, а ключевые эпизоды по всему произведению
       const prompt = `Ты — методист-словесник. Найди в произведении «${p.topic}» (${p.grade} класс) СМЫСЛОВОЙ КОНФЛИКТ — несостыковку, которая удивит ученика (герой хочет одного, а делает другое; картина спокойна, а герой ищет бури; слово противоречит ситуации). На нём построй проблемный вопрос урока: простой, живой, понятный ребёнку, без канцелярита, с опорой на конкретную строку.
 ${txt ? `Текст:\n${txt}\n` : ""}Кандидаты, найденные сайтом: «${K.problem}»${p.plan.sample?.src ? ` (из материалов: ${p.plan.sample.src})` : ""}.${p.plan.workWiki ? `\nИз открытых источников: ${p.plan.workWiki.slice(0, 1200)}` : ""}${p.plan.edu?.length ? `\nИз разработок учителей: ${p.plan.edu.flatMap(r => [...(r.problem || []), ...(r.questions || []).slice(0, 2)]).slice(0, 10).map(x => `«${x}»`).join("; ")}` : ""}
 Верни JSON: {"problem":"вопрос","conflict":"в чём несостыковка (1 предложение, для учителя)","quotes":["строка 1","строка 2"]}. Цитаты — только дословно из текста.`;

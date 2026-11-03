@@ -1370,13 +1370,13 @@ const Base = (() => {
       const html = j?.parse?.text?.["*"]; if (!html) continue;
       let text = wsExtract(html), title = h.title;
       // оглавление книги: настоящий текст лежит в подстраницах «Название/Глава …» — берём подряд, пока не наберётся объём
-      if (text.length < 1500) {
-        const subs = (j.parse.links || []).map(l => l["*"]).filter(t => t.startsWith(h.title + "/")).slice(0, 6);
-        for (const t of subs) {
-          if (text.length >= max) break;
-          const jj = await getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text&disablelimitreport=1&page=${encodeURIComponent(t)}`);
-          const h2 = jj?.parse?.text?.["*"]; if (!h2) continue;
-          const t2 = wsExtract(h2); if (t2.length > 200) text += (text ? "\n\n" : "") + t2;
+      // главы произведения на подстраницах: собираем ВСЕ по порядку (повесть, роман), а не только начало
+      const subs = (j.parse.links || []).map(l => l["*"]).filter(t => t.startsWith(h.title + "/") && !/\/(Примечания|Комментари|Приложени|Варианты)/i.test(t)).slice(0, 90);
+      if (subs.length && (text.length < 1500 || max > 8000)) {
+        if (text.length < 1500) text = "";
+        for (let i = 0; i < subs.length && text.length < max; i += 6) {
+          const got = await Promise.all(subs.slice(i, i + 6).map(t => getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text&disablelimitreport=1&page=${encodeURIComponent(t)}`).catch(() => null)));
+          for (const jj of got) { const h2 = jj?.parse?.text?.["*"]; if (!h2) continue; const t2 = wsExtract(h2); if (t2.length > 200) text += (text ? "\n\n" : "") + t2; }
         }
       }
       if (text.length < 80) continue;

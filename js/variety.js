@@ -396,6 +396,14 @@ const Variety = (() => {
     const r = await fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined }); if (!r.ok) return null;
     const j = await r.json(); return j?.ok ? j : null;
   }
+  async function libText(work, author) {
+    const fn = (window.AI?.cfg?.().yandexFn || (window.UCHU_SITE || {}).yandexFunction || window.UCHU_AI_CFG?.yandexFn || "").replace(/\/+$/, ""); if (!fn || !work) return null;
+    const qs = `w=${encodeURIComponent(work)}&a=${encodeURIComponent(author || "")}`;
+    const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/worktext")}&${qs}` : `${fn}/worktext?${qs}`;
+    const r = await fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(40000) : undefined }); if (!r.ok) return null;
+    const j = await r.json(); if (!j?.ok || String(j.text || "").length < 400) return null;
+    return { text: j.text, source: `${j.domain || "электронная библиотека"}: «${String(j.title || work).slice(0, 80)}»`, url: j.url };
+  }
   async function findText(p, L) {
     if (p.textOverride?.text) return { text: p.textOverride.text, source: p.textOverride.source || "текст учителя" };
     // 1) текст, который учитель вставил в заметки
@@ -420,9 +428,13 @@ const Variety = (() => {
     // 3) внешние источники: Викитека
     if (work && typeof Base !== "undefined" && Base.wikisourceText) {
       const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : null;
-      const w = await Base.wikisourceText(`${work} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""}`.trim(), 20000).catch(() => null);
+      const w = await Base.wikisourceText(`${work} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""}`.trim(), 400000).catch(() => null);
+      if (w && (w.text.length > 6000 || !/рассказ|повест|роман|поэм|глав/i.test(p.topic))) return { text: w.text, source: `${w.source}: «${w.title}»`, url: w.url };
+      // 4) электронные библиотеки (ilibrary.ru, rvb.ru, lib.ru, ФЭБ…) через функцию сайта: полный текст, все страницы
+      const lib = await libText(work, author).catch(() => null);
+      if (lib && (!w || lib.text.length > w.text.length)) return lib;
       if (w) return { text: w.text, source: `${w.source}: «${w.title}»`, url: w.url };
-    }
+    } else if (work) { const lib = await libText(work, typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "").catch(() => null); if (lib) return lib; }
     return null;
   }
   async function prepare(p, type) {
@@ -437,7 +449,7 @@ const Variety = (() => {
     const fmt = p.subject === "lit" ? chooseFormat(A, p, type) : chooseRuFormat(p);
     const sample = samples[0] || null;
     const st = p.subject === "lit" ? adaptStages(type, p, A, sample, fmt) : { stages: type.stages.slice(), note: "" };
-    const plan = { text: found ? String(found.text).slice(0, 40000) : null, analysis: A, format: fmt, sample: sample ? { topic: sample.topic, src: sample.src, num: sample.num, epigraph: sample.epigraph, questions: sample.questions.slice(0, 40).map(q => q.text) } : null, stages: st.stages, structureNote: st.note, textSource: found ? found.source : null, textUrl: found?.url || null, used: [] };
+    const plan = { text: found ? String(found.text).slice(0, 400000) : null, analysis: A, format: fmt, sample: sample ? { topic: sample.topic, src: sample.src, num: sample.num, epigraph: sample.epigraph, questions: sample.questions.slice(0, 40).map(q => q.text) } : null, stages: st.stages, structureNote: st.note, textSource: found ? found.source : null, textUrl: found?.url || null, used: [] };
     // открытые и образовательные источники (параллельно, с ограничением по времени — урок не ждёт дольше 12 с)
     if (p.subject === "lit" && (title || author)) {
       const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
