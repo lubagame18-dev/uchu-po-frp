@@ -1530,6 +1530,26 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }
 /* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
+/* тема без готового материала: нейросеть собирает слайды по готовому конспекту (материал, задания, ответы – сразу после задания) */
+async function aiDeckFromLesson(md, p, signal) {
+  const prompt = `${window.TeacherRules ? TeacherRules.brief(p, "slides") + "\n\n" : ""}Сделай план презентации к уроку «${p.topic}» (${p.grade} класс) СТРОГО по конспекту ниже: на слайдах – то, с чем работает класс (факты и понятия темы, правило или формула, схема, задания, источники), а не вопросы учителя. 9–14 слайдов. Без пустых и переходных слайдов. Задание с ответами – kind "check" с полями points (задания) и answers (ответы по порядку); ответы покажутся отдельным слайдом сразу после задания.
+Верни только JSON-массив: [{"kind":"list|steps|rule|check|task|cards","title":"короткий заголовок","points":["…"],"answers":["…"]}] (поле answers – только для check). Первый слайд-тему и домашнее задание не включай.
+КОНСПЕКТ:
+${String(md).slice(0, 16000)}`;
+  const r = await caps.sample(prompt, { modelTier: "default", signal });
+  const arr = JSON.parse((String(r.text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
+  if (!Array.isArray(arr) || arr.length < 4) return null;
+  const OK = new Set(["list", "steps", "rule", "check", "task", "cards"]);
+  const cards = arr.filter(x => x && x.title && Array.isArray(x.points) && x.points.length).slice(0, 16).map((x, i) => {
+    const kind = OK.has(x.kind) ? x.kind : "list", pts = x.points.map(String).slice(0, 8);
+    const c = { id: "ai" + (i + 1), on: true, kind, title: String(x.title).slice(0, 70), points: pts };
+    if (kind === "check") c.answers = (x.answers || []).map(String).slice(0, pts.length);
+    if (kind === "task") { c.task = pts.join("\n"); }
+    if (kind === "rule") { c.rule = pts.join("\n"); }
+    return c;
+  });
+  return [{ id: "ai0", on: true, kind: "title", title: p.topic, points: [`${p.grade} класс`] }, ...cards, { id: "aihw", on: true, kind: "hw", title: "Домашнее задание", points: ["По учебнику: параграф по теме урока"] }];
+}
 /* условные обозначения предмета: для плагинов предметов (математика, физика, химия…) — в лист, памятку и презентацию */
 function convWs(md, p) { const lg = window.Conv ? Conv.legendLine(p) : ""; if (!lg || /🔣 \*\*Условные обозначения/.test(md)) return md; return /✍️ ФИО:[^\n]*\n/.test(md) ? md.replace(/(✍️ ФИО:[^\n]*\n)/, `$1\n${lg}\n`) : md.replace(/^(# [^\n]*\n+[^\n]*\n)/, `$1\n${lg}\n`); }
 function convMemo(md, p) { const lg = window.Conv ? Conv.legendLine(p, 8) : ""; return lg && !/🔣 \*\*Условные обозначения/.test(md) ? md + "\n\n" + lg + "\n" : md; }
@@ -1541,7 +1561,7 @@ function deckCardsExtras(cards, p) {
   if (!Array.isArray(cards)) return cards;
   const out = cards.slice();
   const hasKind = k => out.some(c => c.kind === k);
-  const insert = (card) => { const i = out.findIndex(c => ["concl", "hw"].includes(c.kind)); if (i >= 0) out.splice(i, 0, card); else out.push(card); };
+  const insert = (card) => { const i = out.findIndex(c => ["concl", "hw"].includes(c.kind) || /^(рефлекс|reflection)/i.test(String(c.title || ""))); if (i >= 0) out.splice(i, 0, card); else out.push(card); };
   const plain = x => String(x || "").replace(/\*\*|__/g, "").replace(/\s+/g, " ").trim();
   try {
     if (window.Schemes?.find && !hasKind("scheme")) {
@@ -1552,7 +1572,7 @@ function deckCardsExtras(cards, p) {
   try {
     if (window.Mnemo?.find && window.Mnemo?.cards && !hasKind("mnemo")) {
       const MN = Mnemo.find(p.topic, "", p.subject);
-      if (MN) Mnemo.cards(MN, plain).forEach(c => insert(c));
+      if (MN) Mnemo.cards(MN, plain).filter(c => !((c.kind === "check" || /^проверь себя/i.test(String(c.title || ""))) && out.some(x => /^(проверь себя|check yourself)/i.test(String(x.title || ""))))).forEach(c => insert(c));
     }
   } catch (e) { console.warn("deck extras mnemo", e); }
   try {
@@ -1576,10 +1596,7 @@ function deckCardsExtras(cards, p) {
       const ans = [];
       if (qc.kind === "quiz") (qc.items || []).forEach(([q, a]) => ans.push(`${plain(q)} — ${plain(a)}`));
       else if (qc.answers?.length) (qc.points || []).forEach((q, i) => qc.answers[i] && ans.push(`${plain(q)} — ${plain(qc.answers[i])}`));
-      if (ans.length) {
-        qc.links = [...(qc.links || []), "answers"];
-        out.push({ id: "px-ans", on: true, kind: "appendix", appendix: "answers", title: "Ответы", points: ans.slice(0, 10), notes: "Ответы к вопросам и викторине — для учителя: показывайте после ответов класса." });
-      }
+      // ответы – сразу после своего задания (Deck.prune), а не общим слайдом
     }
   } catch (e) { console.warn("deck extras answers", e); }
   // картинки-акценты: почти на каждом слайде, кроме дословных блоков
@@ -1598,7 +1615,7 @@ function deckCardsExtras(cards, p) {
       c.cap = c.cap || t || p.topic;
     }
   } catch (e) { console.warn("deck extras img", e); }
-  return out;
+  return window.Deck?.prune ? Deck.prune(out) : out;
 }
 /* Методический замысел для любого предмета: нейросеть продумывает логику урока именно для этого предмета, класса и темы */
 function promptDesignAny(p) {
@@ -1646,7 +1663,11 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = deckCardsExtras(convCards(PL.cards(p, type), p), p); if (useAi && window.Deck?.aiWishes) { L.deckOutline = await Deck.aiWishes(L.deckOutline, p, state.gen.ctl.signal).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline); } state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = deckCardsExtras(convCards(PL.cards(p, type), p), p);
+        // тема без готового материала в базе: презентация из 3–4 общих слайдов – строим её по ходу урока из конспекта
+        { const body = cs => (cs || []).filter(c => !["title", "hw", "goal", "board"].includes(c.kind)).length;
+          if (body(L.deckOutline) < 6 && window.Deck?.outline) { try { const src = L.docs.lesson || L.docs.conspect || PL.lesson(p, type); const alt = Deck.outline(src, p, type); if (body(alt) > body(L.deckOutline)) { L.deckOutline = alt; md = Deck.toMarkdown(alt); } } catch (e) { console.warn("thin deck", e); } }
+          if (body(L.deckOutline) < 6 && useAi && (L.docs.lesson || L.docs.conspect)) { try { const alt = await aiDeckFromLesson(L.docs.lesson || L.docs.conspect, p, state.gen.ctl.signal); if (alt && body(alt) > body(L.deckOutline)) { const oh = L.deckOutline.find(c => c.kind === "hw"), ot = L.deckOutline.find(c => c.kind === "title"); L.deckOutline = Deck.prune(alt.map(c => c.kind === "hw" && oh ? oh : c.kind === "title" && ot ? ot : c)); md = Deck.toMarkdown(L.deckOutline); } } catch (e) { console.warn("ai deck", e); } } } if (useAi && window.Deck?.aiWishes) { L.deckOutline = await Deck.aiWishes(L.deckOutline, p, state.gen.ctl.signal).catch(() => L.deckOutline); L.deckOutline = Deck.prune(L.deckOutline); md = Deck.toMarkdown(L.deckOutline); } state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
@@ -2366,7 +2387,14 @@ function scrubDoc(md, keepLinks) {
     .replace(/(?<!!)\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, (m, t) => keepLinks ? m : t)
     .replace(/[ \t]+$/gm, "");
 }
-function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject, k); if (k === "conspect" && window.Layout?.appendices) { try { L.docs[k] = Layout.appendices(L.docs[k]); } catch (e) { console.warn("appendices", e); } } } }
+/* легенда условных обозначений – только на уроке, где они вводятся; иначе обозначения просто применяются */
+function dropLegend(md, slides) {
+  let t = String(md || "").replace(/^>?\s*🔣?\s*\*\*Условные обозначения:?\*\*:?[^\n]*\n?/gm, "");
+  t = t.replace(/^(#{2,4})\s*(?:🔣\s*)?Условные обозначения[^\n]*\n[\s\S]*?(?=^#{1,4}\s|^---\s*$|(?![\s\S]))/gm, "");
+  if (slides) t = t.split(/\n[ \t]*---[ \t]*\n/).filter(sl => sl.trim() && !/^\s*#{1,3}\s*(?:🔣\s*)?Условные обозначения/m.test(sl)).map(x => x.trim()).join("\n\n---\n\n");
+  return t.replace(/\n{3,}/g, "\n\n");
+}
+function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject, k); if (window.Conv?.intro && !Conv.intro(L.params)) L.docs[k] = dropLegend(L.docs[k], k === "slides"); if (k === "conspect" && window.Layout?.appendices) { try { L.docs[k] = Layout.appendices(L.docs[k]); } catch (e) { console.warn("appendices", e); } } } }
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);

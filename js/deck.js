@@ -470,7 +470,7 @@ const Deck = (() => {
       const mp = mapAppendix(p, c); if (mp) { out.push(mp); links.map = 1; }
       const b = bioAppendix(p, c); if (b) { out.push(b); links.bio = 1; }
     }
-    const a = answersAppendix(cards); if (a) { out.push(a); links.answers = 1; }
+    // общий слайд со всеми ответами не делаем: ответы – сразу после своего задания (prune → pairAnswers)
     return { cards: out, links };
   }
   /* Ссылки-кнопки ставим в обычные слайды (контракт slides.js: [📖 Историческая справка](#a:hist) и т. д.). */
@@ -598,9 +598,7 @@ const Deck = (() => {
     // разделители между большими частями (если слайдов много) — дают паузу и ритм
     if (cards.length >= 12) {
       const first = cards.findIndex(c => ["fragment", "task", "poem"].includes(c.kind) || (c.kind === "video" && c.mk === "audio"));
-      if (first > 2) at(first, { kind: "section", title: lit ? "Читаем и думаем" : "Практика", points: [lit ? "Работа с текстом" : "Применяем правило"] });
-      const fin = idx("concl") >= 0 ? idx("concl") : idx("hw");
-      if (fin > 4 && cards[fin - 1]?.kind !== "section") at(fin, { kind: "section", title: "Подведём итоги", points: [] });
+      // переходные слайды без информации («Практика», «Подведём итоги») не ставим – по просьбе учителя
     }
     // ---------- предметные добавки: техническая схема, уровень, разнообразие, приложения ----------
     const c2 = parseConspect(md || "");
@@ -619,13 +617,65 @@ const Deck = (() => {
     injectLinks(cards, ap.links);
     return cards;
   }
+  /* Без пустых и переходных слайдов: разделители, «Подведём итоги», «Вопросы?», общая рефлексия без содержания.
+     Ответы – отдельным слайдом СРАЗУ после своего задания, а не одним слайдом на все проверки урока. */
+  const GENERIC = /(могу объяснить|оцени(те)? себя|что было главным|что осталось непонятн|на какие вопросы мы ответили|что нового (я )?узнал|сформулируйте вопрос|понял\(а\)? с подсказкой|остались вопросы|какое настроение|что получилось|что было трудн|^—?$)/i;
+  const EMPTY_TITLE = /^(подвед[её]м итоги?|итоги( урока)?|переходим[^]*|продолжаем[^]*|вопросы\??|есть вопросы\??|спасибо( за урок| за внимание)?!?|практика|читаем и думаем|работа с текстом|этап[^]*|физминутка|какие вопросы у вас возникают\??)$/i;
+  function hasBody(c) { return ["points", "items", "quote", "poem", "task", "rule", "lead", "body", "mdBody", "img", "answers", "steps", "rows", "table"].some(k => { const v = c[k]; return Array.isArray(v) ? v.some(x => String(Array.isArray(x) ? x.join(" ") : x || "").trim()) : !!String(v || "").trim(); }); }
+  function pairAnswers(cards) {
+    const out = [];
+    cards.forEach((c, i) => {
+      if (c.kind === "appendix" && c.appendix === "answers") return;
+      out.push(c.links ? { ...c, links: c.links.filter(l => l !== "answers") } : c);
+      // ключ к заданию лежит только в заметке («Ключ: …») – выводим ответы отдельным слайдом сразу после задания
+      const nk = String(c.notes || "").match(/(?:^|\s)(?:Ключ|Ответы|Ответ|Решение)\s*:\s*([^\n]+)/);
+      if (c.kind !== "check" && nk && /проверь себя|разминк|самостоятельн|тест|викторин|найди ошибку|верно или|задач|упражнени|задани/i.test(String(c.title || "")) && !/^ответ/i.test(String(cards[i + 1]?.title || ""))) {
+        const pts = (/(В-\d|Вариант \d)/.test(nk[1]) ? nk[1].split(/[;,]?\s*(?=В-\d|Вариант \d)/) : nk[1].split(/;\s*|\s+(?=\d+\)\s)/)).map(x => x.trim().replace(/[;,]\s*$/, "")).filter(Boolean).slice(0, 12);
+        if (pts.length) out.push({ id: (c.id || "k" + i) + "-ans", on: c.on !== false, kind: "list", title: `${/задач/i.test(String(c.title)) ? "Решение" : "Ответы"}: ${String(c.title).replace(/^ответы:\s*/i, "")}`, points: pts, notes: "Показываем после того, как класс выполнил это задание." });
+        return;
+      }
+      if (c.kind === "check" && (c.answers || []).some(Boolean)) {
+        const nx = cards[i + 1]; if (nx && /^ответ/i.test(String(nx.title || ""))) return;
+        out.push({ id: (c.id || "chk" + i) + "-ans", on: c.on !== false, kind: "list", title: `Ответы: ${String(c.title || "Проверь себя").replace(/^ответы:\s*/i, "")}`, points: (c.points || []).map((q, k) => c.answers[k] ? `${k + 1}) ${c.answers[k]}` : "").filter(Boolean), notes: "Показываем после того, как класс ответил на это задание." });
+      }
+    });
+    return out;
+  }
+  function prune(cards) {
+    if (!Array.isArray(cards)) return cards;
+    const STAGE = /^(с чего начн|вспомн|в ч[её]м затруднен|план работы|открываем|открытие|закреплен|первичное закреплен|рефлекс|самостоятельн|повторен|мотивац|актуализ|итог|домашн|организац|целеполаган|постановка|включение в систему|проверка домашн)/i;
+    cards = cards.map(c => c && Array.isArray(c.points) ? { ...c, points: c.points.filter(x => !/^\s*(🔗|\*?Переход)/.test(String(x))) } : c);
+    const keep = cards.filter(c => {
+      if (!c) return false;
+      // «План урока» из названий этапов («С чего начнём, Вспомним, В чём затруднение…») – служебный, ученикам ничего не даёт
+      if (/^план урока$/i.test(String(c.title || "").trim()) && (c.points || []).length && (c.points || []).filter(x => STAGE.test(String(x).trim())).length >= Math.ceil((c.points || []).length * 0.6)) return false;
+      if (c.warm || ["title", "board", "goal", "image", "art", "video", "author", "hw", "appendix", "quiz"].includes(c.kind)) return true;
+      const t = String(c.title || "").replace(/[*_]/g, "").trim();
+      if (c.kind === "section") return false;
+      // картина или изображение – отдельные слайды (image, art) оставляем выше; картинка-акцент пустой слайд не спасает
+      if (EMPTY_TITLE.test(t) && !(c.points || []).some(x => !GENERIC.test(String(x)))) return false;
+      if (/рефлекс/i.test(t) && (c.points || []).every(x => GENERIC.test(String(x)))) return false;
+      // слайд, где только вопросы учителя без материала (они в конспекте): «В чём затруднение?», «План работы», «Закрепление: где чуть не ошиблись?»
+      if (["big", "cards", "list"].includes(c.kind) && !/вопрос урока|проблемн/i.test(t)) {
+        const items = [...(c.points || []), c.lead, c.body].map(x => String(x || "").replace(/<[^>]+>/g, "").trim()).filter(Boolean);
+        const material = x => /[«"„→=+×÷∩∧□]|\d/.test(x) || x.length > 160;
+        if (items.length && items.every(x => /\?\s*$/.test(x) || GENERIC.test(x)) && !items.some(material)) return false;
+        // этапный слайд («Самостоятельная работа», «Закрепление», «Повторение») без самих заданий – только указания учителя
+        if (/^(самостоятельн|закреплен|повторен|практик|первичное закреплен)/i.test(t) && !items.some(material)) return false;
+      }
+      return hasBody(c);
+    });
+    // домашнее задание – последним слайдом урока (после него только разминки и приложения)
+    const hw = keep.filter(c => c.kind === "hw"), tail = keep.filter(c => c.warm || c.kind === "appendix"), mid = keep.filter(c => !hw.includes(c) && !tail.includes(c));
+    return pairAnswers([...mid, ...hw, ...tail]);
+  }
   function outline(md, p, type, o = opts()) {
     const lvl = levelOf(p), cfg = { ...o };
     // «Умный класс быстро решает»: на высоком уровне больше слайдов и практики; на слабом — короче и с опорой
     if (lvl === "high" && cfg.amount !== "detailed") cfg.amount = "detailed";
     if (lvl === "weak" && cfg.amount === "detailed") cfg.amount = "medium";
     const cards = expandCards(enrich(outline0(md, p, type, cfg), p, cfg, md), p, cfg);
-    return fillImages(cards, p, cfg);
+    return prune(fillImages(cards, p, cfg));
   }
   function outline0(md, p, type, o = opts()) {
     curTopic = p.topic; curKit = p.plan?.kit || null;
@@ -1049,6 +1099,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     let cards = outline(md, p, type, o);
     if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiScheme(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); cards = await aiWishes(cards, p, signal).catch(() => cards); }
     cards = await mediaFill(cards).catch(() => cards);
+    cards = prune(cards);
     return { cards, md: toMarkdown(cards) };
   }
 
@@ -1156,6 +1207,6 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
   }
 
-  return { childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { prune, childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
 })();
 window.Deck = Deck;

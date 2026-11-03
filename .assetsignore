@@ -11,5 +11,9 @@ docs
 *.sql
 *.zip
 *.md
-assetsignore
 wrangler.toml
+api
+vercel.json
+.assetsignore
+.nojekyll
+CNAME

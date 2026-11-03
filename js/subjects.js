@@ -121,6 +121,16 @@ const Subjects = (() => {
       if (terms.length) add({ kind: "list", title: "Понятия урока", points: terms });
       if (cont.length) add({ kind: "list", title: "Главное по теме", points: cont });
       if (wDate.length) add({ kind: "list", title: "Лента времени", points: wDate.slice(0, 6) });
+      // материал темы из базы сайта (теория, алгоритм, задания с ответами) – чтобы презентация была содержательной, а не из 3–4 общих слайдов
+      try {
+        const R = window.MaterialResolver?.resolve ? MaterialResolver.resolve(p) : null, B = t => (R?.blocks || []).find(b => b.title === t);
+        const th = B("Опорная теория"), al = B("Алгоритм"), tk = B("Задания с ответами");
+        if (th && !cont.length) add({ kind: "list", title: "Главное по теме", points: th.points.slice(0, 6) });
+        if (al) add({ kind: "steps", title: "Алгоритм", points: al.points.slice(0, 6) });
+        if (tk) { const qa = tk.points.map(x => String(x).split(/\s+—\s+/)); const half = Math.ceil(qa.length / 2);
+          add({ kind: "check", title: "Решаем вместе", points: qa.slice(0, half).map(x => x[0]), answers: qa.slice(0, half).map(x => x.slice(1).join(" — ")) });
+          if (qa.length > half) add({ kind: "check", title: "Проверь себя", points: qa.slice(half, half + 4).map(x => x[0]), answers: qa.slice(half, half + 4).map(x => x.slice(1).join(" — ")) }); }
+      } catch (e) { console.warn("subjects cards+", e); }
       add({ kind: "list", title: "Рефлексия", points: ["На какие вопросы мы ответили?", "Могу объяснить сам(а) / понял(а) с подсказкой / остались вопросы"] });
       add({ kind: "hw", title: "Домашнее задание", points: [`Параграф учебника по теме урока`, T[Math.min(1, T.length - 1)]] });
       return c;
