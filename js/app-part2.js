@@ -2840,7 +2840,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
 /* Word: рабочий лист — ровно 2 страницы; всё, что не вошло (памятка, ответы, лишние задания), идёт вторым файлом «приложения» */
 async function docxBlobs(L, d) {
   let rest = ""; const o = { ...wsOpts(L, d), onRest: r => (rest = r) }; if (d === "conspect") o.techmap = true;
-  const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(WS_DOCS.includes(d) ? wsKeysToH1(L.docs[d]) : L.docs[d], L.title, o)]];
+  const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(d === "conspect" ? normalizeTechmap(L.docs[d], L.params) : (WS_DOCS.includes(d) ? wsKeysToH1(L.docs[d]) : L.docs[d]), L.title, o)]];
   if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + ` (лист ${i + 2}).docx`, await mdToDocxBlob(wsKeysToH1(L.more[i].md), `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
   if (o.twoPage && rest.trim()) {
     // что не влезло на две страницы (доп. задания) — одним файлом, ответы и критерии — отдельным
