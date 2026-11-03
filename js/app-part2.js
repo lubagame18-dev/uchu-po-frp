@@ -1,4 +1,4 @@
-
+﻿
 /* ===================================================================
    «Учу по ФРП» — ядро (бесплатное приложение, без тарифов)
    =================================================================== */
@@ -687,7 +687,7 @@ function trackBlock(p) {
   if (p.subject === "ru") {
     const mech = KB.ru.mechanics.filter(m => gradeIn(m.grades, p.grade));
     return `## Русский язык — жёсткое следование шаблону
-Колонки техкарты: ${KB.ru.techmap.columns.join(" | ")}
+Формат техкарты — по скелету ниже: две таблицы («Общая информация», «Блочно-модульное описание»), без пятиколоночной таблицы.
 Этапы урока (тип «${p.type.name}»): ${p.type.stages.join(" → ")}
 Практический материал строй по механикам рабочих тетрадей (формулировки сохраняй):
 ${mech.map(m => `- ${m.name}: «${m.formula}» Пример: ${m.example}`).join("\n")}
@@ -699,7 +699,7 @@ ${KB.ru.materialRules.map(r => "- " + r).join("\n")}`;
 Тип урока: «${t.name}». ${t.focus || ""}
 Этапы: ${t.stages.join(" → ")}
 ${t.mustHave?.length ? "Обязательно: " + t.mustHave.join("; ") : ""}
-Колонки техкарты: ${KB.lit.techmapColumns.join(" | ")}
+Формат техкарты — по скелету ниже: две таблицы («Общая информация», «Блочно-модульное описание»), без пятиколоночной таблицы.
 Приёмы (3–5 уместных): ${KB.lit.techniques.map(x => x.name + " — " + x.how).join("; ")}`;
 }
 function examBlock(p) {
@@ -999,45 +999,49 @@ ${window.Conv ? Conv.prompt(p) : ""}
 
 ${SELFCHECK}
 
-## Образец только ФОРМАТА строк (в ‹…› — подсказки, что писать; сами подсказки и любые слова образца в ответ не переноси, всё содержание бери только из темы «${p.topic}»)
-${exemplarRows(ru)}
+## Скелет (строго, формат как в образцах учителя)
+# Технологическая карта урока
 
-## Скелет (строго)
-# ${p.topic}
+**«${p.topic}»**
 
-**Класс:** ${p.grade} · **Предмет:** ${subjName(p.subject)} · **Тип урока:** ${p.type.name} · **Урок по теме:** ${lessonLabel(p.lessonNo)} · **Длительность:** ${p.duration} мин
+**Таблица 1. Общая информация**
 
-**Цель:** …
+|  |  |
+|---|---|
+| Предмет | ${subjName(p.subject)} |
+| Класс | ${p.grade} |
+| Учебник | … |
+| Тема урока | ${p.topic} |
+| Тип урока | ${p.type.name} |
+| Продолжительность | ${p.duration} минут |
+| Цель | … |
+| Задачи | образовательная: …; развивающая: …; воспитательная: … |
+| Планируемые результаты | предметные: …; метапредметные: …; личностные: … |
+| Основные понятия | … |
+| Ресурсы | … |
+| Формы работы | … |
+| Условные обозначения | (П) — познавательные, (Р) — регулятивные, (К) — коммуникативные, (Пр) — предметные; Д.н./Д.п./С.н./С.п. — причастия настоящего/прошедшего времени |
 
-**Задачи:** обучающая, развивающая, воспитательная.
+**Таблица 2. Блочно-модульное описание**
 
-**Оборудование:** …
+| Блок 1. Название этапа (N мин) |
+|---|
+| **Цель этапа:** … |
+| **Учитель:** … |
+| **Ученики:** … |
+| **Планируемые результаты:** … |
+| Блок 2. Название этапа (N мин) |
+| **Цель этапа:** … |
+| **Учитель:** … |
+| **Ученики:** … |
+| **Планируемые результаты:** … |
+| … (все этапы: от организационного до итога и домашнего задания) |
+| **Домашнее задание:** … |
 
----
-
-
-
----
-
-## План урока
-(этапы с минутами, сумма = ${p.duration})
-
----
-
-## Технологическая карта урока
-| ${cols.join(" | ")} |
-Одна строка — один этап; переносы внутри ячейки через <br>; задания — полностью, не ссылкой «упр. 5»; правило в ячейке — «💡 **ВАЖНО:** …»${ru ? "" : "; подтекст — «🔍 **ПОДТЕКСТ:** …»"}.
-
----
-
-> 💡 ВАЖНО: главный вывод урока
-${p.mode === "tutor" || p.control !== "school" ? "\n> ⚠️ ЛОВУШКА ЭКЗАМЕНА: типичная ошибка и как её избежать (2–3 врезки)\n" : ""}
----
-
-## Домашнее задание
-- Базовый уровень: …
-- Повышенный уровень: …`;
+Только две таблицы, как в образце. Не добавляй разделы «План урока» или «Технологическая карта урока» отдельно, не используй пятиколоночную таблицу. В каждом блоке — цель этапа, что говорит и делает учитель, что делают ученики, планируемые результаты; задания и фрагменты текста — полностью, не ссылкой.
+`;
 }
+
 function promptSlides(p, conspect) {
   const lit = p.subject === "lit";
 return `
@@ -1235,6 +1239,73 @@ function wsTheory(p) {
   return L.length ? "> 📌 **Запомни**\n" + L.map(x => "> - " + x).join("\n") : "";
 }
 /* ---------- результаты ФРП: подставляет система, не ИИ ---------- */
+/* Приводит конспект к формату техкарты из образцов учителя: две таблицы.
+   Работает и для ИИ-конспектов, и для предметных наборов со старой пятиколоночной таблицей. */
+function normalizeTechmap(md, p) {
+  try {
+    const src = String(md || "");
+    if (!/Технологическая карта/i.test(src)) return md;
+    if (/Таблица 1\. Общая информация/.test(src) && /Блочно-модульное/.test(src)) return md;
+    const toks = window.marked.lexer(src);
+    let tab = null;
+    for (const t of toks) {
+      if (t.type === "table" && t.header.length >= 3) {
+        const h = t.header.map(c => String(c.text || "").toLowerCase()).join(" ");
+        if (/деятельн|учител|ученик|этап/.test(h)) { tab = t; break; }
+      }
+    }
+    if (!tab) return md;
+    const H = tab.header.map(c => String(c.text || "").toLowerCase());
+    const col = re => { const i = H.findIndex(x => re.test(x)); return i < 0 ? 0 : i; };
+    const cStage = col(/этап/), cT = col(/учител/), cS = col(/ученик/), cU = col(/ууд|результат|предмет|метапред|личност/), cM = col(/материал|средств|оборуд/);
+    const txt = src;
+    const grab = (re, n = 700) => { const m = txt.match(re); return m ? String(m[1] || "").replace(/\s+/g, " ").trim().slice(0, n) : ""; };
+    const clean = s => String(s || "").replace(/\|/g, "/").replace(/\s+/g, " ").trim();
+    const goal = grab(/\*\*Цель(?:\s+урока)?:\*\*\s*([^\n]+)/i) || grab(/##\s*Цель[^\n]*\n+\s*([^\n]+)/i);
+    const tasks = grab(/\*\*Задачи(?:\s+урока)?:\*\*\s*([^\n]+)/i);
+    const results = grab(/\*\*Планируемые результаты:\*\*\s*([^\n]+)/i);
+    const concepts = grab(/\*\*Основные понятия:\*\*\s*([^\n]+)/i);
+    const resources = grab(/\*\*Оборудование:\*\*\s*([^\n]+)/i) || grab(/\*\*Ресурсы:\*\*\s*([^\n]+)/i);
+    const forms = grab(/\*\*Формы работы:\*\*\s*([^\n]+)/i);
+    const textbook = grab(/\*\*Учебник:\*\*\s*([^\n]+)/i);
+    const rows = tab.rows.map(r => r.map(c => clean(c.text))).filter(r => (r[cStage] || r[0] || "").trim());
+    const t1 = [
+      ["Предмет", subjName(p.subject)],
+      ["Класс", p.grade],
+      ["Учебник", textbook || "…"],
+      ["Тема урока", p.topic],
+      ["Тип урока", p.type?.name || "…"],
+      ["Продолжительность", (p.duration || 45) + " минут"],
+      ["Цель", goal || "…"],
+      ["Задачи", tasks || "…"],
+      ["Планируемые результаты", results || "…"],
+      ["Основные понятия", concepts || "…"],
+      ["Ресурсы", resources || "…"],
+      ["Формы работы", forms || "…"],
+      ["Условные обозначения", "(П) — познавательные, (Р) — регулятивные, (К) — коммуникативные, (Пр) — предметные"]
+    ];
+    const blocks = [];
+    rows.forEach((r, i) => {
+      const stage = (r[cStage] || r[0] || "").trim();
+      const time = (stage.match(/(\d+)\s*мин/i) || [])[1];
+      const title = stage.replace(/\s*\([^)]*мин[^)]*\)/gi, "").replace(/^\d+[.)]\s*/, "").trim();
+      const teacher = clean(r[cT] || "");
+      const students = clean(r[cS] || "");
+      const res = [r[cU], r[cM]].filter(Boolean).join(" ");
+      blocks.push(`| Блок ${i + 1}. ${title}${time ? ` (${time} мин)` : ""} |`);
+      blocks.push(`| **Цель этапа:** — |`);
+      if (teacher) blocks.push(`| **Учитель:** ${teacher} |`);
+      if (students) blocks.push(`| **Ученики:** ${students} |`);
+      if (res) blocks.push(`| **Планируемые результаты:** ${res} |`);
+    });
+    if (blocks.length < 2) return md;
+    const hw = grab(/##\s*Домашнее задание\s*\n([\s\S]*?)(?=\n##|$)/i, 900);
+    if (hw) blocks.push(`| **Домашнее задание:** ${hw} |`);
+    const table2 = `${blocks[0]}\n|---|\n${blocks.slice(1).join("\n")}`;
+    return `# Технологическая карта урока\n\n**«${p.topic}»**\n\n**Таблица 1. Общая информация**\n\n|  |  |\n|---|---|\n${t1.map(([k, v]) => `| ${k} | ${clean(v)} |`).join("\n")}\n\n**Таблица 2. Блочно-модульное описание**\n\n${table2}\n`;
+  } catch (e) { console.warn("normalizeTechmap", e); return md; }
+}
+
 function injectResults(md, p, type, doc) {
   if (doc === "worksheet") {
     const r = FRP.results(p.subject, p.grade, p.topic, type.id);
@@ -1244,10 +1315,11 @@ function injectResults(md, p, type, doc) {
     return md.includes("<!--RESULTS-->") ? md.replace("<!--RESULTS-->", block) : md;
   }
   /* конспект и остальные листы: без перечисления результатов ФРП и без справок внизу */
-  return String(md || "")
+  const out = String(md || "")
     .replace(/\n## Планируемые результаты[\s\S]*?(?=\n## |\n---)/g, "\n")
     .replace(/<!--RESULTS-->/g, "")
     .replace(/\n{3,}/g, "\n\n");
+  return doc === "conspect" ? normalizeTechmap(out, p) : out;
 }
 
 /* ---------- ошибки ИИ ---------- */
@@ -1695,6 +1767,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
       }
       try { if (["conspect", "lesson"].includes(f) && window.MaterialResolver) { const ex = window.MaterialResolver.md(p); if (ex && !String(md).includes("Материалы урока")) md = String(md) + ex; } } catch (e2) { }
+      if (f === "conspect") md = normalizeTechmap(md, p);
       L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
       await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
     }
@@ -2705,7 +2778,7 @@ function wsFit(toks0, extra = 0) {
   return { toks, k: scales[scales.length - 1], breakAt: Math.floor(toks.length / 2), rest, fill: [{ head: 0, row: 0 }, { head: 0, row: 0 }] };
 }
 async function mdToDocxBlob(md, title, opts = {}) {
-  const memo = !!opts.memo, ws = !!opts.worksheet && !memo, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
+  const memo = !!opts.memo, tm = !!opts.techmap, ws = !!opts.worksheet && !memo, wsTag = opts.tag || "", lx = !!opts.lesson && !!window.Layout; let h1n = 0;
   const two = !!opts.twoPage && ws; const pgs = two && opts.pages?.length ? opts.pages : null, _wp = { ...WS_PAGE }; if (pgs) { WS_PAGE.w = 483; WS_PAGE.h = 747; } const usedSl = new Set(); let k2 = 1, breakAt = -1, pb = false, page2 = false, fill = [{ head: 0, row: 0 }, { head: 0, row: 0 }]; const sc = x => two ? Math.max(8, Math.round(x * k2)) : x;
   await Promise.all([ensureMarked(), loadScript("docx")]);
   const D = window.docx; let toks = window.marked.lexer(wsClean(md));
@@ -2713,7 +2786,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
   let children = [];
   const border = { style: D.BorderStyle.SINGLE, size: 4, color: memo ? "555555" : "9AA3B2" };
   const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: memo ? { after: 40, line: 252 } : two ? { after: 50, line: 250 } : { after: 120, line: 300 }, ...opt });
-  let wide = false;
+  let wide = tm;
   const emit = (t, ctx = {}) => {
     switch (t.type) {
       case "heading": if (t.depth === 1 && ws) { const first = !h1n++; const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 4 }; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag.toUpperCase() + " ", bold: true, size: sc(18), color: "111111" })], border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 0, after: two ? 60 : 100 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "111111", size: sc(40) }), border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: "111111", space: 4 } }, spacing: { before: 0, after: two ? 100 : 200 } })); break; }
@@ -2735,7 +2808,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
         if (lx) { children.push(lxDocxTable(t, D)); children.push(new D.Paragraph({ text: "", spacing: { after: 80 } })); break; }
         if (t.header.length >= 3 && !lx && !two) wide = true;
         const mk = (cell, head) => new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(cell.tokens, D, head ? { bold: true } : {}), spacing: { after: two ? 10 : 40 } })], shading: head ? { type: D.ShadingType.CLEAR, fill: memo ? "D9D9D9" : "EEF1F7" } : undefined, margins: memo ? { top: 30, bottom: 30, left: 60, right: 60 } : two ? { top: 30, bottom: 30, left: 70, right: 70 } : { top: 60, bottom: 60, left: 90, right: 90 } });
-        children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border }, rows: [new D.TableRow({ tableHeader: true, children: t.header.map(c => mk(c, true)) }), ...t.rows.map(r => new D.TableRow({ ...(two && fill[page2 ? 1 : 0].row > 0 && r.every(c => !plain(c.tokens || []).replace(/[\s_–—-]/g, "")) ? { height: { value: Math.round((18 + fill[page2 ? 1 : 0].row) * 20), rule: D.HeightRule.ATLEAST } } : {}), children: r.map(c => mk(c, false)) }))] }));
+        children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border }, rows: [...(t.header.every(c => !plain(c.tokens || []).replace(/\\s+/g, "")) ? [] : [new D.TableRow({ tableHeader: true, children: t.header.map(c => mk(c, true)) })]), ...t.rows.map(r => new D.TableRow({ ...(two && fill[page2 ? 1 : 0].row > 0 && r.every(c => !plain(c.tokens || []).replace(/[\s_–—-]/g, "")) ? { height: { value: Math.round((18 + fill[page2 ? 1 : 0].row) * 20), rule: D.HeightRule.ATLEAST } } : {}), children: r.map(c => mk(c, false)) }))] }));
         children.push(two ? new D.Paragraph({ text: "", spacing: { after: 0, line: 140 }, run: { size: 8 } }) : new D.Paragraph({ text: "" })); break;
       }
       case "space": break;
@@ -2758,7 +2831,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
   const doc = new D.Document({
     creator: "Учу по ФРП", title,
     styles: { default: { document: { run: { font: "Times New Roman", size: memo ? 19 : two ? sc(22) : 24 } }, heading1: { run: { font: "Times New Roman", size: 32, bold: true } }, heading2: { run: { font: "Times New Roman", size: 28, bold: true } }, heading3: { run: { font: "Times New Roman", size: 26, bold: true } } } },
-    sections: [{ footers: { default: two ? mkFoot() : mkMark(), ...(two && pgs ? { first: mkFoot() } : {}) }, ...(two && pgs ? { headers: { first: mkHead(pgs[0]), default: mkHead(pgs[1] || pgs[0]) } } : {}), properties: { ...(pgs ? { titlePage: true } : {}), page: { ...(two ? { margin: pgs ? { top: 1000, bottom: 900, left: 1250, right: 1000, footer: 300 } : { top: 680, bottom: 760, left: 1100, right: 850, footer: 300 } } : {}), size: wide ? { orientation: D.PageOrientation.LANDSCAPE, width: D.convertMillimetersToTwip(210), height: D.convertMillimetersToTwip(297) } : {}, ...(two ? {} : { margin: { top: 1000, bottom: 1000, left: 1100, right: 900 } }) } }, children }]
+    sections: [{ footers: { default: two ? mkFoot() : mkMark(), ...(two && pgs ? { first: mkFoot() } : {}) }, ...(two && pgs ? { headers: { first: mkHead(pgs[0]), default: mkHead(pgs[1] || pgs[0]) } } : {}), properties: { ...(pgs ? { titlePage: true } : {}), page: { ...(two ? { margin: pgs ? { top: 1000, bottom: 900, left: 1250, right: 1000, footer: 300 } : { top: 680, bottom: 760, left: 1100, right: 850, footer: 300 } } : {}), size: wide ? { orientation: D.PageOrientation.LANDSCAPE, width: D.convertMillimetersToTwip(210), height: D.convertMillimetersToTwip(297) } : {}, ...(two ? {} : { margin: tm ? { top: 850, bottom: 850, left: 850, right: 850 } : { top: 1000, bottom: 1000, left: 1100, right: 900 } }) } }, children }]
   });
   let blob = await D.Packer.toBlob(doc); Object.assign(WS_PAGE, _wp);
   if (two) blob = await wsMirror(blob);
@@ -2766,7 +2839,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
 }
 /* Word: рабочий лист — ровно 2 страницы; всё, что не вошло (памятка, ответы, лишние задания), идёт вторым файлом «приложения» */
 async function docxBlobs(L, d) {
-  let rest = ""; const o = { ...wsOpts(L, d), onRest: r => (rest = r) };
+  let rest = ""; const o = { ...wsOpts(L, d), onRest: r => (rest = r) }; if (d === "conspect") o.techmap = true;
   const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(WS_DOCS.includes(d) ? wsKeysToH1(L.docs[d]) : L.docs[d], L.title, o)]];
   if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + ` (лист ${i + 2}).docx`, await mdToDocxBlob(wsKeysToH1(L.more[i].md), `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
   if (o.twoPage && rest.trim()) {
