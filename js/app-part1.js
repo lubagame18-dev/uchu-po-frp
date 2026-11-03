@@ -2417,7 +2417,7 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
     const find = async () => {
       const q = $("#pkQ", m).value.trim(); if (!q) return; st.q = q; $("#pkYa", m).href = yandexUrl(q);
       const grid = $("#pkGrid", m); grid.innerHTML = `<p class="hint">Ищу…</p>`;
-      const res = await search(q);
+      const res = await search(q, 30);
       const note = $("#pkSrcNote", m); if (note) note.textContent = yandexState === "ok" ? "Картинки — из Яндекс Картинок. Щёлкните по подходящей, затем обрежьте и нажмите «Вставить»." : `Яндекс: ${yandexState || "нет ответа"}. Показаны картинки Википедии и Викисклада; можно открыть Яндекс Картинки и вставить картинку через Ctrl+V.`;
       grid.innerHTML = res.length ? res.map((r, i) => `<button class="pk-th" data-i="${i}" title="${esc(r.cap || r.title)} · ${r.src}">${r.cap ? `<span class="pk-cap">с подписью</span>` : ""}<img src="${esc(r.thumb)}" alt="${esc(r.title)}" loading="lazy"></button>`).join("") : `<p class="hint">Ничего не нашлось. Откройте Яндекс Картинки.</p>`;
       $$(".pk-th", grid).forEach(b => b.onclick = async () => {

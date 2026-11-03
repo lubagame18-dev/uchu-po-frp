@@ -1,4 +1,4 @@
-/* ===================================================================
+﻿/* ===================================================================
    «Учу по ФРП» — редактор презентаций (v5), по гибкости близкий к Gamma.
    • Читаемость с последних парт: крупный шрифт, автоподбор размера
      (много текста — немного меньше, мало — крупнее), обрезки нет: если
@@ -169,6 +169,26 @@ const SlideEditor = (() => {
     if (!m) return { acc: "", rest: body || "" };
     return { acc: m[0], rest: ((body || "").slice(0, m.index) + (body || "").slice(m.index + m[0].length)).replace(/^\s+/, "").replace(/\n{3,}/g, "\n\n") };
   }
+  /* Продолжение списка/плана на следующем слайде: нумерация не начинается заново */
+  function continueNumbering(html, sl, i) {
+    try {
+      const all = slides(), base = s => shortTitle(String(s.title || "")).replace(/\s*\(продолжение\)\s*$/i, "").trim().toLowerCase();
+      const cur = base(sl);
+      let prev = 0, found = false;
+      for (let k = i - 1; k >= 0; k--) {
+        if (base(all[k]) !== cur) break;
+        found = true;
+        prev += (String(all[k].body || "").match(/^\s*\d+[.)]\s+/gm) || []).length;
+      }
+      if (!found) return html;
+      let n = prev;
+      return String(html).replace(/<ol(?:\s[^>]*)?>([\s\S]*?)<\/ol>/g, (m, inner) => {
+        const c = (inner.match(/<li\b/g) || []).length;
+        const out = `<ol start="${n + 1}">${inner}</ol>`;
+        n += c; return out;
+      });
+    } catch (e) { return html; }
+  }
   function slideHtml(sl, i, { edit = false, fs = null, th = null } = {}) {
     const lay = autoLayout(sl, i), st = sl.set, T = th || theme(), TK = window.ThemeKit?.has(T);
     const accPos = st.acc && lay !== "image" && lay !== "gallery" ? st.acc : "";
@@ -179,7 +199,7 @@ const SlideEditor = (() => {
     const style = `${tkv}${fontCss(th && th !== theme() ? (window.ThemeKit?.META[th]?.font || "classic") : null)}--fs:${fs || st.fs || st.afs || 1};--pad:${st.pad || 1};--lh:${st.lh || (lay === "poem" ? 1.25 : 1.3)};--ovi:${(st.ovi ?? 70) / 100};${st.aw ? `--aw:${+st.aw}%;` : ""}${st.ix || st.iy ? `--ix:${+st.ix || 0}%;--iy:${+st.iy || 0}%;` : ""}${bg}`;
     const vid = (st.kind === "video" || lay === "video" || st.video) && window.VideoKit ? VideoKit.html(st.video || { q: st.vq || sl.title }) : "";
     const srcBody = tieQuotes(resolveLinks(String(acc ? parts.rest : sl.body || "").replace(/\]\(#g\s+«([^»]*)»\)/g, (m, d) => "](#g \"" + String(d).replace(/"/g, "\x27") + "\")")));
-  const body = vid + linkify(mdToHtml(interactiveMd(st, srcBody))) + slideExtras(st);
+  const body = vid + continueNumbering(linkify(mdToHtml(interactiveMd(st, srcBody))), sl, i) + slideExtras(st);
   const bodyHtml = st.note ? `<div class="sx-note"><div class="sx-note-i">!</div><div class="sx-note-b">${body}</div></div>` : body;
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
     const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.quiz ? "quiz" : "", st.choice || st.odd ? "choice" : "", st.odd ? "odd" : "", st.cmp ? "cmp" : "", st.selfcheck ? "selfcheck" : "", st.timer ? "timer" : "", st.tl ? "tl" : "", st.cmap ? "cmap" : "", st.score ? "score" : "", st.bank ? "bank" : "", st.spots ? "spots" : "", st.note ? "note" : "", st.cut ? "cut" : "", st.appendix ? `appendix ap-${st.appendix}` : "", st.bgimg ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
