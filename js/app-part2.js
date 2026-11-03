@@ -3070,7 +3070,7 @@ async function wsPdfBlob(L, stage) {
   await loadScript("jspdf");
   const J = window.jspdf?.jsPDF;
   if (!J) return null;
-  const pdf = new J({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
+  const pdf = new J({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
   for (let i = 0; i < pages.length; i++) {
     const canvas = await window.html2pdf().set({ html2canvas: { scale: 2, width: 794, height: 1112, windowWidth: 794, windowHeight: 1112, backgroundColor: "#ffffff", useCORS: true } }).from(pages[i]).toCanvas().get("canvas");
     const img = canvas.toDataURL("image/jpeg", 0.95);
