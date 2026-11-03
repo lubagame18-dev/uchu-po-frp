@@ -1894,7 +1894,7 @@ ${txt ? `Текст:\n${txt}\n` : ""}Кандидаты, найденные са
     } catch (e) { console.warn("AI problem", e); }
   }
   // нейросеть выбирает отрывки СО СМЫСЛОМ: ключевые эпизоды для вопроса урока, а не что попало подряд
-  if (p.plan?.kit && p.plan.text && L.built === "ai" && p.subject === "lit" && (window.AI ? AI.configured() : false)) {
+  if (p.plan?.kit && p.plan.text && p.subject === "lit" && (window.AI ? AI.configured() : false)) {
     try { const fr = await aiFragments(p); if (fr) { const K = p.plan.kit, W = LitKit.workOf(p.topic); K.fragments = fr; K.qa = fr.map(f => ({ n: f.n, items: LitKit.fragmentQA(f, p, W) })); K.glossary = LitKit.glossaryFor(fr.map(f => f.text)); K.fragSrc = "нейросеть: отрывки по смыслу урока"; } }
     catch (e) { if (e?.code === "cancelled") throw e; console.warn("AI fragments", e); }
   }

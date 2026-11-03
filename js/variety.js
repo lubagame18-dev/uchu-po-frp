@@ -430,6 +430,7 @@ const Variety = (() => {
     const samples = p.subject === "lit" && typeof Learn !== "undefined" ? Learn.lessonsFor(p.topic, p.grade, 3) : [];
     const found = await findText(p, samples).catch(() => null);
     if (found?.text && p.subject === "lit" && typeof LitKit !== "undefined" && LitKit.cleanWork) found.text = LitKit.cleanWork(found.text); // без рекламы, адресов и шапок сайтов
+    if (found?.text && p.subject === "lit" && typeof LitKit !== "undefined" && LitKit.focusWork) { const wt = (p.topic.match(/«([^»]+)»/) || [])[1]; if (wt) found.text = LitKit.focusWork(found.text, wt); } // из сборника – нужное произведение
     const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : null;
     const title = (p.topic.match(/«([^»]+)»/) || [])[1] || null;
     const A = found ? analyze(found.text, { title, author, source: found.source, url: found.url, epic: /epic|commented/.test(type.id) }) : null;

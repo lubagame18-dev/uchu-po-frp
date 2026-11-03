@@ -230,6 +230,26 @@ const LitKit = (() => {
     }
     if (!verse && text.length <= 1600) return [{ n: 1, label: "Текст", from: 1, to: nonEmpty, text: text.trim(), whole: true }];
     const size = verse ? 10 : 6;
+    // проза: отрывки по смыслу – в каждой части текста выбираем окно, где больше всего героев, слов темы и живого действия (диалога)
+    if (!verse && nonEmpty > 30) {
+      const heroes = (A?.heroes || []).map(h => lowe(String(h).split(/\s+/)[0]).slice(0, 6)).filter(x => x.length >= 3);
+      const keys = [...new Set((lowe(topic).match(/[а-я]{5,}/g) || []).filter(w => !/^(произвед|рассказ|повест|роман|глава|сборник|автор|урока?|анализ|образ|тема|литератур)/.test(w)).map(w => w.slice(0, 6)))];
+      const idx = lines.map((l, i) => i).filter(i => lines[i].trim() && /[.!?…»"]$/.test(lines[i].trim()) || /^—/.test(lines[i].trim()));
+      const scoreAt = i => { let sc = 0, used = 0; for (let j = i; j < lines.length && used < size; j++) { const l = lowe(lines[j]); if (!l.trim()) continue; used++; const wgt = 1 - used * 0.08; for (const h of heroes) if (l.includes(h)) sc += 2 * wgt; for (const k of keys) if (l.includes(k)) sc += 2 * wgt; if (/^\s*—/.test(lines[j])) sc += 1; if (/[!?]/.test(l)) sc += 0.5; } return sc; };
+      const parts3 = [[0, 0.34, "Завязка"], [0.34, 0.7, "Ключевой эпизод"], [0.7, 0.93, "Кульминация"]];
+      const picks2 = [];
+      for (const [f0, f1, label] of parts3) {
+        const cand = idx.filter(i => i >= lines.length * f0 && i < lines.length * f1 && (i === 0 || /[.!?…»"]$/.test((lines.slice(0, i).reverse().find(x => x.trim()) || ".").trim())));
+        let best = -1, bs = -1; for (const i of cand) { const sc = scoreAt(i); if (sc > bs) { bs = sc; best = i; } }
+        if (best >= 0) { let a = best, b = best, used = 0; while (b < lines.length - 1 && used < size) { if (lines[b].trim()) used++; if (used >= size) break; b++; } if (!picks2.some(p => !(b < p.a || a > p.b))) { const hh = (A?.heroes || []).find(h => lines.slice(a, b + 1).join(" ").includes(String(h).split(/\s+/)[0])); picks2.push({ a, b, label: hh && label === "Ключевой эпизод" ? `Герой: ${hh}` : label }); } }
+      }
+      let last = lines.length - 1; while (last > 0 && !lines[last].trim()) last--;
+      const fa = Math.max(0, last - size + 1); if (!picks2.some(p => !(last < p.a || fa > p.b))) picks2.push({ a: fa, b: last, label: "Финал" });
+      if (picks2.length >= 3) {
+        const num = []; let c = 0; lines.forEach((l, i) => { if (l.trim()) c++; num[i] = c; });
+        return picks2.sort((x, y) => x.a - y.a).map((p, k) => ({ n: k + 1, label: p.label, from: num[p.a] || 1, to: num[p.b] || 1, text: lines.slice(p.a, p.b + 1).join("\n").trim() }));
+      }
+    }
     const idxOf = s => { if (!s) return -1; const k = lowe(s).slice(0, 30); return lines.findIndex(l => lowe(l).includes(k)); };
     const picks = [];
     const add = (i, label) => { if (i < 0) return; const [a, b] = windowAround(lines, i, size); if (picks.some(p => !(b < p.a || a > p.b))) return; picks.push({ a, b, label }); };
@@ -379,9 +399,22 @@ const LitKit = (() => {
       if (/^[\s|•·*–—\-=_#>]+$/.test(t)) return false;
       return true;
     });
+    // «шапка» в начале: название сборника, автор, заголовки разделов – короткие строки без знаков конца предложения до первого настоящего абзаца
+    { let k = 0, cut = 0; for (let i = 0; i < ls.length && k < 12; i++) { const t = ls[i].trim(); if (!t) continue; k++; if (/[.!?…»"]$/.test(t) || t.length > 90) break; cut = i + 1; } if (cut && ls.slice(cut).some(l => l.trim().length > 90)) ls = ls.slice(cut); }
     // внутри строк: хвосты-ссылки и пометки сайтов
     let out = ls.join("\n").replace(/\s*(https?:\/\/\S+|www\.\S+)/gi, "").replace(/\[\d+\]/g, "").replace(/\n{3,}/g, "\n\n").trim();
     return out;
+  }
+
+  /* В тексте целый сборник или роман целиком: начинаем с нужного произведения (строка-заголовок с его названием) */
+  function focusWork(text, title) {
+    const t = String(text || ""); if (!title || t.length < 6000) return t;
+    const low = x => x.toLowerCase().replace(/ё/g, "е").replace(/[«»"„“]/g, "").trim();
+    const want = low(title), ls = t.split("\n");
+    const i = ls.findIndex(l => { const x = low(l); return x.length < 120 && x.length >= want.length && x.includes(want) && !/[.!?]$/.test(l.trim()); });
+    if (i < 0) return t;
+    const tail = ls.slice(i + 1).join("\n");
+    return tail.trim().length > 800 ? tail : t;
   }
   /* ---------- 7. Всё вместе ---------- */
   function build(p, plan) {
@@ -432,6 +465,6 @@ const LitKit = (() => {
     }
     return out;
   }
-  return { cleanWork, build, workOf, WORKS, fragments, fragmentQA, glossaryFor, termsFor, problemOf, conclusions, markup, TERMS, GLOSS };
+  return { cleanWork, focusWork, build, workOf, WORKS, fragments, fragmentQA, glossaryFor, termsFor, problemOf, conclusions, markup, TERMS, GLOSS };
 })();
 window.LitKit = LitKit;
