@@ -363,6 +363,8 @@ function renderMaterials() {
 function setSeg(id, v) { $$(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", String(String(b.dataset.v) === String(v)))); if (id === "segSubject" && $("#subjectSel")) { $("#subjectSel").value = v; if ($("#anyBox")) $("#anyBox").hidden = v !== "any"; } }
 function topicList() {
   let PL = null; try { PL = window.Subjects?.plugin(state.subject); } catch (ePL) { PL = null; } if (PL) return { frp: true, items: PL.topics(state.grade) }; // другие предметы — темы из своего модуля
+  /* Не подменяем предмет литературой/русским: если модуль предмета ещё грузится — тем пока нет */
+  if (state.subject !== "ru" && state.subject !== "lit") return { frp: false, items: [], pending: true };
   const frp = FRP.topicsFor(state.subject, state.grade);
   if (frp && frp.length) return { frp: true, items: frp };
   const base = state.subject === "ru" ? KB.ru.topics[state.grade] : KB.lit.works[state.grade];
@@ -377,6 +379,17 @@ function refreshTopics() { if ($("#topicPanel") && !$("#topicPanel").hidden) ren
 const cleanTopic = t => String(t).replace(/\s*\((?:\d\s*-?\s*(?:й\s*)?урок|урок\s*\d|продолжени[^)]*)\)\s*$/i, "").replace(/[.,;]?\s*Продолжение( изучения)?( темы)?\.?\s*$/i, "").trim();
 function renderTopicPanel() {
   const { frp, items } = topicList(), q = $("#topic").value.trim().toLowerCase();
+  if (items.pending && !items.length) {
+    const named = window.Subjects?.name?.(state.subject) || "предмета";
+    $("#topicPanel").innerHTML = `<div class="tp-note">Загружаю темы ${esc(named)} (${state.grade} класс)…</div>`;
+    $("#topicPanel").hidden = false;
+    (async () => {
+      try { if (window.Plans) await Plans.ensure(state.subject); } catch { }
+      try { if (window.Kits) await Kits.ensure(state.subject); } catch { }
+      if (!$("#topicPanel").hidden) renderTopicPanel();
+    })();
+    return;
+  }
   const list = q && !items.some(i => i.title.toLowerCase() === q) ? items.filter(i => i.title.toLowerCase().includes(q)) : items;
   let sec = null;
   const rows = list.map(i => {
@@ -449,7 +462,9 @@ function subjectsOfStage(stageId) {
 /* какие предметы показывать в выбранной ступени */
 function fillSubjects(stageId) {
   /* предметы — только из выбранной ступени; список пересобирается заново */
-  const allowed = subjectsOfStage(stageId);
+  let allowed = subjectsOfStage(stageId);
+  /* не «сбрасываем» предмет-плагин (биология и др.), если он ещё не попал в список */
+  if (state.subject && state.subject !== "any" && !allowed.includes(state.subject) && ((SUBJ_GRADES[state.subject] || []).some(g => stageById(stageId).grades.includes(g)))) allowed = [...allowed, state.subject];
   if (state.subject !== "any" && !allowed.includes(state.subject)) state.subject = allowed[0] || state.subject;
   const list = window.Subjects?.list || [];
   const nameOf = id => (list.find(s => s.id === id) || {}).name || id;
