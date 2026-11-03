@@ -2105,7 +2105,7 @@ const Media = (() => {
   const RE = /!\[([^\]]*)\]\(\s*((?:search|commons):[^)"\n]*?|[^)\s]+)(?:\s+"([^"]*)")?\s*\)/g;
   function parseOpts(s) { const o = {}; String(s || "").split(";").forEach(p => { const [k, ...v] = p.split("="); if (k && v.length) o[k.trim()] = v.join("=").trim(); }); return o; }
   function optsStr(o) { return Object.entries(o).filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => `${k}=${String(v).replace(/[";)]/g, " ")}`).join(";"); }
-  function mdImage(cap, src, o) { const t = optsStr(o); return `![${String(cap || "").replace(/[\[\]]/g, "")}](${src}${t ? ` "${t}"` : ""})`; }
+  function mdImage(cap, src, o) { const t = optsStr(o); return `![${String(cap || "").replace(/[\\[\\]"\\n]/g, " ").trim()}](${src}${t ? ` "${t}"` : ""})`; }
 
   /* ---------- markdown ↔ html ---------- */
   function preprocess(md) {
