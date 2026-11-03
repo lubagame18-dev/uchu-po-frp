@@ -938,7 +938,7 @@ const Deck = (() => {
     return [title ? `${level === 1 ? "#" : "##"} ${md1(title)}` : "", body, `<!--@ ${JSON.stringify(set)} -->`, notes ? `<!-- ${notes} -->` : ""].filter(Boolean).join("\n\n");
   }
   function toMarkdown(cards) {
-    const keyOf = c => (String(c.title || "") + "|" + String(c.lead || "") + "|" + [].concat(c.points || c.task || c.quote || c.poem || c.rule || "").join(" ")).toLowerCase().replace(/[^а-яёa-z0-9]+/g, " ").trim().slice(0, 160); const seen = new Set(); const uniq = cards.filter(c => c.on !== false).filter(c => { if (c.kind === "title" || c.kind === "section") return true; const k = keyOf(c); if (seen.has(k)) return false; seen.add(k); return true; }); return `---\nmarp: true\npaginate: true\n---\n\n` + uniq.map(cardMd).join("\n\n---\n\n") + "\n";
+    const keyOf = c => (String(c.title || "") + "|" + String(c.lead || "") + "|" + [].concat(c.points || c.task || c.quote || c.poem || c.rule || "").join(" ")).toLowerCase().replace(/[^а-яёa-z0-9]+/g, " ").trim().slice(0, 160); const seen = new Set(); const uniq = cards.filter(c => c.on !== false).filter(c => { if (c.kind === "title") return true; if (c.kind === "section") return hasBody(c); const k = keyOf(c); if (seen.has(k)) return false; seen.add(k); return true; }); return `---\nmarp: true\npaginate: true\n---\n\n` + uniq.map(cardMd).join("\n\n---\n\n") + "\n";
   }
 
   /* ---------- нейросеть (по желанию): сжать формулировки обычных слайдов ---------- */

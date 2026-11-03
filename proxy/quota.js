@@ -1,4 +1,4 @@
-/* ===================================================================
+﻿/* ===================================================================
    «Учу по ФРП» — учёт запросов к ИИ по тарифу кабинета.
    Работает, если в функции заданы SUPABASE_URL и SUPABASE_SERVICE_KEY (секретный ключ
    service_role — только на сервере!). Без них ограничений нет (как раньше).
@@ -9,12 +9,12 @@
    Лимиты «С ИИ»: 50 уроков с ИИ в месяц (≈ 2,7 млн токенов с запасом на правки),
    6 листов с картинками в месяц и 20 дополнительных листов в месяц; после лимита —
    докупка уроков (пакеты 10/30/50 или своё количество 1–200).
-   Бесплатно (пробный доступ, 2 дня по 3 урока) — FREE_AI уроков с ИИ в месяц (по умолчанию 6).
+   Бесплатно (пробный доступ, 2 урока с ИИ) — FREE_AI уроков с ИИ за пробный период (по умолчанию 2).
    Учёт картинок и доп. листов — в image-pool.js и на сайте (те же константы LIMITS).
    =================================================================== */
 const URL0 = () => (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const KEY = () => process.env.SUPABASE_SERVICE_KEY || "";
-const FREE = () => Number(process.env.FREE_AI || 6); // пробный доступ: 6 уроков ≈ 2 дня по 3 урока
+const FREE = () => Number(process.env.FREE_AI || 2); // пробный доступ: 2 урока с ИИ
 const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
 const FREE_TOK = () => FREE() * PER_LESSON;
 /* Месячные лимиты тарифа «С ИИ» (и «С ИИ, год»): 50 уроков, 6 листов с картинками, 20 доп. листов */
@@ -43,7 +43,7 @@ async function check(userToken, request, readAll) {
   const tok = typeof p.tokens_limit === "number"; // учёт в токенах (если в облаке есть колонки tokens_limit / tokens_used)
   const patch = b => sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: b });
   if (p.plan === "promo" && p.free_month !== month) { p.ai_left = FREE(); p.free_month = month; const b = { ai_left: p.ai_left, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
-  // пробный доступ: 2 дня по 3 урока с ИИ — токены начисляем один раз (старые профили, созданные без лимита)
+  // пробный доступ: 2 урока с ИИ — токены начисляем один раз (старые профили, созданные без лимита)
   if (p.plan === "free" && tok && (p.tokens_limit || 0) <= 0 && (p.tokens_used || 0) <= 0) { p.tokens_limit = FREE_TOK(); await patch({ tokens_limit: FREE_TOK(), tokens_used: 0 }); }
   if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = 0; const b = { plan: "free", ai_left: 0, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
   const NO = { ok: false, status: 402, reason: "quota", message: "Лимит 50 уроков с ИИ на этот месяц закончился. Докупите уроки в личном кабинете: пакет 10, 30 или 50 уроков — или своё количество от 1 до 200. Лимит обновится в начале месяца." };
@@ -139,7 +139,7 @@ async function join(userToken, code, request, readAll) {
 /* Бесплатный тариф: учёт уроков на сервере сразу по трём ключам — учётная запись, устройство
    (отпечаток браузера, не сбрасывается очисткой) и сеть (/24). Новая почта на том же устройстве
    лимит не обнуляет. Сеть — с запасом: в школе многие учителя выходят с одного адреса. */
-const FREE_LESSONS = () => Number(process.env.FREE_LESSONS || 3), FREE_NET = () => Number(process.env.FREE_NET || 25);
+const FREE_LESSONS = () => Number(process.env.FREE_LESSONS || 2), FREE_NET = () => Number(process.env.FREE_NET || 8);
 async function freeUse(userToken, body, ip, request, readAll) {
   if (!on()) return { ok: true, off: true };
   const u = userToken ? await sb(request, readAll, "/auth/v1/user", { token: userToken }) : null;

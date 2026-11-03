@@ -11,7 +11,7 @@
      6. Claude (свой ключ) и любой OpenAI-совместимый сервис.
    v5.5: «Любая нейросеть по одному ключу» — вставьте ключ, сайт сам узнаёт сервис
    (OpenAI, DeepSeek, Gemini, Claude, Grok, Groq, Mistral, Qwen, Kimi, Together,
-   Perplexity, Hugging Face, NVIDIA, Cerebras, Fireworks, OpenRouter…), получает
+   Perplexity, Hugging Face, NVIDIA, Cerebras, Fireworks, OpenRouter, TeamoRouter…), получает
    список моделей, выбирает подходящую и проверяет. Подключений может быть сколько угодно.
    Если провайдер не ответил, сайт сам переключается на следующий и пишет,
    какой и почему. Можно выбрать предпочитаемый вручную. Прокси — крайняя мера,
@@ -24,8 +24,8 @@ const AI = (() => {
   const KEY = "uchu:ai2";
   const DEF = {
     prefer: "auto",
-    keys: { openrouter: "", pollinations: "", deepseek: "", gemini: "", anthropic: "", gigachat: "" },
-    models: { openrouter: "openrouter/free", openrouterDeep: "openrouter/free", pollinations: "openai", deepseek: "deepseek-flash", gemini: "gemini-2.5-flash", anthropic: "claude-sonnet-5-5", gigachat: "GigaChat-2-Pro" },
+    keys: { openrouter: "", pollinations: "", deepseek: "", gemini: "", anthropic: "", gigachat: "", teamorouter: "" },
+    models: { openrouter: "openrouter/free", openrouterDeep: "openrouter/free", pollinations: "openai", deepseek: "deepseek-flash", gemini: "gemini-2.5-flash", anthropic: "claude-sonnet-5-5", gigachat: "GigaChat-2-Pro", teamorouter: "deepseek-flash", teamorouterDeep: "" },
     custom: { base: "", key: "", model: "" },
     extra: [], // любые подключённые по одному ключу: [{ id, name, base, key, model }]
     yandexFn: SITE.yandexFunction || "",
@@ -38,10 +38,11 @@ const AI = (() => {
     gemini: { name: "Gemini", sub: "Google AI Studio, свой ключ", limits: "бесплатный тариф Google; из России без VPN обычно недоступен", foreign: true },
     yandexfn: { name: "GigaChat через Яндекс-функцию", sub: "неприоритетный вариант", limits: "по ключу GigaChat, который лежит в функции", foreign: false },
     anthropic: { name: "Claude", sub: "свой ключ Anthropic", limits: "по тарифу Anthropic; из России недоступен", foreign: true },
+    teamorouter: { name: "TeamoRouter", sub: "свой ключ sk-teamo-…, OpenAI-совместимый", limits: "по тарифу TeamoRouter (есть бесплатные модели)", foreign: true },
     custom: { name: "Свой сервис", sub: "любой OpenAI-совместимый", limits: "по условиям сервиса", foreign: true },
     site: { name: "ИИ", sub: "по тарифу", limits: "по тарифу", foreign: false }
   };
-  const ORDER = ["site", "openrouter", "pollinations", "deepseek", "gemini", "anthropic", "custom"]; // GigaChat (Сбер) убран: не подключается
+  const ORDER = ["site", "openrouter", "pollinations", "deepseek", "teamorouter", "gemini", "anthropic", "custom"]; // GigaChat (Сбер) убран: не подключается
   /* Любая нейросеть по одному ключу: провайдер узнаётся по виду ключа, модели — из списка сервиса */
   const DETECT = [
     { re: /^sk-or-/, slot: "openrouter", name: "OpenRouter" },
@@ -56,12 +57,13 @@ const AI = (() => {
     { re: /^csk-/, name: "Cerebras", base: "https://api.cerebras.ai/v1" },
     { re: /^fw_/, name: "Fireworks", base: "https://api.fireworks.ai/inference/v1" },
     { re: /^sk-proj-|^sk-svcacct-/, name: "OpenAI", base: "https://api.openai.com/v1" },
+    { re: /^sk-teamo-/, slot: "teamorouter", name: "TeamoRouter", base: "https://api.teamorouter.com/v1" },
     { re: /^sk-[a-f0-9]{32}$/, name: "DeepSeek", slot: "deepseek", try: ["https://api.deepseek.com/v1", "https://api.moonshot.ai/v1", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"] },
     { re: /^sk-/, name: "OpenAI-совместимый", try: ["https://api.openai.com/v1", "https://api.deepseek.com/v1", "https://api.moonshot.ai/v1", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", "https://api.together.xyz/v1"] },
     { re: /^[A-Za-z0-9]{32}$/, name: "Mistral", try: ["https://api.mistral.ai/v1"] },
     { re: /^[a-f0-9]{64}$/, name: "Together", try: ["https://api.together.xyz/v1"] }
   ];
-  const HOSTNAMES = { "api.openai.com": "OpenAI", "api.deepseek.com": "DeepSeek", "api.moonshot.ai": "Moonshot Kimi", "dashscope-intl.aliyuncs.com": "Qwen", "api.together.xyz": "Together", "api.mistral.ai": "Mistral", "api.groq.com": "Groq", "api.x.ai": "xAI Grok", "openrouter.ai": "OpenRouter", "llm.api.cloud.yandex.net": "YandexGPT", "gigachat.devices.sberbank.ru": "GigaChat" };
+  const HOSTNAMES = { "api.openai.com": "OpenAI", "api.deepseek.com": "DeepSeek", "api.moonshot.ai": "Moonshot Kimi", "dashscope-intl.aliyuncs.com": "Qwen", "api.together.xyz": "Together", "api.mistral.ai": "Mistral", "api.groq.com": "Groq", "api.x.ai": "xAI Grok", "openrouter.ai": "OpenRouter", "api.teamorouter.com": "TeamoRouter", "llm.api.cloud.yandex.net": "YandexGPT", "gigachat.devices.sberbank.ru": "GigaChat" };
   // модель по умолчанию: быстрая и недорогая, если есть; иначе первая из списка
   const PREF = [/deepseek-flash|deepseek-chat|deepseek-v3/i, /gpt-5-mini|gpt-4\.1-mini|gpt-4o-mini/i, /gemini-[\d.]+-flash(?!-lite)/i, /llama-3\.3-70b|llama-4/i, /qwen.*(max|plus|72b)/i, /mistral-(large|medium)-latest/i, /grok-[\d]+(-fast|-mini)?/i, /kimi|moonshot-v1-32k/i, /sonnet/i, /chat|instruct/i];
   function pickModel(ids) { for (const re of PREF) { const m = ids.find(x => re.test(x) && !/embed|whisper|tts|image|vision-only|moderation|audio|realtime|search/i.test(x)); if (m) return m; } return ids.find(x => !/embed|whisper|tts|image|moderation|audio/i.test(x)) || ids[0]; }
@@ -85,9 +87,10 @@ const AI = (() => {
     if (!key && !baseHint) throw new Error("вставьте ключ");
     const c = cfg();
     const det = DETECT.find(d => d.re.test(key)) || {};
-    if (det.slot && !baseHint && ["openrouter", "anthropic", "gemini", "pollinations"].includes(det.slot)) {
+    if (det.slot && !baseHint && ["openrouter", "anthropic", "gemini", "pollinations", "teamorouter"].includes(det.slot)) {
       c.keys[det.slot] = key;
       if (det.slot === "gemini") { onStep("Gemini: получаю список моделей…"); const lm = await listModels("https://generativelanguage.googleapis.com/v1beta/openai", key); if (lm.ok && lm.ids.length) c.models.gemini = pickModel(lm.ids.filter(x => /gemini/.test(x))) || c.models.gemini; }
+      if (det.slot === "teamorouter") { onStep("TeamoRouter: получаю список моделей…"); const lm = await listModels("https://api.teamorouter.com/v1", key); if (lm.ok && lm.ids.length) c.models.teamorouter = pickModel(lm.ids) || c.models.teamorouter; }
       save(c); onStep(`${det.name}: проверяю…`);
       const t = await test(det.slot); return { id: det.slot, name: det.name, model: c.models[det.slot], ok: t.ok, text: t.text };
     }
@@ -123,7 +126,7 @@ const AI = (() => {
     return out;
   }
   function save(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { toast("Не удалось сохранить настройки ИИ."); } paint(); }
-  const has = (c, id) => id[0] === "x" ? !!c.extra.find(x => x.id === id && x.model && !ruBlocked(x.key, x.base)) : ({ openrouter: !!c.keys.openrouter, pollinations: !!c.keys.pollinations, deepseek: !!c.keys.deepseek, gemini: false, anthropic: false, yandexfn: !!c.yandexFn, site: !!(window.UCHU_SITE?.siteAi && c.yandexFn), custom: !!(c.custom.base && c.custom.model) })[id];
+  const has = (c, id) => id[0] === "x" ? !!c.extra.find(x => x.id === id && x.model && !ruBlocked(x.key, x.base)) : ({ openrouter: !!c.keys.openrouter, pollinations: !!c.keys.pollinations, deepseek: !!c.keys.deepseek, teamorouter: !!c.keys.teamorouter, gemini: false, anthropic: false, yandexfn: !!c.yandexFn, site: !!(window.UCHU_SITE?.siteAi && c.yandexFn), custom: !!(c.custom.base && c.custom.model) })[id];
   function chain(c = cfg()) {
     let avail = [...c.extra.map(x => x.id), ...ORDER].filter(id => has(c, id));
     // коммерческая версия: свои ключи — только в свободной зоне (по промокоду); иначе — только ИИ сайта по тарифу
@@ -193,6 +196,7 @@ const AI = (() => {
     openrouter: (c, p, o, e) => openaiCompat("openrouter", "https://openrouter.ai/api/v1/chat/completions", { Authorization: "Bearer " + c.keys.openrouter, "HTTP-Referer": location.origin, "X-Title": "Uchu po FRP" }, o.modelTier === "complex" ? c.models.openrouterDeep : c.models.openrouter, p, o, e),
     pollinations: (c, p, o, e) => openaiCompat("pollinations", "https://gen.pollinations.ai/v1/chat/completions", { Authorization: "Bearer " + c.keys.pollinations }, c.models.pollinations, p, o, e),
     deepseek: (c, p, o, e) => openaiCompat("deepseek", "https://api.deepseek.com/chat/completions", { Authorization: "Bearer " + c.keys.deepseek }, c.models.deepseek, p, o, e),
+    teamorouter: (c, p, o, e) => openaiCompat("teamorouter", "https://api.teamorouter.com/v1/chat/completions", { Authorization: "Bearer " + c.keys.teamorouter }, o.modelTier === "complex" && c.models.teamorouterDeep ? c.models.teamorouterDeep : (c.models.teamorouter || "deepseek-flash"), p, o, e),
     gemini: (c, p, o, e) => openaiCompat("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", { Authorization: "Bearer " + c.keys.gemini }, c.models.gemini, p, o, e),
     custom: (c, p, o, e) => openaiCompat("custom", c.custom.base.replace(/\/+$/, "") + "/chat/completions", c.custom.key ? { Authorization: "Bearer " + c.custom.key } : {}, c.custom.model, p, o, e),
     site: (c, p, o, e) => { const base = c.yandexFn.replace(/\/+$/, ""); const url = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/deepseek/v1/chat/completions")}` : base + "/deepseek/v1/chat/completions"; const tok = window.Account?.session?.access; return openaiCompat("site", url, tok ? { "X-User-Token": tok } : {}, "deepseek-flash", p, o, e); },
@@ -343,6 +347,16 @@ const AI = (() => {
     if (typeof syncBuild === "function") try { syncBuild(); } catch { }
   }
   const v = x => esc(x || "");
+  /* TeamoRouter: ключ sk-teamo-… узнаётся сам; в пустые поля подставляем адрес и модель */
+  const TEAMO_BASE = "https://api.teamorouter.com/v1", TEAMO_MODEL = "deepseek-flash";
+  function teamoPrefill(keyEl, baseEl, modelEl) {
+    if (!keyEl) return;
+    keyEl.addEventListener("input", () => {
+      if (!/^sk-teamo-/i.test(keyEl.value.trim())) return;
+      if (baseEl && !baseEl.value.trim()) baseEl.value = TEAMO_BASE;
+      if (modelEl && !modelEl.value.trim()) modelEl.value = TEAMO_MODEL;
+    });
+  }
   /* Окно для входа по промокоду: одна своя нейросеть — вставил ключ, и всё */
   function openLite() {
     const c = cfg(), cur = [...c.extra.map(x => x.id), ...ORDER].find(id => id !== "site" && id !== "yandexfn" && has(c, id));
@@ -354,6 +368,7 @@ const AI = (() => {
       <div class="row-btn" style="margin-top:10px"><button type="button" class="btn flame" id="lzGo">Подключить</button><button type="button" class="btn sm ghost" id="lzOR">Бесплатно: войти через OpenRouter</button></div>
       <p class="small" id="lzMsg" role="status"></p></div></div>`);
     const $m = q => m.querySelector(q);
+    teamoPrefill($m("#lzKey"), $m("#lzBase"));
     const only = () => { const n = cfg(); n.keys = { ...DEF.keys }; n.extra = []; n.custom = { ...DEF.custom }; n.prefer = "auto"; save(n); };
     $m("#lzGo").onclick = async () => {
       const key = $m("#lzKey").value.trim(), base = $m("#lzBase").value.trim(), msg = $m("#lzMsg"); if (!key) { msg.textContent = "Вставьте ключ."; return; }
@@ -376,7 +391,7 @@ const AI = (() => {
         <div class="field"><label for="aiPrefer">Предпочитаемая нейросеть</label><select id="aiPrefer"><option value="auto">Автоматически — первая доступная</option>${[...c.extra.map(x => x.id), ...ORDER].map(id => `<option value="${id}" ${c.prefer === id ? "selected" : ""}>${esc(P[id].name)}</option>`).join("")}</select></div>
         <button type="button" class="btn sm teal" id="aiTestAll">Проверить все подключённые</button><div id="aiTestBox" class="small"></div></div>
 
-      <div class="prov uni"><div class="prov-h"><b>Любая нейросеть по одному ключу</b> <span class="small">DeepSeek, OpenRouter, Qwen, Kimi, YandexGPT, GigaChat и другие, что работают из России</span></div>
+      <div class="prov uni"><div class="prov-h"><b>Любая нейросеть по одному ключу</b> <span class="small">DeepSeek, OpenRouter, TeamoRouter, Qwen, Kimi, YandexGPT, GigaChat и другие, что работают из России</span></div>
         <p class="hint">Вставьте ключ и нажмите «Подключить» — сайт сам узнает сервис, найдёт список моделей, выберет подходящую и проверит. Для другого сервиса укажите ещё его адрес (…/v1).</p>
         <div class="mat-row"><input type="text" class="secret" id="uniKey" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="ключ API" style="flex:1 1 260px"><input type="text" id="uniBase" spellcheck="false" placeholder="адрес (необязательно)" style="flex:1 1 220px"><button type="button" class="btn sm flame" id="uniGo">Подключить</button></div>
         <p class="small" id="uniSt"></p>
@@ -391,7 +406,13 @@ const AI = (() => {
         <input type="text" class="secret" id="kPL" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk_…" value="${v(c.keys.pollinations)}"><p class="hint">${esc(P.pollinations.limits)}. Без ключа Pollinations тексты больше не выдаёт.</p></div>
 
       <div class="prov"><div class="prov-h"><b>3. DeepSeek</b> <span class="small">свой ключ</span> ${row("deepseek")}</div><input type="text" class="secret" id="kDS" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk-…" value="${v(c.keys.deepseek)}"><p class="hint"><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">Получить ключ ↗</a> · ${esc(P.deepseek.limits)}</p></div>
-      <details class="prov"><summary><b>4. Свой сервис</b></summary>
+
+      <div class="prov"><div class="prov-h"><b>4. TeamoRouter</b> <span class="small">${esc(P.teamorouter.sub)}</span> ${row("teamorouter")}</div>
+        <input type="text" class="secret" id="kTR" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="sk-teamo-…" value="${v(c.keys.teamorouter)}">
+        <p class="hint">Адрес: <code>https://api.teamorouter.com/v1</code> · <a href="https://teamorouter.com" target="_blank" rel="noopener">Получить ключ ↗</a> · ${esc(P.teamorouter.limits)}. Модель: <input type="text" id="mTR" class="mini-inp" value="${v(c.models.teamorouter || "deepseek-flash")}" spellcheck="false"></p>
+        <details class="small"><summary>Модель для сложных заданий (необязательно)</summary><input type="text" id="mTRd" spellcheck="false" placeholder="например, gpt-5.6-sol" value="${v(c.models.teamorouterDeep || "")}" style="width:100%;margin-top:6px"></details></div>
+
+      <details class="prov"><summary><b>5. Свой сервис</b></summary>
         <label for="cuBase" class="small">Свой OpenAI-совместимый сервис: адрес (…/v1), ключ, модель</label><input type="text" id="cuBase" spellcheck="false" placeholder="https://api.example.com/v1" value="${v(c.custom.base)}"><input type="text" class="secret" id="cuKey" data-lpignore="true" data-1p-ignore="true" data-form-type="other" spellcheck="false" autocomplete="off" placeholder="ключ" value="${v(c.custom.key)}"><input type="text" id="cuModel" spellcheck="false" placeholder="модель" value="${v(c.custom.model)}"></details>
       <details class="prov"><summary><b>Прокси — крайняя мера</b> <span class="small">только вручную</span></summary>
         <p class="hint">Нужен, только если из сети школы зарубежные нейросети не открываются. Браузер не умеет ходить через системный прокси сам, поэтому здесь указывается сервер-посредник «Учу по ФРП» (файл proxy/proxy.js на любом своём сервере или в Яндекс Облаке).</p>
@@ -406,7 +427,9 @@ const AI = (() => {
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm teal" id="trQr">Показать QR-код</button><button type="button" class="btn sm ghost" id="trCopy">Скопировать ссылку</button></div><div id="trBox"></div></details>
     </form></div>`);
     const $m = s => m.querySelector(s);
-    const collect = () => { const n = cfg(); n.prefer = $m("#aiPrefer").value; n.keys = { ...n.keys, openrouter: $m("#kOR").value.trim(), pollinations: $m("#kPL").value.trim(), deepseek: $m("#kDS").value.trim(), gemini: "", gigachat: "", anthropic: "" }; n.models.openrouter = $m("#mOR").value.trim() || "openrouter/free"; n.yandexFn = ""; n.custom = { base: $m("#cuBase").value.trim(), key: $m("#cuKey").value.trim(), model: $m("#cuModel").value.trim() }; n.proxy = { on: $m("#pxOn").checked, url: $m("#pxUrl").value.trim(), port: $m("#pxPort").value.trim(), login: $m("#pxLogin").value.trim(), password: $m("#pxPass").value, split: $m("#pxSplit").checked }; return n; };
+    teamoPrefill($m("#uniKey"), $m("#uniBase"));
+    teamoPrefill($m("#cuKey"), $m("#cuBase"), $m("#cuModel"));
+    const collect = () => { const n = cfg(); n.prefer = $m("#aiPrefer").value; n.keys = { ...n.keys, openrouter: $m("#kOR").value.trim(), pollinations: $m("#kPL").value.trim(), deepseek: $m("#kDS").value.trim(), teamorouter: $m("#kTR").value.trim(), gemini: "", gigachat: "", anthropic: "" }; n.models.openrouter = $m("#mOR").value.trim() || "openrouter/free"; n.models.teamorouter = $m("#mTR").value.trim() || "deepseek-flash"; n.models.teamorouterDeep = $m("#mTRd").value.trim(); n.yandexFn = ""; n.custom = { base: $m("#cuBase").value.trim(), key: $m("#cuKey").value.trim(), model: $m("#cuModel").value.trim() }; n.proxy = { on: $m("#pxOn").checked, url: $m("#pxUrl").value.trim(), port: $m("#pxPort").value.trim(), login: $m("#pxLogin").value.trim(), password: $m("#pxPass").value, split: $m("#pxSplit").checked }; return n; };
     $m("#aiForm").onsubmit = e => { e.preventDefault(); save(collect()); closeModal(); toast(configured() ? "Сохранено. Очередь нейросетей: " + chain().map(id => P[id].name).join(" → ") + "." : "Сохранено. Чтобы включить нейросеть, войдите через OpenRouter или вставьте ключ."); };
     $m("#orLogin").onclick = () => { save(collect()); openrouterLogin(); };
     $m("#uniGo").onclick = async () => {

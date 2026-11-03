@@ -746,7 +746,7 @@ const QUESTIONS = `## Методика (главное требование к �
 const INTEGRITY = `## Честность материала
 - Не выдумывай цитаты: приводи фрагменты, только если уверен в точности; иначе не цитируй. Никаких пометок «проверить» и квадратных скобок в тексте не оставляй.
 - Даты, факты, названия — только достоверные. Не выдумывай URL, страницы учебников, статистику.
-- Раздел «Планируемые результаты» НЕ пиши: его подставит система дословно из ФРП. Поставь на его месте строку <!--RESULTS-->.
+- Раздел «Планируемые результаты» НЕ пиши: его подставит система дословно из ФРП. Поставь на его месте строку .
 - Держись ТОЛЬКО темы урока. Правила, примеры и термины из других тем (например, приставки пре-/при-, когда тема другая) в документ не вносить. Прежде чем написать правило, убедись, что оно относится именно к этой теме.
 - Словарная работа и поиск приёмов: толкуй только непонятные или значимые слова из читаемого текста. Числительные и даты («третьего сентября»), служебные и указательные слова, имена без реалий не толкуй и эпитетами не называй. Эпитет — только образное определение (светлая луна, а не «третьего сентября»).
 - Имена героев пиши настоящие, как в тексте (Тарас, Остап). Вместо имени не подставляй вопросительные слова «что», «кто» и слова-заглушки.
@@ -791,7 +791,7 @@ const GENERAL_PROMPT = `Ты — ведущий методист по русск
 • Понятия — только в контексте анализа: ученики находят явление в строках, сами называют, объясняют роль; определение записывают после обсуждения.
 • После КАЖДОГО вопроса — в столбце учеников *(Верный ответ ученика: …)*: полный правильный ответ, конкретный (слова из текста, пример); если ученики не ответили или ошиблись, учитель сам называет его и просит повторить. Ни одного вопроса без верного ответа. Без вариантов «если не ответили / если затрудняются» — один ясный ход урока.
 • Разные виды деятельности, дифференциация, рефлексия через проблемный вопрос.
-• Структура: тема, цель, задачи, оборудование, планируемые результаты (дословно из ФРП), таблица «Этап урока | Деятельность учителя (реплики, вопросы, ориентиры) | Деятельность учеников | УУД», домашнее задание двух уровней, источники.
+• Структура: тема, цель, задачи, оборудование, таблица «Этап урока | Деятельность учителя (реплики, вопросы, ориентиры) | Деятельность учеников | УУД», домашнее задание двух уровней, источники.
 • Не выдумывай цитаты, даты и факты; если не уверен — не приводи. Никаких пометок «проверить» в тексте не оставляй.
 
 Тема урока: …  Класс: …  Тип урока: …  Длительность: …`;
@@ -917,7 +917,7 @@ function subjectMethod(p) {
 const METHOD_RULES = `
 # Методические и содержательные требования (обязательно)
 1. Материал — только по теме урока и классу. Всё постороннее не включай.
-2. Опирайся на ФРП: цель, планируемые результаты (предметные, метапредметные, личностные), содержание и виды деятельности — из блока программы выше.
+2. Опирайся на ФРП: цель, содержание и виды деятельности — из блока программы выше. Планируемые результаты не выводи.
 3. Не выдумывай факты, даты, формулы и цитаты. Если данных не хватает — сформулируй задание по теме без конкретного факта.
 4. Не упоминай сайт, сервис, нейросеть, ИИ, себя, внешние ссылки и адреса. В презентации разрешены только ссылки-подсказки на словарь: [термин](#g "краткое значение") — для ключевых терминов слайда.
 5. Оформляй строго как в образце: заголовки # и ##, выделение **текст**, списки знаком «-», таблицы — если они есть в образце. Запрещены только ***, ___, обратные кавычки и декоративные символы.
@@ -1014,7 +1014,7 @@ ${exemplarRows(ru)}
 
 ---
 
-<!--RESULTS-->
+
 
 ---
 
@@ -1149,7 +1149,7 @@ ${wsStyleBlock(p)}
 
 ✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}
 
-<!--RESULTS-->
+
 
 (Сразу под маркером система сама вставит цель и короткий блок «Запомни». Ты их не пиши и не дублируй; теорию в лист не переписывай, только задания.)
 
@@ -1235,19 +1235,18 @@ function wsTheory(p) {
 }
 /* ---------- результаты ФРП: подставляет система, не ИИ ---------- */
 function injectResults(md, p, type, doc) {
-  const r = FRP.results(p.subject, p.grade, p.topic, type.id);
   if (doc === "worksheet") {
-    // формулировки ФРП в рабочий лист не выводим (они в техкарте); вместо них — цель для ученика и блок «Запомни»
+    const r = FRP.results(p.subject, p.grade, p.topic, type.id);
     const wg = window.Rules ? Rules.get("ws_goal") : "kids";
     const block = wg === "frp" && r.loaded && r.subject.length ? `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.` : wsHead(p);
     md = md.replace(/^> 🎯 ВАЖНО: на уроке я учусь \(по ФРП\):.*\n?/m, "");
     return md.includes("<!--RESULTS-->") ? md.replace("<!--RESULTS-->", block) : md;
   }
-  let out = md.replace(/\n## Планируемые результаты[\s\S]*?(?=\n## |\n---)/, "\n");
-  const block = Engine.resultsBlock(p, type);
-  if (out.includes("<!--RESULTS-->")) return out.replace("<!--RESULTS-->", block);
-  const i = out.search(/\n## План урока/);
-  return i >= 0 ? out.slice(0, i) + "\n" + block + "\n---\n" + out.slice(i) : out + "\n\n" + block;
+  /* конспект и остальные листы: без перечисления результатов ФРП и без справок внизу */
+  return String(md || "")
+    .replace(/\n## Планируемые результаты[\s\S]*?(?=\n## |\n---)/g, "\n")
+    .replace(/<!--RESULTS-->/g, "")
+    .replace(/\n{3,}/g, "\n\n");
 }
 
 /* ---------- ошибки ИИ ---------- */
@@ -1338,10 +1337,10 @@ async function createLesson() {
   state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
   if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
-  let useAi = true; // генерация без ИИ из интерфейса убрана; локальная сборка — только аварийный резерв
+  let useAi = true; // только ИИ; локальная сборка без ИИ из интерфейса убрана
   if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) {
-    if (!confirm("Нейросеть не подключена. Собрать урок черновиком без ИИ? Черновик можно доработать позже, когда нейросеть появится.")) { openAiSettings(); return; }
-    useAi = false;
+    toast("Нейросеть не подключена — урок с ИИ пока не собрать. Подключите ключ в настройках ИИ.", 7000);
+    openAiSettings(); return;
   }
   if (window.Access && !(await Access.canBuildAsync(useAi))) return;
   window.Usage?.begin("Сборка урока", state.topic); // тариф, промокод, бесплатный лимит (сервер)
@@ -1749,7 +1748,7 @@ async function buildWithAi(L, p, type, formats) {
         autoTheme(L, p);
         const r = await Deck.build(cmd, p, type, { ai: true, signal: state.gen.ctl.signal });
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
-        L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => r.md);
+        L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => r.md);
         if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
         if (window.QuizLink) L.docs.slides = await QuizLink.addToDeck(L.docs.slides, p).catch(() => L.docs.slides); // 📱 QR-код на интерактив в конце
         L.status.slides = "ok";
@@ -1782,15 +1781,21 @@ async function buildWithAi(L, p, type, formats) {
         const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
       }
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
-      else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md).catch(() => md); }
+      else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md, null, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => md); }
       L.docs[f] = md; L.status[f] = "ok";
       if (!finished(f, raw)) toast("Документ получился длинным: проверьте окончание. Если оно оборвано, попросите ИИ: «допиши окончание».", 7000);
     } catch (e) {
       if (e?.text) L.docs[f] = cleanMd(e.text);
       L.status[f] = "err";
-      // техкарта — основа для конспекта и презентации: если нейросеть не ответила, собираем её без ИИ, чтобы урок доделался
-      if (f === "conspect" && e?.code !== "cancelled" && (!L.docs.conspect || L.docs.conspect.length < 1500)) { L.docs.conspect = buildDocNoAi("conspect", L, p, type); L.status.conspect = "ok"; toast("Нейросеть не успела ответить — техкарта собрана без ИИ, остальное доделываю.", 7000); }
+      /* пробный доступ и обычные пользователи: никакой сборки без ИИ — честно сообщаем и оставляем попытку */
+      const allowNoAi = !(window.Access && Access.level() === "free");
       if (e?.code === "cancelled") { formats.forEach(x => { if (L.status[x] === "wait") L.status[x] = "err"; }); state.gen = null; break; }
+      if (!allowNoAi) {
+        toast(sampleErr(e) + " Попробуйте ещё раз — или проверьте подключение ИИ.", 8000);
+        state.gen = null; break;
+      }
+      // техкарта — основа для конспекта и презентации: если нейросеть не ответила, собираем её без ИИ, чтобы урок доделался
+      if (f === "conspect" && (!L.docs.conspect || L.docs.conspect.length < 1500)) { L.docs.conspect = buildDocNoAi("conspect", L, p, type); L.status.conspect = "ok"; toast("Нейросеть не успела ответить — техкарта собрана без ИИ, остальное доделываю.", 7000); }
       // любой другой сбой (таймаут, ответ сервера, обрыв): лист не остаётся пустым — собираем его без нейросети
       if (f !== "conspect" && (!L.docs[f] || String(L.docs[f]).length < 400)) { try { L.docs[f] = buildDocNoAi(f, L, p, type); L.status[f] = "ok"; toast(`Нейросеть не ответила — «${DOCS[f]?.label || f}» собран без неё.`, 7000); state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); continue; } catch (e2) { console.warn("fallback", e2); } }
       toast(sampleErr(e), 6000);
@@ -1840,6 +1845,8 @@ function webBlock(web) {
   return md.trim() === "## Из открытых источников" ? "" : md;
 }
 function applyWeb(md, f, web) {
+  /* конспект: без блока «Из открытых источников» внизу — лишние справки не нужны */
+  if (f === "conspect") return String(md || "").replace("<!--WEB-->", "").replace("<!--TEXT-->", "").replace("<!--WEB-PENDING-->", "").replace("<!--TEXT-PENDING-->", "");
   if (!web) return navigator.onLine === false ? md.replace("<!--WEB-->", "<!--WEB-PENDING-->").replace("<!--TEXT-->", "<!--TEXT-PENDING-->") : md.replace("<!--WEB-->", "").replace("<!--TEXT-->", "");
   if (f === "conspect") {
     const block = webBlock(web);
@@ -2189,14 +2196,7 @@ function renderEmpty() {
     <li><span class="num">1</span><b>Тема и номер урока</b><span>Введите тему или выберите её стрелкой из списка. Тип урока определится сам.</span></li>
     <li><span class="num">2</span><b>«Создать урок»</b><span>Нейросеть соберёт урок по вашим пожеланиям и ФРП: конспект, презентацию, рабочий лист.</span></li>
     <li><span class="num">3</span><b>Правка и выгрузка</b><span>Правьте прямо на листе, скачивайте Word, PowerPoint, PDF.</span></li>
-  </ol>
-  <div id="emptySamples"></div></div>`;
-  // готовые образцы — только новичку, у кого ещё нет своих уроков
-  listLessons().then(ls => {
-    const box = $("#emptySamples"); if (!box || ls.length) return;
-    box.innerHTML = `<p style="font-weight:700;margin:0 0 10px">Или откройте готовый образец:</p><div class="ex">${SAMPLES.map(s => `<button class="btn sm ghost" data-sample="${s.id}">${esc(s.title)} · ${s.params.grade} кл.</button>`).join("")}</div>`;
-    $$("[data-sample]", box).forEach(b => b.onclick = () => openSample(b.dataset.sample));
-  }).catch(() => { });
+  </ol></div>`;
 }
 let markedReady = null;
 function ensureMarked() { return markedReady || (markedReady = Promise.all([loadScript("marked"), loadScript("purify")]).then(() => window.marked.setOptions({ gfm: true, breaks: true }))); }
@@ -2429,17 +2429,17 @@ let libCache = [];
 async function renderLibrary() {
   libCache = await listLessons();
   $("#libCards").innerHTML = libCache.length ? libCache.map(L => lessonCard(L)).join("") : `<div class="lcard"><h3>Пока пусто</h3><p class="small" style="margin:0">Первый созданный урок появится здесь сам.</p><div class="acts"><button class="btn sm" data-go="builder">К конструктору</button></div></div>`;
-  // образцы — только пока своих уроков нет
-  $("#sampleCards").innerHTML = libCache.length ? "" : SAMPLES.map(s => lessonCard(s, true)).join("");
-  $("#sampleCards").previousElementSibling.hidden = !!libCache.length;
-  $$("[data-open]").forEach(b => b.onclick = () => { const id = b.dataset.open; if (SAMPLES.some(x => x.id === id)) openSample(id); else { const L = libCache.find(x => x.id === id); if (L) openLesson({ ...L, status: {} }); } });
+  // готовые образцы убраны
+  $("#sampleCards").innerHTML = "";
+  $("#sampleCards").previousElementSibling.hidden = true;
+  $$("[data-open]").forEach(b => b.onclick = () => { const id = b.dataset.open; const L = libCache.find(x => x.id === id); if (L) openLesson({ ...L, status: {} }); });
   $$("[data-delete]").forEach(b => b.onclick = async () => { if (b.dataset.sure) { await Store.del("lessons", b.dataset.delete); if (window.Account) Account.remove(b.dataset.delete); renderLibrary(); } else { b.dataset.sure = 1; b.textContent = "Точно удалить?"; } });
   $$("[data-zip]").forEach(b => b.onclick = async () => { const L = libCache.find(x => x.id === b.dataset.zip); if (!L) return; b.disabled = true; try { await exportZip(L); } catch (e) { toast("Не удалось собрать архив: " + (e.message || e)); } finally { b.disabled = false; } });
   $$("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
   $("#libExport").onclick = async () => { const ls = await listLessons(); await saveFile(`uchu-po-frp_uroki_${new Date().toISOString().slice(0, 10)}.json`, new Blob([JSON.stringify({ app: "uchu-po-frp-lessons", version: 1, lessons: ls })], { type: "application/json" })); };
   $("#libImport").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; try { const j = JSON.parse(await f.text()); if (j.app !== "uchu-po-frp-lessons") throw new Error("это не файл уроков сайта"); const have = new Map((await listLessons()).map(L => [L.id, L])); let n = 0; for (const L of j.lessons || []) { const o = have.get(L.id); if (!o || String(o.updatedAt) < String(L.updatedAt)) { await Store.put("lessons", L.id, L); n++; } } toast(`Загружено уроков: ${n}.`); if (window.Account) Account.push(true); renderLibrary(); } catch (er) { toast("Не получилось: " + (er.message || er)); } };
 }
-function openSample(id) { const s = SAMPLES.find(x => x.id === id); if (!s) return; openLesson({ ...JSON.parse(JSON.stringify(s)), status: {}, sample: true }, "conspect"); revealWorkspace(); }
+function openSample() { toast("Готовые образцы убраны: соберите урок с ИИ по своей теме.", 5000); }
 
 /* ===================================================================
    НАВИГАЦИЯ со стрелкой «назад»
