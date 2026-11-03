@@ -1842,6 +1842,39 @@ function rememberVerbatim(L, p) {
   if (p.plan?.kit) L.planFull = { ...(L.planFull || {}), analysis: { ...(L.planFull?.analysis || {}), verse: !!A?.verse, heroes: A?.heroes || [] }, textSource: p.plan.textSource || null, kit: p.plan.kit };
 }
 /* v5: план урока (текст произведения, анализ, образцовый урок, необычный формат) — до сборки листов */
+/* Отрывки для урока выбирает нейросеть: 3–5 смысловых эпизодов (под тему и вопрос урока), с начала предложения;
+   границы ищем в тексте дословно – если цитата не нашлась, остаются отрывки, выбранные сайтом. */
+async function aiFragments(p) {
+  const full = String(p.plan.text || ""); if (full.length < 1500) return null;
+  const nrm = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]+/g, " ").trim();
+  const text = full.length > 24000 ? full.slice(0, 24000) : full;
+  const prompt = `Ты – учитель литературы. Урок: «${p.topic}», ${p.grade} класс.${p.plan.kit?.problem ? ` Вопрос урока: «${p.plan.kit.problem}».` : ""}${p.wishes ? ` Пожелания учителя: ${p.wishes}.` : ""}
+Ниже текст произведения (возможно, с остатками разметки сайта – их не бери). Выбери 3–5 отрывков, с которыми класс будет работать на уроке: ключевые для смысла эпизоды (завязка, характеристика героя через поступок, перелом, кульминация, финал – то, что нужно для этой темы), а не случайные места. Каждый отрывок – 4–15 предложений, начинается с начала предложения и заканчивается концом предложения; отрывки идут в порядке текста.
+Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","start":"первые 6–10 слов отрывка ДОСЛОВНО","end":"последние 6–10 слов отрывка ДОСЛОВНО"}]
+ТЕКСТ:
+${text}`;
+  const r = await caps.sample(prompt, { modelTier: state.deep ? "complex" : "default", cache: true });
+  const arr = JSON.parse((String(r.text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
+  if (!Array.isArray(arr) || arr.length < 2) return null;
+  // поиск дословной границы: по нормализованному тексту, с картой позиций в исходный
+  const map = [], chars = []; for (let i = 0; i < full.length; i++) { const c = full[i].toLowerCase().replace("ё", "е"); if (/[а-яa-z0-9]/.test(c)) { chars.push(c); map.push(i); } else if (chars.length && chars[chars.length - 1] !== " ") { chars.push(" "); map.push(i); } }
+  const flat = chars.join("");
+  const find = (q, from) => { const k = flat.indexOf(nrm(q), from); return k < 0 ? -1 : k; };
+  const out = []; let pos = 0;
+  for (const x of arr.slice(0, 6)) {
+    const a = find(x.start, 0); if (a < 0) continue;
+    const eq = nrm(x.end), b0 = flat.indexOf(eq, a); if (b0 < 0) continue;
+    let s0 = map[a], e0 = map[Math.min(map.length - 1, b0 + eq.length - 1)] + 1;
+    while (e0 < full.length && /[.!?…»"”)\s]/.test(full[e0]) && !/\n/.test(full[e0])) e0++;
+    const t = full.slice(s0, e0).trim(); if (t.length < 120 || t.length > 6000) continue;
+    out.push({ label: String(x.label || "Эпизод").slice(0, 60), why: String(x.why || ""), text: t, a: s0 });
+    pos = e0;
+  }
+  if (out.length < 2) return null;
+  out.sort((x, y) => x.a - y.a);
+  const lineNo = i => full.slice(0, i).split("\n").filter(l => l.trim()).length + 1;
+  return out.map((f, i) => ({ n: i + 1, label: f.label, why: f.why, from: lineNo(f.a), to: lineNo(f.a) + f.text.split("\n").filter(l => l.trim()).length - 1, text: f.text }));
+}
 async function preparePlan(L, p, type) {
   if (!window.Variety) return null;
   const pre = pendingPlan && pendingPlan.key === planKey(p) && !p.textOverride ? pendingPlan.plan : null; pendingPlan = null;
@@ -1859,6 +1892,11 @@ ${txt ? `Текст:\n${txt}\n` : ""}Кандидаты, найденные са
       const okQuotes = (j.quotes || []).every(q => !txt || txt.replace(/\s+/g, " ").includes(String(q).replace(/[«»]/g, "").replace(/\s+/g, " ").slice(0, 25)));
       if (j.problem && j.problem.length < 260 && okQuotes) { K.problem = j.problem.trim(); K.problemSrc = "нейросеть: смысловой конфликт в тексте"; K.problemNote = [j.conflict, (j.quotes || []).length ? "Опорные строки: " + j.quotes.map(q => `«${q}»`).join(", ") : ""].filter(Boolean).join(" "); }
     } catch (e) { console.warn("AI problem", e); }
+  }
+  // нейросеть выбирает отрывки СО СМЫСЛОМ: ключевые эпизоды для вопроса урока, а не что попало подряд
+  if (p.plan?.kit && p.plan.text && L.built === "ai" && p.subject === "lit" && (window.AI ? AI.configured() : false)) {
+    try { const fr = await aiFragments(p); if (fr) { const K = p.plan.kit, W = LitKit.workOf(p.topic); K.fragments = fr; K.qa = fr.map(f => ({ n: f.n, items: LitKit.fragmentQA(f, p, W) })); K.glossary = LitKit.glossaryFor(fr.map(f => f.text)); K.fragSrc = "нейросеть: отрывки по смыслу урока"; } }
+    catch (e) { if (e?.code === "cancelled") throw e; console.warn("AI fragments", e); }
   }
   if (p.plan) L.plan = { format: p.plan.format, structureNote: p.plan.structureNote, textSource: p.plan.textSource, textUrl: p.plan.textUrl, sample: p.plan.sample ? { topic: p.plan.sample.topic, src: p.plan.sample.src, num: p.plan.sample.num } : null };
   return p.plan;

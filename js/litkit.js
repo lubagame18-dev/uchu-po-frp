@@ -357,6 +357,32 @@ const LitKit = (() => {
     return out;
   }
 
+
+  /* ---------- 0. Очистка текста произведения, скопированного с сайта ----------
+     Убираем всё, что не текст автора: адреса и ссылки, названия сайтов и рубрик («100 лучших книг…»), рекламу,
+     меню и кнопки («Читать далее», «Скачать», «Комментарии»), счётчики, копирайты, повторяющиеся колонтитулы.
+     Заголовки глав («Глава I», «I», «ГЛАВА ПЕРВАЯ») сохраняем. */
+  function cleanWork(text) {
+    let ls = String(text || "").replace(/\r\n?/g, "\n").replace(/[   ]/g, " ").split("\n");
+    const JUNK = /(https?:\/\/|www\.|\.(ru|com|org|net|рф|su|info)\b|^\s*©|все права защищены|лучших (книг|произведений)|\d+ лучших|топ[- ]?\d+|читать (далее|онлайн|полностью)|скачать (книгу|бесплатно|в формате)|реклам|подпишит|подписаться|cookie|javascript|библиотек[аи] онлайн|электронн[а-я]* библиотек)/i;
+    // «служебные» слова сайта – только в коротких строках без знаков конца предложения (меню, кнопки, счётчики)
+    const WEAK = /(купить|цена|₽|отзыв|оцените|рейтинг|поделиться|в избранное|войти|регистрац|меню|главная|навигац|предыдущая|следующая|оглавлени|содержание|загрузка|просмотр|коммент|теги|категори|источник|опубликован|автор:|жанр:|год издания)/i;
+    const CHAPTER = /^\s*((глава|часть|книга|действие|явление)\s+[\dIVXLCА-ЯЁа-яё]+|[IVXLC]{1,6}\.?|\d{1,3}\.?)\s*$/i;
+    // повторяющиеся строки (колонтитулы, шапки страниц)
+    const cnt = new Map(); for (const l of ls) { const k = l.trim().toLowerCase(); if (k.length > 3 && k.length < 80) cnt.set(k, (cnt.get(k) || 0) + 1); }
+    ls = ls.filter(l => {
+      const t = l.trim(); if (!t) return true;
+      if (CHAPTER.test(t)) return true;
+      if (JUNK.test(t) && t.length < 200) return false;
+      if (WEAK.test(t) && t.length < 50 && !/[.!?…»"]$/.test(t)) return false;
+      if ((cnt.get(t.toLowerCase()) || 0) >= 3 && t.length < 80) return false;
+      if (/^[\s|•·*–—\-=_#>]+$/.test(t)) return false;
+      return true;
+    });
+    // внутри строк: хвосты-ссылки и пометки сайтов
+    let out = ls.join("\n").replace(/\s*(https?:\/\/\S+|www\.\S+)/gi, "").replace(/\[\d+\]/g, "").replace(/\n{3,}/g, "\n\n").trim();
+    return out;
+  }
   /* ---------- 7. Всё вместе ---------- */
   function build(p, plan) {
     const text = plan?.text; const A = plan?.analysis;
@@ -406,6 +432,6 @@ const LitKit = (() => {
     }
     return out;
   }
-  return { build, workOf, WORKS, fragments, fragmentQA, glossaryFor, termsFor, problemOf, conclusions, markup, TERMS, GLOSS };
+  return { cleanWork, build, workOf, WORKS, fragments, fragmentQA, glossaryFor, termsFor, problemOf, conclusions, markup, TERMS, GLOSS };
 })();
 window.LitKit = LitKit;
