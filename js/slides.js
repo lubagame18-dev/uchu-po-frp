@@ -1062,7 +1062,7 @@ const SlideEditor = (() => {
       const blob = await Media.toBlob(r.url);
       if (blob && onPick) { await onPick(blob, r); return; }
       if (blob) { await insertBlob(blob, r.cap || r.title); }
-      else { const a = slides(); a[cur].body = (a[cur].body + `\n\n${Media.mdImage(r.title || a[cur].title, r.url, { q })}`).trim(); write(a); rerender(); toast("Картинка вставлена ссылкой: сохранить её копию не удалось, в PowerPoint она может не попасть."); }
+      else { await insertBlob(null, r.cap || r.title, r.url); toast("Картинка вставлена ссылкой: сохранить её копию не удалось, в PowerPoint она может не попасть."); }
     });
   }
   /* Создать изображение ИИ: пожелания учителя + тема слайда; картинка встаёт на слайд так же, как найденная в Яндексе */
@@ -1084,14 +1084,14 @@ const SlideEditor = (() => {
     };
   }
   /* Щелчок по картинке Яндекса: как в Gamma — если у слайда уже есть картинка-акцент, она заменяется; если нет — встаёт акцентом справа (или по шаблону) */
-  async function insertBlob(blob, cap) {
-    const id = "img-" + uid(); await Store.put("images", id, blob);
+  async function insertBlob(blob, cap, url) {
+    let src = url || ""; if (blob) { const id = "img-" + uid(); await Store.put("images", id, blob); src = `idb:${id}`; }
     const a = slides(), sl = a[cur], c = String(cap || sl.title).replace(/[\[\]()]/g, "").slice(0, 80);
     const lay = autoLayout(sl, cur);
     const hasAcc = sl.set.acc && new RegExp(Media.RE.source).test(sl.body);
-    if (hasAcc) { let k = -1; sl.body = sl.body.replace(Media.RE, (m, cp, src, opt) => ++k === 0 ? Media.mdImage(c, `idb:${id}`, { q: Media.parseOpts(opt).q }) : m); toast("Картинка заменена. Щёлкните по ней, чтобы обрезать, убрать фон или переставить."); }
-    else if (["gallery", "image"].includes(lay) || sl.set.free) { sl.body = (sl.body + `\n\n![${c}](idb:${id})`).trim(); toast("Картинка вставлена."); }
-    else { sl.body = `![${c}](idb:${id})\n\n${sl.body}`.trim(); sl.set.acc = sl.set.acc || (lay === "title" ? "right" : sl.set.vb ? "top" : "right"); toast("Картинка вставлена справа. Положение можно поменять: «Картинка» на панели или щелчок по картинке."); }
+    if (hasAcc) { let k = -1; sl.body = sl.body.replace(Media.RE, (m, cp, src0, opt) => ++k === 0 ? Media.mdImage(c, src, { q: Media.parseOpts(opt).q }) : m); toast("Картинка заменена. Щёлкните по ней, чтобы обрезать, убрать фон или переставить."); }
+    else if (["gallery", "image"].includes(lay) || sl.set.free) { sl.body = (sl.body + `\n\n![${c}](${src})`).trim(); toast("Картинка вставлена."); }
+    else { sl.body = `![${c}](${src})\n\n${sl.body}`.trim(); sl.set.acc = sl.set.acc || (lay === "title" ? "right" : sl.set.vb ? "top" : "right"); toast("Картинка вставлена справа. Положение можно поменять: «Картинка» на панели или щелчок по картинке."); }
     sl.set.afs = undefined;
     write(a); rerender();
   }

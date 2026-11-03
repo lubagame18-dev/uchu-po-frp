@@ -1583,7 +1583,7 @@ function deckCardsExtras(cards, p) {
     }
   } catch (e) { console.warn("deck extras answers", e); }
   // картинки-акценты: почти на каждом слайде, кроме дословных блоков
-  const NOIMG = new Set(["quote", "poem", "task", "rule", "fragment", "board", "image", "art", "video", "section", "hw", "title", "appendix"]);
+  const NOIMG = new Set(["quote", "poem", "task", "rule", "fragment", "board", "image", "art", "video", "section", "hw", "title", "appendix", "goal"]); // «Тема и цель» без картинки – текст наезжал
   try {
     for (const c of out) {
       if (c.img || c.on === false || NOIMG.has(c.kind)) continue;
@@ -1593,7 +1593,7 @@ function deckCardsExtras(cards, p) {
       if (!["lit", "hist", "geo", "bio", "mhk", "izo", "mus", "okr"].includes(p.subject) && c.kind !== "title") continue;
       const work = (String(p.topic).match(/«([^»]+)»/) || [])[1], au = window.Engine?.authorOf ? Engine.authorOf(p.topic) : "";
       // литература: картинка – иллюстрация художника к произведению (с фамилией автора, чтобы «Бульба» не стала картофелем)
-      if (p.subject === "lit" && work) c.img = `${work}${au ? " " + au.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация художник`;
+      if (p.subject === "lit" && work) c.img = `${au ? au.split(/\s|\./).filter(Boolean).pop() + " " : ""}${work} иллюстрация картина художника`;
       else c.img = t && t.length <= 48 && !GENERIC.test(t) ? `${p.topic} ${t}` : p.topic;
       c.cap = c.cap || t || p.topic;
     }

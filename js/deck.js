@@ -188,7 +188,7 @@ const Deck = (() => {
     const first = +p.lessonNo === 1;
     const wikiYears = (() => { const m = String(c.wiki || "").match(/\(([^)]*?\d{4}[^)]*?\d{4}[^)]*?)\)/); if (!m) return ""; const ys = m[1].match(/\d{4}/g); return ys && ys.length >= 2 ? `${ys[0]}–${ys[ys.length - 1]}` : ""; })();
     const wikiWho = (() => { const w = String(c.wiki || "").match(/\)\s*[—–-]\s*([^.;]{8,120})/); return w ? capF(w[1].trim()) : ""; })();
-    add({ kind: "title", title: work ? `«${work}»` : (c.title || p.topic), points: [author || "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${work || p.topic} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация` : "", acc: "right" });
+    add({ kind: "title", title: work ? `«${work}»` : (c.title || p.topic), points: [author || "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${author ? author.split(/\s|\./).filter(Boolean).pop() + " " : ""}${work || p.topic} иллюстрация картина художника` : "", acc: "right" });
     // 1. Биография автора — первый слайд урока (портрет + годы + 2–3 вопроса)
     if (first && author) add({ kind: "author", title: author, points: [wikiYears, wikiWho].filter(Boolean), qs: ["Что в судьбе автора помогает понять произведение?", "Какие события жизни и эпохи отразились в его творчестве?", "Что удивило вас в биографии писателя?"], img: imgOn ? `commons:${author} портрет` : "", acc: "left", notes: `Биография: ${clip(c.wiki || "", 500) || "по учебнику"}. Вопросы — короткое обсуждение до чтения (2–3 минуты).` });
     // 1а. Из биографии: только то, что помогает понять это произведение (без «автора в разные годы» и случайных фото)
@@ -368,8 +368,8 @@ const Deck = (() => {
     const base = lit ? (work || author || p.topic) : core;
     /* где картинка уместна: тезисы, списки, цель, вывод. Схемы, алгоритмы, запоминалки, викторины,
        «план/маршрут» и приложения — рисуем текстом, без случайных фото. */
-    const ON_ALL = new Set(["cards", "list", "big", "steps", "goal", "concl"]);
-    const ON_KEY = new Set(["cards", "list", "big", "steps", "goal"]);
+    const ON_ALL = new Set(["cards", "list", "big", "steps", "concl"]); // «Тема и цель» – без картинки: текст наезжал на неё
+    const ON_KEY = new Set(["cards", "list", "big", "steps"]);
     let side = 0;
     for (const card of cards) {
       if (card.kind === "image" || card.kind === "art" || VERBATIM.has(card.kind)) continue;
@@ -382,7 +382,11 @@ const Deck = (() => {
       if ((card.points || []).map(String).some(x => x.length > 150)) continue;
       const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
       const GEN = /^(практика|упражнени|закреплени|самостоятельн|рефлекси|подвед|вывод|проверь|план|цель|повторени|итог|домашн|разминк|запомни|задани|ответ|схем|алгоритм|понят|пример|главное|словарь|лента времени|найди ошибку|как это объяснить|вопрос урока|причины и последствия|какие вопрос|проблемн)/i;
-      const qImg = (lit ? `${work || p.topic} ${sur} иллюстрация художник` : `${card.kind === "big" || GEN.test(String(card.title || "")) ? "" : (card.title || "") + " "}${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
+      // литература: автор → произведение → иллюстрация → конкретика со слайда (герой или эпизод), а не название слайда
+      const heroes = (p.plan?.kit?.heroes || p.plan?.analysis?.heroes || []).map(h => typeof h === "string" ? h : h?.name).filter(Boolean);
+      const ctext = [card.title, card.lead, ...(card.points || [])].map(String).join(" ");
+      const spec = lit ? (heroes.find(h => ctext.includes(String(h).split(/\s+/)[0])) || (card.fn && /^(Фрагмент|Часть)/.test(String(card.title || "")) ? String(card.title).replace(/^(Фрагмент|Часть)\s*\d+\.?\s*/, "").replace(/^«|…?»$/g, "") : "")) : "";
+      const qImg = (lit ? `${sur} ${work || p.topic} иллюстрация картина художника ${spec}` : `${card.kind === "big" || GEN.test(String(card.title || "")) ? "" : (card.title || "") + " "}${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
       /* Литература, МХК, ИЗО, музыка: берём только проверенную живопись/иллюстрацию (commons:),
          а не случайное фото. Нет подходящей картины/иллюстрации — слайд остаётся без картинки. */
       card.img = ["lit", "mhk", "izo", "mus"].includes(p.subject) ? `commons:${qImg}` : qImg;
