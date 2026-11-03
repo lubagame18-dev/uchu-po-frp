@@ -15,7 +15,7 @@ const Publish = (() => {
   /* Владелец и имя репозитория по адресу сайта: <логин>.github.io/<репозиторий>/ */
   function detect() {
     const m = location.hostname.match(/^([\w-]+)\.github\.io$/i);
-    if (!m) return { owner: "", repo: "" };
+    if (!m) return { owner: "lubagame18-dev", repo: "uchu-po-frp" }; // свой домен (Cloudflare): репозиторий сайта по умолчанию
     const seg = location.pathname.split("/").filter(Boolean)[0];
     return { owner: m[1], repo: seg && !/\.html?$/.test(seg) ? decodeURIComponent(seg) : `${m[1]}.github.io` };
   }
