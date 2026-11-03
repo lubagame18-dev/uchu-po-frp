@@ -381,7 +381,8 @@ const Deck = (() => {
       if (!(mode === "all" ? ON_ALL.has(card.kind) : ON_KEY.has(card.kind))) continue;
       if ((card.points || []).map(String).some(x => x.length > 150)) continue;
       const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
-      const qImg = (lit ? `${work || p.topic} ${sur} иллюстрация художник` : `${card.kind === "big" ? "" : (card.title || "") + " "}${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
+      const GEN = /^(практика|упражнени|закреплени|самостоятельн|рефлекси|подвед|вывод|проверь|план|цель|повторени|итог|домашн|разминк|запомни|задани|ответ|схем|алгоритм|понят|пример|главное|словарь|лента времени|найди ошибку|как это объяснить|вопрос урока|причины и последствия|какие вопрос|проблемн)/i;
+      const qImg = (lit ? `${work || p.topic} ${sur} иллюстрация художник` : `${card.kind === "big" || GEN.test(String(card.title || "")) ? "" : (card.title || "") + " "}${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
       /* Литература, МХК, ИЗО, музыка: берём только проверенную живопись/иллюстрацию (commons:),
          а не случайное фото. Нет подходящей картины/иллюстрации — слайд остаётся без картинки. */
       card.img = ["lit", "mhk", "izo", "mus"].includes(p.subject) ? `commons:${qImg}` : qImg;
@@ -536,14 +537,22 @@ const Deck = (() => {
     // условные обозначения — текстом (слайд должен работать и в Word, и в PowerPoint)
     if (window.Conv && !cards.some(c => c.title === "Условные обозначения")) { const lp = Conv.legendPoints(p, 8, { plain: true }); if (lp.length >= 3) at(g >= 0 ? g + 2 : 2, { kind: "list", title: "Условные обозначения", points: lp, notes: "Покажите знаки один раз и договоритесь: дальше в слайдах, листе и памятке они означают одно и то же." }); }
     // «Схема-опора» — перед запоминалками и проверкой (русский, литература, другие предметы)
+    /* опора (схема, «Запомни», примеры) – сразу после объяснения нового, а не после рефлексии */
+    const ruleSpot = () => {
+      let last = -1; cards.forEach((c, i) => { if (/главное по теме|формул|опорн|понятия урока|правило|открываем|изучени[ея] нового|план изучения|работаем с источником|историческ[а-я]* справк|работаем с картой/i.test(String(c.title || ""))) last = i; });
+      if (last >= 0) return last + 1;
+      const r = cards.findIndex(c => /рефлекс|подвед|итог урока|домашн/i.test(String(c.title || "")) || ["concl", "hw"].includes(c.kind));
+      return r >= 0 ? r : beforeEnd();
+    };
     if (!cards.some(c => c.kind === "scheme")) {
       const sc = schemeCard(RK?.scheme || (window.Schemes ? Schemes.find(p.subject, p.topic) : null));
-      if (sc) { const i0 = cards.findIndex(c => ["mnemo", "check"].includes(c.kind)); at(i0 >= 0 ? i0 : beforeEnd(), sc); }
+      if (sc) { const i0 = cards.findIndex(c => ["mnemo", "check"].includes(c.kind)); at(i0 >= 0 ? i0 : (lit ? beforeEnd() : ruleSpot()), sc); }
     }
-    // «Запомни», «Схема», таблица примеров и «Проверь себя» из банка Mnemo — к концу урока
+    // «Запомни», «Схема», таблица примеров и «Проверь себя» из банка Mnemo – после объяснения (литература – к концу урока)
     if (MN && !cards.some(c => c.kind === "mnemo")) {
-      const before = beforeEnd();
-      Mnemo.cards(MN, plainMd).forEach((c, k) => {
+      const before = lit ? beforeEnd() : ruleSpot();
+      const hasCheck = cards.some(c => c.kind === "check" || /^проверь себя/i.test(String(c.title || "")));
+      Mnemo.cards(MN, plainMd).filter(c => !(hasCheck && (c.kind === "check" || /^проверь себя/i.test(String(c.title || ""))))).forEach((c, k) => {
         let cc = (c.kind === "scheme" && cards.some(x => x.kind === "scheme")) ? { ...c, kind: "list", title: "Порядок действий по правилу" } : c;
         if (lit) cc = { ...cc, title: cc.title === "Порядок действий по правилу" ? "Порядок анализа" : cc.title === "Примеры: как применяем правило" ? "Примеры из текста" : cc.title }; // на литературе нет «правила»
         at(before + k, cc);
