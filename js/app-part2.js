@@ -1258,8 +1258,14 @@ function normalizeTechmap(md, p) {
     }
     if (!tab) return md;
     const H = tab.header.map(c => String(c.text || "").toLowerCase());
-    const col = re => { const i = H.findIndex(x => re.test(x)); return i < 0 ? 0 : i; };
-    const cStage = col(/этап/), cT = col(/учител/), cS = col(/ученик/), cU = col(/ууд|результат|предмет|метапред|личност/), cM = col(/материал|средств|оборуд/);
+    const idx = re => H.findIndex(x => re.test(x));
+    let cStage = idx(/этап|блок/); if (cStage < 0) cStage = 0;
+    let cT = idx(/учител|педагог/), cS = idx(/учащ|ученик/);
+    /* если заголовки нестандартные — берём позиции стандартной пятиколоночной таблицы */
+    if (cT < 0 || cS < 0) { if (H.length >= 3) { cT = cT < 0 ? 1 : cT; cS = cS < 0 ? 2 : cS; } else return md; }
+    let cU = idx(/ууд|результат|задани/); if (cU < 0 && H.length >= 4) cU = 3;
+    const cM = idx(/материал|средств|оборуд/);
+    if (cT === cS) return md;
     const txt = src;
     const grab = (re, n = 700) => { const m = txt.match(re); return m ? String(m[1] || "").replace(/\s+/g, " ").trim().slice(0, n) : ""; };
     const clean = s => String(s || "").replace(/\|/g, "/").replace(/\s+/g, " ").trim();
