@@ -1,6 +1,8 @@
 name = "uchu-po-frp"
 compatibility_date = "2026-10-01"
+main = "_worker.js"
 
 [assets]
 directory = "./"
+binding = "ASSETS"
 html_handling = "none"
