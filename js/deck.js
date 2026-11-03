@@ -359,7 +359,7 @@ const Deck = (() => {
   function fillImages(cards, p, o) {
     /* Картинки — только там, где они действительно уместны (литература, история, МХК, ИЗО, музыка, карты).
        Для остальных предметов слайды идут без изображений: лучше чисто, чем случайное фото. */
-    if (!["lit", "hist", "mhk", "izo", "mus", "geo"].includes(p.subject)) { for (const c of cards) { if (c.img) { c.img = ""; c.acc = undefined; } } return cards; }
+    if (!["lit", "hist", "mhk", "izo", "mus", "geo", "bio", "soc", "eng", "math", "phys", "chem", "inf"].includes(p.subject)) { for (const c of cards) { if (c.img) { c.img = ""; c.acc = undefined; } } return cards; }
     const mode = (o && o.images) || "all";
     const lit = p.subject === "lit";
     const work = (p.topic.match(/«([^»]+)»/) || [])[1] || "";
@@ -389,7 +389,7 @@ const Deck = (() => {
       const qImg = (lit ? `${sur} ${work || p.topic} иллюстрация картина художника ${spec}` : `${card.kind === "big" || GEN.test(String(card.title || "")) ? "" : (card.title || "") + " "}${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
       /* Литература, МХК, ИЗО, музыка: берём только проверенную живопись/иллюстрацию (commons:),
          а не случайное фото. Нет подходящей картины/иллюстрации — слайд остаётся без картинки. */
-      card.img = ["lit", "mhk", "izo", "mus"].includes(p.subject) ? `commons:${qImg}` : qImg;
+      const artOnly = ["lit", "mhk", "izo", "mus"].includes(p.subject); card.img = artOnly ? `commons:${qImg}` : qImg;
       card.acc = ++side % 2 ? "right" : "left";
     }
     if (mode === "key" && !lit) {

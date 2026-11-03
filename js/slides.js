@@ -1,4 +1,4 @@
-/* ===================================================================
+﻿/* ===================================================================
    «Учу по ФРП» — редактор презентаций (v5), по гибкости близкий к Gamma.
    • Читаемость с последних парт: крупный шрифт, автоподбор размера
      (много текста — немного меньше, мало — крупнее), обрезки нет: если
@@ -285,6 +285,16 @@ const SlideEditor = (() => {
     const ib = inner.getBoundingClientRect(), cs = getComputedStyle(inner), limit = ib.bottom - parseFloat(cs.paddingBottom) + 1;
     const body = el.querySelector(".sx-body");
     if (body && body.scrollHeight > body.clientHeight + 2) return false;
+    /* заголовок и текст не должны наезжать друг на друга */
+    if (ttl && body) {
+      const tr = ttl.getBoundingClientRect(), br = body.getBoundingClientRect();
+      if (tr.bottom > br.top + 2 || tr.right > ib.right + 2) return false;
+    }
+    /* блоки внутри текста не должны перекрываться */
+    if (body) {
+      const rs = [...body.children].map(x => x.getBoundingClientRect()).filter(r => r.height > 0);
+      for (let k = 1; k < rs.length; k++) if (rs[k].top < rs[k - 1].bottom - 2) return false;
+    }
     return ![el.querySelector(".sx-title"), ...(body ? body.children : [])].some(x => x && x.getBoundingClientRect().bottom > limit);
   }
   /* Подбор: бинарный поиск масштаба шрифта в пределах MIN…MAX */
@@ -1176,7 +1186,7 @@ ${ixCss(anim())}
 .sx.cut figure.pic img{border:0;background:transparent;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.25))}
 .sx.lay-section .sx-title,.sx.lay-title .sx-title{text-align:center}
 .sx.lay-section .sx-inner{justify-content:center;text-align:center}
-.sx-title,.sx-body{overflow-wrap:break-word}
+.sx-title,.sx-body{overflow-wrap:break-word;min-width:0}.sx-title{max-width:100%}.sx-body{max-width:100%}
 .sx .pl-i{cursor:pointer;text-decoration:underline dotted;text-underline-offset:.15em}
 .sx .ix-card{cursor:pointer}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
