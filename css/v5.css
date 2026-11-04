@@ -1147,11 +1147,11 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .ws-doc-design .ws-tag{background:var(--ws-accent2,#f2c14e)!important;color:#1a1305!important;border:0!important}
 .ws-doc-design .ws-ico{background:rgba(255,255,255,.2)!important;border:2px solid rgba(255,255,255,.7)!important;filter:none!important}
 .ws-doc-design h2{color:var(--ws-accent,#c8322b)!important;font-family:Georgia,serif;letter-spacing:.02em;text-transform:uppercase;font-size:22px;border-bottom:3px solid var(--ws-accent,#c8322b);padding-bottom:6px;margin:22px 0 12px}
-.ws-doc-design h3{background:var(--ws-soft,#fffaf0)!important;border:1px solid color-mix(in srgb,var(--ws-ink,#141414) 18%,transparent)!important;border-left:8px solid var(--ws-accent,#c8322b)!important;border-radius:4px 14px 14px 4px!important;padding:10px 14px!important;color:var(--ws-ink)!important;font-size:17px!important;box-shadow:0 2px 0 color-mix(in srgb,var(--ws-ink) 12%,transparent)}
+.ws-doc-design h3{background:var(--ws-soft,#fffaf0)!important;border:1px solid #cabfae!important;border-left:8px solid var(--ws-accent,#c8322b)!important;border-radius:4px 14px 14px 4px!important;padding:10px 14px!important;color:var(--ws-ink)!important;font-size:17px!important;box-shadow:0 2px 0 #d8cbb8}
 .ws-doc-design p,.ws-doc-design li{font-size:14.5px;line-height:1.5}
-.ws-doc-design blockquote{background:color-mix(in srgb,var(--ws-accent2,#f2c14e) 22%,#fff)!important;border-left:6px solid var(--ws-accent2,#f2c14e)!important;color:var(--ws-ink)!important;border-radius:6px;padding:10px 14px}
+.ws-doc-design blockquote{background:var(--ws-soft,#fffaf0)!important;border-left:6px solid var(--ws-accent2,#f2c14e)!important;color:var(--ws-ink)!important;border-radius:6px;padding:10px 14px}
 .ws-doc-design table th{background:var(--ws-ink,#141414)!important;color:#fff!important}
-.ws-doc-design table td,.ws-doc-design table th{border-color:color-mix(in srgb,var(--ws-ink) 25%,transparent)!important}
+.ws-doc-design table td,.ws-doc-design table th{border-color:#c9c1b5!important}
 .ws-doc-design hr{border:0;height:3px;background:var(--ws-accent,#c8322b);margin:18px 0}
 .ws-doc-design .m-design,.m-design{background:linear-gradient(135deg,#f4efe4 0 28%,#c8322b 28% 36%,#141414 36% 40%,#f4efe4 40% 100%)}
 
