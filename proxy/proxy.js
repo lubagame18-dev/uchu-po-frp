@@ -69,7 +69,7 @@ const imgCache = new Map();
 let searchDay = "", searchCount = 0;
 function searchQuota() {
   const d = new Date().toISOString().slice(0, 10); if (d !== searchDay) { searchDay = d; searchCount = 0; }
-  const max = +(process.env.YANDEX_SEARCH_DAILY_MAX || process.env.YANDEX_IMG_DAILY_MAX || 300);
+  const max = +(process.env.YANDEX_SEARCH_DAILY_MAX || process.env.YANDEX_IMG_DAILY_MAX || 15);
   if (searchCount >= max) return false;
   searchCount++; return true;
 }
