@@ -314,17 +314,40 @@ async function exportPack() {
   const blob = new Blob([JSON.stringify({ app: "uchu-po-frp-materials", version: 1, exportedAt: new Date().toISOString(), items, frp: [...FRP.list("ru"), ...FRP.list("lit")].filter(d => !d.builtin) })], { type: "application/json" });
   await saveFile(`uchu-po-frp_materialy_${new Date().toISOString().slice(0, 10)}.json`, blob);
 }
+function materialChunks(text, max = 1600) {
+  const out = []; let cur = "";
+  const push = () => { if (cur.trim()) out.push(cur.trim()); cur = ""; };
+  for (const page of String(text || "").split(/\f/)) {
+    for (const para of page.split(/\n\s*\n/)) {
+      if (!para.trim()) continue;
+      const pieces = para.length > max ? (para.match(/[^.!?]+[.!?]+|\S+/g) || [para]) : [para];
+      for (const piece of pieces) {
+        if ((cur + " " + piece).length > max) push();
+        cur += piece + " ";
+      }
+    }
+    push();
+  }
+  push();
+  return out;
+}
 function relevantMaterials(topic, grade, subject, budget = PROMPT_MATERIALS) {
   const st = FRP.stems(topic);
   const nt = String(topic || "").trim().toLowerCase();
-  // файлы, брошенные на страницу для этого урока, входят целиком (а не только абзацами по совпадению слов темы)
   const isPin = m => m.kind !== "frp" && String(m.text || "").trim() && (m.pinned || (m.pinTopic && m.pinTopic === nt + "|" + subject));
   const pins = state.materials.filter(isPin);
   const pre = []; let usedPin = 0;
-  for (const m of pins) { const t = String(m.text).trim().slice(0, Math.max(3000, Math.floor(budget / Math.max(1, pins.length)))); pre.push({ name: m.name, kind: KINDS[m.kind] || "Материал", text: t, pinned: true }); usedPin += t.length; }
+  for (const m of pins) {
+    const lim = Math.max(3000, Math.floor(budget / Math.max(1, pins.length)));
+    const chunks = materialChunks(m.text, 1800);
+    const ranked = chunks.map((c, i) => ({ i, c, s: FRP.score(c, st) + (c.toLowerCase().includes(nt) ? 3 : 0) })).sort((a, b) => b.s - a.s);
+    const take = ranked.filter(x => x.s > 0).slice(0, 4).map(x => x.c).join("\n…\n");
+    const t = (take || chunks.slice(0, 2).join("\n…\n")).slice(0, lim);
+    pre.push({ name: m.name, kind: KINDS[m.kind] || "Материал", text: t, pinned: true }); usedPin += t.length;
+  }
   const scored = state.materials.filter(m => !isPin(m) && m.kind !== "frp" && (!m.subject || m.subject === subject)).map(m => {
-    const paras = String(m.text).split(/\n\s*\n|\n(?=\s*\d{1,3}\.\s)/);
-    const hits = paras.map((p, i) => ({ i, p, s: FRP.score(p, st) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s);
+    const chunks = materialChunks(m.text, 1800);
+    const hits = chunks.map((p, i) => ({ i, p, s: FRP.score(p, st) + (p.toLowerCase().includes(nt) ? 3 : 0) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s);
     return { m, hits, total: hits.reduce((a, x) => a + x.s, 0) + (m.grade === grade ? 2 : 0) };
   }).filter(x => x.hits.length).sort((a, b) => b.total - a.total);
   const out = [...pre]; let used = usedPin;
@@ -335,6 +358,7 @@ function relevantMaterials(topic, grade, subject, budget = PROMPT_MATERIALS) {
   }
   return out;
 }
+
 function renderMaterials() {
   const box = $("#matList"); if (!box) return;
   const ms = state.materials;
@@ -1148,6 +1172,10 @@ ${exam ? `## Формат экзамена (${exam.label}) — как насто
 
 ${wsStyleBlock(p)}
 
+## Только для ученика (обязательно)
+- В листе нет слов учителя, реплик «Учитель:», «Ученики:», методических пометок, целей этапов и планов. Только задания, примеры, поля ответа и краткая опора.
+- Не переноси в лист посторонние сведения из материалов, не относящиеся к теме урока.
+
 ## Логика заданий (обязательно)
 - Задания делай насыщенными: в каждом 2–3 подпункта или примера, а не один пункт; материала на листе должно быть много, но он должен помещаться.
 - Где уместно — добавь схему-опору, таблицу для заполнения или образец разбора; обозначения — по ГОСТ.
@@ -1166,21 +1194,20 @@ ${wsStyleBlock(p)}
 
 ---
 
-### 🔓 Задание 1. Базовый уровень
+### 🔓 Задание 1
 
-### 🔓 Задание 2. Базовый уровень
+### 🔓 Задание 2
 
-### 🚀 Задание 3. ${lvl2}
+### 🚀 Задание 3
 
-### 🚀 Задание 4. ${lvl2}
+### 🚀 Задание 4
 
 ### 🏆 Задание 5. Творческое
 ${p.level === "high" ? `
 ### 🏅 Задание 6. Нестандартное (олимпиадное)
 
 ### 🔁 Задание 7. Перенос: примени правило в новой ситуации
-` : ""}${p.level === "weak" ? `
-(В слабом классе достаточно 4 заданий: одно из базовых раскрой подробнее, с образцом решения.)` : ""}
+` : ""}
 
 Поля для ответа строго: [ ________________________________________ ]. Задания из материалов учителя приводи дословно и указывай источник курсивом.
 
@@ -1328,6 +1355,7 @@ function injectResults(md, p, type, doc) {
     const wg = window.Rules ? Rules.get("ws_goal") : "kids";
     const block = wg === "frp" && r.loaded && r.subject.length ? `> 🎯 ВАЖНО: на уроке я учусь (по ФРП): ${r.subject.map(x => x.text).join("; ")}.` : wsHead(p);
     md = md.replace(/^> 🎯 ВАЖНО: на уроке я учусь \(по ФРП\):.*\n?/m, "");
+    md = md.split("\n").filter(line => !/^\s*[-*]?\s*\*{0,2}(Учитель|Ученики|Деятельность учителя|Деятельность учеников|Планируемые результаты|Цель этапа|Слово учителя|Ход урока|Примечание для учителя)\b/i.test(line)).join("\n").replace(/\n{3,}/g, "\n\n");
     return md.includes("<!--RESULTS-->") ? md.replace("<!--RESULTS-->", block) : md;
   }
   /* конспект и остальные листы: без перечисления результатов ФРП и без справок внизу */
