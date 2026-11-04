@@ -1635,15 +1635,15 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
   const done = () => { addPrevHw(L, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
   try {
-    /* тест создаётся ДО презентации: его QR-слайд сразу войдёт в неё */
+    if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen);
+    if (L._after) { const a = L._after; delete L._after; await a(); }
+    /* тест — после всех материалов, как просил учитель; QR-слайд добавляем в готовую презентацию */
     if (window.QuizLink && QuizLink.wanted() && !L.quiz) {
       const stopQ = startQuizGen(L);
       try { const qt = await QuizLink.createTest(p); if (qt) { L.quiz = qt; L.quizAt = new Date().toISOString(); await saveLesson(L); toast("Интерактивный тест готов.", 5000); } }
-      catch (e) { toast("Тест не создан: " + (e.message || e), 7000); }
+      catch (e) { toast("Тест не создан: " + (e.message || e), 9000); }
       finally { stopQ(); }
     }
-    if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen);
-    if (L._after) { const a = L._after; delete L._after; await a(); }
     if (L.quiz && L.docs.slides && window.QuizLink.slideFor && !/Проверка знаний: тест по теме/.test(String(L.docs.slides))) {
       try { const sm = await QuizLink.slideFor(p, L.quiz); if (sm) { L.docs.slides = String(L.docs.slides).replace(/\s+$/, "") + "\n\n" + sm; L.status.slides = "ok"; } } catch (e2) { }
     }
@@ -2256,7 +2256,16 @@ function renderLesson() {
     if (showQ) { const pct = state.quizGen?.lessonId === L.id ? state.quizGen.pct : 0;
       tabs.insertAdjacentHTML("beforeend", `<button class="doc-tab quiz-tab" role="tab" id="quizTab"><span class="st" data-s="${L.quiz ? "ok" : "run"}"></span> 🧪 Интерактивный тест<span class="quiz-line"><i style="width:${pct}%"></i></span></button>`);
     }
-    const qb = document.getElementById("quizTab"); if (qb) qb.onclick = () => { if (state.lesson?.quiz) window.QuizLink?.openTestCard?.(state.lesson.quiz); else window.toast?.("Интерактивный тест собирается…", 4000); };
+    const qb = document.getElementById("quizTab");
+    if (qb) qb.onclick = async () => {
+      const L0 = state.lesson; if (!L0) return;
+      if (L0.quiz) { window.QuizLink?.openTestCard?.(L0.quiz); return; }
+      if (state.quizGen) { window.toast?.("Интерактивный тест уже создаётся…", 4000); return; }
+      const stop = startQuizGen(L0);
+      try { const qt = await window.QuizLink.createTest(L0.params); if (qt) { L0.quiz = qt; L0.quizAt = new Date().toISOString(); await saveLesson(L0); window.toast?.("Интерактивный тест готов.", 5000); } }
+      catch (e) { window.toast?.("Тест не создан: " + (e.message || e), 9000); }
+      finally { stop(); }
+    };
   }
   const P = L.params;
   $("#lessonTitle").hidden = false;
