@@ -1290,9 +1290,28 @@ ${p.level === "high" ? `
 
 Выдай только Markdown.`;
 }
-function promptRefine(doc, md, instruction) {
+function refineContext(L, doc) {
+  const p = L?.params || {}, P = L || {};
+  const parts = [
+    `Тема урока: «${p.topic || P.title || ""}». Класс: ${p.grade || ""}. Предмет: ${typeof subjName === "function" ? subjName(p.subject) : (p.subject || "")}. Тип урока: ${p.type?.name || ""}. Номер урока по теме: ${p.lessonNo || 1}.`,
+    p.wishes ? `Пожелания учителя к уроку (учитывай): ${String(p.wishes).slice(0, 1200)}` : "",
+    p.plan?.goal ? `Цель урока: ${String(p.plan.goal).slice(0, 500)}` : "",
+    p.design ? `Методический замысел: ${String(p.design).slice(0, 1200)}` : "",
+    L?.lastRefine ? `Предыдущая правка учителя (не отменяй её): ${String(L.lastRefine).slice(0, 800)}` : "",
+    window.TeacherRules?.brief ? window.TeacherRules.brief(p, doc) : "",
+    typeof levelBlock === "function" ? levelBlock(p) : "",
+    P.docs?.conspect && doc !== "conspect" ? `Контекст конспекта урока (не переписывай его, только опирайся): ${String(P.docs.conspect).slice(0, 5000)}` : ""
+  ].filter(Boolean);
+  return parts.join("\n\n");
+}
+function promptRefine(doc, md, instruction, L = null) {
   const label = DOCS[doc]?.label || "документ", isSlides = doc === "slides";
   return `Ты — методист и редактор учебных материалов. Ниже ${isSlides ? "презентация урока" : `документ «${label}»`} в Markdown. Внеси ТОЛЬКО ту правку, которую просит учитель, и верни документ целиком, без комментариев.
+
+## Контекст урока (обязательно соблюдай)
+${refineContext(L, doc)}
+- **Не выходи за пределы темы урока.** Запрещено брать задания, правила и примеры из следующих тем, других уроков и других классов — даже если они похожи. Если просьба требует материала следующей темы, не добавляй его.
+- Сохраняй уже сделанные ранее правки и логику урока; не начинай документ с нуля.
 
 <document>
 ${md.slice(0, 60000)}
@@ -1301,7 +1320,7 @@ ${md.slice(0, 60000)}
 Просьба учителя (выполни буквально, это главное требование): ${instruction}
 
 Правила правки:
-- Правка учителя важнее общих правил оформления: сделай именно так, как он просит, даже если обычно делаешь иначе.
+- Правка учителя важнее общих правил оформления: сделай именно так, как он просит, даже если обычно делаешь иначе, но не нарушай границу темы.
 - Меняй только то, что относится к просьбе; остальной текст, структуру, Markdown, картинки ![…](…), таблицы и комментарии <!-- … --> сохраняй без изменений.
 - Не выдумывай факты, даты и цитаты; не упоминай сайт, ИИ и ссылки; не добавляй служебные пояснения.
 ${isSlides ? "- Слайды разделяй строкой --- (с пустыми строками вокруг). Формат заголовков слайдов сохраняй; заметка учителю — в <!-- … -->. Картинка — строкой ![Подпись](search:запрос). Если просят больше картинок, схем или слайдов — добавь их в том же формате." : "- Сохраняй заголовки, таблицы и условные обозначения по ГОСТ; если просят схемы и опоры — добавь их аккуратными таблицами или списками."}
@@ -1313,6 +1332,10 @@ function promptRefineSlide(L, index, total, title, md, instruction) {
 
 Урок: «${L.title}». ${P.grade || ""} класс. Предмет: ${window.Subjects?.name ? Subjects.name(P.subject) : P.subject}. Слайд ${index + 1} из ${total}, заголовок «${title}».
 
+## Контекст урока (обязательно)
+${refineContext(L, "slides")}
+- Слайд относится только к теме этого урока. Не добавляй задания, правила и примеры из следующей темы или другого класса.
+
 <slide>
 ${String(md || "").slice(0, 20000)}
 </slide>
@@ -1322,7 +1345,7 @@ ${String(md || "").slice(0, 20000)}
 Правила:
 - Сохрани формат слайда: строка заголовка «## …», короткие пункты, при необходимости таблица, картинка ![Подпись](search:запрос), заметка учителю <!-- … -->.
 - Текст не длиннее, чем помещается на слайд: 3–5 коротких пунктов; если просят подробнее — лучше добавь аккуратную таблицу или схему, а не сплошной текст.
-- Не выдумывай факты; без пояснений от себя; верни только слайд.`;
+- Не выдумывай факты; без пояснений от себя; учитывай пожелания учителя и прежнюю логику презентации; верни только слайд.`;
 }
 
 /* рабочий лист: цель для ученика (без формулировок ФРП) и короткий блок «Запомни» — правило, алгоритм, схема с примером */
@@ -2234,11 +2257,12 @@ async function refineDocs(list, instr) {
       renderLesson();
       const paint = throttle(t => { if (state.lesson?.id === L.id && state.active === d) { $("#md").value = t; renderPreview(); } }, 300);
       try {
-        const res = await caps.sample(promptRefine(d, src, instr), {
+        const res = await caps.sample(promptRefine(d, src, instr, L), {
           modelTier: "default", cache: false, signal: state.gen.ctl.signal,
           onText: ({ text }) => { const part = 100 / list.length; state.gen.pct = Math.min(95, part * k + Math.min(95, text.length / Math.max(src.length, 1000) * part)); updateProgress(); if (state.active === d) paint(cleanMd(text)); }
         });
         L.docs[d] = d === "slides" ? cleanDeck(res.text) : cleanMd(res.text);
+        L.lastRefine = instr;
         done++;
       } catch (e) { lastErr = e; if (e?.code === "cancelled") break; }
     }
@@ -2664,7 +2688,7 @@ function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.do
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);
-  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null, quiz: L.quiz || null, quizAt: L.quizAt || null };
+  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null, quiz: L.quiz || null, quizAt: L.quizAt || null, lastRefine: L.lastRefine || null };
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }
