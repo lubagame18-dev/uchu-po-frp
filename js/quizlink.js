@@ -124,6 +124,7 @@ const QuizLink = (() => {
     b.querySelector("#qzCopy2").onclick = () => navigator.clipboard?.writeText(qt.url).then(() => window.toast?.("Ссылка скопирована."));
     if (window.QR) QR.png(qt.url, 420).then(blob => { const im = document.createElement("img"); im.src = URL.createObjectURL(blob); im.alt = "QR-код теста"; im.style.cssText = "width:200px;height:200px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff"; b.querySelector("#qzResQr").appendChild(im); }).catch(() => null);
   }
+  function openTestCard(qt) { if (!qt || !qt.url) { window.toast?.("Тест ещё не готов.", 4000); return; } showTestResult(qt); }
   async function createOnly(p) {
     const pr = progressOverlay();
     try { const qt = await createTest(p); pr.close(); showTestResult(qt); return qt; }
@@ -245,6 +246,6 @@ const QuizLink = (() => {
   }
 
   document.addEventListener("DOMContentLoaded", bindForm); setTimeout(bindForm, 0);
-  return { CATALOG, find, wanted, createTest, createOnly, slideFor, slideMd, addToDeck, openResults, openCreateDialog, badge, linkOf };
+  return { CATALOG, find, wanted, createTest, createOnly, openTestCard, slideFor, slideMd, addToDeck, openResults, openCreateDialog, badge, linkOf };
 })();
 window.QuizLink = QuizLink;

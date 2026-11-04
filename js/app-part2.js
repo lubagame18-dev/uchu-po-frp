@@ -1633,14 +1633,14 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
   const done = () => { addPrevHw(L, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
-  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } if (window.QuizLink && QuizLink.wanted() && !L.quiz) { try { const qt = await QuizLink.createTest(p); if (qt) {
+  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } if (window.QuizLink && QuizLink.wanted() && !L.quiz) { const stopQ = startQuizGen(L); try { const qt = await QuizLink.createTest(p); if (qt) {
             L.quiz = qt; L.quizAt = new Date().toISOString();
             if (L.docs.slides && window.QuizLink.slideFor) {
               try { const sm = await QuizLink.slideFor(p, qt); if (sm) { L.docs.slides = String(L.docs.slides).replace(/\s+$/, "") + "\n\n" + sm; L.status.slides = "ok"; } } catch (e2) { }
             }
             await saveLesson(L);
             toast(L.docs.slides ? "Тест готов: ссылка прикреплена к уроку и QR-слайд добавлен в презентацию." : "Интерактивный тест готов — ссылка прикреплена к уроку.", 7000);
-          } } catch (e) { toast("Тест не создан: " + (e.message || e), 7000); } } clearJob(L.id); }
+          } } catch (e) { toast("Тест не создан: " + (e.message || e), 7000); } finally { stopQ(); } } clearJob(L.id); }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }
@@ -2221,6 +2221,20 @@ function openLesson(L, doc, push = true) {
   if (push) navPush({ view: "builder", lessonId: L.id });
   renderLesson();
 }
+function paintQuizTab() {
+  const b = document.getElementById("quizTab"); if (!b) return;
+  const pct = state.quizGen && state.quizGen.lessonId === state.lesson?.id ? state.quizGen.pct : 0;
+  b.innerHTML = `<span class="st" data-s="${pct ? "run" : "ok"}"></span> Интерактивный тест${pct ? " " + pct + "%" : ""}`;
+}
+function startQuizGen(L) {
+  state.quizGen = { lessonId: L.id, pct: 5 };
+  if (state.lesson?.id === L.id) renderLesson();
+  const iv = setInterval(() => {
+    if (!state.quizGen || state.quizGen.lessonId !== L.id) { clearInterval(iv); return; }
+    state.quizGen.pct = Math.min(92, state.quizGen.pct + 7); paintQuizTab();
+  }, 700);
+  return () => { clearInterval(iv); state.quizGen = null; if (state.lesson?.id === L.id) renderLesson(); };
+}
 function renderLesson() {
   const L = state.lesson, tabs = $("#docTabs");
   $(".ws-head").hidden = !L;
@@ -2230,6 +2244,10 @@ function renderLesson() {
   tabs.innerHTML = docs.map(d => { const s = isGenerating(L, d) ? "run" : L.status?.[d] === "wait" && state.gen?.lessonId === L.id ? "wait" : L.docs[d] ? (L.status?.[d] === "err" ? "err" : "ok") : "wait"; return `<button class="doc-tab" role="tab" aria-selected="${d === state.active}" data-doc="${d}"><span class="st" data-s="${s}"></span>${DOCS[d].label}<span class="pct"></span></button>`; }).join("");
   tabs.scrollLeft = tabsX;
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
+  { const showQ = !!(L.quiz || window.QuizLink?.wanted?.());
+    if (showQ) { tabs.insertAdjacentHTML("beforeend", `<button class="doc-tab quiz-tab" role="tab" id="quizTab">${L.quiz ? "🧪 Интерактивный тест" : "🧪 Интерактивный тест " + (state.quizGen?.pct || 0) + "%"}</button>`); }
+    const qb = document.getElementById("quizTab"); if (qb) qb.onclick = () => { if (state.lesson?.quiz) window.QuizLink?.openTestCard?.(state.lesson.quiz); else window.toast?.("Интерактивный тест собирается…", 4000); };
+  }
   const P = L.params;
   $("#lessonTitle").hidden = false;
   $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1>${L.quiz?.url ? `<p class="quiz-attach">📱 <b>Интерактивный тест</b> · <a href="${esc(L.quiz.url)}" target="_blank" rel="noopener">открыть тест</a> <button type="button" class="btn sm ghost" id="btnQuizCopy">Скопировать ссылку</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}`;
