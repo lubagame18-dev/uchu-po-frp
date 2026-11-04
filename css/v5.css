@@ -1120,3 +1120,14 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx .tl-i.on::before{background:currentColor;box-shadow:0 0 0 .22em var(--sx-accent,#b45309)}
 .sx .tl-i b{display:block;font-size:1.05em;margin-bottom:.15em}
 .sx .tl-p{width:100%;min-height:1.5em;margin-top:.5em;padding:.45em .6em;border-radius:.5em;background:rgba(255,255,255,.35);font-size:.95em}
+/* Слайд «Проверка знаний» с QR: карточка с рамкой и кнопкой */
+.sx.k-qr{background:linear-gradient(135deg,#0f3b59 0%,#1d6f8f 55%,#2a8f9c 100%);color:#fff}
+.sx.k-qr .sx-title{color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.25)}
+.sx.k-qr .sx-body{color:#eaf4f8}
+.sx.k-qr .sx-body ul{padding-left:1.1em}
+.sx.k-qr .sx-body li::marker{color:#f3c969}
+.sx.k-qr figure.pic{float:right;width:36%;margin:.2em 0 1em 1.4em;background:#fff;padding:1.1cqw;border-radius:2cqw;box-shadow:0 10px 30px rgba(0,0,0,.35);border:.35cqw solid rgba(255,255,255,.9)}
+.sx.k-qr figure.pic img{display:block;width:100%;height:auto;border-radius:1.2cqw}
+.sx.k-qr figure.pic figcaption{color:#33404f;font-size:1.6cqw;text-align:center;margin-top:.6cqw}
+.sx.k-qr a{display:inline-block;margin-top:.5em;padding:.55em .9em;border-radius:.7em;background:#f3c969;color:#241a06;font-weight:800;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.sx.k-qr a:hover{filter:brightness(1.06)}

@@ -3,31 +3,84 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#15202b">
 <title>Проверка знаний — Учу по ФРП</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#15202b;--line:#d9e2ec;--accent:#c0392b;--ok:#0f766e;--soft:#f4f6f9}
-*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial,"Segoe UI",sans-serif;background:var(--soft);color:var(--ink)}
-.wrap{max-width:760px;margin:0 auto;padding:22px 16px 60px}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin:0 0 14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-h1{font:800 25px/1.25 Georgia,serif;margin:0 0 4px}.meta{color:#637083;font-size:14px}
-label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}
-input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;background:#fff}
-.q{border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px;background:#fff}
-.q b{display:block;margin-bottom:8px}
-.opt{display:flex;gap:8px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin:6px 0;cursor:pointer;transition:background .15s,border-color .15s}
-.opt input{margin-top:3px;width:auto}.opt.sel{border-color:var(--accent);background:#fff6f5}
-.btn{width:100%;border:0;border-radius:12px;padding:13px;font:800 16px Arial;background:var(--ink);color:#fff;cursor:pointer;margin-top:10px}
-.btn.teal{background:var(--ok)}.btn:disabled{opacity:.6;cursor:default}
-.score{font-size:38px;font-weight:900;color:var(--ok);line-height:1.1}
-.err{color:#a02020}.hidden{display:none}.small{font-size:13.5px;color:#637083}
-a{color:var(--accent)}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.top a{font-size:14px}
+:root{
+  --bg1:#0f3b59;--bg2:#1d6f8f;--accent:#dba12c;--accent2:#f3c969;
+  --ink:#15202b;--card:#ffffff;--muted:#5d6a7a;--line:#e5dccb;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;font:16px/1.55 Manrope,Arial,"Segoe UI",sans-serif;color:var(--ink);
+  background:
+    radial-gradient(1100px 620px at 15% -10%, color-mix(in srgb,var(--accent) 42%, transparent), transparent 60%),
+    radial-gradient(900px 600px at 110% 15%, color-mix(in srgb,var(--bg2) 55%, transparent), transparent 62%),
+    linear-gradient(145deg,var(--bg1),color-mix(in srgb,var(--bg1) 55%,#000 45%));
+  background-attachment:fixed;overflow-x:hidden}
+body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(2px);pointer-events:none;z-index:0;opacity:.5}
+body::before{width:42vmax;height:42vmax;left:-18vmax;top:-16vmax;background:radial-gradient(circle at 35% 35%,color-mix(in srgb,var(--accent) 55%,transparent),transparent 62%)}
+body::after{width:38vmax;height:38vmax;right:-16vmax;bottom:-18vmax;background:radial-gradient(circle at 65% 35%,color-mix(in srgb,var(--accent2) 45%,transparent),transparent 64%)}
+.wrap{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:20px 16px 70px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:2px 0 16px;color:#fff}
+.brand{font:800 15px/1 Unbounded,Manrope,sans-serif;letter-spacing:.02em;opacity:.95}
+.top a{color:#fff;text-decoration:none;font-size:13.5px;opacity:.8;border-bottom:1px solid rgba(255,255,255,.45)}
+.card{position:relative;background:color-mix(in srgb,var(--card) 94%, transparent);border:1px solid rgba(255,255,255,.55);
+  border-radius:26px;padding:24px;margin:0 0 16px;box-shadow:0 18px 50px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.8);
+  backdrop-filter:blur(10px);animation:cardIn .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.hero{padding:28px;overflow:hidden}
+.hero::before{content:"";position:absolute;right:-70px;top:-90px;width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,var(--accent),transparent 68%);opacity:.55}
+.hero::after{content:"";position:absolute;left:-40px;bottom:-90px;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle at 60% 40%,var(--accent2),transparent 70%);opacity:.35}
+.icon{position:relative;z-index:1;width:58px;height:58px;display:grid;place-items:center;border-radius:18px;font-size:30px;
+  background:linear-gradient(145deg,var(--accent),var(--accent2));box-shadow:0 10px 24px color-mix(in srgb,var(--accent) 45%,transparent);margin-bottom:12px}
+h1{position:relative;z-index:1;font:700 30px/1.14 Unbounded,Manrope,Georgia,serif;margin:0 0 8px;letter-spacing:-.01em}
+.meta{position:relative;z-index:1;color:var(--muted);font-size:14px;font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:800;
+  background:color-mix(in srgb,var(--accent) 18%,#fff);color:color-mix(in srgb,var(--accent) 70%,#000)}
+label{display:block;font-weight:800;font-size:13px;margin:16px 0 6px;color:#33404f}
+input{width:100%;border:2px solid var(--line);border-radius:14px;padding:13px 14px;font:inherit;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+.btn{width:100%;border:0;border-radius:16px;padding:15px;font:800 16px Manrope,Arial;color:#fff;cursor:pointer;margin-top:14px;
+  background:linear-gradient(135deg,var(--bg1),color-mix(in srgb,var(--bg2) 72%,var(--bg1)));box-shadow:0 10px 24px rgba(0,0,0,.22);transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn:active{transform:none}.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.accent{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#241a06}
+.q{position:relative;border:1px solid var(--line);border-radius:20px;padding:18px;margin:0 0 14px;background:#fff;overflow:hidden;animation:qIn .35s ease both}
+@keyframes qIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.q b{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;font-size:16.5px;line-height:1.4}
+.qn{flex:0 0 auto;display:grid;place-items:center;width:30px;height:30px;border-radius:10px;font:800 14px Unbounded,Manrope;
+  background:linear-gradient(145deg,var(--accent),var(--accent2));color:#241a06}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:12px 13px;border:2px solid var(--line);border-radius:14px;margin:8px 0;cursor:pointer;transition:all .16s;background:#fff}
+.opt:hover{border-color:color-mix(in srgb,var(--accent) 55%,#fff);transform:translateX(2px)}
+.opt input{margin-top:4px;width:auto;accent-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,#fff),#fff);box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 14%,transparent)}
+.prog{display:flex;align-items:center;gap:12px;margin:0 0 14px;color:#fff;font-size:13px;font-weight:700}
+.prog .bar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.25);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}
+.score{font:800 54px/1 Unbounded,Manrope,serif;color:var(--ink);letter-spacing:-.02em;margin-bottom:6px}
+.res-emoji{font-size:52px;line-height:1;margin-bottom:8px;display:block;animation:pop .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+.small{font-size:13.5px;color:var(--muted)}
+.err{color:#a02020;font-weight:700}
+.hidden{display:none}
+a{color:color-mix(in srgb,var(--bg1) 70%,#000)}
+.row2{display:flex;gap:10px}.row2>*{flex:1}
+.review{border-top:1px dashed var(--line);margin-top:16px;padding-top:14px}
+.review .r{padding:10px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.review .r:last-child{border:0}.review .ok{color:#0f766e;font-weight:800}.review .no{color:#b42318;font-weight:800}
+@media (max-width:520px){h1{font-size:24px}.card{padding:18px;border-radius:20px}.hero{padding:20px}.score{font-size:44px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><span class="small">Учу по ФРП</span><a href="https://uchu-po-frp.ru/">← на сайт</a></div>
-  <div class="card" id="load"><h1>Загружаю тест…</h1><p class="small" id="loadMsg"></p></div>
+  <div class="top"><span class="brand">Учу по ФРП</span><a href="https://uchu-po-frp.ru/">← на сайт</a></div>
+  <div class="card hero" id="load"><div class="icon">🧪</div><h1>Загружаю тест…</h1><p class="meta" id="loadMsg">Это займёт пару секунд.</p></div>
   <div id="app" class="hidden"></div>
 </div>
 <script>
@@ -36,67 +89,108 @@ const CLOUD = { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_pu
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const qid = new URLSearchParams(location.search).get("q") || "";
-const data = { q: null, picked: {} };
+const S = { q: null, picked: {}, student: "", klass: "" };
 
+/* 8 палитр; выбор зависит от предмета и темы */
+const THEMES = {
+  coastal:  { bg1:"#0f3b59", bg2:"#1d6f8f", accent:"#dba12c", accent2:"#f3c969", line:"#e7dfcf", icon:"🌊" },
+  whimsy:   { bg1:"#3d2645", bg2:"#7b3f74", accent:"#f49cbb", accent2:"#fbb02d", line:"#f2dfe8", icon:"✨" },
+  botanical:{ bg1:"#1f4d3f", bg2:"#3f7a5f", accent:"#b7c9a8", accent2:"#e8dcc4", line:"#e3e8da", icon:"🌿" },
+  sunset:   { bg1:"#5c2226", bg2:"#a34a2c", accent:"#f2a93b", accent2:"#ffd27a", line:"#f2e2d2", icon:"🌅" },
+  space:    { bg1:"#140f2d", bg2:"#4b2470", accent:"#89c2d9", accent2:"#c9184a", line:"#e6def3", icon:"🌌" },
+  paper:    { bg1:"#6b5136", bg2:"#a8885f", accent:"#d9b97c", accent2:"#f1e6cf", line:"#eadfca", icon:"📜" },
+  mint:     { bg1:"#0b3d3a", bg2:"#167a67", accent:"#7ec8a3", accent2:"#d9f2df", line:"#dcefe7", icon:"🧬" },
+  berry:    { bg1:"#4b1529", bg2:"#8d2d52", accent:"#e3a1b8", accent2:"#f5d0c5", line:"#f3dfe6", icon:"📚" }
+};
+const SUBJ_THEME = { geo:"coastal", bio:"botanical", chem:"mint", math:"space", phys:"space", inf:"space", hist:"sunset", soc:"berry", lit:"paper", ru:"berry", eng:"coastal", mhk:"whimsy", izo:"whimsy", mus:"whimsy" };
+function themeFor(d) {
+  const subj = String(d.subject || "").toLowerCase().slice(0, 4);
+  const m = Object.keys(SUBJ_THEME).find(k => subj.startsWith(k));
+  let key = m ? SUBJ_THEME[m] : "coastal";
+  const str = String(d.title || d.subject || "учу");
+  if (!m) { const keys = Object.keys(THEMES); let h = 0; for (const ch of str) h = (h * 31 + ch.charCodeAt(0)) >>> 0; key = keys[h % keys.length]; }
+  return { ...THEMES[key], key };
+}
+function applyTheme(t) {
+  const r = document.documentElement.style;
+  r.setProperty("--bg1", t.bg1); r.setProperty("--bg2", t.bg2); r.setProperty("--accent", t.accent);
+  r.setProperty("--accent2", t.accent2); r.setProperty("--line", t.line);
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", t.bg1);
+}
 async function api(path, opt = {}) {
   const r = await fetch(CLOUD.url.replace(/\/+$/, "") + path, { ...opt, headers: { apikey: CLOUD.anonKey, "Content-Type": "application/json", ...(opt.headers || {}) } });
   const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
   if (!r.ok) throw new Error(j?.message || j?.error || ("HTTP " + r.status));
   return j;
 }
-
 async function boot() {
   if (!qid || !/^[a-z0-9]{6,32}$/.test(qid)) { fail("Ссылка на тест неверна."); return; }
   try {
     const j = await api("/rest/v1/rpc/quiz_public", { method: "POST", body: JSON.stringify({ p_id: qid }) });
     if (!j || !Array.isArray(j.questions) || !j.questions.length) throw new Error("Тест не найден или вопросы ещё не сохранены.");
-    data.q = j;
-    $("load").classList.add("hidden"); $("app").classList.remove("hidden"); renderIntro();
-  } catch (e) {
-    fail("Не удалось открыть тест: " + (e.message || e));
-  }
+    S.q = j; S.theme = themeFor(j); applyTheme(S.theme);
+    $("load").classList.add("hidden"); $("app").classList.remove("hidden"); intro();
+  } catch (e) { fail("Не удалось открыть тест: " + (e.message || e)); }
 }
-function fail(t) { $("load").innerHTML = '<h1>Тест недоступен</h1><p class="small"></p><p class="err"></p><p><a href="https://uchu-po-frp.ru/">Вернуться на сайт</a></p>'; $("load").querySelector(".small").textContent = t; }
-function renderIntro() {
-  const d = data.q;
-  $("app").innerHTML = `<div class="card"><h1>${esc(d.title || "Проверка знаний")}</h1>
-    <div class="meta">${esc(d.subject || "")}${d.grade ? " · " + esc(d.grade) + " класс" : ""} · ${d.questions.length} вопрос(ов)</div>
+function fail(t) {
+  $("load").classList.remove("hidden");
+  $("load").innerHTML = '<div class="icon">😕</div><h1>Тест недоступен</h1><p class="err"></p><p><a href="https://uchu-po-frp.ru/">Вернуться на сайт</a></p>';
+  $("load").querySelector(".err").textContent = t;
+}
+function intro() {
+  const d = S.q, t = S.theme;
+  $("app").innerHTML = `<div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(d.title || "Проверка знаний")}</h1>
+    <div class="meta">${esc(d.subject || "")}${d.grade ? " · " + esc(d.grade) + " класс" : ""}</div>
+    <div class="chip">${d.questions.length} вопросов · проверка знаний</div>
     <label for="name">Фамилия и имя</label><input id="name" autocomplete="name" placeholder="Иванов Иван">
     <label for="klass">Класс</label><input id="klass" autocomplete="off" placeholder="${esc(d.grade || "")}">
-    <button class="btn" id="start">Начать тест</button><p class="err" id="err"></p></div>`;
+    <button class="btn accent" id="start">Начать тест →</button><p class="err" id="err"></p>
+    <p class="small" style="margin-top:12px">Результат увидит учитель в личном кабинете.</p></div>`;
   $("start").onclick = () => {
     const name = $("name").value.trim();
     if (name.length < 3) { $("err").textContent = "Впишите фамилию и имя."; return; }
-    data.student = name; data.klass = $("klass").value.trim();
-    renderQuiz();
+    S.student = name; S.klass = $("klass").value.trim(); quiz();
   };
 }
-function renderQuiz() {
-  const Q = data.q.questions;
-  $("app").innerHTML = `<div class="card"><h1>${esc(data.q.title || "Тест")}</h1><div class="meta">${esc(data.student)}${data.klass ? " · " + esc(data.klass) : ""}</div>
-    <div id="qs"></div><button class="btn" id="finish">Проверить результат</button><p class="small" id="prog"></p></div>`;
-  $("qs").innerHTML = Q.map((x, i) => `<div class="q" data-i="${i}"><b>${i + 1}. ${esc(x.q)}</b>${x.options.map((o, k) => `<label class="opt"><input type="radio" name="q${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("");
+function quiz() {
+  const Q = S.q.questions, t = S.theme;
+  $("app").innerHTML = `<div class="prog"><span id="pc">0 / ${Q.length}</span><div class="bar"><i id="pb"></i></div></div>
+    <div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(S.q.title || "Тест")}</h1><div class="meta">${esc(S.student)}${S.klass ? " · " + esc(S.klass) : ""}</div></div>
+    <div id="qs"></div>
+    <div class="card"><button class="btn accent" id="finish">Проверить результат</button><p class="small" id="progNote">Выберите ответ в каждом вопросе.</p></div>`;
+  $("qs").innerHTML = Q.map((x, i) => `<div class="q" data-i="${i}"><b><span class="qn">${i + 1}</span><span>${esc(x.q)}</span></b>${x.options.map((o, k) => `<label class="opt"><input type="radio" name="q${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("");
+  const update = () => {
+    const n = Object.keys(S.picked).length;
+    $("pc").textContent = n + " / " + Q.length; $("pb").style.width = (n / Q.length * 100) + "%";
+    $("progNote").textContent = n < Q.length ? "Отвечено " + n + " из " + Q.length : "Можно проверять результат.";
+  };
   $("qs").addEventListener("change", e => {
     const q = e.target.closest(".q"); if (!q) return;
-    data.picked[+q.dataset.i] = +e.target.value;
+    S.picked[+q.dataset.i] = +e.target.value;
     q.querySelectorAll(".opt").forEach(o => o.classList.toggle("sel", o.contains(e.target)));
-    $("prog").textContent = "Отвечено: " + Object.keys(data.picked).length + " из " + Q.length;
+    update();
   });
+  update();
   $("finish").onclick = finish;
 }
 async function finish() {
-  const Q = data.q.questions;
-  if (Object.keys(data.picked).length < Q.length) { alert("Ответьте на все вопросы."); return; }
-  const rows = Q.map((x, i) => ({ q: x.q, answer: x.options[x.answer], picked: x.options[data.picked[i]], ok: data.picked[i] === x.answer, explain: x.explain || "" }));
-  const score = rows.filter(r => r.ok).length;
+  const Q = S.q.questions, t = S.theme;
+  if (Object.keys(S.picked).length < Q.length) { alert("Ответьте на все вопросы."); return; }
+  const rows = Q.map((x, i) => ({ q: x.q, answer: x.options[x.answer], picked: x.options[S.picked[i]], ok: S.picked[i] === x.answer, explain: x.explain || "" }));
+  const score = rows.filter(r => r.ok).length, pct = Math.round(score / rows.length * 100);
+  const emoji = pct === 100 ? "🏆" : pct >= 80 ? "🌟" : pct >= 50 ? "💪" : "📚";
+  const title = pct === 100 ? "Блестяще!" : pct >= 80 ? "Отличный результат!" : pct >= 50 ? "Неплохо, есть что повторить" : "Нужно повторить тему";
   const details = { answers: rows, wrong: rows.map((r, i) => r.ok ? null : i + 1).filter(Boolean), own: "", sections: { "Тест": score + " / " + rows.length } };
-  $("app").innerHTML = `<div class="card"><div class="score">${score} / ${rows.length}</div><h1>${score === rows.length ? "Отлично!" : score >= rows.length * 0.7 ? "Хорошо!" : "Стоит повторить"}</h1>
-    <p>${score === rows.length ? "Все ответы верные." : "Верных ответов: " + score + " из " + rows.length + ". Учитель увидит результат в кабинете."}</p>
-    <p class="small" id="send">Отправляю результат…</p><p><a href="https://uchu-po-frp.ru/">Вернуться на сайт</a></p></div>`;
+  $("app").innerHTML = `<div class="card hero"><span class="res-emoji">${emoji}</span><div class="score">${score} / ${rows.length}</div><h1>${title}</h1>
+    <div class="meta">${esc(S.student)}${S.klass ? " · " + esc(S.klass) : ""}</div>
+    <div class="chip">${pct}% верных ответов</div>
+    <div class="review">${rows.map((r, i) => `<div class="r"><b>${i + 1}. ${esc(r.q)}</b><br><span class="${r.ok ? "ok" : "no"}">${r.ok ? "Верно" : "Ошибка"}</span> · правильный ответ: <b>${esc(r.answer)}</b>${r.explain && !r.ok ? "<br><span class='small'>" + esc(r.explain) + "</span>" : ""}</div>`).join("")}</div>
+    <p class="small" id="send">Отправляю результат учителю…</p>
+    <button class="btn ghost" onclick="location.href='https://uchu-po-frp.ru/'">Вернуться на сайт</button></div>`;
   try {
-    await api("/rest/v1/quiz_results", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ quiz_id: qid, student: data.student, klass: data.klass, score, total: rows.length, details }) });
-    $("send").textContent = "Результат отправлен учителю.";
-  } catch (e) { $("send").textContent = "Результат не отправлен: " + (e.message || e); }
+    await api("/rest/v1/quiz_results", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ quiz_id: qid, student: S.student, klass: S.klass, score, total: rows.length, details }) });
+    $("send").textContent = "Результат отправлен учителю. Спасибо!";
+  } catch (e) { $("send").textContent = "Результат не отправлен: " + (e.message || e); $("send").classList.add("err"); }
 }
 boot();
 </script>
