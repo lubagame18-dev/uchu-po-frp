@@ -2150,14 +2150,22 @@ const Media = (() => {
   function proxyBase() { const b = (window.AI?.cfg?.().yandexFn || window.UCHU_SITE?.imageProxy || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""); return b; }
   const proxyUrl = (route, qs) => { const b = proxyBase(); if (!b) return null; return /functions\.yandexcloud\.net/.test(b) ? `${b}?path=${encodeURIComponent(route)}&${qs}` : `${b}${route}?${qs}`; };
   let yandexState = null; // null — не проверяли; "ok"; иначе текст причины
+  /* кеш картинок: один и тот же запрос не должен оплачиваться повторно (Yandex Search API платный) */
+  const YCACHE_KEY = "uchu:ycache", YCACHE_TTL = 6 * 3600e3;
+  let ycache = {}; try { ycache = JSON.parse(localStorage.getItem(YCACHE_KEY) || "{}") || {}; } catch { }
+  function ycacheSave() { try { const ks = Object.keys(ycache).sort((a, b) => (ycache[b].at || 0) - (ycache[a].at || 0)).slice(0, 200); const o = {}; for (const k of ks) o[k] = ycache[k]; localStorage.setItem(YCACHE_KEY, JSON.stringify(o)); } catch { } }
   async function yandexSearch(q, n = 16) {
+    const ck = String(q || "").trim().toLowerCase().slice(0, 160) + "|" + n;
+    const hit = ycache[ck]; if (hit && Date.now() - (hit.at || 0) < YCACHE_TTL && Array.isArray(hit.items)) { yandexState = "ok (кеш)"; return hit.items; }
     const u = proxyUrl("/images", `q=${encodeURIComponent(q)}&n=${n}`); if (!u) { yandexState = "не задан адрес прокси"; return []; }
     try {
       const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 20000);
       const j = await (await fetch(u, { signal: ctl.signal })).json(); clearTimeout(t);
       if (!j.ok) { yandexState = j.message || "поиск Яндекса недоступен"; return []; }
       yandexState = "ok";
-      return (j.items || []).map(x => ({ url: x.url, thumb: x.thumb || x.url, title: x.title || "", noTitle: !x.title, src: "Яндекс", domain: x.domain }));
+      const items = (j.items || []).map(x => ({ url: x.url, thumb: x.thumb || x.url, title: x.title || "", noTitle: !x.title, src: "Яндекс", domain: x.domain }));
+      ycache[ck] = { at: Date.now(), items }; ycacheSave();
+      return items;
     } catch { yandexState = "прокси с поиском Яндекса не отвечает"; return []; }
   }
   /* Скачать картинку к себе (в память браузера), чтобы её можно было обрезать и выгрузить в PowerPoint/PDF */
@@ -2167,11 +2175,11 @@ const Media = (() => {
     try { const r = await fetch(u); if (r.ok) { const b = await r.blob(); if (/^image\//.test(b.type)) return b; } } catch { }
     return null;
   }
-  async function search(query, limit = 12) {
-    const yq = String(query || "").trim();
+  async function search(query, limit = 12, opts = {}) {
+    const yq = String(query || "").trim(), useYa = opts.yandex !== false;
     // картины и иллюстрации с автором и названием (Викисклад) — первыми, если запрос про иллюстрацию, картину или портрет
     const art = /иллюстрац|картин|портрет|художник|живопис/i.test(yq) ? await commons(yq.replace(/иллюстрация|картина/gi, "").trim() + " иллюстрация", 6).catch(() => []) : [];
-    const ya = await yandexSearch(yq, Math.max(limit, 16));
+    const ya = useYa ? await yandexSearch(yq, Math.max(limit, 16)) : [];
     if (ya.length >= 4) return [...art, ...ya].slice(0, Math.max(limit, 16));
     const q = String(query || "").replace(/(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))(портрет|картина|фото|изображение)(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))/gi, "").replace(/\s+/g, " ").trim() || query;
     const results = [];
@@ -2305,15 +2313,15 @@ const Media = (() => {
     for (const [k, m] of todo.entries()) {
       const P = plan[k] || {}, q0 = decodeURIComponent(m[2].slice(7)), q = P.query || q0;
       const intent0 = artIntent(q0); // art/map-интент: проверяем, что пришла картина/карта, а не случайное фото
-      let found = pickBest(q, fresh(await search(q, 12)), P.must);
+      let found = pickBest(q, fresh(await search(q, 12, { yandex: false })), P.must);
       if (found && intent0 && !commonsOk(found, intent0, q0)) found = null;
-      if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12)), P.must);
-      if (!found && P.alt && P.alt !== q) found = pickBest(P.alt, fresh(await search(P.alt, 12)), P.must);
+      if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12, { yandex: false })), P.must);
+      if (!found && P.alt && P.alt !== q) found = pickBest(P.alt, fresh(await search(P.alt, 12, { yandex: false })), P.must);
       // строгий подбор не нашёл — берём первую подходящую картинку из выдачи Яндекса (без плакатов, схем и текста)
       // но только если в названии/подписи есть обязательное слово (must): иначе не ставим случайное фото
       const nrm1 = s => String(s || "").toLowerCase().replace(/ё/g, "е");
       const okMust = x => { if (!P.must || !P.must.length) return true; const t = nrm1((x.title || "") + " " + (x.cap || "")); return P.must.some(w => { const ww = nrm1(w).replace(/[^\p{L}\p{N} ]+/gu, " ").trim().split(/\s+/).filter(Boolean).slice(0, 2).join(" ").slice(0, 12); return ww.length > 2 && t.includes(ww); }); };
-      if (!found) { const ya = fresh(await yandexSearch(q, 12)); found = ya.find(x => !TEXTY.test(String(x.title || "").toLowerCase()) && okMust(x) && (!intent0 || commonsOk(x, intent0, q0))) || null; if (!found && q !== q0) { const y2 = fresh(await yandexSearch(q0, 12)); found = y2.find(x => !TEXTY.test(String(x.title || "").toLowerCase()) && okMust(x) && (!intent0 || commonsOk(x, intent0, q0))) || null; } }
+      /* автоматический подбор — только бесплатные Википедия/Викисклад; Яндекс остаётся для ручного выбора в окне картинки */
       if (found && intent0 && !commonsOk(found, intent0, q0)) found = null;
       if (found) usedUrl.add(found.url);
       else { // не нашлось: пустое место с подсказкой — о чём слайд и какую картинку подобрать
