@@ -66,8 +66,16 @@ const estTokens = body => Math.round((JSON.stringify(body.messages || "").length
 /* Поиск картинок Яндекса: API-ключ сервисного аккаунта с ролью search-api.webSearch.user и ID каталога */
 const YS = { key: process.env.YANDEX_SEARCH_KEY || process.env.YANDEX_KEY || "", folder: process.env.YANDEX_SEARCH_FOLDER || process.env.YANDEX_FOLDER || "" };
 const imgCache = new Map();
+let imgDay = "", imgCount = 0;
+function imgQuota() {
+  const d = new Date().toISOString().slice(0, 10); if (d !== imgDay) { imgDay = d; imgCount = 0; }
+  const max = +(process.env.YANDEX_IMG_DAILY_MAX || 300);
+  if (imgCount >= max) return false;
+  imgCount++; return true;
+}
 async function yandexImages(q, n) {
   const ck = q + "|" + n; const hit = imgCache.get(ck); if (hit && Date.now() - hit.at < 6 * 3600e3) return hit.items;
+  if (!imgQuota()) throw Object.assign(new Error("Дневной лимит поиска картинок исчерпан. Увеличьте YANDEX_IMG_DAILY_MAX или подождите до завтра."), { status: 429, reason: "daily_limit" });
   const body = JSON.stringify({ query: { searchType: "SEARCH_TYPE_RU", queryText: q, familyMode: "FAMILY_MODE_STRICT", page: 0, fixTypoMode: "FIX_TYPO_MODE_ON" }, imageSpec: { size: "IMAGE_SIZE_LARGE" }, docsOnPage: n, folderId: YS.folder });
   const res = await request("https://searchapi.api.cloud.yandex.net/v2/image/search", { headers: { Authorization: "Api-Key " + YS.key, "Content-Type": "application/json" }, body, timeout: 20000 });
   const text = await readAll(res);
