@@ -66,16 +66,16 @@ const estTokens = body => Math.round((JSON.stringify(body.messages || "").length
 /* Поиск картинок Яндекса: API-ключ сервисного аккаунта с ролью search-api.webSearch.user и ID каталога */
 const YS = { key: process.env.YANDEX_SEARCH_KEY || process.env.YANDEX_KEY || "", folder: process.env.YANDEX_SEARCH_FOLDER || process.env.YANDEX_FOLDER || "" };
 const imgCache = new Map();
-let imgDay = "", imgCount = 0;
-function imgQuota() {
-  const d = new Date().toISOString().slice(0, 10); if (d !== imgDay) { imgDay = d; imgCount = 0; }
-  const max = +(process.env.YANDEX_IMG_DAILY_MAX || 300);
-  if (imgCount >= max) return false;
-  imgCount++; return true;
+let searchDay = "", searchCount = 0;
+function searchQuota() {
+  const d = new Date().toISOString().slice(0, 10); if (d !== searchDay) { searchDay = d; searchCount = 0; }
+  const max = +(process.env.YANDEX_SEARCH_DAILY_MAX || process.env.YANDEX_IMG_DAILY_MAX || 300);
+  if (searchCount >= max) return false;
+  searchCount++; return true;
 }
 async function yandexImages(q, n) {
   const ck = q + "|" + n; const hit = imgCache.get(ck); if (hit && Date.now() - hit.at < 6 * 3600e3) return hit.items;
-  if (!imgQuota()) throw Object.assign(new Error("Дневной лимит поиска картинок исчерпан. Увеличьте YANDEX_IMG_DAILY_MAX или подождите до завтра."), { status: 429, reason: "daily_limit" });
+  if (!searchQuota()) throw Object.assign(new Error("Дневной лимит поиска картинок исчерпан. Увеличьте YANDEX_IMG_DAILY_MAX или подождите до завтра."), { status: 429, reason: "daily_limit" });
   const body = JSON.stringify({ query: { searchType: "SEARCH_TYPE_RU", queryText: q, familyMode: "FAMILY_MODE_STRICT", page: 0, fixTypoMode: "FIX_TYPO_MODE_ON" }, imageSpec: { size: "IMAGE_SIZE_LARGE" }, docsOnPage: n, folderId: YS.folder });
   const res = await request("https://searchapi.api.cloud.yandex.net/v2/image/search", { headers: { Authorization: "Api-Key " + YS.key, "Content-Type": "application/json" }, body, timeout: 20000 });
   const text = await readAll(res);
@@ -735,6 +735,7 @@ async function handler(req, res) {
   }
   if (req.method === "GET" && route === "/media") {
     if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });
+    if (!searchQuota()) return send(res, 200, { ok: false, reason: "daily_limit", results: [] });
     const q = String(u.searchParams.get("q") || "").slice(0, 200).trim(); if (!q) return send(res, 400, { error: "нужен q" });
     const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
     if (limited(ip)) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
@@ -743,12 +744,14 @@ async function handler(req, res) {
   if (req.method === "GET" && route === "/edu") {
     if (limited((req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim())) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
     if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });
+    if (!searchQuota()) return send(res, 200, { ok: false, reason: "daily_limit", results: [] });
     const q = String(u.searchParams.get("q") || "").slice(0, 200).trim(); if (!q) return send(res, 400, { error: "нужен q" });
     const words = String(u.searchParams.get("w") || "").toLowerCase().split(/[,\s]+/).filter(w => w.length > 3).slice(0, 6);
     try { return send(res, 200, await eduSearch(q, words)); } catch (e) { return send(res, e.status || 502, { ok: false, error: String(e.message || e), results: [] }); }
   }
   if (req.method === "GET" && route === "/facts") {
     if (!(YS.key && YS.folder)) return send(res, 200, { ok: false, reason: "no_keys", results: [] });
+    if (!searchQuota()) return send(res, 200, { ok: false, reason: "daily_limit", results: [] });
     const q = String(u.searchParams.get("q") || "").slice(0, 240).trim(); if (!q) return send(res, 400, { error: "нужен q" });
     const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
     if (limited(ip)) return send(res, 429, { error: "слишком много запросов, подождите минуту", reason: "rate" });
