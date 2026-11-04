@@ -368,29 +368,43 @@ const Deck = (() => {
     const base = lit ? (work || author || p.topic) : core;
     /* где картинка уместна: тезисы, списки, цель, вывод. Схемы, алгоритмы, запоминалки, викторины,
        «план/маршрут» и приложения — рисуем текстом, без случайных фото. */
-    const ON_ALL = new Set(["cards", "list", "big", "steps", "concl"]); // «Тема и цель» – без картинки: текст наезжал на неё
+    const ON_ALL = new Set(["title", "cards", "list", "big", "steps", "concl"]);
     const ON_KEY = new Set(["cards", "list", "big", "steps"]);
     let side = 0;
     for (const card of cards) {
       if (card.kind === "image" || card.kind === "art" || VERBATIM.has(card.kind)) continue;
       if (["scheme", "algo", "mnemo", "check", "quiz", "table", "appendix", "board", "glossary", "terms", "flip"].includes(card.kind)) { if (mode === "none") { card.img = ""; card.acc = undefined; } continue; }
       // «маршрут/план/схема/алгоритм/таблица» — рисуем текстом, без случайных фото
-      if (/схем|алгоритм|маршрут|план (урока|изучен)|таблиц|инфографик|викторин|проверь себя/i.test(String(card.title || ""))) continue;
+      if (/схем|алгоритм|маршрут|план (урока|изучен)|таблиц|инфографик|викторин|проверь себя|план урока|рефлекс|домашн|итог/i.test(String(card.title || ""))) continue;
       if (mode === "none") { card.img = ""; card.acc = undefined; continue; }
       if (card.img) continue;
       if (!(mode === "all" ? ON_ALL.has(card.kind) : ON_KEY.has(card.kind))) continue;
-      if ((card.points || []).map(String).some(x => x.length > 150)) continue;
+      if ((card.points || []).map(String).some(x => x.length > 240)) continue;
       const sur = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
-      const GEN = /^(практика|упражнени|закреплени|самостоятельн|рефлекси|подвед|вывод|проверь|план|цель|повторени|итог|домашн|разминк|запомни|задани|ответ|схем|алгоритм|понят|пример|главное|словарь|лента времени|найди ошибку|как это объяснить|вопрос урока|причины и последствия|какие вопрос|проблемн)/i;
+      const GENERIC_TITLE = /^(практика|упражнени|закреплени|самостоятельн|рефлекси|подвед|вывод|проверь|план|цель|повторени|итог|домашн|разминк|запомни|задани|ответ|схем|алгоритм|понят|пример|главное|словарь|лента времени|найди ошибку|как это объяснить|вопрос урока|причины и последствия|какие вопрос|проблемн|работаем|сделаем|узнаем|что дальше|новый материал)/i;
+      /* для «Практика/Вывод/Работаем» берём конкретику из первого содержательного пункта, а не общий заголовок */
+      const concrete = GENERIC_TITLE.test(String(card.title || "")) ? String((card.points || []).find(x => String(x).length > 24) || "").replace(/[«»"]/g, "").slice(0, 90) : String(card.title || "");
       // литература: автор → произведение → иллюстрация → конкретика со слайда (герой или эпизод), а не название слайда
       const heroes = (p.plan?.kit?.heroes || p.plan?.analysis?.heroes || []).map(h => typeof h === "string" ? h : h?.name).filter(Boolean);
       const ctext = [card.title, card.lead, ...(card.points || [])].map(String).join(" ");
       const spec = lit ? (heroes.find(h => ctext.includes(String(h).split(/\s+/)[0])) || (card.fn && /^(Фрагмент|Часть)/.test(String(card.title || "")) ? String(card.title).replace(/^(Фрагмент|Часть)\s*\d+\.?\s*/, "").replace(/^«|…?»$/g, "") : "")) : "";
-      const qImg = (lit ? `${sur} ${work || p.topic} иллюстрация картина художника ${spec}` : `${card.kind === "big" || GEN.test(String(card.title || "")) ? "" : (card.title || "") + " "}${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
+      const qImg = (lit ? `${sur} ${work || p.topic} иллюстрация картина художника ${spec}` : `${concrete} ${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
       /* Литература, МХК, ИЗО, музыка: берём только проверенную живопись/иллюстрацию (commons:),
          а не случайное фото. Нет подходящей картины/иллюстрации — слайд остаётся без картинки. */
       const artOnly = ["lit", "mhk", "izo", "mus"].includes(p.subject); card.img = artOnly ? `commons:${qImg}` : qImg;
       card.acc = ++side % 2 ? "right" : "left";
+    }
+    /* мало картинок — добавляем на обложку и ключевые слайды, чтобы презентация не была «серой» */
+    if (mode === "all") {
+      let have = cards.filter(c => c.img && !VERBATIM.has(c.kind)).length;
+      if (have < 3) {
+        for (const cand of cards) {
+          if (have >= 3) break;
+          if (cand.img || !["title", "big", "cards", "list", "steps", "concl"].includes(cand.kind)) continue;
+          cand.img = cand.kind === "title" ? `${base} ${p.topic}` : `${String(cand.title || "").replace(/[«»"]/g, "")} ${base}`;
+          cand.acc = ++side % 2 ? "right" : "left"; have++;
+        }
+      }
     }
     if (mode === "key" && !lit) {
       const mot = cards.find(x => ["cards", "big"].includes(x.kind) && /начн|вспомн|задача/i.test(x.title || ""));

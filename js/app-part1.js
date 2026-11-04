@@ -2308,6 +2308,7 @@ const Media = (() => {
       let found = pickBest(q, fresh(await search(q, 12)), P.must);
       if (found && intent0 && !commonsOk(found, intent0, q0)) found = null;
       if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12)), P.must);
+      if (!found && P.alt && P.alt !== q) found = pickBest(P.alt, fresh(await search(P.alt, 12)), P.must);
       // строгий подбор не нашёл — берём первую подходящую картинку из выдачи Яндекса (без плакатов, схем и текста)
       // но только если в названии/подписи есть обязательное слово (must): иначе не ставим случайное фото
       const nrm1 = s => String(s || "").toLowerCase().replace(/ё/g, "е");
@@ -2359,8 +2360,10 @@ const Media = (() => {
 - Литература: НЕ «автор произведения», а полные имя и фамилия автора + «портрет»; для иллюстрации — фамилия автора + название произведения + «иллюстрация» + конкретный герой/сцена с слайда. Название не понимай буквально (Бульба — герой, а не картофель).
 - Русский язык: предмет/действие из примера на слайде, не термин.
 - must — 1–2 слова, которые ОБЯЗАНЫ быть в названии/подписи найденной картинки; если их нет, картинка не берётся.
+- Картинка должна быть яркой, чёткой, по возможности горизонтальной, без текста, водяных знаков и коллажей. Не проси плакаты, мемы, скриншоты и обложки учебников.
+- alt — запасной запрос (другая формулировка того же объекта), если по основному ничего не найдётся.
 ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
-Ответ — ТОЛЬКО JSON-массив: [{"n":1,"stage":"этап","keyword":"объект","query":"запрос","must":["обязательное слово"]}]`;
+Ответ — ТОЛЬКО JSON-массив: [{"n":1,"stage":"этап","keyword":"объект","query":"запрос","alt":"запасной запрос","must":["обязательное слово"]}]`;
     try {
       const { text } = await window.AI.sample(prompt, { modelTier: "quick", noRules: true });
       const arr = JSON.parse((String(text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
@@ -2368,7 +2371,7 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
         // иллюстрация к произведению: автор и название из исходного запроса остаются в начале, нейросеть добавляет конкретику (герой, сцена)
         if (/иллюстрац/.test(q0)) { const head = q0.replace(/\s*(иллюстрац[а-яё]*|картин[а-яё]*|художник[а-яё]*).*$/i, "").trim(); let aq = String(a.query).replace(/[«»"]/g, ""); for (const w of head.split(/\s+/)) if (w.length > 2 && !aq.toLowerCase().includes(w.toLowerCase())) aq = w + " " + aq; if (!/иллюстрац|картин/i.test(aq)) aq += " иллюстрация"; return { query: aq.replace(/\s+/g, " ").trim().slice(0, 100), must: head.split(/\s+/).filter(w => w.length > 3).slice(0, 2), stage: a.stage }; }
         const must = [].concat(a.must || a.keyword || []).map(String).filter(Boolean).slice(0, 3);
-        return { query: keep ? b.query : String(a.query).slice(0, 80), must, stage: a.stage }; });
+        return { query: keep ? b.query : String(a.query).slice(0, 80), alt: a.alt ? String(a.alt).slice(0, 80) : "", must, stage: a.stage }; });
     } catch { return base; }
   }
   const yandexUrl = q => `https://yandex.ru/images/search?text=${encodeURIComponent(q)}`;
