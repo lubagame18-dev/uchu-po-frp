@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -143,7 +143,7 @@ function finish(){
   \$("quiz").classList.add("hidden"); \$("done").classList.remove("hidden");
   \$("score").textContent=score+" / "+rows.length;
   \$("resText").textContent=score===rows.length?"Отлично! Всё верно.":score>=rows.length*0.7?"Хорошо, но есть что повторить.":"Стоит повторить тему.";
-  const details={answers:rows};
+  const details={answers:rows,wrong:rows.map((r,i)=>r.ok?null:i+1).filter(Boolean),own:"",sections:{"Тест":score+" / "+rows.length}};
   if(QUIZ_ID){
     fetch(CLOUD.url+"/rest/v1/quiz_results",{method:"POST",headers:{apikey:CLOUD.anonKey,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({quiz_id:QUIZ_ID,student:name,klass,score,total:rows.length,details})})
     .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);\$("sendNote").textContent="Результат отправлен учителю.";})
