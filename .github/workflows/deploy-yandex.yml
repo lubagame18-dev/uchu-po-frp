@@ -1,4 +1,4 @@
-name: Выкладка сайта в Яндекс Облако
+﻿name: Выкладка сайта в Яндекс Облако
 
 # После каждого изменения в main сайт копируется в бакет Object Storage «uchu-po-frp.ru».
 # Ключи – в секретах репозитория: YC_KEY_ID и YC_SECRET (статический ключ сервисного аккаунта с ролью storage.editor).
@@ -38,7 +38,7 @@ jobs:
         if: steps.keys.outputs.ok == '1'
         run: |
           aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --no-progress \
-            --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" --exclude "tools/*" --exclude "docs/*" \
+            --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" --exclude "docs/*" \
             --exclude "*.md" --exclude "*.sql" --exclude "*.zip" --exclude "wrangler.toml" --exclude "vercel.json" --exclude "_worker.js" \
             --exclude ".assetsignore" --exclude ".nojekyll" --exclude "CNAME" --exclude ".gitignore" \
             --cache-control "public, max-age=300"
