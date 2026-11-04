@@ -77,7 +77,21 @@ const AI = (() => {
       return { ok: true, ids };
     } catch (e) { return { ok: false, network: true }; } finally { clearTimeout(t); }
   }
-  /* Подключить по ключу (и, если нужно, адресу): найти сервис, модели, проверить — одним нажатием */
+  /* Проверка ключа через сам чат: многие посредники не отдают /models, но принимают /chat/completions */
+  async function probeChat(base, key, ms = 25000) {
+    const url = String(base || "").replace(/\/+$/, "").replace(/\/chat\/completions\/?$/, "") + "/chat/completions";
+    const models = ["deepseek-flash", "deepseek-chat", "gpt-4o-mini", "gpt-4.1-mini", "openai/gpt-4o-mini", "llama-3.3-70b", "qwen-plus", "glm-4-flash", "mistral-small-latest"];
+    for (const m of models) {
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), ms);
+      try {
+        const r = await fetch(url, { method: "POST", signal: ctl.signal, headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" }, body: JSON.stringify({ model: m, messages: [{ role: "user", content: "Ответь одним словом: ок" }], max_tokens: 8, stream: false }) });
+        if (r.ok) return { ok: true, model: m };
+        if (r.status === 401 || r.status === 403) return { ok: false, auth: true, status: r.status };
+      } catch (e) { if (e.name === "AbortError") return { ok: false, network: true }; }
+      finally { clearTimeout(to); }
+    }
+    return { ok: false };
+  }
   /* Сервисы, которые не работают из России: не подключаем (риск блокировки аккаунта) */
   const RU_BLOCKED_KEY = /^(sk-ant-|AIza|xai-|gsk_|sk-proj-|sk-svcacct-|sk-admin-)/, RU_BLOCKED_HOST = /anthropic\.com|openai\.com|googleapis\.com|(^|\.)x\.ai|groq\.com|claude\.ai/i;
   const ruBlocked = (key, base) => RU_BLOCKED_HOST.test(String(base || "")) || (!String(base || "").trim() && RU_BLOCKED_KEY.test(String(key || "").trim())); // через сторонний сервис по адресу — можно (на риск пользователя)
@@ -101,6 +115,17 @@ const AI = (() => {
       const lm = await listModels(b, key);
       if (lm.ok) { found = { base: b, ids: lm.ids }; break; }
       if (lm.network) netFail = true;
+    }
+    if (found && !(found.ids || []).length) {
+      const pc = await probeChat(found.base, key);
+      if (pc.ok) found.ids = [pc.model];
+    }
+    if (!found && baseHint) {
+      onStep("Проверяю ключ через чат…");
+      const pc = await probeChat(baseHint, key);
+      if (pc.ok) found = { base: baseHint.replace(/\/chat\/completions\/?$/, "").replace(/\/+$/, ""), ids: [pc.model] };
+      else if (pc.auth) throw new Error("сервер отклонил ключ (401/403). Проверьте ключ и адрес сервиса.");
+      else netFail = true;
     }
     if (!found) throw new Error(netFail ? "сервис не открывается из этой сети или не принимает запросы со страниц (CORS). Попробуйте указать адрес вручную или включить прокси" : "ключ не подошёл ни к одному известному сервису — укажите адрес сервиса (…/v1)");
     const host = new URL(found.base).hostname, name = HOSTNAMES[host] || det.name || host;

@@ -17,13 +17,15 @@ const LessonNotes = (() => {
   /* ---------- разбор техкарты ---------- */
   function head(md) {
     const pick = re => (md.match(re) || [])[1] || "";
+    const tbl = label => { const m = md.match(new RegExp("\\|\\s*" + label + "\\s*\\|\\s*([^\\n|]+)")); return m ? clean(m[1]).replace(/^\*\*|\*\*$/g, "") : ""; };
     return {
       title: pick(/^#\s+(.+)$/m),
       meta: pick(/^(\*\*Класс:\*\*.+)$/m),
-      goal: pick(/\*\*Цель:\*\*\s*([^\n]+)/),
-      equip: pick(/\*\*Оборудование:\*\*\s*([^\n]+)/),
+      goal: pick(/\*\*Цель:\*\*\s*([^\n]+)/) || tbl("Цель"),
+      equip: pick(/\*\*Оборудование:\*\*\s*([^\n]+)/) || tbl("Ресурсы"),
       text: pick(/\*\*Текст для анализа:\*\*\s*([^\n]+)/),
-      book: pick(/\*\*Опора в учебнике:\*\*\s*([^\n]+)/)
+      book: pick(/\*\*Опора в учебнике:\*\*\s*([^\n]+)/) || tbl("Учебник"),
+      type: tbl("Тип урока")
     };
   }
   function section(md, title) {
@@ -33,6 +35,7 @@ const LessonNotes = (() => {
     return (j < 0 ? rest : rest.slice(0, j)).trim();
   }
   function rows(md) {
+    if (/Таблица\s*2\.\s*Блочно-модульное/i.test(md)) return blockRows(md);
     let i = md.search(/^##\s+Технологическая карта/m);
     if (i < 0) { const t = md.search(/^\|\s*(Этап|№)[^\n]*\|[^\n]*(Учител|учител|Деятельность)/m); if (t < 0) return []; i = md.lastIndexOf("\n", Math.max(0, t - 2)); if (i < 0) i = 0; } // нейросеть могла не поставить заголовок
     const out = [];
@@ -110,6 +113,25 @@ const LessonNotes = (() => {
     const keys = [t.src ? `по ключу пособия (${cell(t.src)})` : "", algo?.ex?.length ? `образцы: ${cell(algo.ex.join("; "))}` : ""].filter(Boolean).join("; ");
     const text = String(t.text || "").split("<br>").map(x => cell(x)).join("<br>");
     return `| 📝 Упражнение ${n}${t.src ? ` · ${cell(t.src)}` : ""} | 🧭 Алгоритм решения${algo ? ` «${cell(algo.name)}»` : ""} |\n|---|---|\n| <span class="nw">${text}</span> | ${steps} |\n| **🔑 Ключи:** ${keys || "проверить по правилу; ответы — на листе «Ответы» рабочего листа"} |  |\n\n`;
+  }
+
+  function blockRows(md) {
+    const part = String(md).split(/Таблица\s*2\./i)[1] || "";
+    const lines = part.split("\n").map(x => x.trim()).filter(x => /^\|/.test(x) && !/^\|\s*:?-{2,}/.test(x));
+    const out = []; let cur = null;
+    const cells = l => l.replace(/^\|/, "").replace(/\|$/, "").split("|").map(x => x.replace(/\*\*/g, "").trim());
+    for (const l of lines) {
+      const t = cells(l).join(" ").trim(); if (!t) continue;
+      if (/^Блок\s+\d+/i.test(t)) { if (cur) out.push(cur); cur = { stage: t.replace(/^Блок\s*\d+\.?\s*/i, ""), teacher: "", students: "", results: "", goal: "" }; continue; }
+      if (!cur) continue;
+      if (/^Цель этапа/i.test(t)) cur.goal = t.replace(/^Цель этапа:\s*/i, "");
+      else if (/^Учитель:/i.test(t)) cur.teacher = t.replace(/^Учитель:\s*/i, "");
+      else if (/^Ученики:/i.test(t)) cur.students = t.replace(/^Ученики:\s*/i, "");
+      else if (/^Планируемые результаты:/i.test(t)) cur.results = t.replace(/^Планируемые результаты:\s*/i, "");
+      else if (/^Домашнее задание:/i.test(t)) cur.stage += " · Домашнее задание";
+    }
+    if (cur) out.push(cur);
+    return out.map(c => [c.stage, c.teacher, c.students, [(c.goal ? "Цель этапа: " + c.goal + ". " : ""), c.teacher, c.results ? "Результаты: " + c.results : ""].filter(Boolean).join(" ")]);
   }
 
   /* ---------- сборка: вёрстка по образцу конспектов учителя (Layout) ---------- */
