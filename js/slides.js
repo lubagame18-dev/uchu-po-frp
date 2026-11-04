@@ -910,7 +910,7 @@ const SlideEditor = (() => {
     const toks = window.marked.lexer(sl.body || "").filter(t => t.type !== "space").map(t => t.raw.trim());
     if (toks.length < 2) return null;
     const h = Math.ceil(toks.length / 2);
-    return [{ ...sl, body: toks.slice(0, h).join("\n\n"), set: { ...sl.set, afs: undefined } }, { ...sl, title: sl.title.replace(/\s*\(продолжение.*\)$/, "") + " (продолжение)", body: toks.slice(h).join("\n\n"), notes: "", set: { ...sl.set, afs: undefined } }];
+    return [{ ...sl, body: toks.slice(0, h).join("\n\n"), set: { ...sl.set, afs: undefined } }, { ...sl, title: sl.title.replace(/\s*\(продолжение.*\)$/, ""), body: toks.slice(h).join("\n\n"), notes: "", set: { ...sl.set, afs: undefined } }];
   }
   function autoSplitIfNeeded() {
     if (document.activeElement?.closest?.("#sxFrame")) return;

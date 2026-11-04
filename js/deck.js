@@ -346,7 +346,7 @@ const Deck = (() => {
     for (const c of cards) {
       if (c.on === false || !["cards", "list", "concl"].includes(c.kind) || (c.points || []).length <= max + 1) { out.push(c); continue; }
       const pts = c.points, parts = Math.ceil(pts.length / max), size = Math.ceil(pts.length / parts);
-      for (let i = 0, k = 0; i < pts.length; i += size, k++) out.push({ ...c, id: `${c.id || "s"}_${k}`, title: (c.title || "") + (k ? " (продолжение)" : ""), points: pts.slice(i, i + size), links: k ? undefined : c.links });
+      for (let i = 0, k = 0; i < pts.length; i += size, k++) out.push({ ...c, id: `${c.id || "s"}_${k}`, title: (c.title || ""), points: pts.slice(i, i + size), links: k ? undefined : c.links });
     }
     if (o?.amount !== "brief" && out.length < target && !out.some(c => /рефлекс/i.test(c.title || ""))) {
       // рефлексия — до домашнего задания и до слайдов-приложений, они всегда остаются в конце
@@ -797,7 +797,7 @@ const Deck = (() => {
         const totalLines = poem.reduce((a, st) => a + st.length, 0);
         const long = totalLines > 32;
         const use = long ? chunks.slice(0, 1) : chunks;
-        use.forEach((ch, k) => add({ kind: "poem", title: (shortWork ? `«${shortWork}»` : "Текст") + (long ? " — начало" : k ? " (продолжение)" : ""), poem: ch.join("\n\n"), by: k === use.length - 1 ? author || "" : "", notes: k ? "" : `Текст — дословно, источник: ${p.plan.textSource || "см. конспект"}.${long ? " Произведение большое: на слайде начало, полный текст — в учебнике." : ""}` }));
+        use.forEach((ch, k) => add({ kind: "poem", title: (shortWork ? `«${shortWork}»` : "Текст") + (long ? " — начало" : ""), poem: ch.join("\n\n"), by: k === use.length - 1 ? author || "" : "", notes: k ? "" : `Текст — дословно, источник: ${p.plan.textSource || "см. конспект"}.${long ? " Произведение большое: на слайде начало, полный текст — в учебнике." : ""}` }));
       }
       const qs = lines.filter(l => isQ(cleanLine(l)) && !/Эпиграф:/.test(l)).map(l => tight(l, amt)).filter(x => x.length > 8);
       const problem = lines.map(l => (cleanLine(l).match(/Проблемный вопрос(?: урока)?:\s*(.+\?)/i) || [])[1]).find(Boolean);
