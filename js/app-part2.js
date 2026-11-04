@@ -3301,7 +3301,6 @@ function bind() {
   attach("#xExtraFile", "#xExtraName", "extraFile"); attach("#xHwFile", "#xHwName", "hwFile");
   $$("[data-write]").forEach(b => b.onclick = () => { const t = $("#" + b.dataset.write); t.hidden = !t.hidden; if (!t.hidden) t.focus(); });
   $("#btnCreate").onclick = createLesson;
-$("#btnTestOnly").onclick = () => window.QuizLink?.openCreateDialog?.();
   $("#btnStop").onclick = () => state.gen?.ctl?.abort();
   $("#md").addEventListener("input", onMdEdit);
   $("#sheet").addEventListener("input", onSheetEdit);
