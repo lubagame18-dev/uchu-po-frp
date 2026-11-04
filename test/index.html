@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Проверка знаний — Учу по ФРП</title>
+<style>
+:root{--ink:#15202b;--line:#d9e2ec;--accent:#c0392b;--ok:#0f766e;--soft:#f4f6f9}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial,"Segoe UI",sans-serif;background:var(--soft);color:var(--ink)}
+.wrap{max-width:760px;margin:0 auto;padding:22px 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin:0 0 14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+h1{font:800 25px/1.25 Georgia,serif;margin:0 0 4px}.meta{color:#637083;font-size:14px}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}
+input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;background:#fff}
+.q{border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px;background:#fff}
+.q b{display:block;margin-bottom:8px}
+.opt{display:flex;gap:8px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin:6px 0;cursor:pointer;transition:background .15s,border-color .15s}
+.opt input{margin-top:3px;width:auto}.opt.sel{border-color:var(--accent);background:#fff6f5}
+.btn{width:100%;border:0;border-radius:12px;padding:13px;font:800 16px Arial;background:var(--ink);color:#fff;cursor:pointer;margin-top:10px}
+.btn.teal{background:var(--ok)}.btn:disabled{opacity:.6;cursor:default}
+.score{font-size:38px;font-weight:900;color:var(--ok);line-height:1.1}
+.err{color:#a02020}.hidden{display:none}.small{font-size:13.5px;color:#637083}
+a{color:var(--accent)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.top a{font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="small">Учу по ФРП</span><a href="https://uchu-po-frp.ru/">← на сайт</a></div>
+  <div class="card" id="load"><h1>Загружаю тест…</h1><p class="small" id="loadMsg"></p></div>
+  <div id="app" class="hidden"></div>
+</div>
+<script>
+"use strict";
+const CLOUD = { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const qid = new URLSearchParams(location.search).get("q") || "";
+const data = { q: null, picked: {} };
+
+async function api(path, opt = {}) {
+  const r = await fetch(CLOUD.url.replace(/\/+$/, "") + path, { ...opt, headers: { apikey: CLOUD.anonKey, "Content-Type": "application/json", ...(opt.headers || {}) } });
+  const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
+  if (!r.ok) throw new Error(j?.message || j?.error || ("HTTP " + r.status));
+  return j;
+}
+
+async function boot() {
+  if (!qid || !/^[a-z0-9]{6,32}$/.test(qid)) { fail("Ссылка на тест неверна."); return; }
+  try {
+    const j = await api("/rest/v1/rpc/quiz_public", { method: "POST", body: JSON.stringify({ p_id: qid }) });
+    if (!j || !Array.isArray(j.questions) || !j.questions.length) throw new Error("Тест не найден или вопросы ещё не сохранены.");
+    data.q = j;
+    $("load").classList.add("hidden"); $("app").classList.remove("hidden"); renderIntro();
+  } catch (e) {
+    fail("Не удалось открыть тест: " + (e.message || e));
+  }
+}
+function fail(t) { $("load").innerHTML = '<h1>Тест недоступен</h1><p class="small"></p><p class="err"></p><p><a href="https://uchu-po-frp.ru/">Вернуться на сайт</a></p>'; $("load").querySelector(".small").textContent = t; }
+function renderIntro() {
+  const d = data.q;
+  $("app").innerHTML = `<div class="card"><h1>${esc(d.title || "Проверка знаний")}</h1>
+    <div class="meta">${esc(d.subject || "")}${d.grade ? " · " + esc(d.grade) + " класс" : ""} · ${d.questions.length} вопрос(ов)</div>
+    <label for="name">Фамилия и имя</label><input id="name" autocomplete="name" placeholder="Иванов Иван">
+    <label for="klass">Класс</label><input id="klass" autocomplete="off" placeholder="${esc(d.grade || "")}">
+    <button class="btn" id="start">Начать тест</button><p class="err" id="err"></p></div>`;
+  $("start").onclick = () => {
+    const name = $("name").value.trim();
+    if (name.length < 3) { $("err").textContent = "Впишите фамилию и имя."; return; }
+    data.student = name; data.klass = $("klass").value.trim();
+    renderQuiz();
+  };
+}
+function renderQuiz() {
+  const Q = data.q.questions;
+  $("app").innerHTML = `<div class="card"><h1>${esc(data.q.title || "Тест")}</h1><div class="meta">${esc(data.student)}${data.klass ? " · " + esc(data.klass) : ""}</div>
+    <div id="qs"></div><button class="btn" id="finish">Проверить результат</button><p class="small" id="prog"></p></div>`;
+  $("qs").innerHTML = Q.map((x, i) => `<div class="q" data-i="${i}"><b>${i + 1}. ${esc(x.q)}</b>${x.options.map((o, k) => `<label class="opt"><input type="radio" name="q${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("");
+  $("qs").addEventListener("change", e => {
+    const q = e.target.closest(".q"); if (!q) return;
+    data.picked[+q.dataset.i] = +e.target.value;
+    q.querySelectorAll(".opt").forEach(o => o.classList.toggle("sel", o.contains(e.target)));
+    $("prog").textContent = "Отвечено: " + Object.keys(data.picked).length + " из " + Q.length;
+  });
+  $("finish").onclick = finish;
+}
+async function finish() {
+  const Q = data.q.questions;
+  if (Object.keys(data.picked).length < Q.length) { alert("Ответьте на все вопросы."); return; }
+  const rows = Q.map((x, i) => ({ q: x.q, answer: x.options[x.answer], picked: x.options[data.picked[i]], ok: data.picked[i] === x.answer, explain: x.explain || "" }));
+  const score = rows.filter(r => r.ok).length;
+  const details = { answers: rows, wrong: rows.map((r, i) => r.ok ? null : i + 1).filter(Boolean), own: "", sections: { "Тест": score + " / " + rows.length } };
+  $("app").innerHTML = `<div class="card"><div class="score">${score} / ${rows.length}</div><h1>${score === rows.length ? "Отлично!" : score >= rows.length * 0.7 ? "Хорошо!" : "Стоит повторить"}</h1>
+    <p>${score === rows.length ? "Все ответы верные." : "Верных ответов: " + score + " из " + rows.length + ". Учитель увидит результат в кабинете."}</p>
+    <p class="small" id="send">Отправляю результат…</p><p><a href="https://uchu-po-frp.ru/">Вернуться на сайт</a></p></div>`;
+  try {
+    await api("/rest/v1/quiz_results", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ quiz_id: qid, student: data.student, klass: data.klass, score, total: rows.length, details }) });
+    $("send").textContent = "Результат отправлен учителю.";
+  } catch (e) { $("send").textContent = "Результат не отправлен: " + (e.message || e); }
+}
+boot();
+</script>
+</body>
+</html>

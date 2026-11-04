@@ -1,4 +1,4 @@
-/* «Учу по ФРП» — интерактив для учеников по QR-коду и «Результаты тестов» в кабинете.
+﻿/* «Учу по ФРП» — интерактив для учеников по QR-коду и «Результаты тестов» в кабинете.
    • Готовые интерактивы — в CATALOG (страница урока + тема, к которой он подходит). Пока готов «Тарас Бульба» (7 кл.);
      дальше сюда же добавляются новые страницы (в будущем — собранные нейросетью по уроку).
    • Учитель отмечает «📱 Интерактив с тестом» → при сборке презентации в облаке создаётся запись quizzes (владелец — учитель),
@@ -30,6 +30,31 @@ const QuizLink = (() => {
     el.addEventListener("change", () => { ls.set(KEY, el.checked); if (el.checked && !logged()) window.toast?.("Чтобы результаты учеников приходили вам, войдите в личный кабинет (вверху справа).", 5000); });
   }
 
+  /* AI-тест по теме: учитель только выбирает промпт, тест собирается сам */
+  async function aiTest(p) {
+    if (!logged()) throw new Error("войдите в личный кабинет");
+    if (!window.AI || !AI.configured || !AI.configured()) throw new Error("нейросеть не подключена");
+    const prompt = `Ты — учитель и методист. Составь проверочный тест по теме «${p.topic}», предмет «${p.subject}», ${p.grade} класс.
+Цель урока: ${p.goal || p.topic}. Проверяем именно приобретённые на уроке знания.
+Верни ТОЛЬКО JSON без markdown:
+{"title":"название теста","questions":[{"q":"вопрос","options":["А","Б","В","Г"],"answer":2,"explain":"почему верно"}]}
+Правила: 6–10 вопросов; один правильный ответ; 4 варианта; answer — индекс с 0; неверные варианты правдоподобные; без подсказок; факты достоверные.`;
+    const res = await AI.sample(prompt, { modelTier: "default" });
+    let txt = String(res?.text || "").replace(/```json|```/gi, "").trim();
+    const a = txt.indexOf("{"), b = txt.lastIndexOf("}");
+    if (a < 0 || b < a) throw new Error("нейросеть вернула не JSON");
+    const data = JSON.parse(txt.slice(a, b + 1));
+    if (!data || !Array.isArray(data.questions) || data.questions.length < 3) throw new Error("в тесте нет вопросов");
+    data.questions = data.questions.filter(x => x && x.q && Array.isArray(x.options) && x.options.length >= 2 && Number.isInteger(x.answer));
+    if (data.questions.length < 3) throw new Error("в тесте слишком мало корректных вопросов");
+    const id = newId();
+    await Account.db("/rest/v1/quizzes", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ id, template: "ai-test", title: String(data.title || p.topic).slice(0, 200) }) });
+    let warn = "";
+    try { await Account.db("/rest/v1/quiz_questions", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ quiz_id: id, data: { title: data.title || p.topic, subject: p.subject, grade: p.grade, questions: data.questions } }) }); }
+    catch (e) { warn = "Тест создан, но вопросы не сохранились: запустите supabase_quizzes_ai.sql в Supabase."; }
+    return { id, url: base() + "test/index.html?q=" + id, data, warn };
+  }
+
   /* запись интерактива в облаке: владелец — вошедший учитель */
   async function create(t, title) {
     const id = newId();
@@ -39,32 +64,35 @@ const QuizLink = (() => {
 
   /* слайд для конца презентации: QR + ссылка */
   async function slideMd(p) {
-    const t = find(p); if (!t) return null;
-    let id = null, warn = "";
-    if (logged()) { try { id = await create(t, p.topic); } catch (e) { warn = "Не получилось создать интерактив в облаке (" + e.message + "). Проверьте, что запущен supabase_quizzes.sql."; } }
-    else warn = "Вы не вошли в кабинет: QR-код ведёт на интерактив, но результаты учеников вам не придут.";
-    const url = linkOf(t, id);
+    let a = null, t = find(p), id = null, url = null, warn = "";
+    if (logged() && window.AI && AI.configured && AI.configured()) {
+      try { a = await aiTest(p); id = a.id; url = a.url; warn = a.warn || ""; } catch (e) { warn = "Тест не создан: " + (e.message || e); }
+    }
+    if (!id && t) {
+      try { id = await create(t, p.topic); url = linkOf(t, id); } catch (e) { warn = "Не получилось создать тест (" + e.message + "). Проверьте supabase_quizzes.sql."; }
+    }
+    if (!id) { if (warn) window.toast?.(warn, 6000); return null; }
     let img = "";
-    if (window.QR && window.Store) { try { const b = await QR.png(url, 720); const k = "img-qr-" + (id || Date.now()); await Store.put("images", k, b); img = `![QR-код: интерактив для учеников](idb:${k})`; } catch { } }
+    if (window.QR && window.Store) { try { const b = await QR.png(url, 720); const k = "img-qr-" + (id || Date.now()); await Store.put("images", k, b); img = `![QR-код: проверка знаний](idb:${k})`; } catch { } }
     const set = { kind: "qr", acc: "right" };
-    const md = [`## Интерактив для учеников`, img, [
-      "- Наведите камеру телефона на QR-код",
+    const parts = a ? `${a.data.questions.length} вопросов по теме` : (t ? t.parts : "");
+    const md = [`## 🧪 Проверка знаний: тест по теме`, img, [
+      "- Наведите камеру телефона на QR-код или откройте ссылку",
       "- Впишите фамилию, имя и класс",
-      `- Задания: ${t.parts}`,
-      id ? "- Результат придёт учителю" : "",
+      `- ${parts}`,
+      "- Результат придёт учителю в личный кабинет",
       "", `[${shortOf(url)}](${url})`].filter(x => x !== null).join("\n"),
       `<!--@ ${JSON.stringify(set)} -->`,
-      `<!-- Интерактив «${t.title}». ${id ? "Результаты: Личный кабинет → «Результаты тестов»." : ""} Ссылка: ${url} -->`].filter(Boolean).join("\n\n");
-    return { md, id, url, warn, t };
+      `<!-- Тест «${String(p.topic || "").slice(0, 80)}». Результаты: Личный кабинет → «Результаты тестов». Ссылка: ${url} -->`].filter(Boolean).join("\n\n");
+    if (warn) window.toast?.(warn, 7000);
+    return { md, id, url, warn, t: t || { title: p.topic } };
   }
 
   /* при автоматической сборке урока */
   async function addToDeck(md, p) {
     if (!wanted()) return md;
-    const t = find(p);
-    if (!t) { window.toast?.(`Для темы «${String(p?.topic || "").slice(0, 60)}» готового интерактива пока нет — QR-код не добавлен.`, 5000); return md; }
-    const r = await slideMd(p).catch(() => null); if (!r) return md;
-    if (r.warn) window.toast?.(r.warn, 6000);
+    const r = await slideMd(p).catch(() => null);
+    if (!r) { window.toast?.("Не удалось создать тест. Проверьте вход в кабинет и подключение нейросети.", 6000); return md; }
     return md.replace(/\s+$/, "") + "\n\n" + r.md;
   }
 
@@ -104,18 +132,18 @@ const QuizLink = (() => {
       body.querySelectorAll(".qz-item").forEach(it => it.onclick = () => detail(it.dataset.id));
     };
     const detail = id => {
-      const q = cache.quizzes.find(x => x.id === id), t = CATALOG.find(c => c.id === q.template) || CATALOG[0], url = linkOf(t, id);
+      const q = cache.quizzes.find(x => x.id === id), t = CATALOG.find(c => c.id === q.template) || null, url = q.template === "ai-test" ? base() + "test/index.html?q=" + id : linkOf(t || CATALOG[0], id);
       const prevSeen = seen()[id] || ""; const s = seen(); s[id] = new Date().toISOString(); ls.set(SEEN, s);
       let lastOnly = true; const open = new Set();
       const draw = () => {
         let rs = cache.results.filter(r => r.quiz_id === id);
         if (lastOnly) { const mm = new Map(); rs.forEach(r => { const k = (r.student + "|" + (r.klass || "")).toLowerCase(); if (!mm.has(k)) mm.set(k, r); }); rs = [...mm.values()]; }
-        const n = rs.length, avg = n ? (rs.reduce((a, r) => a + (r.score || 0), 0) / n).toFixed(1) : "—", tot = rs[0]?.total || 12;
+        const n = rs.length, avg = n ? (rs.reduce((a, r) => a + (r.score || 0), 0) / n).toFixed(1) : "—", tot = rs[0]?.total || "—";
         const wr = {}; rs.forEach(r => (r.details?.wrong || []).forEach(x => wr[x] = (wr[x] || 0) + 1));
         const hard = Object.entries(wr).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, c]) => `№${k} (${c})`).join(", ") || "—";
         const secs = Object.keys(rs[0]?.details?.sections || {});
         body.innerHTML = `<div class="mat-row"><button class="btn sm ghost" id="qzBack">← Все уроки</button><button class="btn sm ghost" id="qzRe">Обновить</button><button class="btn sm ghost" id="qzCsv">Скачать таблицу</button><label class="check"><input type="checkbox" id="qzLast" ${lastOnly ? "checked" : ""}> только последняя попытка</label></div>
-          <h3>${esc(q.title || t.title)}</h3>
+          <h3>${esc(q.title || (t && t.title) || "Тест")}</h3>
           <div class="qz-qr">${window.QR ? QR.svg(url) : ""}<div class="small">Ссылка для учеников:<br><a href="${esc(url)}" target="_blank" rel="noopener">${esc(shortOf(url))}</a><br><button class="btn sm ghost" id="qzCopy" style="margin-top:6px">Скопировать ссылку</button></div></div>
           <div class="qz-stats"><div class="qz-stat"><b>${n}</b><span class="small">учеников</span></div><div class="qz-stat"><b>${avg}</b><span class="small">средний балл из ${tot}</span></div><div class="qz-stat"><b style="font-size:15px">${hard}</b><span class="small">вопросы с ошибками</span></div></div>
           ${n ? `<div style="overflow-x:auto"><table class="qz-tab"><tr><th>Ученик</th><th>Класс</th><th>Тест</th>${secs.filter(x => !/Тест/.test(x)).map(x => `<th>${esc(x)}</th>`).join("")}<th>Время</th></tr>${rs.map(r => {
