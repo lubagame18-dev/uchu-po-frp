@@ -1634,14 +1634,21 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
   const done = () => { addPrevHw(L, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
-  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } if (window.QuizLink && QuizLink.wanted() && !L.quiz) { const stopQ = startQuizGen(L); try { const qt = await QuizLink.createTest(p); if (qt) {
-            L.quiz = qt; L.quizAt = new Date().toISOString();
-            if (L.docs.slides && window.QuizLink.slideFor) {
-              try { const sm = await QuizLink.slideFor(p, qt); if (sm) { L.docs.slides = String(L.docs.slides).replace(/\s+$/, "") + "\n\n" + sm; L.status.slides = "ok"; } } catch (e2) { }
-            }
-            await saveLesson(L);
-            toast(L.docs.slides ? "Тест готов: ссылка прикреплена к уроку и QR-слайд добавлен в презентацию." : "Интерактивный тест готов — ссылка прикреплена к уроку.", 7000);
-          } } catch (e) { toast("Тест не создан: " + (e.message || e), 7000); } finally { stopQ(); } } clearJob(L.id); }
+  try {
+    /* тест создаётся ДО презентации: его QR-слайд сразу войдёт в неё */
+    if (window.QuizLink && QuizLink.wanted() && !L.quiz) {
+      const stopQ = startQuizGen(L);
+      try { const qt = await QuizLink.createTest(p); if (qt) { L.quiz = qt; L.quizAt = new Date().toISOString(); await saveLesson(L); toast("Интерактивный тест готов.", 5000); } }
+      catch (e) { toast("Тест не создан: " + (e.message || e), 7000); }
+      finally { stopQ(); }
+    }
+    if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen);
+    if (L._after) { const a = L._after; delete L._after; await a(); }
+    if (L.quiz && L.docs.slides && window.QuizLink.slideFor && !/Проверка знаний: тест по теме/.test(String(L.docs.slides))) {
+      try { const sm = await QuizLink.slideFor(p, L.quiz); if (sm) { L.docs.slides = String(L.docs.slides).replace(/\s+$/, "") + "\n\n" + sm; L.status.slides = "ok"; } } catch (e2) { }
+    }
+    clearJob(L.id);
+  }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }
@@ -2225,7 +2232,7 @@ function openLesson(L, doc, push = true) {
 function paintQuizTab() {
   const b = document.getElementById("quizTab"); if (!b) return;
   const pct = state.quizGen && state.quizGen.lessonId === state.lesson?.id ? state.quizGen.pct : 0;
-  b.innerHTML = `<span class="st" data-s="${pct ? "run" : "ok"}"></span> Интерактивный тест${pct ? " " + pct + "%" : ""}`;
+  const bar = b.querySelector(".quiz-line i"); if (bar) bar.style.width = pct + "%";
 }
 function startQuizGen(L) {
   state.quizGen = { lessonId: L.id, pct: 5 };
@@ -2246,7 +2253,9 @@ function renderLesson() {
   tabs.scrollLeft = tabsX;
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   { const showQ = !!(L.quiz || window.QuizLink?.wanted?.());
-    if (showQ) { tabs.insertAdjacentHTML("beforeend", `<button class="doc-tab quiz-tab" role="tab" id="quizTab">${L.quiz ? "🧪 Интерактивный тест" : "🧪 Интерактивный тест " + (state.quizGen?.pct || 0) + "%"}</button>`); }
+    if (showQ) { const pct = state.quizGen?.lessonId === L.id ? state.quizGen.pct : 0;
+      tabs.insertAdjacentHTML("beforeend", `<button class="doc-tab quiz-tab" role="tab" id="quizTab"><span class="st" data-s="${L.quiz ? "ok" : "run"}"></span> 🧪 Интерактивный тест<span class="quiz-line"><i style="width:${pct}%"></i></span></button>`);
+    }
     const qb = document.getElementById("quizTab"); if (qb) qb.onclick = () => { if (state.lesson?.quiz) window.QuizLink?.openTestCard?.(state.lesson.quiz); else window.toast?.("Интерактивный тест собирается…", 4000); };
   }
   const P = L.params;

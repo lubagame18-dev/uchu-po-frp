@@ -1132,3 +1132,10 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.k-qr figure.pic figcaption{color:#43515f;font-size:1.6cqw;text-align:center;margin-top:.6cqw}
 .sx.k-qr a{display:inline-block;margin-top:.55em;padding:.55em .95em;border-radius:.7em;background:linear-gradient(135deg,#0e7490,#22b8cf);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 20px rgba(14,116,144,.28)}
 .sx.k-qr a:hover{filter:brightness(1.06)}
+
+/* длинный заголовок: принудительно уменьшаем, чтобы влез целиком */
+.sx .sx-title.long, .sx.tk .sx-title.long { font-size: min(calc(3.6cqw * var(--fs)), 5.4cqw) !important; line-height: 1.12 !important; }
+.sx .sx-title.xlong, .sx.tk .sx-title.xlong { font-size: min(calc(2.8cqw * var(--fs)), 4.3cqw) !important; line-height: 1.08 !important; }
+.sx.lay-title .sx-title.long, .sx.lay-title .sx-title.xlong { font-size: min(calc(4.2cqw * var(--fs)), 6.2cqw) !important; }
+
+.quiz-tab{position:relative;overflow:hidden}.quiz-line{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(0,0,0,.08)}.quiz-line i{display:block;height:100%;background:linear-gradient(90deg,#0e7490,#22b8cf);transition:width .3s}
