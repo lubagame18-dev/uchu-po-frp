@@ -1381,6 +1381,11 @@ async function createLesson() {
   // методические блоки (техкарта, контроль, памятки, д/з — входят в тариф «С ИИ»)
   if (!window.Access || Access.techAllowed()) { const X = state.extra; if (X.ctrl) formats.push("control"); if (X.memoSheet || X.memo) formats.push("memo"); if (X.hw) formats.push("homework"); }
   if (state.subject !== "inf") { const i = formats.indexOf("pack"); if (i >= 0) formats.splice(i, 1); }
+  if (!formats.length && window.QuizLink?.wanted()) {
+    try { $("#createHint").textContent = "Создаю тест…"; await QuizLink.createOnly({ subject: subjName(state.subject), grade: state.grade, topic: state.topic, goal: state.wishes }); $("#createHint").textContent = ""; }
+    catch (e) { $("#createHint").textContent = "Тест не создан: " + (e.message || e); }
+    return;
+  }
   if (!formats.length) { $("#createHint").textContent = "Отметьте хотя бы один документ."; return; }
   syncStyleChoices();
   const wsPick = document.querySelector('input[name="wsPics"]:checked')?.value || "", deckPick = document.querySelector('input[name="deckPics"]:checked')?.value || "real";

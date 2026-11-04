@@ -116,6 +116,20 @@ const QuizLink = (() => {
     return md.replace(/\s+$/, "") + "\n\n" + r.md;
   }
 
+  function showTestResult(qt) {
+    const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>📱 Тест готов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b" id="qzResBody"></div></div>`);
+    const b = m.querySelector("#qzResBody");
+    b.innerHTML = `<p class="small">${esc(qt.title)}</p><div id="qzResQr"></div><p style="word-break:break-all"><a href="${esc(qt.url)}" target="_blank" rel="noopener">${esc(qt.url)}</a></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm teal" id="qzOpen">Открыть тест</button><button class="btn sm ghost" id="qzCopy2">Скопировать ссылку</button></div><p class="small">Результаты: Личный кабинет → «Результаты тестов».</p>`;
+    b.querySelector("#qzOpen").onclick = () => window.open(qt.url, "_blank");
+    b.querySelector("#qzCopy2").onclick = () => navigator.clipboard?.writeText(qt.url).then(() => window.toast?.("Ссылка скопирована."));
+    if (window.QR) QR.png(qt.url, 420).then(blob => { const im = document.createElement("img"); im.src = URL.createObjectURL(blob); im.alt = "QR-код теста"; im.style.cssText = "width:200px;height:200px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff"; b.querySelector("#qzResQr").appendChild(im); }).catch(() => null);
+  }
+  async function createOnly(p) {
+    const qt = await createTest(p);
+    showTestResult(qt);
+    return qt;
+  }
+
   /* отдельное создание теста — без урока и документа */
   function openCreateDialog() {
     if (!logged()) { window.toast?.("Войдите в личный кабинет — тест привяжется к вашим результатам.", 6000); window.Account?.open?.(); return; }
@@ -220,6 +234,6 @@ const QuizLink = (() => {
   }
 
   document.addEventListener("DOMContentLoaded", bindForm); setTimeout(bindForm, 0);
-  return { CATALOG, find, wanted, createTest, slideFor, slideMd, addToDeck, openResults, openCreateDialog, badge, linkOf };
+  return { CATALOG, find, wanted, createTest, createOnly, slideFor, slideMd, addToDeck, openResults, openCreateDialog, badge, linkOf };
 })();
 window.QuizLink = QuizLink;

@@ -612,7 +612,6 @@ window.UCHU_SITE = {
     <nav class="nav" aria-label="Разделы">
       <button class="chip" id="nav-builder" aria-current="page">Конструктор</button>
       <button class="chip" id="nav-library">Мои уроки</button>
-      <button class="chip" id="nav-test" title="Создать интерактивный тест отдельно от урока">📱 Тест</button>
       <button class="chip" id="nav-materials">Материалы</button>
       <button class="btn sm flame nav-auth" id="navAuth" type="button">Войти</button>
     </nav>
@@ -668,7 +667,7 @@ window.UCHU_SITE = {
             <details class="xstyle sub" id="deckStyle" hidden><summary>🖼 Картинки ИИ</summary>
               <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk"> сгенерировать картинки <span class="small" id="deckAiNote"></span></label>
               <span hidden><input type="radio" name="deckPics" value="real" checked><input type="radio" name="deckPics" value="ai"></span></details>
-            <label class="check" id="chkQuiz" title="Создать отдельный интерактивный тест по теме урока. Ссылка прикрепляется к уроку, ученики проходят тест с телефона, результаты приходят в кабинет («Результаты тестов»)."><input type="checkbox" id="xQuiz"> 📱 Интерактивный тест</label>
+            <label class="check" id="chkQuiz" title="Можно выбрать только тест — без конспекта, техкарты и презентации. Нейросеть составит вопросы, ссылка и QR появятся сразу; результаты — в кабинете"><input type="checkbox" id="xQuiz"> 📱 Интерактивный тест <span class="small">(можно без остальных документов)</span></label>
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
             <details class="xstyle sub" id="wsStyle" hidden><summary>🖼 Картинки ИИ</summary>
               <label class="check" id="wsAiLbl" title="Нейросеть рисует иллюстрации и портреты. В Word они вставляются отдельными рисунками, лист остаётся редактируемым"><input type="checkbox" id="wsAiChk"> сгенерировать картинки, оформление <span class="small" id="wsAiNote"></span></label>
@@ -799,7 +798,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.357";</script>
+<script>window.UCHU_VER="5.358";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================
