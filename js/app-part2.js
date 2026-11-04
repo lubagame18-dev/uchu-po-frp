@@ -1626,7 +1626,14 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
   const done = () => { addPrevHw(L, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
-  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } if (window.QuizLink && QuizLink.wanted() && !L.quiz) { try { const qt = await QuizLink.createTest(p); if (qt) { L.quiz = qt; L.quizAt = new Date().toISOString(); await saveLesson(L); toast("Интерактивный тест готов — ссылка прикреплена к уроку.", 6000); } } catch (e) { toast("Тест не создан: " + (e.message || e), 7000); } } clearJob(L.id); }
+  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } if (window.QuizLink && QuizLink.wanted() && !L.quiz) { try { const qt = await QuizLink.createTest(p); if (qt) {
+            L.quiz = qt; L.quizAt = new Date().toISOString();
+            if (L.docs.slides && window.QuizLink.slideFor) {
+              try { const sm = await QuizLink.slideFor(p, qt); if (sm) { L.docs.slides = String(L.docs.slides).replace(/\s+$/, "") + "\n\n" + sm; L.status.slides = "ok"; } } catch (e2) { }
+            }
+            await saveLesson(L);
+            toast(L.docs.slides ? "Тест готов: ссылка прикреплена к уроку и QR-слайд добавлен в презентацию." : "Интерактивный тест готов — ссылка прикреплена к уроку.", 7000);
+          } } catch (e) { toast("Тест не создан: " + (e.message || e), 7000); } } clearJob(L.id); }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }

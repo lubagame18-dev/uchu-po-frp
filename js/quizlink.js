@@ -94,6 +94,20 @@ const QuizLink = (() => {
     return { id: a.id, url: a.url, title: String(a.data.title || p.topic || "Тест"), warn: a.warn || "" };
   }
 
+  /* QR-слайд в презентацию к уже созданному тесту */
+  async function slideFor(p, qt) {
+    if (!qt || !qt.url) return "";
+    let img = "";
+    if (window.QR && window.Store) { try { const b = await QR.png(qt.url, 720); const k = "img-qr-" + (qt.id || Date.now()); await Store.put("images", k, b); img = `![QR-код: тест по теме](idb:${k})`; } catch { } }
+    const set = { kind: "qr", acc: "right" };
+    return [`## 🧪 Проверка знаний: тест по теме`, img, [
+      "- Наведите камеру телефона на QR-код или откройте ссылку",
+      "- Впишите фамилию, имя и класс",
+      `- ${qt.title || p.topic || "тест"}`,
+      "- Результат придёт учителю в личный кабинет",
+      "", `[${shortOf(qt.url)}](${qt.url})`].join("\n"), `<!--@ ${JSON.stringify(set)} -->`].filter(Boolean).join("\n\n");
+  }
+
   /* при автоматической сборке урока */
   async function addToDeck(md, p) {
     if (!wanted()) return md;
@@ -175,6 +189,6 @@ const QuizLink = (() => {
   }
 
   document.addEventListener("DOMContentLoaded", bindForm); setTimeout(bindForm, 0);
-  return { CATALOG, find, wanted, createTest, slideMd, addToDeck, openResults, badge, linkOf };
+  return { CATALOG, find, wanted, createTest, slideFor, slideMd, addToDeck, openResults, badge, linkOf };
 })();
 window.QuizLink = QuizLink;

@@ -1203,7 +1203,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       if (window.SlideEditor?.stickerize) md = await SlideEditor.stickerize(md, { onStep: t => { $("#dkMsg", m).textContent = t; } }).catch(() => md);
       if ($("#dkQuiz", m)?.checked && window.QuizLink) {
         $("#dkMsg", m).textContent = "Создаю интерактивный тест…";
-        try { const qt = await QuizLink.createTest(p); if (qt) { const L0 = state.lesson; if (L0) { L0.quiz = qt; await saveLesson(L0); } toast("Тест готов — ссылка прикреплена к уроку.", 6000); } }
+        try { const qt = await QuizLink.createTest(p); if (qt) { const L0 = state.lesson; if (L0) { L0.quiz = qt; await saveLesson(L0); } if (QuizLink.slideFor) { const sm = await QuizLink.slideFor(p, qt); if (sm) md = md.replace(/\s+$/, "") + "\n\n" + sm; } toast("Тест готов: QR-слайд добавлен в презентацию, ссылка прикреплена к уроку.", 6000); } }
         catch (e) { toast("Тест не создан: " + (e.message || e), 7000); }
       }
       if (window.SlideEditor) SlideEditor.replaceAll(md);
