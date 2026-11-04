@@ -119,7 +119,7 @@ const QuizLink = (() => {
   function showTestResult(qt) {
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>📱 Тест готов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b" id="qzResBody"></div></div>`);
     const b = m.querySelector("#qzResBody");
-    b.innerHTML = `<p class="small">${esc(qt.title)}</p><div id="qzResQr"></div><p style="word-break:break-all"><a href="${esc(qt.url)}" target="_blank" rel="noopener">${esc(qt.url)}</a></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm teal" id="qzOpen">Открыть тест</button><button class="btn sm ghost" id="qzCopy2">Скопировать ссылку</button></div><p class="small">Результаты: Личный кабинет → «Результаты тестов».</p>`;
+    b.innerHTML = `<p class="small">${esc(qt.title)}</p><div id="qzResQr"></div><p style="word-break:break-all"><a href="${esc(qt.url)}" target="_blank" rel="noopener">${esc(qt.url)}</a></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm ghost" id="qzOpen">Открыть тест</button><button class="btn sm ghost" id="qzCopy2">Скопировать ссылку</button></div><p class="small">Результаты: Личный кабинет → «Результаты тестов».</p>`;
     b.querySelector("#qzOpen").onclick = () => window.open(qt.url, "_blank");
     b.querySelector("#qzCopy2").onclick = () => navigator.clipboard?.writeText(qt.url).then(() => window.toast?.("Ссылка скопирована."));
     if (window.QR) QR.png(qt.url, 420).then(blob => { const im = document.createElement("img"); im.src = URL.createObjectURL(blob); im.alt = "QR-код теста"; im.style.cssText = "width:200px;height:200px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff"; b.querySelector("#qzResQr").appendChild(im); }).catch(() => null);
@@ -139,7 +139,7 @@ const QuizLink = (() => {
       <label class="field"><span class="lbl">Тема</span><input id="qzTopic" placeholder="Например: Газовая промышленность"></label>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><label class="field" style="flex:1 1 160px"><span class="lbl">Предмет</span><input id="qzSubj" placeholder="География"></label><label class="field" style="flex:0 0 100px"><span class="lbl">Класс</span><input id="qzGrade" inputmode="numeric" placeholder="9"></label></div>
       <label class="field"><span class="lbl">Что проверить (необязательно)</span><textarea id="qzWish" rows="2" placeholder="Например: знание районов добычи, магистральные трубопроводы"></textarea></label>
-      <button class="btn flame" id="qzCrtGo">Создать тест</button><p class="small" id="qzCrtMsg"></p></div></div>`);
+      <button class="btn sm ghost" id="qzCrtGo">Создать тест</button><p class="small" id="qzCrtMsg"></p></div></div>`);
     const msg = m.querySelector("#qzCrtMsg"), go = m.querySelector("#qzCrtGo");
     go.onclick = async () => {
       const topic = m.querySelector("#qzTopic").value.trim();
@@ -151,7 +151,7 @@ const QuizLink = (() => {
         let qr = ""; try { if (window.QR) { const b = await QR.png(qt.url, 420); qr = `<img src="${URL.createObjectURL(b)}" alt="QR-код теста" style="width:200px;height:200px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff">`; } } catch { }
         m.querySelector(".dlg-b").innerHTML = `<h3 style="margin:0 0 6px">Тест готов</h3><p class="small">${esc(qt.title)}</p>${qr}
           <p style="word-break:break-all"><a href="${esc(qt.url)}" target="_blank" rel="noopener">${esc(qt.url)}</a></p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm teal" id="qzOpen">Открыть тест</button><button class="btn sm ghost" id="qzCopy2">Скопировать ссылку</button></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm ghost" id="qzOpen">Открыть тест</button><button class="btn sm ghost" id="qzCopy2">Скопировать ссылку</button></div>
           <p class="small">Результаты: Личный кабинет → «Результаты тестов».</p>`;
         m.querySelector("#qzOpen").onclick = () => window.open(qt.url, "_blank");
         m.querySelector("#qzCopy2").onclick = () => navigator.clipboard?.writeText(qt.url).then(() => window.toast?.("Ссылка скопирована."));
