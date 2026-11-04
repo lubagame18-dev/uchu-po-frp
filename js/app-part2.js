@@ -749,15 +749,45 @@ const WS_THEMES = {
   modern:    { name: "Современный", paper: "#eef6fb", ink: "#142433", accent: "#0e7490", accent2: "#f59e0b", soft: "#ffffff" },
   botanic:   { name: "Ботанический", paper: "#f2fbf4", ink: "#1d3b2a", accent: "#15803d", accent2: "#c8a96b", soft: "#ffffff" },
   space:     { name: "Космический", paper: "#f3f1ff", ink: "#201a3d", accent: "#6d28d9", accent2: "#0891b2", soft: "#ffffff" },
-  classic:   { name: "Классический", paper: "#fbf6ec", ink: "#2a2118", accent: "#9a3412", accent2: "#0f766e", soft: "#fffdf8" }
+  classic:   { name: "Классический", paper: "#fbf6ec", ink: "#2a2118", accent: "#9a3412", accent2: "#0f766e", soft: "#fffdf8" },
+  mint:      { name: "Мятный", paper: "#effcf9", ink: "#123c36", accent: "#0f766e", accent2: "#f59e0b", soft: "#ffffff" },
+  berry:     { name: "Ягодный", paper: "#fff1f5", ink: "#3b1220", accent: "#be123c", accent2: "#7c3aed", soft: "#ffffff" },
+  sand:      { name: "Песочный", paper: "#fbf3e4", ink: "#3e2f1f", accent: "#b45309", accent2: "#0f766e", soft: "#fffdf7" },
+  ocean:     { name: "Океан", paper: "#eef9ff", ink: "#12344a", accent: "#0369a1", accent2: "#14b8a6", soft: "#ffffff" },
+  deco:      { name: "Ар-деко", paper: "#f7f2e8", ink: "#1f1a14", accent: "#8a6a2f", accent2: "#1f4e5f", soft: "#fffdf8" },
+  noir:      { name: "Графит", paper: "#f2f2f0", ink: "#111111", accent: "#b91c1c", accent2: "#525252", soft: "#ffffff" },
+  pastel:    { name: "Пастель", paper: "#f8f4ff", ink: "#2d2438", accent: "#7c3aed", accent2: "#db2777", soft: "#ffffff" }
 };
 function wsThemeKey(p) {
   const t = String(p?.topic || "") + " " + String(p?.subject || "");
-  if (/маяков|конструктив|плакат|революц|агит|поэт|литератур/i.test(t)) return "construct";
-  if (/биолог|ботан|растен|гриб|клетк|эколог|природ/i.test(t)) return "botanic";
-  if (/космос|астроном|физик|матем|информ|вселенн/i.test(t)) return "space";
-  if (/истор|общество|географ|экономик|политик/i.test(t)) return "classic";
-  return "modern";
+  let keys;
+  if (/биолог|ботан|растен|гриб|клетк|эколог|природ/i.test(t)) keys = ["botanic", "mint", "ocean"];
+  else if (/космос|астроном|физик|матем|информ|вселенн/i.test(t)) keys = ["space", "ocean", "modern", "noir"];
+  else if (/маяков|конструктив|плакат|революц|агит|поэт/i.test(t)) keys = ["construct", "noir", "deco"];
+  else if (/истор|общество|географ|экономик|политик/i.test(t)) keys = ["classic", "sand", "deco", "construct"];
+  else if (/русский|орфограф|пунктуац|синтаксис|морфолог/i.test(t)) keys = ["classic", "deco", "pastel", "berry"];
+  else if (/англ|english/i.test(t)) keys = ["ocean", "modern", "deco"];
+  else keys = ["modern", "pastel", "ocean", "sand", "berry"];
+  let h = 0; for (const ch of String(p?.topic || "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const n = (h + (+p?.lessonNo || 1) * 7 + (+p?.grade || 0) * 3) % keys.length;
+  return keys[n];
+}
+function wsThemeVars(p) { const t = WS_THEMES[wsThemeKey(p)] || WS_THEMES.modern; return `--ws-paper:${t.paper};--ws-ink:${t.ink};--ws-accent:${t.accent};--ws-accent2:${t.accent2};--ws-soft:${t.soft};`; }
+function wsThemeClass(p) { return "ws-theme-" + wsThemeKey(p); }
+async function wsPersonPhoto(md, p) {
+  try {
+    if (!window.Media?.autoFill) return md;
+    if (/!\[[^\]]*\]\((?:commons|search):[^)]*портрет/i.test(md)) return md;
+    let person = "";
+    if (p.subject === "lit") person = (window.Engine?.authorOf?.(p.topic) || p.plan?.kit?.author || p.plan?.analysis?.author || "");
+    else person = (p.plan?.person || p.plan?.analysis?.person || p.plan?.kit?.person || "");
+    person = String(person || "").trim();
+    if (!person || person.length < 5) return md;
+    const block = `![Портрет: ${person}](commons:${person} портрет)\n\n*${person} — фотография или портрет*`;
+    let out = md.replace(/^# .*$/m, m => m + "\n\n" + block);
+    out = await Media.autoFill(out, null, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => out);
+    return out;
+  } catch (e) { return md; }
 }
 function wsThemeVars(p) { const t = WS_THEMES[wsThemeKey(p)] || WS_THEMES.modern; return `--ws-paper:${t.paper};--ws-ink:${t.ink};--ws-accent:${t.accent};--ws-accent2:${t.accent2};--ws-soft:${t.soft};`; }
 function wsStyleBlock(p) {
@@ -1938,6 +1968,7 @@ async function buildWithAi(L, p, type, formats) {
       }
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
       else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md, null, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => md); }
+      if (f === "worksheet") md = await wsPersonPhoto(md, p);
       L.docs[f] = md; L.status[f] = "ok";
       /* тест — после конспекта/техкарты, но до презентации */
       if (!L.quiz && (f === "conspect" || f === "lesson") && window.QuizLink && QuizLink.wanted()) {
@@ -2507,7 +2538,7 @@ async function renderPreview() {
   } else {
     // пока документ дописывается, перерисовка не сбрасывает то, куда учитель прокрутил (таблицы вбок, лист вниз)
     const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
-    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "") + (state.active === "worksheet" ? " ws-doc-" + (L.params?.wsDesign || state.wsDesign || "interactive") : ""); if (state.active === "worksheet" && (L.params?.wsDesign === "design")) { sheet.classList.add("ws-doc-design"); sheet.style.cssText += wsThemeVars(L.params); } sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
+    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "") + (state.active === "worksheet" ? " ws-doc-" + (L.params?.wsDesign || state.wsDesign || "interactive") : ""); if (state.active === "worksheet" && (L.params?.wsDesign === "design")) { sheet.classList.add("ws-doc-design", wsThemeClass(L.params)); sheet.style.cssText += wsThemeVars(L.params); } sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
     if (state.active === "lesson" && window.Layout) Layout.decorate(sheet);
     if (state.active === "memo") { sheet.classList.add("memo-sheet"); memoDecorate(sheet); } else if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
@@ -3147,7 +3178,7 @@ function wsPdfBreak(el, pageH) {
 /* Лист в PDF/PNG: те же две страницы, что и в Word (раскладка wsFit), каждая – ровно один лист A4, без разрыва посреди блока */
 async function wsBuildPages(L, stage) {
   const PH = 1112, toks = window.marked.lexer(wsKeysToH1(String(L.docs.worksheet || ""))), R = wsFit(toks, L.art?.banner?.url ? 90 : 0);
-  stage.innerHTML = `<div class="ws-pages"><div class="sheet ws-sheet ws-fit${L.params?.wsDesign === "design" ? " ws-doc-design" : ""}"${L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(R.toks.map(t => t.raw.replace(/\n+$/, "")).join("\n\n"))}</div></div>`;
+  stage.innerHTML = `<div class="ws-pages"><div class="sheet ws-sheet ws-fit${L.params?.wsDesign === "design" ? " ws-doc-design " + wsThemeClass(L.params) : ""}"${L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(R.toks.map(t => t.raw.replace(/\n+$/, "")).join("\n\n"))}</div></div>`;
   decorate(stage); wsDecorate(stage, L);
   await new Promise(r => setTimeout(r, 300)); await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
   const wrap = stage.firstElementChild, s1 = wrap.firstElementChild, s2 = s1.cloneNode(false), norm = x => String(x || "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").replace(/\s+/g, " ").trim();
@@ -3206,7 +3237,7 @@ async function docToPdfBlob(L, doc) {
   const stage = $("#pdfstage"), md = doc === "worksheet" ? wsMainMd(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;
-  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}${doc === "worksheet" && L.params?.wsDesign === "design" ? " ws-doc-design" : ""}"${doc === "worksheet" && L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(md)}</div>`;
+  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}${doc === "worksheet" && L.params?.wsDesign === "design" ? " ws-doc-design " + wsThemeClass(L.params) : ""}"${doc === "worksheet" && L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(md)}</div>`;
   decorate(stage);
   if (doc === "lesson" && window.Layout) Layout.decorate(stage.firstElementChild);
   if (doc === "memo") { stage.firstElementChild?.classList.add("memo-sheet"); memoDecorate(stage); } else if (WS_DOCS.includes(doc)) wsDecorate(stage, L);

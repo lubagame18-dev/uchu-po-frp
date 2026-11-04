@@ -1154,3 +1154,19 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .ws-doc-design table td,.ws-doc-design table th{border-color:color-mix(in srgb,var(--ws-ink) 25%,transparent)!important}
 .ws-doc-design hr{border:0;height:3px;background:var(--ws-accent,#c8322b);margin:18px 0}
 .ws-doc-design .m-design,.m-design{background:linear-gradient(135deg,#f4efe4 0 28%,#c8322b 28% 36%,#141414 36% 40%,#f4efe4 40% 100%)}
+
+/* вариации тематического дизайна: у каждого урока свой характер */
+.ws-theme-construct .ws-banner h1{font-family:Impact,'Arial Black',sans-serif;letter-spacing:.02em}
+.ws-theme-construct h3{border-left-width:10px!important;text-transform:uppercase;letter-spacing:.03em}
+.ws-theme-deco .ws-banner h1{font-family:'Times New Roman',Georgia,serif;letter-spacing:.06em}
+.ws-theme-deco h2{letter-spacing:.08em}
+.ws-theme-botanic .ws-banner{box-shadow:0 12px 30px rgba(21,128,61,.18)}
+.ws-theme-botanic h3{background:#f7fff9!important}
+.ws-theme-space .ws-banner h1{letter-spacing:-.02em}
+.ws-theme-space .ws-banner{background:linear-gradient(135deg,#6d28d9,#201a3d 60%,#0891b2)!important}
+.ws-theme-ocean .ws-banner{background:linear-gradient(120deg,#0369a1,#14b8a6)!important}
+.ws-theme-berry .ws-banner{background:linear-gradient(120deg,#be123c,#7c3aed)!important}
+.ws-theme-sand .ws-banner{background:linear-gradient(120deg,#b45309,#3e2f1f)!important}
+.ws-theme-noir .ws-banner{background:#111!important;border:4px solid #b91c1c}
+.ws-theme-pastel .ws-banner{background:linear-gradient(120deg,#7c3aed,#db2777)!important}
+.ws-theme-pastel h3{border-left-color:#db2777!important}
