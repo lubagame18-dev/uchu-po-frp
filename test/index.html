@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#15202b">
-<title>Проверка знаний — Учу по ФРП</title>
+<title>Проверка знаний</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
@@ -79,7 +79,7 @@ a{color:color-mix(in srgb,var(--accent) 75%,#000)}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><span class="brand">Учу по ФРП</span><a href="https://uchu-po-frp.ru/">← на сайт</a></div>
+  <div class="top"><span class="brand">Проверка знаний</span></div>
   <div class="card hero" id="load"><div class="icon">🧪</div><h1>Загружаю тест…</h1><p class="meta" id="loadMsg">Это займёт пару секунд.</p></div>
   <div id="app" class="hidden"></div>
 </div>
@@ -134,7 +134,7 @@ async function boot() {
 }
 function fail(t) {
   $("load").classList.remove("hidden");
-  $("load").innerHTML = '<div class="icon">😕</div><h1>Тест недоступен</h1><p class="err"></p><p><a href="https://uchu-po-frp.ru/">Вернуться на сайт</a></p>';
+  $("load").innerHTML = '<div class="icon">😕</div><h1>Тест недоступен</h1><p class="err"></p>';
   $("load").querySelector(".err").textContent = t;
 }
 function intro() {
@@ -186,7 +186,7 @@ async function finish() {
     <div class="chip">${pct}% верных ответов</div>
     <div class="review">${rows.map((r, i) => `<div class="r"><b>${i + 1}. ${esc(r.q)}</b><br><span class="${r.ok ? "ok" : "no"}">${r.ok ? "Верно" : "Ошибка"}</span> · правильный ответ: <b>${esc(r.answer)}</b>${r.explain && !r.ok ? "<br><span class='small'>" + esc(r.explain) + "</span>" : ""}</div>`).join("")}</div>
     <p class="small" id="send">Отправляю результат учителю…</p>
-    <button class="btn ghost" onclick="location.href='https://uchu-po-frp.ru/'">Вернуться на сайт</button></div>`;
+</div>`;
   try {
     await api("/rest/v1/quiz_results", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ quiz_id: qid, student: S.student, klass: S.klass, score, total: rows.length, details }) });
     $("send").textContent = "Результат отправлен учителю. Спасибо!";

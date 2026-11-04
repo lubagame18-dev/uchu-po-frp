@@ -125,9 +125,23 @@ const QuizLink = (() => {
     if (window.QR) QR.png(qt.url, 420).then(blob => { const im = document.createElement("img"); im.src = URL.createObjectURL(blob); im.alt = "QR-код теста"; im.style.cssText = "width:200px;height:200px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff"; b.querySelector("#qzResQr").appendChild(im); }).catch(() => null);
   }
   async function createOnly(p) {
-    const qt = await createTest(p);
-    showTestResult(qt);
-    return qt;
+    const pr = progressOverlay();
+    try { const qt = await createTest(p); pr.close(); showTestResult(qt); return qt; }
+    catch (e) { pr.close(); throw e; }
+  }
+
+  const PROG_STEPS = ["Анализирую тему…", "Составляю вопросы…", "Проверяю варианты ответов…", "Собираю тест…"];
+  function progressHtml() { return '<div class="qzbar"><i></i></div><p class="small" id="qzProgTxt">' + PROG_STEPS[0] + '</p>'; }
+  function startProgress(root) {
+    let k = 0; const t = root.querySelector("#qzProgTxt");
+    const iv = setInterval(() => { k = Math.min(k + 1, PROG_STEPS.length - 1); if (t) t.textContent = PROG_STEPS[k]; }, 1800);
+    return () => clearInterval(iv);
+  }
+  function progressOverlay() {
+    css();
+    const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>📱 Интерактивный тест</h2></div><div class="dlg-b">${progressHtml()}</div></div>`);
+    const stop = startProgress(m);
+    return { close() { stop(); try { closeModal(); } catch { } } };
   }
 
   /* отдельное создание теста — без урока и документа */
@@ -145,9 +159,10 @@ const QuizLink = (() => {
       const topic = m.querySelector("#qzTopic").value.trim();
       if (topic.length < 3) { msg.textContent = "Впишите тему теста."; return; }
       const p = { topic, subject: m.querySelector("#qzSubj").value.trim() || "Общее", grade: m.querySelector("#qzGrade").value.trim() || "", goal: m.querySelector("#qzWish").value.trim() };
-      go.disabled = true; msg.textContent = "Составляю вопросы… это может занять до минуты.";
+      go.disabled = true;
+      const body = m.querySelector(".dlg-b"); body.innerHTML = progressHtml(); const stop = startProgress(body);
       try {
-        const qt = await createTest(p);
+        const qt = await createTest(p); stop();
         let qr = ""; try { if (window.QR) { const b = await QR.png(qt.url, 420); qr = `<img src="${URL.createObjectURL(b)}" alt="QR-код теста" style="width:200px;height:200px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff">`; } } catch { }
         m.querySelector(".dlg-b").innerHTML = `<h3 style="margin:0 0 6px">Тест готов</h3><p class="small">${esc(qt.title)}</p>${qr}
           <p style="word-break:break-all"><a href="${esc(qt.url)}" target="_blank" rel="noopener">${esc(qt.url)}</a></p>
@@ -155,7 +170,7 @@ const QuizLink = (() => {
           <p class="small">Результаты: Личный кабинет → «Результаты тестов».</p>`;
         m.querySelector("#qzOpen").onclick = () => window.open(qt.url, "_blank");
         m.querySelector("#qzCopy2").onclick = () => navigator.clipboard?.writeText(qt.url).then(() => window.toast?.("Ссылка скопирована."));
-      } catch (e) { go.disabled = false; msg.textContent = "Не получилось: " + (e.message || e); }
+      } catch (e) { stop(); go.disabled = false; msg.textContent = "Не получилось: " + (e.message || e); }
     };
   }
   function bindTestNav() { const b = document.getElementById("nav-test"); if (b && !b.dataset.b) { b.dataset.b = 1; b.onclick = openCreateDialog; } }
@@ -179,7 +194,8 @@ const QuizLink = (() => {
 .qz-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}.qz-item{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line,#ddd);border-radius:12px;padding:10px 12px;cursor:pointer;background:var(--card,#fff)}
 .qz-item b{display:block}.qz-item .small{opacity:.8}.qz-stats{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.qz-stat{border:1px solid var(--line,#ddd);border-radius:10px;padding:6px 10px}.qz-stat b{font-size:20px;display:block}
 .qz-tab{width:100%;border-collapse:collapse;font-size:14px}.qz-tab th,.qz-tab td{border-bottom:1px solid var(--line,#ddd);padding:6px 5px;text-align:left;vertical-align:top}.qz-tab tr.qz-new td{background:rgba(201,164,92,.15)}.qz-det td{font-size:13.5px;opacity:.9}
-.qz-qr{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.qz-qr svg{width:120px;height:120px}`;
+.qz-qr{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.qz-qr svg{width:120px;height:120px}
+.qzbar{height:12px;border-radius:999px;background:rgba(14,116,144,.14);overflow:hidden;margin:12px 0}.qzbar i{display:block;height:100%;width:42%;border-radius:999px;background:linear-gradient(90deg,#0e7490,#22b8cf);animation:qzslide 1.2s ease-in-out infinite}@keyframes qzslide{from{transform:translateX(-110%)}to{transform:translateX(260%)}}`;
     document.head.appendChild(s);
   }
   async function openResults() {
