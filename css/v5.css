@@ -1,4 +1,4 @@
-/* ===================================================================
+﻿/* ===================================================================
    «Учу по ФРП» v5 — стили новых модулей. Подключается после основных
    стилей index.html и опирается на те же переменные (--ink, --sun…).
    =================================================================== */
@@ -124,7 +124,7 @@ details.ls { border-bottom: 1.5px dashed var(--rule); padding: 8px 0; }
 
 .sx { position: relative; aspect-ratio: 16 / 9; width: 100%; container-type: inline-size; overflow: hidden; background: var(--sx-bg); color: var(--sx-ink); border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 6px 18px rgba(0,0,0,.08); font-family: var(--sx-fb, Arial, "Helvetica Neue", "Segoe UI", sans-serif); --fs: 1; --pad: 1; --lh: 1.3; }
 .sx-inner { position: absolute; inset: 0; padding: calc(4.6cqw * var(--pad)) calc(6cqw * var(--pad)); display: flex; flex-direction: column; overflow: hidden; z-index: 1; }
-.sx-title { font-family: var(--sx-fh, Georgia, "Times New Roman", serif); font-weight: 700; color: var(--sx-ink); margin: 0 0 1.6cqw; line-height: 1.15; font-size: calc(4.3cqw * var(--fs)); outline: none; overflow-wrap: normal; hyphens: manual; }
+.sx-title { font-family: var(--sx-fh, Georgia, "Times New Roman", serif); font-weight: 700; color: var(--sx-ink); margin: 0 0 1.6cqw; line-height: 1.15; font-size: calc(4.3cqw * var(--fs)); outline: none; overflow-wrap: anywhere; word-break: break-word; hyphens: manual; max-width: 100%; }
 h1.sx-title { font-size: calc(6cqw * var(--fs)); }
 .sx-body { font-size: calc(3.3cqw * var(--fs)); line-height: var(--lh); outline: none; min-height: 2em; overflow-wrap: anywhere; position: relative; flex: 1 1 auto; }
 .sx-body p, .sx-body li { margin: 0 0 .45em; }
@@ -1112,3 +1112,11 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
   .dialog, .tr-dlg { box-shadow: 0 10px 30px rgba(0,0,0,.18) !important; }
   #view-builder > section, .tr-card, .mat-card { content-visibility: auto; contain-intrinsic-size: 400px; }
 }
+/* Лента времени: горизонтальная линия с точками, а не набор кнопок */
+.sx .tl{position:relative;display:flex;gap:.9em;align-items:flex-start;padding:2.1em 0 .2em;overflow-x:auto;scrollbar-width:thin}
+.sx .tl::before{content:"";position:absolute;left:.4em;right:.4em;top:1.15em;height:.22em;border-radius:999px;background:currentColor;opacity:.3}
+.sx .tl-i{position:relative;flex:1 1 0;min-width:7.5em;border:0!important;background:transparent!important;color:inherit;padding:0 .2em;text-align:center;font:inherit;cursor:pointer}
+.sx .tl-i::before{content:"";position:absolute;left:50%;top:-1.05em;width:1.05em;height:1.05em;transform:translateX(-50%);border-radius:50%;background:var(--sx-accent,#b45309);border:.2em solid var(--sx-bg,#fff);box-shadow:0 0 0 .12em currentColor}
+.sx .tl-i.on::before{background:currentColor;box-shadow:0 0 0 .22em var(--sx-accent,#b45309)}
+.sx .tl-i b{display:block;font-size:1.05em;margin-bottom:.15em}
+.sx .tl-p{width:100%;min-height:1.5em;margin-top:.5em;padding:.45em .6em;border-radius:.5em;background:rgba(255,255,255,.35);font-size:.95em}

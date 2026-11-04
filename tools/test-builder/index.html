@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Сборка теста — Учу по ФРП</title>
+<style>
+:root{--ink:#1c2430;--soft:#f4f6f9;--line:#dbe2ec;--flame:#c0392b;--teal:#0f766e}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 Arial,"Segoe UI",sans-serif;color:var(--ink);background:var(--soft)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 18px 60px}
+h1{font:800 26px/1.2 Georgia,serif;margin:0 0 6px}.sub{color:#5b6675;margin:0 0 20px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+input,textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:#fff}
+textarea{min-height:220px;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1 1 180px}
+.btn{border:0;border-radius:10px;padding:10px 16px;font:700 14px Arial;cursor:pointer;background:var(--ink);color:#fff}
+.btn.teal{background:var(--teal)}.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.note{background:#fff8e6;border:1px solid #f0d493;border-radius:10px;padding:10px 12px;font-size:13.5px;margin:10px 0}
+.ok{background:#e9f7ef;border-color:#b7e2c8}.err{background:#fdecea;border-color:#f3b6ae}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.status{font-size:13.5px;margin-top:10px}
+iframe{width:100%;height:640px;border:1px solid var(--line);border-radius:12px;background:#fff}
+code{background:#eef2f7;padding:1px 5px;border-radius:5px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Сборка теста</h1>
+  <p class="sub">Конструктор интерактивной HTML-страницы теста. Ученик проходит её с телефона, результаты приходят в личный кабинет → «Результаты тестов».</p>
+
+  <div class="card">
+    <div class="row">
+      <div><label for="tTitle">Название теста</label><input id="tTitle" placeholder="Например: ТЭК России — проверка"></div>
+      <div><label for="tSubject">Предмет</label><input id="tSubject" placeholder="География"></div>
+      <div><label for="tGrade">Класс</label><input id="tGrade" placeholder="9" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label for="tId">Код теста (id)</label><input id="tId" placeholder="генерируется автоматически" readonly></div>
+      <div><label for="tQuestions">Вопросы (JSON)</label><textarea id="tQuestions" spellcheck="false"></textarea></div>
+    </div>
+    <div class="note">Формат: <code>{"questions":[{"q":"текст вопроса","options":["А","Б","В"],"answer":1,"explain":"пояснение"}]}</code>. Можно вставить JSON, собранный DeepSeek по кнопке ниже.</div>
+    <div class="btns">
+      <button class="btn ghost" id="bPrompt">Скопировать промпт для DeepSeek</button>
+      <button class="btn ghost" id="bExample">Вставить пример</button>
+      <button class="btn teal" id="bCreate">Создать тест в кабинете</button>
+      <button class="btn" id="bBuild">Собрать страницу</button>
+      <button class="btn ghost" id="bOpen" disabled>Открыть в новой вкладке</button>
+      <button class="btn ghost" id="bDownload" disabled>Скачать HTML</button>
+    </div>
+    <div class="status" id="status" role="status"></div>
+  </div>
+
+  <div class="card">
+    <label>Предпросмотр</label>
+    <iframe id="preview" sandbox="allow-scripts allow-forms"></iframe>
+  </div>
+</div>
+
+<script>
+"use strict";
+const SITE = "https://uchu-po-frp.ru/";
+const CLOUD = { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const newId = () => { const a = "abcdefghijkmnpqrstuvwxyz23456789"; const r = crypto.getRandomValues(new Uint8Array(10)); return [...r].map(x => a[x % a.length]).join(""); };
+let built = "";
+
+const EXAMPLE = {
+  title: "ТЭК России: проверка",
+  subject: "География",
+  grade: 9,
+  questions: [
+    { q: "Какой вид топлива даёт наибольшую долю в структуре ТЭК России?", options: ["Уголь", "Нефть", "Природный газ", "Торф"], answer: 2, explain: "Природный газ — около половины добычи топлива." },
+    { q: "Где расположены основные районы газодобычи России?", options: ["Ямало-Ненецкий АО", "Подмосковье", "Курская область", "Карелия"], answer: 0, explain: "Крупнейшие месторождения — Уренгойское, Ямбургское, Бованенковское на Ямале." },
+    { q: "Что такое магистральный трубопровод?", options: ["Городская труба", "Трубопровод для передачи газа на большие расстояния", "Скважина", "Газгольдер"], answer: 1, explain: "Магистральные газопроводы связывают районы добычи с потребителями и экспортом." }
+  ]
+};
+
+function questionsFromJson() {
+  const j = JSON.parse($("tQuestions").value || "{}");
+  const arr = Array.isArray(j) ? j : j.questions;
+  if (!Array.isArray(arr) || !arr.length) throw new Error("В JSON нет массива questions.");
+  arr.forEach((x, i) => {
+    if (!x || !x.q || !Array.isArray(x.options) || x.options.length < 2) throw new Error("Вопрос " + (i + 1) + ": нужны q и минимум 2 options.");
+    if (!Number.isInteger(x.answer) || x.answer < 0 || x.answer >= x.options.length) throw new Error("Вопрос " + (i + 1) + ": answer — номер правильного варианта (с 0).");
+  });
+  return arr;
+}
+
+function buildPage(data, id) {
+  const q = data.questions;
+  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(data.title || "Тест")}</title>
+<style>
+:root{--ink:#15202b;--line:#d9e2ec;--accent:#c0392b;--ok:#0f766e}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial,"Segoe UI",sans-serif;background:#f4f6f9;color:var(--ink)}
+.wrap{max-width:760px;margin:0 auto;padding:22px 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin:0 0 14px}
+h1{font:800 24px/1.25 Georgia,serif;margin:0 0 4px}.meta{color:#637083;font-size:14px}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}
+input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit}
+.q{border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px;background:#fff}
+.q b{display:block;margin-bottom:8px}
+.opt{display:flex;gap:8px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin:6px 0;cursor:pointer}
+.opt input{margin-top:3px;width:auto}.opt.sel{border-color:var(--accent);background:#fff6f5}
+.btn{width:100%;border:0;border-radius:12px;padding:13px;font:800 16px Arial;background:var(--ink);color:#fff;cursor:pointer;margin-top:10px}
+.btn:disabled{opacity:.6}.res{font-size:15px}.score{font-size:34px;font-weight:900;color:var(--ok)}
+.err{color:#a02020}.hidden{display:none}
+</style></head><body><div class="wrap">
+<div class="card">
+  <h1>${esc(data.title || "Тест")}</h1>
+  <div class="meta">${esc(data.subject || "")}${data.grade ? " · " + esc(data.grade) + " класс" : ""} · ${q.length} вопрос(ов)</div>
+  <div id="who">
+    <label for="stName">Фамилия и имя</label><input id="stName" autocomplete="name" placeholder="Иванов Иван">
+    <label for="stClass">Класс</label><input id="stClass" autocomplete="off" placeholder="${esc(data.grade || "")}">
+    <button class="btn" id="start">Начать тест</button>
+    <p class="err" id="whoErr"></p>
+  </div>
+</div>
+<div id="quiz" class="hidden"></div>
+<div class="card hidden" id="done">
+  <div class="score" id="score"></div>
+  <p class="res" id="resText"></p>
+  <p class="meta" id="sendNote"></p>
+</div>
+<script>
+const Q=${JSON.stringify(q)}, QUIZ_ID=${JSON.stringify(id || "")};
+const CLOUD=${JSON.stringify(CLOUD)};
+const \$=id=>document.getElementById(id);
+let picked={};
+function render(){
+  \$("quiz").innerHTML='<div class="card"><div id="qs"></div><button class="btn" id="finish">Проверить результат</button></div>';
+  \$("qs").innerHTML=Q.map((x,i)=>'<div class="q" data-i="'+i+'"><b>'+(i+1)+'. '+esc(x.q)+'</b>'+x.options.map((o,k)=>'<label class="opt"><input type="radio" name="q'+i+'" value="'+k+'"><span>'+esc(o)+'</span></label>').join("")+'</div>').join("");
+  \$("qs").addEventListener("change",e=>{const q=e.target.closest(".q");if(!q)return;picked[+q.dataset.i]=+e.target.value;q.querySelectorAll(".opt").forEach(o=>o.classList.toggle("sel",o.contains(e.target)));});
+  \$("finish").onclick=finish;
+}
+function finish(){
+  const name=\$("stName").value.trim(), klass=\$("stClass").value.trim();
+  if(name.length<3){alert("Впишите фамилию и имя.");return;}
+  const rows=Q.map((x,i)=>({q:x.q,answer:x.options[x.answer],picked:picked[i]==null?null:x.options[picked[i]],ok:picked[i]===x.answer,explain:x.explain||""}));
+  const score=rows.filter(r=>r.ok).length;
+  \$("quiz").classList.add("hidden"); \$("done").classList.remove("hidden");
+  \$("score").textContent=score+" / "+rows.length;
+  \$("resText").textContent=score===rows.length?"Отлично! Всё верно.":score>=rows.length*0.7?"Хорошо, но есть что повторить.":"Стоит повторить тему.";
+  const details={answers:rows};
+  if(QUIZ_ID){
+    fetch(CLOUD.url+"/rest/v1/quiz_results",{method:"POST",headers:{apikey:CLOUD.anonKey,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({quiz_id:QUIZ_ID,student:name,klass,score,total:rows.length,details})})
+    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);\$("sendNote").textContent="Результат отправлен учителю.";})
+    .catch(e=>{\$("sendNote").textContent="Результат не отправлен: "+e.message;});
+  } else \$("sendNote").textContent="Код теста не задан — результат не отправлен.";
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+\$("start").onclick=()=>{const n=\$("stName").value.trim();if(n.length<3){\$("whoErr").textContent="Впишите фамилию и имя.";return;}\$("who").classList.add("hidden");\$("quiz").classList.remove("hidden");render();};
+<\/script></body></html>`;
+}
+
+function setStatus(t, ok) { const s = $("status"); s.textContent = t; s.className = "status " + (ok ? "ok" : ""); }
+function current() { return { title: $("tTitle").value.trim(), subject: $("tSubject").value.trim(), grade: $("tGrade").value.trim(), questions: questionsFromJson() }; }
+
+$("bExample").onclick = () => { $("tTitle").value = EXAMPLE.title; $("tSubject").value = EXAMPLE.subject; $("tGrade").value = EXAMPLE.grade; $("tQuestions").value = JSON.stringify(EXAMPLE.questions, null, 2); };
+$("bPrompt").onclick = async () => {
+  const p = `Ты — методист и разработчик тестов. Собери тест по теме и верни ТОЛЬКО JSON без пояснений:\n{"title":"…","subject":"…","grade":9,"questions":[{"q":"вопрос","options":["А","Б","В","Г"],"answer":2,"explain":"краткое пояснение"}]}\nПравила: 6–10 вопросов, один правильный ответ, 4 варианта, правдоподобные неверные варианты, без подсказок в формулировке, answer — индекс с 0. Тема: ${$("tTitle").value || "…"}; предмет: ${$("tSubject").value || "…"}; класс: ${$("tGrade").value || "…"}.`;
+  try { await navigator.clipboard.writeText(p); setStatus("Промпт скопирован — вставьте его в DeepSeek, затем JSON ответа — в поле вопросов."); } catch { prompt("Скопируйте промпт:", p); }
+};
+$("bBuild").onclick = () => {
+  try {
+    const data = current();
+    if (!$("tId").value) $("tId").value = newId();
+    built = buildPage(data, $("tId").value);
+    $("preview").srcdoc = built;
+    $("bOpen").disabled = false; $("bDownload").disabled = false;
+    setStatus("Страница собрана. Можно открыть или скачать; код теста: " + $("tId").value, true);
+  } catch (e) { setStatus(e.message, false); }
+};
+$("bOpen").onclick = () => { if (built) window.open(URL.createObjectURL(new Blob([built], { type: "text/html" })), "_blank"); };
+$("bDownload").onclick = () => { if (!built) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([built], { type: "text/html" })); a.download = ($("tTitle").value || "test").replace(/[\\/:*?"<>|]+/g, " ").trim() + ".html"; a.click(); };
+$("bCreate").onclick = async () => {
+  try {
+    const data = current();
+    const id = $("tId").value || newId(); $("tId").value = id;
+    let s = null; try { s = JSON.parse(localStorage.getItem("uchu:account") || "null"); } catch {}
+    if (!s?.access) throw new Error("Войдите в личный кабинет на сайте uchu-po-frp.ru — без входа тест нельзя привязать к кабинету.");
+    const r = await fetch(CLOUD.url + "/rest/v1/quizzes", { method: "POST", headers: { apikey: CLOUD.anonKey, Authorization: "Bearer " + s.access, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify({ id, template: "custom-test", title: String(data.title || "Тест").slice(0, 200) }) });
+    if (!r.ok) throw new Error("HTTP " + r.status + " " + (await r.text()).slice(0, 200));
+    setStatus("Тест создан в кабинете. Код: " + id + ". Теперь соберите страницу и скачайте её.", true);
+  } catch (e) { setStatus(e.message, false); }
+};
+$("tId").value = newId();
+$("bExample").click();
+</script>
+</body>
+</html>
