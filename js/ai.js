@@ -261,7 +261,7 @@ const AI = (() => {
     // opts.only — конкретная нейросеть (например, Claude для «Обучения сайта»)
     if (opts.only && list.includes(opts.only)) list.splice(0, list.length, opts.only);
     const order = [...list.filter(id => !(st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)), ...list.filter(id => st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)];
-    let lastErr = null, prev = null;
+    let lastErr = null, prev = null; const fails = [];
     for (const id of order) {
       let text = "";
       const emit = d => { if (!d) return; text += d; try { opts.onText && opts.onText({ text, delta: d }); } catch (er) { console.error(er); } };
@@ -276,11 +276,11 @@ const AI = (() => {
         if (e?.name === "AbortError" || opts.signal?.aborted || e?.code === "cancelled") throw { code: "cancelled", text };
         const err = e instanceof TypeError ? { code: "network", message: e.message } : { code: e?.code || "upstream_error", message: e?.message || String(e) };
         if (text.trim().length > 400) throw { ...err, text }; // ответ шёл и оборвался — не начинаем заново у другого
-        const w = why(err); setStatus(id, { ok: false, why: w }); prev = { id, why: w }; lastErr = err;
+        const w = why(err); setStatus(id, { ok: false, why: w }); prev = { id, why: w }; lastErr = err; fails.push(`${P[id]?.name || id}: ${w}`);
         if (opts.onText && text) try { opts.onText({ text: "", delta: "" }); } catch { }
       }
     }
-    throw { ...(lastErr || { code: "upstream_error" }), message: `ни одна нейросеть не ответила (последняя: ${prev ? P[prev.id].name + " — " + prev.why : "—"})` };
+    throw { ...(lastErr || { code: "upstream_error" }), message: `ни одна нейросеть не ответила. Проверено: ${fails.join("; ") || "—"}` };
   }
   sample.json = async (input, opts) => {
     const { text } = await sample(input, opts);
