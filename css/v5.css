@@ -1120,18 +1120,15 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx .tl-i.on::before{background:currentColor;box-shadow:0 0 0 .22em var(--sx-accent,#b45309)}
 .sx .tl-i b{display:block;font-size:1.05em;margin-bottom:.15em}
 .sx .tl-p{width:100%;min-height:1.5em;margin-top:.5em;padding:.45em .6em;border-radius:.5em;background:rgba(255,255,255,.35);font-size:.95em}
-/* Слайд «Проверка знаний» с QR: карточка с рамкой и кнопкой */
-.sx.k-qr{background:linear-gradient(135deg,#0f3b59 0%,#1d6f8f 55%,#2a8f9c 100%);color:#fff}
-.sx.k-qr .sx-title{color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.25)}
-.sx.k-qr .sx-body{color:#eaf4f8}
+/* Слайд «Проверка знаний» с QR: светлая карточка с цветными акцентами */
+.sx.k-qr{background:linear-gradient(135deg,#fff8ee 0%,#e7f8ff 52%,#ffe8f2 100%);color:#15202b}
+.sx.k-qr .sx-title{color:#15202b;text-shadow:none}
+.sx.k-qr .sx-body{color:#24313f}
 .sx.k-qr .sx-body ul{padding-left:1.1em}
-.sx.k-qr .sx-body li::marker{color:#f3c969}
-.sx.k-qr figure.pic{float:right;width:36%;margin:.2em 0 1em 1.4em;background:#fff;padding:1.1cqw;border-radius:2cqw;box-shadow:0 10px 30px rgba(0,0,0,.35);border:.35cqw solid rgba(255,255,255,.9)}
+.sx.k-qr .sx-body li::marker{color:#0e7490}
+.sx.k-qr .sx-body li{margin-bottom:.35em}
+.sx.k-qr figure.pic{float:right;width:36%;margin:.2em 0 1em 1.4em;background:#fff;padding:1.1cqw;border-radius:2cqw;box-shadow:0 14px 34px rgba(15,59,89,.18);border:.35cqw solid #fff;outline:.25cqw solid rgba(14,116,144,.18)}
 .sx.k-qr figure.pic img{display:block;width:100%;height:auto;border-radius:1.2cqw}
-.sx.k-qr figure.pic figcaption{color:#33404f;font-size:1.6cqw;text-align:center;margin-top:.6cqw}
-.sx.k-qr a{display:inline-block;margin-top:.5em;padding:.55em .9em;border-radius:.7em;background:#f3c969;color:#241a06;font-weight:800;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.sx.k-qr figure.pic figcaption{color:#43515f;font-size:1.6cqw;text-align:center;margin-top:.6cqw}
+.sx.k-qr a{display:inline-block;margin-top:.55em;padding:.55em .95em;border-radius:.7em;background:linear-gradient(135deg,#0e7490,#22b8cf);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 20px rgba(14,116,144,.28)}
 .sx.k-qr a:hover{filter:brightness(1.06)}
-/* ссылка на интерактивный тест, прикреплённая к уроку */
-.quiz-attach{margin:8px 0 0;padding:10px 14px;border:1px solid #cfe3ea;border-radius:12px;background:linear-gradient(135deg,#eef8fb,#fff);font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.quiz-attach a{font-weight:800;color:#0f5f70;text-decoration:none;border-bottom:1.5px solid rgba(15,95,112,.35)}
-.quiz-attach .btn{margin-left:auto}
