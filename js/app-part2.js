@@ -2346,7 +2346,7 @@ function renderDownloads() {
   const L = state.lesson, box = $("#dlPanel"); if (!box) return;
   const ready = L ? Object.keys(DOCS).filter(d => L.docs[d] && !isGenerating(L, d)) : [];
   if (!L || !ready.length || (state.gen && state.gen.lessonId === L.id)) { box.hidden = true; return; }
-  const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"]] : d === "pack" ? [["docx", "Word"], ["pdf", "PDF"], ["zip", "ZIP с файлами"]] : [["docx", "Word"], ["pdf", "PDF"]];
+  const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"]] : d === "pack" ? [["docx", "Word"], ["pdf", "PDF"], ["zip", "ZIP с файлами"]] : d === "worksheet" ? [["docx", "Word"], ["pdf", "PDF"], ["png", "PNG (как фото)"]] : [["docx", "Word"], ["pdf", "PDF"]];
   box.innerHTML = `<div class="dl-h">⬇ Урок готов. Скачайте нужное:</div><div class="dl-rows">${ready.map(d => `<div class="dl-row"><b>${DOCS[d].label}</b>${fmts(d).map(([f, n]) => `<button class="btn sm ${f === "pdf" ? "flame" : "teal"}" data-dl="${d}:${f}">${n}</button>`).join("")}</div>`).join("")}<div class="dl-row"><b>Весь урок</b><button class="btn sm" data-dl="all:zip">Всё одним архивом</button></div></div>`;
   box.hidden = false;
   $$("[data-dl]", box).forEach(b => b.onclick = async () => {
@@ -3263,6 +3263,7 @@ async function exportOne(L, d, f) { try { window.Learn2?.learnExport?.({ subject
   if (f === "docx") { toast("Готовлю Word…", 6000); const files = (await docxBlobs(L, d)).filter(([n]) => !APPX_RE.test(n)); for (const [n, b] of files) await saveFile(n, b); return; }
   if (f === "pptx") { toast("Готовлю презентацию…", 8000); return saveFile(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title)); }
   if (f === "pdf") { toast("Готовлю PDF…", 9000); return saveFile(baseName(L, d) + ".pdf", await docToPdfBlob(L, d)); }
+  if (f === "png") { toast("Готовлю PNG…", 9000); return exportPng(); }
 }
 function guarded(fn) { return async () => { if (!state.lesson?.docs[state.active]) return; try { await fn(); } catch (e) { console.error(e); toast("Выгрузка не удалась: " + (e.message || e)); } }; }
 
