@@ -707,7 +707,7 @@ const Deck = (() => {
     // название: для литературы — произведение крупно, автор отдельной строкой (без лишних пометок)
     const shortWork = work && work.length > 44 ? work.split(/,\s*/)[0] + "…" : work;
     const titleText = lit && work ? `«${work}»` : (c.title || p.topic);
-    add({ kind: "title", title: titleText, points: [lit && author ? author : "", `${p.grade} класс · ${subjectName(p)}`].filter(Boolean), img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "right", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
+    add({ kind: "title", title: titleText, points: [lit && author ? author : "", `${p.grade} класс · ${subjectName(p)}`].filter(Boolean), img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "bg", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
     // 2. Автор: портрет и короткая справка из открытого источника (годы жизни, кто это)
     if (lit && author && c.wiki) { // слайд об авторе — только если есть проверенная справка (без пустого слайда)
       const pts = [];
