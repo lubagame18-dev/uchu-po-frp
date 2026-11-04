@@ -88,6 +88,12 @@ const QuizLink = (() => {
     return { md, id, url, warn, t: t || { title: p.topic } };
   }
 
+  /* отдельный тест: создаётся независимо от презентации, ссылка прикрепляется к уроку */
+  async function createTest(p) {
+    const a = await aiTest(p);
+    return { id: a.id, url: a.url, title: String(a.data.title || p.topic || "Тест"), warn: a.warn || "" };
+  }
+
   /* при автоматической сборке урока */
   async function addToDeck(md, p) {
     if (!wanted()) return md;
@@ -169,6 +175,6 @@ const QuizLink = (() => {
   }
 
   document.addEventListener("DOMContentLoaded", bindForm); setTimeout(bindForm, 0);
-  return { CATALOG, find, wanted, slideMd, addToDeck, openResults, badge, linkOf };
+  return { CATALOG, find, wanted, createTest, slideMd, addToDeck, openResults, badge, linkOf };
 })();
 window.QuizLink = QuizLink;

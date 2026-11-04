@@ -1626,7 +1626,7 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   openLesson(L, formats.find(f => !L.docs[f]) || formats[0]); revealWorkspace();
   const restore = () => { if (L._restoreMaterials) { state.materials = L._restoreMaterials; delete L._restoreMaterials; } };
   const done = () => { addPrevHw(L, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
-  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } clearJob(L.id); }
+  try { if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen); if (L._after) { const a = L._after; delete L._after; await a(); } if (window.QuizLink && QuizLink.wanted() && !L.quiz) { try { const qt = await QuizLink.createTest(p); if (qt) { L.quiz = qt; L.quizAt = new Date().toISOString(); await saveLesson(L); toast("Интерактивный тест готов — ссылка прикреплена к уроку.", 6000); } } catch (e) { toast("Тест не создан: " + (e.message || e), 7000); } } clearJob(L.id); }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
 }
@@ -1836,7 +1836,7 @@ async function buildWithAi(L, p, type, formats) {
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
         L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => r.md);
         if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
-        if (window.QuizLink) L.docs.slides = await QuizLink.addToDeck(L.docs.slides, p).catch(() => L.docs.slides); // 📱 QR-код на интерактив в конце
+        /* тест создаётся отдельно от презентации — см. ниже */
         L.status.slides = "ok";
       } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); L.status.slides = "ok"; }
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
@@ -2218,9 +2218,10 @@ function renderLesson() {
   $$(".doc-tab", tabs).forEach(b => b.onclick = () => { state.active = b.dataset.doc; renderLesson(); });
   const P = L.params;
   $("#lessonTitle").hidden = false;
-  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1>${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}`;
+  $("#lessonTitle").innerHTML = `<h1>${esc(L.title)}</h1>${L.quiz?.url ? `<p class="quiz-attach">📱 <b>Интерактивный тест</b> · <a href="${esc(L.quiz.url)}" target="_blank" rel="noopener">открыть тест</a> <button type="button" class="btn sm ghost" id="btnQuizCopy">Скопировать ссылку</button></p>` : ""}${P.subject === "lit" && !L.planFull?.kit && !L.plan?.textSource && !L.sample ? `<p class="need-text">📖 <b>Текст произведения не найден</b> — урок собран по общему алгоритму. <button class="btn sm flame" id="btnAddText">Добавить текст</button></p>` : ""}`;
   { const bv = $("#btnVerify"); if (bv) { const dev = !window.Access || !Access.commercial() || Access.isDev(); bv.hidden = !dev; } }
   { const bt = $("#btnAddText"); if (bt) bt.onclick = () => openAddText(L); }
+  { const qb = $("#btnQuizCopy"); if (qb) qb.onclick = () => { navigator.clipboard?.writeText(state.lesson?.quiz?.url || "").then(() => toast("Ссылка на тест скопирована.")); }; }
   const vb = $("#btnVerify"); if (vb) vb.onclick = () => openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Сверка фактов</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${Verify.reportHtml(state.lesson.verify)}<p class="hint">Пометка «⟦проверить⟧» стоит там, где факт не нашёлся ни во встроенной базе, ни в Википедии и Викитеке. Проверьте такие места по учебнику и уберите пометку.</p></div></div>`);
   const busy = isGenerating(L, state.active);
   $("#refineBar").hidden = busy || !L.docs[state.active] || !!state.gen;
@@ -2501,7 +2502,7 @@ function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.do
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);
-  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null };
+  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null, quiz: L.quiz || null, quizAt: L.quizAt || null };
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }

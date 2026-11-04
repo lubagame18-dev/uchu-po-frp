@@ -1122,7 +1122,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
         ${window.ThemeKit ? `<details class="dk-theme" open><summary><b>Оформление</b> — <span id="dkThName"></span></summary><div class="th-strip" id="dkThPrev" aria-label="Так будет выглядеть презентация"></div><div class="th-pick" id="dkTh"></div></details>` : ""}
         <ol class="deck-cards" id="dkList"></ol>
         <div class="mat-row"><button class="btn sm ghost" id="dkAdd">+ Карточка</button></div>
-        <div class="pk-foot"><button class="btn flame" id="dkBuild">Собрать презентацию</button>${window.UCHU?.configured?.() ? `<label class="check"><input type="checkbox" id="dkAi"> Сжать формулировки нейросетью (дословные блоки не трогает)</label>` : ""}<label class="check" title="Портрет писателя станет наклейкой: фон убирается, по контуру — белая обводка. Первый раз загружается модель (~40 МБ)."><input type="checkbox" id="dkCut" ${(() => { try { const v = localStorage.getItem("uchu:cutout"); return v ? v === "1" : !/Mobi|Android/i.test(navigator.userAgent); } catch { return true; } })() ? "checked" : ""}> Вырезать портреты (наклейка без фона)</label>${window.QuizLink?.find(p) ? `<label class="check" title="QR-код на интерактив для телефонов; результаты учеников – в кабинете, «Результаты тестов»"><input type="checkbox" id="dkQuiz" ${QuizLink.wanted() ? "checked" : ""}> 📱 Интерактив с тестом в конце (QR)</label>` : ""}<span class="small" id="dkMsg"></span></div>
+        <div class="pk-foot"><button class="btn flame" id="dkBuild">Собрать презентацию</button>${window.UCHU?.configured?.() ? `<label class="check"><input type="checkbox" id="dkAi"> Сжать формулировки нейросетью (дословные блоки не трогает)</label>` : ""}<label class="check" title="Портрет писателя станет наклейкой: фон убирается, по контуру — белая обводка. Первый раз загружается модель (~40 МБ)."><input type="checkbox" id="dkCut" ${(() => { try { const v = localStorage.getItem("uchu:cutout"); return v ? v === "1" : !/Mobi|Android/i.test(navigator.userAgent); } catch { return true; } })() ? "checked" : ""}> Вырезать портреты (наклейка без фона)</label>${window.QuizLink ? `<label class="check" title="Создать отдельный интерактивный тест по теме; ссылка прикрепится к уроку, результаты — в кабинете"><input type="checkbox" id="dkQuiz" ${QuizLink.wanted() ? "checked" : ""}> 📱 Интерактивный тест</label>` : ""}<span class="small" id="dkMsg"></span></div>
       </div></div>`);
     const list = $("#dkList", m);
     const draw = () => {
@@ -1201,7 +1201,11 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       md = await Media.autoFill(md).catch(() => md);
       try { localStorage.setItem("uchu:cutout", $("#dkCut", m)?.checked ? "1" : "0"); } catch { }
       if (window.SlideEditor?.stickerize) md = await SlideEditor.stickerize(md, { onStep: t => { $("#dkMsg", m).textContent = t; } }).catch(() => md);
-      if ($("#dkQuiz", m)?.checked && window.QuizLink) { $("#dkMsg", m).textContent = "Создаю интерактив и QR-код…"; const q = await QuizLink.slideMd(p).catch(() => null); if (q) { md = md.replace(/\s+$/, "") + "\n\n" + q.md; if (q.warn) toast(q.warn, 6000); } }
+      if ($("#dkQuiz", m)?.checked && window.QuizLink) {
+        $("#dkMsg", m).textContent = "Создаю интерактивный тест…";
+        try { const qt = await QuizLink.createTest(p); if (qt) { const L0 = state.lesson; if (L0) { L0.quiz = qt; await saveLesson(L0); } toast("Тест готов — ссылка прикреплена к уроку.", 6000); } }
+        catch (e) { toast("Тест не создан: " + (e.message || e), 7000); }
+      }
       if (window.SlideEditor) SlideEditor.replaceAll(md);
       closeModal(); toast("Презентация готова.", 3500);
     };

@@ -1131,3 +1131,7 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.k-qr figure.pic figcaption{color:#33404f;font-size:1.6cqw;text-align:center;margin-top:.6cqw}
 .sx.k-qr a{display:inline-block;margin-top:.5em;padding:.55em .9em;border-radius:.7em;background:#f3c969;color:#241a06;font-weight:800;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.25)}
 .sx.k-qr a:hover{filter:brightness(1.06)}
+/* ссылка на интерактивный тест, прикреплённая к уроку */
+.quiz-attach{margin:8px 0 0;padding:10px 14px;border:1px solid #cfe3ea;border-radius:12px;background:linear-gradient(135deg,#eef8fb,#fff);font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.quiz-attach a{font-weight:800;color:#0f5f70;text-decoration:none;border-bottom:1.5px solid rgba(15,95,112,.35)}
+.quiz-attach .btn{margin-left:auto}
