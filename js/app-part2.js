@@ -774,12 +774,34 @@ function wsThemeKey(p) {
 }
 function wsThemeVars(p) { const t = WS_THEMES[wsThemeKey(p)] || WS_THEMES.modern; return `--ws-paper:${t.paper};--ws-ink:${t.ink};--ws-accent:${t.accent};--ws-accent2:${t.accent2};--ws-soft:${t.soft};`; }
 function wsThemeClass(p) { return "ws-theme-" + wsThemeKey(p); }
+const HIST_PEOPLE = [
+  "Пётр I","Пётр Первый","Иван Грозный","Иван III","Иван Калита","Ярослав Мудрый","Владимир Мономах","Владимир Святой",
+  "Александр Невский","Дмитрий Донской","Сергий Радонежский","Иван Фёдоров","Борис Годунов","Минин","Пожарский",
+  "Алексей Михайлович","Екатерина II","Екатерина Вторая","Елизавета Петровна","Анна Иоанновна","Павел I",
+  "Александр I","Александр II","Александр III","Николай I","Николай II","Потёмкин","Суворов","Кутузов",
+  "Наполеон","Багратион","Барклай-де-Толли","Сперанский","Аракчеев","Декабристы","Пестель","Рылеев",
+  "Герцен","Белинский","Чернышевский","Ленин","Сталин","Троцкий","Колчак","Деникин","Врангель","Брусилов",
+  "Гагарин","Королёв","Курчатов","Сахаров","Хрущёв","Брежнев","Горбачёв","Ельцин","Жуков","Рокоссовский",
+  "Конев","Василевский","Молотов","Берия","Киров","Дзержинский","Фрунзе","Будённый","Чапаев"
+];
+function histPersonOf(topic) {
+  const t = String(topic || "").toLowerCase().replace(/ё/g, "е");
+  const hit = HIST_PEOPLE.find(n => t.includes(n.toLowerCase().replace(/ё/g, "е")));
+  if (hit) return hit;
+  const m = String(topic || "").match(/([А-ЯЁ][а-яё-]+(?:\s+[А-ЯЁ][а-яё-]+){0,2}\s+[IVX]+)/);
+  if (m) return m[1].trim();
+  const bad = /^(великая|внешняя|внутренняя|русско|первая|вторая|мировая|отечественная|северная|крымская|смутное|древняя|новая|россия|россии|история|урок|война|реформа|революция|политика|культура|экономика|общество)$/i;
+  const caps = String(topic || "").match(/[А-ЯЁ][а-яё-]+(?:\s+[А-ЯЁ][а-яё-]+)*/g) || [];
+  const cand = caps.find(x => !bad.test(x) && x.split(/\s+/).length >= 2 && x.length > 5);
+  return cand || "";
+}
 async function wsPersonPhoto(md, p) {
   try {
     if (!window.Media?.autoFill) return md;
     if (/!\[[^\]]*\]\((?:commons|search):[^)]*портрет/i.test(md)) return md;
     let person = "";
     if (p.subject === "lit") person = (window.Engine?.authorOf?.(p.topic) || p.plan?.kit?.author || p.plan?.analysis?.author || "");
+    else if (p.subject === "hist" || p.subject === "soc") person = (p.plan?.person || p.plan?.analysis?.person || p.plan?.kit?.person || histPersonOf(p.topic));
     else person = (p.plan?.person || p.plan?.analysis?.person || p.plan?.kit?.person || "");
     person = String(person || "").trim();
     if (!person || person.length < 5) return md;
