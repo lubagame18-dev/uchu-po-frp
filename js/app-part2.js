@@ -3276,7 +3276,7 @@ function bind() {
       if (sel.value !== "auto" && !keys.includes(sel.value) && !extra.some(([k]) => k === sel.value)) sel.value = "auto";
       const cur = sel.value || "auto";
       const card = (k, name) => `<button type="button" class="pv-card ${cur === k ? "on" : ""}" data-th="${k}" title="${esc(name)}"><div class="pv-thumb">${preview(k)}</div><small>${esc(name)}</small></button>`;
-      grid.innerHTML = card("auto", "✨ Авто — по теме") + keys.map(k => card(k, ThemeKit.META[k].name)).join("") + extra.map(([k, v]) => card(k, v)).join("");
+      grid.innerHTML = keys.map(k => card(k, ThemeKit.META[k].name)).join("") + extra.map(([k, v]) => card(k, v)).join("");
       grid.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { sel.value = b.dataset.th; try { localStorage.setItem("uchu:theme", sel.value); } catch { } buildThemeOptions(); why(); });
     };
     window.syncThemeOptions = buildThemeOptions;

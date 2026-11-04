@@ -1184,7 +1184,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
     draw();
     // оформление: «Авто» подбирает по произведению/разделу; можно выбрать до сборки
-    let thPick = L.slideThemeAuto === false && L.slideTheme ? L.slideTheme : "auto";
+    let thPick = L.slideTheme && window.ThemeKit?.has?.(L.slideTheme) ? L.slideTheme : "modern";
     const drawTh = () => {
       const box = $("#dkTh", m); if (!box || !window.SlideEditor) return;
       const autoK = ThemeKit.auto(p);
