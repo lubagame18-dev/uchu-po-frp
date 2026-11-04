@@ -741,12 +741,31 @@ function examBlock(p) {
 const WS_DESIGNS = {
   academic: { name: "Строгий академический", text: "Оформляй как экзаменационный бланк: минимализм, чёткие рамки, официальные шрифты, без эмодзи и декора. Поля для ответов — линии и клетки, официальная шапка «Класс, ФИО, Вариант»." },
   interactive: { name: "Интерактивный / тематический", text: "Делай ставку не на значки, а на методику и компоновку: продуманное расположение блоков (тренировочные карточки, схема-опора, таблица-матрица, чек-лист самопроверки), поля для заметок на полях, место под ответ рядом с заданием, лестница сложности. Лист должен быть плотно и интересно заполнен: каждый блок несёт учебное действие, пустых украшений нет. Иконки — только функциональные и уместные (💡 подсказка, ⏱ время на задание, ❌ типичная ошибка), без смайликов ради красоты. Никаких абстрактных рисунков и мотивационных картинок не по теме — всё оформление работает на тему урока." },
-  art: { name: "Арт-поддержка", text: "Добавь 1–2 репродукции, портрет художника/учёного или историческую гравюру — только если они служат материалом задания или создают атмосферу; подпиши автора и название, не занимай место зря." }
+  art: { name: "Арт-поддержка", text: "Добавь 1–2 репродукции, портрет художника/учёного или историческую гравюру — только если они служат материалом задания или создают атмосферу; подпиши автора и название, не занимай место зря." },
+  design: { name: "Тематический дизайн", text: "Сверстай рабочий лист как журнальную полосу: крупный заголовок-баннер, короткие блоки-карточки, факты и задания с номерами, поля для ответов, QR/итог. Каждый блок — отдельная карточка с заголовком; без пустых украшений, всё по теме." }
 };
+const WS_THEMES = {
+  construct: { name: "Конструктивизм", paper: "#f4efe4", ink: "#141414", accent: "#c8322b", accent2: "#f2c14e", soft: "#fffaf0" },
+  modern:    { name: "Современный", paper: "#eef6fb", ink: "#142433", accent: "#0e7490", accent2: "#f59e0b", soft: "#ffffff" },
+  botanic:   { name: "Ботанический", paper: "#f2fbf4", ink: "#1d3b2a", accent: "#15803d", accent2: "#c8a96b", soft: "#ffffff" },
+  space:     { name: "Космический", paper: "#f3f1ff", ink: "#201a3d", accent: "#6d28d9", accent2: "#0891b2", soft: "#ffffff" },
+  classic:   { name: "Классический", paper: "#fbf6ec", ink: "#2a2118", accent: "#9a3412", accent2: "#0f766e", soft: "#fffdf8" }
+};
+function wsThemeKey(p) {
+  const t = String(p?.topic || "") + " " + String(p?.subject || "");
+  if (/маяков|конструктив|плакат|революц|агит|поэт|литератур/i.test(t)) return "construct";
+  if (/биолог|ботан|растен|гриб|клетк|эколог|природ/i.test(t)) return "botanic";
+  if (/космос|астроном|физик|матем|информ|вселенн/i.test(t)) return "space";
+  if (/истор|общество|географ|экономик|политик/i.test(t)) return "classic";
+  return "modern";
+}
+function wsThemeVars(p) { const t = WS_THEMES[wsThemeKey(p)] || WS_THEMES.modern; return `--ws-paper:${t.paper};--ws-ink:${t.ink};--ws-accent:${t.accent};--ws-accent2:${t.accent2};--ws-soft:${t.soft};`; }
 function wsStyleBlock(p) {
   const d = WS_DESIGNS[p.wsDesign] || WS_DESIGNS.interactive;
+  const theme = p.wsDesign === "design" ? WS_THEMES[wsThemeKey(p)] : null;
   return `## Оформление и эргономика рабочего листа (${d.name})
-${d.text}
+${d.text}${theme ? `
+- Стиль оформления: «${theme.name}» — цвет бумаги ${theme.paper}, акцент ${theme.accent}, второй акцент ${theme.accent2}; используй крупные заголовки-карточки и номера заданий.` : ""}
 - Заполненность: каждый блок и каждое поле нужны для работы, лист не выглядит пустым; но без визуального шума и без отвлечения от темы.
 - Расположение: сначала задание, рядом — место под ответ; таблицы и схемы — с пустыми полями под заполнение; заметки — на полях, а не вместо задания.
 - Рассчитай место под ответ: текст задания не наползает на поле ответа; для краткого ответа — отдельная строка «Ответ: ______», для решения — клетки/линии, для развёрнутого — несколько линий.
@@ -2488,7 +2507,7 @@ async function renderPreview() {
   } else {
     // пока документ дописывается, перерисовка не сбрасывает то, куда учитель прокрутил (таблицы вбок, лист вниз)
     const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
-    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "") + (state.active === "worksheet" ? " ws-doc-" + (L.params?.wsDesign || state.wsDesign || "interactive") : ""); sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
+    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "") + (state.active === "worksheet" ? " ws-doc-" + (L.params?.wsDesign || state.wsDesign || "interactive") : ""); if (state.active === "worksheet" && (L.params?.wsDesign === "design")) { sheet.classList.add("ws-doc-design"); sheet.style.cssText += wsThemeVars(L.params); } sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
     if (state.active === "lesson" && window.Layout) Layout.decorate(sheet);
     if (state.active === "memo") { sheet.classList.add("memo-sheet"); memoDecorate(sheet); } else if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
@@ -3128,7 +3147,7 @@ function wsPdfBreak(el, pageH) {
 /* Лист в PDF/PNG: те же две страницы, что и в Word (раскладка wsFit), каждая – ровно один лист A4, без разрыва посреди блока */
 async function wsBuildPages(L, stage) {
   const PH = 1112, toks = window.marked.lexer(wsKeysToH1(String(L.docs.worksheet || ""))), R = wsFit(toks, L.art?.banner?.url ? 90 : 0);
-  stage.innerHTML = `<div class="ws-pages"><div class="sheet ws-sheet ws-fit">${mdToHtml(R.toks.map(t => t.raw.replace(/\n+$/, "")).join("\n\n"))}</div></div>`;
+  stage.innerHTML = `<div class="ws-pages"><div class="sheet ws-sheet ws-fit${L.params?.wsDesign === "design" ? " ws-doc-design" : ""}"${L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(R.toks.map(t => t.raw.replace(/\n+$/, "")).join("\n\n"))}</div></div>`;
   decorate(stage); wsDecorate(stage, L);
   await new Promise(r => setTimeout(r, 300)); await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
   const wrap = stage.firstElementChild, s1 = wrap.firstElementChild, s2 = s1.cloneNode(false), norm = x => String(x || "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").replace(/\s+/g, " ").trim();
@@ -3187,7 +3206,7 @@ async function docToPdfBlob(L, doc) {
   const stage = $("#pdfstage"), md = doc === "worksheet" ? wsMainMd(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;
-  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}">${mdToHtml(md)}</div>`;
+  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}${doc === "worksheet" && L.params?.wsDesign === "design" ? " ws-doc-design" : ""}"${doc === "worksheet" && L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(md)}</div>`;
   decorate(stage);
   if (doc === "lesson" && window.Layout) Layout.decorate(stage.firstElementChild);
   if (doc === "memo") { stage.firstElementChild?.classList.add("memo-sheet"); memoDecorate(stage); } else if (WS_DOCS.includes(doc)) wsDecorate(stage, L);
@@ -3312,8 +3331,8 @@ function bind() {
   setSeg("segExamFocus", state.examFocus);
   /* Оформление рабочего листа: карточки с мини-превью стилей */
   { const grid = document.getElementById("wsDesignGrid"); if (grid) {
-    const MOCK = { academic: `<div class="m-ac"></div>`, interactive: `<div class="m-int"><span class="i1"></span><span class="i2"></span><span class="i3"></span><span class="i4"></span></div>`, art: `<div class="m-art"></div>` };
-    const NAMES = { academic: "Строгий", interactive: "Интерактивный", art: "Арт-поддержка" };
+    const MOCK = { academic: `<div class="m-ac"></div>`, interactive: `<div class="m-int"><span class="i1"></span><span class="i2"></span><span class="i3"></span><span class="i4"></span></div>`, art: `<div class="m-art"></div>`, design: `<div class="m-design"></div>` };
+    const NAMES = { academic: "Строгий", interactive: "Интерактивный", art: "Арт-поддержка", design: "Дизайн по теме" };
     const sync = () => {
       grid.innerHTML = Object.entries(NAMES).map(([k, n]) => `<button type="button" class="pv-card ${state.wsDesign === k ? "on" : ""}" data-wd="${k}" title="${n}"><div class="wd-thumb">${MOCK[k]}</div><small>${n}</small></button>`).join("");
       grid.querySelectorAll("[data-wd]").forEach(b => b.onclick = () => { state.wsDesign = b.dataset.wd; readForm(); sync(); });
