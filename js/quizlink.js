@@ -116,6 +116,37 @@ const QuizLink = (() => {
     return md.replace(/\s+$/, "") + "\n\n" + r.md;
   }
 
+  /* отдельное создание теста — без урока и документа */
+  function openCreateDialog() {
+    if (!logged()) { window.toast?.("Войдите в личный кабинет — тест привяжется к вашим результатам.", 6000); window.Account?.open?.(); return; }
+    if (!window.AI || !AI.configured || !AI.configured()) { window.toast?.("Нейросеть не подключена — проверьте настройки ИИ.", 6000); return; }
+    const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>📱 Интерактивный тест</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+      <p class="small">Тест создаётся отдельно, без урока и документа. Нейросеть составит вопросы по теме, ссылка и QR появятся сразу; результаты — в кабинете.</p>
+      <label class="field"><span class="lbl">Тема</span><input id="qzTopic" placeholder="Например: Газовая промышленность"></label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><label class="field" style="flex:1 1 160px"><span class="lbl">Предмет</span><input id="qzSubj" placeholder="География"></label><label class="field" style="flex:0 0 100px"><span class="lbl">Класс</span><input id="qzGrade" inputmode="numeric" placeholder="9"></label></div>
+      <label class="field"><span class="lbl">Что проверить (необязательно)</span><textarea id="qzWish" rows="2" placeholder="Например: знание районов добычи, магистральные трубопроводы"></textarea></label>
+      <button class="btn flame" id="qzCrtGo">Создать тест</button><p class="small" id="qzCrtMsg"></p></div></div>`);
+    const msg = m.querySelector("#qzCrtMsg"), go = m.querySelector("#qzCrtGo");
+    go.onclick = async () => {
+      const topic = m.querySelector("#qzTopic").value.trim();
+      if (topic.length < 3) { msg.textContent = "Впишите тему теста."; return; }
+      const p = { topic, subject: m.querySelector("#qzSubj").value.trim() || "Общее", grade: m.querySelector("#qzGrade").value.trim() || "", goal: m.querySelector("#qzWish").value.trim() };
+      go.disabled = true; msg.textContent = "Составляю вопросы… это может занять до минуты.";
+      try {
+        const qt = await createTest(p);
+        let qr = ""; try { if (window.QR) { const b = await QR.png(qt.url, 420); qr = `<img src="${URL.createObjectURL(b)}" alt="QR-код теста" style="width:200px;height:200px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff">`; } } catch { }
+        m.querySelector(".dlg-b").innerHTML = `<h3 style="margin:0 0 6px">Тест готов</h3><p class="small">${esc(qt.title)}</p>${qr}
+          <p style="word-break:break-all"><a href="${esc(qt.url)}" target="_blank" rel="noopener">${esc(qt.url)}</a></p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm teal" id="qzOpen">Открыть тест</button><button class="btn sm ghost" id="qzCopy2">Скопировать ссылку</button></div>
+          <p class="small">Результаты: Личный кабинет → «Результаты тестов».</p>`;
+        m.querySelector("#qzOpen").onclick = () => window.open(qt.url, "_blank");
+        m.querySelector("#qzCopy2").onclick = () => navigator.clipboard?.writeText(qt.url).then(() => window.toast?.("Ссылка скопирована."));
+      } catch (e) { go.disabled = false; msg.textContent = "Не получилось: " + (e.message || e); }
+    };
+  }
+  function bindTestNav() { const b = document.getElementById("nav-test"); if (b && !b.dataset.b) { b.dataset.b = 1; b.onclick = openCreateDialog; } }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bindTestNav); else setTimeout(bindTestNav, 0);
+
   /* ---------- кабинет: «Результаты тестов» ---------- */
   let cache = null;
   async function load() {
@@ -189,6 +220,6 @@ const QuizLink = (() => {
   }
 
   document.addEventListener("DOMContentLoaded", bindForm); setTimeout(bindForm, 0);
-  return { CATALOG, find, wanted, createTest, slideFor, slideMd, addToDeck, openResults, badge, linkOf };
+  return { CATALOG, find, wanted, createTest, slideFor, slideMd, addToDeck, openResults, openCreateDialog, badge, linkOf };
 })();
 window.QuizLink = QuizLink;
