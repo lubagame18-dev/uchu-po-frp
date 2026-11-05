@@ -1127,8 +1127,8 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.k-qr .sx-body ul{padding-left:1.1em}
 .sx.k-qr .sx-body li::marker{color:#0e7490}
 .sx.k-qr .sx-body li{margin-bottom:.35em}
-.sx.k-qr figure.pic{float:right;width:36%;margin:.2em 0 1em 1.4em;background:#fff;padding:1.1cqw;border-radius:2cqw;box-shadow:0 14px 34px rgba(15,59,89,.18);border:.35cqw solid #fff;outline:.25cqw solid rgba(14,116,144,.18)}
-.sx.k-qr figure.pic img{display:block;width:100%;height:auto;border-radius:1.2cqw}
+.sx.k-qr figure.pic{float:right;width:30%;max-width:30cqw;margin:.2em 0 .8em 1.2em;background:#fff;padding:.9cqw;border-radius:2cqw;box-shadow:0 14px 34px rgba(15,59,89,.18);border:.35cqw solid #fff;outline:.25cqw solid rgba(14,116,144,.18)}
+.sx.k-qr figure.pic img{display:block;width:100%;height:auto;max-height:30cqw;object-fit:contain;border-radius:1.2cqw}
 .sx.k-qr figure.pic figcaption{color:#43515f;font-size:1.6cqw;text-align:center;margin-top:.6cqw}
 .sx.k-qr a{display:inline-block;margin-top:.55em;padding:.55em .95em;border-radius:.7em;background:linear-gradient(135deg,#0e7490,#22b8cf);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 8px 20px rgba(14,116,144,.28)}
 .sx.k-qr a:hover{filter:brightness(1.06)}
@@ -1170,3 +1170,8 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .ws-theme-noir .ws-banner{background:#111!important;border:4px solid #b91c1c}
 .ws-theme-pastel .ws-banner{background:linear-gradient(120deg,#7c3aed,#db2777)!important}
 .ws-theme-pastel h3{border-left-color:#db2777!important}
+
+/* QR-слайд в конце: код крупный, но не вылезает за слайд */
+.sx.k-qr .sx-body{overflow:hidden}
+.sx.k-qr figure.pic{margin-left:auto}
+.sx.k-qr .sx-body p{margin:.15em 0 .35em}

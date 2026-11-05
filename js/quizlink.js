@@ -62,7 +62,14 @@ const QuizLink = (() => {
     return id;
   }
 
-  /* слайд для конца презентации: QR + ссылка */
+  /* QR-картинка без ссылки: крупный код, который влезает в слайд */
+  async function qrImage(url, id) {
+    let img = "";
+    if (window.QR && window.Store) { try { const b = await QR.png(url, 720); const k = "img-qr-" + (id || Date.now()); await Store.put("images", k, b); img = `![QR-код: проверка знаний](idb:${k})`; } catch { } }
+    if (!img && url) img = `![QR-код: проверка знаний](https://api.qrserver.com/v1/create-qr-code/?size=720x720&data=${encodeURIComponent(url)})`;
+    return img;
+  }
+  /* слайд для конца презентации: только QR-код */
   async function slideMd(p) {
     let a = null, t = find(p), id = null, url = null, warn = "";
     if (logged() && window.AI && AI.configured && AI.configured()) {
@@ -72,16 +79,15 @@ const QuizLink = (() => {
       try { id = await create(t, p.topic); url = linkOf(t, id); } catch (e) { warn = "Не получилось создать тест (" + e.message + "). Проверьте supabase_quizzes.sql."; }
     }
     if (!id) { if (warn) window.toast?.(warn, 6000); return null; }
-    let img = "";
-    if (window.QR && window.Store) { try { const b = await QR.png(url, 720); const k = "img-qr-" + (id || Date.now()); await Store.put("images", k, b); img = `![QR-код: проверка знаний](idb:${k})`; } catch { } }
+    const img = await qrImage(url, id);
     const set = { kind: "qr", acc: "right" };
     const parts = a ? `${a.data.questions.length} вопросов по теме` : (t ? t.parts : "");
     const md = [`## 🧪 Проверка знаний: тест по теме`, img, [
-      "- Наведите камеру телефона на QR-код или откройте ссылку",
+      "- Наведите камеру телефона на QR-код",
       "- Впишите фамилию, имя и класс",
       `- ${parts}`,
-      "- Результат придёт учителю в личный кабинет",
-      "", `[${shortOf(url)}](${url})`].filter(x => x !== null).join("\n"),
+      "- Результат придёт учителю в личный кабинет"
+      ].filter(x => x !== null).join("\n"),
       `<!--@ ${JSON.stringify(set)} -->`,
       `<!-- Тест «${String(p.topic || "").slice(0, 80)}». Результаты: Личный кабинет → «Результаты тестов». Ссылка: ${url} -->`].filter(Boolean).join("\n\n");
     if (warn) window.toast?.(warn, 7000);
@@ -97,15 +103,14 @@ const QuizLink = (() => {
   /* QR-слайд в презентацию к уже созданному тесту */
   async function slideFor(p, qt) {
     if (!qt || !qt.url) return "";
-    let img = "";
-    if (window.QR && window.Store) { try { const b = await QR.png(qt.url, 720); const k = "img-qr-" + (qt.id || Date.now()); await Store.put("images", k, b); img = `![QR-код: тест по теме](idb:${k})`; } catch { } }
+    const img = await qrImage(qt.url, qt.id);
     const set = { kind: "qr", acc: "right" };
     return [`## 🧪 Проверка знаний: тест по теме`, img, [
-      "- Наведите камеру телефона на QR-код или откройте ссылку",
+      "- Наведите камеру телефона на QR-код",
       "- Впишите фамилию, имя и класс",
       `- ${qt.title || p.topic || "тест"}`,
-      "- Результат придёт учителю в личный кабинет",
-      "", `[${shortOf(qt.url)}](${qt.url})`].join("\n"), `<!--@ ${JSON.stringify(set)} -->`].filter(Boolean).join("\n\n");
+      "- Результат придёт учителю в личный кабинет"
+      ].join("\n"), `<!--@ ${JSON.stringify(set)} -->`].filter(Boolean).join("\n\n");
   }
 
   /* при автоматической сборке урока */
