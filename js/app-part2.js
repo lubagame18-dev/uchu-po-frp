@@ -1965,13 +1965,14 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         try {
           const _wq = (p.web?.items || []).map(String).filter(x => x.length >= 80);
           const webTxt = _wq.length >= 2 ? `\nМатериал из образовательных источников (используй факты только отсюда и из учебника, указывай источник): ${p.web.items.map(x => `${x.text} [${x.src.domain}]`).join(" | ").slice(0, 3500)}` : "";
-          const res = await caps.sample((window.TeacherRules ? TeacherRules.brief(p, f) + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + (p.design ? `## Методический замысел урока (следуй ему)\n${p.design}\n\n` : "") + PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + (typeof syncRules === "function" ? "\n\n" + syncRules(p) : "") + webTxt + "\n\n" + (typeof schemeBrief === "function" ? schemeBrief(p, f) : ""), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
+          const res = await caps.sample((window.TeacherRules ? TeacherRules.brief(p, f) + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + (p.design ? `## Методический замысел урока (следуй ему)\n${p.design}\n\n` : "") + PL.prompt(f, p, type, md) + (window.Conv ? "\n\n" + Conv.prompt(p) : "") + (window.Notes ? "\n\n" + Notes.promptBlock(p) : "") + (typeof levelBlock === "function" ? "\n\n" + levelBlock(p) : "") + (typeof syncRules === "function" ? "\n\n" + syncRules(p) : "") + webTxt + "\n\n" + (typeof schemeBrief === "function" ? schemeBrief(p, f) : "") + (window.TableKit ? "\n\n" + TableKit.brief(p, f) : ""), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (res.text && res.text.length > 400) md = cleanMd(res.text);
           if (["conspect", "lesson", "worksheet"].includes(f) && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e); }
       }
       /* MaterialResolver в урок не добавляем: справки, типовые задания и темы года не должны попадать в конспект */
       if (f === "conspect") md = normalizeTechmap(md, p);
+      if (window.TableKit) md = TableKit.ensure(md, p, f);
       L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
       await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
     }
@@ -2038,7 +2039,8 @@ async function buildWithAi(L, p, type, formats) {
       try { state.gen.pct = Math.max(state.gen.pct, 3); updateProgress(); const d = await caps.sample(promptDesign(p), { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal }); p.design = String(d.text || "").trim(); L.design = p.design; }
       catch (e) { if (e?.code === "cancelled") throw e; }
     }
-    const prompt = f === "conspect" ? promptConspect(p) : f === "slides" ? promptSlides(p, techOf(L, p, type)) : promptWorksheet(p, L.docs.conspect || L.tech);
+    const prompt0 = f === "conspect" ? promptConspect(p) : f === "slides" ? promptSlides(p, techOf(L, p, type)) : promptWorksheet(p, L.docs.conspect || L.tech);
+    const prompt = prompt0 + (window.TableKit ? "\n\n" + TableKit.brief(p, f) : "");
     L.prompts = { ...(L.prompts || {}), [f]: prompt, ...(f === "conspect" && p.design ? { design: p.design } : {}) };
     const paint = throttle(text => { if (state.lesson?.id === L.id && state.active === f) { $("#md").value = text; renderPreview(); } }, 300);
     try {
@@ -2061,6 +2063,7 @@ async function buildWithAi(L, p, type, formats) {
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
       else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md, null, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => md); }
       if (f === "worksheet") md = await wsPersonPhoto(md, p);
+      if (window.TableKit) md = TableKit.ensure(md, p, f);
       L.docs[f] = md; L.status[f] = "ok";
       /* тест — после конспекта/техкарты, но до презентации */
       if (!L.quiz && (f === "conspect" || f === "lesson") && window.QuizLink && QuizLink.wanted()) {
@@ -3539,7 +3542,7 @@ function bind() {
   window.addEventListener("uchu:access", () => { try { syncRefineScope(); } catch { } });
   $("#btnMore").onclick = () => addExtraSheet();
   $("#btnDeco").onclick = () => decorateWorksheet();
-  $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnAppx").onclick = guarded(exportAppx); $("#btnPng").onclick = guarded(exportPng); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
+  $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnAppx").onclick = guarded(exportAppx); $("#btnPng").onclick = guarded(exportPng); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf); if (window.TableKit) $("#btnTable").onclick = () => TableKit.open();
   // материалы
   const drop = $("#matDrop");
   ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
