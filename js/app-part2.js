@@ -1359,7 +1359,13 @@ ${String(md || "").slice(0, 20000)}
 function wsScheme(p) {
   try {
     const sc = window.Schemes?.find?.(p.subject, p.topic);
-    const steps = (sc?.s || []).map(x => window.Schemes?.plain ? Schemes.plain(x) : String(x)).filter(Boolean);
+    const P = x => window.Schemes?.plain ? Schemes.plain(x) : String(x || "");
+    if (sc?.head?.length && sc?.rows?.length) {
+      const head = sc.head.map(P).map(x => x.replace(/\|/g, "/"));
+      const rows = sc.rows.slice(0, 8).map(r => r.map(x => P(x).replace(/\|/g, "/")));
+      return `**Схема-опора: ${P(sc.t || p.topic)}**\n\n| ${head.join(" | ")} |\n|${head.map(() => "---").join("|")}|\n${rows.map(r => `| ${r.join(" | ")} |`).join("\n")}`;
+    }
+    const steps = (sc?.s || []).map(P).filter(Boolean);
     if (!steps.length) return "";
     return `**Схема-опора: ${sc.t || p.topic}**\n\n| Шаг | Что делать |\n|---|---|\n${steps.slice(0, 4).map((x, i) => `| ${i + 1} | ${x.replace(/\|/g, "/")} |`).join("\n")}`;
   } catch { return ""; }
