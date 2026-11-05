@@ -992,7 +992,7 @@ ${JSON.stringify(payload)}`;
     if (cards.some(c => c.kind === "scheme" || /схем/i.test(c.title || ""))) return cards;
     if (!window.UCHU?.configured?.() || typeof caps === "undefined") return cards;
     /* алгоритм/схема — только когда этого требует тема, а не по умолчанию */
-    const needsAlgo = /алгоритм|правил|порядок|как |инструкц|опыт|лаборатор|решен|разбор|орфограмм|пунктуац|действи|способ|этап/i.test(String(p.topic || "")) || ["ru", "math", "phys", "chem", "inf"].includes(p.subject);
+    const needsAlgo = /алгоритм|правил|порядок|как |инструкц|опыт|лаборатор|решен|разбор|орфограмм|пунктуац|действи|способ|этап|классификац|строени|состав|признак|свойств|виды|типы|групп|сравн|анализ|план|характеристик|процесс|причин|следств|функци|значени|правописан|склонени|спряжени|части речи|член предложени/i.test(String(p.topic || "")) || ["ru", "math", "phys", "chem", "inf", "bio", "geo", "hist", "soc"].includes(p.subject);
     if (!needsAlgo) return cards;
     const key = "uchu:aischene:" + [p.subject, p.grade, p.topic].join("|").toLowerCase();
     let j = null; try { j = JSON.parse(localStorage.getItem(key) || "null"); } catch { }
