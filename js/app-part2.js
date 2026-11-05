@@ -1358,6 +1358,8 @@ ${String(md || "").slice(0, 20000)}
 /* схема-опора из банка Schemes: короткая таблица шагов по теме */
 function wsScheme(p) {
   try {
+    const tk = window.TableKit?.bank?.(p);
+    if (tk) return window.TableKit.md(tk);
     const sc = window.Schemes?.find?.(p.subject, p.topic);
     const P = x => window.Schemes?.plain ? Schemes.plain(x) : String(x || "");
     if (sc?.head?.length && sc?.rows?.length) {
