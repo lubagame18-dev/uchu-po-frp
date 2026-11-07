@@ -1,0 +1,42 @@
+{
+  "rendered": 34,
+  "skipped": 112,
+  "errors": 0,
+  "by_grade": {
+    "5": {
+      "rendered": 8,
+      "skipped": 9,
+      "errors": 0
+    },
+    "6": {
+      "rendered": 7,
+      "skipped": 14,
+      "errors": 0
+    },
+    "7": {
+      "rendered": 6,
+      "skipped": 13,
+      "errors": 0
+    },
+    "8": {
+      "rendered": 7,
+      "skipped": 7,
+      "errors": 0
+    },
+    "9": {
+      "rendered": 4,
+      "skipped": 8,
+      "errors": 0
+    },
+    "10": {
+      "rendered": 2,
+      "skipped": 34,
+      "errors": 0
+    },
+    "11": {
+      "rendered": 0,
+      "skipped": 27,
+      "errors": 0
+    }
+  }
+}
