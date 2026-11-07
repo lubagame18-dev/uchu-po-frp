@@ -1,9 +1,9 @@
 {
   "total": 267,
   "categories": {
-    "curated": 12,
-    "source": 62,
-    "topic": 193
+    "curated": 40,
+    "source": 55,
+    "topic": 172
   },
   "warning": "Topic-only cards are not finished lesson explanations; editorial review required."
 }

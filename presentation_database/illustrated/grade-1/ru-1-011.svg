@@ -1,20 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
-<rect width="1920" height="1080" fill="#fff9f0"/>
-<rect x="34" y="28" width="1852" height="1024" rx="42" fill="none" stroke="#682c37" stroke-width="8"/>
-<rect x="66" y="58" width="1788" height="140" rx="28" fill="#762b35"/>
-<text x="120" y="116" font-family="DejaVu Sans,Arial,sans-serif" font-size="34" font-weight="bold" fill="#fffaf3">РУССКИЙ ЯЗЫК · 1 КЛАСС</text>
-<text x="125" y="267" font-family="DejaVu Sans,Arial,sans-serif" font-size="52" font-weight="bold" fill="#762b35">Слог</text>
-<path d="M125 357 H1790" stroke="#cfb6a9" stroke-width="3"/>
-<text x="126" y="410" font-family="DejaVu Sans,Arial,sans-serif" font-size="26" font-weight="bold" fill="#496153">ЯЗЫК И ЕГО УСТРОЙСТВО</text>
-<circle cx="1692" cy="122" r="42" fill="#f1e2d4"/>
-<text x="1692" y="138" font-family="DejaVu Sans" font-size="38" fill="#762b35" text-anchor="middle">1</text>
-<path d="M1550 900 C1620 810 1710 870 1790 760" fill="none" stroke="#b5bfa8" stroke-width="9" stroke-linecap="round"/>
-<path d="M1550 900 C1570 825 1630 820 1645 855 C1600 865 1570 870 1550 900" fill="#b5bfa8"/>
-<path d="M1700 827 C1700 760 1770 740 1790 760 C1750 795 1720 805 1700 827" fill="#b5bfa8"/>
-<rect x="125" y="480" width="1665" height="345" rx="32" fill="#f3e8d7"/>
-<text x="180" y="560" font-family="DejaVu Sans,Arial,sans-serif" font-size="28" font-weight="bold" fill="#762b35">ТЕМА УРОКА</text>
-<text x="180" y="652" font-family="DejaVu Sans,Arial,sans-serif" font-size="44" font-weight="bold" fill="#332d2e">Слог</text>
-<text x="180" y="765" font-family="DejaVu Sans,Arial,sans-serif" font-size="26" font-weight="normal" fill="#786a65">Правило и учебный пример пока не подтверждены</text><text x="180" y="800" font-family="DejaVu Sans,Arial,sans-serif" font-size="26" font-weight="normal" fill="#786a65">источником.</text>
-<text x="125" y="990" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" font-weight="normal" fill="#736962">Карта темы · не является готовым объяснением</text><text x="125" y="1022" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" font-weight="normal" fill="#736962">правила</text>
-<text x="1615" y="990" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="normal" fill="#736962">ru-1-011</text>
+<rect width="1920" height="1080" fill="#fff9f1"/>
+<rect x="44" y="39" width="1832" height="1002" rx="42" fill="#fffdf8" stroke="#763540" stroke-width="6"/>
+<path d="M72 192 H1848" stroke="#e1cab8" stroke-width="2"/>
+<rect x="72" y="68" width="1776" height="115" rx="28" fill="#762b35"/>
+<text x="110" y="143" font-family="DejaVu Sans,Arial,sans-serif" font-size="33" font-weight="bold" fill="#fffaf3">РУССКИЙ ЯЗЫК  ·  1 КЛАСС</text>
+<circle cx="1762" cy="127" r="35" fill="#f7ead8"/>
+<path d="M1744 119 Q1762 109 1780 119 V143 Q1762 133 1744 143 Z" fill="none" stroke="#762b35" stroke-width="3"/>
+<text x="118" y="256" font-family="DejaVu Sans,Arial,sans-serif" font-size="43" font-weight="bold" fill="#6d2b36">Слог</text>
+<text x="118" y="323" font-family="DejaVu Sans,Arial,sans-serif" font-size="42" font-weight="bold" fill="#3a4e40">Слоги в слове</text>
+<path d="M121 365 H1801" stroke="#ccb4a7" stroke-width="2"/>
+<circle cx="1778" cy="319" r="9" fill="#c69e78"/>
+<circle cx="1744" cy="343" r="7" fill="#9caf9b"/>
+<rect x="122" y="410" width="535" height="394" rx="26" fill="#f3e6dc" stroke="#dbbdad" stroke-width="2"/>
+<circle cx="174" cy="473" r="21" fill="#763540"/>
+<text x="212" y="485" font-family="DejaVu Sans,Arial,sans-serif" font-size="33" font-weight="bold" fill="#762b35">МА-МА</text>
+<text x="165" y="592" font-family="DejaVu Sans,Arial,sans-serif" font-size="31" font-weight="normal" fill="#333635">Два слога</text>
+<rect x="687" y="410" width="535" height="394" rx="26" fill="#eaf0e7" stroke="#dbbdad" stroke-width="2"/>
+<circle cx="739" cy="473" r="21" fill="#50705e"/>
+<text x="777" y="485" font-family="DejaVu Sans,Arial,sans-serif" font-size="33" font-weight="bold" fill="#762b35">МО-ЛО-КО</text>
+<text x="730" y="592" font-family="DejaVu Sans,Arial,sans-serif" font-size="31" font-weight="normal" fill="#333635">Три слога</text>
+<rect x="1252" y="410" width="535" height="394" rx="26" fill="#f3e6dc" stroke="#dbbdad" stroke-width="2"/>
+<circle cx="1304" cy="473" r="21" fill="#763540"/>
+<text x="1342" y="485" font-family="DejaVu Sans,Arial,sans-serif" font-size="33" font-weight="bold" fill="#762b35">ПРОВЕРКА</text>
+<text x="1295" y="592" font-family="DejaVu Sans,Arial,sans-serif" font-size="31" font-weight="normal" fill="#333635">Сосчитай гласные</text>
+<rect x="122" y="858" width="1670" height="114" rx="22" fill="#faf2e7" stroke="#cfb7a5" stroke-width="2"/>
+<path d="M163 903 L175 882 L187 903 L212 907 L194 925 L199 950 L175 936 L151 950 L156 925 L138 907 Z" fill="#bf8e61" opacity="0.85"/>
+<text x="228" y="914" font-family="DejaVu Sans,Arial,sans-serif" font-size="27" font-weight="normal" fill="#4a3835">В слове столько слогов, сколько гласных звуков.</text>
+<text x="123" y="1014" font-family="DejaVu Sans,Arial,sans-serif" font-size="20" font-weight="normal" fill="#7d726b">Учебная схема · авторский пример · ФРП 1–4 классы</text>
+<text x="1645" y="1014" font-family="DejaVu Sans,Arial,sans-serif" font-size="20" font-weight="normal" fill="#7d726b">ru-1-011</text>
 </svg>
