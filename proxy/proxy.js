@@ -357,7 +357,9 @@ function readBody(req) {
     req.on("error", reject);
   });
 }
-function request(url, { method = "POST", headers = {}, body, timeout = 120000 }) {
+const accountRequest = require("./accounts-backend.js").wrapRequest(rawRequest);
+function request(url, options) { return accountRequest(url, options); }
+function rawRequest(url, { method = "POST", headers = {}, body, timeout = 120000 }) {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
     const lib = u.protocol === "http:" ? http : https;
@@ -462,8 +464,8 @@ async function handler(req, res) {
     const password = String(br.password || "");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, { error: "нужна корректная почта" });
     if (password.length < 6) return send(res, 400, { error: "пароль короче 6 символов" });
-    const sbUrl = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-    const sbKey = process.env.SUPABASE_SERVICE_KEY || "";
+    const sbUrl = require("./accounts-backend.js").config().url;
+    const sbKey = require("./accounts-backend.js").config().key;
     if (!sbUrl || !sbKey) return send(res, 503, { error: "регистрация временно недоступна" });
     const headers = { apikey: sbKey, Authorization: "Bearer " + sbKey, "Content-Type": "application/json" };
     const rr = await request(sbUrl + "/auth/v1/admin/users", {
@@ -548,8 +550,8 @@ async function handler(req, res) {
     const chatId = String(bl.chat_id || "").trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, { error: "нужна корректная почта" });
     if (!chatId) return send(res, 400, { error: "нет chat_id" });
-    const sbUrl2 = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-    const sbKey2 = process.env.SUPABASE_SERVICE_KEY || "";
+    const sbUrl2 = require("./accounts-backend.js").config().url;
+    const sbKey2 = require("./accounts-backend.js").config().key;
     if (!sbUrl2 || !sbKey2) return send(res, 503, { error: "привязка временно недоступна" });
     const headers2 = { apikey: sbKey2, Authorization: "Bearer " + sbKey2, "Content-Type": "application/json" };
     const prof = await request(sbUrl2 + "/rest/v1/profiles?email=eq." + encodeURIComponent(email) + "&select=id", { headers: headers2, timeout: 15000 });
@@ -572,7 +574,7 @@ async function handler(req, res) {
   if (route === "/export/lessons") {
     const adm = process.env.ADMIN_TOKEN || "";
     if (!adm || req.headers["x-admin-token"] !== adm) return send(res, 403, { error: "только для разработчика" });
-    const sbU = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), sbK = process.env.SUPABASE_SERVICE_KEY || "";
+    const sbU = require("./accounts-backend.js").config().url, sbK = require("./accounts-backend.js").config().key;
     if (!sbU || !sbK) return send(res, 503, { error: "облако недоступно" });
     const rr = await request(sbU + "/rest/v1/lessons?select=id,user_id,data,updated_at&order=updated_at.desc&limit=5000", { headers: { apikey: sbK, Authorization: "Bearer " + sbK }, timeout: 30000 });
     const txt = await readAll(rr);
@@ -620,7 +622,7 @@ async function handler(req, res) {
       const ij = JSON.parse(await readAll(ir));
       const email = String(ij.default_email || (ij.emails && ij.emails[0]) || "").toLowerCase();
       if (!email) return redirect(site + "#error_description=yandex_email");
-      const sbUrl = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), sbKey = process.env.SUPABASE_SERVICE_KEY || "";
+      const sbUrl = require("./accounts-backend.js").config().url, sbKey = require("./accounts-backend.js").config().key;
       const headers = { apikey: sbKey, Authorization: "Bearer " + sbKey, "Content-Type": "application/json" };
       let prof = null;
       try { const pr = await request(sbUrl + "/rest/v1/profiles?email=eq." + encodeURIComponent(email) + "&select=id", { headers, timeout: 15000 }); prof = (JSON.parse(await readAll(pr)) || [])[0] || null; } catch { }
@@ -646,13 +648,13 @@ async function handler(req, res) {
 
   /* ---------- серверный учёт бесплатного доступа: 3 в день, 2 дня ---------- */
   async function trialUser(tok) {
-    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const sb = require("./accounts-backend.js").config().url, key = require("./accounts-backend.js").config().key;
     if (!sb || !key || !tok) return null;
     const r = await request(sb + "/auth/v1/user", { headers: { apikey: key, Authorization: "Bearer " + tok }, timeout: 15000 });
     const u = JSON.parse(await readAll(r)); return u && u.id ? u : null;
   }
   async function trialProfile(uid) {
-    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const sb = require("./accounts-backend.js").config().url, key = require("./accounts-backend.js").config().key;
     const r = await request(sb + "/rest/v1/profiles?id=eq." + uid + "&select=trial_start,trial_day,trial_used", { headers: { apikey: key, Authorization: "Bearer " + key }, timeout: 15000 });
     const j = JSON.parse(await readAll(r)); return (Array.isArray(j) ? j[0] : null) || null;
   }
@@ -673,7 +675,7 @@ async function handler(req, res) {
   if (route === "/trial/use" && req.method === "POST") {
     const u = await trialUser(req.headers["x-user-token"]);
     if (!u) return send(res, 401, { error: "войдите в кабинет" });
-    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const sb = require("./accounts-backend.js").config().url, key = require("./accounts-backend.js").config().key;
     const p0 = await trialProfile(u.id);
     const c = trialCalc(p0);
     if (c.expired || c.left <= 0) return send(res, 403, { error: "trial_expired", ...c });

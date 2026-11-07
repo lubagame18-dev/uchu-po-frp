@@ -1,0 +1,14 @@
+{
+  "remote_health": false,
+  "email_delivery": false,
+  "login": false,
+  "lesson_crud": false,
+  "tenant_isolation": false,
+  "exports": false,
+  "proxy": false,
+  "payments": false,
+  "backup_restore": false,
+  "source_inventory": false,
+  "rollback": false,
+  "login_methods_reviewed": false
+}

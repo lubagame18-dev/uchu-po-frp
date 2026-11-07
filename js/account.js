@@ -10,13 +10,18 @@
 const Account = (() => {
   "use strict";
   const KEY = "uchu:account";
-  const C = () => { const a = window.UCHU_SITE?.accounts; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); };
-  const ready = () => !!(C().url && C().anonKey);
+  const C = () => window.AccountsBackend ? AccountsBackend.config() : (() => { const a = window.UCHU_ACCOUNTS || window.UCHU_SITE?.accounts; if (a?.provider === "pocketbase") return {provider:"pocketbase",url:""}; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); })();
+  const ready = () => !!(C().url && (C().provider === "pocketbase" || C().anonKey));
   let S = null; try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { }
+  if (S?.local && C().provider === "pocketbase") {
+    try { localStorage.setItem("uchu:previous-account",JSON.stringify({uid:"local-browser",endpoint:"local"}));localStorage.removeItem(KEY); } catch { }
+    S=null;
+  }
   // Old-project tokens must never be sent to the new accounts server.
   const endpoint = () => (C().url || "").replace(/\/+$/, "");
   if (S && !S.local && ((S.endpoint && S.endpoint !== endpoint()) ||
-      (!S.endpoint && window.UCHU_SITE?.accounts?.url))) {
+      (!S.endpoint && (C().provider === "pocketbase" || window.UCHU_SITE?.accounts?.url)))) {
+    try { if (S.uid) localStorage.setItem("uchu:previous-account", JSON.stringify({uid:S.uid,endpoint:S.endpoint || "legacy"})); } catch { }
     S = null;
     try { localStorage.removeItem(KEY); } catch { }
   }
@@ -25,7 +30,7 @@ const Account = (() => {
   const api0 = async (path, opt = {}) => {
     // без ответа сервера дольше 20 с — понятная ошибка, а не вечное «Вхожу…»
     const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), opt.timeout || 20000);
-    const r = await fetch(C().url.replace(/\/+$/, "") + path, { signal: ctl.signal, ...opt, headers: { apikey: C().anonKey, "Content-Type": "application/json", ...(S?.access ? { Authorization: "Bearer " + S.access } : {}), ...(opt.headers || {}) } });
+    const r = await fetch(C().url.replace(/\/+$/, "") + path, { signal: ctl.signal, ...opt, body: window.AccountsBackend ? AccountsBackend.body(opt.body) : opt.body, headers: { apikey: C().anonKey, "Content-Type": "application/json", ...(S?.access ? { Authorization: "Bearer " + S.access } : {}), ...(opt.headers || {}) } });
     clearTimeout(to);
     const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
     if (!r.ok) { const e = new Error(j?.msg || j?.error_description || j?.message || j?.error || ("HTTP " + r.status)); e.status = r.status; throw e; }
@@ -53,6 +58,7 @@ const Account = (() => {
     history.replaceState(null, "", location.pathname + location.search);
     try {
       const u = await api("/auth/v1/user", { headers: { Authorization: "Bearer " + at } });
+      await isolateLocalLessons(u); await restoreLocalTools(u);
       setSession({ access_token: at, refresh_token: rt, expires_in: +h.get("expires_in") || 3600, user: u }, u.email);
       if (h.get("type") === "recovery") { newPasswordDialog(); await pull().catch(() => null); return; }
       toast("Почта подтверждена — вы вошли в личный кабинет.", 6000);
@@ -61,23 +67,63 @@ const Account = (() => {
       if (want && window.Access) Access.checkout(want);
     } catch (e) { toast("Не удалось войти по ссылке: " + RU(e.message) + " Войдите с почтой и паролем.", 8000); }
   }
-  function setSession(j, email) { S = { endpoint: endpoint(), email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { paintNav(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
+  async function snapshotLocalStores() {
+    const stores = {};
+    for (const name of ["lessons","materials","images","kv"]) {
+      stores[name] = [];
+      for (const key of await Store.keys(name)) stores[name].push({key,value:await Store.get(name,key)});
+    }
+    return stores;
+  }
+  async function ownedArchive(user) {
+    if (!window.AccountsBackend) return null;
+    const list = await AccountsBackend.archives();
+    return list.filter(a => (a.owner === user.id && a.endpoint === endpoint()) || (user.legacy_id && a.owner === user.legacy_id))
+      .sort((a,b) => (b.createdAt || 0)-(a.createdAt || 0))[0] || null;
+  }
+  async function restoreLocalTools(user) {
+    const archive = await ownedArchive(user);
+    if (!archive?.stores) return;
+    // Remote lessons are authoritative. Old local drafts are available as a separate download.
+    for (const name of ["materials","images","kv"]) if (!(await Store.keys(name)).length) {
+      for (const entry of archive.stores[name] || []) if (entry && entry.key !== undefined) await Store.put(name,entry.key,entry.value);
+    }
+  }
+  async function isolateLocalLessons(user) {
+    let previous = null; try { previous = JSON.parse(localStorage.getItem("uchu:previous-account")); } catch { }
+    if (!previous && C().provider === "pocketbase" && !S?.uid) previous={uid:"unassigned-browser",endpoint:"local"};
+    if (!previous) return;
+    if (previous.uid !== user.id && previous.uid !== user.legacy_id) {
+      // Keep the previous account's local drafts, but never upload them into another account.
+      const stores = await snapshotLocalStores();
+      if (Object.values(stores).some(rows => rows.length)) {
+        if (!window.AccountsBackend) throw new Error("Не загружен модуль безопасного переноса кабинета.");
+        await AccountsBackend.archive(previous,stores.lessons.map(x=>x.value),stores);
+        for (const name of Object.keys(stores)) await Store.clear(name);
+        toast("Локальные данные прежнего кабинета сохранены отдельно и не отправлены в новый аккаунт.", 9000);
+      }
+    }
+    localStorage.removeItem("uchu:previous-account");
+  }
+  function setSession(j, email) { S = { endpoint: endpoint(), legacyId: j.user?.legacy_id || "", email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { paintNav(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
   /* Пока облако не подключено — учётная запись в этом браузере (почта + отпечаток пароля); уроки — тоже здесь */
   const LKEY = "uchu:local-users";
   const lusers = () => { try { return JSON.parse(localStorage.getItem(LKEY)) || {}; } catch { return {}; } };
   async function phash(e, p) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("uchu-user:" + e.toLowerCase() + ":" + p)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
   async function localUp(email, password) { const u = lusers(), e = email.toLowerCase(); if (u[e]) throw new Error("already registered"); u[e] = { h: await phash(e, password), at: new Date().toISOString() }; localStorage.setItem(LKEY, JSON.stringify(u)); S = { email: e, local: true }; save(); return "ok"; }
   async function localIn(email, password) { const u = lusers()[email.toLowerCase()]; if (!u || u.h !== await phash(email, password)) throw new Error("Invalid login credentials"); S = { email: email.toLowerCase(), local: true }; save(); }
-  async function signIn(email, password) { if (!ready()) return localIn(email, password); setSession(await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }), email); pull().catch(e => console.warn("sync", e)); } // уроки подтягиваются фоном — вход не ждёт синхронизации
+  async function signIn(email, password) { if (C().provider === "pocketbase" && !ready()) throw new Error("Сервер кабинета ещё не настроен."); if (!ready()) return localIn(email, password); const j = await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }); await isolateLocalLessons(j.user); await restoreLocalTools(j.user); setSession(j, email); pull().catch(e => console.warn("sync", e)); } // уроки подтягиваются фоном — вход не ждёт синхронизации
   // одноразовые почтовые ящики — не принимаем (защита бесплатного тарифа от многократных регистраций)
   const TEMP = /@(mailinator|guerrillamail|guerrillamailblock|sharklasers|10minutemail|10minemail|tempmail|temp-mail|tempmailo|tempr|tmpmail|tmpeml|yopmail|throwawaymail|trashmail|getnada|nada|dispostable|fakeinbox|maildrop|mintemail|mohmal|emailondeck|moakt|mail\.tm|mailnesia|burnermail|spamgourmet|dropmail|1secmail|minuteinbox|inboxkitten|tempail|luxusmail|emailfake|fakemail|crazymailing|mytemp|tempinbox|mailcatch|discard|33mail|harakirimail|getairmail|byom|vusra|wuuvo)\./i;
   async function signUp(email, password) {
+    if (C().provider === "pocketbase" && !ready()) throw new Error("Сервер кабинета ещё не настроен.");
+    if (C().provider === "pocketbase" && password.length < 8) throw new Error("Пароль нового кабинета — не короче 8 знаков.");
     if (TEMP.test(email)) throw new Error("Одноразовые почтовые ящики не подходят — укажите свою постоянную почту.");
     if (!ready()) return localUp(email, password);
     // ссылка из письма должна вести обратно на сайт (а не на корень github.io)
     const back = location.origin + location.pathname;
     const j = await api("/auth/v1/signup?redirect_to=" + encodeURIComponent(back), { method: "POST", body: JSON.stringify({ email, password }) });
-    if (j.access_token) { setSession(j, email); push(true).catch(() => null); return "ok"; }
+    if (j.access_token) { await isolateLocalLessons(j.user); await restoreLocalTools(j.user); setSession(j, email); push(true).catch(() => null); return "ok"; }
     return "confirm"; // в проекте включено подтверждение почты
   }
   /* Забыли пароль: Supabase шлёт письмо со ссылкой, ссылка возвращает на сайт, там человек задаёт новый пароль */
@@ -110,7 +156,22 @@ const Account = (() => {
     try { setSession(await api("/auth/v1/token?grant_type=refresh_token", { method: "POST", body: JSON.stringify({ refresh_token: S.refresh }) }), S.email); return true; }
     catch (e) { if (e.status === 400 || e.status === 401) { S = null; save(); } return false; }
   }
-  function signOut() { const local = S?.local; if (!local) { try { push(true).catch(() => null); } catch { } } try { if (window.Store && Store.clear) Store.clear(); } catch { } try { Object.keys(localStorage).forEach(k => { if (/uchu:lessons|uchu:lesson$/i.test(k)) localStorage.removeItem(k); }); } catch { } S = null; if (window.Dev?.on) try { Dev.exit(); } catch { } save(); window.Access?.paint(); toast("Вы вышли из кабинета. Уроки сохранены в облаке и убраны из этого браузера."); }
+  async function signOut() {
+    if (!S) return;
+    try {
+      const stores = await snapshotLocalStores();
+      if (Object.values(stores).some(rows => rows.length)) {
+        if (!window.AccountsBackend) throw new Error("Не загружен модуль локального архива.");
+        await AccountsBackend.archive({uid:S.uid || "local-browser",endpoint:S.endpoint || "local"},stores.lessons.map(x=>x.value),stores);
+      }
+      if (!S.local) await push(true);
+      for (const name of Object.keys(stores)) await Store.clear(name);
+    } catch (e) { toast("Выход прерван: не удалось безопасно сохранить локальные данные. Попробуйте ещё раз.",9000); return; }
+    try { Object.keys(localStorage).forEach(k => { if (/uchu:lessons|uchu:lesson$/i.test(k)) localStorage.removeItem(k); }); } catch { }
+    S = null;
+    if (window.Dev?.on) try { Dev.exit(); } catch { }
+    save(); window.Access?.paint(); toast("Вы вышли из кабинета. Локальная копия данных сохранена отдельно.");
+  }
   /* ---------- синхронизация уроков ---------- */
   let pushT = null, busy = false;
   async function upsert(rows) { if (!rows.length) return; await api("/rest/v1/lessons", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows) }); }
@@ -254,7 +315,13 @@ const Account = (() => {
           </div>
         </form>
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button></div>${devLink()}</div></div>`);
+        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button></div>${devLink()}</div></div>`);
+      m.querySelector("#acArchive").onclick = async () => {
+        const archive = await ownedArchive({id:S.uid,legacy_id:S.legacyId});
+        if (!archive?.lessons?.length) { toast("Для этого кабинета пока нет локальной копии уроков."); return; }
+        const url=URL.createObjectURL(new Blob([JSON.stringify({lessons:archive.lessons},null,2)],{type:"application/json"}));
+        const a=document.createElement("a");a.href=url;a.download="uchu-local-lessons.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      };
       m.querySelector("#acQuiz").onclick = () => { closeModal(); window.QuizLink?.openResults(); };
       if (window.QuizLink && !S.local) { QuizLink.badge(m.querySelector("#acQuizN")); }
       bindDev(m);
@@ -411,6 +478,7 @@ const Account = (() => {
       const j = await api("/auth/v1/token?grant_type=pkce", { method: "POST", body: JSON.stringify({ auth_code: code, code_verifier: ver }) });
       sessionStorage.removeItem("uchu:pkce");
       if (!j || !j.access_token) { toast("Вход не удался: сервер не вернул сессию.", 7000); return false; }
+      await isolateLocalLessons(j.user); await restoreLocalTools(j.user);
       setSession(j, j.user?.email || "");
       closeModal(); toast("Вы вошли в личный кабинет."); paint(); paintNav(); afterOAuth();
       pull().catch(() => null); loadInfo().catch(() => null);

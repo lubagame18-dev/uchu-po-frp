@@ -12,8 +12,8 @@
    Бесплатно (пробный доступ, 2 урока с ИИ) — FREE_AI уроков с ИИ за пробный период (по умолчанию 2).
    Учёт картинок и доп. листов — в image-pool.js и на сайте (те же константы LIMITS).
    =================================================================== */
-const URL0 = () => (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-const KEY = () => process.env.SUPABASE_SERVICE_KEY || "";
+const URL0 = () => require("./accounts-backend.js").config().url;
+const KEY = () => require("./accounts-backend.js").config().key;
 const FREE = () => Number(process.env.FREE_AI || 2); // пробный доступ: 2 урока с ИИ
 const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
 const FREE_TOK = () => FREE() * PER_LESSON;
@@ -58,6 +58,7 @@ async function spend(q, request, readAll, tokens = 0) {
   // атомарно одним запросом в БД (функция spend_ai из supabase.sql) — не ломается при параллельных вызовах
   const r = await sb(request, readAll, "/rest/v1/rpc/spend_ai", { method: "POST", body: { p_id: q.id, p_tokens: n, p_tok: !!q.tok } }).catch(() => null);
   if (r && r.status < 300) return;
+  if (require("./accounts-backend.js").pocketbase()) throw new Error("Atomic PocketBase quota operation failed");
   // запас, если функции ещё нет в облаке (с гонкой, но лучше, чем не списать)
   if (q.tok) {
     const cur = (await sb(request, readAll, `/rest/v1/profiles?id=eq.${q.id}&select=tokens_used`)).json?.[0]?.tokens_used ?? q.used;
@@ -156,6 +157,7 @@ async function freeUse(userToken, body, ip, request, readAll) {
     if (rpc.json.over) return { ok: false, status: 402, reason: "free", message: String(rpc.json.over).startsWith("n:") ? netMsg : devMsg };
     return { ok: true, left: rpc.json.left };
   }
+  if (require("./accounts-backend.js").pocketbase()) return {ok:false,status:503,reason:"storage",message:"Проверка лимита временно недоступна."};
   // запас, если функции ещё нет в облаке (со старой гонкой)
   const list = (await sb(request, readAll, `/rest/v1/free_usage?month=eq.${month}&key=in.(${keys.map(k => `"${k[0]}"`).join(",")})&select=key,n`)).json;
   if (!Array.isArray(list)) return { ok: true, off: true }; // таблицы ещё нет — не мешаем

@@ -29,3 +29,4 @@ _worker.js
 CNAME
 .gitignore
 *.before-accounts
+pb_data/*

@@ -185,6 +185,8 @@ textarea{width:100%;font:inherit;font-size:16px;border-radius:12px;border:1px so
 .dict dt{font-weight:700;color:var(--wine);margin-top:8px}
 .foot{text-align:center;color:#b99e93;font-size:12.5px;margin-top:24px}
 </style>
+<script src="../js/accounts-config.js"></script>
+<script src="../js/accounts-backend.js"></script>
 </head>
 <body class="locked">
 <div class="wrap">
@@ -465,7 +467,7 @@ const fb = (el, cls, html) => { el.className = "fb show " + cls; el.innerHTML = 
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 /* ученик: фамилия, имя, класс – до начала работы */
-const CLOUD = { url: "https://omnqygnlibkcybwryrrh.supabase.co", key: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj", lesson: "taras-bulba-2" };
+const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : { url: "https://omnqygnlibkcybwryrrh.supabase.co", key: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj", lesson: "taras-bulba-2" };
 window.ME = store.get("me", null);
 ["fam", "im", "kl"].forEach(k => { if (window.ME && window.ME[k]) $("#" + k).value = window.ME[k]; });
 const fullName = () => window.ME ? `${window.ME.fam} ${window.ME.im}` : "";

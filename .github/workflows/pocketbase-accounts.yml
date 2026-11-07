@@ -1,0 +1,36 @@
+name: PocketBase account storage checks
+on:
+  pull_request:
+    paths:
+      - 'deploy/pocketbase/**'
+      - 'js/account*.js'
+      - 'js/cloudbase.js'
+      - 'js/rules.js'
+      - 'proxy/**'
+      - '.github/workflows/pocketbase-accounts.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/pocketbase/**'
+      - 'js/account*.js'
+      - 'proxy/**'
+      - '.github/workflows/pocketbase-accounts.yml'
+permissions:
+  contents: read
+jobs:
+  account-storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python deploy/pocketbase/fetch-binary.py
+      - run: python deploy/pocketbase/test-integration.py
+      - run: python deploy/pocketbase/test-migration.py
+      - run: node deploy/pocketbase/test-client.cjs
+      - run: node deploy/supabase-rf/test-session.cjs

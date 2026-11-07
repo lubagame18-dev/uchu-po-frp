@@ -1,0 +1,9 @@
+# Template for a future server. Static site remains in Yandex Object Storage.
+# Replace <ACCOUNTS_DOMAIN> before validation; do not publish an unconfigured template.
+<ACCOUNTS_DOMAIN> {
+    @admin path /_/* /api/collections/_superusers/* /api/backups* /api/settings*
+    respond @admin 404
+    reverse_proxy 127.0.0.1:8090
+}
+# Admin UI is accessed through a protected local tunnel, not the public hostname.
+# Confirmation and reset pages are on the existing static site (accounts-confirm.html).
