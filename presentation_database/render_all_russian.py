@@ -82,14 +82,46 @@ def render(lesson):
     target.mkdir(exist_ok=True)
     im.save(target/(lesson['lesson_id']+'.png'),optimize=True)
     return source
+def render_verified(spec):
+    lesson=spec
+    im,d=frame(lesson,spec['kind'])
+    d.rounded_rectangle((118,322,1800,530),radius=19,fill='#f5eee5',outline='#cfbdab',width=2)
+    ef,elines=textfit(d,spec['example'],1520,140,start=55,minimum=28)
+    drawlines(d,elines,176,369,ef,'#442d2b')
+    if spec['lesson_id']=='ru-8-009':
+        # Точная разметка примера «Птицы поют.»: подлежащее — одна, сказуемое — две черты.
+        y=369+ef.size+13
+        x=176
+        w1=d.textbbox((0,0),'Птицы',font=ef)[2]
+        sp=d.textbbox((0,0),' ',font=ef)[2]
+        w2=d.textbbox((0,0),'поют',font=ef)[2]
+        d.line((x,y,x+w1,y),fill='#762b35',width=4)
+        d.line((x+w1+sp,y,x+w1+sp+w2,y),fill='#762b35',width=4)
+        d.line((x+w1+sp,y+10,x+w1+sp+w2,y+10),fill='#762b35',width=4)
+    for i,key in enumerate(('rule','note')):
+        y=575+i*170
+        d.ellipse((125,y+12,169,y+56),fill='#762b35')
+        d.text((139,y+17),str(i+1),font=font(22,True),fill='white')
+        ff,lines=textfit(d,spec[key],1550,143,start=37,minimum=22)
+        drawlines(d,lines,205,y+3,ff)
+    d.text((118,932),'Проверяемый учебный пример · редакционная проверка требуется',font=font(21),fill='#796f65')
+    target=DEST/('grade-'+str(spec['grade']))
+    target.mkdir(exist_ok=True)
+    im.save(target/(spec['lesson_id']+'.png'),optimize=True)
+
 def main():
     lessons=json.loads((ROOT/'frp_tasks'/'ru.json').read_text(encoding='utf-8'))['lessons']
+    verified={x['lesson_id']:x for x in json.loads((ROOT/'presentation_database'/'verified_examples.json').read_text(encoding='utf-8'))['lessons']}
     counts={str(i):{'source_tables':0,'topic_maps':0,'errors':0} for i in range(1,12)}
     for lesson in lessons:
         g=str(lesson['grade'])
         try:
-            source=render(lesson)
-            counts[g]['source_tables' if source=='original_table' else 'topic_maps']+=1
+            if lesson['lesson_id'] in verified:
+                render_verified(verified[lesson['lesson_id']])
+                counts[g]['topic_maps']+=1
+            else:
+                source=render(lesson)
+                counts[g]['source_tables' if source=='original_table' else 'topic_maps']+=1
         except Exception:
             counts[g]['errors']+=1
             logging.exception('lesson=%s',lesson.get('lesson_id'))

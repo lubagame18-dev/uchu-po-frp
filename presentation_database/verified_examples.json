@@ -1,0 +1,136 @@
+{
+  "lessons": [
+    {
+      "lesson_id": "ru-2-011",
+      "grade": 2,
+      "topic": "Корень слова",
+      "kind": "морфемная схема",
+      "example": "лес | лесной | лесник",
+      "rule": "Общая часть родственных слов — корень лес-.",
+      "note": "Корень обозначают дугой над словом. Сравнивайте значение, а не только совпадение букв.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-2-012",
+      "grade": 2,
+      "topic": "Приставка и суффикс",
+      "kind": "морфемная схема",
+      "example": "лес | лесок | перелесок",
+      "rule": "Суффикс -ок- в слове «лесок» стоит после корня; приставка пере- в слове «перелесок» — перед корнем.",
+      "note": "Приставку обозначают уголком сверху, суффикс — знаком «крышечка».",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-2-013",
+      "grade": 2,
+      "topic": "Окончание",
+      "kind": "алгоритм",
+      "example": "трава → травы",
+      "rule": "Измените форму слова: трава — травы. Изменяемая часть -а / -ы — окончание.",
+      "note": "Окончание заключают в рамку. Не путайте окончание с суффиксом.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-3-005",
+      "grade": 3,
+      "topic": "Разбор слова по составу",
+      "kind": "алгоритм",
+      "example": "подводный → под- / -вод- / -н- / -ый",
+      "rule": "Найдите окончание, изменив форму слова: подводный — подводного.",
+      "note": "Выделите основу, подберите однокоренные слова, определите корень, приставку и суффикс.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-4-011",
+      "grade": 4,
+      "topic": "Личные окончания глаголов",
+      "kind": "алгоритм",
+      "example": "пишешь | строишь",
+      "rule": "Определите спряжение глагола, затем выберите личное окончание.",
+      "note": "В безударных личных окончаниях глаголов выбор буквы зависит от спряжения; учитывайте исключения.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-6-015",
+      "grade": 6,
+      "topic": "Морфемный и словообразовательный анализ слов",
+      "kind": "морфемная схема",
+      "example": "подводный → под- / -вод- / -н- / -ый",
+      "rule": "Морфемный разбор показывает состав слова.",
+      "note": "Словообразовательный разбор показывает, от какого слова и каким способом образовано слово.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-7-010",
+      "grade": 7,
+      "topic": "Причастие как особая форма глагола",
+      "kind": "памятка",
+      "example": "читающий ученик",
+      "rule": "Причастие обозначает признак предмета по действию: ученик (какой?) читающий.",
+      "note": "Причастие сохраняет глагольные признаки и изменяется по родам, числам и падежам.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-8-009",
+      "grade": 8,
+      "topic": "Двусоставное предложение. Главные члены предложения (грамматическая основа)",
+      "kind": "синтаксическая схема",
+      "example": "Птицы поют.",
+      "rule": "Птицы — подлежащее: подчеркните одной чертой.",
+      "note": "Поют — сказуемое: подчеркните двумя чертами.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-8-010",
+      "grade": 8,
+      "topic": "Второстепенные члены предложения",
+      "kind": "синтаксическая схема",
+      "example": "Утром птицы громко поют.",
+      "rule": "Птицы — подлежащее; поют — сказуемое.",
+      "note": "Утром, громко — обстоятельства; обозначаются штрихпунктиром.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-9-009",
+      "grade": 9,
+      "topic": "Сложноподчиненное предложение",
+      "kind": "синтаксическая схема",
+      "example": "Я знаю, что поезд пришёл.",
+      "rule": "Главная часть: «Я знаю». Придаточная: «что поезд пришёл».",
+      "note": "Подчеркните грамматические основы: я — знаю; поезд — пришёл.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-10-022",
+      "grade": 10,
+      "topic": "Правописание гласных и согласных в корне",
+      "kind": "алгоритм",
+      "example": "вода́ → во́ды",
+      "rule": "Проверяемую безударную гласную в корне проверяют однокоренным словом или формой слова с ударением.",
+      "note": "В проверочном слове гласная должна быть под ударением. Непроверяемые написания уточняют по словарю.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    },
+    {
+      "lesson_id": "ru-11-011",
+      "grade": 11,
+      "topic": "Знаки препинания между подлежащим и сказуемым",
+      "kind": "синтаксическая схема",
+      "example": "Москва — столица России.",
+      "rule": "Между подлежащим и сказуемым, выраженными существительными в именительном падеже, при определённых условиях ставится тире.",
+      "note": "Проверьте исключения и контекст; тире ставится не во всех конструкциях.",
+      "review_status": "editorial_review_required",
+      "origin": "newly authored examples; not present in original JSON"
+    }
+  ]
+}
