@@ -98,5 +98,26 @@ def main():
         (target/(lesson['lesson_id']+'.svg')).write_text(s,encoding='utf-8')
         count[kind]+=1
     (OUT/'manifest.json').write_text(json.dumps({'total':len(lessons),'categories':count,'warning':'Topic-only cards are not finished lesson explanations; editorial review required.'},ensure_ascii=False,indent=2),encoding='utf-8')
+    # Single download of all 267 rendered SVG images and their manifest.
+    # Use fixed ZIP timestamps to prevent unnecessary binary diffs.
+    from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
+    archive = ROOT / "presentation_database" / "russian_all_lessons_1-11_svg.zip"
+    paths = sorted(OUT.rglob("*.svg"))
+    if len(paths) != len(lessons):
+        raise RuntimeError(f"Expected {len(lessons)} SVG files, found {len(paths)}")
+    with ZipFile(archive, "w", compression=ZIP_DEFLATED) as bundle:
+        for path in [OUT / "manifest.json", *paths]:
+            name = str(path.relative_to(OUT)).replace("\\", "/")
+            info = ZipInfo(name, date_time=(2020, 1, 1, 0, 0, 0))
+            info.compress_type = ZIP_DEFLATED
+            bundle.writestr(info, path.read_bytes())
+        note = ("Учебные иллюстрации по русскому языку (1–11 классы)\n"
+                "267 SVG-файлов с разделением по классам.\n"
+                "28 слайдов 1 класса подготовлены с собственными учебными примерами.\n"
+                "Часть остальных слайдов пока содержит только карту темы — см. manifest.json.\n"
+                "Источник программы 1–4 классов: https://edsoo.ru/rabochie-programmy/\n")
+        info = ZipInfo("README.txt", date_time=(2020, 1, 1, 0, 0, 0))
+        info.compress_type = ZIP_DEFLATED
+        bundle.writestr(info, note.encode("utf-8"))
     print(count)
 if __name__=='__main__':main()
