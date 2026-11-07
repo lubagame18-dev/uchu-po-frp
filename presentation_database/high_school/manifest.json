@@ -1,11 +1,12 @@
 {
-  "rendered": 34,
-  "skipped": 112,
+  "rendered": 43,
+  "supplementary_rendered": 9,
+  "skipped": 103,
   "errors": 0,
   "by_grade": {
     "5": {
-      "rendered": 8,
-      "skipped": 9,
+      "rendered": 17,
+      "skipped": 0,
       "errors": 0
     },
     "6": {
