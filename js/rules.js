@@ -29,7 +29,7 @@ const Rules = (() => {
   const get = k => R[k] ?? DEF[k];
   const all = () => ({ ...R, ai_rules: [...(R.ai_rules || [])] });
 
-  const C = () => window.UCHU_SITE?.cloud || {};
+  const C = () => { const a = window.UCHU_SITE?.accounts; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); };
   const ok = () => !!(C().url && C().anonKey);
   async function sync() {
     if (!ok()) return;

@@ -591,6 +591,11 @@ window.UCHU_SITE = {
      Облако — бесплатный проект Supabase: вставьте сюда адрес проекта и публичный ключ (anon public).
      Пока поля пустые, кабинет работает в этом браузере, а вход недоступен. Инструкция — ЛИЧНЫЙ_КАБИНЕТ_И_ОПЛАТА.md */
   cloud: { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj" },
+  /* Аккаунты и персональные данные — отдельный проект/аккаунт Supabase.
+     Если поля заполнены, личный кабинет, профили, уроки и результаты quiz
+     работают с этим проектом, а не с cloud. Яндекс Облако остаётся только
+     для статики и AI-прокси. */
+  accounts: { url: "", anonKey: "", dashboard: "" },
   /* ИИ сайта: true — когда в Яндекс-функции настроен пул аккаунтов DeepSeek (DEEPSEEK_POOL); учителям свой ключ не нужен */
   siteAi: true,
   /* Nano Banana для платных тарифов («Учитель + ИИ» и выше): адрес серверной функции, где лежат ключи (Арина АИ / Google). Функция получает заголовок X-User-Token, проверяет тариф и возвращает {image}. Пока пусто — картинки доступны только разработчику со своим ключом. */
@@ -798,7 +803,7 @@ window.UCHU_SITE = {
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.409";</script>
+<script>window.UCHU_VER="5.410";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================

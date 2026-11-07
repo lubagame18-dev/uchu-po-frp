@@ -8,7 +8,7 @@
    =================================================================== */
 const CloudBase = (() => {
   "use strict";
-  const C = () => window.UCHU_SITE?.cloud || {};
+  const C = () => { const a = window.UCHU_SITE?.accounts; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); };
   const ok = () => !!(C().url && C().anonKey);
   let cache = { items: [] }, loaded = false;
   async function rest(path, opt = {}) {

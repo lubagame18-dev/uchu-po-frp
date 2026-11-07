@@ -10,7 +10,7 @@
 const Account = (() => {
   "use strict";
   const KEY = "uchu:account";
-  const C = () => window.UCHU_SITE?.cloud || {};
+  const C = () => { const a = window.UCHU_SITE?.accounts; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); };
   const ready = () => !!(C().url && C().anonKey);
   let S = null; try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { }
   const save = () => { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch { } paint(); window.Access?.paint?.(); };
