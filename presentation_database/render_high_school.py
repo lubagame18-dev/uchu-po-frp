@@ -47,11 +47,16 @@ def render(lesson):
     im.save(out/(lesson['lesson_id']+'.png'),optimize=True)
 def main():
     data=json.loads((root/'frp_tasks'/'ru.json').read_text(encoding='utf-8'))
-    stats={'rendered':0,'skipped':0,'errors':0,'by_grade':{}}
+    supplement_path=root/'presentation_database'/'supplement_grade5.json'
+    supplementary={x['lesson_id']:x for x in json.loads(supplement_path.read_text(encoding='utf-8'))['lessons']}
+    stats={'rendered':0,'supplementary_rendered':0,'skipped':0,'errors':0,'by_grade':{}}
     for grade in range(5,12):
         g={'rendered':0,'skipped':0,'errors':0}
         for lesson in (l for l in data['lessons'] if l['grade']==grade):
-            if lesson.get('elements_source')!='ready_table':g['skipped']+=1;continue
+            if lesson.get('elements_source')!='ready_table':
+                if lesson['lesson_id'] not in supplementary:g['skipped']+=1;continue
+                lesson=supplementary[lesson['lesson_id']]
+                stats['supplementary_rendered']+=1
             try:render(lesson);g['rendered']+=1
             except Exception: g['errors']+=1;logging.exception('grade=%s lesson=%s',grade,lesson.get('lesson_id'))
         stats['by_grade'][str(grade)]=g
