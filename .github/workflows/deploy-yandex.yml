@@ -1,4 +1,4 @@
-﻿name: Выкладка сайта в Яндекс Облако
+name: Выкладка сайта в Яндекс Облако
 
 # После каждого изменения в main сайт копируется в бакет Object Storage «uchu-po-frp.ru».
 # Ключи – в секретах репозитория: YC_KEY_ID и YC_SECRET (статический ключ сервисного аккаунта с ролью storage.editor).
@@ -7,8 +7,8 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - "deploy/**"
       - "knowledge-base/**"
+      - "knowledge/**"
   workflow_dispatch:
 
 concurrency:
@@ -40,12 +40,13 @@ jobs:
       - name: Копирование в бакет (только файлы сайта)
         if: steps.keys.outputs.ok == '1'
         run: |
-          # --size-only: не перезаливать неизменённые 11 000+ файлов уроков при каждом деплое
-          aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --size-only --no-progress \
-            --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" --exclude "docs/*" --exclude "knowledge-base/*" --exclude "knowledge/*" \
-            --exclude "*.md" --exclude "*.sql" --exclude "uchu-function.zip" --exclude "wrangler.toml" --exclude "vercel.json" --exclude "_worker.js" \
-            --exclude ".assetsignore" --exclude ".nojekyll" --exclude "CNAME" --exclude ".gitignore" \
-            --cache-control "public, max-age=300"
+          # Общие исключения с локальным PowerShell-деплоем.
+          exclusions=()
+          while IFS= read -r pattern || [ -n "$pattern" ]; do
+            [ -z "$pattern" ] || exclusions+=(--exclude "$pattern")
+          done < deploy/site-excludes.txt
+          aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --no-progress \
+            "${exclusions[@]}" --cache-control "public, max-age=300"
           # служебный файл офлайн-режима и главная – всегда свежие
           for f in sw.js index.html; do
             aws s3 cp "$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress

@@ -1,106 +1,49 @@
 #!/usr/bin/env bash
+# Ubuntu 24.04. Run from the copied supabase-rf directory as root.
 set -euo pipefail
-
-# Запускать на чистом российском VPS (Ubuntu 24.04) от root.
-# Официальный Supabase клонируется в /opt/supabase, а не в этот репозиторий.
-
-APP_DIR="${APP_DIR:-/opt/supabase}"
-REPO="https://github.com/supabase/supabase.git"
-
-if [[ "${EUID}" -ne 0 ]]; then
-  echo "Запустите от root: sudo bash $0" >&2
-  exit 1
+umask 077
+: "${DOMAIN:?Set DOMAIN=supa.example.ru}"
+: "${STUDIO_DOMAIN:?Set STUDIO_DOMAIN=studio.example.ru}"
+: "${EMAIL:?Set EMAIL for TLS}"
+: "${SITE_URL:?Set SITE_URL=https://your-site.ru}"
+[[ $EUID == 0 ]] || { echo 'Run as root'; exit 1; }
+for host in "$DOMAIN" "$STUDIO_DOMAIN"; do
+  [[ $host =~ ^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?$ && $host == *.* ]] || exit 1
+done
+[[ $DOMAIN != "$STUDIO_DOMAIN" && $SITE_URL == https://* ]] || exit 1
+BASE=$(cd -- "$(dirname -- "$0")" && pwd)
+[[ $EMAIL =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] || { echo 'Invalid TLS email'; exit 1; }
+export DOMAIN STUDIO_DOMAIN EMAIL SITE_URL
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y ca-certificates curl git openssl python3 docker.io docker-compose-v2 caddy
+systemctl enable --now docker
+if [[ ! -d /opt/uchu-supabase ]]; then
+  git clone --depth 1 --branch self-hosted/v0.8.4 --filter=blob:none --sparse \
+    https://github.com/supabase/supabase.git /opt/uchu-supabase
+  git -C /opt/uchu-supabase sparse-checkout set docker
 fi
-
-command -v docker >/dev/null || { echo "Сначала установите docker.io и docker-compose-plugin" >&2; exit 1; }
-command -v git >/dev/null || { echo "Сначала установите git" >&2; exit 1; }
-
-if [[ ! -d "$APP_DIR/.git" ]]; then
-  git clone --depth 1 "$REPO" "$APP_DIR"
-fi
-
-cd "$APP_DIR/docker"
-
-if [[ ! -f .env ]]; then
+cd /opt/uchu-supabase/docker
+if [[ ! -e .env ]]; then
   cp .env.example .env
-fi
-
-# Официальный генератор ключей Supabase.
-if [[ -f "$APP_DIR/docker/utils/generate-keys.sh" ]]; then
-  bash "$APP_DIR/docker/utils/generate-keys.sh"
-else
-  echo "utils/generate-keys.sh не найден — генерирую ключи встроенным способом."
-  python3 - <<'PY'
-import base64, hashlib, hmac, io, json, os, re, secrets, time
-p = ".env"
-s = io.open(p, encoding="utf-8").read()
-def get(k, d=""):
-    m = re.search(r"^%s=(.*)$" % re.escape(k), s, re.M)
-    return m.group(1) if m else d
-def setv(k, v):
-    global s
-    if re.search(r"^%s=" % re.escape(k), s, re.M):
-        s = re.sub(r"^%s=.*$" % re.escape(k), "%s=%s" % (k, v), s, flags=re.M)
-    else:
-        s += "\n%s=%s\n" % (k, v)
-jwt = get("JWT_SECRET") or secrets.token_hex(32)
-setv("JWT_SECRET", jwt)
-setv("POSTGRES_PASSWORD", get("POSTGRES_PASSWORD") or secrets.token_urlsafe(24))
-def b64(x):
-    return base64.urlsafe_b64encode(x).decode().rstrip("=")
-def key(role):
-    now = int(time.time())
-    payload = {"role": role, "iss": "supabase", "iat": now, "exp": now + 10*365*24*3600}
-    head = b64(json.dumps({"alg":"HS256","typ":"JWT"},separators=(",",":")).encode())
-    body = b64(json.dumps(payload,separators=(",",":")).encode())
-    sig = b64(hmac.new(jwt.encode(), ("%s.%s" % (head, body)).encode(), hashlib.sha256).digest())
-    return "%s.%s.%s" % (head, body, sig)
-setv("ANON_KEY", get("ANON_KEY") or key("anon"))
-setv("SERVICE_ROLE_KEY", get("SERVICE_ROLE_KEY") or key("service_role"))
-io.open(p, "w", encoding="utf-8").write(s)
-print("keys generated")
-PY
-fi
-
-read -r -p "Домен API (например supa.uchu-po-frp.ru): " API_DOMAIN
-read -r -p "Домен Studio (например studio.uchu-po-frp.ru): " STUDIO_DOMAIN
-read -r -p "Домен сайта (например uchu-po-frp.ru): " SITE_DOMAIN
-
-if [[ -z "$API_DOMAIN" || -z "$STUDIO_DOMAIN" || -z "$SITE_DOMAIN" ]]; then
-  echo "Домены обязательны." >&2
+  # Official generator emits secrets; never send its output to logs.
+  sh utils/generate-keys.sh --update-env >/dev/null
+  python3 "$BASE/configure.py"
+  chmod 600 .env
+elif [[ ! -f .uchu-initialized ]]; then
+  echo 'Existing .env without initialization marker. Review manually; secrets were not changed.' >&2
   exit 1
 fi
-
-python3 - "$API_DOMAIN" "$STUDIO_DOMAIN" "$SITE_DOMAIN" <<'PY'
-import io, os, re, sys
-api, studio, site = sys.argv[1], sys.argv[2], sys.argv[3]
-p = ".env"
-s = io.open(p, encoding="utf-8").read()
-def setv(key, val):
-    global s
-    if re.search(r"^%s=" % re.escape(key), s, re.M):
-        s = re.sub(r"^%s=.*$" % re.escape(key), "%s=%s" % (key, val), s, flags=re.M)
-    else:
-        s += "\n%s=%s\n" % (key, val)
-setv("SITE_URL", "https://" + site)
-setv("API_EXTERNAL_URL", "https://" + api)
-setv("SUPABASE_PUBLIC_URL", "https://" + api)
-setv("STUDIO_URL", "https://" + studio)
-setv("ADDITIONAL_REDIRECT_URLS", "https://" + site + ",https://www." + site)
-setv("ENABLE_EMAIL_AUTOCONFIRM", "false")
-setv("DISABLE_SIGNUP", "false")
-io.open(p, "w", encoding="utf-8").write(s)
-print("env updated")
-PY
-
+# No secrets on stdout, including rendered compose configuration.
+docker compose config --quiet
 docker compose pull
-docker compose up -d
-
-echo
-echo "Готово. Проверка:"
-echo "  curl -s https://$API_DOMAIN/auth/v1/health"
-echo
-echo "ANON_KEY:"
-grep -E '^ANON_KEY=' .env | cut -d= -f2-
-echo "SERVICE_ROLE_KEY (не публиковать):"
-grep -E '^SERVICE_ROLE_KEY=' .env | cut -d= -f2-
+docker compose up -d --wait --wait-timeout 300
+# Caddy env is root-only and contains the dashboard bcrypt hash.
+python3 "$BASE/configure.py" --caddy
+install -m 644 "$BASE/Caddyfile" /etc/caddy/Caddyfile
+mkdir -p /etc/systemd/system/caddy.service.d
+printf '[Service]\nEnvironmentFile=/etc/caddy/uchu.env\n' > /etc/systemd/system/caddy.service.d/uchu.conf
+systemctl daemon-reload
+systemctl restart caddy
+curl --fail --silent --show-error --retry 10 --retry-delay 3 "https://$DOMAIN/auth/v1/health"
+echo 'Health responded. Secrets remain in /opt/uchu-supabase/docker/.env; migration is not complete.'

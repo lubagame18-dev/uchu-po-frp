@@ -1,4 +1,4 @@
-﻿/* ===================================================================
+/* ===================================================================
    «Учу по ФРП» — личный кабинет.
    Вход по почте и паролю (пароль — любой, от 6 знаков, без требований к символам).
    Вход запоминается на устройстве. Уроки хранятся в облаке (Supabase) и не пропадают
@@ -13,6 +13,13 @@ const Account = (() => {
   const C = () => { const a = window.UCHU_SITE?.accounts; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); };
   const ready = () => !!(C().url && C().anonKey);
   let S = null; try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { }
+  // Old-project tokens must never be sent to the new accounts server.
+  const endpoint = () => (C().url || "").replace(/\/+$/, "");
+  if (S && !S.local && ((S.endpoint && S.endpoint !== endpoint()) ||
+      (!S.endpoint && window.UCHU_SITE?.accounts?.url))) {
+    S = null;
+    try { localStorage.removeItem(KEY); } catch { }
+  }
   const save = () => { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch { } paint(); window.Access?.paint?.(); };
   const api = (path, opt = {}) => api0(path, opt).catch(e => { if (e.name === "AbortError") { const x = new Error("Сервер долго не отвечает. Проверьте интернет и попробуйте ещё раз."); x.status = 0; throw x; } if (e instanceof TypeError) { const x = new Error("Нет связи с сервером. Проверьте интернет или VPN и попробуйте ещё раз."); x.status = 0; throw x; } throw e; });
   const api0 = async (path, opt = {}) => {
@@ -54,7 +61,7 @@ const Account = (() => {
       if (want && window.Access) Access.checkout(want);
     } catch (e) { toast("Не удалось войти по ссылке: " + RU(e.message) + " Войдите с почтой и паролем.", 8000); }
   }
-  function setSession(j, email) { S = { email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { paintNav(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
+  function setSession(j, email) { S = { endpoint: endpoint(), email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { paintNav(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
   /* Пока облако не подключено — учётная запись в этом браузере (почта + отпечаток пароля); уроки — тоже здесь */
   const LKEY = "uchu:local-users";
   const lusers = () => { try { return JSON.parse(localStorage.getItem(LKEY)) || {}; } catch { return {}; } };

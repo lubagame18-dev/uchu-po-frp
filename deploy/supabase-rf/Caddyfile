@@ -1,15 +1,20 @@
-# Замените домен на свой.
-# API Supabase (Kong слушает 127.0.0.1:8000)
-supa.uchu-po-frp.ru {
-	encode zstd gzip
-	reverse_proxy 127.0.0.1:8000
+{
+    email {$EMAIL}
 }
-
-# Админ-панель аккаунтов (Studio слушает 127.0.0.1:3000)
-studio.uchu-po-frp.ru {
-	encode zstd gzip
-	reverse_proxy 127.0.0.1:3000
+{$DOMAIN} {
+    encode gzip
+    header X-Content-Type-Options nosniff
+    @api path /auth/v1/* /rest/v1/* /storage/v1/* /realtime/v1/* /functions/v1/* /graphql/v1*
+    handle @api {
+        reverse_proxy 127.0.0.1:8000
+    }
+    handle {
+        respond "Not found" 404
+    }
 }
-
-# Закрыть прямой доступ к служебным портам из интернета.
-# В ufw: разрешить только 22, 80, 443.
+{$STUDIO_DOMAIN} {
+    basicauth {
+        {$STUDIO_USER} {$STUDIO_HASH}
+    }
+    reverse_proxy 127.0.0.1:8000
+}
