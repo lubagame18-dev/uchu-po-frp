@@ -271,6 +271,12 @@ POCKETBASE_BROWSER=1 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/play
 
 ## Автоустановка на Ubuntu VPS
 
+Команда для терминала нового Ubuntu VPS (при наличии SSH её выполняет Codex):
+
+```bash
+uchu_install=$(mktemp) && curl -fsSL https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/ab8c7ccea035d9b66a873f6fa700dd8fe77efade/deploy/pocketbase/install.sh -o "$uchu_install" && sudo bash "$uchu_install" --ref ab8c7ccea035d9b66a873f6fa700dd8fe77efade
+```
+
 `install.sh --ref <полный SHA коммита>` устанавливает Python/pip/requests в venv,
 проверяет актуальную стабильную версию PocketBase и checksum, разворачивает только
 разрешённые файлы кабинетов в `/opt/pocketbase`, данные в `/var/lib/pocketbase`,
