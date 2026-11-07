@@ -1,0 +1,30 @@
+name: Render Russian high-school tables
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'presentation_database/render_high_school.py'
+      - 'frp_tasks/ru.json'
+      - '.github/workflows/render_high_school.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install Pillow==11.3.0
+      - run: python presentation_database/render_high_school.py
+      - name: Commit generated slides
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add presentation_database/high_school/
+          if ! git diff --cached --quiet; then
+            git commit -m "Generate Russian high-school table slides"
+            git push
+          fi
