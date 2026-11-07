@@ -123,6 +123,7 @@ exports.yandexIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         self.proc.terminate();self.proc.wait(timeout=10);self.start()
         self.assertEqual(self.api('/auth/v1/otp',body={'phone':p})[0],429)
         self.assertEqual(self.api('/auth/v1/otp',body={'phone':'+12025550000'})[0],400)
+        self.assertEqual(self.api('/auth/v1/otp',body={'phone':'+79400000000'})[0],400)
     def test_05_yandex_pkce_replay_and_stable_subject(self):
         b=self.oauth();identity={'id':'subject-1','email':'yandex-one@example.invalid'}
         wrong=dict(b,code_verifier=secrets.token_urlsafe(32));self.assertEqual(self.finish(wrong,identity)[0],400)
@@ -158,5 +159,16 @@ exports.yandexIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         self.assertEqual(s['user']['id'],user['id']);self.assertEqual(s['user']['legacy_id'],'source-phone-user')
         self.assertEqual(self.api('/auth/v1/admin/users',body=body,service=True)[0],409)
         self.assertEqual(self.api('/auth/v1/admin/users',body=dict(body,phone='+79000000011',email='not-confirmed@example.invalid'),service=True)[0],400)
+    def test_11_monthly_budget_survives_restart(self):
+        r=next(r for r in self.states() if r['key'].startswith('sms-month:'));original=r['data'];self.patch_state(r,data={'n':19})
+        try:
+            before=len(Provider.messages)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+                results=list(pool.map(lambda p:self.api('/auth/v1/otp',body={'phone':p}),['+79000000012','+79000000013']))
+            self.assertEqual(sorted(s for s,_ in results),[200,429]);self.assertEqual(len(Provider.messages),before+1)
+            self.proc.terminate();self.proc.wait(timeout=10);self.start();before=len(Provider.messages)
+            self.assertEqual(self.api('/auth/v1/otp',body={'phone':'+79000000014'})[0],429)
+            self.assertEqual(len(Provider.messages),before)
+        finally:self.patch_state(r,data=original)
 
 if __name__=='__main__':unittest.main(verbosity=2)

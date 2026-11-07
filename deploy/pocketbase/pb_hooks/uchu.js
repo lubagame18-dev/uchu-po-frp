@@ -294,7 +294,7 @@ exports.adminUser = function(e) { return send(e, () => {
   const c = context(e), body = e.requestInfo().body;
   if (!c.service) fail(403, 'Server credential required');
   const email=String(body.email||'').trim().toLowerCase(),phone=String(body.phone||'');
-  if ((!email&&!phone) || (email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || (phone&&!/^\+79[0-9]{9}$/.test(phone))) fail(400,'Invalid imported identity');
+  if ((!email&&!phone) || (email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || (phone&&(!/^\+79[0-9]{9}$/.test(phone)||phone.startsWith('+7940')))) fail(400,'Invalid imported identity');
   if (phone && (body.phone_confirm!==true || (email&&body.email_confirm!==true))) fail(400,'Mixed or unverified identity requires migration review');
   // Only provisioning: no implicit linking of an existing email to a supplied external identity.
   let exists; try { if(email)exists=e.app.findAuthRecordByEmail('uchu_users',email); } catch (_) {}

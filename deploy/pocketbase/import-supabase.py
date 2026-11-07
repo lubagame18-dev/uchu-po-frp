@@ -20,7 +20,7 @@ def phone_identity(user):
     value=str(user.get('phone') or '')
     if not value:return ''
     digits=re.sub(r'[^0-9]','',value)
-    if not re.fullmatch(r'79[0-9]{9}',digits) or not user.get('phone_confirmed_at'):
+    if not re.fullmatch(r'79[0-9]{9}',digits) or digits.startswith('7940') or not user.get('phone_confirmed_at'):
         raise ValueError('Unverified or unsupported phone requires migration review')
     if user.get('email') and not user.get('email_confirmed_at'):
         raise ValueError('Verified phone with unverified email requires migration review')

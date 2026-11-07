@@ -6,7 +6,7 @@ function row(app,key) { const a=app.findRecordsByFilter('uchu_login_state','key 
 function data(r) { return JSON.parse(r.getString('data')); }
 function save(app,key,body,expires) { const r=row(app,key)||new Record(app.findCollectionByNameOrId('uchu_login_state'));r.set('key',key);r.set('data',body);r.set('expires',expires);app.save(r);return r; }
 function userBy(app,field,value) { const a=app.findRecordsByFilter('uchu_users',field+' = {:value}','',1,0,{value:value});return a.length?a[0]:null; }
-function phone(raw) { let s=String(raw||'').replace(/[^0-9]/g,'');if(s[0]==='8')s='7'+s.slice(1);if(!/^79[0-9]{9}$/.test(s))fail(400,'Use a Russian mobile phone number +79xxxxxxxxx');return '+'+s; }
+function phone(raw) { let s=String(raw||'').replace(/[^0-9]/g,'');if(s[0]==='8')s='7'+s.slice(1);if(!/^79[0-9]{9}$/.test(s)||s.startsWith('7940'))fail(400,'Use a Russian mobile phone number +79xxxxxxxxx');return '+'+s; }
 function newUser(app,fields) {
   const r=new Record(app.findCollectionByNameOrId('uchu_users')),password=$security.randomString(64);
   r.set('password',password);r.set('passwordConfirm',password);r.set('verified',true);
@@ -20,6 +20,7 @@ function limit(app,key,max,duration) {
   save(app,key,b,r&&r.getFloat('expires')>now()?r.getFloat('expires'):now()+duration);
 }
 function dailyMax() { const n=Number($os.getenv('SMS_DAILY_MAX')||30);if(!Number.isInteger(n)||n<1||n>300)fail(503,'Invalid SMS budget limit');return n; }
+function monthlyMax() { const n=Number($os.getenv('SMS_MONTHLY_MAX')||20);if(!Number.isInteger(n)||n<1||n>3000)fail(503,'Invalid monthly SMS limit');return n; }
 exports.otp=e=>u.identityTools.send(e,()=>{
   enabled('UCHU_ALLOW_SMS');if(!provider.smsConfigured())fail(503,'SMS delivery is not configured');
   const body=e.requestInfo().body,p=phone(body.phone),c=u.identityTools.context(e),owner=body.link===true?c.uid:'';
@@ -29,6 +30,7 @@ exports.otp=e=>u.identityTools.send(e,()=>{
     const old=row(app,key);if(old&&data(old).sentAt>now()-60000)fail(429,'Too many login requests; wait 60 seconds');
     if(old){const previous=data(old);while($security.equal(previous.otp,hash(previous.id+':'+code)))code=$security.randomStringWithAlphabet(6,'0123456789');}
     limit(app,'sms-day:'+new Date().toISOString().slice(0,10),dailyMax(),172800000);
+    limit(app,'sms-month:'+new Date().toISOString().slice(0,7),monthlyMax(),3024000000);
     limit(app,'sms-phone-day:'+hash(p)+':'+new Date().toISOString().slice(0,10),6,172800000);
     limit(app,'sms-ip:'+hash(e.realIP()),10,3600000);
     save(app,key,{id:id,otp:hash(id+':'+code),sentAt:now(),attempts:0,owner:owner,used:false},now()+300000);

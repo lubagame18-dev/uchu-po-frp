@@ -7,20 +7,26 @@ function post(url,data) {
   if (r.statusCode!==200 || !r.json || typeof r.json!=='object') throw new Error('Identity provider request failed');
   return r.json;
 }
-exports.smsConfigured = () => env('SMS_PROVIDER')==='smsc' ? !!(env('SMS_LOGIN')&&env('SMS_PASSWORD')) : env('SMS_PROVIDER')==='smsru'&&!!env('SMS_API_ID');
+exports.smsConfigured = () => env('SMS_PROVIDER')==='smspilot' ? /^[a-zA-Z0-9]{64}$/.test(env('SMSPILOT_API_KEY')) : env('SMS_PROVIDER')==='smsc' ? !!(env('SMS_LOGIN')&&env('SMS_PASSWORD')) : env('SMS_PROVIDER')==='smsru'&&!!env('SMS_API_ID');
 exports.sendSms = function(phone,code) {
   const digits=phone.replace(/\D/g,''),text='Код входа в «Учу по ФРП»: '+code;
-  if (env('SMS_PROVIDER')==='smsc') {
+  if (env('SMS_PROVIDER')==='smspilot') {
+    const data={apikey:env('SMSPILOT_API_KEY'),to:digits,send:text,format:'json',ttl:5};
+    if (env('SMS_SENDER')) data.from=env('SMS_SENDER');
+    const j=post('https://smspilot.ru/api.php',data),s=Array.isArray(j.send)&&j.send.length===1?j.send[0]:null;
+    // A queue acknowledgement is not a delivery receipt. Reject errors and mismatched recipients.
+    if (j.error || !s || String(s.phone)!==digits || !/^\d+$/.test(String(s.server_id||'')) || !['0','1','2'].includes(String(s.status)) || (s.error&&String(s.error)!=='0')) throw new Error('SMS delivery not accepted');
+  } else if (env('SMS_PROVIDER')==='smsc') {
     const data={login:env('SMS_LOGIN'),psw:env('SMS_PASSWORD'),phones:digits,mes:text,charset:'utf-8',fmt:'3'};
     if (env('SMS_SENDER')) data.sender=env('SMS_SENDER');
     const j=post('https://smsc.ru/sys/send.php',data);
     if (j.error || !j.id || Number(j.cnt)<1) throw new Error('SMS delivery not accepted');
-  } else {
+  } else if (env('SMS_PROVIDER')==='smsru') {
     const data={api_id:env('SMS_API_ID'),to:digits,msg:text,json:'1'};
     if (env('SMS_SENDER')) data.from=env('SMS_SENDER');
     const j=post('https://sms.ru/sms/send',data);
     if (j.status!=='OK' || !j.sms || !j.sms[digits] || j.sms[digits].status!=='OK') throw new Error('SMS delivery not accepted');
-  }
+  } else throw new Error('Unsupported SMS provider');
 };
 exports.yandexConfigured = () => !!(env('YANDEX_CLIENT_ID')&&env('YANDEX_CLIENT_SECRET'));
 exports.yandexAuthorize = (state,challenge,callback) => 'https://oauth.yandex.ru/authorize?'+form({response_type:'code',client_id:env('YANDEX_CLIENT_ID'),redirect_uri:callback,state:state,code_challenge:challenge,code_challenge_method:'S256',scope:'login:email login:info'});
