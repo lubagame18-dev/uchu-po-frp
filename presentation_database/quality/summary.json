@@ -1,0 +1,65 @@
+{
+  "total_lessons": 267,
+  "grades": {
+    "1": {
+      "lessons": 28,
+      "needs_review": 22,
+      "source_ready": 6
+    },
+    "2": {
+      "lessons": 32,
+      "source_ready": 7,
+      "needs_review": 25
+    },
+    "3": {
+      "lessons": 31,
+      "needs_review": 25,
+      "source_ready": 6
+    },
+    "4": {
+      "lessons": 30,
+      "source_ready": 7,
+      "needs_review": 23
+    },
+    "5": {
+      "lessons": 17,
+      "needs_review": 12,
+      "source_ready": 5
+    },
+    "6": {
+      "lessons": 21,
+      "needs_review": 15,
+      "source_ready": 6
+    },
+    "7": {
+      "lessons": 19,
+      "needs_review": 15,
+      "source_ready": 4
+    },
+    "8": {
+      "lessons": 14,
+      "needs_review": 9,
+      "source_ready": 5
+    },
+    "9": {
+      "lessons": 12,
+      "needs_review": 9,
+      "source_ready": 3
+    },
+    "10": {
+      "lessons": 36,
+      "needs_review": 34,
+      "source_ready": 2
+    },
+    "11": {
+      "lessons": 27,
+      "needs_review": 27
+    }
+  },
+  "notes": [
+    "ФРП и ФГОС — содержательные ориентиры; не являются единым ГОСТом для графического дизайна слайдов.",
+    "Файл ru.json не изменён.",
+    "Подчёркивания синтаксических членов, орфограммы и условные обозначения требуют семантической разметки; автоматическое подчёркивание наугад запрещено.",
+    "Готовность исходных данных не означает подтверждённую предметную проверку."
+  ]
+}

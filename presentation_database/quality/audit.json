@@ -1,0 +1,2913 @@
+{
+  "summary": {
+    "total_lessons": 267,
+    "grades": {
+      "1": {
+        "lessons": 28,
+        "needs_review": 22,
+        "source_ready": 6
+      },
+      "2": {
+        "lessons": 32,
+        "source_ready": 7,
+        "needs_review": 25
+      },
+      "3": {
+        "lessons": 31,
+        "needs_review": 25,
+        "source_ready": 6
+      },
+      "4": {
+        "lessons": 30,
+        "source_ready": 7,
+        "needs_review": 23
+      },
+      "5": {
+        "lessons": 17,
+        "needs_review": 12,
+        "source_ready": 5
+      },
+      "6": {
+        "lessons": 21,
+        "needs_review": 15,
+        "source_ready": 6
+      },
+      "7": {
+        "lessons": 19,
+        "needs_review": 15,
+        "source_ready": 4
+      },
+      "8": {
+        "lessons": 14,
+        "needs_review": 9,
+        "source_ready": 5
+      },
+      "9": {
+        "lessons": 12,
+        "needs_review": 9,
+        "source_ready": 3
+      },
+      "10": {
+        "lessons": 36,
+        "needs_review": 34,
+        "source_ready": 2
+      },
+      "11": {
+        "lessons": 27,
+        "needs_review": 27
+      }
+    },
+    "notes": [
+      "ФРП и ФГОС — содержательные ориентиры; не являются единым ГОСТом для графического дизайна слайдов.",
+      "Файл ru.json не изменён.",
+      "Подчёркивания синтаксических членов, орфограммы и условные обозначения требуют семантической разметки; автоматическое подчёркивание наугад запрещено.",
+      "Готовность исходных данных не означает подтверждённую предметную проверку."
+    ]
+  },
+  "lessons": [
+    {
+      "lesson_id": "ru-1-001",
+      "grade": 1,
+      "topic": "Что такое речь",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-002",
+      "grade": 1,
+      "topic": "Устная и письменная речь",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-003",
+      "grade": 1,
+      "topic": "Слушаем и говорим",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-004",
+      "grade": 1,
+      "topic": "Вежливые слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-005",
+      "grade": 1,
+      "topic": "Рассказ по картинке",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-006",
+      "grade": 1,
+      "topic": "Гласные звуки",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-007",
+      "grade": 1,
+      "topic": "Согласные звуки",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-008",
+      "grade": 1,
+      "topic": "Твёрдые и мягкие согласные",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-1-009",
+      "grade": 1,
+      "topic": "Звонкие и глухие согласные",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-1-010",
+      "grade": 1,
+      "topic": "Алфавит",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-011",
+      "grade": 1,
+      "topic": "Слог",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-012",
+      "grade": 1,
+      "topic": "Ударение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-1-013",
+      "grade": 1,
+      "topic": "Перенос слов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-014",
+      "grade": 1,
+      "topic": "Слово и его значение",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-015",
+      "grade": 1,
+      "topic": "Предложение",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "age_topic_mismatch_complex_sentence_in_grade_1"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-1-016",
+      "grade": 1,
+      "topic": "Заглавная буква в предложении",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-017",
+      "grade": 1,
+      "topic": "Знаки в конце предложения",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-018",
+      "grade": 1,
+      "topic": "Письмо строчных букв",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-019",
+      "grade": 1,
+      "topic": "Письмо заглавных букв",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-020",
+      "grade": 1,
+      "topic": "Соединения букв",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-021",
+      "grade": 1,
+      "topic": "Жи-ши",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-022",
+      "grade": 1,
+      "topic": "Ча-ща, чу-щу",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-1-023",
+      "grade": 1,
+      "topic": "Списывание текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-024",
+      "grade": 1,
+      "topic": "Обобщение: чему научились",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-025",
+      "grade": 1,
+      "topic": "Повторение: звуки и буквы",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-1-026",
+      "grade": 1,
+      "topic": "Повторение: слог и ударение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-1-027",
+      "grade": 1,
+      "topic": "Проверочная работа",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-1-028",
+      "grade": 1,
+      "topic": "Исправляем ошибки",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-001",
+      "grade": 2,
+      "topic": "Звуки и буквы",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-002",
+      "grade": 2,
+      "topic": "Мягкий знак",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-003",
+      "grade": 2,
+      "topic": "Алфавит",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-004",
+      "grade": 2,
+      "topic": "Слог и ударение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-005",
+      "grade": 2,
+      "topic": "Безударные гласные",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-006",
+      "grade": 2,
+      "topic": "Парные согласные",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-007",
+      "grade": 2,
+      "topic": "Жи-ши, ча-ща, чу-щу",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-008",
+      "grade": 2,
+      "topic": "Чк-чн",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-009",
+      "grade": 2,
+      "topic": "Разделительный мягкий знак",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-010",
+      "grade": 2,
+      "topic": "Однокоренные слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-011",
+      "grade": 2,
+      "topic": "Корень слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-012",
+      "grade": 2,
+      "topic": "Приставка и суффикс",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-013",
+      "grade": 2,
+      "topic": "Окончание",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-014",
+      "grade": 2,
+      "topic": "Имя существительное",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-015",
+      "grade": 2,
+      "topic": "Имя прилагательное",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-016",
+      "grade": 2,
+      "topic": "Глагол",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-017",
+      "grade": 2,
+      "topic": "Местоимение и предлог",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-018",
+      "grade": 2,
+      "topic": "Виды предложений",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-2-019",
+      "grade": 2,
+      "topic": "Главные члены предложения",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-020",
+      "grade": 2,
+      "topic": "Связь слов в предложении",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-021",
+      "grade": 2,
+      "topic": "Текст и его части",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-022",
+      "grade": 2,
+      "topic": "Изложение по вопросам",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-023",
+      "grade": 2,
+      "topic": "Описание предмета",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-024",
+      "grade": 2,
+      "topic": "Письмо и поздравление",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-025",
+      "grade": 2,
+      "topic": "Обобщение: русский язык 2 класс",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-026",
+      "grade": 2,
+      "topic": "Повторение орфограмм",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-027",
+      "grade": 2,
+      "topic": "Повторение частей речи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-028",
+      "grade": 2,
+      "topic": "Итоговый диктант",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-029",
+      "grade": 2,
+      "topic": "Работа над ошибками",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-030",
+      "grade": 2,
+      "topic": "Словарик класса",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-031",
+      "grade": 2,
+      "topic": "Афиша правила",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-2-032",
+      "grade": 2,
+      "topic": "Сообщение о слове",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-001",
+      "grade": 3,
+      "topic": "Корень слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-002",
+      "grade": 3,
+      "topic": "Приставка",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-003",
+      "grade": 3,
+      "topic": "Суффикс",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-004",
+      "grade": 3,
+      "topic": "Окончание",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-005",
+      "grade": 3,
+      "topic": "Разбор слова по составу",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-006",
+      "grade": 3,
+      "topic": "Имя существительное: род и число",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-007",
+      "grade": 3,
+      "topic": "Падежи (ознакомление)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-008",
+      "grade": 3,
+      "topic": "Имя прилагательное",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-009",
+      "grade": 3,
+      "topic": "Глагол: время и число",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-010",
+      "grade": 3,
+      "topic": "Местоимение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-011",
+      "grade": 3,
+      "topic": "Безударные гласные в корне",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-012",
+      "grade": 3,
+      "topic": "Парные согласные",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-013",
+      "grade": 3,
+      "topic": "Непроизносимые согласные",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-014",
+      "grade": 3,
+      "topic": "Удвоенные согласные",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-015",
+      "grade": 3,
+      "topic": "Сложные слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-016",
+      "grade": 3,
+      "topic": "Члены предложения",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-017",
+      "grade": 3,
+      "topic": "Распространённые предложения",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-018",
+      "grade": 3,
+      "topic": "Однородные члены",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-019",
+      "grade": 3,
+      "topic": "Сложное предложение (ознакомление)",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-020",
+      "grade": 3,
+      "topic": "Типы текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-021",
+      "grade": 3,
+      "topic": "План текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-022",
+      "grade": 3,
+      "topic": "Изложение",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-023",
+      "grade": 3,
+      "topic": "Сочинение по картине",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-024",
+      "grade": 3,
+      "topic": "Обобщение: русский язык 3 класс",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-025",
+      "grade": 3,
+      "topic": "Повторение: состав слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-026",
+      "grade": 3,
+      "topic": "Повторение: части речи",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-3-027",
+      "grade": 3,
+      "topic": "Контрольный диктант",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-028",
+      "grade": 3,
+      "topic": "Анализ работы",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-029",
+      "grade": 3,
+      "topic": "Интересные слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-030",
+      "grade": 3,
+      "topic": "Правила в картинках",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-3-031",
+      "grade": 3,
+      "topic": "Устный журнал",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-001",
+      "grade": 4,
+      "topic": "Самостоятельные части речи",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-002",
+      "grade": 4,
+      "topic": "Служебные части речи",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-003",
+      "grade": 4,
+      "topic": "Наречие",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-004",
+      "grade": 4,
+      "topic": "Морфологический разбор",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-005",
+      "grade": 4,
+      "topic": "Три склонения",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-006",
+      "grade": 4,
+      "topic": "Падежи и вопросы",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-007",
+      "grade": 4,
+      "topic": "Склонение прилагательных",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-008",
+      "grade": 4,
+      "topic": "Спряжение глаголов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-009",
+      "grade": 4,
+      "topic": "Время и лицо глагола",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-010",
+      "grade": 4,
+      "topic": "Безударные окончания существительных",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-011",
+      "grade": 4,
+      "topic": "Личные окончания глаголов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-012",
+      "grade": 4,
+      "topic": "Ь после шипящих",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-013",
+      "grade": 4,
+      "topic": "Не с глаголами",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-014",
+      "grade": 4,
+      "topic": "Простое и сложное предложение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-015",
+      "grade": 4,
+      "topic": "Однородные члены",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-016",
+      "grade": 4,
+      "topic": "Обращение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-017",
+      "grade": 4,
+      "topic": "Прямая речь (ознакомление)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-018",
+      "grade": 4,
+      "topic": "Стили речи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-019",
+      "grade": 4,
+      "topic": "Типы текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-020",
+      "grade": 4,
+      "topic": "Изложение",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-021",
+      "grade": 4,
+      "topic": "Сочинение",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-022",
+      "grade": 4,
+      "topic": "Редактирование текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-023",
+      "grade": 4,
+      "topic": "Обобщение: русский язык 4 класс",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-024",
+      "grade": 4,
+      "topic": "Повторение: части речи",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-4-025",
+      "grade": 4,
+      "topic": "Повторение: орфография и пунктуация",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-026",
+      "grade": 4,
+      "topic": "Итоговый диктант",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-027",
+      "grade": 4,
+      "topic": "Готовимся к пятой четверти",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-028",
+      "grade": 4,
+      "topic": "Тема итогового проекта",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-029",
+      "grade": 4,
+      "topic": "Подготовка и оформление",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-4-030",
+      "grade": 4,
+      "topic": "Защита проекта",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-001",
+      "grade": 5,
+      "topic": "Богатство и выразительность русского языка. Лингвистика как наука о языке",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-002",
+      "grade": 5,
+      "topic": "Язык и речь. Монолог. Диалог. Полилог. Виды речевой деятельности",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-003",
+      "grade": 5,
+      "topic": "Текст и его основные признаки. Композиционная структура текста. Функционально-смысловые типы речи. Повествование как тип речи. Рассказ. Смысловой анализ текста. Информационная переработка текста. Редактирование текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-004",
+      "grade": 5,
+      "topic": "Функциональные разновидности языка (общее представление)",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-5-005",
+      "grade": 5,
+      "topic": "Фонетика. Графика. Орфоэпия. Орфография",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-006",
+      "grade": 5,
+      "topic": "Морфемика. Орфография",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-007",
+      "grade": 5,
+      "topic": "Лексикология",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-008",
+      "grade": 5,
+      "topic": "Синтаксис и пунктуация как разделы лингвистики. Словосочетание",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-5-009",
+      "grade": 5,
+      "topic": "Простое двусоставное предложение",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-010",
+      "grade": 5,
+      "topic": "Простое осложненное предложение",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-011",
+      "grade": 5,
+      "topic": "Сложное предложение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-5-012",
+      "grade": 5,
+      "topic": "Прямая речь",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-5-013",
+      "grade": 5,
+      "topic": "Диалог",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "dialogue_topic_uses_direct_speech_schemes"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-5-014",
+      "grade": 5,
+      "topic": "Система частей речи в русском языке",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content",
+        "supplement_requires_editorial_review"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-5-015",
+      "grade": 5,
+      "topic": "Имя существительное",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-5-016",
+      "grade": 5,
+      "topic": "Имя прилагательное",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-5-017",
+      "grade": 5,
+      "topic": "Глагол",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-6-001",
+      "grade": 6,
+      "topic": "Основные функции русского языка",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-002",
+      "grade": 6,
+      "topic": "Литературный язык",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-003",
+      "grade": 6,
+      "topic": "Виды речи. Монолог и диалог. Их разновидности",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-004",
+      "grade": 6,
+      "topic": "Информационная переработка текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-005",
+      "grade": 6,
+      "topic": "Функционально-смысловые типы речи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-006",
+      "grade": 6,
+      "topic": "Виды описания. Смысловой анализ текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-007",
+      "grade": 6,
+      "topic": "Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-008",
+      "grade": 6,
+      "topic": "Группы лексики по происхождению. Активный и пассивный запас лексики",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-009",
+      "grade": 6,
+      "topic": "Лексика с точки зрения сферы употребления. Стилистическая окраска слова. Лексические средства выразительности",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-010",
+      "grade": 6,
+      "topic": "Лексический анализ слова. Фразеологизмы",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-6-011",
+      "grade": 6,
+      "topic": "Морфемика и словообразование как разделы лингвистики",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-012",
+      "grade": 6,
+      "topic": "Виды морфем. Основные способы образования слов в русском языке. Правописание сложных и сложносокращенных слов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-013",
+      "grade": 6,
+      "topic": "Орфографический анализ",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-014",
+      "grade": 6,
+      "topic": "Понятие об этимологии",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-015",
+      "grade": 6,
+      "topic": "Морфемный и словообразовательный анализ слов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-6-016",
+      "grade": 6,
+      "topic": "Части речи в русском языке",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-6-017",
+      "grade": 6,
+      "topic": "Имя существительное",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-6-018",
+      "grade": 6,
+      "topic": "Имя прилагательное",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-6-019",
+      "grade": 6,
+      "topic": "Имя числительное",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-6-020",
+      "grade": 6,
+      "topic": "Местоимение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-6-021",
+      "grade": 6,
+      "topic": "Глагол",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-7-001",
+      "grade": 7,
+      "topic": "Язык как развивающееся явление",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-002",
+      "grade": 7,
+      "topic": "Монолог и его виды",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-003",
+      "grade": 7,
+      "topic": "Диалог и его виды",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-004",
+      "grade": 7,
+      "topic": "Основные признаки текста (повторение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-005",
+      "grade": 7,
+      "topic": "Информационная переработка текста. Смысловой анализ текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-006",
+      "grade": 7,
+      "topic": "Функционально-смысловые типы речи. Рассуждение как функционально-смысловой тип речи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-007",
+      "grade": 7,
+      "topic": "Публицистический стиль",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-008",
+      "grade": 7,
+      "topic": "Официально-деловой стиль",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-009",
+      "grade": 7,
+      "topic": "Морфология как раздел науки о языке (обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-010",
+      "grade": 7,
+      "topic": "Причастие как особая форма глагола",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-7-011",
+      "grade": 7,
+      "topic": "Деепричастие как особая форма глагола",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-7-012",
+      "grade": 7,
+      "topic": "Наречие",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-7-013",
+      "grade": 7,
+      "topic": "Слова категории состояния",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-7-014",
+      "grade": 7,
+      "topic": "Служебные части речи",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-7-015",
+      "grade": 7,
+      "topic": "Предлог",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-7-016",
+      "grade": 7,
+      "topic": "Союз",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-017",
+      "grade": 7,
+      "topic": "Частица",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-018",
+      "grade": 7,
+      "topic": "Междометия и звукоподражательные слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-7-019",
+      "grade": 7,
+      "topic": "Омонимия слов разных частей речи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-001",
+      "grade": 8,
+      "topic": "Русский язык в кругу других славянских языков",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-002",
+      "grade": 8,
+      "topic": "Виды речи. Монолог и диалог. Их разновидности",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-003",
+      "grade": 8,
+      "topic": "Текст и его признаки. Функционально-смысловые типы речи. Смысловой анализ текста. Информационная переработка текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-004",
+      "grade": 8,
+      "topic": "Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-005",
+      "grade": 8,
+      "topic": "Синтаксис как раздел лингвистики",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-006",
+      "grade": 8,
+      "topic": "Пунктуация. Функции знаков препинания",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-007",
+      "grade": 8,
+      "topic": "Словосочетание и его признаки. Виды словосочетаний по морфологическим свойствам главного слова. Типы подчинительной связи в словосочетании",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-8-008",
+      "grade": 8,
+      "topic": "Предложение и его основные признаки. Виды предложений",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-8-009",
+      "grade": 8,
+      "topic": "Двусоставное предложение. Главные члены предложения (грамматическая основа)",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-8-010",
+      "grade": 8,
+      "topic": "Второстепенные члены предложения",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-8-011",
+      "grade": 8,
+      "topic": "Односоставные предложения. Виды односоставных предложений",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-8-012",
+      "grade": 8,
+      "topic": "Простое осложненное предложение. Предложения с однородными членами",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-8-013",
+      "grade": 8,
+      "topic": "Предложения с обособленными членами. Виды обособленных членов предложения. Уточняющие члены предложения, пояснительные и присоединительные конструкции",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-8-014",
+      "grade": 8,
+      "topic": "Предложения с обращениями, вводными и вставными конструкциями. Обращение. Вводные конструкции. Вставные конструкции",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-9-001",
+      "grade": 9,
+      "topic": "Роль русского языка в Российской Федерации",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-9-002",
+      "grade": 9,
+      "topic": "Русский язык в современном мире",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-9-003",
+      "grade": 9,
+      "topic": "Речь устная и письменная, монологическая и диалогическая (повторение). Виды речевой деятельности: аудирование, чтение, говорение, письмо",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-9-004",
+      "grade": 9,
+      "topic": "Текст и его признаки (обобщение). Функционально-смысловые типы речи (обобщение). Смысловой анализ текста (обобщение). Информационная переработка текста",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-9-005",
+      "grade": 9,
+      "topic": "Функциональные разновидности языка. Язык художественной литературы и его отличия от других функциональных разновидностей современного русского языка",
+      "source": "ready_table",
+      "status": "needs_review",
+      "flags": [
+        "syntactic_markup_review_needed"
+      ],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-9-006",
+      "grade": 9,
+      "topic": "Научный стиль",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-9-007",
+      "grade": 9,
+      "topic": "Сложное предложение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-9-008",
+      "grade": 9,
+      "topic": "Сложносочиненное предложение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-9-009",
+      "grade": 9,
+      "topic": "Сложноподчиненное предложение",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-9-010",
+      "grade": 9,
+      "topic": "Бессоюзное сложное предложение",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-9-011",
+      "grade": 9,
+      "topic": "Сложные предложения с разными видами союзной и бессоюзной связи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-9-012",
+      "grade": 9,
+      "topic": "Прямая и косвенная речь. Цитирование",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-001",
+      "grade": 10,
+      "topic": "Язык как знаковая система. Основные функции языка. Лингвистика как наука",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-002",
+      "grade": 10,
+      "topic": "Язык и культура",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-003",
+      "grade": 10,
+      "topic": "Русский язык – государственный язык Российской Федерации, средство межнационального общения, национальный язык русского народа, один из мировых языков",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-004",
+      "grade": 10,
+      "topic": "Формы существования русского национального языка",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-005",
+      "grade": 10,
+      "topic": "Система языка, её устройство, функционирование",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-006",
+      "grade": 10,
+      "topic": "Культура речи как раздел лингвистики",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-007",
+      "grade": 10,
+      "topic": "Языковая норма, её основные признаки и функции. Виды языковых норм",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-008",
+      "grade": 10,
+      "topic": "Качества хорошей речи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-009",
+      "grade": 10,
+      "topic": "Основные виды словарей (обзор)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-010",
+      "grade": 10,
+      "topic": "Фонетика и орфоэпия как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства фонетики (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-011",
+      "grade": 10,
+      "topic": "Орфоэпические (произносительные и акцентологические) нормы",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-012",
+      "grade": 10,
+      "topic": "Лексикология и фразеология как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства лексики (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-013",
+      "grade": 10,
+      "topic": "Основные лексические нормы современного русского литературного языка",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-014",
+      "grade": 10,
+      "topic": "Функционально-стилистическая окраска слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-015",
+      "grade": 10,
+      "topic": "Экспрессивно-стилистическая окраска слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-016",
+      "grade": 10,
+      "topic": "Фразеология русского языка (повторение, обобщение). Крылатые слова",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-017",
+      "grade": 10,
+      "topic": "Морфемика и словообразование как разделы лингвистики (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-018",
+      "grade": 10,
+      "topic": "Словообразовательные нормы",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-019",
+      "grade": 10,
+      "topic": "Морфология как раздел лингвистики (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-020",
+      "grade": 10,
+      "topic": "Морфологические нормы современного русского литературного языка (общее представление)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-021",
+      "grade": 10,
+      "topic": "Орфография как раздел лингвистики (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-022",
+      "grade": 10,
+      "topic": "Правописание гласных и согласных в корне",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-023",
+      "grade": 10,
+      "topic": "Употребление разделительных ъ и ь. Правописание приставок. Буквы ы – и после приставок",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-10-024",
+      "grade": 10,
+      "topic": "Правописание суффиксов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-025",
+      "grade": 10,
+      "topic": "Правописание н и нн в словах различных частей речи",
+      "source": "ready_table",
+      "status": "source_ready",
+      "flags": [],
+      "images_requested": 1
+    },
+    {
+      "lesson_id": "ru-10-026",
+      "grade": 10,
+      "topic": "Правописание не и ни",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-027",
+      "grade": 10,
+      "topic": "Правописание окончаний имён существительных, имён прилагательных и глаголов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-028",
+      "grade": 10,
+      "topic": "Слитное, дефисное и раздельное написание слов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-029",
+      "grade": 10,
+      "topic": "Речь как деятельность. Виды речевой деятельности (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-030",
+      "grade": 10,
+      "topic": "Речевое общение и его виды. Основные сферы речевого общения. Речевая ситуация и её компоненты",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-031",
+      "grade": 10,
+      "topic": "Речевой этикет",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-032",
+      "grade": 10,
+      "topic": "Публичное выступление",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-033",
+      "grade": 10,
+      "topic": "Текст, его основные признаки (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-034",
+      "grade": 10,
+      "topic": "Логико-смысловые отношения между предложениями в тексте (общее представление)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-035",
+      "grade": 10,
+      "topic": "Информативность текста. Виды информации в тексте",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-10-036",
+      "grade": 10,
+      "topic": "Информационно-смысловая переработка текста. План. Тезисы. Конспект. Реферат. Аннотация. Отзыв. Рецензия",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-001",
+      "grade": 11,
+      "topic": "Культура речи в экологическом аспекте",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-002",
+      "grade": 11,
+      "topic": "Синтаксис как раздел лингвистики (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-003",
+      "grade": 11,
+      "topic": "Изобразительно-выразительные средства синтаксиса",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-004",
+      "grade": 11,
+      "topic": "Синтаксические нормы. Основные нормы согласования сказуемого с подлежащим",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-005",
+      "grade": 11,
+      "topic": "Основные нормы управления",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-006",
+      "grade": 11,
+      "topic": "Основные нормы употребления однородных членов предложения",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-007",
+      "grade": 11,
+      "topic": "Основные нормы употребления причастных и деепричастных оборотов",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-008",
+      "grade": 11,
+      "topic": "Основные нормы построения сложных предложений",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-009",
+      "grade": 11,
+      "topic": "Обобщение и систематизация по теме «Синтаксис. Синтаксические нормы»",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-010",
+      "grade": 11,
+      "topic": "Пунктуация как раздел лингвистики (повторение, обобщение)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-011",
+      "grade": 11,
+      "topic": "Знаки препинания между подлежащим и сказуемым",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-012",
+      "grade": 11,
+      "topic": "Знаки препинания в предложениях с однородными членами",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-013",
+      "grade": 11,
+      "topic": "Знаки препинания при обособлении",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-014",
+      "grade": 11,
+      "topic": "Знаки препинания в предложениях с вводными конструкциями, обращениями, междометиями",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-015",
+      "grade": 11,
+      "topic": "Знаки препинания в сложном предложении",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-016",
+      "grade": 11,
+      "topic": "Знаки препинания в сложном предложении с разными видами связи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-017",
+      "grade": 11,
+      "topic": "Знаки препинания при передаче чужой речи",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-018",
+      "grade": 11,
+      "topic": "Повторение и обобщение по темам раздела «Пунктуация. Основные правила пунктуации»",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-019",
+      "grade": 11,
+      "topic": "Функциональная стилистика как раздел лингвистики",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-020",
+      "grade": 11,
+      "topic": "Разговорная речь",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-021",
+      "grade": 11,
+      "topic": "Основные жанры разговорной речи: устный рассказ, беседа, спор (обзор)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-022",
+      "grade": 11,
+      "topic": "Научный стиль",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-023",
+      "grade": 11,
+      "topic": "Основные жанры научного стиля (обзор)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-024",
+      "grade": 11,
+      "topic": "Официально-деловой стиль. Основные жанры официально-делового стиля (обзор)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-025",
+      "grade": 11,
+      "topic": "Публицистический стиль",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-026",
+      "grade": 11,
+      "topic": "Основные жанры публицистического стиля (обзор)",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    },
+    {
+      "lesson_id": "ru-11-027",
+      "grade": 11,
+      "topic": "Язык художественной литературы",
+      "source": "topic_structure",
+      "status": "needs_review",
+      "flags": [
+        "generic_placeholders_not_lesson_content"
+      ],
+      "images_requested": 2
+    }
+  ]
+}
