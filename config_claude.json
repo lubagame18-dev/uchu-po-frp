@@ -158,6 +158,16 @@
             "author_or_artist",
             "year_if_known"
           ]
+        },
+        {
+          "id": "lit-composition",
+          "topic": "Композиция произведения",
+          "need": "репродукция/иллюстрация, показывающая части композиции",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
         }
       ]
     },
