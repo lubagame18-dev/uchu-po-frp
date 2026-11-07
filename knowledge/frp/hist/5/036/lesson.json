@@ -1,0 +1,20 @@
+{
+ "id": "hist-5-036",
+ "subject": "hist",
+ "subject_title": "История",
+ "grade": 5,
+ "order": 36,
+ "section": "Всеобщая история",
+ "topic": "Древняя Спарта",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет"
+}

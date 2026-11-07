@@ -1,0 +1,21 @@
+{
+ "id": "inf-9-011",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 9,
+ "order": 11,
+ "section": "Теоретические основы информатики",
+ "topic": "Практическая работа. Работа с готовыми компьютерными моделями",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

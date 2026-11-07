@@ -1,0 +1,21 @@
+{
+ "id": "inf-8-020",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 8,
+ "order": 20,
+ "section": "Алгоритмы и программирование",
+ "topic": "Практическая работа. Ветвления и циклы с условием для исполнителя Чертёжник",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

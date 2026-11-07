@@ -1,0 +1,21 @@
+{
+ "id": "math-7-177",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 177,
+ "section": "Вероятность и статистика: Представление данных",
+ "topic": "Контрольная работа по теме «Представление данных»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

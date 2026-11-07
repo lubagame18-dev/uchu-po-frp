@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-044",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 44,
+ "section": "Механические колебания и волны",
+ "topic": "Лабораторная работа №7 «Исследование зависимости периода колебаний маятника от длины нити»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

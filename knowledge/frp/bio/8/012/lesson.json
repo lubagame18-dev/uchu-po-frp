@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-012",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 12,
+ "section": "Строение и жизнедеятельность организма животного",
+ "topic": "Покровы тела у животных. Практическая работа № 5 «Изучение покровов тела у животных»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

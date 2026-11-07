@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-022",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 22,
+ "section": "Внутренняя среда организма",
+ "topic": "Состав крови. Лабораторная работа № 1 «Изучение микроскопического строения крови человека и лягушки (сравнение)»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

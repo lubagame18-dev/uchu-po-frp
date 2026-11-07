@@ -1,0 +1,20 @@
+{
+ "id": "eng-8-034",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 8,
+ "order": 34,
+ "section": "Здоровый образ жизни: режим труда и отдыха, фитнес, сбалансированное",
+ "topic": "Контрольная работа по теме «Здоровый образ жизни»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-034",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 34,
+ "section": "Человек в мире культуры",
+ "topic": "Итоговое повторение по темам «Человек в экономических отношениях», «Человек в мире культуры»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

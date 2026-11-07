@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-009",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 9,
+ "section": "Вещество и химические реакции",
+ "topic": "Окислительно-восстановительные реакции. Метод электронного баланса",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

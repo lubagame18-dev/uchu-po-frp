@@ -1,0 +1,21 @@
+{
+ "id": "math-6-012",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 12,
+ "section": "Математика: Натуральные числа",
+ "topic": "Округление натуральных чисел. Делители и кратные числа",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

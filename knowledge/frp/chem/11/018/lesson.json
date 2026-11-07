@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-018",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 18,
+ "section": "Неорганическая химия",
+ "topic": "Качественные реакции на катионы металлов. Расчёты по уравнениям, если вещество дано в виде раствора",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

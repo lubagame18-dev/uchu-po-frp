@@ -1,0 +1,20 @@
+{
+ "id": "hist-10-038",
+ "subject": "hist",
+ "subject_title": "История",
+ "grade": 10,
+ "order": 38,
+ "section": "История России",
+ "topic": "Экономический и политический кризис начала 1920-х гг. Переход к новой экономической политике (нэпу)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет"
+}

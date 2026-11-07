@@ -1,0 +1,21 @@
+{
+ "id": "bio-10-009",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 10,
+ "order": 9,
+ "section": "Биология клетки",
+ "topic": "История и методы изучения клетки. Клеточная теория",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

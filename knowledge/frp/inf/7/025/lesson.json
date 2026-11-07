@@ -1,0 +1,21 @@
+{
+ "id": "inf-7-025",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 7,
+ "order": 25,
+ "section": "Информационные технологии",
+ "topic": "Практическая работа. Списки, таблицы, изображения и формулы в документе",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

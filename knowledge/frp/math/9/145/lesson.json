@@ -1,0 +1,21 @@
+{
+ "id": "math-9-145",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 145,
+ "section": "Геометрия: Декартовы координаты на плоскости",
+ "topic": "Координаты точек пересечения окружности и прямой",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

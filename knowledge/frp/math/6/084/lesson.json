@@ -1,0 +1,21 @@
+{
+ "id": "math-6-084",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 84,
+ "section": "Математика: Наглядная геометрия. Фигуры на плоскости",
+ "topic": "Четырехугольник, примеры четырехугольников",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-11-126",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 126,
+ "section": "Геометрия: Векторы и координаты в пространстве",
+ "topic": "Угол между векторами. Скалярное произведение векторов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

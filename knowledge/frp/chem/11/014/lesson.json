@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-014",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 14,
+ "section": "Неорганическая химия",
+ "topic": "Положение металлов в Периодической системе. Физические свойства, сплавы, применение металлов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-5-003",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 3,
+ "section": "Математика: Натуральные числа. Действия с натуральными числами",
+ "topic": "Десятичная система счисления. Ряд натуральных чисел. Натуральный ряд. Число 0",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

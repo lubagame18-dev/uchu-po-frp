@@ -1,0 +1,20 @@
+{
+ "id": "hist-9-022",
+ "subject": "hist",
+ "subject_title": "История",
+ "grade": 9,
+ "order": 22,
+ "section": "Всеобщая история",
+ "topic": "Африка в XIX в.: захваты и эксплуатация",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "obzh-8-012",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 8,
+ "order": 12,
+ "section": "Пожарная безопасность",
+ "topic": "Пожар в здании",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

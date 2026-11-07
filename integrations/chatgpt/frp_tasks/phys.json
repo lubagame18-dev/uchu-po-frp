@@ -1,0 +1,4867 @@
+{
+ "subject": "phys",
+ "title": "Физика",
+ "lessons": [
+  {
+   "lesson_id": "phys-7-001",
+   "grade": 7,
+   "topic": "Физика – наука о природе. Явления природы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-002",
+   "grade": 7,
+   "topic": "Физические явления: механические, тепловые, электрические, магнитные, световые, звуковые",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-003",
+   "grade": 7,
+   "topic": "Физические величины. Измерение физических величин. Международная система единиц",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-004",
+   "grade": 7,
+   "topic": "Лабораторная работа №1 «Определение цены деления шкалы измерительного прибора. Измерение длины, объёма и температуры»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-005",
+   "grade": 7,
+   "topic": "Естественно-научный метод познания: наблюдение, гипотеза, эксперимент",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-006",
+   "grade": 7,
+   "topic": "Описание физических явлений с помощью моделей",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-007",
+   "grade": 7,
+   "topic": "Строение вещества: атомы и молекулы, их размеры. Лабораторная работа №2 «Оценка диаметра атома методом рядов»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-008",
+   "grade": 7,
+   "topic": "Движение частиц вещества. Броуновское движение. Диффузия",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-009",
+   "grade": 7,
+   "topic": "Взаимодействие частиц вещества: притяжение и отталкивание",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-010",
+   "grade": 7,
+   "topic": "Агрегатные состояния вещества: газы, жидкости, твёрдые тела",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-011",
+   "grade": 7,
+   "topic": "Свойства веществ в разных агрегатных состояниях. Особенности агрегатных состояний воды",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-012",
+   "grade": 7,
+   "topic": "Механическое движение. Траектория и путь. Равномерное и неравномерное движение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-013",
+   "grade": 7,
+   "topic": "Скорость. Расчёт пути и времени движения. Графики движения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-014",
+   "grade": 7,
+   "topic": "Средняя скорость. Лабораторная работа №3 «Определение средней скорости движения тела»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-015",
+   "grade": 7,
+   "topic": "Инерция. Взаимодействие тел",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-016",
+   "grade": 7,
+   "topic": "Масса тела. Измерение массы на рычажных весах. Лабораторная работа №4 «Измерение массы тела»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-017",
+   "grade": 7,
+   "topic": "Плотность вещества. Расчёт массы и объёма по плотности",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-018",
+   "grade": 7,
+   "topic": "Лабораторная работа №5 «Определение плотности твёрдого тела и жидкости»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-019",
+   "grade": 7,
+   "topic": "Сила. Сила как векторная величина. Измерение силы динамометром",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-020",
+   "grade": 7,
+   "topic": "Сила упругости. Закон Гука",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-021",
+   "grade": 7,
+   "topic": "Лабораторная работа №6 «Исследование зависимости удлинения пружины от приложенной силы»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-022",
+   "grade": 7,
+   "topic": "Сила тяжести. Вес тела. Невесомость",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-023",
+   "grade": 7,
+   "topic": "Связь силы тяжести с массой тела",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-024",
+   "grade": 7,
+   "topic": "Равнодействующая сил. Сложение сил, направленных вдоль одной прямой",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-025",
+   "grade": 7,
+   "topic": "Решение задач «Сила тяжести. Вес. Равнодействующая»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-026",
+   "grade": 7,
+   "topic": "Сила трения: трение покоя, скольжения, качения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-027",
+   "grade": 7,
+   "topic": "Лабораторная работа №7 «Измерение силы трения скольжения и её зависимости от веса тела»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-028",
+   "grade": 7,
+   "topic": "Трение в природе и технике",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-029",
+   "grade": 7,
+   "topic": "Решение задач «Силы в природе»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-030",
+   "grade": 7,
+   "topic": "Явление тяготения. Сила тяжести на Земле и других планетах",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-031",
+   "grade": 7,
+   "topic": "Обобщение «Движение и взаимодействие тел»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-032",
+   "grade": 7,
+   "topic": "Контрольная работа №1 «Движение и взаимодействие тел»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-033",
+   "grade": 7,
+   "topic": "Давление. Единицы давления. Способы изменения давления",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-034",
+   "grade": 7,
+   "topic": "Давление газа. Закон Паскаля",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-035",
+   "grade": 7,
+   "topic": "Передача давления жидкостями и газами. Гидравлические машины",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-036",
+   "grade": 7,
+   "topic": "Давление жидкости на дно и стенки сосуда",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-037",
+   "grade": 7,
+   "topic": "Расчёт давления жидкости. Решение задач",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-038",
+   "grade": 7,
+   "topic": "Сообщающиеся сосуды. Шлюзы, водопровод, фонтаны",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-039",
+   "grade": 7,
+   "topic": "Гидравлический пресс",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-040",
+   "grade": 7,
+   "topic": "Решение задач «Давление в жидкостях и газах»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-041",
+   "grade": 7,
+   "topic": "Атмосфера Земли. Атмосферное давление. Опыт Торричелли",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-042",
+   "grade": 7,
+   "topic": "Измерение атмосферного давления. Барометр-анероид. Зависимость давления от высоты",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-043",
+   "grade": 7,
+   "topic": "Манометры. Поршневой жидкостный насос",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-044",
+   "grade": 7,
+   "topic": "Решение задач «Атмосферное давление»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-045",
+   "grade": 7,
+   "topic": "Практикум «Измерение давления: атмосферного, в шине, в жидкости»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-046",
+   "grade": 7,
+   "topic": "Обобщение «Атмосферное давление»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-047",
+   "grade": 7,
+   "topic": "Действие жидкости и газа на погружённое в них тело. Выталкивающая сила",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-048",
+   "grade": 7,
+   "topic": "Закон Архимеда",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-049",
+   "grade": 7,
+   "topic": "Лабораторная работа №8 «Определение выталкивающей силы, действующей на погружённое в жидкость тело»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-050",
+   "grade": 7,
+   "topic": "Плавание тел. Условия плавания",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-051",
+   "grade": 7,
+   "topic": "Лабораторная работа №9 «Выяснение условий плавания тела в жидкости»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-052",
+   "grade": 7,
+   "topic": "Плавание судов. Воздухоплавание",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-053",
+   "grade": 7,
+   "topic": "Контрольная работа №2 «Давление твёрдых тел, жидкостей и газов»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-054",
+   "grade": 7,
+   "topic": "Механическая работа. Единицы работы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-055",
+   "grade": 7,
+   "topic": "Мощность. Единицы мощности",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-056",
+   "grade": 7,
+   "topic": "Решение задач «Работа и мощность»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-057",
+   "grade": 7,
+   "topic": "Простые механизмы. Рычаг. Условие равновесия рычага",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-058",
+   "grade": 7,
+   "topic": "Момент силы. Правило моментов",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-059",
+   "grade": 7,
+   "topic": "Лабораторная работа №10 «Выяснение условия равновесия рычага»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-060",
+   "grade": 7,
+   "topic": "Блоки. «Золотое правило» механики. Наклонная плоскость",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-061",
+   "grade": 7,
+   "topic": "КПД механизма. Лабораторная работа №11 «Определение КПД при подъёме тела по наклонной плоскости»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-062",
+   "grade": 7,
+   "topic": "Механическая энергия. Потенциальная и кинетическая энергия",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-063",
+   "grade": 7,
+   "topic": "Превращение механической энергии. Закон сохранения энергии",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-064",
+   "grade": 7,
+   "topic": "Решение задач «Механическая энергия»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-065",
+   "grade": 7,
+   "topic": "Контрольная работа №3 «Работа, мощность, энергия»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-066",
+   "grade": 7,
+   "topic": "Повторение: движение и силы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-067",
+   "grade": 7,
+   "topic": "Повторение: давление, работа и энергия",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-7-068",
+   "grade": 7,
+   "topic": "Итоговая контрольная работа №4 за курс 7 класса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-001",
+   "grade": 8,
+   "topic": "Основные положения молекулярно-кинетической теории. Масса и размеры атомов и молекул",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-002",
+   "grade": 8,
+   "topic": "Опыты, подтверждающие положения МКТ. Броуновское движение и диффузия",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-003",
+   "grade": 8,
+   "topic": "Модели твёрдого, жидкого и газообразного состояний вещества. Кристаллические и аморфные тела",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-004",
+   "grade": 8,
+   "topic": "Объяснение свойств газов, жидкостей и твёрдых тел на основе МКТ",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-005",
+   "grade": 8,
+   "topic": "Смачивание и капиллярные явления",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-006",
+   "grade": 8,
+   "topic": "Тепловое расширение и сжатие тел",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-007",
+   "grade": 8,
+   "topic": "Решение задач «Строение вещества». Оценка числа молекул в единице объёма",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-008",
+   "grade": 8,
+   "topic": "Температура. Связь температуры со скоростью движения частиц",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-009",
+   "grade": 8,
+   "topic": "Внутренняя энергия. Способы изменения внутренней энергии",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-010",
+   "grade": 8,
+   "topic": "Виды теплопередачи: теплопроводность",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-011",
+   "grade": 8,
+   "topic": "Конвекция и излучение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-012",
+   "grade": 8,
+   "topic": "Количество теплоты. Удельная теплоёмкость вещества",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-013",
+   "grade": 8,
+   "topic": "Расчёт количества теплоты при нагревании и охлаждении",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-014",
+   "grade": 8,
+   "topic": "Лабораторная работа №1 «Сравнение количеств теплоты при смешивании воды разной температуры»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-015",
+   "grade": 8,
+   "topic": "Теплообмен и тепловое равновесие. Уравнение теплового баланса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-016",
+   "grade": 8,
+   "topic": "Лабораторная работа №2 «Определение удельной теплоёмкости твёрдого тела»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-017",
+   "grade": 8,
+   "topic": "Энергия топлива. Удельная теплота сгорания",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-018",
+   "grade": 8,
+   "topic": "Плавление и отвердевание кристаллических веществ",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-019",
+   "grade": 8,
+   "topic": "Удельная теплота плавления. Решение задач",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-020",
+   "grade": 8,
+   "topic": "Испарение и конденсация. Влажность воздуха",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-021",
+   "grade": 8,
+   "topic": "Лабораторная работа №3 «Измерение влажности воздуха»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-022",
+   "grade": 8,
+   "topic": "Кипение. Удельная теплота парообразования",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-023",
+   "grade": 8,
+   "topic": "Решение задач «Агрегатные превращения вещества»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-024",
+   "grade": 8,
+   "topic": "Принцип работы тепловых двигателей. Двигатель внутреннего сгорания",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-025",
+   "grade": 8,
+   "topic": "КПД теплового двигателя. Тепловые двигатели и охрана окружающей среды",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-026",
+   "grade": 8,
+   "topic": "Закон сохранения и превращения энергии в тепловых процессах",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-027",
+   "grade": 8,
+   "topic": "Обобщение «Тепловые явления»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-028",
+   "grade": 8,
+   "topic": "Контрольная работа №1 «Тепловые явления»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-029",
+   "grade": 8,
+   "topic": "Электризация тел. Два рода электрических зарядов",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-030",
+   "grade": 8,
+   "topic": "Взаимодействие заряженных тел",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-031",
+   "grade": 8,
+   "topic": "Электрическое поле",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-032",
+   "grade": 8,
+   "topic": "Проводники и диэлектрики. Электроскоп",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-033",
+   "grade": 8,
+   "topic": "Делимость заряда. Электрон. Строение атома",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-034",
+   "grade": 8,
+   "topic": "Закон сохранения электрического заряда",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-035",
+   "grade": 8,
+   "topic": "Решение задач «Электрические заряды»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-036",
+   "grade": 8,
+   "topic": "Электрический ток. Источники тока. Условия существования тока",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-037",
+   "grade": 8,
+   "topic": "Электрическая цепь. Действия электрического тока",
+   "numbered_elements": [
+    "последовательно: I одинаков, U = U₁ + U₂, R = R₁ + R₂",
+    "параллельно: U одинаков, I = I₁ + I₂, 1/R = 1/R₁ + 1/R₂",
+    "приборы: амперметр — последовательно, вольтметр — параллельно"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/04_Физика/text.md"
+  },
+  {
+   "lesson_id": "phys-8-038",
+   "grade": 8,
+   "topic": "Электрический ток в жидкостях и газах",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-039",
+   "grade": 8,
+   "topic": "Сила тока. Амперметр",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-040",
+   "grade": 8,
+   "topic": "Лабораторная работа №4 «Сборка электрической цепи и измерение силы тока на её участках»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-041",
+   "grade": 8,
+   "topic": "Электрическое напряжение. Вольтметр",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-042",
+   "grade": 8,
+   "topic": "Лабораторная работа №5 «Измерение напряжения на различных участках цепи»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-043",
+   "grade": 8,
+   "topic": "Сопротивление проводника. Удельное сопротивление",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-044",
+   "grade": 8,
+   "topic": "Закон Ома для участка цепи",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-045",
+   "grade": 8,
+   "topic": "Лабораторная работа №6 «Определение сопротивления проводника при помощи амперметра и вольтметра»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-046",
+   "grade": 8,
+   "topic": "Решение задач «Закон Ома»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-047",
+   "grade": 8,
+   "topic": "Последовательное соединение проводников",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-048",
+   "grade": 8,
+   "topic": "Параллельное соединение проводников",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-049",
+   "grade": 8,
+   "topic": "Лабораторная работа №7 «Исследование последовательного и параллельного соединения проводников»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-050",
+   "grade": 8,
+   "topic": "Решение задач «Соединения проводников»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-051",
+   "grade": 8,
+   "topic": "Работа и мощность электрического тока",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-052",
+   "grade": 8,
+   "topic": "Лабораторная работа №8 «Измерение работы и мощности электрического тока»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-053",
+   "grade": 8,
+   "topic": "Закон Джоуля–Ленца. Короткое замыкание, предохранители",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-054",
+   "grade": 8,
+   "topic": "Электрические цепи и потребители электрической энергии в быту",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-055",
+   "grade": 8,
+   "topic": "Контрольная работа №2 «Постоянный электрический ток»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-056",
+   "grade": 8,
+   "topic": "Постоянные магниты. Магнитное поле",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-057",
+   "grade": 8,
+   "topic": "Магнитное поле Земли и его значение для жизни",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-058",
+   "grade": 8,
+   "topic": "Опыт Эрстеда. Магнитное поле электрического тока",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-059",
+   "grade": 8,
+   "topic": "Лабораторная работа №9 «Сборка электромагнита и испытание его действия». Применение электромагнитов",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-060",
+   "grade": 8,
+   "topic": "Действие магнитного поля на проводник с током. Электродвигатель",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-061",
+   "grade": 8,
+   "topic": "Лабораторная работа №10 «Изучение электродвигателя постоянного тока (на модели)»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-062",
+   "grade": 8,
+   "topic": "Опыты Фарадея. Явление электромагнитной индукции",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-063",
+   "grade": 8,
+   "topic": "Лабораторная работа №11 «Изучение явления электромагнитной индукции»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-064",
+   "grade": 8,
+   "topic": "Правило Ленца. Электрогенератор",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-065",
+   "grade": 8,
+   "topic": "Способы получения электрической энергии. Электростанции на возобновляемых источниках",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-066",
+   "grade": 8,
+   "topic": "Повторение: тепловые явления",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-067",
+   "grade": 8,
+   "topic": "Повторение: электрические и магнитные явления",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-8-068",
+   "grade": 8,
+   "topic": "Итоговая контрольная работа №3 за курс 8 класса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-001",
+   "grade": 9,
+   "topic": "Материальная точка. Система отсчёта",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-002",
+   "grade": 9,
+   "topic": "Перемещение, путь, траектория. Скорость",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-003",
+   "grade": 9,
+   "topic": "Равномерное прямолинейное движение. Графики движения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-004",
+   "grade": 9,
+   "topic": "Ускорение. Равноускоренное прямолинейное движение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-005",
+   "grade": 9,
+   "topic": "Скорость и перемещение при равноускоренном движении. Графики",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-006",
+   "grade": 9,
+   "topic": "Лабораторная работа №1 «Исследование равноускоренного движения без начальной скорости»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-007",
+   "grade": 9,
+   "topic": "Свободное падение. Ускорение свободного падения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-008",
+   "grade": 9,
+   "topic": "Относительность движения. Движение по окружности. Центростремительное ускорение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-009",
+   "grade": 9,
+   "topic": "Решение задач «Кинематика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-010",
+   "grade": 9,
+   "topic": "Контрольная работа №1 «Кинематика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-011",
+   "grade": 9,
+   "topic": "Первый закон Ньютона. Инерциальные системы отсчёта",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-012",
+   "grade": 9,
+   "topic": "Второй закон Ньютона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-013",
+   "grade": 9,
+   "topic": "Третий закон Ньютона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-014",
+   "grade": 9,
+   "topic": "Принцип суперпозиции сил. Решение задач на законы Ньютона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-015",
+   "grade": 9,
+   "topic": "Лабораторная работа №2 «Проверка второго закона Ньютона»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-016",
+   "grade": 9,
+   "topic": "Решение задач «Законы Ньютона»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-017",
+   "grade": 9,
+   "topic": "Сила упругости. Закон Гука",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-018",
+   "grade": 9,
+   "topic": "Лабораторная работа №3 «Измерение жёсткости пружины»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-019",
+   "grade": 9,
+   "topic": "Сила трения: скольжения, покоя, другие виды",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-020",
+   "grade": 9,
+   "topic": "Лабораторная работа №4 «Измерение коэффициента трения скольжения»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-021",
+   "grade": 9,
+   "topic": "Сила тяжести. Закон всемирного тяготения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-022",
+   "grade": 9,
+   "topic": "Ускорение свободного падения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-023",
+   "grade": 9,
+   "topic": "Движение планет вокруг Солнца. Первая космическая скорость",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-024",
+   "grade": 9,
+   "topic": "Невесомость и перегрузки",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-025",
+   "grade": 9,
+   "topic": "Решение задач «Движение под действием нескольких сил»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-026",
+   "grade": 9,
+   "topic": "Равновесие материальной точки. Абсолютно твёрдое тело",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-027",
+   "grade": 9,
+   "topic": "Равновесие тела с закреплённой осью вращения. Момент силы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-028",
+   "grade": 9,
+   "topic": "Центр тяжести. Лабораторная работа №5 «Определение центра тяжести плоской фигуры»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-029",
+   "grade": 9,
+   "topic": "Обобщение «Динамика и статика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-030",
+   "grade": 9,
+   "topic": "Контрольная работа №2 «Законы Ньютона. Силы в механике»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-031",
+   "grade": 9,
+   "topic": "Импульс тела. Изменение импульса. Импульс силы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-032",
+   "grade": 9,
+   "topic": "Закон сохранения импульса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-033",
+   "grade": 9,
+   "topic": "Решение задач на закон сохранения импульса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-034",
+   "grade": 9,
+   "topic": "Реактивное движение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-035",
+   "grade": 9,
+   "topic": "Механическая работа и мощность. Работа сил тяжести, упругости, трения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-036",
+   "grade": 9,
+   "topic": "Потенциальная и кинетическая энергия. Теорема о кинетической энергии",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-037",
+   "grade": 9,
+   "topic": "Закон сохранения механической энергии",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-038",
+   "grade": 9,
+   "topic": "Лабораторная работа №6 «Изучение закона сохранения механической энергии»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-039",
+   "grade": 9,
+   "topic": "Решение задач «Законы сохранения»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-040",
+   "grade": 9,
+   "topic": "Контрольная работа №3 «Законы сохранения»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-041",
+   "grade": 9,
+   "topic": "Колебательное движение. Свободные колебания",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-042",
+   "grade": 9,
+   "topic": "Амплитуда, период, частота колебаний",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-043",
+   "grade": 9,
+   "topic": "Математический и пружинный маятники",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-044",
+   "grade": 9,
+   "topic": "Лабораторная работа №7 «Исследование зависимости периода колебаний маятника от длины нити»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-045",
+   "grade": 9,
+   "topic": "Лабораторная работа №8 «Исследование зависимости периода колебаний пружинного маятника от массы груза»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-046",
+   "grade": 9,
+   "topic": "Затухающие и вынужденные колебания. Резонанс",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-047",
+   "grade": 9,
+   "topic": "Решение задач «Механические колебания»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-048",
+   "grade": 9,
+   "topic": "Механические волны. Продольные и поперечные волны",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-049",
+   "grade": 9,
+   "topic": "Длина волны и скорость её распространения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-050",
+   "grade": 9,
+   "topic": "Решение задач «Механические волны»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-051",
+   "grade": 9,
+   "topic": "Звук. Источники звука. Звуковые волны",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-052",
+   "grade": 9,
+   "topic": "Громкость звука и высота тона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-053",
+   "grade": 9,
+   "topic": "Отражение звука. Эхо. Инфразвук и ультразвук",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-054",
+   "grade": 9,
+   "topic": "Лабораторная работа №9 «Исследование зависимости высоты тона звука от частоты колебаний»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-055",
+   "grade": 9,
+   "topic": "Контрольная работа №4 «Колебания и волны»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-056",
+   "grade": 9,
+   "topic": "Электромагнитное поле. Идея Максвелла",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-057",
+   "grade": 9,
+   "topic": "Электромагнитные волны. Скорость распространения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-058",
+   "grade": 9,
+   "topic": "Свойства электромагнитных волн. Шкала электромагнитных волн",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-059",
+   "grade": 9,
+   "topic": "Радиосвязь, телевидение, мобильная связь",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-060",
+   "grade": 9,
+   "topic": "Электромагнитные излучения в природе и технике. Их влияние на живые организмы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-061",
+   "grade": 9,
+   "topic": "Обобщение «Электромагнитное поле и электромагнитные волны»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-062",
+   "grade": 9,
+   "topic": "Источники света. Прямолинейное распространение света. Тень и полутень",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-063",
+   "grade": 9,
+   "topic": "Отражение света. Закон отражения. Плоское зеркало",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-064",
+   "grade": 9,
+   "topic": "Лабораторная работа №10 «Исследование зависимости угла отражения от угла падения»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-065",
+   "grade": 9,
+   "topic": "Преломление света. Закон преломления",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-066",
+   "grade": 9,
+   "topic": "Лабораторная работа №11 «Измерение показателя преломления стекла»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-067",
+   "grade": 9,
+   "topic": "Полное внутреннее отражение. Решение задач",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-068",
+   "grade": 9,
+   "topic": "Линзы. Фокусное расстояние и оптическая сила",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-069",
+   "grade": 9,
+   "topic": "Построение изображений в линзах",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-070",
+   "grade": 9,
+   "topic": "Формула тонкой линзы. Увеличение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-071",
+   "grade": 9,
+   "topic": "Лабораторная работа №12 «Определение фокусного расстояния и оптической силы собирающей линзы»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-072",
+   "grade": 9,
+   "topic": "Лабораторная работа №13 «Исследование свойств изображения, даваемого линзой»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-073",
+   "grade": 9,
+   "topic": "Оптические приборы. Глаз. Очки",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-074",
+   "grade": 9,
+   "topic": "Разложение белого света в спектр. Дисперсия света",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-075",
+   "grade": 9,
+   "topic": "Цвета тел. Спектры излучения и поглощения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-076",
+   "grade": 9,
+   "topic": "Контрольная работа №5 «Световые явления»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-077",
+   "grade": 9,
+   "topic": "Строение атома. Опыты Резерфорда",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-078",
+   "grade": 9,
+   "topic": "Испускание и поглощение света атомом. Линейчатые спектры",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-079",
+   "grade": 9,
+   "topic": "Лабораторная работа №14 «Наблюдение сплошного и линейчатых спектров излучения»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-080",
+   "grade": 9,
+   "topic": "Спектральный анализ и его применение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-081",
+   "grade": 9,
+   "topic": "Радиоактивность. Альфа-, бета- и гамма-излучения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-082",
+   "grade": 9,
+   "topic": "Состав атомного ядра. Изотопы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-083",
+   "grade": 9,
+   "topic": "Радиоактивные превращения. Закон радиоактивного распада",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-084",
+   "grade": 9,
+   "topic": "Энергия связи ядра. Дефект масс",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-085",
+   "grade": 9,
+   "topic": "Лабораторная работа №15 «Измерение естественного радиационного фона дозиметром»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-086",
+   "grade": 9,
+   "topic": "Биологическое действие радиации. Защита от излучения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-087",
+   "grade": 9,
+   "topic": "Ядерные реакции. Деление ядер урана",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-088",
+   "grade": 9,
+   "topic": "Цепная реакция. Ядерный реактор",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-089",
+   "grade": 9,
+   "topic": "Атомные электростанции. Ядерная энергетика и экология",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-090",
+   "grade": 9,
+   "topic": "Термоядерный синтез. Источники энергии Солнца и звёзд",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-091",
+   "grade": 9,
+   "topic": "Решение задач «Ядерные реакции»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-092",
+   "grade": 9,
+   "topic": "Обобщение «Квантовые явления»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-093",
+   "grade": 9,
+   "topic": "Контрольная работа №6 «Квантовые явления»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-094",
+   "grade": 9,
+   "topic": "Повторение: кинематика и динамика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-095",
+   "grade": 9,
+   "topic": "Повторение: законы сохранения",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-096",
+   "grade": 9,
+   "topic": "Повторение: колебания и волны",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-097",
+   "grade": 9,
+   "topic": "Повторение: электромагнитное поле",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-098",
+   "grade": 9,
+   "topic": "Повторение: оптика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-099",
+   "grade": 9,
+   "topic": "Повторение: квантовая физика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-100",
+   "grade": 9,
+   "topic": "Решение задач в формате ОГЭ",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-101",
+   "grade": 9,
+   "topic": "Итоговая контрольная работа №7 за курс 9 класса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-9-102",
+   "grade": 9,
+   "topic": "Анализ итоговой работы. Резервный урок",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-001",
+   "grade": 10,
+   "topic": "Физика и методы научного познания. Роль эксперимента и теории",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-002",
+   "grade": 10,
+   "topic": "Моделирование. Границы применимости законов. Лабораторная работа №1 «Определение погрешностей измерений. Работа с цифровой лабораторией»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-003",
+   "grade": 10,
+   "topic": "Механическое движение. Система отсчёта. Перемещение, скорость, ускорение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-004",
+   "grade": 10,
+   "topic": "Равномерное и равноускоренное движение. Графики. Сложение скоростей",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-005",
+   "grade": 10,
+   "topic": "Свободное падение. Движение тела, брошенного под углом к горизонту",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-006",
+   "grade": 10,
+   "topic": "Движение по окружности. Угловая и линейная скорость, центростремительное ускорение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-007",
+   "grade": 10,
+   "topic": "Лабораторная работа №2 «Изучение движения тела, брошенного горизонтально»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-008",
+   "grade": 10,
+   "topic": "Первый закон Ньютона. Инерциальные системы отсчёта",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-009",
+   "grade": 10,
+   "topic": "Второй и третий законы Ньютона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-010",
+   "grade": 10,
+   "topic": "Закон всемирного тяготения. Движение спутников",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-011",
+   "grade": 10,
+   "topic": "Силы упругости и трения. Лабораторная работа №3 «Определение коэффициента трения скольжения»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-012",
+   "grade": 10,
+   "topic": "Решение задач «Динамика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-013",
+   "grade": 10,
+   "topic": "Условия равновесия твёрдого тела. Момент силы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-014",
+   "grade": 10,
+   "topic": "Контрольная работа №1 «Кинематика и динамика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-015",
+   "grade": 10,
+   "topic": "Импульс тела и силы. Закон сохранения импульса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-016",
+   "grade": 10,
+   "topic": "Реактивное движение. Решение задач",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-017",
+   "grade": 10,
+   "topic": "Работа силы. Мощность",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-018",
+   "grade": 10,
+   "topic": "Кинетическая и потенциальная энергия",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-019",
+   "grade": 10,
+   "topic": "Закон сохранения механической энергии. Решение задач",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-020",
+   "grade": 10,
+   "topic": "Лабораторная работа №4 «Изучение закона сохранения механической энергии»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-021",
+   "grade": 10,
+   "topic": "Основные положения МКТ. Масса и размеры молекул. Количество вещества",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-022",
+   "grade": 10,
+   "topic": "Броуновское движение. Силы взаимодействия молекул",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-023",
+   "grade": 10,
+   "topic": "Распределение молекул по скоростям. Температура как мера средней кинетической энергии",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-024",
+   "grade": 10,
+   "topic": "Идеальный газ. Основное уравнение МКТ",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-025",
+   "grade": 10,
+   "topic": "Уравнение состояния идеального газа. Уравнение Менделеева–Клапейрона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-026",
+   "grade": 10,
+   "topic": "Изопроцессы: законы Бойля–Мариотта, Гей-Люссака, Шарля",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-027",
+   "grade": 10,
+   "topic": "Лабораторная работа №5 «Исследование изотермического процесса»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-028",
+   "grade": 10,
+   "topic": "Решение задач «Газовые законы»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-029",
+   "grade": 10,
+   "topic": "Контрольная работа №2 «Молекулярно-кинетическая теория»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-030",
+   "grade": 10,
+   "topic": "Внутренняя энергия идеального газа. Работа в термодинамике",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-031",
+   "grade": 10,
+   "topic": "Количество теплоты. Теплоёмкость. Уравнение теплового баланса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-032",
+   "grade": 10,
+   "topic": "Первый закон термодинамики",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-033",
+   "grade": 10,
+   "topic": "Применение первого закона к изопроцессам. Адиабатный процесс",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-034",
+   "grade": 10,
+   "topic": "Решение задач «Первый закон термодинамики»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-035",
+   "grade": 10,
+   "topic": "Второй закон термодинамики. Необратимость процессов",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-036",
+   "grade": 10,
+   "topic": "Тепловые двигатели. Цикл Карно. КПД",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-037",
+   "grade": 10,
+   "topic": "Холодильные машины. Тепловые двигатели и охрана природы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-038",
+   "grade": 10,
+   "topic": "Лабораторная работа №6 «Измерение удельной теплоёмкости вещества»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-039",
+   "grade": 10,
+   "topic": "Контрольная работа №3 «Основы термодинамики»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-040",
+   "grade": 10,
+   "topic": "Испарение и конденсация. Насыщенный пар. Влажность воздуха",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-041",
+   "grade": 10,
+   "topic": "Кипение. Зависимость температуры кипения от давления",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-042",
+   "grade": 10,
+   "topic": "Плавление и кристаллизация. Удельная теплота плавления",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-043",
+   "grade": 10,
+   "topic": "Кристаллические и аморфные тела. Поверхностное натяжение",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-044",
+   "grade": 10,
+   "topic": "Лабораторная работа №7 «Измерение влажности воздуха»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-045",
+   "grade": 10,
+   "topic": "Электрический заряд. Закон сохранения заряда",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-046",
+   "grade": 10,
+   "topic": "Закон Кулона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-047",
+   "grade": 10,
+   "topic": "Электрическое поле. Напряжённость",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-048",
+   "grade": 10,
+   "topic": "Принцип суперпозиции. Линии напряжённости",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-049",
+   "grade": 10,
+   "topic": "Работа поля. Потенциал и разность потенциалов",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-050",
+   "grade": 10,
+   "topic": "Связь напряжённости и напряжения. Эквипотенциальные поверхности",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-051",
+   "grade": 10,
+   "topic": "Проводники и диэлектрики в электрическом поле",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-052",
+   "grade": 10,
+   "topic": "Электроёмкость. Конденсаторы. Энергия электрического поля",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-053",
+   "grade": 10,
+   "topic": "Решение задач «Электростатика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-054",
+   "grade": 10,
+   "topic": "Контрольная работа №4 «Электростатика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-055",
+   "grade": 10,
+   "topic": "Электрический ток. Условия существования. Сила тока",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-056",
+   "grade": 10,
+   "topic": "Закон Ома для участка цепи. Сопротивление",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-057",
+   "grade": 10,
+   "topic": "Последовательное и параллельное соединения проводников",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-058",
+   "grade": 10,
+   "topic": "Лабораторная работа №8 «Изучение последовательного и параллельного соединений проводников»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-059",
+   "grade": 10,
+   "topic": "Работа и мощность тока. Закон Джоуля–Ленца",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-060",
+   "grade": 10,
+   "topic": "ЭДС. Закон Ома для полной цепи",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-061",
+   "grade": 10,
+   "topic": "Лабораторная работа №9 «Измерение ЭДС и внутреннего сопротивления источника тока»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-062",
+   "grade": 10,
+   "topic": "Решение задач «Постоянный ток»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-063",
+   "grade": 10,
+   "topic": "Электрический ток в металлах. Сверхпроводимость",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-064",
+   "grade": 10,
+   "topic": "Токи в электролитах и газах. Электролиз",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-065",
+   "grade": 10,
+   "topic": "Полупроводники и полупроводниковые приборы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-066",
+   "grade": 10,
+   "topic": "Контрольная работа №5 «Постоянный электрический ток»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-067",
+   "grade": 10,
+   "topic": "Повторение: механика и молекулярная физика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-10-068",
+   "grade": 10,
+   "topic": "Итоговая контрольная работа №6 за курс 10 класса",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-001",
+   "grade": 11,
+   "topic": "Магнитное поле. Вектор магнитной индукции",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-002",
+   "grade": 11,
+   "topic": "Магнитное поле токов. Опыт Эрстеда. Линии магнитной индукции",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-003",
+   "grade": 11,
+   "topic": "Сила Ампера. Взаимодействие проводников с током",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-004",
+   "grade": 11,
+   "topic": "Сила Лоренца. Движение заряженных частиц в магнитном поле",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-005",
+   "grade": 11,
+   "topic": "Применение: масс-спектрометр, ускорители, электродвигатель",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-006",
+   "grade": 11,
+   "topic": "Решение задач «Магнитное поле»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-007",
+   "grade": 11,
+   "topic": "Магнитный поток. Явление электромагнитной индукции. Опыты Фарадея",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-008",
+   "grade": 11,
+   "topic": "Закон электромагнитной индукции. Правило Ленца",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-009",
+   "grade": 11,
+   "topic": "Лабораторная работа №1 «Исследование явления электромагнитной индукции»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-010",
+   "grade": 11,
+   "topic": "Самоиндукция. Индуктивность. Энергия магнитного поля",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-011",
+   "grade": 11,
+   "topic": "Контрольная работа №1 «Магнитное поле. Электромагнитная индукция»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-012",
+   "grade": 11,
+   "topic": "Колебательное движение. Гармонические колебания",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-013",
+   "grade": 11,
+   "topic": "Математический и пружинный маятники. Энергия колебаний",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-014",
+   "grade": 11,
+   "topic": "Лабораторная работа №2 «Определение ускорения свободного падения при помощи маятника»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-015",
+   "grade": 11,
+   "topic": "Свободные и вынужденные колебания. Резонанс",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-016",
+   "grade": 11,
+   "topic": "Колебательный контур. Свободные электромагнитные колебания",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-017",
+   "grade": 11,
+   "topic": "Аналогия механических и электромагнитных колебаний. Формула Томсона",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-018",
+   "grade": 11,
+   "topic": "Переменный ток. Резистор, конденсатор и катушка в цепи переменного тока",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-019",
+   "grade": 11,
+   "topic": "Производство, передача и потребление электроэнергии. Трансформатор",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-020",
+   "grade": 11,
+   "topic": "Контрольная работа №2 «Колебания»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-021",
+   "grade": 11,
+   "topic": "Механические волны. Длина волны, скорость волны",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-022",
+   "grade": 11,
+   "topic": "Звуковые волны. Ультразвук",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-023",
+   "grade": 11,
+   "topic": "Электромагнитные волны. Опыты Герца. Шкала электромагнитных волн",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-024",
+   "grade": 11,
+   "topic": "Радиосвязь, телевидение, радиолокация",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-025",
+   "grade": 11,
+   "topic": "Решение задач «Волны»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-026",
+   "grade": 11,
+   "topic": "Законы отражения света. Плоское зеркало",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-027",
+   "grade": 11,
+   "topic": "Преломление света. Полное внутреннее отражение. Лабораторная работа №3 «Измерение показателя преломления стекла»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-028",
+   "grade": 11,
+   "topic": "Линзы. Формула тонкой линзы. Построение изображений",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-029",
+   "grade": 11,
+   "topic": "Лабораторная работа №4 «Определение оптической силы и фокусного расстояния линзы»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-030",
+   "grade": 11,
+   "topic": "Оптические приборы. Глаз",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-031",
+   "grade": 11,
+   "topic": "Волновая природа света. Интерференция",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-032",
+   "grade": 11,
+   "topic": "Дифракция света. Дифракционная решётка",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-033",
+   "grade": 11,
+   "topic": "Дисперсия света. Поляризация",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-034",
+   "grade": 11,
+   "topic": "Лабораторная работа №5 «Измерение длины световой волны с помощью дифракционной решётки»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-035",
+   "grade": 11,
+   "topic": "Контрольная работа №3 «Оптика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-036",
+   "grade": 11,
+   "topic": "Постулаты специальной теории относительности",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-037",
+   "grade": 11,
+   "topic": "Относительность одновременности. Замедление времени. Сокращение длины",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-038",
+   "grade": 11,
+   "topic": "Релятивистский закон сложения скоростей. Масса и энергия. E = mc²",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-039",
+   "grade": 11,
+   "topic": "Обобщение «Основы специальной теории относительности»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-040",
+   "grade": 11,
+   "topic": "Тепловое излучение. Гипотеза Планка",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-041",
+   "grade": 11,
+   "topic": "Фотоэффект. Опыты Столетова. Законы фотоэффекта",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-042",
+   "grade": 11,
+   "topic": "Уравнение Эйнштейна для фотоэффекта. Фотоны",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-043",
+   "grade": 11,
+   "topic": "Корпускулярно-волновой дуализм. Давление света",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-044",
+   "grade": 11,
+   "topic": "Решение задач «Фотоэффект»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-045",
+   "grade": 11,
+   "topic": "Обобщение «Элементы квантовой оптики»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-046",
+   "grade": 11,
+   "topic": "Опыты Резерфорда. Планетарная модель атома",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-047",
+   "grade": 11,
+   "topic": "Постулаты Бора. Линейчатые спектры",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-048",
+   "grade": 11,
+   "topic": "Лабораторная работа №6 «Наблюдение линейчатых спектров»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-049",
+   "grade": 11,
+   "topic": "Лазер. Волны де Бройля",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-050",
+   "grade": 11,
+   "topic": "Состав ядра. Ядерные силы. Энергия связи",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-051",
+   "grade": 11,
+   "topic": "Радиоактивность. Закон радиоактивного распада",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-052",
+   "grade": 11,
+   "topic": "Ядерные реакции. Деление ядер. Ядерная энергетика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-053",
+   "grade": 11,
+   "topic": "Термоядерный синтез. Элементарные частицы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-054",
+   "grade": 11,
+   "topic": "Контрольная работа №4 «Квантовая физика»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-055",
+   "grade": 11,
+   "topic": "Солнечная система: планеты и малые тела",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-056",
+   "grade": 11,
+   "topic": "Солнце. Звёзды. Диаграмма Герцшпрунга–Рессела",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-057",
+   "grade": 11,
+   "topic": "Эволюция звёзд",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-058",
+   "grade": 11,
+   "topic": "Галактики. Млечный Путь",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-059",
+   "grade": 11,
+   "topic": "Расширение Вселенной. Закон Хаббла",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-060",
+   "grade": 11,
+   "topic": "Модель горячей Вселенной. Современная научная картина мира",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-061",
+   "grade": 11,
+   "topic": "Обобщение «Элементы астрономии и астрофизики»",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-062",
+   "grade": 11,
+   "topic": "Повторение: механика и молекулярная физика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-063",
+   "grade": 11,
+   "topic": "Повторение: электродинамика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-064",
+   "grade": 11,
+   "topic": "Повторение: колебания, волны, оптика, квантовая физика",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-065",
+   "grade": 11,
+   "topic": "Итоговая контрольная работа №5 за курс физики",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-066",
+   "grade": 11,
+   "topic": "Решение задач повышенной сложности",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-067",
+   "grade": 11,
+   "topic": "Анализ итоговой работы",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "phys-11-068",
+   "grade": 11,
+   "topic": "Резервный урок",
+   "numbered_elements": [
+    "Явление",
+    "Величина",
+    "Закон",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  }
+ ]
+}

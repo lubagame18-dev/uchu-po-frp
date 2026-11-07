@@ -1,0 +1,4006 @@
+{
+ "subject": "bio",
+ "title": "Биология",
+ "lessons": [
+  {
+   "lesson_id": "bio-5-001",
+   "grade": 5,
+   "topic": "Живая и неживая природа. Признаки живого",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-002",
+   "grade": 5,
+   "topic": "Биология - система наук о живой природе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-003",
+   "grade": 5,
+   "topic": "Роль биологии в познании окружающего мира и практической деятельности современного человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-004",
+   "grade": 5,
+   "topic": "Источники биологических знаний",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-005",
+   "grade": 5,
+   "topic": "Научные методы изучения живой природы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-006",
+   "grade": 5,
+   "topic": "Методы изучения живой природы: измерение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-007",
+   "grade": 5,
+   "topic": "Методы изучения живой природы: наблюдение и эксперимент. Лабораторная работа. «Изучение лабораторного оборудования: термометры, весы, чашки Петри, пробирки, мензурки. Правила работы с оборудованием в школьном кабинете. Ознакомление с устройством лупы, светового микроскопа, правила работы с ними»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-008",
+   "grade": 5,
+   "topic": "Методы изучения живой природы: описание. Практическая работа «Ознакомление с растительными и животными клетками: томата и арбуза (натуральные препараты), инфузории туфельки и гидры (готовые микропрепараты) с помощью лупы и светового микроскопа»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-009",
+   "grade": 5,
+   "topic": "Понятие об организме",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-010",
+   "grade": 5,
+   "topic": "Увеличительные приборы для исследований",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-011",
+   "grade": 5,
+   "topic": "Цитология – наука о клетке. Лабораторная работа «Изучение клеток кожицы чешуи лука под лупой и микроскопом (на примере самостоятельно приготовленного микропрепарата)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-012",
+   "grade": 5,
+   "topic": "Жизнедеятельность организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-013",
+   "grade": 5,
+   "topic": "Свойства живых организмов. Лабораторная работа «Наблюдение за потреблением воды растением»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-014",
+   "grade": 5,
+   "topic": "Разнообразие организмов и их классификация. Практическая работа «Ознакомление с принципами систематики организмов»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-015",
+   "grade": 5,
+   "topic": "Многообразие и значение растений",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-016",
+   "grade": 5,
+   "topic": "Многообразие и значение животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-017",
+   "grade": 5,
+   "topic": "Многообразие и значение грибов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-018",
+   "grade": 5,
+   "topic": "Бактерии и вирусы как форма жизни",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-019",
+   "grade": 5,
+   "topic": "Среды обитания организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-020",
+   "grade": 5,
+   "topic": "Водная среда обитания организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-021",
+   "grade": 5,
+   "topic": "Наземно-воздушная среда обитания организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-022",
+   "grade": 5,
+   "topic": "Почвенная среда обитания организмов. Практическая работа «Выявление приспособлений организмов к среде обитания (на конкретных примерах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-023",
+   "grade": 5,
+   "topic": "Организмы как среда обитания",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-024",
+   "grade": 5,
+   "topic": "Сезонные изменения в жизни организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-025",
+   "grade": 5,
+   "topic": "Понятие о природном сообществе. Взаимосвязи организмов в природных сообществах",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-026",
+   "grade": 5,
+   "topic": "Пищевые связи в природных сообществах",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-027",
+   "grade": 5,
+   "topic": "Разнообразие природных сообществ",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-028",
+   "grade": 5,
+   "topic": "Искусственные сообщества, их отличие от природных сообществ. Лабораторная работа «Изучение искусственных сообществ и их обитателей (на примере аквариума и др.)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-029",
+   "grade": 5,
+   "topic": "Природные зоны Земли, их обитатели",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-030",
+   "grade": 5,
+   "topic": "Всероссийская проверочная работа/Годовая контрольная работа",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-031",
+   "grade": 5,
+   "topic": "Влияние человека на живую природу",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-032",
+   "grade": 5,
+   "topic": "Глобальные экологические проблемы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-033",
+   "grade": 5,
+   "topic": "Пути сохранения биологического разнообразия",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-5-034",
+   "grade": 5,
+   "topic": "Резервный урок. Обобщение знаний по материалу, изученному в 5 классе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-001",
+   "grade": 6,
+   "topic": "Ботаника – наука о растениях. Роль знаний о растениях в быту и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-002",
+   "grade": 6,
+   "topic": "Уровни организации живых организмов. Общие признаки и уровни организации растительного организма",
+   "numbered_elements": [
+    "клетка → ткань → орган → система органов → организм"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-6-003",
+   "grade": 6,
+   "topic": "Классификация растений. Высшие и низшие растения. Споровые и семенные растения",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-004",
+   "grade": 6,
+   "topic": "Растительная клетка, ее изучение. Лабораторная работа № 1 «Изучение микроскопического строения листа водного растения элодеи»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-005",
+   "grade": 6,
+   "topic": "Химический состав клетки. Лабораторная работа № 2 «Обнаружение неорганических и органических веществ в растении»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-006",
+   "grade": 6,
+   "topic": "Жизнедеятельность клетки. Особенности жизнедеятельности растительной клетки",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-007",
+   "grade": 6,
+   "topic": "Растительные ткани, их функции. Лабораторная работа № 3 «Изучение строения растительных тканей (использование микропрепаратов)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-008",
+   "grade": 6,
+   "topic": "Органы растений. Лабораторная работа № 4 «Изучение внешнего строения травянистого цветкового растения (на живых или гербарных экземплярах растений): пастушья сумка, редька дикая, лютик едкий и другие растения»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-009",
+   "grade": 6,
+   "topic": "Строение семян. Лабораторная работа № 5 «Изучение строения семян однодольных и двудольных растений»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-010",
+   "grade": 6,
+   "topic": "Виды корней и типы корневых систем. Лабораторная работа № 6 «Изучение строения корневых систем (стержневой и мочковатой) на примере гербарных экземпляров или живых растений. Изучение микропрепарата клеток корня»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-011",
+   "grade": 6,
+   "topic": "Видоизменение корней. Роль видоизмененных корней в жизни растений и для человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-012",
+   "grade": 6,
+   "topic": "Побег. Развитие побега из почки. Лабораторная работа № 7 «Изучение строения вегетативных и генеративных почек (на примере сирени, тополя и других растений)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-013",
+   "grade": 6,
+   "topic": "Строение стебля. Лабораторная работа № 8 «Рассматривание микроскопического строения ветки дерева (на готовом микропрепарате)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-014",
+   "grade": 6,
+   "topic": "Внешнее и внутреннее строение листа. Лабораторная работа № 9 «Ознакомление с внешним строением листьев и листорасположением (на комнатных растениях)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-015",
+   "grade": 6,
+   "topic": "Видоизменения побегов. Лабораторная работа № 10 «Исследование строения корневища, клубня, луковицы»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-016",
+   "grade": 6,
+   "topic": "Строение и разнообразие цветков. Лабораторная работа № 11 «Изучение строения цветков»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-017",
+   "grade": 6,
+   "topic": "Соцветия. Лабораторная работа № 12 «Ознакомление с различными типами соцветий»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-018",
+   "grade": 6,
+   "topic": "Плоды. Классификация плодов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-019",
+   "grade": 6,
+   "topic": "Распространение плодов и семян в природе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-020",
+   "grade": 6,
+   "topic": "Обмен веществ у растений",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-021",
+   "grade": 6,
+   "topic": "Минеральное питание растений. Удобрения",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-022",
+   "grade": 6,
+   "topic": "Фотосинтез. Практическая работа № 1 «Наблюдение процесса выделения кислорода на свету аквариумными растениями»",
+   "numbered_elements": [
+    "углекислый газ + вода —(свет, хлорофилл)→ органические вещества + кислород"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-6-023",
+   "grade": 6,
+   "topic": "Роль фотосинтеза в природе и жизни человека",
+   "numbered_elements": [
+    "углекислый газ + вода —(свет, хлорофилл)→ органические вещества + кислород"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-6-024",
+   "grade": 6,
+   "topic": "Дыхание корня. Лабораторная работа № 13 «Изучение роли рыхления для дыхания корней»",
+   "numbered_elements": [
+    "органические вещества + кислород → углекислый газ + вода + энергия"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-6-025",
+   "grade": 6,
+   "topic": "Лист и стебель как органы дыхания растений. Особенности дыхания растений",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-026",
+   "grade": 6,
+   "topic": "Транспорт веществ в растении. Древесина и луб. Ситовидные трубки и сосуды. Практическая работа № 2 «Выявление передвижения воды и минеральных веществ по древесине»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-027",
+   "grade": 6,
+   "topic": "Выделение у растений. Листопад. Обобщение и повторение по жизнедеятельности растений",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-028",
+   "grade": 6,
+   "topic": "Прорастание семян. Условия, необходимые для прорастания семян. Практическая работа № 3 «Определение всхожести семян культурных растений и посев их в грунт». «Определение условий прорастания семян»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-029",
+   "grade": 6,
+   "topic": "Рост и развитие растения. Особенности жизнедеятельности растений. Практическая работа № 4 «Наблюдение за ростом и развитием цветкового растения в комнатных условиях (на примере фасоли или посевного гороха)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-030",
+   "grade": 6,
+   "topic": "Размножение растений и его значение. Отличие размножения растений разных групп. Опыление. Двойное оплодотворение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-031",
+   "grade": 6,
+   "topic": "Образование плодов и семян. Роль плодов и семян в жизнедеятельности растений. Обобщение и повторение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-032",
+   "grade": 6,
+   "topic": "Итоговая контрольная работа по биологии за курс 6 класса",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-033",
+   "grade": 6,
+   "topic": "Анализ контрольной работы. Вегетативное размножение растений. Практическая работа № 5 «Овладение приёмами вегетативного размножения растений (черенкование побегов, черенкование листьев и другие) на примере комнатных растений (традесканция, сенполия, бегония, сансевьера и другие растения)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-6-034",
+   "grade": 6,
+   "topic": "Резервный урок. Обобщение изученного",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-001",
+   "grade": 7,
+   "topic": "Свойства живых организмов. Классификация живых организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-002",
+   "grade": 7,
+   "topic": "Систематика растений. Высшие и низшие растения. Споровые и семенные растения",
+   "numbered_elements": [
+    "вид → род → семейство → отряд (порядок) → класс → тип (отдел) → царство"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-7-003",
+   "grade": 7,
+   "topic": "Низшие растения. Общая характеристика водорослей. Лабораторная работа № 1 «Изучение строения одноклеточных водорослей (на примере хламидомонады и хлореллы)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-004",
+   "grade": 7,
+   "topic": "Низшие растения. Зеленые водоросли. Практическая работа № 1 «Изучение строения многоклеточных нитчатых водорослей (на примере спирогиры и улотрикса)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-005",
+   "grade": 7,
+   "topic": "Низшие растения. Особенности строения низших водорослей. Бурые и красные водоросли",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-006",
+   "grade": 7,
+   "topic": "Высшие споровые растения. Особенности строения высших растений, высших споровых растений",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-007",
+   "grade": 7,
+   "topic": "Общая характеристика и строение мхов. Практическая работа № 2 «Изучение внешнего строения мхов (на местных видах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-008",
+   "grade": 7,
+   "topic": "Цикл развития мхов. Роль мхов в природе и деятельности человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-009",
+   "grade": 7,
+   "topic": "Общая характеристика папоротникообразных. Особенности строения и жизнедеятельности высших споровых растений",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-010",
+   "grade": 7,
+   "topic": "Особенности строения и жизнедеятельности плаунов, хвощей и папоротников. Практическая работа № 3 «Изучение внешнего строения папоротника или хвоща»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-011",
+   "grade": 7,
+   "topic": "Размножение и цикл развития папоротникообразных. Значение папоротникообразных в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-012",
+   "grade": 7,
+   "topic": "Общая характеристика голосеменных растений. Особенности жизнедеятельности голосеменных растений. Практическая работа № 4 «Изучение внешнего строения веток, хвои, шишек и семян голосеменных растений (на примере ели, сосны или лиственницы)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-013",
+   "grade": 7,
+   "topic": "Значение голосеменных растений в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-014",
+   "grade": 7,
+   "topic": "Особенности строения и жизнедеятельности покрытосеменных растений. Практическая работа № 5 «Изучение внешнего строения покрытосеменных растений»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-015",
+   "grade": 7,
+   "topic": "Классификация покрытосеменных растений. Цикл развития покрытосеменных растений. Двойное оплодотворение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-016",
+   "grade": 7,
+   "topic": "Характерные признаки двудольных растений. Семейства класса двудольные. Практическая работа № 6 «Изучение признаков представителей семейств: Крестоцветные (Капустные), Розоцветные (Розовые) на гербарных и натуральных образцах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-017",
+   "grade": 7,
+   "topic": "Семейства класса двудольные. Практическая работа № 7 «Изучение признаков представителей семейств: Мотыльковые (Бобовые), Паслёновые, Сложноцветные (Астровые) на гербарных и натуральных образцах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-018",
+   "grade": 7,
+   "topic": "Характерные признаки семейств класса однодольные. Практическая работа № 8 «Изучение признаков представителей семейств: Лилейные, Злаки (Мятликовые) на гербарных и натуральных образцах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-019",
+   "grade": 7,
+   "topic": "Культурные представители семейств покрытосеменных растений, их использование человеком",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-020",
+   "grade": 7,
+   "topic": "Эволюционное развитие растительного мира на Земле. Этапы развития наземных растений основных систематических групп",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-021",
+   "grade": 7,
+   "topic": "Растения и среда обитания. Экологические факторы, влияющие на жизнедеятельность растений. Приспособленность растений к разным условиям среды обитания",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-022",
+   "grade": 7,
+   "topic": "Растительные сообщества. Структура растительного сообщества",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-023",
+   "grade": 7,
+   "topic": "Культурные растения и их происхождение. Культурные растения сельскохозяйственных угодий",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-024",
+   "grade": 7,
+   "topic": "Искусственные сообщества. Растения города. Декоративное цветоводство",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-025",
+   "grade": 7,
+   "topic": "Охрана природы. Охрана растительного мира",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-026",
+   "grade": 7,
+   "topic": "Бактерии - доядерные организмы. Общая характеристика бактерий. Лабораторная работа № 2 «Изучение строения бактерий (на готовых микропрепаратах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-027",
+   "grade": 7,
+   "topic": "Роль бактерий в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-028",
+   "grade": 7,
+   "topic": "Грибы. Общая характеристика грибов. Особенности жизнедеятельности грибов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-029",
+   "grade": 7,
+   "topic": "Шляпочные грибы. Практическая работа № 9 «Изучение строения плодовых тел шляпочных грибов (или изучение шляпочных грибов на муляжах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-030",
+   "grade": 7,
+   "topic": "Плесневые и дрожжи. Практическая работа № 10 «Изучение строения одноклеточных (мукор) и многоклеточных (пеницилл) плесневых грибов»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-031",
+   "grade": 7,
+   "topic": "Грибы-паразиты растений, животных и человека. Роль грибов в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-032",
+   "grade": 7,
+   "topic": "Итоговая контрольная работа",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-033",
+   "grade": 7,
+   "topic": "Анализ итоговой контрольной работы. Лишайники — комплексные организмы. Практическая работа № 11 «Изучение строения лишайников»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-7-034",
+   "grade": 7,
+   "topic": "Обобщение и повторение изученного в 7 классе. Викторина",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-001",
+   "grade": 8,
+   "topic": "Зоология - наука о животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-002",
+   "grade": 8,
+   "topic": "Свойства живых организмов. Общие признаки животных. Многообразие животного мира. Основные систематические категории животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-003",
+   "grade": 8,
+   "topic": "Строение и жизнедеятельность животной клетки",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-004",
+   "grade": 8,
+   "topic": "Ткани животных. Органы и системы органов животных. Лабораторная работа № 1 «Исследование под микроскопом готовых микропрепаратов клеток и тканей животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-005",
+   "grade": 8,
+   "topic": "Опора и движение животных. Практическая работа № 1 «Ознакомление с органами опоры и движения у животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-006",
+   "grade": 8,
+   "topic": "Питание и пищеварение у простейших и беспозвоночных животных. Особенности пищеварения простейших организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-007",
+   "grade": 8,
+   "topic": "Питание и пищеварение у позвоночных животных. Органы пищеварения позвоночных. Практическая работа № 2 «Изучение способов поглощения пищи у животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-008",
+   "grade": 8,
+   "topic": "Дыхание животных. Практическая работа № 3 «Изучение способов дыхания у животных»",
+   "numbered_elements": [
+    "органические вещества + кислород → углекислый газ + вода + энергия"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-8-009",
+   "grade": 8,
+   "topic": "Транспорт веществ у беспозвоночных животных. Практическая работа № 4 «Ознакомление с системами органов транспорта веществ у животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-010",
+   "grade": 8,
+   "topic": "Транспорт веществ у позвоночных животных. Кровообращение у позвоночных животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-011",
+   "grade": 8,
+   "topic": "Выделение у животных. Органы выделения разных групп животных. Особенности процесса выделения у разных групп животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-012",
+   "grade": 8,
+   "topic": "Покровы тела у животных. Практическая работа № 5 «Изучение покровов тела у животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-013",
+   "grade": 8,
+   "topic": "Координация и регуляция жизнедеятельности у животных. Типы нервной системы животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-014",
+   "grade": 8,
+   "topic": "Раздражимость и поведение животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-015",
+   "grade": 8,
+   "topic": "Формы размножения животных. Практическая работа № 6 «Строение яйца и развитие зародыша птицы (курицы)». Внешнее и внутреннее оплодотворение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-016",
+   "grade": 8,
+   "topic": "Рост и развитие животных. Развитие с метаморфозом. Обобщение и повторение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-017",
+   "grade": 8,
+   "topic": "Контрольная работа по теме: «Жизнедеятельность животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-018",
+   "grade": 8,
+   "topic": "Анализ контрольной работы. Общая характеристика простейших. Лабораторная работа № 2 «Исследование строения инфузории-туфельки и наблюдение за её передвижением. Изучение хемотаксиса»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-019",
+   "grade": 8,
+   "topic": "Жгутиконосцы и инфузории. Особенности строения и жизнедеятельности",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-020",
+   "grade": 8,
+   "topic": "Многообразие простейших. Значение простейших в природе и жизни человека. Лабораторная работа № 3 «Многообразие простейших (на готовых препаратах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-021",
+   "grade": 8,
+   "topic": "Общая характеристика кишечнополостных. Особенности строения и жизнедеятельности. Практическая работа № 7 «Исследование строения пресноводной гидры и её передвижения»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-022",
+   "grade": 8,
+   "topic": "Многообразие кишечнополостных. Значение кишечнополостных в природе и жизни человека. Практическая работа № 8 «Исследование питания гидры дафниями и циклопами (школьный аквариум)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-023",
+   "grade": 8,
+   "topic": "Черви. Плоские черви. Особенности строения и жизнедеятельности",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-024",
+   "grade": 8,
+   "topic": "Паразитические плоские черви. Лабораторная работа № 4 «Изучение приспособлений паразитических червей к паразитизму (на готовых влажных и микропрепаратах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-025",
+   "grade": 8,
+   "topic": "Круглые черви. Особенности строения и жизнедеятельности",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-026",
+   "grade": 8,
+   "topic": "Кольчатые черви. Особенности строения и жизнедеятельности. Практическая работа № 9 «Исследование внутреннего строения дождевого червя (на готовом влажном препарате и микропрепарате)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-027",
+   "grade": 8,
+   "topic": "Общая характеристика членистоногих. Особенности строения и жизнедеятельности",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-028",
+   "grade": 8,
+   "topic": "Ракообразные. Особенности строения и жизнедеятельности",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-029",
+   "grade": 8,
+   "topic": "Паукообразные. Особенности строения и жизнедеятельности",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-030",
+   "grade": 8,
+   "topic": "Насекомые. Особенности строения и жизнедеятельности. Практическая работа № 10 «Исследование внешнего строения насекомого (на примере майского жука или других крупных насекомых-вредителей)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-031",
+   "grade": 8,
+   "topic": "Насекомые с неполным превращением. Практическая работа № 11 «Ознакомление с различными типами развития насекомых (на примере коллекций)». Насекомые с полным превращением",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-032",
+   "grade": 8,
+   "topic": "Общая характеристика моллюсков. Особенности строения и жизнедеятельности. Практическая работа № 12 «Исследование внешнего строения раковин пресноводных и морских моллюсков (раковины беззубки, перловицы, прудовика, катушки и др.)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-033",
+   "grade": 8,
+   "topic": "Многообразие моллюсков. Значение моллюсков в природе и жизни человека. Обобщение и повторение по теме: Простейшие животные. Беспозвоночные животные",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-034",
+   "grade": 8,
+   "topic": "Контрольная работа по теме: «Простейшие животные. Беспозвоночные животные»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-035",
+   "grade": 8,
+   "topic": "Анализ контрольной работы. Общая характеристика хордовых животных. Особенности строения и жизнедеятельности",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-036",
+   "grade": 8,
+   "topic": "Общая характеристика рыб. Практическая работа № 13 «Исследование внешнего строения и особенностей передвижения рыбы (на примере живой рыбы в банке с водой)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-037",
+   "grade": 8,
+   "topic": "Особенности внутреннего строения и процессов жизнедеятельности рыб. Лабораторная работа № 5 «Исследование внутреннего строения рыбы (на примере готового влажного препарата)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-038",
+   "grade": 8,
+   "topic": "Хрящевые и костные рыбы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-039",
+   "grade": 8,
+   "topic": "Многообразие рыб. Значение рыб в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-040",
+   "grade": 8,
+   "topic": "Общая характеристика земноводных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-041",
+   "grade": 8,
+   "topic": "Особенности внутреннего строения и процессов жизнедеятельности земноводных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-042",
+   "grade": 8,
+   "topic": "Многообразие земноводных и их охрана. Значение земноводных в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-043",
+   "grade": 8,
+   "topic": "Общая характеристика пресмыкающихся",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-044",
+   "grade": 8,
+   "topic": "Особенности внутреннего строения и процессов жизнедеятельности пресмыкающихся",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-045",
+   "grade": 8,
+   "topic": "Многообразие пресмыкающихся и их охрана. Значение пресмыкающихся в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-046",
+   "grade": 8,
+   "topic": "Общая характеристика птиц. Практическая работа № 14 «Исследование внешнего строения и перьевого покрова птиц (на примере чучела птиц и набора перьев: контурных, пуховых и пуха)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-047",
+   "grade": 8,
+   "topic": "Особенности строения и процессов жизнедеятельности птиц. Практическая работа № 15 «Исследование особенностей скелета птицы»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-048",
+   "grade": 8,
+   "topic": "Поведение птиц. Сезонные явления в жизни птиц",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-049",
+   "grade": 8,
+   "topic": "Значение птиц в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-050",
+   "grade": 8,
+   "topic": "Общая характеристика и среды жизни млекопитающих",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-051",
+   "grade": 8,
+   "topic": "Особенности строения млекопитающих. Практическая работа № 16 «Исследование особенностей скелета млекопитающих»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-052",
+   "grade": 8,
+   "topic": "Процессы жизнедеятельности млекопитающих. Практическая работа № 17 «Исследование особенностей зубной системы млекопитающих»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-053",
+   "grade": 8,
+   "topic": "Поведение млекопитающих. Размножение и развитие млекопитающих",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-054",
+   "grade": 8,
+   "topic": "Многообразие млекопитающих",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-055",
+   "grade": 8,
+   "topic": "Значение млекопитающих в природе и жизни человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-056",
+   "grade": 8,
+   "topic": "Обобщающий урок по теме «Позвоночные животные»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-057",
+   "grade": 8,
+   "topic": "Эволюционное развитие животного мира на Земле",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-058",
+   "grade": 8,
+   "topic": "Палеонтология – наука о древних обитателях Земли. Практическая работа № 18 «Исследование ископаемых остатков вымерших животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-059",
+   "grade": 8,
+   "topic": "Основные этапы эволюции беспозвоночных животных. Обобщение и повторение по теме: «Беспозвоночные животные»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-060",
+   "grade": 8,
+   "topic": "Основные этапы эволюции позвоночных животных. Обобщение и повторение по теме: «Позвоночные животные»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-061",
+   "grade": 8,
+   "topic": "Животные и среда обитания. Популяции животных, их характеристики. Пищевые связи в природном сообществе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-062",
+   "grade": 8,
+   "topic": "Животный мир природных зон Земли. Биогеография",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-063",
+   "grade": 8,
+   "topic": "Обобщение и повторение изученного в 8 классе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-064",
+   "grade": 8,
+   "topic": "Итоговая контрольная работа за курс биологии 8 класса",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-065",
+   "grade": 8,
+   "topic": "Анализ итоговой контрольной работы. Воздействие человека на животных в природе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-066",
+   "grade": 8,
+   "topic": "Сельскохозяйственные животные. Значение селекции животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-067",
+   "grade": 8,
+   "topic": "Животные в городе. Меры сохранения животного мира. Защита окружающей среды",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-068",
+   "grade": 8,
+   "topic": "Резервный урок. Обобщающий урок по теме «Систематические группы животных»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-069",
+   "grade": 8,
+   "topic": "Вид как основная единица систематики",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-070",
+   "grade": 8,
+   "topic": "Бинарная номенклатура",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-071",
+   "grade": 8,
+   "topic": "Систематические категории животных и их соподчинение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-8-072",
+   "grade": 8,
+   "topic": "Классификация животных: практикум",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-001",
+   "grade": 9,
+   "topic": "Биологические науки. Науки о человеке",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-002",
+   "grade": 9,
+   "topic": "Человек как часть природы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-003",
+   "grade": 9,
+   "topic": "Антропогенез. Эволюция человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-004",
+   "grade": 9,
+   "topic": "Цитология. Строение и химический состав клетки",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-005",
+   "grade": 9,
+   "topic": "Типы тканей организма человека. Практическая работа № 1 «Изучение микроскопического строения тканей (на готовых микропрепаратах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-006",
+   "grade": 9,
+   "topic": "Органы и системы органов человека. Практическая работа № 2 «Распознавание органов и систем органов человека (по таблицам)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-007",
+   "grade": 9,
+   "topic": "Нервная ткань. Нейроны - нервные клетки. Рефлекс. Рецепторы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-008",
+   "grade": 9,
+   "topic": "Нервная система человека, ее организация и значение. Центральная нервная система. Периферическая нервная система",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-009",
+   "grade": 9,
+   "topic": "Спинной мозг, его строение и функции",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-010",
+   "grade": 9,
+   "topic": "Головной мозг, его строение и функции. Практическая работа № 3 «Изучение головного мозга человека (по муляжам)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-011",
+   "grade": 9,
+   "topic": "Вегетативная нервная система. Особенности функционирования вегетативной нервной системы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-012",
+   "grade": 9,
+   "topic": "Нервная система как единое целое. Нарушения в работе нервной системы. Регуляция работы организма",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-013",
+   "grade": 9,
+   "topic": "Эндокринная система человека. Регуляция работы организма",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-014",
+   "grade": 9,
+   "topic": "Особенности рефлекторной и гуморальной регуляции функций организма. Нейрогуморальная регуляция",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-015",
+   "grade": 9,
+   "topic": "Скелет человека, строение его отделов и функции. Практическая работа № 4 «Изучение строения костей (на муляжах)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-016",
+   "grade": 9,
+   "topic": "Кости, их химический состав, строение. Типы костей. Практическая работа № 5 «Исследование свойств кости»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-017",
+   "grade": 9,
+   "topic": "Мышечная система человека. Практическая работа № 6 «Изучение влияния статической и динамической нагрузки на утомление мышц»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-018",
+   "grade": 9,
+   "topic": "Нарушения опорно-двигательной системы. Профилактика заболеваний опорно-двигательной системы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-019",
+   "grade": 9,
+   "topic": "Профилактика травматизма. Первая помощь при травмах опорно-двигательного аппарата. Практическая работа № 7 «Оказание первой помощи при повреждении скелета и мышц»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-020",
+   "grade": 9,
+   "topic": "Контрольная работа № 1. Тема: Ткани человека. Регуляция работы организма. Опорно-двигательная система",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-021",
+   "grade": 9,
+   "topic": "Анализ контрольной работы. Внутренняя среда организма и ее функции. Кровь, лимфа, тканевая жидкость",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-022",
+   "grade": 9,
+   "topic": "Состав крови. Лабораторная работа № 1 «Изучение микроскопического строения крови человека и лягушки (сравнение)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-023",
+   "grade": 9,
+   "topic": "Свёртывание крови. Переливание крови. Группы крови. Иммунитет и его виды. Вакцинация. Роль вакцинации в формировании иммунитета",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-024",
+   "grade": 9,
+   "topic": "Органы кровообращения. Строение и работа сердца. Сердечный цикл",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-025",
+   "grade": 9,
+   "topic": "Сосудистая система. Практическая работа № 8 «Измерение кровяного давления»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-026",
+   "grade": 9,
+   "topic": "Регуляция деятельности сердца и сосудов. Практическая работа № 9 «Определение пульса и числа сердечных сокращений в покое и после дозированных физических нагрузок у человека»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-027",
+   "grade": 9,
+   "topic": "Профилактика сердечно-сосудистых заболеваний. Первая помощь при кровотечениях. Практическая работа № 10 «Первая помощь при кровотечении»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-028",
+   "grade": 9,
+   "topic": "Органы дыхания. Дыхание и его значение",
+   "numbered_elements": [
+    "органические вещества + кислород → углекислый газ + вода + энергия"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-9-029",
+   "grade": 9,
+   "topic": "Механизмы дыхания. Регуляция дыхания. Практическая работа № 11 «Измерение обхвата грудной клетки в состоянии вдоха и выдоха»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-030",
+   "grade": 9,
+   "topic": "Заболевания органов дыхания и их профилактика",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-031",
+   "grade": 9,
+   "topic": "Оказание первой помощи при поражении органов дыхания. Практическая работа № 12 «Определение частоты дыхания. Влияние различных факторов на частоту дыхания»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-032",
+   "grade": 9,
+   "topic": "Питательные вещества и пищевые продукты. Питание и его значение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-033",
+   "grade": 9,
+   "topic": "Органы пищеварения, их строение и функции",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-034",
+   "grade": 9,
+   "topic": "Пищеварение в ротовой полости. Практическая работа № 13 «Исследование действия ферментов слюны на крахмал»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-035",
+   "grade": 9,
+   "topic": "Пищеварение в желудке и кишечнике. Практическая работа № 14 «Наблюдение действия желудочного сока на белки»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-036",
+   "grade": 9,
+   "topic": "Методы изучения органов пищеварения. Гигиена питания",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-037",
+   "grade": 9,
+   "topic": "Регуляция обмена веществ",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-038",
+   "grade": 9,
+   "topic": "Обмен веществ и превращение энергии в организме человека. Практическая работа № 15 «Исследование состава продуктов питания»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-039",
+   "grade": 9,
+   "topic": "Витамины и их роль для организма. Практическая работа № 16 «Способы сохранения витаминов в пищевых продуктах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-040",
+   "grade": 9,
+   "topic": "Нормы и режим питания. Нарушение обмена веществ. Практическая работа № 17 «Составление меню в зависимости от калорийности пищи»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-041",
+   "grade": 9,
+   "topic": "Контрольная работа № 2. Тема: Внутренняя среда организма. Кровообращение. Дыхание. Пищеварение",
+   "numbered_elements": [
+    "органические вещества + кислород → углекислый газ + вода + энергия"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-9-042",
+   "grade": 9,
+   "topic": "Анализ контрольной работы. Строение и функции кожи. Практическая работа № 18 «Исследование с помощью лупы тыльной и ладонной стороны кисти»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-043",
+   "grade": 9,
+   "topic": "Кожа и ее производные. Практическая работа № 19 «Описание мер по уходу за кожей лица и волосами в зависимости от типа кожи»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-044",
+   "grade": 9,
+   "topic": "Кожа и терморегуляция. Практическая работа № 20 «Определение жирности различных участков кожи лица»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-045",
+   "grade": 9,
+   "topic": "Заболевания кожи и их предупреждение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-046",
+   "grade": 9,
+   "topic": "Гигиена кожи. Закаливание. Практическая работа № 21 «Описание основных гигиенических требований к одежде и обуви»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-047",
+   "grade": 9,
+   "topic": "Значение выделения. Органы мочевыделительной системы, их строение и функции. Практическая работа № 22 «Определение местоположения почек (на муляже)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-048",
+   "grade": 9,
+   "topic": "Образование мочи. Регуляция работы органов мочевыделительной системы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-049",
+   "grade": 9,
+   "topic": "Заболевания органов мочевыделительной системы, их предупреждение. Практическая работа № 23 «Описание мер профилактики болезней почек»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-050",
+   "grade": 9,
+   "topic": "Особенности размножения человека. Наследование признаков у человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-051",
+   "grade": 9,
+   "topic": "Органы репродукции человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-052",
+   "grade": 9,
+   "topic": "Наследственные болезни, их причины и предупреждение. Инфекции, передающиеся половым путем, их профилактика. Практическая работа № 24 «Описание основных мер по профилактике инфекционных вирусных заболеваний: СПИД и гепатит»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-053",
+   "grade": 9,
+   "topic": "Беременность и роды. Рост и развитие ребенка",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-054",
+   "grade": 9,
+   "topic": "Органы чувств и их значение. Глаз и зрение. Практическая работа № 25 «Изучение строения органа зрения (на муляже и влажном препарате)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-055",
+   "grade": 9,
+   "topic": "Механизм работы зрительного анализатора. Гигиена зрения. Практическая работа № 26 «Определение остроты зрения у человека»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-056",
+   "grade": 9,
+   "topic": "Ухо и слух. Практическая работа № 27 «Изучение строения органа слуха (на муляже)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-057",
+   "grade": 9,
+   "topic": "Органы равновесия, мышечное чувство, осязание",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-058",
+   "grade": 9,
+   "topic": "Вкусовой и обонятельный анализаторы. Взаимодействие сенсорных систем организма",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-059",
+   "grade": 9,
+   "topic": "Психика и поведение человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-060",
+   "grade": 9,
+   "topic": "Высшая нервная деятельность человека, история ее изучения",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-061",
+   "grade": 9,
+   "topic": "Врождённое и приобретённое поведение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-062",
+   "grade": 9,
+   "topic": "Особенности психики человека. Практическая работа № 28 «Оценка сформированности навыков логического мышления»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-063",
+   "grade": 9,
+   "topic": "Память и внимание. Практическая работа № 29 «Изучение кратковременной памяти. Определение объёма механической и логической памяти»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-064",
+   "grade": 9,
+   "topic": "Сон и бодрствование. Режим труда и отдыха",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-065",
+   "grade": 9,
+   "topic": "Итоговая контрольная работа",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-066",
+   "grade": 9,
+   "topic": "Среда обитания человека и её факторы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-067",
+   "grade": 9,
+   "topic": "Окружающая среда и здоровье человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-9-068",
+   "grade": 9,
+   "topic": "Человек как часть биосферы Земли",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-001",
+   "grade": 10,
+   "topic": "Биология в системе наук",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-002",
+   "grade": 10,
+   "topic": "Методы познания живой природы. Практическая работа № 1 «Использование различных методов при изучении биологических объектов»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-003",
+   "grade": 10,
+   "topic": "Биологические системы, процессы и их изучение",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-004",
+   "grade": 10,
+   "topic": "Химический состав клетки. Вода и минеральные соли",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-005",
+   "grade": 10,
+   "topic": "Белки. Состав и строение белков",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-006",
+   "grade": 10,
+   "topic": "Ферменты – биологические катализаторы. Лабораторная работа № 1 «Изучение каталитической активности ферментов (на примере амилазы или каталазы)»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-007",
+   "grade": 10,
+   "topic": "Углеводы. Липиды",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-008",
+   "grade": 10,
+   "topic": "Нуклеиновые кислоты. АТФ",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-009",
+   "grade": 10,
+   "topic": "История и методы изучения клетки. Клеточная теория",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-010",
+   "grade": 10,
+   "topic": "Клетка как целостная живая система",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-011",
+   "grade": 10,
+   "topic": "Строение эукариотической клетки. Лабораторная работа № 2 «Изучение строения клеток растений, животных и бактерий под микроскопом на готовых микропрепаратах и их описание»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-012",
+   "grade": 10,
+   "topic": "Обмен веществ. Пластический обмен. Фотосинтез",
+   "numbered_elements": [
+    "углекислый газ + вода —(свет, хлорофилл)→ органические вещества + кислород"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-10-013",
+   "grade": 10,
+   "topic": "Хемосинтез. Значение фотосинтеза и хемосинтеза для жизни на Земле",
+   "numbered_elements": [
+    "углекислый газ + вода —(свет, хлорофилл)→ органические вещества + кислород"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/06_Биология/text.md"
+  },
+  {
+   "lesson_id": "bio-10-014",
+   "grade": 10,
+   "topic": "Энергетический обмен",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-015",
+   "grade": 10,
+   "topic": "Биосинтез белка. Генетический код. Транскрипция",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-016",
+   "grade": 10,
+   "topic": "Биосинтез белка. Трансляция",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-017",
+   "grade": 10,
+   "topic": "Неклеточные формы жизни – вирусы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-018",
+   "grade": 10,
+   "topic": "Жизненный цикл клетки. Деление клетки. Митоз. Лабораторная работа № 3 «Наблюдение митоза в клетках кончика корешка лука на готовых микропрепаратах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-019",
+   "grade": 10,
+   "topic": "Формы размножения организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-020",
+   "grade": 10,
+   "topic": "Мейоз",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-021",
+   "grade": 10,
+   "topic": "Образование и развитие половых клеток. Оплодотворение. Лабораторная работа № 4 «Изучение строения половых клеток на готовых микропрепаратах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-022",
+   "grade": 10,
+   "topic": "Индивидуальное развитие организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-023",
+   "grade": 10,
+   "topic": "Генетика – наука о наследственности и изменчивости",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-024",
+   "grade": 10,
+   "topic": "Закономерности наследования признаков. Моногибридное скрещивание",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-025",
+   "grade": 10,
+   "topic": "Дигибридное скрещивание. Закон независимого наследования признаков",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-026",
+   "grade": 10,
+   "topic": "Сцепленное наследование признаков. Лабораторная работа № 5 «Изучение результатов моногибридного и дигибридного скрещивания у дрозофилы на готовых микропрепаратах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-027",
+   "grade": 10,
+   "topic": "Генетика пола. Наследование признаков, сцепленных с полом",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-028",
+   "grade": 10,
+   "topic": "Изменчивость. Ненаследственная изменчивость. Лабораторная работа № 6 «Изучение модификационной изменчивости, построение вариационного ряда и вариационной кривой»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-029",
+   "grade": 10,
+   "topic": "Наследственная изменчивость. Лабораторная работа № 7 «Анализ мутаций у дрозофилы на готовых микропрепаратах»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-030",
+   "grade": 10,
+   "topic": "Генетика человека. Практическая работа № 2 «Составление и анализ родословных человека»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-031",
+   "grade": 10,
+   "topic": "Селекция как наука и процесс",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-032",
+   "grade": 10,
+   "topic": "Методы и достижения селекции растений и животных",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-033",
+   "grade": 10,
+   "topic": "Биотехнология как отрасль производства",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-10-034",
+   "grade": 10,
+   "topic": "Резервный урок. Обобщение изученного в 10 классе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-001",
+   "grade": 11,
+   "topic": "Эволюция и методы её изучения",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-002",
+   "grade": 11,
+   "topic": "История развития представлений об эволюции",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-003",
+   "grade": 11,
+   "topic": "Вид: критерии и структура. Лабораторная работа № 1 «Сравнение видов по морфологическому критерию»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-004",
+   "grade": 11,
+   "topic": "Популяция как элементарная единица вида",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-005",
+   "grade": 11,
+   "topic": "Движущие силы (элементарные факторы) эволюции",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-006",
+   "grade": 11,
+   "topic": "Естественный отбор и его формы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-007",
+   "grade": 11,
+   "topic": "Результаты эволюции: приспособленность организмов и видообразование. Лабораторная работа № 2 «Описание приспособленности организма и ее относительного характера»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-008",
+   "grade": 11,
+   "topic": "Направления и пути макроэволюции",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-009",
+   "grade": 11,
+   "topic": "Формы и закономерности макроэволюции",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-010",
+   "grade": 11,
+   "topic": "История жизни на Земле и методы её изучения",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-011",
+   "grade": 11,
+   "topic": "Гипотезы происхождения жизни на Земле",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-012",
+   "grade": 11,
+   "topic": "Эволюция органического мира: катархей, архей, протерозой, палеозой. Практическая работа № 1 «Изучение ископаемых остатков растений и животных в коллекциях»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-013",
+   "grade": 11,
+   "topic": "Эволюция органического мира: мезозой и кайнозой",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-014",
+   "grade": 11,
+   "topic": "Современная система органического мира",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-015",
+   "grade": 11,
+   "topic": "Эволюция человека (антропогенез)",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-016",
+   "grade": 11,
+   "topic": "Движущие силы (факторы) антропогенеза",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-017",
+   "grade": 11,
+   "topic": "Основные стадии эволюции человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-018",
+   "grade": 11,
+   "topic": "Человеческие расы и природные адаптации человека",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-019",
+   "grade": 11,
+   "topic": "Экология как наука",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-020",
+   "grade": 11,
+   "topic": "Среды обитания и экологические факторы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-021",
+   "grade": 11,
+   "topic": "Абиотические факторы. Лабораторная работа № 3 «Морфологические особенности растений из разных мест обитания». Лабораторная работа № 4 «Влияние света на рост и развитие черенков колеуса»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-022",
+   "grade": 11,
+   "topic": "Биотические факторы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-023",
+   "grade": 11,
+   "topic": "Экологические характеристики вида и популяции. Практическая работа № 2 «Подсчёт плотности популяций разных видов растений»",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-024",
+   "grade": 11,
+   "topic": "Сообщества организмов",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-025",
+   "grade": 11,
+   "topic": "Экосистемы и закономерности их существования. Пищевые цепи и сети",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-026",
+   "grade": 11,
+   "topic": "Экологические пирамиды. Свойства экосистем. Сукцессия",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-027",
+   "grade": 11,
+   "topic": "Природные экосистемы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-028",
+   "grade": 11,
+   "topic": "Антропогенные экосистемы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-029",
+   "grade": 11,
+   "topic": "Биосфера – глобальная экосистема Земли",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-030",
+   "grade": 11,
+   "topic": "Закономерности существования биосферы",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-031",
+   "grade": 11,
+   "topic": "Человечество в биосфере Земли",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-032",
+   "grade": 11,
+   "topic": "Сосуществование природы и человечества",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-033",
+   "grade": 11,
+   "topic": "Итоговая контрольная работа за курс 11 класса",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "bio-11-034",
+   "grade": 11,
+   "topic": "Резервный урок. Обобщение изученного в 11 классе",
+   "numbered_elements": [
+    "Объект",
+    "Строение",
+    "Функция",
+    "Среда"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  }
+ ]
+}

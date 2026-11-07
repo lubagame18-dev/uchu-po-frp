@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-016",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 16,
+ "section": "Человек в экономических отношениях",
+ "topic": "Семейный бюджет и финансовое планирование",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

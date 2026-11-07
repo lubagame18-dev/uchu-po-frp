@@ -1,0 +1,21 @@
+{
+ "id": "bio-5-034",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 5,
+ "order": 34,
+ "section": "Живая природа и человек",
+ "topic": "Резервный урок. Обобщение знаний по материалу, изученному в 5 классе",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

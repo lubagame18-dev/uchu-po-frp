@@ -1,0 +1,21 @@
+{
+ "id": "bio-6-025",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 6,
+ "order": 25,
+ "section": "Жизнедеятельность растительного организма",
+ "topic": "Лист и стебель как органы дыхания растений. Особенности дыхания растений",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

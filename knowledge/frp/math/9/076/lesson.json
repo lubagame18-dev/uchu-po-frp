@@ -1,0 +1,21 @@
+{
+ "id": "math-9-076",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 76,
+ "section": "Алгебра: Числовые последовательности",
+ "topic": "Арифметическая и геометрическая прогрессии",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-058",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 58,
+ "section": "Электродинамика",
+ "topic": "Лабораторная работа №8 «Изучение последовательного и параллельного соединений проводников»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

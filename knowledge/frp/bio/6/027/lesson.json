@@ -1,0 +1,21 @@
+{
+ "id": "bio-6-027",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 6,
+ "order": 27,
+ "section": "Жизнедеятельность растительного организма",
+ "topic": "Выделение у растений. Листопад. Обобщение и повторение по жизнедеятельности растений",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

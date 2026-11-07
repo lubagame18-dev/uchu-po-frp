@@ -1,0 +1,21 @@
+{
+ "id": "math-9-181",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 181,
+ "section": "Вероятность и статистика: Геометрическая вероятность",
+ "topic": "Случайный выбор точки из фигуры на плоскости, из отрезка, из дуги окружности",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

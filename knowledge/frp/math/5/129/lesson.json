@@ -1,0 +1,21 @@
+{
+ "id": "math-5-129",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 129,
+ "section": "Математика: Десятичные дроби",
+ "topic": "Действия с десятичными дробями. Округление десятичных дробей",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

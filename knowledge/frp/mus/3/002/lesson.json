@@ -1,0 +1,20 @@
+{
+ "id": "mus-3-002",
+ "subject": "mus",
+ "subject_title": "Музыка",
+ "grade": 3,
+ "order": 2,
+ "section": "Музыка в жизни народа",
+ "topic": "Песня, танец, марш",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет композитора"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-046",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 46,
+ "section": "Металлы и их соединения",
+ "topic": "Сплавы и их применение. Расчёты по уравнениям реакций, если реагент содержит примеси",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

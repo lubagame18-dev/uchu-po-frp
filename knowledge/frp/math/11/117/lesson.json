@@ -1,0 +1,21 @@
+{
+ "id": "math-11-117",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 117,
+ "section": "Геометрия: Объемы тел",
+ "topic": "Объем цилиндра, конуса. Объем шара и площадь сферы Подобные тела в пространстве",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

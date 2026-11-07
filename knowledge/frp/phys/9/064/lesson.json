@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-064",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 64,
+ "section": "Световые явления",
+ "topic": "Лабораторная работа №10 «Исследование зависимости угла отражения от угла падения»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

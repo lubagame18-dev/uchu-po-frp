@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-005",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 5,
+ "section": "Систематические группы растений",
+ "topic": "Низшие растения. Особенности строения низших водорослей. Бурые и красные водоросли",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

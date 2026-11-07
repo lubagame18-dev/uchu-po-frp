@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-049",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 49,
+ "section": "Электродинамика",
+ "topic": "Работа поля. Потенциал и разность потенциалов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

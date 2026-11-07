@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-015",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 15,
+ "section": "Систематические группы растений",
+ "topic": "Классификация покрытосеменных растений. Цикл развития покрытосеменных растений. Двойное оплодотворение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

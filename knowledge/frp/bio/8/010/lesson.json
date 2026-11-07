@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-010",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 10,
+ "section": "Строение и жизнедеятельность организма животного",
+ "topic": "Транспорт веществ у позвоночных животных. Кровообращение у позвоночных животных",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

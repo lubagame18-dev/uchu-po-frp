@@ -1,0 +1,21 @@
+{
+ "id": "math-5-050",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 50,
+ "section": "Математика: Наглядная геометрия. Линии на плоскости",
+ "topic": "Прямой, острый, тупой и развернутый углы. Измерение углов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

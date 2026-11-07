@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-007",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 7,
+ "section": "Человек в экономических отношениях",
+ "topic": "Спрос и предложение. Рыночное равновесие",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

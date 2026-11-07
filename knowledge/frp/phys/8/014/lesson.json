@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-014",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 14,
+ "section": "Тепловые явления",
+ "topic": "Лабораторная работа №1 «Сравнение количеств теплоты при смешивании воды разной температуры»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

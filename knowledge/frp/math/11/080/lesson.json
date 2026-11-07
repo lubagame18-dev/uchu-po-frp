@@ -1,0 +1,21 @@
+{
+ "id": "math-11-080",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 80,
+ "section": "Алгебра и начала математического анализа: Натуральные и целые числа",
+ "topic": "Натуральные и целые числа в задачах из реальной жизни",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

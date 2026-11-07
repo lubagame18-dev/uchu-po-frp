@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-068",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 68,
+ "section": "Человек и окружающая среда",
+ "topic": "Человек как часть биосферы Земли",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

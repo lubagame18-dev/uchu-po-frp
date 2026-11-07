@@ -1,0 +1,21 @@
+{
+ "id": "math-11-135",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 135,
+ "section": "Геометрия: Повторение, обобщение и систематизация знаний",
+ "topic": "Повторение: Задачи стереометрии и методы их решения",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "inf-7-010",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 7,
+ "order": 10,
+ "section": "Цифровая грамотность",
+ "topic": "Практическая работа. Поиск информации по ключевым словам и по изображению",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

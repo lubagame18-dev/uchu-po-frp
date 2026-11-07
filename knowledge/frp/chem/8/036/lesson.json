@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-036",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 36,
+ "section": "Важнейшие представители неорганических веществ",
+ "topic": "Растворы. Насыщенные и ненасыщенные растворы. Растворимость веществ в воде. Понятие об основаниях",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

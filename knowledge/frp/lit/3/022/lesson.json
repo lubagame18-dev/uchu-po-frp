@@ -1,0 +1,20 @@
+{
+ "id": "lit-3-022",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 3,
+ "order": 22,
+ "section": "Поэзия",
+ "topic": "Выразительное чтение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

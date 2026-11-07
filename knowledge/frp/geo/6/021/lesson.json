@@ -1,0 +1,20 @@
+{
+ "id": "geo-6-021",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 6,
+ "order": 21,
+ "section": "Оболочки Земли",
+ "topic": "Современные изменения климата. Способы изучения и наблюдения за глобальным климатом. Профессия климатолог",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

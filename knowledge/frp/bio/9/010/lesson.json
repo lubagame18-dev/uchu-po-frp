@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-010",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 10,
+ "section": "Нейрогуморальная регуляция",
+ "topic": "Головной мозг, его строение и функции. Практическая работа № 3 «Изучение головного мозга человека (по муляжам)»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

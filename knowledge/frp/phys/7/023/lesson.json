@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-023",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 23,
+ "section": "Движение и взаимодействие тел",
+ "topic": "Связь силы тяжести с массой тела",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

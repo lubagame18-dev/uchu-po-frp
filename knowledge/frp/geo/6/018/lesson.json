@@ -1,0 +1,20 @@
+{
+ "id": "geo-6-018",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 6,
+ "order": 18,
+ "section": "Оболочки Земли",
+ "topic": "Климат и климатообразующие факторы. Зависимость климата от географической широты и высоты местности над уровнем моря",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

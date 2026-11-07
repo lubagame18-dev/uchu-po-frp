@@ -1,0 +1,20 @@
+{
+ "id": "lit-10-005",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 10,
+ "order": 5,
+ "section": "Литература второй половины XIX века",
+ "topic": "Н. А. Некрасов. Стихотворения (не менее трёх по выбору). Поэма «Кому на Руси жить хорошо»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

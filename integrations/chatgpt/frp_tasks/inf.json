@@ -1,0 +1,2216 @@
+{
+ "subject": "inf",
+ "title": "Информатика",
+ "lessons": [
+  {
+   "lesson_id": "inf-7-001",
+   "grade": 7,
+   "topic": "Компьютер – универсальное устройство обработки данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-002",
+   "grade": 7,
+   "topic": "Практическая работа. Включение компьютера и получение информации о его характеристиках",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-003",
+   "grade": 7,
+   "topic": "Программное обеспечение компьютера. Правовая охрана программ и данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-004",
+   "grade": 7,
+   "topic": "Файлы и папки. Файловая система",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-005",
+   "grade": 7,
+   "topic": "Практическая работа. Основные операции с файлами и папками",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-006",
+   "grade": 7,
+   "topic": "Практическая работа. Сравнение размеров текстовых, графических, звуковых и видеофайлов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-007",
+   "grade": 7,
+   "topic": "Практическая работа. Архивация данных. Использование программы-архиватора",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-008",
+   "grade": 7,
+   "topic": "Практическая работа. Защита информации от компьютерных вирусов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-009",
+   "grade": 7,
+   "topic": "Компьютерные сети. Интернет",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-010",
+   "grade": 7,
+   "topic": "Практическая работа. Поиск информации по ключевым словам и по изображению",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-011",
+   "grade": 7,
+   "topic": "Практическая работа. Интернет-коммуникации и безопасное общение",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-012",
+   "grade": 7,
+   "topic": "Информация и информационные процессы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-013",
+   "grade": 7,
+   "topic": "Хранение, передача и обработка информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-014",
+   "grade": 7,
+   "topic": "Представление информации. Знаки и алфавит",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-015",
+   "grade": 7,
+   "topic": "Кодирование текстовой информации. Практическая работа. Код символа в разных кодировках",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-016",
+   "grade": 7,
+   "topic": "Кодирование цвета. Практическая работа. Код цвета в палитре RGB",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-017",
+   "grade": 7,
+   "topic": "Кодирование растровых изображений. Практическая работа. Сохранение в разных форматах",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-018",
+   "grade": 7,
+   "topic": "Кодирование звука. Практическая работа. Запись звука с разным качеством звучания",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-019",
+   "grade": 7,
+   "topic": "Кодирование видео. Единицы измерения информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-020",
+   "grade": 7,
+   "topic": "Решение задач на измерение информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-021",
+   "grade": 7,
+   "topic": "Обобщение по теме «Представление информации»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-022",
+   "grade": 7,
+   "topic": "Текстовые документы. Практическая работа. Клавиатурное письмо и создание небольшого документа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-023",
+   "grade": 7,
+   "topic": "Практическая работа. Форматирование символов и абзацев",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-024",
+   "grade": 7,
+   "topic": "Практическая работа. Параметры страницы, колонтитулы, номера страниц",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-025",
+   "grade": 7,
+   "topic": "Практическая работа. Списки, таблицы, изображения и формулы в документе",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-026",
+   "grade": 7,
+   "topic": "Практическая работа. Документ с цитатами и ссылками на источники",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-027",
+   "grade": 7,
+   "topic": "Компьютерная графика. Растровая и векторная графика",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-028",
+   "grade": 7,
+   "topic": "Практическая работа. Редактирование растрового изображения",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-029",
+   "grade": 7,
+   "topic": "Практическая работа. Создание векторного изображения",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-030",
+   "grade": 7,
+   "topic": "Мультимедийные презентации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-031",
+   "grade": 7,
+   "topic": "Практическая работа. Презентация с гиперссылками по шаблону",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-032",
+   "grade": 7,
+   "topic": "Практическая работа. Итоговый проект: презентация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-033",
+   "grade": 7,
+   "topic": "Итоговое повторение",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-034",
+   "grade": 7,
+   "topic": "Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-001",
+   "grade": 8,
+   "topic": "Системы счисления. Позиционные и непозиционные системы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-002",
+   "grade": 8,
+   "topic": "Двоичная система счисления. Перевод целых чисел",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-003",
+   "grade": 8,
+   "topic": "Практическая работа. Перевод чисел с помощью калькулятора компьютера",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-004",
+   "grade": 8,
+   "topic": "Восьмеричная и шестнадцатеричная системы счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-005",
+   "grade": 8,
+   "topic": "Арифметические операции в двоичной системе счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-006",
+   "grade": 8,
+   "topic": "Контрольная работа по теме «Системы счисления»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-007",
+   "grade": 8,
+   "topic": "Понятие высказывания. Логические операции",
+   "numbered_elements": [
+    "0",
+    "1",
+    "0",
+    "1"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-8-008",
+   "grade": 8,
+   "topic": "Таблицы истинности",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-009",
+   "grade": 8,
+   "topic": "Практическая работа. Таблицы истинности в электронной таблице",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-010",
+   "grade": 8,
+   "topic": "Логические выражения. Законы логики",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-011",
+   "grade": 8,
+   "topic": "Логические элементы и схемы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-012",
+   "grade": 8,
+   "topic": "Контрольная работа по теме «Элементы математической логики»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-013",
+   "grade": 8,
+   "topic": "Понятие алгоритма. Исполнители",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-014",
+   "grade": 8,
+   "topic": "Практическая работа. Исполнитель Робот: линейные алгоритмы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-015",
+   "grade": 8,
+   "topic": "Способы записи алгоритмов. Блок-схемы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-016",
+   "grade": 8,
+   "topic": "Практическая работа. Преобразование алгоритма из одной формы записи в другую",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-017",
+   "grade": 8,
+   "topic": "Алгоритмическая конструкция «повторение»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-018",
+   "grade": 8,
+   "topic": "Практическая работа. Циклы для управления исполнителем Робот",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-019",
+   "grade": 8,
+   "topic": "Алгоритмическая конструкция «ветвление»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-020",
+   "grade": 8,
+   "topic": "Практическая работа. Ветвления и циклы с условием для исполнителя Чертёжник",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-021",
+   "grade": 8,
+   "topic": "Практическая работа. «Ручное» исполнение алгоритмов. Трассировочные таблицы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-022",
+   "grade": 8,
+   "topic": "Контрольная работа по теме «Исполнители и алгоритмы»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-023",
+   "grade": 8,
+   "topic": "Язык программирования Python. Переменные и типы данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-024",
+   "grade": 8,
+   "topic": "Практическая работа. Линейные программы: ввод, вывод, арифметика",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-025",
+   "grade": 8,
+   "topic": "Арифметические и логические выражения в программе",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-026",
+   "grade": 8,
+   "topic": "Оператор ветвления if",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-027",
+   "grade": 8,
+   "topic": "Практическая работа. Программы с ветвлением",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-028",
+   "grade": 8,
+   "topic": "Цикл for",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-029",
+   "grade": 8,
+   "topic": "Цикл while",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-030",
+   "grade": 8,
+   "topic": "Практическая работа. Программы с циклами",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-031",
+   "grade": 8,
+   "topic": "Практическая работа. Мини-проект «Угадай число»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-032",
+   "grade": 8,
+   "topic": "Анализ алгоритмов: что делает программа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-033",
+   "grade": 8,
+   "topic": "Практическая работа. Тестирование и отладка программ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-034",
+   "grade": 8,
+   "topic": "Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-001",
+   "grade": 9,
+   "topic": "Глобальная сеть Интернет. Как устроен Интернет",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-002",
+   "grade": 9,
+   "topic": "Безопасное поведение в сети. Приватность, пароли, аутентификация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-003",
+   "grade": 9,
+   "topic": "Практическая работа. Создание веб-страницы по шаблону",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-004",
+   "grade": 9,
+   "topic": "Поиск информации в Интернете",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-005",
+   "grade": 9,
+   "topic": "Практическая работа. Поисковые запросы с логическими операциями",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-006",
+   "grade": 9,
+   "topic": "Практическая работа. Онлайн-офис и достоверность информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-007",
+   "grade": 9,
+   "topic": "Моделирование как метод познания. Виды моделей",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-008",
+   "grade": 9,
+   "topic": "Графы и деревья как модели",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-009",
+   "grade": 9,
+   "topic": "Практическая работа. Создание однотабличной базы данных",
+   "numbered_elements": [
+    "поле",
+    "запись",
+    "ключ",
+    "запрос"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-9-010",
+   "grade": 9,
+   "topic": "Практическая работа. Поиск данных в готовой базе",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-011",
+   "grade": 9,
+   "topic": "Практическая работа. Работа с готовыми компьютерными моделями",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-012",
+   "grade": 9,
+   "topic": "Математические модели и их программная реализация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-013",
+   "grade": 9,
+   "topic": "Практическая работа. Программная реализация простейшей модели",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-014",
+   "grade": 9,
+   "topic": "Контрольная работа по теме «Моделирование»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-015",
+   "grade": 9,
+   "topic": "Вспомогательные алгоритмы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-016",
+   "grade": 9,
+   "topic": "Практическая работа. Программы с вспомогательными алгоритмами для исполнителя",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-017",
+   "grade": 9,
+   "topic": "Массивы (списки): ввод, вывод, обход",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-018",
+   "grade": 9,
+   "topic": "Практическая работа. Типовые алгоритмы обработки массивов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-019",
+   "grade": 9,
+   "topic": "Сортировка массива",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-020",
+   "grade": 9,
+   "topic": "Практическая работа. Составление и отладка программ обработки массивов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-021",
+   "grade": 9,
+   "topic": "Управление. Роботы и системы управления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-022",
+   "grade": 9,
+   "topic": "Практическая работа. Учебная среда управления роботом",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-023",
+   "grade": 9,
+   "topic": "Электронные таблицы. Ввод данных и формул",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-024",
+   "grade": 9,
+   "topic": "Практическая работа. Ввод данных и формул, оформление таблицы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-025",
+   "grade": 9,
+   "topic": "Относительные и абсолютные ссылки",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-026",
+   "grade": 9,
+   "topic": "Практическая работа. Расчёты со встроенными функциями",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-027",
+   "grade": 9,
+   "topic": "Практическая работа. Сортировка и фильтрация данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-028",
+   "grade": 9,
+   "topic": "Практическая работа. Диаграммы и графики",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-029",
+   "grade": 9,
+   "topic": "Практическая работа. Обработка большого набора данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-030",
+   "grade": 9,
+   "topic": "Практическая работа. Численное моделирование в электронных таблицах",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-031",
+   "grade": 9,
+   "topic": "Контрольная работа по теме «Электронные таблицы»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-032",
+   "grade": 9,
+   "topic": "Информационные технологии в современном обществе. Профессии ИКТ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-033",
+   "grade": 9,
+   "topic": "Практическая работа. Презентация о профессиях, связанных с ИКТ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-034",
+   "grade": 9,
+   "topic": "Итоговое повторение. Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-001",
+   "grade": 10,
+   "topic": "Компьютер. Аппаратное обеспечение",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-002",
+   "grade": 10,
+   "topic": "Практическая работа. Данные об аппаратной части и программном обеспечении компьютера",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-003",
+   "grade": 10,
+   "topic": "Программное обеспечение. Операционные системы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-004",
+   "grade": 10,
+   "topic": "Практическая работа. Файловая система: операции с файлами и папками",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-005",
+   "grade": 10,
+   "topic": "Практическая работа. Прикладные программы по выбранной специализации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-006",
+   "grade": 10,
+   "topic": "Правовые основы использования программ. Лицензии",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-007",
+   "grade": 10,
+   "topic": "Информация. Виды и свойства информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-008",
+   "grade": 10,
+   "topic": "Информационные процессы. Системы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-009",
+   "grade": 10,
+   "topic": "Кодирование информации. Равномерные и неравномерные коды",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-010",
+   "grade": 10,
+   "topic": "Измерение информации. Алфавитный и содержательный подходы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-011",
+   "grade": 10,
+   "topic": "Информационные системы и процессы управления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-012",
+   "grade": 10,
+   "topic": "Системы счисления. Перевод чисел",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-013",
+   "grade": 10,
+   "topic": "Арифметика в позиционных системах счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-014",
+   "grade": 10,
+   "topic": "Представление чисел в компьютере",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-015",
+   "grade": 10,
+   "topic": "Кодирование текста. ASCII, Unicode, UTF-8",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-016",
+   "grade": 10,
+   "topic": "Кодирование графической информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-017",
+   "grade": 10,
+   "topic": "Практическая работа. Дискретизация графической информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-018",
+   "grade": 10,
+   "topic": "Кодирование звуковой информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-019",
+   "grade": 10,
+   "topic": "Практическая работа. Дискретизация звуковой информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-020",
+   "grade": 10,
+   "topic": "Высказывания и логические операции",
+   "numbered_elements": [
+    "0",
+    "1",
+    "0",
+    "1"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-10-021",
+   "grade": 10,
+   "topic": "Таблицы истинности. Законы алгебры логики",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-022",
+   "grade": 10,
+   "topic": "Упрощение логических выражений",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-023",
+   "grade": 10,
+   "topic": "Логические уравнения",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-024",
+   "grade": 10,
+   "topic": "Нормальные формы: ДНФ и КНФ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-025",
+   "grade": 10,
+   "topic": "Логические элементы компьютера",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-026",
+   "grade": 10,
+   "topic": "Решение логических задач",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-027",
+   "grade": 10,
+   "topic": "Контрольная работа по теме «Элементы алгебры логики»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-028",
+   "grade": 10,
+   "topic": "Практическая работа. Многостраничные документы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-029",
+   "grade": 10,
+   "topic": "Практическая работа. Коллективная работа над документом",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-030",
+   "grade": 10,
+   "topic": "Практическая работа. Преобразование растровых изображений",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-031",
+   "grade": 10,
+   "topic": "Практическая работа. Векторная графика",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-032",
+   "grade": 10,
+   "topic": "Практическая работа. Презентация с изображениями, звуками и видео",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-033",
+   "grade": 10,
+   "topic": "Практическая работа. 3D-моделирование",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-034",
+   "grade": 10,
+   "topic": "Итоговое повторение. Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-001",
+   "grade": 11,
+   "topic": "Сетевые информационные технологии. Топологии и адресация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-002",
+   "grade": 11,
+   "topic": "Практическая работа. Локальная сеть",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-003",
+   "grade": 11,
+   "topic": "IP-адреса, имена и протоколы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-004",
+   "grade": 11,
+   "topic": "Практическая работа. Разработка веб-страницы (HTML)",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-005",
+   "grade": 11,
+   "topic": "Практическая работа. Оформление веб-страницы (CSS)",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-006",
+   "grade": 11,
+   "topic": "Практическая работа. Язык поисковых запросов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-007",
+   "grade": 11,
+   "topic": "Практическая работа. Использование интернет-сервисов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-008",
+   "grade": 11,
+   "topic": "Основы социальной информатики. Информационная безопасность",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-009",
+   "grade": 11,
+   "topic": "Практическая работа. Использование антивирусной программы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-010",
+   "grade": 11,
+   "topic": "Практическая работа. Архивация данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-011",
+   "grade": 11,
+   "topic": "Цифровая экономика и информационное общество",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-012",
+   "grade": 11,
+   "topic": "Информационное моделирование. Модели и их виды",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-013",
+   "grade": 11,
+   "topic": "Графы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-014",
+   "grade": 11,
+   "topic": "Деревья. Выигрышные стратегии в играх",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-015",
+   "grade": 11,
+   "topic": "Моделирование: от задачи к модели",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-016",
+   "grade": 11,
+   "topic": "Алгоритмы и элементы программирования. Трассировка программ на Python",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-017",
+   "grade": 11,
+   "topic": "Практическая работа. Цифры целого числа в разных системах счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-018",
+   "grade": 11,
+   "topic": "Практическая работа. Решение задач методом перебора",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-019",
+   "grade": 11,
+   "topic": "Практическая работа. Обработка числового массива",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-020",
+   "grade": 11,
+   "topic": "Практическая работа. Сортировка и поиск в массиве",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-021",
+   "grade": 11,
+   "topic": "Практическая работа. Обработка символьных строк",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-022",
+   "grade": 11,
+   "topic": "Практическая работа. Функции",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-023",
+   "grade": 11,
+   "topic": "Контрольная работа по теме «Алгоритмы и программирование»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-024",
+   "grade": 11,
+   "topic": "Электронные таблицы. Анализ данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-025",
+   "grade": 11,
+   "topic": "Практическая работа. Статистическая обработка данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-026",
+   "grade": 11,
+   "topic": "Практическая работа. Диаграммы по результатам обработки",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-027",
+   "grade": 11,
+   "topic": "Практическая работа. Корреляция и линия тренда",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-028",
+   "grade": 11,
+   "topic": "Практическая работа. Работа с готовой компьютерной моделью",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-029",
+   "grade": 11,
+   "topic": "Практическая работа. Подбор параметра",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-030",
+   "grade": 11,
+   "topic": "Базы данных. Реляционная модель",
+   "numbered_elements": [
+    "поле",
+    "запись",
+    "ключ",
+    "запрос"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-11-031",
+   "grade": 11,
+   "topic": "Практическая работа. Проектирование многотабличной базы данных",
+   "numbered_elements": [
+    "поле",
+    "запись",
+    "ключ",
+    "запрос"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-11-032",
+   "grade": 11,
+   "topic": "Практическая работа. Готовая база данных: запросы на выборку",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-033",
+   "grade": 11,
+   "topic": "Средства искусственного интеллекта. Практическая работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-034",
+   "grade": 11,
+   "topic": "Итоговое повторение. Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  }
+ ]
+}

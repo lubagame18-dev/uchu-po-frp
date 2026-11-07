@@ -1,0 +1,21 @@
+{
+ "id": "obzh-11-013",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 11,
+ "order": 13,
+ "section": "Чрезвычайные ситуации и защита населения",
+ "topic": "Средства индивидуальной защиты",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

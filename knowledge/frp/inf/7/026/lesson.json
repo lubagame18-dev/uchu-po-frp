@@ -1,0 +1,21 @@
+{
+ "id": "inf-7-026",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 7,
+ "order": 26,
+ "section": "Информационные технологии",
+ "topic": "Практическая работа. Документ с цитатами и ссылками на источники",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

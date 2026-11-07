@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-001",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 1,
+ "section": "Тепловые явления",
+ "topic": "Основные положения молекулярно-кинетической теории. Масса и размеры атомов и молекул",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

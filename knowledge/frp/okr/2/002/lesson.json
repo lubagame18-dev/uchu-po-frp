@@ -1,0 +1,20 @@
+{
+ "id": "okr-2-002",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 2,
+ "order": 2,
+ "section": "Наша планета и Родина",
+ "topic": "Глобус и карта",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-011",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 11,
+ "section": "Тепловые явления",
+ "topic": "Конвекция и излучение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

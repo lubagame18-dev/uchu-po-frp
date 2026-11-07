@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-041",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 41,
+ "section": "Неметаллы и их соединения",
+ "topic": "Практическая работа №5 «Решение экспериментальных задач по теме «Важнейшие неметаллы и их соединения»»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

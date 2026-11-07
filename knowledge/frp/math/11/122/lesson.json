@@ -1,0 +1,21 @@
+{
+ "id": "math-11-122",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 122,
+ "section": "Геометрия: Векторы и координаты в пространстве",
+ "topic": "Умножение вектора на число. Разложение вектора по трем некомпланарным векторам",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-047",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 47,
+ "section": "Птицы",
+ "topic": "Особенности строения и процессов жизнедеятельности птиц. Практическая работа № 15 «Исследование особенностей скелета птицы»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

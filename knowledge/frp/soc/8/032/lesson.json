@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-032",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 32,
+ "section": "Человек в мире культуры",
+ "topic": "Повторительно-обобщающий урок по теме «Человек в мире культуры». Контрольная работа",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

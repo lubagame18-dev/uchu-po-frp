@@ -1,0 +1,21 @@
+{
+ "id": "ru-1-014",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 1,
+ "order": 14,
+ "section": "Слово и предложение",
+ "topic": "Слово и его значение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

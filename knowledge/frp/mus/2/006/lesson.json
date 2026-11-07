@@ -1,0 +1,20 @@
+{
+ "id": "mus-2-006",
+ "subject": "mus",
+ "subject_title": "Музыка",
+ "grade": 2,
+ "order": 6,
+ "section": "Слушание и анализ",
+ "topic": "Жанры музыки",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет композитора"
+}

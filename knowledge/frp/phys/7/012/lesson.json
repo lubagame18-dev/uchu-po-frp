@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-012",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 12,
+ "section": "Движение и взаимодействие тел",
+ "topic": "Механическое движение. Траектория и путь. Равномерное и неравномерное движение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

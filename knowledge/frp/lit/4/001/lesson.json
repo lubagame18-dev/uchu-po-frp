@@ -1,0 +1,20 @@
+{
+ "id": "lit-4-001",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 4,
+ "order": 1,
+ "section": "Тема и идея произведения",
+ "topic": "Тема произведения",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

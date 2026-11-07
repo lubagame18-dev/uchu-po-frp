@@ -1,0 +1,21 @@
+{
+ "id": "math-11-064",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 64,
+ "section": "Алгебра и начала математического анализа: Интеграл и его применения",
+ "topic": "Вычисление интеграла по формуле Ньютона–Лейбница",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

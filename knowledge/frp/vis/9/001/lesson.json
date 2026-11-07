@@ -1,0 +1,20 @@
+{
+ "id": "vis-9-001",
+ "subject": "vis",
+ "subject_title": "Вероятность и статистика",
+ "grade": 9,
+ "order": 1,
+ "section": "Случайные величины",
+ "topic": "Понятие случайной величины",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

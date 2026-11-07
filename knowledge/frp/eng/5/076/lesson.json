@@ -1,0 +1,20 @@
+{
+ "id": "eng-5-076",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 5,
+ "order": 76,
+ "section": "Родной город (село). Транспорт",
+ "topic": "Родной город: аудирование",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

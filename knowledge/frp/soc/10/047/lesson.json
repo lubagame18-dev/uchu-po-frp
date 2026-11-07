@@ -1,0 +1,21 @@
+{
+ "id": "soc-10-047",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 10,
+ "order": 47,
+ "section": "Политическая жизнь общества",
+ "topic": "Избирательная система (урок 2 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

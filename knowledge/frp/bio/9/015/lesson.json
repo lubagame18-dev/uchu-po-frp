@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-015",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 15,
+ "section": "Опора и движение",
+ "topic": "Скелет человека, строение его отделов и функции. Практическая работа № 4 «Изучение строения костей (на муляжах)»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

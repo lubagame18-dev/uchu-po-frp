@@ -1,0 +1,20 @@
+{
+ "id": "eng-9-012",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 9,
+ "order": 12,
+ "section": "Внешность и характер человека (литературного персонажа)",
+ "topic": "Внешность и характер человека: лексика",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

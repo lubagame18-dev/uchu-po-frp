@@ -1,0 +1,21 @@
+{
+ "id": "soc-9-033",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 9,
+ "order": 33,
+ "section": "Человек в системе социальных отношений",
+ "topic": "Защита проектов, итоговое повторение по теме «Человек в системе социальных отношений»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-11-146",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 146,
+ "section": "Вероятность и статистика: Закон больших чисел",
+ "topic": "Закон больших чисел. Выборочный метод исследований",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

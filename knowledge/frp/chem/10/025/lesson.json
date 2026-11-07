@@ -1,0 +1,21 @@
+{
+ "id": "chem-10-025",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 10,
+ "order": 25,
+ "section": "Кислородсодержащие органические соединения",
+ "topic": "Сложные эфиры. Реакция этерификации. Гидролиз сложных эфиров",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

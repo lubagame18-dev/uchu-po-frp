@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-051",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 51,
+ "section": "Млекопитающие",
+ "topic": "Особенности строения млекопитающих. Практическая работа № 16 «Исследование особенностей скелета млекопитающих»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

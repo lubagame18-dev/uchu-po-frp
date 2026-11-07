@@ -1,0 +1,21 @@
+{
+ "id": "math-8-118",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 8,
+ "order": 118,
+ "section": "Геометрия: Теорема Фалеса и теорема о пропорциональных отрезках, подобные треугольники",
+ "topic": "Средняя линия треугольника. Трапеция, ее средняя линия",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

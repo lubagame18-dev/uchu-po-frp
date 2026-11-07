@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-034",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 34,
+ "section": "Грибы. Лишайники. Бактерии",
+ "topic": "Обобщение и повторение изученного в 7 классе. Викторина",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

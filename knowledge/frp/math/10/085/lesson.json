@@ -1,0 +1,21 @@
+{
+ "id": "math-10-085",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 85,
+ "section": "Геометрия: Прямые и плоскости в пространстве. Параллельность прямых и плоскостей",
+ "topic": "Параллельность плоскостей: параллельные плоскости",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

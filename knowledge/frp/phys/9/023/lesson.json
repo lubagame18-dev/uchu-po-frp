@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-023",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 23,
+ "section": "Механические явления: законы движения и взаимодействия",
+ "topic": "Движение планет вокруг Солнца. Первая космическая скорость",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

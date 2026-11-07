@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-065",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 65,
+ "section": "Электрические и магнитные явления",
+ "topic": "Способы получения электрической энергии. Электростанции на возобновляемых источниках",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

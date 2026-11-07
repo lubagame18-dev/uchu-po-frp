@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-067",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 67,
+ "section": "Световые явления",
+ "topic": "Полное внутреннее отражение. Решение задач",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

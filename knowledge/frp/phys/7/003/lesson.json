@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-003",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 3,
+ "section": "Физика и её роль в познании окружающего мира",
+ "topic": "Физические величины. Измерение физических величин. Международная система единиц",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

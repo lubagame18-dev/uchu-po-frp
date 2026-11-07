@@ -1,0 +1,21 @@
+{
+ "id": "math-10-118",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 118,
+ "section": "Геометрия: Многогранники",
+ "topic": "Правильная призма и правильная пирамида. Правильная треугольная пирамида и правильный тетраэдр",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

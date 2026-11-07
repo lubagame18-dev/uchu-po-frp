@@ -1,0 +1,20 @@
+{
+ "id": "okr-2-009",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 2,
+ "order": 9,
+ "section": "Природа вокруг нас",
+ "topic": "Горные породы и минералы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

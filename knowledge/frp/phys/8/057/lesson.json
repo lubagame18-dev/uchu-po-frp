@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-057",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 57,
+ "section": "Электрические и магнитные явления",
+ "topic": "Магнитное поле Земли и его значение для жизни",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

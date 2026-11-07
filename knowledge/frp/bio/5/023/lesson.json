@@ -1,0 +1,21 @@
+{
+ "id": "bio-5-023",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 5,
+ "order": 23,
+ "section": "Организмы и среда обитания",
+ "topic": "Организмы как среда обитания",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-004",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 4,
+ "section": "Первоначальные химические понятия",
+ "topic": "Чистые вещества и смеси. Способы разделения смесей. Лабораторный опыт «Разделение смеси с помощью магнита»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-002",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 2,
+ "section": "Вещество и химические реакции",
+ "topic": "Строение вещества: виды химической связи. Типы кристаллических решёток",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

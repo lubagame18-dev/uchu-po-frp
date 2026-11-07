@@ -1,0 +1,21 @@
+{
+ "id": "math-5-010",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 10,
+ "section": "Математика: Натуральные числа. Действия с натуральными числами",
+ "topic": "Сравнение, округление натуральных чисел",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

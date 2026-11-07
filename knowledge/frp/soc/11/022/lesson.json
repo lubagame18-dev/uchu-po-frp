@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-022",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 22,
+ "section": "Россия в глобальной экономике",
+ "topic": "Повторительно-обобщающий урок по теме «Россия в глобальной экономике»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

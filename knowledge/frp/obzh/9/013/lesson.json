@@ -1,0 +1,21 @@
+{
+ "id": "obzh-9-013",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 9,
+ "order": 13,
+ "section": "Чрезвычайные ситуации техногенного характера",
+ "topic": "Химическая опасность",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

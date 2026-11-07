@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-045",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 45,
+ "section": "Электродинамика",
+ "topic": "Электрический заряд. Закон сохранения заряда",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

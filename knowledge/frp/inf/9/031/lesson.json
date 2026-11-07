@@ -1,0 +1,21 @@
+{
+ "id": "inf-9-031",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 9,
+ "order": 31,
+ "section": "Информационные технологии",
+ "topic": "Контрольная работа по теме «Электронные таблицы»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

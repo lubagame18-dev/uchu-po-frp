@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-054",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 54,
+ "section": "Механические колебания и волны",
+ "topic": "Лабораторная работа №9 «Исследование зависимости высоты тона звука от частоты колебаний»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

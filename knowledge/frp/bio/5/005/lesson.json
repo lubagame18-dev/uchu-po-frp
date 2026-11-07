@@ -1,0 +1,21 @@
+{
+ "id": "bio-5-005",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 5,
+ "order": 5,
+ "section": "Методы изучения живой природы",
+ "topic": "Научные методы изучения живой природы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

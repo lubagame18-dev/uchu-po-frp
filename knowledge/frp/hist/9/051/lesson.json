@@ -1,0 +1,20 @@
+{
+ "id": "hist-9-051",
+ "subject": "hist",
+ "subject_title": "История",
+ "grade": 9,
+ "order": 51,
+ "section": "История России",
+ "topic": "Технический прогресс и перемены в повседневной жизни народов России во второй половине XIX в.",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет"
+}

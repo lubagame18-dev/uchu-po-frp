@@ -1,0 +1,21 @@
+{
+ "id": "math-8-100",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 8,
+ "order": 100,
+ "section": "Алгебра: Повторение и обобщение",
+ "topic": "Повторение основных понятий и методов курсов 7 и 8 классов, обобщение знаний",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

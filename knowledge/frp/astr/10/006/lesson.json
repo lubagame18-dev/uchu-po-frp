@@ -1,0 +1,20 @@
+{
+ "id": "astr-10-006",
+ "subject": "astr",
+ "subject_title": "Астрономия",
+ "grade": 10,
+ "order": 6,
+ "section": "Небесная сфера и звёздные карты",
+ "topic": "Созвездия и звёздные величины",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

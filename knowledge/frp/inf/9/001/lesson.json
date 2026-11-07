@@ -1,0 +1,21 @@
+{
+ "id": "inf-9-001",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 9,
+ "order": 1,
+ "section": "Цифровая грамотность",
+ "topic": "Глобальная сеть Интернет. Как устроен Интернет",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

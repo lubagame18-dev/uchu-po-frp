@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-058",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 58,
+ "section": "Электромагнитное поле и электромагнитные волны",
+ "topic": "Свойства электромагнитных волн. Шкала электромагнитных волн",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

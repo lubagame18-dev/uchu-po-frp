@@ -1,0 +1,21 @@
+{
+ "id": "math-5-043",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 43,
+ "section": "Математика: Натуральные числа. Действия с натуральными числами",
+ "topic": "Контрольная работа по теме «Натуральные числа. Действия с натуральными числами»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

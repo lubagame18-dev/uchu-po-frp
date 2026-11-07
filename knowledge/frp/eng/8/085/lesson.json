@@ -1,0 +1,20 @@
+{
+ "id": "eng-8-085",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 8,
+ "order": 85,
+ "section": "Родная страна и страна",
+ "topic": "Родная страна и страна: лексика",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

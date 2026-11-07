@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-051",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 51,
+ "section": "Давление твёрдых тел, жидкостей и газов",
+ "topic": "Лабораторная работа №9 «Выяснение условий плавания тела в жидкости»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

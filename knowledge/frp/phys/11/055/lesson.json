@@ -1,0 +1,21 @@
+{
+ "id": "phys-11-055",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 11,
+ "order": 55,
+ "section": "Элементы астрономии и астрофизики",
+ "topic": "Солнечная система: планеты и малые тела",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

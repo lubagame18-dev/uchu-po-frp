@@ -1,0 +1,21 @@
+{
+ "id": "soc-10-065",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 10,
+ "order": 65,
+ "section": "Правовая система Российской Федерации",
+ "topic": "Повторительно-обобщающий урок по теме «Правовая система Российской Федерации» (урок 1 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

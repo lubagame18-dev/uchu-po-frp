@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-047",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 47,
+ "section": "Механические колебания и волны",
+ "topic": "Решение задач «Механические колебания»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

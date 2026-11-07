@@ -1,0 +1,20 @@
+{
+ "id": "hist-8-003",
+ "subject": "hist",
+ "subject_title": "История",
+ "grade": 8,
+ "order": 3,
+ "section": "Всеобщая история",
+ "topic": "Эпоха Просвещения",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "bio-11-005",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 11,
+ "order": 5,
+ "section": "Эволюционная биология",
+ "topic": "Движущие силы (элементарные факторы) эволюции",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

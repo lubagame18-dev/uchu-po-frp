@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-025",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 25,
+ "section": "Растения и человек",
+ "topic": "Охрана природы. Охрана растительного мира",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

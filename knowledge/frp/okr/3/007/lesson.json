@@ -1,0 +1,20 @@
+{
+ "id": "okr-3-007",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 3,
+ "order": 7,
+ "section": "Природа и её богатства",
+ "topic": "Круговорот воды в природе",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

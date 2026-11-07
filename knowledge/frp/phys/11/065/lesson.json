@@ -1,0 +1,21 @@
+{
+ "id": "phys-11-065",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 11,
+ "order": 65,
+ "section": "Обобщающее повторение",
+ "topic": "Итоговая контрольная работа №5 за курс физики",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

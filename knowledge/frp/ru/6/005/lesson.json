@@ -1,0 +1,21 @@
+{
+ "id": "ru-6-005",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 6,
+ "order": 5,
+ "section": "Текст",
+ "topic": "Функционально-смысловые типы речи",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

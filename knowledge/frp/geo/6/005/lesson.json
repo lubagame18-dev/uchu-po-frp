@@ -1,0 +1,20 @@
+{
+ "id": "geo-6-005",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 6,
+ "order": 5,
+ "section": "Оболочки Земли",
+ "topic": "Воды суши. Способы изображения внутренних вод на картах. Реки. Практическая работа «Сравнение двух рек (России и мира) по заданным признакам»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

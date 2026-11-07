@@ -1,0 +1,2654 @@
+{
+ "subject": "chem",
+ "title": "Химия",
+ "lessons": [
+  {
+   "lesson_id": "chem-8-001",
+   "grade": 8,
+   "topic": "Предмет химии. Роль химии в жизни человека. Химия в системе наук",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-002",
+   "grade": 8,
+   "topic": "Тела и вещества. Физические свойства веществ. Агрегатные состояния. Лабораторный опыт «Изучение и описание физических свойств образцов неорганических веществ»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-003",
+   "grade": 8,
+   "topic": "Практическая работа №1 «Правила работы в лаборатории и приёмы обращения с лабораторным оборудованием»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-004",
+   "grade": 8,
+   "topic": "Чистые вещества и смеси. Способы разделения смесей. Лабораторный опыт «Разделение смеси с помощью магнита»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-005",
+   "grade": 8,
+   "topic": "Практическая работа №2 «Разделение смесей (на примере очистки поваренной соли)»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-006",
+   "grade": 8,
+   "topic": "Атомы и молекулы. Химические элементы. Символы химических элементов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-007",
+   "grade": 8,
+   "topic": "Простые и сложные вещества. Атомно-молекулярное учение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-008",
+   "grade": 8,
+   "topic": "Химическая формула. Относительная атомная и относительная молекулярная массы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-009",
+   "grade": 8,
+   "topic": "Массовая доля химического элемента в соединении",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-010",
+   "grade": 8,
+   "topic": "Валентность. Составление формул бинарных соединений по валентности",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-011",
+   "grade": 8,
+   "topic": "Закон постоянства состава веществ",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-012",
+   "grade": 8,
+   "topic": "Количество вещества. Моль. Число структурных единиц",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-013",
+   "grade": 8,
+   "topic": "Молярная масса. Взаимосвязь количества, массы и числа частиц вещества",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-014",
+   "grade": 8,
+   "topic": "Расчёты по формулам химических соединений",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-015",
+   "grade": 8,
+   "topic": "Физические и химические явления. Признаки и условия протекания химических реакций",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-016",
+   "grade": 8,
+   "topic": "Закон сохранения массы веществ",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-017",
+   "grade": 8,
+   "topic": "Химические уравнения. Расстановка коэффициентов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-018",
+   "grade": 8,
+   "topic": "Расчёты по уравнениям химических реакций: количество и масса вещества",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-019",
+   "grade": 8,
+   "topic": "Классификация химических реакций: соединения, разложения, замещения, обмена",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-020",
+   "grade": 8,
+   "topic": "Контрольная работа №1 «Вещества и химические реакции»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-021",
+   "grade": 8,
+   "topic": "Воздух – смесь газов. Состав воздуха. Загрязнение воздуха",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-022",
+   "grade": 8,
+   "topic": "Кислород – элемент и простое вещество. Нахождение в природе, физические свойства, получение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-023",
+   "grade": 8,
+   "topic": "Практическая работа №3 «Получение и собирание кислорода, изучение его свойств»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-024",
+   "grade": 8,
+   "topic": "Химические свойства кислорода. Оксиды. Горение и медленное окисление",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-025",
+   "grade": 8,
+   "topic": "Тепловой эффект химической реакции. Термохимические уравнения. Топливо",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-026",
+   "grade": 8,
+   "topic": "Озон – аллотропная модификация кислорода. Круговорот кислорода. Применение кислорода",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-027",
+   "grade": 8,
+   "topic": "Водород – элемент и простое вещество. Нахождение в природе, физические свойства, получение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-028",
+   "grade": 8,
+   "topic": "Химические свойства водорода. Применение водорода",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-029",
+   "grade": 8,
+   "topic": "Практическая работа №4 «Получение и собирание водорода, изучение его свойств»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-030",
+   "grade": 8,
+   "topic": "Молярный объём газов. Закон объёмных отношений газов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-031",
+   "grade": 8,
+   "topic": "Расчёты по уравнениям реакций с участием газов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-032",
+   "grade": 8,
+   "topic": "Понятие о кислотах. Состав, названия, классификация. Взаимодействие кислот с металлами",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-033",
+   "grade": 8,
+   "topic": "Понятие о солях. Состав, названия, растворимость солей",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-034",
+   "grade": 8,
+   "topic": "Решение расчётных задач по уравнениям реакций",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-035",
+   "grade": 8,
+   "topic": "Вода: физические и химические свойства, вода как растворитель. Круговорот воды. Охрана и очистка природных вод",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-036",
+   "grade": 8,
+   "topic": "Растворы. Насыщенные и ненасыщенные растворы. Растворимость веществ в воде. Понятие об основаниях",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-037",
+   "grade": 8,
+   "topic": "Массовая доля растворённого вещества. Решение задач",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-038",
+   "grade": 8,
+   "topic": "Практическая работа №5 «Приготовление растворов с определённой массовой долей растворённого вещества»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-039",
+   "grade": 8,
+   "topic": "Решение расчётных задач на растворы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-040",
+   "grade": 8,
+   "topic": "Классификация неорганических соединений. Оксиды: классификация, номенклатура",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-041",
+   "grade": 8,
+   "topic": "Свойства оксидов. Получение оксидов. Лабораторный опыт «Взаимодействие раствора серной кислоты с оксидом меди (II)»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-042",
+   "grade": 8,
+   "topic": "Основания: классификация, номенклатура, получение. Лабораторный опыт «Получение нерастворимых оснований»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-043",
+   "grade": 8,
+   "topic": "Химические свойства оснований. Реакция нейтрализации. Индикаторы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-044",
+   "grade": 8,
+   "topic": "Кислоты: классификация, номенклатура, физические и химические свойства",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-045",
+   "grade": 8,
+   "topic": "Ряд активности металлов Н. Н. Бекетова. Лабораторный опыт «Вытеснение одного металла другим из раствора соли»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-046",
+   "grade": 8,
+   "topic": "Соли: номенклатура, физические и химические свойства, получение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-047",
+   "grade": 8,
+   "topic": "Генетическая связь между классами неорганических соединений",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-048",
+   "grade": 8,
+   "topic": "Расчёты по уравнениям реакций по теме «Классы неорганических соединений»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-049",
+   "grade": 8,
+   "topic": "Практическая работа №6 «Решение экспериментальных задач по теме «Важнейшие классы неорганических соединений»»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-050",
+   "grade": 8,
+   "topic": "Контрольная работа №2 «Важнейшие представители неорганических веществ»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-051",
+   "grade": 8,
+   "topic": "Первые попытки классификации химических элементов. Группы сходных элементов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-052",
+   "grade": 8,
+   "topic": "Периодический закон Д. И. Менделеева. Периодическая система: периоды и группы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-053",
+   "grade": 8,
+   "topic": "Строение атомов. Состав атомных ядер. Изотопы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-054",
+   "grade": 8,
+   "topic": "Электроны. Строение электронных оболочек атомов первых 20 элементов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-055",
+   "grade": 8,
+   "topic": "Характеристика химического элемента по его положению в Периодической системе. Амфотерные оксиды и гидроксиды",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-056",
+   "grade": 8,
+   "topic": "Закономерности изменения радиуса атомов, металлических и неметаллических свойств. Лабораторный опыт «Ознакомление с образцами металлов и неметаллов»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-057",
+   "grade": 8,
+   "topic": "Значение Периодического закона. Д. И. Менделеев – учёный и гражданин",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-058",
+   "grade": 8,
+   "topic": "Химическая связь. Электроотрицательность химических элементов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-059",
+   "grade": 8,
+   "topic": "Ковалентная неполярная связь",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-060",
+   "grade": 8,
+   "topic": "Ковалентная полярная связь",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-061",
+   "grade": 8,
+   "topic": "Ионная связь",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-062",
+   "grade": 8,
+   "topic": "Степень окисления. Определение степеней окисления по формулам",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-063",
+   "grade": 8,
+   "topic": "Окислительно-восстановительные реакции. Процессы окисления и восстановления. Окислители и восстановители",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-064",
+   "grade": 8,
+   "topic": "Обобщение по темам «Периодический закон. Строение атомов. Химическая связь»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-065",
+   "grade": 8,
+   "topic": "Контрольная работа №3 «Периодический закон. Строение атомов. Химическая связь. Окислительно-восстановительные реакции»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-066",
+   "grade": 8,
+   "topic": "Повторение: первоначальные химические понятия и важнейшие классы веществ",
+   "numbered_elements": [
+    "оксиды → основания → кислоты → соли",
+    "кислота + основание → соль + вода (нейтрализация)",
+    "индикаторы: лакмус (красный в кислоте, синий в щёлочи), фенолфталеин (малиновый в щёлочи)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/05_Химия/text.md"
+  },
+  {
+   "lesson_id": "chem-8-067",
+   "grade": 8,
+   "topic": "Итоговая контрольная работа №4 за курс химии 8 класса",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-8-068",
+   "grade": 8,
+   "topic": "Анализ итоговой работы. Резервный урок",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-001",
+   "grade": 9,
+   "topic": "Периодический закон и Периодическая система. Строение атомов элементов первых трёх периодов, калия и кальция",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-002",
+   "grade": 9,
+   "topic": "Строение вещества: виды химической связи. Типы кристаллических решёток",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-003",
+   "grade": 9,
+   "topic": "Зависимость свойств вещества от типа кристаллической решётки и вида химической связи",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-004",
+   "grade": 9,
+   "topic": "Классификация и номенклатура неорганических веществ",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-005",
+   "grade": 9,
+   "topic": "Химические свойства основных классов неорганических веществ. Генетическая связь",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-006",
+   "grade": 9,
+   "topic": "Классификация химических реакций по различным признакам. Экзо- и эндотермические реакции",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-007",
+   "grade": 9,
+   "topic": "Скорость химической реакции. Катализ. Факторы, влияющие на скорость",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-008",
+   "grade": 9,
+   "topic": "Обратимые и необратимые реакции. Химическое равновесие. Смещение равновесия",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-009",
+   "grade": 9,
+   "topic": "Окислительно-восстановительные реакции. Метод электронного баланса",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-010",
+   "grade": 9,
+   "topic": "Электролиты и неэлектролиты. Теория электролитической диссоциации. Механизм диссоциации",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-011",
+   "grade": 9,
+   "topic": "Степень диссоциации. Сильные и слабые электролиты",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-012",
+   "grade": 9,
+   "topic": "Реакции ионного обмена. Полные и сокращённые ионные уравнения. Лабораторный опыт «Реакции ионного обмена»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-013",
+   "grade": 9,
+   "topic": "Условия протекания реакций ионного обмена до конца. Расчёты по уравнениям реакций",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-014",
+   "grade": 9,
+   "topic": "Свойства кислот, оснований и солей в свете теории электролитической диссоциации. Качественные реакции на ионы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-015",
+   "grade": 9,
+   "topic": "Понятие о гидролизе солей",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-016",
+   "grade": 9,
+   "topic": "Практическая работа №1 «Решение экспериментальных задач по теме «Электролитическая диссоциация»»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-017",
+   "grade": 9,
+   "topic": "Контрольная работа №1 «Вещество и химические реакции»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-018",
+   "grade": 9,
+   "topic": "Галогены: общая характеристика, строение атомов, свойства простых веществ",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-019",
+   "grade": 9,
+   "topic": "Химические свойства хлора. Хлороводород и соляная кислота. Хлориды. Качественная реакция на хлорид-ион",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-020",
+   "grade": 9,
+   "topic": "Практическая работа №2 «Получение соляной кислоты, изучение её свойств»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-021",
+   "grade": 9,
+   "topic": "Расчёты по уравнениям реакций, если один из реагентов дан в избытке. Обобщение по теме «Галогены»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-022",
+   "grade": 9,
+   "topic": "Общая характеристика элементов VIА-группы. Кислород и сера. Аллотропия. Свойства серы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-023",
+   "grade": 9,
+   "topic": "Сероводород. Оксиды серы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-024",
+   "grade": 9,
+   "topic": "Серная кислота: общие свойства кислот. Лабораторный опыт «Химические свойства разбавленной серной кислоты»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-025",
+   "grade": 9,
+   "topic": "Специфические свойства серной кислоты. Промышленное получение серной кислоты. Применение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-026",
+   "grade": 9,
+   "topic": "Соли серной кислоты. Качественная реакция на сульфат-ион. Сера и её соединения в природе",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-027",
+   "grade": 9,
+   "topic": "Соединения серы и охрана окружающей среды. Кислотные дожди. Обобщение по теме",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-028",
+   "grade": 9,
+   "topic": "Общая характеристика элементов VА-группы. Азот: свойства, круговорот азота в природе",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-029",
+   "grade": 9,
+   "topic": "Аммиак: строение, свойства, получение, применение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-030",
+   "grade": 9,
+   "topic": "Практическая работа №3 «Получение аммиака, изучение его свойств»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-031",
+   "grade": 9,
+   "topic": "Соли аммония. Качественная реакция на ион аммония",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-032",
+   "grade": 9,
+   "topic": "Азотная кислота: получение, общие и специфические свойства. Нитраты",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-033",
+   "grade": 9,
+   "topic": "Фосфор и его соединения. Фосфорная кислота. Качественная реакция на фосфат-ион",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-034",
+   "grade": 9,
+   "topic": "Минеральные удобрения. Загрязнение окружающей среды соединениями азота. Решение задач",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-035",
+   "grade": 9,
+   "topic": "Общая характеристика элементов IVА-группы. Углерод: аллотропия, адсорбция, круговорот в природе",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-036",
+   "grade": 9,
+   "topic": "Оксиды углерода. Парниковый эффект. Угольная кислота и её соли. Качественная реакция на карбонат-ион",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-037",
+   "grade": 9,
+   "topic": "Получение, собирание, распознавание углекислого газа. Лабораторный опыт «Изучение свойств углекислого газа»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-038",
+   "grade": 9,
+   "topic": "Практическая работа №4 «Получение углекислого газа, изучение его свойств»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-039",
+   "grade": 9,
+   "topic": "Кремний и его соединения. Силикаты. Строительные материалы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-040",
+   "grade": 9,
+   "topic": "Первоначальные понятия об органических веществах. Природные источники углеводородов. Жиры, белки, углеводы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-041",
+   "grade": 9,
+   "topic": "Практическая работа №5 «Решение экспериментальных задач по теме «Важнейшие неметаллы и их соединения»»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-042",
+   "grade": 9,
+   "topic": "Контрольная работа №2 «Неметаллы и их соединения»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-043",
+   "grade": 9,
+   "topic": "Положение металлов в Периодической системе. Металлическая связь. Лабораторный опыт «Ознакомление с образцами металлов и сплавов»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-044",
+   "grade": 9,
+   "topic": "Физические и химические свойства металлов. Электрохимический ряд напряжений",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-045",
+   "grade": 9,
+   "topic": "Общие способы получения металлов. Коррозия металлов и защита от неё",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-046",
+   "grade": 9,
+   "topic": "Сплавы и их применение. Расчёты по уравнениям реакций, если реагент содержит примеси",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-047",
+   "grade": 9,
+   "topic": "Щелочные металлы: положение в Периодической системе, строение атомов, физические свойства",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-048",
+   "grade": 9,
+   "topic": "Химические свойства натрия и калия",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-049",
+   "grade": 9,
+   "topic": "Оксиды и гидроксиды натрия и калия. Применение щелочных металлов и их соединений",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-050",
+   "grade": 9,
+   "topic": "Щелочноземельные металлы: магний и кальций",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-051",
+   "grade": 9,
+   "topic": "Важнейшие соединения кальция: оксид, гидроксид, соли",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-052",
+   "grade": 9,
+   "topic": "Жёсткость воды и способы её устранения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-053",
+   "grade": 9,
+   "topic": "Практическая работа №6 «Жёсткость воды и методы её устранения»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-054",
+   "grade": 9,
+   "topic": "Алюминий: положение в Периодической системе, строение атома, свойства",
+   "numbered_elements": [
+    "протон",
+    "нейтрон",
+    "электрон"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/05_Химия/text.md"
+  },
+  {
+   "lesson_id": "chem-9-055",
+   "grade": 9,
+   "topic": "Амфотерные свойства оксида и гидроксида алюминия. Лабораторный опыт «Исследование амфотерных свойств гидроксидов алюминия и цинка»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-056",
+   "grade": 9,
+   "topic": "Железо: положение в Периодической системе, строение атома, свойства",
+   "numbered_elements": [
+    "протон",
+    "нейтрон",
+    "электрон"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/05_Химия/text.md"
+  },
+  {
+   "lesson_id": "chem-9-057",
+   "grade": 9,
+   "topic": "Оксиды и гидроксиды железа (II) и железа (III)",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-058",
+   "grade": 9,
+   "topic": "Соли железа (II) и железа (III). Качественные реакции на ионы железа",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-059",
+   "grade": 9,
+   "topic": "Качественные реакции на ионы металлов. Лабораторный опыт «Качественные реакции на ионы магния, кальция, цинка, меди (II)»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-060",
+   "grade": 9,
+   "topic": "Расчёты по уравнениям реакций: массовая доля выхода продукта, примеси, избыток",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-061",
+   "grade": 9,
+   "topic": "Практическая работа №7 «Решение экспериментальных задач по теме «Важнейшие металлы и их соединения»»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-062",
+   "grade": 9,
+   "topic": "Контрольная работа №3 «Металлы и их соединения»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-063",
+   "grade": 9,
+   "topic": "Вещества и материалы в повседневной жизни. Безопасное использование веществ. Первая помощь при химических ожогах и отравлениях",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-064",
+   "grade": 9,
+   "topic": "Химическое загрязнение окружающей среды. Предельно допустимая концентрация. Роль химии в решении экологических проблем",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-065",
+   "grade": 9,
+   "topic": "Обобщение курса химии основной школы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-066",
+   "grade": 9,
+   "topic": "Повторение: основные понятия и законы химии",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-067",
+   "grade": 9,
+   "topic": "Итоговая контрольная работа №4 за курс химии основной школы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-9-068",
+   "grade": 9,
+   "topic": "Анализ итоговой работы. Резервный урок",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-001",
+   "grade": 10,
+   "topic": "Предмет органической химии. Теория строения органических соединений А. М. Бутлерова",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-002",
+   "grade": 10,
+   "topic": "Структурные формулы. Гомология и изомерия. Лабораторный опыт «Моделирование молекул органических веществ»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-003",
+   "grade": 10,
+   "topic": "Химическая связь в органических соединениях: σ- и π-связи. Классификация и номенклатура органических веществ",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-004",
+   "grade": 10,
+   "topic": "Алканы: состав и строение, гомологический ряд, изомерия, номенклатура",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-005",
+   "grade": 10,
+   "topic": "Метан и этан: физические и химические свойства, получение, применение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-006",
+   "grade": 10,
+   "topic": "Алкены: состав и строение, гомологический ряд. Этилен",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-007",
+   "grade": 10,
+   "topic": "Практическая работа №1 «Получение этилена и изучение его свойств»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-008",
+   "grade": 10,
+   "topic": "Химические свойства алкенов: гидрирование, галогенирование, гидратация, окисление, полимеризация",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-009",
+   "grade": 10,
+   "topic": "Алкадиены. Бутадиен-1,3 и метилбутадиен-1,3. Каучук и резина",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-010",
+   "grade": 10,
+   "topic": "Алкины: состав и строение, гомологический ряд. Ацетилен",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-011",
+   "grade": 10,
+   "topic": "Расчётные задачи: вывод молекулярной формулы вещества по массовым долям элементов и продуктам сгорания",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-012",
+   "grade": 10,
+   "topic": "Арены: бензол и толуол. Строение, физические и химические свойства, получение, применение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-013",
+   "grade": 10,
+   "topic": "Генетическая связь углеводородов. Влияние бензола на организм человека",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-014",
+   "grade": 10,
+   "topic": "Природный газ и попутные нефтяные газы. Нефть и её происхождение. Лабораторный опыт «Качественное определение углерода и водорода в органических веществах»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-015",
+   "grade": 10,
+   "topic": "Переработка нефти: перегонка, крекинг. Каменный уголь и продукты его переработки",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-016",
+   "grade": 10,
+   "topic": "Контрольная работа №1 «Углеводороды»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-017",
+   "grade": 10,
+   "topic": "Предельные одноатомные спирты: метанол и этанол. Водородная связь. Лабораторный опыт «Горение спиртов»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-018",
+   "grade": 10,
+   "topic": "Многоатомные спирты: этиленгликоль и глицерин. Лабораторный опыт «Взаимодействие глицерина с гидроксидом меди (II)»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-019",
+   "grade": 10,
+   "topic": "Фенол: строение молекулы, свойства, токсичность, применение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-020",
+   "grade": 10,
+   "topic": "Альдегиды: формальдегид и ацетальдегид. Строение, свойства, получение, применение",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-021",
+   "grade": 10,
+   "topic": "Качественные реакции альдегидов. Лабораторный опыт «Окисление альдегидов аммиачным раствором оксида серебра (I) и гидроксидом меди (II)»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-022",
+   "grade": 10,
+   "topic": "Одноосновные предельные карбоновые кислоты. Уксусная кислота",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-023",
+   "grade": 10,
+   "topic": "Практическая работа №2 «Свойства раствора уксусной кислоты»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-024",
+   "grade": 10,
+   "topic": "Высшие карбоновые кислоты. Мыла как соли высших карбоновых кислот",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-025",
+   "grade": 10,
+   "topic": "Сложные эфиры. Реакция этерификации. Гидролиз сложных эфиров",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-026",
+   "grade": 10,
+   "topic": "Жиры как производные глицерина и высших карбоновых кислот. Гидролиз жиров",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-027",
+   "grade": 10,
+   "topic": "Углеводы: состав и классификация. Глюкоза",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-028",
+   "grade": 10,
+   "topic": "Фруктоза. Сахароза. Фотосинтез",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-029",
+   "grade": 10,
+   "topic": "Крахмал и целлюлоза как природные полимеры. Лабораторный опыт «Взаимодействие крахмала с иодом»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-030",
+   "grade": 10,
+   "topic": "Амины. Метиламин: состав, строение, свойства",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-031",
+   "grade": 10,
+   "topic": "Аминокислоты как амфотерные органические соединения. Глицин. Синтез пептидов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-032",
+   "grade": 10,
+   "topic": "Белки как природные полимеры: структура, гидролиз, денатурация, качественные реакции",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-033",
+   "grade": 10,
+   "topic": "Высокомолекулярные соединения: мономер, полимер, структурное звено. Полимеризация и поликонденсация. Пластмассы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-10-034",
+   "grade": 10,
+   "topic": "Каучуки и волокна: натуральные, искусственные, синтетические. Обобщение курса органической химии",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-001",
+   "grade": 11,
+   "topic": "Строение атома. Состав атомных ядер. Изотопы. Электронная оболочка, подуровни, орбитали",
+   "numbered_elements": [
+    "протон",
+    "нейтрон",
+    "электрон"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/05_Химия/text.md"
+  },
+  {
+   "lesson_id": "chem-11-002",
+   "grade": 11,
+   "topic": "Электронные конфигурации атомов. s-, p-, d-, f-элементы",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-003",
+   "grade": 11,
+   "topic": "Периодический закон и Периодическая система в свете строения атомов. Закономерности изменения свойств элементов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-004",
+   "grade": 11,
+   "topic": "Химическая связь: ковалентная, ионная, металлическая, водородная. Механизмы образования ковалентной связи",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-005",
+   "grade": 11,
+   "topic": "Электроотрицательность, валентность, степень окисления. Вещества молекулярного и немолекулярного строения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-006",
+   "grade": 11,
+   "topic": "Типы кристаллических решёток и свойства веществ. Закон постоянства состава",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-007",
+   "grade": 11,
+   "topic": "Дисперсные системы. Истинные растворы. Массовая доля вещества в растворе. Классификация и номенклатура неорганических веществ",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-008",
+   "grade": 11,
+   "topic": "Классификация химических реакций. Законы сохранения массы и энергии. Термохимические расчёты",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-009",
+   "grade": 11,
+   "topic": "Скорость химической реакции и факторы, влияющие на неё",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-010",
+   "grade": 11,
+   "topic": "Практическая работа №1 «Влияние различных факторов на скорость химической реакции»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-011",
+   "grade": 11,
+   "topic": "Обратимые реакции. Химическое равновесие. Принцип Ле Шателье",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-012",
+   "grade": 11,
+   "topic": "Электролитическая диссоциация. Среда водных растворов. Водородный показатель. Реакции ионного обмена. Лабораторный опыт «Определение среды растворов с помощью универсального индикатора»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-013",
+   "grade": 11,
+   "topic": "Окислительно-восстановительные реакции. Электролиз расплавов и растворов солей",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-014",
+   "grade": 11,
+   "topic": "Положение металлов в Периодической системе. Физические свойства, сплавы, применение металлов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-015",
+   "grade": 11,
+   "topic": "Электрохимический ряд напряжений. Способы получения металлов. Коррозия металлов и защита от неё",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-016",
+   "grade": 11,
+   "topic": "Металлы главных подгрупп: IА- и IIА-группы. Алюминий. Лабораторный опыт «Взаимодействие гидроксида алюминия с растворами кислот и щелочей»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-017",
+   "grade": 11,
+   "topic": "Металлы побочных подгрупп: медь, цинк, хром, железо. Важнейшие соединения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-018",
+   "grade": 11,
+   "topic": "Качественные реакции на катионы металлов. Расчёты по уравнениям, если вещество дано в виде раствора",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-019",
+   "grade": 11,
+   "topic": "Практическая работа №2 «Решение экспериментальных задач по теме «Металлы»»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-020",
+   "grade": 11,
+   "topic": "Положение неметаллов в Периодической системе. Физические свойства, аллотропия",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-021",
+   "grade": 11,
+   "topic": "Галогены: свойства простых веществ и соединений",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-022",
+   "grade": 11,
+   "topic": "Сера и её соединения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-023",
+   "grade": 11,
+   "topic": "Азот и его соединения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-024",
+   "grade": 11,
+   "topic": "Фосфор и его соединения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-025",
+   "grade": 11,
+   "topic": "Углерод и кремний и их соединения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-026",
+   "grade": 11,
+   "topic": "Оксиды неметаллов. Кислородсодержащие кислоты. Водородные соединения неметаллов",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-027",
+   "grade": 11,
+   "topic": "Качественные реакции на анионы и катион аммония. Расчёты по уравнениям, если вещество содержит примеси",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-028",
+   "grade": 11,
+   "topic": "Практическая работа №3 «Решение экспериментальных задач по теме «Неметаллы»»",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-029",
+   "grade": 11,
+   "topic": "Неорганические и органические кислоты и основания. Амфотерные соединения",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-030",
+   "grade": 11,
+   "topic": "Генетическая связь неорганических и органических веществ",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-031",
+   "grade": 11,
+   "topic": "Роль химии в обеспечении экологической, энергетической и пищевой безопасности. Научные методы познания веществ и реакций",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-032",
+   "grade": 11,
+   "topic": "Общие научные принципы промышленного получения веществ: аммиак, серная кислота, метанол",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-033",
+   "grade": 11,
+   "topic": "Химия и здоровье человека. Лекарственные препараты. Бытовая химическая грамотность",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "chem-11-034",
+   "grade": 11,
+   "topic": "Обобщение курса химии. Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вещество",
+    "Состав",
+    "Свойство",
+    "Реакция"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  }
+ ]
+}

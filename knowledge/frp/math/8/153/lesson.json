@@ -1,0 +1,21 @@
+{
+ "id": "math-8-153",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 8,
+ "order": 153,
+ "section": "Геометрия: Теорема Пифагора и начала тригонометрии",
+ "topic": "Контрольная работа по теме «Теорема Пифагора и начала тригонометрии»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

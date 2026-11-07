@@ -1,0 +1,21 @@
+{
+ "id": "ru-10-005",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 10,
+ "order": 5,
+ "section": "Язык и речь. Культура речи. Система языка. Культура речи",
+ "topic": "Система языка, её устройство, функционирование",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

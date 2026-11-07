@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-033",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 33,
+ "section": "Формирование справедливого миропорядка в XXI в.",
+ "topic": "Повторительно-обобщающий урок по теме «Формирование справедливого миропорядка в XXI в.»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

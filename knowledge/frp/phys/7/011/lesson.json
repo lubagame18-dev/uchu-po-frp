@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-011",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 11,
+ "section": "Первоначальные сведения о строении вещества",
+ "topic": "Свойства веществ в разных агрегатных состояниях. Особенности агрегатных состояний воды",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

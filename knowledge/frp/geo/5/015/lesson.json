@@ -1,0 +1,20 @@
+{
+ "id": "geo-5-015",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 5,
+ "order": 15,
+ "section": "Изображения земной поверхности",
+ "topic": "Различия глобуса и географических карт. Способы перехода от сферической поверхности глобуса к плоскости географической карты",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

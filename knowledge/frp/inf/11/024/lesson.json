@@ -1,0 +1,21 @@
+{
+ "id": "inf-11-024",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 11,
+ "order": 24,
+ "section": "Информационные технологии",
+ "topic": "Электронные таблицы. Анализ данных",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

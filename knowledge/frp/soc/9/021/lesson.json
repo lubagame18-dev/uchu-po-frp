@@ -1,0 +1,21 @@
+{
+ "id": "soc-9-021",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 9,
+ "order": 21,
+ "section": "Человек в системе социальных отношений",
+ "topic": "Этнос и нация. Россия – многонациональное государство (урок 1 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

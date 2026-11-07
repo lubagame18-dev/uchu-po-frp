@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-053",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 53,
+ "section": "Механические колебания и волны",
+ "topic": "Отражение звука. Эхо. Инфразвук и ультразвук",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

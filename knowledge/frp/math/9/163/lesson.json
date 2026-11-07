@@ -1,0 +1,21 @@
+{
+ "id": "math-9-163",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 163,
+ "section": "Геометрия: Движения плоскости",
+ "topic": "Контрольная работа по теме «Движения плоскости»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

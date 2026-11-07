@@ -1,0 +1,20 @@
+{
+ "id": "geo-11-021",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 11,
+ "order": 21,
+ "section": "Регионы и страны",
+ "topic": "Африка: Экономические и социальные проблемы региона Особенности экономико-географического положения, природно-",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

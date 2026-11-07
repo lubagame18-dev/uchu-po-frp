@@ -1,0 +1,21 @@
+{
+ "id": "math-7-193",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 193,
+ "section": "Вероятность и статистика: Введение в теорию графов",
+ "topic": "Степень (валентность) вершины. Число ребер и суммарная степень вершин. Цепь и цикл. Путь в графе",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

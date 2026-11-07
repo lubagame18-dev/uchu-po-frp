@@ -1,0 +1,20 @@
+{
+ "id": "izo-2-015",
+ "subject": "izo",
+ "subject_title": "Изобразительное искусство",
+ "grade": 2,
+ "order": 15,
+ "section": "Композиция и пространство",
+ "topic": "Пейзаж родной природы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "репродукция картины"
+}

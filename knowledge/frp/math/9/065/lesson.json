@@ -1,0 +1,21 @@
+{
+ "id": "math-9-065",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 65,
+ "section": "Алгебра: Функции",
+ "topic": "Графики функций: y = kx, y = kx + b, k y = , x y = x², y = x³, y = √x, y = | х |",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

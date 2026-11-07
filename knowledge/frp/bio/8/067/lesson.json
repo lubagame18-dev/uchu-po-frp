@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-067",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 67,
+ "section": "Животные и человек",
+ "topic": "Животные в городе. Меры сохранения животного мира. Защита окружающей среды",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

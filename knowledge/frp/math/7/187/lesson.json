@@ -1,0 +1,21 @@
+{
+ "id": "math-7-187",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 187,
+ "section": "Вероятность и статистика: Случайная изменчивость",
+ "topic": "Случайная изменчивость (примеры). Частота значений в массиве данных. Группировка. Гистограммы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

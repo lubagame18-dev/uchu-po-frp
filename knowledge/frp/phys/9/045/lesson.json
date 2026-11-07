@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-045",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 45,
+ "section": "Механические колебания и волны",
+ "topic": "Лабораторная работа №8 «Исследование зависимости периода колебаний пружинного маятника от массы груза»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

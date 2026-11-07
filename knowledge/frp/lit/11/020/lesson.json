@@ -1,0 +1,20 @@
+{
+ "id": "lit-11-020",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 11,
+ "order": 20,
+ "section": "Литература ХХ века",
+ "topic": "Поэзия о Великой Отечественной войне. Стихотворения (по одному стихотворению не менее чем двух поэтов по выбору)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

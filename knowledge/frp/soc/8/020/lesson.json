@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-020",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 20,
+ "section": "Человек в экономических отношениях",
+ "topic": "Повторительно-обобщающий урок по теме «Человек в экономических отношениях». Контрольная работа",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

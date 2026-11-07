@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-027",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 27,
+ "section": "Формирование справедливого миропорядка в XXI в.",
+ "topic": "Организация Объединенных Наций: история и проблемы (урок 1 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

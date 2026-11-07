@@ -1,0 +1,21 @@
+{
+ "id": "chem-10-024",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 10,
+ "order": 24,
+ "section": "Кислородсодержащие органические соединения",
+ "topic": "Высшие карбоновые кислоты. Мыла как соли высших карбоновых кислот",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

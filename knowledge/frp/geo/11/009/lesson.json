@@ -1,0 +1,20 @@
+{
+ "id": "geo-11-009",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 11,
+ "order": 9,
+ "section": "Регионы и страны",
+ "topic": "Зарубежная Азия: Общие черты и особенности экономико-географического положения, природно- ресурсного капитала, населения,",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

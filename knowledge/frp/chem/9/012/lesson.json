@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-012",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 12,
+ "section": "Вещество и химические реакции",
+ "topic": "Реакции ионного обмена. Полные и сокращённые ионные уравнения. Лабораторный опыт «Реакции ионного обмена»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

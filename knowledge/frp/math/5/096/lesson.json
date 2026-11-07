@@ -1,0 +1,21 @@
+{
+ "id": "math-5-096",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 96,
+ "section": "Математика: Обыкновенные дроби",
+ "topic": "Основные задачи на дроби. Применение букв для записи математических выражений и предложений",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

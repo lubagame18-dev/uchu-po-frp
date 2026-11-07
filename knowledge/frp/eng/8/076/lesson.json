@@ -1,0 +1,20 @@
+{
+ "id": "eng-8-076",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 8,
+ "order": 76,
+ "section": "Условия проживания в городской/сельской местности. Транспорт",
+ "topic": "Обобщение по теме «Условия проживания в городской»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

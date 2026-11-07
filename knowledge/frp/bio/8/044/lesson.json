@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-044",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 44,
+ "section": "Пресмыкающиеся",
+ "topic": "Особенности внутреннего строения и процессов жизнедеятельности пресмыкающихся",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

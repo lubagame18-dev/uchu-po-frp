@@ -1,0 +1,21 @@
+{
+ "id": "math-1-034",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 1,
+ "order": 34,
+ "section": "Повторение",
+ "topic": "Повторение: решаем задачи",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

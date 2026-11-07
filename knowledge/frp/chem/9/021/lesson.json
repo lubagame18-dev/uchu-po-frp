@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-021",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 21,
+ "section": "Неметаллы и их соединения",
+ "topic": "Расчёты по уравнениям реакций, если один из реагентов дан в избытке. Обобщение по теме «Галогены»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

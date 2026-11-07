@@ -1,0 +1,21 @@
+{
+ "id": "math-11-137",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 137,
+ "section": "Вероятность и статистика: Математическое ожидание случайной величины",
+ "topic": "Примеры применения математического ожидания (страхование, лотерея)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

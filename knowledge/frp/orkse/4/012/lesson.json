@@ -1,0 +1,20 @@
+{
+ "id": "orkse-4-012",
+ "subject": "orkse",
+ "subject_title": "ОРКСЭ",
+ "grade": 4,
+ "order": 12,
+ "section": "Религиозные традиции народов России",
+ "topic": "Праздники разных народов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

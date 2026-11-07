@@ -1,0 +1,21 @@
+{
+ "id": "math-1-007",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 1,
+ "order": 7,
+ "section": "Числа от 1 до 10",
+ "topic": "Числа 4 и 5",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-9-051",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 51,
+ "section": "Алгебра: Уравнения и неравенства. Неравенства",
+ "topic": "Графическая интерпретация неравенств и систем неравенств с двумя переменными",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

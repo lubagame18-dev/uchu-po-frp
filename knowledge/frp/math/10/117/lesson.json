@@ -1,0 +1,21 @@
+{
+ "id": "math-10-117",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 117,
+ "section": "Геометрия: Многогранники",
+ "topic": "Элементы призмы и пирамиды. Правильные многогранники: понятие правильного многогранника",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

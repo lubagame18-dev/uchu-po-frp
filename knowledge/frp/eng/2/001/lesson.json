@@ -1,0 +1,20 @@
+{
+ "id": "eng-2-001",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 2,
+ "order": 1,
+ "section": "Знакомство",
+ "topic": "Алфавит: буквы A–M",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

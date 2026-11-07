@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-011",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 11,
+ "section": "Россия сегодня: государственные интересы и необходимость их защиты",
+ "topic": "Вооруженные силы России (урок 2 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

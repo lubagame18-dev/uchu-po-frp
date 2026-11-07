@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-055",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 55,
+ "section": "Млекопитающие",
+ "topic": "Значение млекопитающих в природе и жизни человека",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

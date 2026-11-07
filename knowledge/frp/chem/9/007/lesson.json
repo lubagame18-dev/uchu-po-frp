@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-007",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 7,
+ "section": "Вещество и химические реакции",
+ "topic": "Скорость химической реакции. Катализ. Факторы, влияющие на скорость",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

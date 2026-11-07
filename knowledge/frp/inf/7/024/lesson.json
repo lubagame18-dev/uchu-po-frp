@@ -1,0 +1,21 @@
+{
+ "id": "inf-7-024",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 7,
+ "order": 24,
+ "section": "Информационные технологии",
+ "topic": "Практическая работа. Параметры страницы, колонтитулы, номера страниц",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

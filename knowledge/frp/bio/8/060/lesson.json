@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-060",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 60,
+ "section": "Развитие животного мира на Земле",
+ "topic": "Основные этапы эволюции позвоночных животных. Обобщение и повторение по теме: «Позвоночные животные»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

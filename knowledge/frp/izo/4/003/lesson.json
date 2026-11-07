@@ -1,0 +1,20 @@
+{
+ "id": "izo-4-003",
+ "subject": "izo",
+ "subject_title": "Изобразительное искусство",
+ "grade": 4,
+ "order": 3,
+ "section": "Образы искусства",
+ "topic": "Как обсуждать произведение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "репродукция картины"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-057",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 57,
+ "section": "Органы чувств и сенсорные системы.",
+ "topic": "Органы равновесия, мышечное чувство, осязание",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

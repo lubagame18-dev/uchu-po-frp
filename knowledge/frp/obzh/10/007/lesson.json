@@ -1,0 +1,21 @@
+{
+ "id": "obzh-10-007",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 10,
+ "order": 7,
+ "section": "Воинская обязанность и военная служба",
+ "topic": "Служба по призыву и контракту",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

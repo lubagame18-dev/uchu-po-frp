@@ -1,0 +1,21 @@
+{
+ "id": "math-8-164",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 8,
+ "order": 164,
+ "section": "Геометрия: Углы в окружности. Вписанные и описанные четырехугольники. Касательные к окружности. Касание окружностей",
+ "topic": "Касание окружностей",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

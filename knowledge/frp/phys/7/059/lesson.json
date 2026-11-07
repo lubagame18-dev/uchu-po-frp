@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-059",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 59,
+ "section": "Работа и мощность. Энергия",
+ "topic": "Лабораторная работа №10 «Выяснение условия равновесия рычага»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

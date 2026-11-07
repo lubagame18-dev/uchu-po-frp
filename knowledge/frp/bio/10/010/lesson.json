@@ -1,0 +1,21 @@
+{
+ "id": "bio-10-010",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 10,
+ "order": 10,
+ "section": "Биология клетки",
+ "topic": "Клетка как целостная живая система",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

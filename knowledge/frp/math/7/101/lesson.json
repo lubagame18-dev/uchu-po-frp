@@ -1,0 +1,21 @@
+{
+ "id": "math-7-101",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 101,
+ "section": "Алгебра: Повторение и обобщение",
+ "topic": "Повторение основных понятий и методов курса 7 класса, обобщение знаний",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

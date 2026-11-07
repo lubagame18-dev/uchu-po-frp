@@ -1,0 +1,21 @@
+{
+ "id": "math-6-122",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 122,
+ "section": "Математика: Положительные и отрицательные числа",
+ "topic": "Арифметические действия с положительными и отрицательными числами",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

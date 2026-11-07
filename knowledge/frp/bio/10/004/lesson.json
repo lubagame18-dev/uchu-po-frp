@@ -1,0 +1,21 @@
+{
+ "id": "bio-10-004",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 10,
+ "order": 4,
+ "section": "Биология клетки",
+ "topic": "Химический состав клетки. Вода и минеральные соли",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

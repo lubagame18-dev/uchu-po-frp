@@ -1,0 +1,21 @@
+{
+ "id": "math-7-183",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 183,
+ "section": "Вероятность и статистика: Описательная статистика",
+ "topic": "Практическая работа «Средние значения»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

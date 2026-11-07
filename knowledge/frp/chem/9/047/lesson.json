@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-047",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 47,
+ "section": "Металлы и их соединения",
+ "topic": "Щелочные металлы: положение в Периодической системе, строение атомов, физические свойства",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "ru-10-006",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 10,
+ "order": 6,
+ "section": "Язык и речь. Культура речи. Система языка. Культура речи",
+ "topic": "Культура речи как раздел лингвистики",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

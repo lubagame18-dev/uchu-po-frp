@@ -1,0 +1,21 @@
+{
+ "id": "obzh-11-008",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 11,
+ "order": 8,
+ "section": "Медицинская подготовка и здоровье",
+ "topic": "Сердечно-лёгочная реанимация",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "hist-6-076",
+ "subject": "hist",
+ "subject_title": "История",
+ "grade": 6,
+ "order": 76,
+ "section": "История России",
+ "topic": "Российское государство и общество во второй половине XV в.",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет"
+}

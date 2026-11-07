@@ -1,0 +1,21 @@
+{
+ "id": "math-10-132",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 132,
+ "section": "Геометрия: Объемы многогранников",
+ "topic": "Контрольная работа по теме «Объемы многогранников»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

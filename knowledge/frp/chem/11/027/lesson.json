@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-027",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 27,
+ "section": "Неорганическая химия",
+ "topic": "Качественные реакции на анионы и катион аммония. Расчёты по уравнениям, если вещество содержит примеси",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

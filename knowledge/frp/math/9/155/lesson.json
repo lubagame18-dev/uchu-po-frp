@@ -1,0 +1,21 @@
+{
+ "id": "math-9-155",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 155,
+ "section": "Геометрия: Правильные многоугольники. Длина окружности и площадь круга. Вычисление площадей",
+ "topic": "Радианная мера угла. Площадь круга, сектора, сегмента",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

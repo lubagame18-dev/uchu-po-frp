@@ -1,0 +1,21 @@
+{
+ "id": "ru-3-009",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 3,
+ "order": 9,
+ "section": "Части речи и их признаки",
+ "topic": "Глагол: время и число",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

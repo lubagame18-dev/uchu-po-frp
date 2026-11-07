@@ -1,0 +1,21 @@
+{
+ "id": "math-11-139",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 139,
+ "section": "Вероятность и статистика: Математическое ожидание случайной величины",
+ "topic": "Математическое ожидание суммы случайных величин",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

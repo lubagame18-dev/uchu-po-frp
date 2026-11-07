@@ -1,0 +1,21 @@
+{
+ "id": "math-2-027",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 2,
+ "order": 27,
+ "section": "Уравнения",
+ "topic": "Неизвестное слагаемое",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "mhk-5-014",
+ "subject": "mhk",
+ "subject_title": "МХК",
+ "grade": 5,
+ "order": 14,
+ "section": "Народное искусство",
+ "topic": "Фольклор",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "репродукция произведения искусства"
+}

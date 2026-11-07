@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-032",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 32,
+ "section": "Электрические и магнитные явления",
+ "topic": "Проводники и диэлектрики. Электроскоп",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

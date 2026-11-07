@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-002",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 2,
+ "section": "Человек – биосоциальный вид",
+ "topic": "Человек как часть природы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

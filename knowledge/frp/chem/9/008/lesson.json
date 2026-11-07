@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-008",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 8,
+ "section": "Вещество и химические реакции",
+ "topic": "Обратимые и необратимые реакции. Химическое равновесие. Смещение равновесия",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

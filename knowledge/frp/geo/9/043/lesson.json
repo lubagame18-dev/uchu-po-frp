@@ -1,0 +1,20 @@
+{
+ "id": "geo-9-043",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 9,
+ "order": 43,
+ "section": "Регионы России",
+ "topic": "Поволжье. Географическое положение. Особенности природно-ресурсного потенциала",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

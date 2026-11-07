@@ -1,0 +1,21 @@
+{
+ "id": "soc-10-035",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 10,
+ "order": 35,
+ "section": "Экономическая жизнь общества",
+ "topic": "Банковская система. Финансовые услуги и страхование (урок 3 из 3)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

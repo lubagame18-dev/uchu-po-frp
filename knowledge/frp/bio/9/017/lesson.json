@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-017",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 17,
+ "section": "Опора и движение",
+ "topic": "Мышечная система человека. Практическая работа № 6 «Изучение влияния статической и динамической нагрузки на утомление мышц»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

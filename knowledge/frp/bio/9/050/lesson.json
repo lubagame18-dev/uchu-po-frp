@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-050",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 50,
+ "section": "Размножение и развитие",
+ "topic": "Особенности размножения человека. Наследование признаков у человека",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

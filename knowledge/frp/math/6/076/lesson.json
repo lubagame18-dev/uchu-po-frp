@@ -1,0 +1,21 @@
+{
+ "id": "math-6-076",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 76,
+ "section": "Математика: Выражения с буквами",
+ "topic": "Применение букв для записи математических выражений и предложений",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

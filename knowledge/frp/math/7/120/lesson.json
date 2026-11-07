@@ -1,0 +1,21 @@
+{
+ "id": "math-7-120",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 120,
+ "section": "Геометрия: Треугольники",
+ "topic": "Понятие о равных треугольниках и первичные представления о равных фигурах",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "geo-5-008",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 5,
+ "order": 8,
+ "section": "Географическое изучение Земли",
+ "topic": "Русские путешественники и мореплаватели на северо-востоке Азии. Первая русская кругосветная экспедиция",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "inf-10-019",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 10,
+ "order": 19,
+ "section": "Теоретические основы информатики",
+ "topic": "Практическая работа. Дискретизация звуковой информации",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

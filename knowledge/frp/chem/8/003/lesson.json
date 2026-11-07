@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-003",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 3,
+ "section": "Первоначальные химические понятия",
+ "topic": "Практическая работа №1 «Правила работы в лаборатории и приёмы обращения с лабораторным оборудованием»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-068",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 68,
+ "section": "Повторение и резервное время",
+ "topic": "Анализ итоговой работы. Резервный урок",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

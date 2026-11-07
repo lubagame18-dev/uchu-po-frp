@@ -1,0 +1,21 @@
+{
+ "id": "obzh-11-015",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 11,
+ "order": 15,
+ "section": "Чрезвычайные ситуации и защита населения",
+ "topic": "Оповещение и эвакуация",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

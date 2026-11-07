@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-007",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 7,
+ "section": "Суверенитет",
+ "topic": "Повторительно-обобщающий урок по теме «Суверенитет»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

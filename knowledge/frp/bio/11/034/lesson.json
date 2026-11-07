@@ -1,0 +1,21 @@
+{
+ "id": "bio-11-034",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 11,
+ "order": 34,
+ "section": "Сообщества и экологические системы",
+ "topic": "Резервный урок. Обобщение изученного в 11 классе",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

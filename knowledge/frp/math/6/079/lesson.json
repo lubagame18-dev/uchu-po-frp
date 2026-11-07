@@ -1,0 +1,21 @@
+{
+ "id": "math-6-079",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 79,
+ "section": "Математика: Выражения с буквами",
+ "topic": "Буквенные выражения и числовые подстановки",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-003",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 3,
+ "section": "Теоретические основы химии",
+ "topic": "Периодический закон и Периодическая система в свете строения атомов. Закономерности изменения свойств элементов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

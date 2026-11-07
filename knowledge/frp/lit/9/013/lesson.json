@@ -1,0 +1,20 @@
+{
+ "id": "lit-9-013",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 9,
+ "order": 13,
+ "section": "Зарубежная литература",
+ "topic": "У. Шекспир. Трагедия «Гамлет» (фрагменты по выбору)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

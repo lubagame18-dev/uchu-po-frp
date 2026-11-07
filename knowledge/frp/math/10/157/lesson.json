@@ -1,0 +1,21 @@
+{
+ "id": "math-10-157",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 157,
+ "section": "Вероятность и статистика: Серии последовательных испытаний",
+ "topic": "Бинарный случайный опыт (испытание), успех и неудача",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

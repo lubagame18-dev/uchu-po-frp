@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-004",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 4,
+ "section": "Суверенитет",
+ "topic": "Экономический суверенитет: производство и продовольствие",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

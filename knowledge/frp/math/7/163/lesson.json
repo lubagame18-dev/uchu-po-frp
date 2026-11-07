@@ -1,0 +1,21 @@
+{
+ "id": "math-7-163",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 163,
+ "section": "Геометрия: Окружность и круг. Геометрические построения",
+ "topic": "Окружность, вписанная в треугольник. Простейшие задачи на построение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

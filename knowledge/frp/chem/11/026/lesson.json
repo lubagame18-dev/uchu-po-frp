@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-026",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 26,
+ "section": "Неорганическая химия",
+ "topic": "Оксиды неметаллов. Кислородсодержащие кислоты. Водородные соединения неметаллов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

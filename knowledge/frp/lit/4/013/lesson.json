@@ -1,0 +1,20 @@
+{
+ "id": "lit-4-013",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 4,
+ "order": 13,
+ "section": "Проза XIX века",
+ "topic": "Проза Л.Н. Толстого",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "tech-3-017",
+ "subject": "tech",
+ "subject_title": "Технология",
+ "grade": 3,
+ "order": 17,
+ "section": "Бытовые технологии",
+ "topic": "Бюджет семьи",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

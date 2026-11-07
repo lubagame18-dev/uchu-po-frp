@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-051",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 51,
+ "section": "Электрические и магнитные явления",
+ "topic": "Работа и мощность электрического тока",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-002",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 2,
+ "section": "Животный организм",
+ "topic": "Свойства живых организмов. Общие признаки животных. Многообразие животного мира. Основные систематические категории животных",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

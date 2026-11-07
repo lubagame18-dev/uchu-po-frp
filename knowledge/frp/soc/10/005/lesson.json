@@ -1,0 +1,21 @@
+{
+ "id": "soc-10-005",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 10,
+ "order": 5,
+ "section": "Человек и общество",
+ "topic": "Логика и ее законы. Искусство спорить (урок 1 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

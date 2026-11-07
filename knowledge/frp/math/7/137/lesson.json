@@ -1,0 +1,21 @@
+{
+ "id": "math-7-137",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 137,
+ "section": "Геометрия: Треугольники",
+ "topic": "Обобщение и систематизация по теме «Треугольники»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

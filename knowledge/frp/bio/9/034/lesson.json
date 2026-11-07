@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-034",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 34,
+ "section": "Питание и пищеварение",
+ "topic": "Пищеварение в ротовой полости. Практическая работа № 13 «Исследование действия ферментов слюны на крахмал»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

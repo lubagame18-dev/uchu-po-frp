@@ -1,0 +1,21 @@
+{
+ "id": "math-7-124",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 124,
+ "section": "Геометрия: Треугольники",
+ "topic": "Три признака равенства треугольников. Признаки равенства прямоугольных треугольников",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

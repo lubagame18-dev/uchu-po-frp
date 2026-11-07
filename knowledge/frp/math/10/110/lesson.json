@@ -1,0 +1,21 @@
+{
+ "id": "math-10-110",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 110,
+ "section": "Геометрия: Углы между прямыми и плоскостями",
+ "topic": "Теорема о трех перпендикулярах",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

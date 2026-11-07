@@ -1,0 +1,21 @@
+{
+ "id": "math-5-031",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 31,
+ "section": "Математика: Натуральные числа. Действия с натуральными числами",
+ "topic": "Деление с остатком. Простые и составные числа",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

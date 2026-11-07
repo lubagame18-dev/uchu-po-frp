@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-018",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 18,
+ "section": "Первоначальные химические понятия",
+ "topic": "Расчёты по уравнениям химических реакций: количество и масса вещества",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

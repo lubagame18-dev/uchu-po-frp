@@ -1,0 +1,21 @@
+{
+ "id": "inf-9-013",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 9,
+ "order": 13,
+ "section": "Теоретические основы информатики",
+ "topic": "Практическая работа. Программная реализация простейшей модели",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

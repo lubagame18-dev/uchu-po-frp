@@ -1,0 +1,21 @@
+{
+ "id": "eng-3-003",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 3,
+ "order": 3,
+ "section": "Школа",
+ "topic": "Present Simple: утверждение",
+ "text": "| Шаг | Что делать / признак | Пример |\n|---|---|---|\n| 1 | I/you/we/they + V |  |\n| 2 | he/she/it + V-s |  |\n| 3 | ? Do/Does + S + V? |  |\n| 4 | − S + don't/doesn't + V |  |",
+ "text_source": "knowledge/web/11_Английский_язык/text.md",
+ "table_title": "Present Simple",
+ "image": "knowledge/web/11_Английский_язык/01_Present Simple.png",
+ "elements": [
+  "I/you/we/they + V",
+  "he/she/it + V-s",
+  "? Do/Does + S + V?",
+  "− S + don't/doesn't + V"
+ ],
+ "elements_source": "ready_table",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

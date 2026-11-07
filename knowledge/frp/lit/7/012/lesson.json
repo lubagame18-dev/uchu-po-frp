@@ -1,0 +1,20 @@
+{
+ "id": "lit-7-012",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 7,
+ "order": 12,
+ "section": "Литература конца XIX — начала XX века",
+ "topic": "М. Горький. Ранние рассказы (одно произведение по выбору)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "ru-11-015",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 11,
+ "order": 15,
+ "section": "Язык и речь. Культура речи. Пунктуация. Основные правила пунктуации",
+ "topic": "Знаки препинания в сложном предложении",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

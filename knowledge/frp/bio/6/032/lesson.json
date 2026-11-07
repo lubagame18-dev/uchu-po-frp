@@ -1,0 +1,21 @@
+{
+ "id": "bio-6-032",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 6,
+ "order": 32,
+ "section": "Жизнедеятельность растительного организма",
+ "topic": "Итоговая контрольная работа по биологии за курс 6 класса",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

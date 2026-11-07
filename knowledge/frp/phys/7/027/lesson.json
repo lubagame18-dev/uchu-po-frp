@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-027",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 27,
+ "section": "Движение и взаимодействие тел",
+ "topic": "Лабораторная работа №7 «Измерение силы трения скольжения и её зависимости от веса тела»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

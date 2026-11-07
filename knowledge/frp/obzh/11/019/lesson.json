@@ -1,0 +1,21 @@
+{
+ "id": "obzh-11-019",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 11,
+ "order": 19,
+ "section": "Социальные и информационные вызовы",
+ "topic": "Личная ответственность",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-6-029",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 29,
+ "section": "Математика: Натуральные числа",
+ "topic": "Обобщение и систематизация по теме «Натуральные числа»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

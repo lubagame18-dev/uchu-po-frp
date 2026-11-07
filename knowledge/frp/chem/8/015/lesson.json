@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-015",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 15,
+ "section": "Первоначальные химические понятия",
+ "topic": "Физические и химические явления. Признаки и условия протекания химических реакций",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

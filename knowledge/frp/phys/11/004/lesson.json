@@ -1,0 +1,21 @@
+{
+ "id": "phys-11-004",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 11,
+ "order": 4,
+ "section": "Электродинамика",
+ "topic": "Сила Лоренца. Движение заряженных частиц в магнитном поле",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-015",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 15,
+ "section": "Человек в экономических отношениях",
+ "topic": "Потребление домашних хозяйств. Потребительские товары и товары длительного пользования",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

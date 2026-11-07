@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-048",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 48,
+ "section": "Электродинамика",
+ "topic": "Принцип суперпозиции. Линии напряжённости",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "eng-7-067",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 7,
+ "order": 67,
+ "section": "Природа: дикие и домашние животные. Климат, погода",
+ "topic": "Природа: лексика (закрепление)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

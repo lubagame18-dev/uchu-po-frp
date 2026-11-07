@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-061",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 61,
+ "section": "Металлы и их соединения",
+ "topic": "Практическая работа №7 «Решение экспериментальных задач по теме «Важнейшие металлы и их соединения»»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

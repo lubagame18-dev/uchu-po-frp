@@ -1,0 +1,21 @@
+{
+ "id": "soc-10-004",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 10,
+ "order": 4,
+ "section": "Человек и общество",
+ "topic": "Мнение или знание? Способы познания окружающего мира (урок 2 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

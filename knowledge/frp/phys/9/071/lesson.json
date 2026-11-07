@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-071",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 71,
+ "section": "Световые явления",
+ "topic": "Лабораторная работа №12 «Определение фокусного расстояния и оптической силы собирающей линзы»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

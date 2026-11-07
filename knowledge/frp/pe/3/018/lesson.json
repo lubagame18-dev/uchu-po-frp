@@ -1,0 +1,20 @@
+{
+ "id": "pe-3-018",
+ "subject": "pe",
+ "subject_title": "Физическая культура",
+ "grade": 3,
+ "order": 18,
+ "section": "Подвижные и спортивные игры",
+ "topic": "Правила и судейство",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

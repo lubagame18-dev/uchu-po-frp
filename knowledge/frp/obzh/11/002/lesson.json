@@ -1,0 +1,21 @@
+{
+ "id": "obzh-11-002",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 11,
+ "order": 2,
+ "section": "Безопасность жизнедеятельности личности и общества",
+ "topic": "Оценка рисков",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

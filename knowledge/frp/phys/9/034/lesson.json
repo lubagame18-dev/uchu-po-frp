@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-034",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 34,
+ "section": "Механические явления: законы движения и взаимодействия",
+ "topic": "Реактивное движение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

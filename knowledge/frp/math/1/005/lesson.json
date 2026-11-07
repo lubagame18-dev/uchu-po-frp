@@ -1,0 +1,21 @@
+{
+ "id": "math-1-005",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 1,
+ "order": 5,
+ "section": "Числа от 1 до 10",
+ "topic": "Числа 1 и 2. Запись цифрами",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

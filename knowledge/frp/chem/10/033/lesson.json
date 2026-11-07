@@ -1,0 +1,21 @@
+{
+ "id": "chem-10-033",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 10,
+ "order": 33,
+ "section": "Высокомолекулярные соединения",
+ "topic": "Высокомолекулярные соединения: мономер, полимер, структурное звено. Полимеризация и поликонденсация. Пластмассы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

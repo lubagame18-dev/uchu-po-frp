@@ -1,0 +1,21 @@
+{
+ "id": "inf-9-029",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 9,
+ "order": 29,
+ "section": "Информационные технологии",
+ "topic": "Практическая работа. Обработка большого набора данных",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

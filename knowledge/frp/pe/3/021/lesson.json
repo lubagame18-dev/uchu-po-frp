@@ -1,0 +1,20 @@
+{
+ "id": "pe-3-021",
+ "subject": "pe",
+ "subject_title": "Физическая культура",
+ "grade": 3,
+ "order": 21,
+ "section": "Физическая подготовка",
+ "topic": "Круговая тренировка",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

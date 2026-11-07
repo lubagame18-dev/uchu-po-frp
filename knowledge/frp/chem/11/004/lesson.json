@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-004",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 4,
+ "section": "Теоретические основы химии",
+ "topic": "Химическая связь: ковалентная, ионная, металлическая, водородная. Механизмы образования ковалентной связи",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

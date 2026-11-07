@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-016",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 16,
+ "section": "Строение и жизнедеятельность организма животного",
+ "topic": "Рост и развитие животных. Развитие с метаморфозом. Обобщение и повторение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

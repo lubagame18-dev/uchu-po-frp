@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-026",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 26,
+ "section": "Тепловые явления",
+ "topic": "Закон сохранения и превращения энергии в тепловых процессах",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

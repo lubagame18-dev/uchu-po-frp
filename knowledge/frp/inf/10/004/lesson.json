@@ -1,0 +1,21 @@
+{
+ "id": "inf-10-004",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 10,
+ "order": 4,
+ "section": "Цифровая грамотность",
+ "topic": "Практическая работа. Файловая система: операции с файлами и папками",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

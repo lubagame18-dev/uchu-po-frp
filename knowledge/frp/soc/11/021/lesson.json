@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-021",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 21,
+ "section": "Россия в глобальной экономике",
+ "topic": "Современные проблемы устойчивого развития (урок 2 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

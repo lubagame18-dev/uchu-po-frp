@@ -1,0 +1,20 @@
+{
+ "id": "lit-2-013",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 2,
+ "order": 13,
+ "section": "Басни",
+ "topic": "Инсценировка басни",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

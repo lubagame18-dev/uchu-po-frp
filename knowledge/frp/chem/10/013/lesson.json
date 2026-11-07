@@ -1,0 +1,21 @@
+{
+ "id": "chem-10-013",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 10,
+ "order": 13,
+ "section": "Углеводороды",
+ "topic": "Генетическая связь углеводородов. Влияние бензола на организм человека",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

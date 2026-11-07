@@ -1,0 +1,20 @@
+{
+ "id": "lit-9-003",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 9,
+ "order": 3,
+ "section": "Литература XVIII века",
+ "topic": "Г. Р. Державин. Стихотворения (два по выбору). Например, «Властителям и судиям», «Памятник» и др.",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "geo-8-040",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 8,
+ "order": 40,
+ "section": "Природа России",
+ "topic": "Почва – особый компонент природы. Факторы образования почв",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

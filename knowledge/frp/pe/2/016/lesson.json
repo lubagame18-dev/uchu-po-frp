@@ -1,0 +1,20 @@
+{
+ "id": "pe-2-016",
+ "subject": "pe",
+ "subject_title": "Физическая культура",
+ "grade": 2,
+ "order": 16,
+ "section": "Спортивные игры и игры с мячом",
+ "topic": "Правила простых игр",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

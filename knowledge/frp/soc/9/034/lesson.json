@@ -1,0 +1,21 @@
+{
+ "id": "soc-9-034",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 9,
+ "order": 34,
+ "section": "Человек в современном изменяющемся мире",
+ "topic": "Защита проектов, итоговое повторение по теме «Человек в современном изменяющемся мире»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

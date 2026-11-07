@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-002",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 2,
+ "section": "Человек в экономических отношениях",
+ "topic": "Экономическая система и ее функции. Собственность",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

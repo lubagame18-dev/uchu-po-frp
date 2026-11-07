@@ -1,0 +1,21 @@
+{
+ "id": "obzh-8-022",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 8,
+ "order": 22,
+ "section": "Здоровый образ жизни",
+ "topic": "Вредные привычки и профилактика",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

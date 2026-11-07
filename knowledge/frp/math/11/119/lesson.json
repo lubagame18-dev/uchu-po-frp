@@ -1,0 +1,21 @@
+{
+ "id": "math-11-119",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 119,
+ "section": "Геометрия: Объемы тел",
+ "topic": "Соотношения между площадями поверхностей, объемами подобных тел",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-021",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 21,
+ "section": "Важнейшие представители неорганических веществ",
+ "topic": "Воздух – смесь газов. Состав воздуха. Загрязнение воздуха",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

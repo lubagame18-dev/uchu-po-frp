@@ -1,0 +1,21 @@
+{
+ "id": "math-7-178",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 178,
+ "section": "Вероятность и статистика: Описательная статистика",
+ "topic": "Числовые наборы. Среднее арифметическое",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

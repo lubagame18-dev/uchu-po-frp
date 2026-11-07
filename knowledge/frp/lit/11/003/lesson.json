@@ -1,0 +1,20 @@
+{
+ "id": "lit-11-003",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 11,
+ "order": 3,
+ "section": "Литература конца XIX — начала ХХ века",
+ "topic": "М. Горький. Рассказы (один по выбору). Пьеса «На дне»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

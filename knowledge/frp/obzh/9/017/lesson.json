@@ -1,0 +1,21 @@
+{
+ "id": "obzh-9-017",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 9,
+ "order": 17,
+ "section": "Экологическая безопасность",
+ "topic": "Экологические решения в школе и дома",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

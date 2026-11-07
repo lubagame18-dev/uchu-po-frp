@@ -1,0 +1,21 @@
+{
+ "id": "bio-6-018",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 6,
+ "order": 18,
+ "section": "Строение и многообразие покрытосеменных растений",
+ "topic": "Плоды. Классификация плодов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,2211 @@
+{
+ "subject": "soc",
+ "title": "Обществознание",
+ "lessons": [
+  {
+   "lesson_id": "soc-8-001",
+   "grade": 8,
+   "topic": "Экономическая жизнь общества",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-002",
+   "grade": 8,
+   "topic": "Экономическая система и ее функции. Собственность",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-003",
+   "grade": 8,
+   "topic": "Производство – источник экономических благ",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-004",
+   "grade": 8,
+   "topic": "Предпринимательство",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-005",
+   "grade": 8,
+   "topic": "Деньги, обмен, торговля",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-006",
+   "grade": 8,
+   "topic": "Рыночная экономика. Конкуренция. Многообразие рынков",
+   "numbered_elements": [
+    "доходы → расходы → бюджет",
+    "рынок: спрос и предложение → цена",
+    "налоги — обязательные платежи государству"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/10_Обществознание/text.md"
+  },
+  {
+   "lesson_id": "soc-8-007",
+   "grade": 8,
+   "topic": "Спрос и предложение. Рыночное равновесие",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-008",
+   "grade": 8,
+   "topic": "Предприятие в экономике",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-009",
+   "grade": 8,
+   "topic": "Заработная плата и стимулирование труда. Занятость и безработица",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-010",
+   "grade": 8,
+   "topic": "Финансовый рынок и финансовые посредники",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-011",
+   "grade": 8,
+   "topic": "Банковские услуги",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-012",
+   "grade": 8,
+   "topic": "Страховые услуги",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-013",
+   "grade": 8,
+   "topic": "Финансовая безопасность",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-014",
+   "grade": 8,
+   "topic": "Экономические функции домохозяйств",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-015",
+   "grade": 8,
+   "topic": "Потребление домашних хозяйств. Потребительские товары и товары длительного пользования",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-016",
+   "grade": 8,
+   "topic": "Семейный бюджет и финансовое планирование",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-017",
+   "grade": 8,
+   "topic": "Экономические цели и функции государства",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-018",
+   "grade": 8,
+   "topic": "Налоги. Государственный бюджет. Государственная политика по развитию конкуренции",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-019",
+   "grade": 8,
+   "topic": "Повторительно-обобщающий урок по теме «Человек в экономических отношениях»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-020",
+   "grade": 8,
+   "topic": "Повторительно-обобщающий урок по теме «Человек в экономических отношениях». Контрольная работа",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-021",
+   "grade": 8,
+   "topic": "Культура, ее многообразие и формы",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-022",
+   "grade": 8,
+   "topic": "Наука. Роль в развитии общества",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-023",
+   "grade": 8,
+   "topic": "Образование в современном обществе",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-024",
+   "grade": 8,
+   "topic": "Образование в Российской Федерации. Самообразование",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-025",
+   "grade": 8,
+   "topic": "Политика в сфере культуры и образования в Российской Федерации",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-026",
+   "grade": 8,
+   "topic": "Роль религии в жизни человека и общества",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-027",
+   "grade": 8,
+   "topic": "Национальные и мировые религии. Религии и религиозные объединения в Российской Федерации",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-028",
+   "grade": 8,
+   "topic": "Что такое искусство. Виды искусств",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-029",
+   "grade": 8,
+   "topic": "Роль искусства в жизни человека и общества",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-030",
+   "grade": 8,
+   "topic": "Общество и его развитие. Информация и современный мир",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-031",
+   "grade": 8,
+   "topic": "Роль информации и информационных технологий в современном мире",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-032",
+   "grade": 8,
+   "topic": "Повторительно-обобщающий урок по теме «Человек в мире культуры». Контрольная работа",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-033",
+   "grade": 8,
+   "topic": "Защита проектов по теме «Финансовая грамотность»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-8-034",
+   "grade": 8,
+   "topic": "Итоговое повторение по темам «Человек в экономических отношениях», «Человек в мире культуры»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-001",
+   "grade": 9,
+   "topic": "Политика и политическая власть",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-002",
+   "grade": 9,
+   "topic": "Государство – политическая организация общества",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-003",
+   "grade": 9,
+   "topic": "Политические режимы",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-004",
+   "grade": 9,
+   "topic": "Формы политического участия. Выборы, референдум",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-005",
+   "grade": 9,
+   "topic": "Политические партии, их роль в демократическом обществе. Общественно-политические организации",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-006",
+   "grade": 9,
+   "topic": "Повторительно-обобщающий урок по теме «Человек в политическом измерении»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-007",
+   "grade": 9,
+   "topic": "Основы конституционного строя Российской Федерации (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-008",
+   "grade": 9,
+   "topic": "Основы конституционного строя Российской Федерации (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-009",
+   "grade": 9,
+   "topic": "Высшие органы публичной власти в Российской Федерации",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-010",
+   "grade": 9,
+   "topic": "Государственное управление и противодействие коррупции",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-011",
+   "grade": 9,
+   "topic": "Государственно-территориальное устройство Российской Федерации",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-012",
+   "grade": 9,
+   "topic": "Местное самоуправление",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-013",
+   "grade": 9,
+   "topic": "Конституционный статус гражданина Российской Федерации. Гражданство Российской Федерации",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-014",
+   "grade": 9,
+   "topic": "Повторительно-обобщающий урок по теме «Гражданин и государство». Контрольная работа",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-015",
+   "grade": 9,
+   "topic": "Социальная структура общества",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-016",
+   "grade": 9,
+   "topic": "Социальная мобильность",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-017",
+   "grade": 9,
+   "topic": "Социальный статус человека в обществе",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-018",
+   "grade": 9,
+   "topic": "Социальные роли. Ролевой набор подростка",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-019",
+   "grade": 9,
+   "topic": "Социализация личности",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-020",
+   "grade": 9,
+   "topic": "Семья и ее функции",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-021",
+   "grade": 9,
+   "topic": "Этнос и нация. Россия – многонациональное государство (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-022",
+   "grade": 9,
+   "topic": "Этнос и нация. Россия – многонациональное государство (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-023",
+   "grade": 9,
+   "topic": "Социальная политика Российского государства",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-024",
+   "grade": 9,
+   "topic": "Отклоняющееся поведение",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-025",
+   "grade": 9,
+   "topic": "Повторительно-обобщающий урок по теме «Человек в системе социальных отношений»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-026",
+   "grade": 9,
+   "topic": "Информационное общество",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-027",
+   "grade": 9,
+   "topic": "Сущность глобализации",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-028",
+   "grade": 9,
+   "topic": "Молодежь – активный участник общественной жизни",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-029",
+   "grade": 9,
+   "topic": "Профессии настоящего и будущего",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-030",
+   "grade": 9,
+   "topic": "Здоровый образ жизни. Мода и спорт",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-031",
+   "grade": 9,
+   "topic": "Защита проектов, итоговое повторение по теме «Человек в политическом измерении». Контрольная работа",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-032",
+   "grade": 9,
+   "topic": "Защита проектов, итоговое повторение по теме «Гражданин и государство»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-033",
+   "grade": 9,
+   "topic": "Защита проектов, итоговое повторение по теме «Человек в системе социальных отношений»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-9-034",
+   "grade": 9,
+   "topic": "Защита проектов, итоговое повторение по теме «Человек в современном изменяющемся мире»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-001",
+   "grade": 10,
+   "topic": "Сознание человека. Мировоззрение и ценности (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-002",
+   "grade": 10,
+   "topic": "Сознание человека. Мировоззрение и ценности (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-003",
+   "grade": 10,
+   "topic": "Мнение или знание? Способы познания окружающего мира (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-004",
+   "grade": 10,
+   "topic": "Мнение или знание? Способы познания окружающего мира (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-005",
+   "grade": 10,
+   "topic": "Логика и ее законы. Искусство спорить (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-006",
+   "grade": 10,
+   "topic": "Логика и ее законы. Искусство спорить (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-007",
+   "grade": 10,
+   "topic": "Деятельность человека как способ существования личности (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-008",
+   "grade": 10,
+   "topic": "Деятельность человека как способ существования личности (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-009",
+   "grade": 10,
+   "topic": "Общество как система. Человек в системе социальных взаимодействий (урок 1 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-010",
+   "grade": 10,
+   "topic": "Общество как система. Человек в системе социальных взаимодействий (урок 2 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-011",
+   "grade": 10,
+   "topic": "Общество как система. Человек в системе социальных взаимодействий (урок 3 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-012",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Человек и общество» (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-013",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Человек и общество» (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-014",
+   "grade": 10,
+   "topic": "Государственная политика в сфере культуры (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-015",
+   "grade": 10,
+   "topic": "Государственная политика в сфере культуры (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-016",
+   "grade": 10,
+   "topic": "Как музеи сохраняют историю (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-017",
+   "grade": 10,
+   "topic": "Как музеи сохраняют историю (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-018",
+   "grade": 10,
+   "topic": "Библиотеки и архивы",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-019",
+   "grade": 10,
+   "topic": "Театр (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-020",
+   "grade": 10,
+   "topic": "Театр (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-021",
+   "grade": 10,
+   "topic": "Музыка (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-022",
+   "grade": 10,
+   "topic": "Музыка (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-023",
+   "grade": 10,
+   "topic": "Кино",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-024",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Культура. Искусство» (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-025",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Культура. Искусство» (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-026",
+   "grade": 10,
+   "topic": "Экономика как наука и хозяйство. Роль экономики в жизни общества (урок 1 из 2)",
+   "numbered_elements": [
+    "доходы → расходы → бюджет",
+    "рынок: спрос и предложение → цена",
+    "налоги — обязательные платежи государству"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/10_Обществознание/text.md"
+  },
+  {
+   "lesson_id": "soc-10-027",
+   "grade": 10,
+   "topic": "Экономика как наука и хозяйство. Роль экономики в жизни общества (урок 2 из 2)",
+   "numbered_elements": [
+    "доходы → расходы → бюджет",
+    "рынок: спрос и предложение → цена",
+    "налоги — обязательные платежи государству"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/10_Обществознание/text.md"
+  },
+  {
+   "lesson_id": "soc-10-028",
+   "grade": 10,
+   "topic": "Рыночный механизм (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-029",
+   "grade": 10,
+   "topic": "Рыночный механизм (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-030",
+   "grade": 10,
+   "topic": "Предпринимательская деятельность (урок 1 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-031",
+   "grade": 10,
+   "topic": "Предпринимательская деятельность (урок 2 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-032",
+   "grade": 10,
+   "topic": "Предпринимательская деятельность (урок 3 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-033",
+   "grade": 10,
+   "topic": "Банковская система. Финансовые услуги и страхование (урок 1 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-034",
+   "grade": 10,
+   "topic": "Банковская система. Финансовые услуги и страхование (урок 2 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-035",
+   "grade": 10,
+   "topic": "Банковская система. Финансовые услуги и страхование (урок 3 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-036",
+   "grade": 10,
+   "topic": "Современная российская экономика и денежно-кредитная политика ЦБ (урок 1 из 2)",
+   "numbered_elements": [
+    "доходы → расходы → бюджет",
+    "рынок: спрос и предложение → цена",
+    "налоги — обязательные платежи государству"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/10_Обществознание/text.md"
+  },
+  {
+   "lesson_id": "soc-10-037",
+   "grade": 10,
+   "topic": "Современная российская экономика и денежно-кредитная политика ЦБ (урок 2 из 2)",
+   "numbered_elements": [
+    "доходы → расходы → бюджет",
+    "рынок: спрос и предложение → цена",
+    "налоги — обязательные платежи государству"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/10_Обществознание/text.md"
+  },
+  {
+   "lesson_id": "soc-10-038",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 1 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-039",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 2 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-040",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 3 из 3)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-041",
+   "grade": 10,
+   "topic": "Политическая система общества (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-042",
+   "grade": 10,
+   "topic": "Политическая система общества (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-043",
+   "grade": 10,
+   "topic": "Политическая идеология (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-044",
+   "grade": 10,
+   "topic": "Политическая идеология (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-045",
+   "grade": 10,
+   "topic": "Политические партии, общественно-политические организации и движения",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-046",
+   "grade": 10,
+   "topic": "Избирательная система (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-047",
+   "grade": 10,
+   "topic": "Избирательная система (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-048",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Политическая жизнь общества» (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-049",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Политическая жизнь общества» (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-050",
+   "grade": 10,
+   "topic": "Гражданское право (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-051",
+   "grade": 10,
+   "topic": "Гражданское право (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-052",
+   "grade": 10,
+   "topic": "Семейное право (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-053",
+   "grade": 10,
+   "topic": "Семейное право (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-054",
+   "grade": 10,
+   "topic": "Трудовое право (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-055",
+   "grade": 10,
+   "topic": "Трудовое право (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-056",
+   "grade": 10,
+   "topic": "Административное право (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-057",
+   "grade": 10,
+   "topic": "Административное право (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-058",
+   "grade": 10,
+   "topic": "Экологическое право",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-059",
+   "grade": 10,
+   "topic": "Финансовое право (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-060",
+   "grade": 10,
+   "topic": "Финансовое право (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-061",
+   "grade": 10,
+   "topic": "Уголовное право (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-062",
+   "grade": 10,
+   "topic": "Уголовное право (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-063",
+   "grade": 10,
+   "topic": "Процессуальное право (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-064",
+   "grade": 10,
+   "topic": "Процессуальное право (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-065",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Правовая система Российской Федерации» (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-066",
+   "grade": 10,
+   "topic": "Повторительно-обобщающий урок по теме «Правовая система Российской Федерации» (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-067",
+   "grade": 10,
+   "topic": "Итоговое повторение (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-10-068",
+   "grade": 10,
+   "topic": "Итоговое повторение (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-001",
+   "grade": 11,
+   "topic": "Преемственность истории развития российской государственности (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-002",
+   "grade": 11,
+   "topic": "Преемственность истории развития российской государственности (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-003",
+   "grade": 11,
+   "topic": "Российская цивилизация",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-004",
+   "grade": 11,
+   "topic": "Экономический суверенитет: производство и продовольствие",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-005",
+   "grade": 11,
+   "topic": "Технологический и цифровой суверенитет (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-006",
+   "grade": 11,
+   "topic": "Технологический и цифровой суверенитет (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-007",
+   "grade": 11,
+   "topic": "Повторительно-обобщающий урок по теме «Суверенитет»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-008",
+   "grade": 11,
+   "topic": "Российское общество сегодня",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-009",
+   "grade": 11,
+   "topic": "Воинский долг",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-010",
+   "grade": 11,
+   "topic": "Вооруженные силы России (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-011",
+   "grade": 11,
+   "topic": "Вооруженные силы России (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-012",
+   "grade": 11,
+   "topic": "Военное образование в России",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-013",
+   "grade": 11,
+   "topic": "Служба по контракту (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-014",
+   "grade": 11,
+   "topic": "Служба по контракту (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-015",
+   "grade": 11,
+   "topic": "Росгвардия и МВД России",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-016",
+   "grade": 11,
+   "topic": "Органы государственной безопасности",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-017",
+   "grade": 11,
+   "topic": "Повторительно-обобщающий урок по теме «Россия сегодня: государственные интересы и необходимость их защиты»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-018",
+   "grade": 11,
+   "topic": "Принципы экономического развития России (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-019",
+   "grade": 11,
+   "topic": "Принципы экономического развития России (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-020",
+   "grade": 11,
+   "topic": "Современные проблемы устойчивого развития (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-021",
+   "grade": 11,
+   "topic": "Современные проблемы устойчивого развития (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-022",
+   "grade": 11,
+   "topic": "Повторительно-обобщающий урок по теме «Россия в глобальной экономике»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-023",
+   "grade": 11,
+   "topic": "История трансформации миропорядков: от Вестфальского мира и Венского конгресса до Лиги Наций (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-024",
+   "grade": 11,
+   "topic": "История трансформации миропорядков: от Вестфальского мира и Венского конгресса до Лиги Наций (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-025",
+   "grade": 11,
+   "topic": "Ялтинско-Потсдамская система послевоенного устройства мира (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-026",
+   "grade": 11,
+   "topic": "Ялтинско-Потсдамская система послевоенного устройства мира (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-027",
+   "grade": 11,
+   "topic": "Организация Объединенных Наций: история и проблемы (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-028",
+   "grade": 11,
+   "topic": "Организация Объединенных Наций: история и проблемы (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-029",
+   "grade": 11,
+   "topic": "Биполярный мир и холодная война (урок 1 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-030",
+   "grade": 11,
+   "topic": "Биполярный мир и холодная война (урок 2 из 2)",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-031",
+   "grade": 11,
+   "topic": "Однополярный мир и движение к многополярности. Что такое справедливый миропорядок",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-032",
+   "grade": 11,
+   "topic": "Русский мир",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-033",
+   "grade": 11,
+   "topic": "Повторительно-обобщающий урок по теме «Формирование справедливого миропорядка в XXI в.»",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "soc-11-034",
+   "grade": 11,
+   "topic": "Итоговое повторение",
+   "numbered_elements": [
+    "Понятие",
+    "Признак",
+    "Пример",
+    "Вывод"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  }
+ ]
+}

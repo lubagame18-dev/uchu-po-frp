@@ -1,0 +1,21 @@
+{
+ "id": "math-11-170",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 170,
+ "section": "Вероятность и статистика: Повторение, обобщение и систематизация знаний",
+ "topic": "Итоговая контрольная работа",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "hist-11-016",
+ "subject": "hist",
+ "subject_title": "История",
+ "grade": 11,
+ "order": 16,
+ "section": "Всеобщая история",
+ "topic": "Международные отношения в конце 1940-е – конце 1980-х гг.",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет"
+}

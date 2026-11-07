@@ -1,0 +1,21 @@
+{
+ "id": "soc-9-001",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 9,
+ "order": 1,
+ "section": "Человек в политическом измерении",
+ "topic": "Политика и политическая власть",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "mus-1-011",
+ "subject": "mus",
+ "subject_title": "Музыка",
+ "grade": 1,
+ "order": 11,
+ "section": "Пение и ритм",
+ "topic": "Пение по слуху",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет композитора"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-001",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 1,
+ "section": "Физика и её роль в познании окружающего мира",
+ "topic": "Физика – наука о природе. Явления природы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

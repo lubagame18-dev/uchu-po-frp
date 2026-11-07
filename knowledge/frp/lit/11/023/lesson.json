@@ -1,0 +1,20 @@
+{
+ "id": "lit-11-023",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 11,
+ "order": 23,
+ "section": "Литература ХХ века",
+ "topic": "А. И. Солженицын. Произведения «Один день Ивана Денисовича», «Архипелаг ГУЛАГ» (фрагменты книги по выбору)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "ru-7-008",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 7,
+ "order": 8,
+ "section": "Функциональные разновидности языка",
+ "topic": "Официально-деловой стиль",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

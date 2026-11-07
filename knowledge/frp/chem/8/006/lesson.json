@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-006",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 6,
+ "section": "Первоначальные химические понятия",
+ "topic": "Атомы и молекулы. Химические элементы. Символы химических элементов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

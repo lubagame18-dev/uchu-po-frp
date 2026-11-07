@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-024",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 24,
+ "section": "Растения и человек",
+ "topic": "Искусственные сообщества. Растения города. Декоративное цветоводство",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

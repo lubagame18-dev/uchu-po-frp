@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-007",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 7,
+ "section": "Систематические группы растений",
+ "topic": "Общая характеристика и строение мхов. Практическая работа № 2 «Изучение внешнего строения мхов (на местных видах)»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

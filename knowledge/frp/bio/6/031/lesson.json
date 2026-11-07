@@ -1,0 +1,21 @@
+{
+ "id": "bio-6-031",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 6,
+ "order": 31,
+ "section": "Жизнедеятельность растительного организма",
+ "topic": "Образование плодов и семян. Роль плодов и семян в жизнедеятельности растений. Обобщение и повторение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

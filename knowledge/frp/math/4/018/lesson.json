@@ -1,0 +1,21 @@
+{
+ "id": "math-4-018",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 4,
+ "order": 18,
+ "section": "Геометрия",
+ "topic": "Углы и их виды",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

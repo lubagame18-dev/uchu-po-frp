@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-033",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 33,
+ "section": "Химия и жизнь",
+ "topic": "Химия и здоровье человека. Лекарственные препараты. Бытовая химическая грамотность",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-043",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 43,
+ "section": "Кожа",
+ "topic": "Кожа и ее производные. Практическая работа № 19 «Описание мер по уходу за кожей лица и волосами в зависимости от типа кожи»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

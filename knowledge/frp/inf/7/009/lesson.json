@@ -1,0 +1,21 @@
+{
+ "id": "inf-7-009",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 7,
+ "order": 9,
+ "section": "Цифровая грамотность",
+ "topic": "Компьютерные сети. Интернет",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

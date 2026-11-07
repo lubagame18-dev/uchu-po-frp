@@ -1,0 +1,20 @@
+{
+ "id": "okr-4-012",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 4,
+ "order": 12,
+ "section": "Наш край",
+ "topic": "Реки и озёра края",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

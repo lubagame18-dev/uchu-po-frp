@@ -1,0 +1,20 @@
+{
+ "id": "izo-3-012",
+ "subject": "izo",
+ "subject_title": "Изобразительное искусство",
+ "grade": 3,
+ "order": 12,
+ "section": "Графика и книжная иллюстрация",
+ "topic": "Иллюстрация к тексту",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "репродукция картины"
+}

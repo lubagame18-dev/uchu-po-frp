@@ -1,0 +1,20 @@
+{
+ "id": "okr-2-031",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 2,
+ "order": 31,
+ "section": "Экология и забота о природе",
+ "topic": "Обобщение: чему научились во 2 классе",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-5-019",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 5,
+ "order": 19,
+ "section": "Математика: Натуральные числа. Действия с натуральными числами",
+ "topic": "Свойства нуля при сложении и умножении, свойства единицы при умножении",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-066",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 66,
+ "section": "Электродинамика",
+ "topic": "Контрольная работа №5 «Постоянный электрический ток»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

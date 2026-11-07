@@ -1,0 +1,20 @@
+{
+ "id": "mhk-6-008",
+ "subject": "mhk",
+ "subject_title": "МХК",
+ "grade": 6,
+ "order": 8,
+ "section": "Жанры и стили",
+ "topic": "Классика и современность",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "репродукция произведения искусства"
+}

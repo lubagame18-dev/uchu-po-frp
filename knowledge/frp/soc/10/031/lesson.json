@@ -1,0 +1,21 @@
+{
+ "id": "soc-10-031",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 10,
+ "order": 31,
+ "section": "Экономическая жизнь общества",
+ "topic": "Предпринимательская деятельность (урок 2 из 3)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-10-165",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 165,
+ "section": "Вероятность и статистика: Случайные величины и распределения",
+ "topic": "Контрольная работа по теме «Случайные величины и распределения»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

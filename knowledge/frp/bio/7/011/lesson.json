@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-011",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 11,
+ "section": "Систематические группы растений",
+ "topic": "Размножение и цикл развития папоротникообразных. Значение папоротникообразных в природе и жизни человека",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

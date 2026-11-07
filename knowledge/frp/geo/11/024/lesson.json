@@ -1,0 +1,20 @@
+{
+ "id": "geo-11-024",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 11,
+ "order": 24,
+ "section": "Регионы и страны",
+ "topic": "Австралия и Океания: Отрасли международной специализации; Географическая и товарная структура экспорта Океания: особенности",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-6-080",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 80,
+ "section": "Математика: Выражения с буквами",
+ "topic": "Буквенные равенства, нахождение неизвестного компонента. Формулы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

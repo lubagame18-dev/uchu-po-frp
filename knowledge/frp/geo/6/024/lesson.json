@@ -1,0 +1,20 @@
+{
+ "id": "geo-6-024",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 6,
+ "order": 24,
+ "section": "Оболочки Земли",
+ "topic": "Растительный и животный мир Земли. Его разнообразие. Практическая работа «Характеристика растительности участка местности своего края»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

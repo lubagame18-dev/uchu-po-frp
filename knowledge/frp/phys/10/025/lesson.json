@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-025",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 25,
+ "section": "Молекулярная физика и термодинамика",
+ "topic": "Уравнение состояния идеального газа. Уравнение Менделеева–Клапейрона",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

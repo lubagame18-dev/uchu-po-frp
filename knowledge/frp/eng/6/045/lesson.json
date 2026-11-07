@@ -1,0 +1,20 @@
+{
+ "id": "eng-6-045",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 6,
+ "order": 45,
+ "section": "Покупки: одежда, обувь и продукты питания",
+ "topic": "Покупки: письмо",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

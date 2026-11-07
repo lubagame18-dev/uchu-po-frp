@@ -1,0 +1,21 @@
+{
+ "id": "ru-3-021",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 3,
+ "order": 21,
+ "section": "Текст и речевая деятельность",
+ "topic": "План текста",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

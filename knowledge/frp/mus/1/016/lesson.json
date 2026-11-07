@@ -1,0 +1,20 @@
+{
+ "id": "mus-1-016",
+ "subject": "mus",
+ "subject_title": "Музыка",
+ "grade": 1,
+ "order": 16,
+ "section": "Музыкальные инструменты",
+ "topic": "Скрипка и гитара",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет композитора"
+}

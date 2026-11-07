@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-009",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 9,
+ "section": "Теоретические основы химии",
+ "topic": "Скорость химической реакции и факторы, влияющие на неё",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

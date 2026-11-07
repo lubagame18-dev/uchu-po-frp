@@ -1,0 +1,21 @@
+{
+ "id": "obzh-9-021",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 9,
+ "order": 21,
+ "section": "Основы медицинских знаний",
+ "topic": "Психологическая поддержка",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

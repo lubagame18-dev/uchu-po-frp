@@ -1,0 +1,21 @@
+{
+ "id": "math-6-119",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 119,
+ "section": "Математика: Положительные и отрицательные числа",
+ "topic": "Сравнение положительных и отрицательных чисел",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "geo-7-011",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 7,
+ "order": 11,
+ "section": "Главные закономерности природы Земли",
+ "topic": "Закономерности распределения атмосферных осадков. Пояса атмосферного давления на Земле",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

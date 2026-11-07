@@ -1,0 +1,21 @@
+{
+ "id": "soc-9-024",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 9,
+ "order": 24,
+ "section": "Человек в системе социальных отношений",
+ "topic": "Отклоняющееся поведение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

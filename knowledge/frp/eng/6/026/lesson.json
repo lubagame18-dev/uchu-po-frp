@@ -1,0 +1,20 @@
+{
+ "id": "eng-6-026",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 6,
+ "order": 26,
+ "section": "Досуг и увлечения (хобби) современного подростка (чтение, кино, театр, спорт)",
+ "topic": "Досуг и увлечения: монологическая речь",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

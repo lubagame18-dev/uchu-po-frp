@@ -1,0 +1,21 @@
+{
+ "id": "bio-7-006",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 7,
+ "order": 6,
+ "section": "Систематические группы растений",
+ "topic": "Высшие споровые растения. Особенности строения высших растений, высших споровых растений",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

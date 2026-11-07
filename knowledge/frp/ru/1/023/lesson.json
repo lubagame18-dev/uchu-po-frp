@@ -1,0 +1,21 @@
+{
+ "id": "ru-1-023",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 1,
+ "order": 23,
+ "section": "Письмо и орфография",
+ "topic": "Списывание текста",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

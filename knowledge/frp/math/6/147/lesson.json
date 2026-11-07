@@ -1,0 +1,21 @@
+{
+ "id": "math-6-147",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 147,
+ "section": "Математика: Наглядная геометрия. Фигуры в пространстве",
+ "topic": "Практическая работа «Создание моделей пространственных фигур». Понятие объема",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-6-036",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 36,
+ "section": "Математика: Наглядная геометрия. Прямые на плоскости",
+ "topic": "Расстояние между двумя точками, от точки до прямой, длина маршрута на квадратной сетке",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

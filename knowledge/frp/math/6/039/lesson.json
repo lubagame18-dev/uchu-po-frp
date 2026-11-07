@@ -1,0 +1,21 @@
+{
+ "id": "math-6-039",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 39,
+ "section": "Математика: Дроби",
+ "topic": "Обыкновенная дробь, основное свойство дроби, сокращение дробей",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

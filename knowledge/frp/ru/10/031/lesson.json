@@ -1,0 +1,21 @@
+{
+ "id": "ru-10-031",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 10,
+ "order": 31,
+ "section": "Речь. Речевое общение",
+ "topic": "Речевой этикет",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

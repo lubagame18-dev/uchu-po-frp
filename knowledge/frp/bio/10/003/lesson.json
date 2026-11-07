@@ -1,0 +1,21 @@
+{
+ "id": "bio-10-003",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 10,
+ "order": 3,
+ "section": "Живые системы и их изучение",
+ "topic": "Биологические системы, процессы и их изучение",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

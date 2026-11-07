@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-061",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 61,
+ "section": "Электродинамика",
+ "topic": "Лабораторная работа №9 «Измерение ЭДС и внутреннего сопротивления источника тока»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

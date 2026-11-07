@@ -1,0 +1,21 @@
+{
+ "id": "bio-10-025",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 10,
+ "order": 25,
+ "section": "Наследственность и изменчивость организмов",
+ "topic": "Дигибридное скрещивание. Закон независимого наследования признаков",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

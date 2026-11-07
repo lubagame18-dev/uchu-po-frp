@@ -1,0 +1,21 @@
+{
+ "id": "inf-8-023",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 8,
+ "order": 23,
+ "section": "Алгоритмы и программирование",
+ "topic": "Язык программирования Python. Переменные и типы данных",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

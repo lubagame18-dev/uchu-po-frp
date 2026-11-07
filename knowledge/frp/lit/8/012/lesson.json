@@ -1,0 +1,20 @@
+{
+ "id": "lit-8-012",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 8,
+ "order": 12,
+ "section": "Литература второй половины XX века",
+ "topic": "А. Т. Твардовский. Поэма «Василий Тёркин» (главы «Переправа», «Гармонь», «Два солдата», «Поединок» и др.)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

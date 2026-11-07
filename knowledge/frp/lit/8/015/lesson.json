@@ -1,0 +1,20 @@
+{
+ "id": "lit-8-015",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 8,
+ "order": 15,
+ "section": "Литература второй половины XX века",
+ "topic": "А. И. Солженицын. Рассказ «Матрёнин двор»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

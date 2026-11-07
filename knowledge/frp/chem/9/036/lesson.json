@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-036",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 36,
+ "section": "Неметаллы и их соединения",
+ "topic": "Оксиды углерода. Парниковый эффект. Угольная кислота и её соли. Качественная реакция на карбонат-ион",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

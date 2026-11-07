@@ -1,0 +1,18 @@
+{
+ "id": "eng-5-028",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 5,
+ "order": 28,
+ "section": "Здоровый образ жизни: режим труда и отдыха, здоровое питание",
+ "topic": "Present Continuous (тема «Здоровый образ жизни»)",
+ "text": "| Шаг | Что делать / признак | Пример |\n|---|---|---|\n| 1 | S + am/is/are + V-ing |  |",
+ "text_source": "knowledge/web/11_Английский_язык/text.md",
+ "table_title": "Present Continuous",
+ "image": "knowledge/web/11_Английский_язык/03_Present Continuous.png",
+ "elements": [
+  "S + am/is/are + V-ing"
+ ],
+ "elements_source": "ready_table",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

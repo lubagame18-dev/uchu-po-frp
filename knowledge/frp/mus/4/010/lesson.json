@@ -1,0 +1,20 @@
+{
+ "id": "mus-4-010",
+ "subject": "mus",
+ "subject_title": "Музыка",
+ "grade": 4,
+ "order": 10,
+ "section": "Народная музыка и фольклор",
+ "topic": "Фольклорные жанры",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет композитора"
+}

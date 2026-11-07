@@ -1,0 +1,20 @@
+{
+ "id": "geo-8-022",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 8,
+ "order": 22,
+ "section": "Природа России",
+ "topic": "Влияние внешних процессов на формирование рельефа. Древнее и современное оледенения",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

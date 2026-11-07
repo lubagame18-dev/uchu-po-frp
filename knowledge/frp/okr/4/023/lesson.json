@@ -1,0 +1,20 @@
+{
+ "id": "okr-4-023",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 4,
+ "order": 23,
+ "section": "Современная Россия",
+ "topic": "Обобщение: чему научились в 4 классе",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

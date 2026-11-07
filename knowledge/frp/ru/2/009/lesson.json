@@ -1,0 +1,21 @@
+{
+ "id": "ru-2-009",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 2,
+ "order": 9,
+ "section": "Орфография",
+ "topic": "Разделительный мягкий знак",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

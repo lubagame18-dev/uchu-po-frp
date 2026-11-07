@@ -1,0 +1,21 @@
+{
+ "id": "ru-7-009",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 7,
+ "order": 9,
+ "section": "Система языка. Морфология. Культура речи. Орфография",
+ "topic": "Морфология как раздел науки о языке (обобщение)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

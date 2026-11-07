@@ -1,0 +1,21 @@
+{
+ "id": "bio-10-008",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 10,
+ "order": 8,
+ "section": "Биология клетки",
+ "topic": "Нуклеиновые кислоты. АТФ",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

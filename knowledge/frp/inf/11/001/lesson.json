@@ -1,0 +1,21 @@
+{
+ "id": "inf-11-001",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 11,
+ "order": 1,
+ "section": "Цифровая грамотность",
+ "topic": "Сетевые информационные технологии. Топологии и адресация",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-7-171",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 171,
+ "section": "Вероятность и статистика: Представление данных",
+ "topic": "Представление данных в таблицах. Практические вычисления по табличным данным",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

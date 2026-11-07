@@ -1,0 +1,21 @@
+{
+ "id": "ru-1-002",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 1,
+ "order": 2,
+ "section": "Речь и общение",
+ "topic": "Устная и письменная речь",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "bio-11-010",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 11,
+ "order": 10,
+ "section": "Возникновение и развитие жизни на Земле",
+ "topic": "История жизни на Земле и методы её изучения",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "geo-10-015",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 10,
+ "order": 15,
+ "section": "Население мира",
+ "topic": "Размещение населения: Понятие об урбанизации, её особенности в странах различных социально- экономических типов; Городские",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

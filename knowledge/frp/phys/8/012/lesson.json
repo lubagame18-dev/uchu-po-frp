@@ -1,0 +1,21 @@
+{
+ "id": "phys-8-012",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 8,
+ "order": 12,
+ "section": "Тепловые явления",
+ "topic": "Количество теплоты. Удельная теплоёмкость вещества",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

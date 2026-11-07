@@ -1,0 +1,21 @@
+{
+ "id": "chem-10-002",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 10,
+ "order": 2,
+ "section": "Теоретические основы органической химии",
+ "topic": "Структурные формулы. Гомология и изомерия. Лабораторный опыт «Моделирование молекул органических веществ»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

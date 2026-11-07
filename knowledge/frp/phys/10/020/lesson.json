@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-020",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 20,
+ "section": "Механика",
+ "topic": "Лабораторная работа №4 «Изучение закона сохранения механической энергии»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

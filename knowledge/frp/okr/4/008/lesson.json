@@ -1,0 +1,20 @@
+{
+ "id": "okr-4-008",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 4,
+ "order": 8,
+ "section": "Природа России",
+ "topic": "Степи и пустыни",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

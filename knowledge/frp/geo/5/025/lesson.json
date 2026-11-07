@@ -1,0 +1,20 @@
+{
+ "id": "geo-5-025",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 5,
+ "order": 25,
+ "section": "Земля – планета Солнечной системы",
+ "topic": "Резервный урок. Обобщающее повторение по теме «Земля – планета Солнечной системы»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

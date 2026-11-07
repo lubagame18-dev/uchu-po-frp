@@ -1,0 +1,21 @@
+{
+ "id": "phys-11-018",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 11,
+ "order": 18,
+ "section": "Колебания и волны",
+ "topic": "Переменный ток. Резистор, конденсатор и катушка в цепи переменного тока",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

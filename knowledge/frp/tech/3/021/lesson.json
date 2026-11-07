@@ -1,0 +1,20 @@
+{
+ "id": "tech-3-021",
+ "subject": "tech",
+ "subject_title": "Технология",
+ "grade": 3,
+ "order": 21,
+ "section": "Проекты и исследования",
+ "topic": "Обобщение: технология и труд",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

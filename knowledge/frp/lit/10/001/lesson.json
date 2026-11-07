@@ -1,0 +1,20 @@
+{
+ "id": "lit-10-001",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 10,
+ "order": 1,
+ "section": "Литература второй половины XIX века",
+ "topic": "А. Н. Островский. Драма «Гроза»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-8-121",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 8,
+ "order": 121,
+ "section": "Геометрия: Теорема Фалеса и теорема о пропорциональных отрезках, подобные треугольники",
+ "topic": "Пропорциональные отрезки. Центр масс в треугольнике",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

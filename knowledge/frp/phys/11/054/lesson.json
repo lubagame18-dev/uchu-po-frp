@@ -1,0 +1,21 @@
+{
+ "id": "phys-11-054",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 11,
+ "order": 54,
+ "section": "Квантовая физика",
+ "topic": "Контрольная работа №4 «Квантовая физика»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

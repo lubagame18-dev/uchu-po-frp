@@ -1,0 +1,20 @@
+{
+ "id": "lit-7-013",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 7,
+ "order": 13,
+ "section": "Литература конца XIX — начала XX века",
+ "topic": "Сатирические произведения отечественной и зарубежной литературы (не менее двух)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

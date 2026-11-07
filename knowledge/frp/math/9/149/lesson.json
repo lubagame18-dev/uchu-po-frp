@@ -1,0 +1,21 @@
+{
+ "id": "math-9-149",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 149,
+ "section": "Геометрия: Декартовы координаты на плоскости",
+ "topic": "Контрольная работа по теме «Декартовы координаты на плоскости»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

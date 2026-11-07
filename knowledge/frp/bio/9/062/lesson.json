@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-062",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 62,
+ "section": "Поведение и психика",
+ "topic": "Особенности психики человека. Практическая работа № 28 «Оценка сформированности навыков логического мышления»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

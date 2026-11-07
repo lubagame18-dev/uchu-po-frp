@@ -1,0 +1,21 @@
+{
+ "id": "math-11-110",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 11,
+ "order": 110,
+ "section": "Геометрия: Тела вращения",
+ "topic": "Площадь боковой и полной поверхности. Усеченный конус: образующие и высота и др.",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

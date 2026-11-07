@@ -1,0 +1,21 @@
+{
+ "id": "math-1-010",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 1,
+ "order": 10,
+ "section": "Числа от 1 до 10",
+ "topic": "Числа 9 и 10",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

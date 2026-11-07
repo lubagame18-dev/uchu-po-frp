@@ -1,0 +1,21 @@
+{
+ "id": "phys-11-045",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 11,
+ "order": 45,
+ "section": "Квантовая физика",
+ "topic": "Обобщение «Элементы квантовой оптики»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

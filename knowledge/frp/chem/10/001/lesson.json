@@ -1,0 +1,21 @@
+{
+ "id": "chem-10-001",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 10,
+ "order": 1,
+ "section": "Теоретические основы органической химии",
+ "topic": "Предмет органической химии. Теория строения органических соединений А. М. Бутлерова",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

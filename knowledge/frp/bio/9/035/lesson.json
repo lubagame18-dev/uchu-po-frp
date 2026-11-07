@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-035",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 35,
+ "section": "Питание и пищеварение",
+ "topic": "Пищеварение в желудке и кишечнике. Практическая работа № 14 «Наблюдение действия желудочного сока на белки»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

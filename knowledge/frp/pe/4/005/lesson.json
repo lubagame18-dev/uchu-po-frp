@@ -1,0 +1,20 @@
+{
+ "id": "pe-4-005",
+ "subject": "pe",
+ "subject_title": "Физическая культура",
+ "grade": 4,
+ "order": 5,
+ "section": "Лёгкая атлетика",
+ "topic": "Бег на 30 и 60 м",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

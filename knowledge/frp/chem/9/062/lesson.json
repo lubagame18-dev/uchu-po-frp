@@ -1,0 +1,21 @@
+{
+ "id": "chem-9-062",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 9,
+ "order": 62,
+ "section": "Металлы и их соединения",
+ "topic": "Контрольная работа №3 «Металлы и их соединения»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

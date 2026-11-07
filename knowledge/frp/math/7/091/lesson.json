@@ -1,0 +1,21 @@
+{
+ "id": "math-7-091",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 91,
+ "section": "Алгебра: Координаты и графики. Функции",
+ "topic": "График функции. Свойства функций. Линейная функция",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

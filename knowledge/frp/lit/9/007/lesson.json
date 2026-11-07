@@ -1,0 +1,20 @@
+{
+ "id": "lit-9-007",
+ "subject": "lit",
+ "subject_title": "Литература",
+ "grade": 9,
+ "order": 7,
+ "section": "Литература первой половины XIX века",
+ "topic": "Поэзия пушкинской эпохи. К. Н. Батюшков, А. А. Дельвиг, Н. М. Языков, Е. А. Баратынский (не менее трёх стихотворений по выбору)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "портрет писателя"
+}

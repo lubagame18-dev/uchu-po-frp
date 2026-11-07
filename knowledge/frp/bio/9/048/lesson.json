@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-048",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 48,
+ "section": "Выделение",
+ "topic": "Образование мочи. Регуляция работы органов мочевыделительной системы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,19 @@
+{
+ "id": "math-2-029",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 2,
+ "order": 29,
+ "section": "Уравнения",
+ "topic": "Составляем уравнение по задаче",
+ "text": "| Шаг | Что делать / признак | Пример |\n|---|---|---|\n| 1 | ax + b = c → ax = c − b → x = (c − b) : a |  |\n| 2 | проверка: подставить корень |  |",
+ "text_source": "knowledge/web/03_Математика/text.md",
+ "table_title": "Уравнение",
+ "image": "knowledge/web/03_Математика/02_Уравнение.png",
+ "elements": [
+  "ax + b = c → ax = c − b → x = (c − b) : a",
+  "проверка: подставить корень"
+ ],
+ "elements_source": "ready_table",
+ "asset_type": "изображение по теме"
+}

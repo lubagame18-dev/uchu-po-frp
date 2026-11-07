@@ -1,0 +1,21 @@
+{
+ "id": "bio-11-033",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 11,
+ "order": 33,
+ "section": "Сообщества и экологические системы",
+ "topic": "Итоговая контрольная работа за курс 11 класса",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

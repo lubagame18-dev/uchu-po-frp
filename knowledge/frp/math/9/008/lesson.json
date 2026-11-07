@@ -1,0 +1,21 @@
+{
+ "id": "math-9-008",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 8,
+ "section": "Алгебра: Числа и вычисления. Действительные числа",
+ "topic": "Округление чисел. Прикидка и оценка результатов вычислений",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

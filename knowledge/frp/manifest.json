@@ -1,0 +1,625 @@
+{
+ "version": 1,
+ "subjects": [
+  {
+   "key": "math",
+   "title": "Математика",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 35
+    },
+    {
+     "grade": 2,
+     "lessons": 33
+    },
+    {
+     "grade": 3,
+     "lessons": 28
+    },
+    {
+     "grade": 4,
+     "lessons": 30
+    },
+    {
+     "grade": 5,
+     "lessons": 170
+    },
+    {
+     "grade": 6,
+     "lessons": 170
+    },
+    {
+     "grade": 7,
+     "lessons": 204
+    },
+    {
+     "grade": 8,
+     "lessons": 204
+    },
+    {
+     "grade": 9,
+     "lessons": 204
+    },
+    {
+     "grade": 10,
+     "lessons": 170
+    },
+    {
+     "grade": 11,
+     "lessons": 170
+    }
+   ],
+   "count": 1418
+  },
+  {
+   "key": "eng",
+   "title": "Английский язык",
+   "grades": [
+    {
+     "grade": 2,
+     "lessons": 35
+    },
+    {
+     "grade": 3,
+     "lessons": 33
+    },
+    {
+     "grade": 4,
+     "lessons": 33
+    },
+    {
+     "grade": 5,
+     "lessons": 102
+    },
+    {
+     "grade": 6,
+     "lessons": 102
+    },
+    {
+     "grade": 7,
+     "lessons": 102
+    },
+    {
+     "grade": 8,
+     "lessons": 102
+    },
+    {
+     "grade": 9,
+     "lessons": 102
+    },
+    {
+     "grade": 10,
+     "lessons": 102
+    },
+    {
+     "grade": 11,
+     "lessons": 102
+    }
+   ],
+   "count": 815
+  },
+  {
+   "key": "hist",
+   "title": "История",
+   "grades": [
+    {
+     "grade": 5,
+     "lessons": 68
+    },
+    {
+     "grade": 6,
+     "lessons": 85
+    },
+    {
+     "grade": 7,
+     "lessons": 85
+    },
+    {
+     "grade": 8,
+     "lessons": 102
+    },
+    {
+     "grade": 9,
+     "lessons": 68
+    },
+    {
+     "grade": 10,
+     "lessons": 68
+    },
+    {
+     "grade": 11,
+     "lessons": 68
+    }
+   ],
+   "count": 544
+  },
+  {
+   "key": "bio",
+   "title": "Биология",
+   "grades": [
+    {
+     "grade": 5,
+     "lessons": 34
+    },
+    {
+     "grade": 6,
+     "lessons": 34
+    },
+    {
+     "grade": 7,
+     "lessons": 34
+    },
+    {
+     "grade": 8,
+     "lessons": 72
+    },
+    {
+     "grade": 9,
+     "lessons": 68
+    },
+    {
+     "grade": 10,
+     "lessons": 34
+    },
+    {
+     "grade": 11,
+     "lessons": 34
+    }
+   ],
+   "count": 310
+  },
+  {
+   "key": "ru",
+   "title": "Русский язык",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 28
+    },
+    {
+     "grade": 2,
+     "lessons": 32
+    },
+    {
+     "grade": 3,
+     "lessons": 31
+    },
+    {
+     "grade": 4,
+     "lessons": 30
+    },
+    {
+     "grade": 5,
+     "lessons": 17
+    },
+    {
+     "grade": 6,
+     "lessons": 21
+    },
+    {
+     "grade": 7,
+     "lessons": 19
+    },
+    {
+     "grade": 8,
+     "lessons": 14
+    },
+    {
+     "grade": 9,
+     "lessons": 12
+    },
+    {
+     "grade": 10,
+     "lessons": 36
+    },
+    {
+     "grade": 11,
+     "lessons": 27
+    }
+   ],
+   "count": 267
+  },
+  {
+   "key": "lit",
+   "title": "Литература",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 26
+    },
+    {
+     "grade": 2,
+     "lessons": 29
+    },
+    {
+     "grade": 3,
+     "lessons": 29
+    },
+    {
+     "grade": 4,
+     "lessons": 27
+    },
+    {
+     "grade": 5,
+     "lessons": 24
+    },
+    {
+     "grade": 6,
+     "lessons": 25
+    },
+    {
+     "grade": 7,
+     "lessons": 25
+    },
+    {
+     "grade": 8,
+     "lessons": 20
+    },
+    {
+     "grade": 9,
+     "lessons": 16
+    },
+    {
+     "grade": 10,
+     "lessons": 15
+    },
+    {
+     "grade": 11,
+     "lessons": 34
+    }
+   ],
+   "count": 270
+  },
+  {
+   "key": "mhk",
+   "title": "МХК",
+   "grades": [
+    {
+     "grade": 5,
+     "lessons": 20
+    },
+    {
+     "grade": 6,
+     "lessons": 22
+    },
+    {
+     "grade": 7,
+     "lessons": 21
+    },
+    {
+     "grade": 8,
+     "lessons": 21
+    },
+    {
+     "grade": 10,
+     "lessons": 17
+    },
+    {
+     "grade": 11,
+     "lessons": 21
+    }
+   ],
+   "count": 122
+  },
+  {
+   "key": "astr",
+   "title": "Астрономия",
+   "grades": [
+    {
+     "grade": 10,
+     "lessons": 22
+    },
+    {
+     "grade": 11,
+     "lessons": 21
+    }
+   ],
+   "count": 43
+  },
+  {
+   "key": "izo",
+   "title": "Изобразительное искусство",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 23
+    },
+    {
+     "grade": 2,
+     "lessons": 24
+    },
+    {
+     "grade": 3,
+     "lessons": 23
+    },
+    {
+     "grade": 4,
+     "lessons": 23
+    }
+   ],
+   "count": 93
+  },
+  {
+   "key": "mus",
+   "title": "Музыка",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 23
+    },
+    {
+     "grade": 2,
+     "lessons": 22
+    },
+    {
+     "grade": 3,
+     "lessons": 21
+    },
+    {
+     "grade": 4,
+     "lessons": 22
+    }
+   ],
+   "count": 88
+  },
+  {
+   "key": "tech",
+   "title": "Технология",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 19
+    },
+    {
+     "grade": 2,
+     "lessons": 22
+    },
+    {
+     "grade": 3,
+     "lessons": 21
+    },
+    {
+     "grade": 4,
+     "lessons": 23
+    }
+   ],
+   "count": 85
+  },
+  {
+   "key": "pe",
+   "title": "Физическая культура",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 22
+    },
+    {
+     "grade": 2,
+     "lessons": 22
+    },
+    {
+     "grade": 3,
+     "lessons": 23
+    },
+    {
+     "grade": 4,
+     "lessons": 23
+    }
+   ],
+   "count": 90
+  },
+  {
+   "key": "geo",
+   "title": "География",
+   "grades": [
+    {
+     "grade": 5,
+     "lessons": 34
+    },
+    {
+     "grade": 6,
+     "lessons": 34
+    },
+    {
+     "grade": 7,
+     "lessons": 68
+    },
+    {
+     "grade": 8,
+     "lessons": 68
+    },
+    {
+     "grade": 9,
+     "lessons": 68
+    },
+    {
+     "grade": 10,
+     "lessons": 32
+    },
+    {
+     "grade": 11,
+     "lessons": 34
+    }
+   ],
+   "count": 338
+  },
+  {
+   "key": "phys",
+   "title": "Физика",
+   "grades": [
+    {
+     "grade": 7,
+     "lessons": 68
+    },
+    {
+     "grade": 8,
+     "lessons": 68
+    },
+    {
+     "grade": 9,
+     "lessons": 102
+    },
+    {
+     "grade": 10,
+     "lessons": 68
+    },
+    {
+     "grade": 11,
+     "lessons": 68
+    }
+   ],
+   "count": 374
+  },
+  {
+   "key": "chem",
+   "title": "Химия",
+   "grades": [
+    {
+     "grade": 8,
+     "lessons": 68
+    },
+    {
+     "grade": 9,
+     "lessons": 68
+    },
+    {
+     "grade": 10,
+     "lessons": 34
+    },
+    {
+     "grade": 11,
+     "lessons": 34
+    }
+   ],
+   "count": 204
+  },
+  {
+   "key": "soc",
+   "title": "Обществознание",
+   "grades": [
+    {
+     "grade": 8,
+     "lessons": 34
+    },
+    {
+     "grade": 9,
+     "lessons": 34
+    },
+    {
+     "grade": 10,
+     "lessons": 68
+    },
+    {
+     "grade": 11,
+     "lessons": 34
+    }
+   ],
+   "count": 170
+  },
+  {
+   "key": "inf",
+   "title": "Информатика",
+   "grades": [
+    {
+     "grade": 7,
+     "lessons": 34
+    },
+    {
+     "grade": 8,
+     "lessons": 34
+    },
+    {
+     "grade": 9,
+     "lessons": 34
+    },
+    {
+     "grade": 10,
+     "lessons": 34
+    },
+    {
+     "grade": 11,
+     "lessons": 34
+    }
+   ],
+   "count": 170
+  },
+  {
+   "key": "okr",
+   "title": "Окружающий мир",
+   "grades": [
+    {
+     "grade": 1,
+     "lessons": 33
+    },
+    {
+     "grade": 2,
+     "lessons": 31
+    },
+    {
+     "grade": 3,
+     "lessons": 29
+    },
+    {
+     "grade": 4,
+     "lessons": 23
+    }
+   ],
+   "count": 116
+  },
+  {
+   "key": "orkse",
+   "title": "ОРКСЭ",
+   "grades": [
+    {
+     "grade": 4,
+     "lessons": 25
+    }
+   ],
+   "count": 25
+  },
+  {
+   "key": "obzh",
+   "title": "ОБЖ",
+   "grades": [
+    {
+     "grade": 8,
+     "lessons": 27
+    },
+    {
+     "grade": 9,
+     "lessons": 25
+    },
+    {
+     "grade": 10,
+     "lessons": 21
+    },
+    {
+     "grade": 11,
+     "lessons": 20
+    }
+   ],
+   "count": 93
+  },
+  {
+   "key": "vis",
+   "title": "Вероятность и статистика",
+   "grades": [
+    {
+     "grade": 7,
+     "lessons": 21
+    },
+    {
+     "grade": 8,
+     "lessons": 20
+    },
+    {
+     "grade": 9,
+     "lessons": 18
+    }
+   ],
+   "count": 59
+  }
+ ],
+ "total": 5694
+}

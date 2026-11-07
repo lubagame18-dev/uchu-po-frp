@@ -1,0 +1,21 @@
+{
+ "id": "math-1-018",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 1,
+ "order": 18,
+ "section": "Сложение и вычитание в пределах 10",
+ "topic": "Задачи в одно действие",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "math-9-083",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 83,
+ "section": "Алгебра: Числовые последовательности",
+ "topic": "Обобщение и систематизация по теме «Числовые последовательности»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

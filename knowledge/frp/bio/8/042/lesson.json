@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-042",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 42,
+ "section": "Земноводные",
+ "topic": "Многообразие земноводных и их охрана. Значение земноводных в природе и жизни человека",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

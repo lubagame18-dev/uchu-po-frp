@@ -1,0 +1,20 @@
+{
+ "id": "tech-4-014",
+ "subject": "tech",
+ "subject_title": "Технология",
+ "grade": 4,
+ "order": 14,
+ "section": "Информационные технологии",
+ "topic": "Компьютер и его устройства",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

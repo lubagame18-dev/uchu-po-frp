@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-029",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 29,
+ "section": "Дыхание",
+ "topic": "Механизмы дыхания. Регуляция дыхания. Практическая работа № 11 «Измерение обхвата грудной клетки в состоянии вдоха и выдоха»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

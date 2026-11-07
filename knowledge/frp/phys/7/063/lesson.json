@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-063",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 63,
+ "section": "Работа и мощность. Энергия",
+ "topic": "Превращение механической энергии. Закон сохранения энергии",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

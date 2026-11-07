@@ -1,0 +1,21 @@
+{
+ "id": "chem-11-015",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 11,
+ "order": 15,
+ "section": "Неорганическая химия",
+ "topic": "Электрохимический ряд напряжений. Способы получения металлов. Коррозия металлов и защита от неё",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

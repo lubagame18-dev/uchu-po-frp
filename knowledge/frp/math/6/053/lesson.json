@@ -1,0 +1,21 @@
+{
+ "id": "math-6-053",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 6,
+ "order": 53,
+ "section": "Математика: Дроби",
+ "topic": "Деление в данном отношении. Масштаб, пропорция",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

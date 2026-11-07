@@ -1,0 +1,20 @@
+{
+ "id": "geo-5-032",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 5,
+ "order": 32,
+ "section": "Оболочки Земли",
+ "topic": "Рельеф земной поверхности и методы его изучения. Практическая работа «Описание горной системы или равнины по физической карте»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

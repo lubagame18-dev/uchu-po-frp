@@ -1,0 +1,21 @@
+{
+ "id": "math-7-185",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 7,
+ "order": 185,
+ "section": "Вероятность и статистика: Описательная статистика",
+ "topic": "Контрольная работа по теме «Описательная статистика»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

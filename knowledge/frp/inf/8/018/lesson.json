@@ -1,0 +1,21 @@
+{
+ "id": "inf-8-018",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 8,
+ "order": 18,
+ "section": "Алгоритмы и программирование",
+ "topic": "Практическая работа. Циклы для управления исполнителем Робот",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

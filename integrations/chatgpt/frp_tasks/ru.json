@@ -1,0 +1,3494 @@
+{
+ "subject": "ru",
+ "title": "Русский язык",
+ "lessons": [
+  {
+   "lesson_id": "ru-1-001",
+   "grade": 1,
+   "topic": "Что такое речь",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-002",
+   "grade": 1,
+   "topic": "Устная и письменная речь",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-003",
+   "grade": 1,
+   "topic": "Слушаем и говорим",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-004",
+   "grade": 1,
+   "topic": "Вежливые слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-005",
+   "grade": 1,
+   "topic": "Рассказ по картинке",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-006",
+   "grade": 1,
+   "topic": "Гласные звуки",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-007",
+   "grade": 1,
+   "topic": "Согласные звуки",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-008",
+   "grade": 1,
+   "topic": "Твёрдые и мягкие согласные",
+   "numbered_elements": [
+    "мягкость обозначают: ь, е, ё, ю, я, и",
+    "всегда твёрдые: [ж], [ш], [ц]; всегда мягкие: [ч’], [щ’], [й’]"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-1-009",
+   "grade": 1,
+   "topic": "Звонкие и глухие согласные",
+   "numbered_elements": [
+    "сомнительный согласный ← проверка: после согласного стоит гласный (или н, л, м, р, в)",
+    "дуб ← дубы (дубы)",
+    "ложка ← ложечка"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-1-010",
+   "grade": 1,
+   "topic": "Алфавит",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-011",
+   "grade": 1,
+   "topic": "Слог",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-012",
+   "grade": 1,
+   "topic": "Ударение",
+   "numbered_elements": [
+    "слогов столько, сколько гласных: мо-ло-ко (3)",
+    "ударение — выделение голосом одного слога: звонит, кухонный, щавель"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-1-013",
+   "grade": 1,
+   "topic": "Перенос слов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-014",
+   "grade": 1,
+   "topic": "Слово и его значение",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-015",
+   "grade": 1,
+   "topic": "Предложение",
+   "numbered_elements": [
+    "[ = ], и [ = ] — сложносочинённое",
+    "[ = ], (союз = ) — сложноподчинённое: главная [ ], придаточная ( )",
+    "(Когда = ), [ = ]",
+    "[ … ], (который … ), …",
+    "[ = ]: [ = ] — пояснение, причина",
+    "[ = ] — [ = ] — противопоставление, следствие, время",
+    "[ = ], [ = ] — перечисление"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-1-016",
+   "grade": 1,
+   "topic": "Заглавная буква в предложении",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-017",
+   "grade": 1,
+   "topic": "Знаки в конце предложения",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-018",
+   "grade": 1,
+   "topic": "Письмо строчных букв",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-019",
+   "grade": 1,
+   "topic": "Письмо заглавных букв",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-020",
+   "grade": 1,
+   "topic": "Соединения букв",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-021",
+   "grade": 1,
+   "topic": "Жи-ши",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-022",
+   "grade": 1,
+   "topic": "Ча-ща, чу-щу",
+   "numbered_elements": [
+    "ЖИ, ШИ — с И: жизнь, машина, шишка",
+    "ЧА, ЩА — с А: чаща, площадь, задача",
+    "ЧУ, ЩУ — с У: чудо, щука, чулок",
+    "Ж, Ш, Ц — всегда твёрдые; Ч, Щ, Й — всегда мягкие"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-1-023",
+   "grade": 1,
+   "topic": "Списывание текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-024",
+   "grade": 1,
+   "topic": "Обобщение: чему научились",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-025",
+   "grade": 1,
+   "topic": "Повторение: звуки и буквы",
+   "numbered_elements": [
+    "буква — пишем и видим; звук — слышим и произносим: [ ]",
+    "е, ё, ю, я = [й’э], [й’о], [й’у], [й’а] — в начале слова, после гласной, после ъ и ь",
+    "согласный + е, ё, ю, я, и, ь → согласный мягкий: [’]"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-1-026",
+   "grade": 1,
+   "topic": "Повторение: слог и ударение",
+   "numbered_elements": [
+    "слогов столько, сколько гласных: мо-ло-ко (3)",
+    "ударение — выделение голосом одного слога: звонит, кухонный, щавель"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-1-027",
+   "grade": 1,
+   "topic": "Проверочная работа",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-1-028",
+   "grade": 1,
+   "topic": "Исправляем ошибки",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-001",
+   "grade": 2,
+   "topic": "Звуки и буквы",
+   "numbered_elements": [
+    "буква — пишем и видим; звук — слышим и произносим: [ ]",
+    "е, ё, ю, я = [й’э], [й’о], [й’у], [й’а] — в начале слова, после гласной, после ъ и ь",
+    "согласный + е, ё, ю, я, и, ь → согласный мягкий: [’]"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-002",
+   "grade": 2,
+   "topic": "Мягкий знак",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-003",
+   "grade": 2,
+   "topic": "Алфавит",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-004",
+   "grade": 2,
+   "topic": "Слог и ударение",
+   "numbered_elements": [
+    "слогов столько, сколько гласных: мо-ло-ко (3)",
+    "ударение — выделение голосом одного слога: звонит, кухонный, щавель"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-005",
+   "grade": 2,
+   "topic": "Безударные гласные",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-006",
+   "grade": 2,
+   "topic": "Парные согласные",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-007",
+   "grade": 2,
+   "topic": "Жи-ши, ча-ща, чу-щу",
+   "numbered_elements": [
+    "ЖИ, ШИ — с И: жизнь, машина, шишка",
+    "ЧА, ЩА — с А: чаща, площадь, задача",
+    "ЧУ, ЩУ — с У: чудо, щука, чулок",
+    "Ж, Ш, Ц — всегда твёрдые; Ч, Щ, Й — всегда мягкие"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-008",
+   "grade": 2,
+   "topic": "Чк-чн",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-009",
+   "grade": 2,
+   "topic": "Разделительный мягкий знак",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-010",
+   "grade": 2,
+   "topic": "Однокоренные слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-011",
+   "grade": 2,
+   "topic": "Корень слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-012",
+   "grade": 2,
+   "topic": "Приставка и суффикс",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-013",
+   "grade": 2,
+   "topic": "Окончание",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-014",
+   "grade": 2,
+   "topic": "Имя существительное",
+   "numbered_elements": [
+    "кто? что? → предмет",
+    "постоянные: нарицательное/собственное, одуш./неодуш., род, склонение",
+    "непостоянные: число, падеж",
+    "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-015",
+   "grade": 2,
+   "topic": "Имя прилагательное",
+   "numbered_elements": [
+    "какой? чей? → признак предмета",
+    "род, число, падеж — как у существительного",
+    "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-016",
+   "grade": 2,
+   "topic": "Глагол",
+   "numbered_elements": [
+    "что делать? → несовершенный: решать",
+    "что сделать? → совершенный: решить"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-017",
+   "grade": 2,
+   "topic": "Местоимение и предлог",
+   "numbered_elements": [
+    "личные: я, ты, он, она, оно, мы, вы, они",
+    "возвратное: себя; притяжательные: мой, твой, наш, ваш, свой",
+    "указательные: этот, тот, такой, столько; определительные: весь, всякий, каждый, сам, самый, любой, иной",
+    "вопросительные: кто? что? какой? чей? сколько?; относительные: кто, что, какой, чей… (связывают части СПП)",
+    "отрицательные: никто, ничто, никакой, ничей; неопределённые: кто-то, что-нибудь, кое-кто"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-018",
+   "grade": 2,
+   "topic": "Виды предложений",
+   "numbered_elements": [
+    "по цели: повествовательное (.), вопросительное (?), побудительное (. или !)",
+    "по интонации: восклицательное (!) и невосклицательное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-2-019",
+   "grade": 2,
+   "topic": "Главные члены предложения",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-020",
+   "grade": 2,
+   "topic": "Связь слов в предложении",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-021",
+   "grade": 2,
+   "topic": "Текст и его части",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-022",
+   "grade": 2,
+   "topic": "Изложение по вопросам",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-023",
+   "grade": 2,
+   "topic": "Описание предмета",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-024",
+   "grade": 2,
+   "topic": "Письмо и поздравление",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-025",
+   "grade": 2,
+   "topic": "Обобщение: русский язык 2 класс",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-026",
+   "grade": 2,
+   "topic": "Повторение орфограмм",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-027",
+   "grade": 2,
+   "topic": "Повторение частей речи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-028",
+   "grade": 2,
+   "topic": "Итоговый диктант",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-029",
+   "grade": 2,
+   "topic": "Работа над ошибками",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-030",
+   "grade": 2,
+   "topic": "Словарик класса",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-031",
+   "grade": 2,
+   "topic": "Афиша правила",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-2-032",
+   "grade": 2,
+   "topic": "Сообщение о слове",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-001",
+   "grade": 3,
+   "topic": "Корень слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-002",
+   "grade": 3,
+   "topic": "Приставка",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-003",
+   "grade": 3,
+   "topic": "Суффикс",
+   "numbered_elements": [
+    "гласная выпадает при склонении → -ек-: замочек — замочка",
+    "гласная сохраняется → -ик-: ключик — ключика"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-004",
+   "grade": 3,
+   "topic": "Окончание",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-005",
+   "grade": 3,
+   "topic": "Разбор слова по составу",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-006",
+   "grade": 3,
+   "topic": "Имя существительное: род и число",
+   "numbered_elements": [
+    "кто? что? → предмет",
+    "постоянные: нарицательное/собственное, одуш./неодуш., род, склонение",
+    "непостоянные: число, падеж",
+    "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-007",
+   "grade": 3,
+   "topic": "Падежи (ознакомление)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-008",
+   "grade": 3,
+   "topic": "Имя прилагательное",
+   "numbered_elements": [
+    "какой? чей? → признак предмета",
+    "род, число, падеж — как у существительного",
+    "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-009",
+   "grade": 3,
+   "topic": "Глагол: время и число",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-010",
+   "grade": 3,
+   "topic": "Местоимение",
+   "numbered_elements": [
+    "личные: я, ты, он, она, оно, мы, вы, они",
+    "возвратное: себя; притяжательные: мой, твой, наш, ваш, свой",
+    "указательные: этот, тот, такой, столько; определительные: весь, всякий, каждый, сам, самый, любой, иной",
+    "вопросительные: кто? что? какой? чей? сколько?; относительные: кто, что, какой, чей… (связывают части СПП)",
+    "отрицательные: никто, ничто, никакой, ничей; неопределённые: кто-то, что-нибудь, кое-кто"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-011",
+   "grade": 3,
+   "topic": "Безударные гласные в корне",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-012",
+   "grade": 3,
+   "topic": "Парные согласные",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-013",
+   "grade": 3,
+   "topic": "Непроизносимые согласные",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-014",
+   "grade": 3,
+   "topic": "Удвоенные согласные",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-015",
+   "grade": 3,
+   "topic": "Сложные слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-016",
+   "grade": 3,
+   "topic": "Члены предложения",
+   "numbered_elements": [
+    "дополнение — падежные вопросы (кого? чего? кому? чем? о ком?)",
+    "определение — какой? чей? который?",
+    "обстоятельство — где? когда? куда? откуда? как? почему? зачем?",
+    "Осенний ветер срывает жёлтые листья с клёнов."
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-017",
+   "grade": 3,
+   "topic": "Распространённые предложения",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-018",
+   "grade": 3,
+   "topic": "Однородные члены",
+   "numbered_elements": [
+    "О, О, О",
+    "О и О",
+    "О, О и О",
+    "О, но О; О, а О",
+    "и О, и О, и О",
+    "О и О, О и О",
+    "ОС: О, О, О",
+    "О, О, О — ОС"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-019",
+   "grade": 3,
+   "topic": "Сложное предложение (ознакомление)",
+   "numbered_elements": [
+    "[ = ], и [ = ] — сложносочинённое",
+    "[ = ], (союз = ) — сложноподчинённое: главная [ ], придаточная ( )",
+    "(Когда = ), [ = ]",
+    "[ … ], (который … ), …",
+    "[ = ]: [ = ] — пояснение, причина",
+    "[ = ] — [ = ] — противопоставление, следствие, время",
+    "[ = ], [ = ] — перечисление"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-020",
+   "grade": 3,
+   "topic": "Типы текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-021",
+   "grade": 3,
+   "topic": "План текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-022",
+   "grade": 3,
+   "topic": "Изложение",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-023",
+   "grade": 3,
+   "topic": "Сочинение по картине",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-024",
+   "grade": 3,
+   "topic": "Обобщение: русский язык 3 класс",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-025",
+   "grade": 3,
+   "topic": "Повторение: состав слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-026",
+   "grade": 3,
+   "topic": "Повторение: части речи",
+   "numbered_elements": [
+    "Существительное",
+    "Прилагательное",
+    "Глагол",
+    "Причастие",
+    "Деепричастие",
+    "Наречие",
+    "Местоимение",
+    "Числительное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-3-027",
+   "grade": 3,
+   "topic": "Контрольный диктант",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-028",
+   "grade": 3,
+   "topic": "Анализ работы",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-029",
+   "grade": 3,
+   "topic": "Интересные слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-030",
+   "grade": 3,
+   "topic": "Правила в картинках",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-3-031",
+   "grade": 3,
+   "topic": "Устный журнал",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-001",
+   "grade": 4,
+   "topic": "Самостоятельные части речи",
+   "numbered_elements": [
+    "Существительное",
+    "Прилагательное",
+    "Глагол",
+    "Причастие",
+    "Деепричастие",
+    "Наречие",
+    "Местоимение",
+    "Числительное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-002",
+   "grade": 4,
+   "topic": "Служебные части речи",
+   "numbered_elements": [
+    "Существительное",
+    "Прилагательное",
+    "Глагол",
+    "Причастие",
+    "Деепричастие",
+    "Наречие",
+    "Местоимение",
+    "Числительное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-003",
+   "grade": 4,
+   "topic": "Наречие",
+   "numbered_elements": [
+    "как? где? когда? куда? откуда? зачем? почему? в какой степени? → неизменяемое слово",
+    "обстоятельство: Он быстро бежал.",
+    "НЕ с наречием на -о: слитно, если есть синоним без НЕ (недалеко = близко)",
+    "на конце: из-, до-, с- + -а: досуха, слева; в-, на-, за- + -о: вправо, засветло",
+    "после шипящих: под ударением -о (горячо), без ударения -е (певуче)",
+    "дефис: по-нашему, по-русски, во-первых, кое-как, где-то"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-004",
+   "grade": 4,
+   "topic": "Морфологический разбор",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-005",
+   "grade": 4,
+   "topic": "Три склонения",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-006",
+   "grade": 4,
+   "topic": "Падежи и вопросы",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-007",
+   "grade": 4,
+   "topic": "Склонение прилагательных",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-008",
+   "grade": 4,
+   "topic": "Спряжение глаголов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-009",
+   "grade": 4,
+   "topic": "Время и лицо глагола",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-010",
+   "grade": 4,
+   "topic": "Безударные окончания существительных",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-011",
+   "grade": 4,
+   "topic": "Личные окончания глаголов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-012",
+   "grade": 4,
+   "topic": "Ь после шипящих",
+   "numbered_elements": [
+    "сущ. ж. р. 3 скл.: ночь, рожь; м. р. 2 скл. — без Ь: врач, нож",
+    "глагол: инфинитив и 2 л. ед. ч. — с Ь: беречь, пишешь",
+    "наречие — с Ь: настежь, прочь (кроме уж, замуж, невтерпёж)",
+    "кратк. прилагательное — без Ь: свеж, хорош, могуч"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-013",
+   "grade": 4,
+   "topic": "Не с глаголами",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-014",
+   "grade": 4,
+   "topic": "Простое и сложное предложение",
+   "numbered_elements": [
+    "[ = ], и [ = ] — сложносочинённое",
+    "[ = ], (союз = ) — сложноподчинённое: главная [ ], придаточная ( )",
+    "(Когда = ), [ = ]",
+    "[ … ], (который … ), …",
+    "[ = ]: [ = ] — пояснение, причина",
+    "[ = ] — [ = ] — противопоставление, следствие, время",
+    "[ = ], [ = ] — перечисление"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-015",
+   "grade": 4,
+   "topic": "Однородные члены",
+   "numbered_elements": [
+    "О, О, О",
+    "О и О",
+    "О, О и О",
+    "О, но О; О, а О",
+    "и О, и О, и О",
+    "О и О, О и О",
+    "ОС: О, О, О",
+    "О, О, О — ОС"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-016",
+   "grade": 4,
+   "topic": "Обращение",
+   "numbered_elements": [
+    "О, … !",
+    "…, О, …",
+    "…, О!"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-017",
+   "grade": 4,
+   "topic": "Прямая речь (ознакомление)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-018",
+   "grade": 4,
+   "topic": "Стили речи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-019",
+   "grade": 4,
+   "topic": "Типы текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-020",
+   "grade": 4,
+   "topic": "Изложение",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-021",
+   "grade": 4,
+   "topic": "Сочинение",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-022",
+   "grade": 4,
+   "topic": "Редактирование текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-023",
+   "grade": 4,
+   "topic": "Обобщение: русский язык 4 класс",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-024",
+   "grade": 4,
+   "topic": "Повторение: части речи",
+   "numbered_elements": [
+    "Существительное",
+    "Прилагательное",
+    "Глагол",
+    "Причастие",
+    "Деепричастие",
+    "Наречие",
+    "Местоимение",
+    "Числительное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-4-025",
+   "grade": 4,
+   "topic": "Повторение: орфография и пунктуация",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-026",
+   "grade": 4,
+   "topic": "Итоговый диктант",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-027",
+   "grade": 4,
+   "topic": "Готовимся к пятой четверти",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-028",
+   "grade": 4,
+   "topic": "Тема итогового проекта",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-029",
+   "grade": 4,
+   "topic": "Подготовка и оформление",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-4-030",
+   "grade": 4,
+   "topic": "Защита проекта",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-001",
+   "grade": 5,
+   "topic": "Богатство и выразительность русского языка. Лингвистика как наука о языке",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-002",
+   "grade": 5,
+   "topic": "Язык и речь. Монолог. Диалог. Полилог. Виды речевой деятельности",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-003",
+   "grade": 5,
+   "topic": "Текст и его основные признаки. Композиционная структура текста. Функционально-смысловые типы речи. Повествование как тип речи. Рассказ. Смысловой анализ текста. Информационная переработка текста. Редактирование текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-004",
+   "grade": 5,
+   "topic": "Функциональные разновидности языка (общее представление)",
+   "numbered_elements": [
+    "разговорная: общение в быту (диалог, бытовые слова)",
+    "научный стиль: сообщить знание (термины, определения)",
+    "официально-деловой: инструкция, заявление (штампы, точность)",
+    "публицистический: заметка, репортаж, интервью (оценка, призыв)",
+    "язык художественной литературы: образ (тропы)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-5-005",
+   "grade": 5,
+   "topic": "Фонетика. Графика. Орфоэпия. Орфография",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-006",
+   "grade": 5,
+   "topic": "Морфемика. Орфография",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-007",
+   "grade": 5,
+   "topic": "Лексикология",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-008",
+   "grade": 5,
+   "topic": "Синтаксис и пунктуация как разделы лингвистики. Словосочетание",
+   "numbered_elements": [
+    "главное → (вопрос) → зависимое: читать (что?) книгу",
+    "согласование: новый дом → новые дома (зависимое меняется вместе с главным)",
+    "управление: читать книгу → читаю книгу (меняется только главное)",
+    "примыкание: бежать быстро (зависимое неизменяемое)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-5-009",
+   "grade": 5,
+   "topic": "Простое двусоставное предложение",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-010",
+   "grade": 5,
+   "topic": "Простое осложненное предложение",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-011",
+   "grade": 5,
+   "topic": "Сложное предложение",
+   "numbered_elements": [
+    "[ = ], и [ = ] — сложносочинённое",
+    "[ = ], (союз = ) — сложноподчинённое: главная [ ], придаточная ( )",
+    "(Когда = ), [ = ]",
+    "[ … ], (который … ), …",
+    "[ = ]: [ = ] — пояснение, причина",
+    "[ = ] — [ = ] — противопоставление, следствие, время",
+    "[ = ], [ = ] — перечисление"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-5-012",
+   "grade": 5,
+   "topic": "Прямая речь",
+   "numbered_elements": [
+    "А: «П». А: «П?» А: «П!»",
+    "«П», — а. «П?» — а. «П!» — а.",
+    "«П, — а, — п».",
+    "«П, — а. — П»."
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-5-013",
+   "grade": 5,
+   "topic": "Диалог",
+   "numbered_elements": [
+    "А: «П». А: «П?» А: «П!»",
+    "«П», — а. «П?» — а. «П!» — а.",
+    "«П, — а, — п».",
+    "«П, — а. — П»."
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-5-014",
+   "grade": 5,
+   "topic": "Система частей речи в русском языке",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-5-015",
+   "grade": 5,
+   "topic": "Имя существительное",
+   "numbered_elements": [
+    "кто? что? → предмет",
+    "постоянные: нарицательное/собственное, одуш./неодуш., род, склонение",
+    "непостоянные: число, падеж",
+    "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-5-016",
+   "grade": 5,
+   "topic": "Имя прилагательное",
+   "numbered_elements": [
+    "какой? чей? → признак предмета",
+    "род, число, падеж — как у существительного",
+    "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-5-017",
+   "grade": 5,
+   "topic": "Глагол",
+   "numbered_elements": [
+    "что делать? → несовершенный: решать",
+    "что сделать? → совершенный: решить"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-6-001",
+   "grade": 6,
+   "topic": "Основные функции русского языка",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-002",
+   "grade": 6,
+   "topic": "Литературный язык",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-003",
+   "grade": 6,
+   "topic": "Виды речи. Монолог и диалог. Их разновидности",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-004",
+   "grade": 6,
+   "topic": "Информационная переработка текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-005",
+   "grade": 6,
+   "topic": "Функционально-смысловые типы речи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-006",
+   "grade": 6,
+   "topic": "Виды описания. Смысловой анализ текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-007",
+   "grade": 6,
+   "topic": "Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-008",
+   "grade": 6,
+   "topic": "Группы лексики по происхождению. Активный и пассивный запас лексики",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-009",
+   "grade": 6,
+   "topic": "Лексика с точки зрения сферы употребления. Стилистическая окраска слова. Лексические средства выразительности",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-010",
+   "grade": 6,
+   "topic": "Лексический анализ слова. Фразеологизмы",
+   "numbered_elements": [
+    "устойчивое сочетание = одно значение: бить баклуши = бездельничать",
+    "в предложении — один член: Бил баклуши весь день"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-6-011",
+   "grade": 6,
+   "topic": "Морфемика и словообразование как разделы лингвистики",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-012",
+   "grade": 6,
+   "topic": "Виды морфем. Основные способы образования слов в русском языке. Правописание сложных и сложносокращенных слов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-013",
+   "grade": 6,
+   "topic": "Орфографический анализ",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-014",
+   "grade": 6,
+   "topic": "Понятие об этимологии",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-015",
+   "grade": 6,
+   "topic": "Морфемный и словообразовательный анализ слов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-6-016",
+   "grade": 6,
+   "topic": "Части речи в русском языке",
+   "numbered_elements": [
+    "Существительное",
+    "Прилагательное",
+    "Глагол",
+    "Причастие",
+    "Деепричастие",
+    "Наречие",
+    "Местоимение",
+    "Числительное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-6-017",
+   "grade": 6,
+   "topic": "Имя существительное",
+   "numbered_elements": [
+    "кто? что? → предмет",
+    "постоянные: нарицательное/собственное, одуш./неодуш., род, склонение",
+    "непостоянные: число, падеж",
+    "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-6-018",
+   "grade": 6,
+   "topic": "Имя прилагательное",
+   "numbered_elements": [
+    "какой? чей? → признак предмета",
+    "род, число, падеж — как у существительного",
+    "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-6-019",
+   "grade": 6,
+   "topic": "Имя числительное",
+   "numbered_elements": [
+    "количественные: сколько? — пять, двадцать, сто",
+    "порядковые: какой? который? — пятый, двадцатый, сотый",
+    "по составу: простые (пять), сложные (пятьдесят), составные (двадцать пять)",
+    "Ь в середине — у числительных 50–80 и 500–900: пятьдесят, пятьсот; Ь на конце — у 5–20 и 30: пять, двадцать, тридцать",
+    "склоняются обе части: пятьюдесятью, о пятистах"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-6-020",
+   "grade": 6,
+   "topic": "Местоимение",
+   "numbered_elements": [
+    "личные: я, ты, он, она, оно, мы, вы, они",
+    "возвратное: себя; притяжательные: мой, твой, наш, ваш, свой",
+    "указательные: этот, тот, такой, столько; определительные: весь, всякий, каждый, сам, самый, любой, иной",
+    "вопросительные: кто? что? какой? чей? сколько?; относительные: кто, что, какой, чей… (связывают части СПП)",
+    "отрицательные: никто, ничто, никакой, ничей; неопределённые: кто-то, что-нибудь, кое-кто"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-6-021",
+   "grade": 6,
+   "topic": "Глагол",
+   "numbered_elements": [
+    "что делать? → несовершенный: решать",
+    "что сделать? → совершенный: решить"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-7-001",
+   "grade": 7,
+   "topic": "Язык как развивающееся явление",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-002",
+   "grade": 7,
+   "topic": "Монолог и его виды",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-003",
+   "grade": 7,
+   "topic": "Диалог и его виды",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-004",
+   "grade": 7,
+   "topic": "Основные признаки текста (повторение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-005",
+   "grade": 7,
+   "topic": "Информационная переработка текста. Смысловой анализ текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-006",
+   "grade": 7,
+   "topic": "Функционально-смысловые типы речи. Рассуждение как функционально-смысловой тип речи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-007",
+   "grade": 7,
+   "topic": "Публицистический стиль",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-008",
+   "grade": 7,
+   "topic": "Официально-деловой стиль",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-009",
+   "grade": 7,
+   "topic": "Морфология как раздел науки о языке (обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-010",
+   "grade": 7,
+   "topic": "Причастие как особая форма глагола",
+   "numbered_elements": [
+    "причастие = признак глагола (вид, время, возвратность) + признак прилагательного (род, число, падеж)",
+    "какой? что делающий? что сделавший?: поющая птица"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-7-011",
+   "grade": 7,
+   "topic": "Деепричастие как особая форма глагола",
+   "numbered_elements": [
+    "причастие = признак глагола (вид, время, возвратность) + признак прилагательного (род, число, падеж)",
+    "какой? что делающий? что сделавший?: поющая птица"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-7-012",
+   "grade": 7,
+   "topic": "Наречие",
+   "numbered_elements": [
+    "как? где? когда? куда? откуда? зачем? почему? в какой степени? → неизменяемое слово",
+    "обстоятельство: Он быстро бежал.",
+    "НЕ с наречием на -о: слитно, если есть синоним без НЕ (недалеко = близко)",
+    "на конце: из-, до-, с- + -а: досуха, слева; в-, на-, за- + -о: вправо, засветло",
+    "после шипящих: под ударением -о (горячо), без ударения -е (певуче)",
+    "дефис: по-нашему, по-русски, во-первых, кое-как, где-то"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-7-013",
+   "grade": 7,
+   "topic": "Слова категории состояния",
+   "numbered_elements": [
+    "безличное предложение: Мне весело. (весело — сказуемое)",
+    "наречие: Он весело смеялся. (весело — обстоятельство)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-7-014",
+   "grade": 7,
+   "topic": "Служебные части речи",
+   "numbered_elements": [
+    "Существительное",
+    "Прилагательное",
+    "Глагол",
+    "Причастие",
+    "Деепричастие",
+    "Наречие",
+    "Местоимение",
+    "Числительное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-7-015",
+   "grade": 7,
+   "topic": "Предлог",
+   "numbered_elements": [
+    "в течение, в продолжение (времени) — на конце Е",
+    "вследствие (= из-за) — слитно, на конце Е",
+    "в заключение, в отличие от — раздельно",
+    "несмотря на (= вопреки) — слитно; не смотря (= не глядя) — раздельно"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-7-016",
+   "grade": 7,
+   "topic": "Союз",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-017",
+   "grade": 7,
+   "topic": "Частица",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-018",
+   "grade": 7,
+   "topic": "Междометия и звукоподражательные слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-7-019",
+   "grade": 7,
+   "topic": "Омонимия слов разных частей речи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-001",
+   "grade": 8,
+   "topic": "Русский язык в кругу других славянских языков",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-002",
+   "grade": 8,
+   "topic": "Виды речи. Монолог и диалог. Их разновидности",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-003",
+   "grade": 8,
+   "topic": "Текст и его признаки. Функционально-смысловые типы речи. Смысловой анализ текста. Информационная переработка текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-004",
+   "grade": 8,
+   "topic": "Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-005",
+   "grade": 8,
+   "topic": "Синтаксис как раздел лингвистики",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-006",
+   "grade": 8,
+   "topic": "Пунктуация. Функции знаков препинания",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-007",
+   "grade": 8,
+   "topic": "Словосочетание и его признаки. Виды словосочетаний по морфологическим свойствам главного слова. Типы подчинительной связи в словосочетании",
+   "numbered_elements": [
+    "главное → (вопрос) → зависимое: читать (что?) книгу",
+    "согласование: новый дом → новые дома (зависимое меняется вместе с главным)",
+    "управление: читать книгу → читаю книгу (меняется только главное)",
+    "примыкание: бежать быстро (зависимое неизменяемое)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-8-008",
+   "grade": 8,
+   "topic": "Предложение и его основные признаки. Виды предложений",
+   "numbered_elements": [
+    "по цели: повествовательное (.), вопросительное (?), побудительное (. или !)",
+    "по интонации: восклицательное (!) и невосклицательное"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-8-009",
+   "grade": 8,
+   "topic": "Двусоставное предложение. Главные члены предложения (грамматическая основа)",
+   "numbered_elements": [
+    "подлежащее (кто? что?) + сказуемое (что делает? каков? кто такой?)",
+    "Ветер гонит тучи.",
+    "Утро было тихим."
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-8-010",
+   "grade": 8,
+   "topic": "Второстепенные члены предложения",
+   "numbered_elements": [
+    "дополнение — падежные вопросы (кого? чего? кому? чем? о ком?)",
+    "определение — какой? чей? который?",
+    "обстоятельство — где? когда? куда? откуда? как? почему? зачем?",
+    "Осенний ветер срывает жёлтые листья с клёнов."
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-8-011",
+   "grade": 8,
+   "topic": "Односоставные предложения. Виды односоставных предложений",
+   "numbered_elements": [
+    "определённо-личное: Иду домой. (я)",
+    "неопределённо-личное: Стучат в дверь. (кто-то)",
+    "обобщённо-личное: Береги платье снову, а честь смолоду. (каждый)",
+    "безличное: Смеркается. Мне холодно.",
+    "назывное: Зима. Тишина."
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-8-012",
+   "grade": 8,
+   "topic": "Простое осложненное предложение. Предложения с однородными членами",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-8-013",
+   "grade": 8,
+   "topic": "Предложения с обособленными членами. Виды обособленных членов предложения. Уточняющие члены предложения, пояснительные и присоединительные конструкции",
+   "numbered_elements": [
+    "[ … здесь, (у реки), … ] — уточнение сужает понятие",
+    "то есть, или (= то есть), а именно, например, даже, особенно, в том числе → выделяем вместе с этими словами"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-8-014",
+   "grade": 8,
+   "topic": "Предложения с обращениями, вводными и вставными конструкциями. Обращение. Вводные конструкции. Вставные конструкции",
+   "numbered_elements": [
+    "О, … !",
+    "…, О, …",
+    "…, О!"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-9-001",
+   "grade": 9,
+   "topic": "Роль русского языка в Российской Федерации",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-9-002",
+   "grade": 9,
+   "topic": "Русский язык в современном мире",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-9-003",
+   "grade": 9,
+   "topic": "Речь устная и письменная, монологическая и диалогическая (повторение). Виды речевой деятельности: аудирование, чтение, говорение, письмо",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-9-004",
+   "grade": 9,
+   "topic": "Текст и его признаки (обобщение). Функционально-смысловые типы речи (обобщение). Смысловой анализ текста (обобщение). Информационная переработка текста",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-9-005",
+   "grade": 9,
+   "topic": "Функциональные разновидности языка. Язык художественной литературы и его отличия от других функциональных разновидностей современного русского языка",
+   "numbered_elements": [
+    "разговорная: общение в быту (диалог, бытовые слова)",
+    "научный стиль: сообщить знание (термины, определения)",
+    "официально-деловой: инструкция, заявление (штампы, точность)",
+    "публицистический: заметка, репортаж, интервью (оценка, призыв)",
+    "язык художественной литературы: образ (тропы)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-9-006",
+   "grade": 9,
+   "topic": "Научный стиль",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-9-007",
+   "grade": 9,
+   "topic": "Сложное предложение",
+   "numbered_elements": [
+    "[ = ], и [ = ] — сложносочинённое",
+    "[ = ], (союз = ) — сложноподчинённое: главная [ ], придаточная ( )",
+    "(Когда = ), [ = ]",
+    "[ … ], (который … ), …",
+    "[ = ]: [ = ] — пояснение, причина",
+    "[ = ] — [ = ] — противопоставление, следствие, время",
+    "[ = ], [ = ] — перечисление"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-9-008",
+   "grade": 9,
+   "topic": "Сложносочиненное предложение",
+   "numbered_elements": [
+    "[ ], и [ ] [ ], а [ ] [ ], но [ ] [ ], или [ ]",
+    "общий второстепенный член — запятой нет: Весной [трава зеленеет] и [птицы поют]."
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-9-009",
+   "grade": 9,
+   "topic": "Сложноподчиненное предложение",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-9-010",
+   "grade": 9,
+   "topic": "Бессоюзное сложное предложение",
+   "numbered_elements": [
+    "[ = ], и [ = ] — сложносочинённое",
+    "[ = ], (союз = ) — сложноподчинённое: главная [ ], придаточная ( )",
+    "(Когда = ), [ = ]",
+    "[ … ], (который … ), …",
+    "[ = ]: [ = ] — пояснение, причина",
+    "[ = ] — [ = ] — противопоставление, следствие, время",
+    "[ = ], [ = ] — перечисление"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-9-011",
+   "grade": 9,
+   "topic": "Сложные предложения с разными видами союзной и бессоюзной связи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-9-012",
+   "grade": 9,
+   "topic": "Прямая и косвенная речь. Цитирование",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-001",
+   "grade": 10,
+   "topic": "Язык как знаковая система. Основные функции языка. Лингвистика как наука",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-002",
+   "grade": 10,
+   "topic": "Язык и культура",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-003",
+   "grade": 10,
+   "topic": "Русский язык – государственный язык Российской Федерации, средство межнационального общения, национальный язык русского народа, один из мировых языков",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-004",
+   "grade": 10,
+   "topic": "Формы существования русского национального языка",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-005",
+   "grade": 10,
+   "topic": "Система языка, её устройство, функционирование",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-006",
+   "grade": 10,
+   "topic": "Культура речи как раздел лингвистики",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-007",
+   "grade": 10,
+   "topic": "Языковая норма, её основные признаки и функции. Виды языковых норм",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-008",
+   "grade": 10,
+   "topic": "Качества хорошей речи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-009",
+   "grade": 10,
+   "topic": "Основные виды словарей (обзор)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-010",
+   "grade": 10,
+   "topic": "Фонетика и орфоэпия как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства фонетики (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-011",
+   "grade": 10,
+   "topic": "Орфоэпические (произносительные и акцентологические) нормы",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-012",
+   "grade": 10,
+   "topic": "Лексикология и фразеология как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства лексики (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-013",
+   "grade": 10,
+   "topic": "Основные лексические нормы современного русского литературного языка",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-014",
+   "grade": 10,
+   "topic": "Функционально-стилистическая окраска слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-015",
+   "grade": 10,
+   "topic": "Экспрессивно-стилистическая окраска слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-016",
+   "grade": 10,
+   "topic": "Фразеология русского языка (повторение, обобщение). Крылатые слова",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-017",
+   "grade": 10,
+   "topic": "Морфемика и словообразование как разделы лингвистики (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-018",
+   "grade": 10,
+   "topic": "Словообразовательные нормы",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-019",
+   "grade": 10,
+   "topic": "Морфология как раздел лингвистики (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-020",
+   "grade": 10,
+   "topic": "Морфологические нормы современного русского литературного языка (общее представление)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-021",
+   "grade": 10,
+   "topic": "Орфография как раздел лингвистики (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-022",
+   "grade": 10,
+   "topic": "Правописание гласных и согласных в корне",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-023",
+   "grade": 10,
+   "topic": "Употребление разделительных ъ и ь. Правописание приставок. Буквы ы – и после приставок",
+   "numbered_elements": [
+    "приставка на согласный + И корня → Ы: игра´ть → сыгра´ть, искать → разыскать",
+    "но: межинститутский, сверхинтересный, взимать"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-10-024",
+   "grade": 10,
+   "topic": "Правописание суффиксов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-025",
+   "grade": 10,
+   "topic": "Правописание н и нн в словах различных частей речи",
+   "numbered_elements": [
+    "НН в полном причастии: есть приставка (кроме не-), зависимое слово, суффикс -ова-/-ева-, глагол сов. вида: выкрашенный",
+    "Н в отглагольном прилагательном: нет ничего из этого: крашеный пол",
+    "краткое причастие → Н: книга прочитана; краткое прилагательное → как в полном: туман — туманна",
+    "наречие на -о → как в слове, от которого образовано: взволнованно (взволнованный)"
+   ],
+   "elements_source": "ready_table",
+   "text_source": "knowledge/web/01_Русский_язык/text.md"
+  },
+  {
+   "lesson_id": "ru-10-026",
+   "grade": 10,
+   "topic": "Правописание не и ни",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-027",
+   "grade": 10,
+   "topic": "Правописание окончаний имён существительных, имён прилагательных и глаголов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-028",
+   "grade": 10,
+   "topic": "Слитное, дефисное и раздельное написание слов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-029",
+   "grade": 10,
+   "topic": "Речь как деятельность. Виды речевой деятельности (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-030",
+   "grade": 10,
+   "topic": "Речевое общение и его виды. Основные сферы речевого общения. Речевая ситуация и её компоненты",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-031",
+   "grade": 10,
+   "topic": "Речевой этикет",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-032",
+   "grade": 10,
+   "topic": "Публичное выступление",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-033",
+   "grade": 10,
+   "topic": "Текст, его основные признаки (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-034",
+   "grade": 10,
+   "topic": "Логико-смысловые отношения между предложениями в тексте (общее представление)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-035",
+   "grade": 10,
+   "topic": "Информативность текста. Виды информации в тексте",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-10-036",
+   "grade": 10,
+   "topic": "Информационно-смысловая переработка текста. План. Тезисы. Конспект. Реферат. Аннотация. Отзыв. Рецензия",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-001",
+   "grade": 11,
+   "topic": "Культура речи в экологическом аспекте",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-002",
+   "grade": 11,
+   "topic": "Синтаксис как раздел лингвистики (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-003",
+   "grade": 11,
+   "topic": "Изобразительно-выразительные средства синтаксиса",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-004",
+   "grade": 11,
+   "topic": "Синтаксические нормы. Основные нормы согласования сказуемого с подлежащим",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-005",
+   "grade": 11,
+   "topic": "Основные нормы управления",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-006",
+   "grade": 11,
+   "topic": "Основные нормы употребления однородных членов предложения",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-007",
+   "grade": 11,
+   "topic": "Основные нормы употребления причастных и деепричастных оборотов",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-008",
+   "grade": 11,
+   "topic": "Основные нормы построения сложных предложений",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-009",
+   "grade": 11,
+   "topic": "Обобщение и систематизация по теме «Синтаксис. Синтаксические нормы»",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-010",
+   "grade": 11,
+   "topic": "Пунктуация как раздел лингвистики (повторение, обобщение)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-011",
+   "grade": 11,
+   "topic": "Знаки препинания между подлежащим и сказуемым",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-012",
+   "grade": 11,
+   "topic": "Знаки препинания в предложениях с однородными членами",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-013",
+   "grade": 11,
+   "topic": "Знаки препинания при обособлении",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-014",
+   "grade": 11,
+   "topic": "Знаки препинания в предложениях с вводными конструкциями, обращениями, междометиями",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-015",
+   "grade": 11,
+   "topic": "Знаки препинания в сложном предложении",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-016",
+   "grade": 11,
+   "topic": "Знаки препинания в сложном предложении с разными видами связи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-017",
+   "grade": 11,
+   "topic": "Знаки препинания при передаче чужой речи",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-018",
+   "grade": 11,
+   "topic": "Повторение и обобщение по темам раздела «Пунктуация. Основные правила пунктуации»",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-019",
+   "grade": 11,
+   "topic": "Функциональная стилистика как раздел лингвистики",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-020",
+   "grade": 11,
+   "topic": "Разговорная речь",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-021",
+   "grade": 11,
+   "topic": "Основные жанры разговорной речи: устный рассказ, беседа, спор (обзор)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-022",
+   "grade": 11,
+   "topic": "Научный стиль",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-023",
+   "grade": 11,
+   "topic": "Основные жанры научного стиля (обзор)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-024",
+   "grade": 11,
+   "topic": "Официально-деловой стиль. Основные жанры официально-делового стиля (обзор)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-025",
+   "grade": 11,
+   "topic": "Публицистический стиль",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-026",
+   "grade": 11,
+   "topic": "Основные жанры публицистического стиля (обзор)",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  },
+  {
+   "lesson_id": "ru-11-027",
+   "grade": 11,
+   "topic": "Язык художественной литературы",
+   "numbered_elements": [
+    "Языковое явление",
+    "Признак",
+    "Правило",
+    "Пример"
+   ],
+   "elements_source": "topic_structure",
+   "text_source": null
+  }
+ ]
+}

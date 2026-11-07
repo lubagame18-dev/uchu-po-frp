@@ -1,0 +1,21 @@
+{
+ "id": "math-8-096",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 8,
+ "order": 96,
+ "section": "Алгебра: Функции. Числовые функции",
+ "topic": "Контрольная работа по теме «Функции. Числовые функции»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

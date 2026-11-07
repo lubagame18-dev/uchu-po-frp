@@ -1,0 +1,21 @@
+{
+ "id": "phys-9-028",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 9,
+ "order": 28,
+ "section": "Механические явления: законы движения и взаимодействия",
+ "topic": "Центр тяжести. Лабораторная работа №5 «Определение центра тяжести плоской фигуры»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "soc-8-027",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 8,
+ "order": 27,
+ "section": "Человек в мире культуры",
+ "topic": "Национальные и мировые религии. Религии и религиозные объединения в Российской Федерации",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

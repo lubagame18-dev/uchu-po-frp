@@ -1,0 +1,21 @@
+{
+ "id": "math-8-108",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 8,
+ "order": 108,
+ "section": "Геометрия: Четырехугольники",
+ "topic": "Частные случаи параллелограммов (прямоугольник, ромб, квадрат), их признаки и свойства. Трапеция",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

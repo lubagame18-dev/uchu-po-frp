@@ -1,0 +1,20 @@
+{
+ "id": "geo-6-012",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 6,
+ "order": 12,
+ "section": "Оболочки Земли",
+ "topic": "Температура воздуха. Суточный ход температуры воздуха",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

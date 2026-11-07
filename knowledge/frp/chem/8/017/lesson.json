@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-017",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 17,
+ "section": "Первоначальные химические понятия",
+ "topic": "Химические уравнения. Расстановка коэффициентов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

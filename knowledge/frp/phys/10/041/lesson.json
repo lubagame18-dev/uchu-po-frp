@@ -1,0 +1,21 @@
+{
+ "id": "phys-10-041",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 10,
+ "order": 41,
+ "section": "Молекулярная физика и термодинамика",
+ "topic": "Кипение. Зависимость температуры кипения от давления",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "obzh-10-003",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 10,
+ "order": 3,
+ "section": "Основы обороны государства",
+ "topic": "Виды и рода войск",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

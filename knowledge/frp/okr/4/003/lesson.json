@@ -1,0 +1,20 @@
+{
+ "id": "okr-4-003",
+ "subject": "okr",
+ "subject_title": "Окружающий мир",
+ "grade": 4,
+ "order": 3,
+ "section": "Земля — планета людей",
+ "topic": "Материки и океаны",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,20 @@
+{
+ "id": "eng-4-021",
+ "subject": "eng",
+ "subject_title": "Английский язык",
+ "grade": 4,
+ "order": 21,
+ "section": "Расскажи историю",
+ "topic": "Past Simple: правильные глаголы",
+ "text": "| Шаг | Что делать / признак | Пример |\n|---|---|---|\n| 1 | S + V-ed / V2 |  |\n| 2 | ? Did + S + V? |  |\n| 3 | − S + didn't + V |  |",
+ "text_source": "knowledge/web/11_Английский_язык/text.md",
+ "table_title": "Past Simple",
+ "image": "knowledge/web/11_Английский_язык/02_Past Simple.png",
+ "elements": [
+  "S + V-ed / V2",
+  "? Did + S + V?",
+  "− S + didn't + V"
+ ],
+ "elements_source": "ready_table",
+ "asset_type": "фотография/иллюстрация по теме урока"
+}

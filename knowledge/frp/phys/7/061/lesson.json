@@ -1,0 +1,21 @@
+{
+ "id": "phys-7-061",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 7,
+ "order": 61,
+ "section": "Работа и мощность. Энергия",
+ "topic": "КПД механизма. Лабораторная работа №11 «Определение КПД при подъёме тела по наклонной плоскости»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

@@ -1,0 +1,21 @@
+{
+ "id": "phys-11-010",
+ "subject": "phys",
+ "subject_title": "Физика",
+ "grade": 11,
+ "order": 10,
+ "section": "Электродинамика",
+ "topic": "Самоиндукция. Индуктивность. Энергия магнитного поля",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Явление",
+  "Величина",
+  "Закон",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

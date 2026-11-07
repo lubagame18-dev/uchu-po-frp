@@ -1,0 +1,20 @@
+{
+ "id": "izo-1-023",
+ "subject": "izo",
+ "subject_title": "Изобразительное искусство",
+ "grade": 1,
+ "order": 23,
+ "section": "Народные промыслы",
+ "topic": "Обобщение: искусство вокруг нас",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "репродукция картины"
+}

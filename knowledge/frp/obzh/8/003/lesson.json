@@ -1,0 +1,21 @@
+{
+ "id": "obzh-8-003",
+ "subject": "obzh",
+ "subject_title": "ОБЖ",
+ "grade": 8,
+ "order": 3,
+ "section": "Безопасность в быту",
+ "topic": "Газ и вода в доме",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Ситуация",
+  "Опасность",
+  "Действие",
+  "Результат"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

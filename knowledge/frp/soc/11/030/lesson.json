@@ -1,0 +1,21 @@
+{
+ "id": "soc-11-030",
+ "subject": "soc",
+ "subject_title": "Обществознание",
+ "grade": 11,
+ "order": 30,
+ "section": "Формирование справедливого миропорядка в XXI в.",
+ "topic": "Биполярный мир и холодная война (урок 2 из 2)",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Понятие",
+  "Признак",
+  "Пример",
+  "Вывод"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

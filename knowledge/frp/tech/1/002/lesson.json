@@ -1,0 +1,20 @@
+{
+ "id": "tech-1-002",
+ "subject": "tech",
+ "subject_title": "Технология",
+ "grade": 1,
+ "order": 2,
+ "section": "Материалы и инструменты",
+ "topic": "Инструменты и правила безопасности",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

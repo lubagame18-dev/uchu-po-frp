@@ -1,0 +1,21 @@
+{
+ "id": "bio-8-052",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 8,
+ "order": 52,
+ "section": "Млекопитающие",
+ "topic": "Процессы жизнедеятельности млекопитающих. Практическая работа № 17 «Исследование особенностей зубной системы млекопитающих»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

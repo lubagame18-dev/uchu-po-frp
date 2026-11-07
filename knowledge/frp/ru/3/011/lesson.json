@@ -1,0 +1,21 @@
+{
+ "id": "ru-3-011",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 3,
+ "order": 11,
+ "section": "Орфограммы корня",
+ "topic": "Безударные гласные в корне",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

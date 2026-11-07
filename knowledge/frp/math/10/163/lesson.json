@@ -1,0 +1,21 @@
+{
+ "id": "math-10-163",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 10,
+ "order": 163,
+ "section": "Вероятность и статистика: Случайные величины и распределения",
+ "topic": "Диаграмма распределения. Сумма и произведение случайных величин",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

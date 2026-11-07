@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-011",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 11,
+ "section": "Нейрогуморальная регуляция",
+ "topic": "Вегетативная нервная система. Особенности функционирования вегетативной нервной системы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

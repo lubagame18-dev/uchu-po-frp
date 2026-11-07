@@ -1,0 +1,20 @@
+{
+ "id": "geo-7-020",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 7,
+ "order": 20,
+ "section": "Главные закономерности природы Земли",
+ "topic": "Образование льдов в Мировом океане. Изменения ледовитости и уровня Мирового океана, их причины и следствия",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

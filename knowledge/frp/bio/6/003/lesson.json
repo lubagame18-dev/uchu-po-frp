@@ -1,0 +1,21 @@
+{
+ "id": "bio-6-003",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 6,
+ "order": 3,
+ "section": "Растительный организм",
+ "topic": "Классификация растений. Высшие и низшие растения. Споровые и семенные растения",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

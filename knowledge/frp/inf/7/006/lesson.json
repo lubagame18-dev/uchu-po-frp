@@ -1,0 +1,21 @@
+{
+ "id": "inf-7-006",
+ "subject": "inf",
+ "subject_title": "Информатика",
+ "grade": 7,
+ "order": 6,
+ "section": "Цифровая грамотность",
+ "topic": "Практическая работа. Сравнение размеров текстовых, графических, звуковых и видеофайлов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вход",
+  "Действие",
+  "Результат",
+  "Проверка"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

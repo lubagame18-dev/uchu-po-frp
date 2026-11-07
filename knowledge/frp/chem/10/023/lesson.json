@@ -1,0 +1,21 @@
+{
+ "id": "chem-10-023",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 10,
+ "order": 23,
+ "section": "Кислородсодержащие органические соединения",
+ "topic": "Практическая работа №2 «Свойства раствора уксусной кислоты»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

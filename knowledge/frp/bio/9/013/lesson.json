@@ -1,0 +1,21 @@
+{
+ "id": "bio-9-013",
+ "subject": "bio",
+ "subject_title": "Биология",
+ "grade": 9,
+ "order": 13,
+ "section": "Нейрогуморальная регуляция",
+ "topic": "Эндокринная система человека. Регуляция работы организма",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Объект",
+  "Строение",
+  "Функция",
+  "Среда"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

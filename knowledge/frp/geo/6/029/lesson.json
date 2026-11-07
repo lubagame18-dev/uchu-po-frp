@@ -1,0 +1,20 @@
+{
+ "id": "geo-6-029",
+ "subject": "geo",
+ "subject_title": "География",
+ "grade": 6,
+ "order": 29,
+ "section": "Оболочки Земли",
+ "topic": "Человек как часть биосферы. Распространение людей на Земле. Исследования и экологические проблемы",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Элемент 1",
+  "Элемент 2",
+  "Элемент 3"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "карта"
+}

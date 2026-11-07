@@ -1,0 +1,21 @@
+{
+ "id": "chem-8-050",
+ "subject": "chem",
+ "subject_title": "Химия",
+ "grade": 8,
+ "order": 50,
+ "section": "Важнейшие представители неорганических веществ",
+ "topic": "Контрольная работа №2 «Важнейшие представители неорганических веществ»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Вещество",
+  "Состав",
+  "Свойство",
+  "Реакция"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

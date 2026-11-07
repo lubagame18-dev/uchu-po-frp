@@ -1,0 +1,21 @@
+{
+ "id": "ru-10-024",
+ "subject": "ru",
+ "subject_title": "Русский язык",
+ "grade": 10,
+ "order": 24,
+ "section": "Язык и речь. Культура речи. Орфография. Основные правила орфографии",
+ "topic": "Правописание суффиксов",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Языковое явление",
+  "Признак",
+  "Правило",
+  "Пример"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}

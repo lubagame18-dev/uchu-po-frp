@@ -1,0 +1,21 @@
+{
+ "id": "math-9-068",
+ "subject": "math",
+ "subject_title": "Математика",
+ "grade": 9,
+ "order": 68,
+ "section": "Алгебра: Функции",
+ "topic": "Обобщение и систематизация по теме «Функции»",
+ "text": "",
+ "text_source": null,
+ "table_title": null,
+ "image": null,
+ "elements": [
+  "Условие",
+  "Правило",
+  "Решение",
+  "Ответ"
+ ],
+ "elements_source": "topic_structure",
+ "asset_type": "изображение по теме"
+}
