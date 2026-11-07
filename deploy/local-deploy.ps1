@@ -22,14 +22,16 @@ $endpoint = "https://storage.yandexcloud.net"
 
 Push-Location $root
 try {
+  $exclusions = @()
+  foreach ($pattern in Get-Content (Join-Path $PSScriptRoot "site-excludes.txt")) {
+    if ($pattern) { $exclusions += @("--exclude", $pattern) }
+  }
   aws s3 sync . "s3://$bucket" --endpoint-url $endpoint --delete --no-progress `
-    --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" `
-    --exclude "docs/*" --exclude "*.md" --exclude "*.sql" --exclude "*.zip" `
-    --exclude "wrangler.toml" --exclude "vercel.json" --exclude "_worker.js" `
-    --exclude ".assetsignore" --exclude ".nojekyll" --exclude "CNAME" --exclude ".gitignore" `
-    --cache-control "public, max-age=300"
+    @exclusions --cache-control "public, max-age=300"
+  if ($LASTEXITCODE -ne 0) { throw "Ошибка синхронизации сайта: $LASTEXITCODE" }
   foreach ($f in @("sw.js", "index.html")) {
     aws s3 cp $f "s3://$bucket/$f" --endpoint-url $endpoint --cache-control "no-cache" --no-progress
+    if ($LASTEXITCODE -ne 0) { throw "Ошибка загрузки ${f}: $LASTEXITCODE" }
   }
   Write-Host "Готово: сайт выложен в $bucket" -ForegroundColor Green
 } finally {

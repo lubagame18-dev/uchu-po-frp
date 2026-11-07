@@ -18,3 +18,17 @@ vercel.json
 .nojekyll
 CNAME
 _worker.js
+
+knowledge-base
+knowledge
+deploy
+work
+*.py
+*.pyc
+**/__pycache__
+*.ps1
+*.sh
+*.log
+.env*
+
+*.before-accounts

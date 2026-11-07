@@ -1,0 +1,8 @@
+/work/
+__pycache__/
+*.pyc
+*.before-accounts
+.env
+.env.*
+*.dump
+/deploy/supabase-rf/backups/
