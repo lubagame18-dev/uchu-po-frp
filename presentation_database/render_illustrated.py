@@ -17,6 +17,9 @@ def tx(x,y,s,size=35,color='#382f30',weight='normal',maxlen=48,lineheight=1.35):
     return ''.join(f'<text x="{x}" y="{y+i*size*lineheight:.0f}" font-family="DejaVu Sans,Arial,sans-serif" font-size="{size}" font-weight="{weight}" fill="{color}">{esc(line)}</text>' for i,line in enumerate(wrap(s,maxlen)))
 def svg(lesson, curated):
     id=lesson['lesson_id']; grade=lesson['grade']; title=lesson['topic']
+    if grade == 1:
+        from grade1_editorial import render_grade1
+        return render_grade1(lesson)
     c=curated.get(id)
     ready=lesson.get('elements_source')=='ready_table'
     source='curated' if c else 'source' if ready else 'topic'
