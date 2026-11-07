@@ -40,7 +40,8 @@ jobs:
       - name: Копирование в бакет (только файлы сайта)
         if: steps.keys.outputs.ok == '1'
         run: |
-          aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --no-progress \
+          # --size-only: не перезаливать неизменённые 11 000+ файлов уроков при каждом деплое
+          aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --size-only --no-progress \
             --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" --exclude "docs/*" --exclude "knowledge-base/*" \
             --exclude "*.md" --exclude "*.sql" --exclude "uchu-function.zip" --exclude "wrangler.toml" --exclude "vercel.json" --exclude "_worker.js" \
             --exclude ".assetsignore" --exclude ".nojekyll" --exclude "CNAME" --exclude ".gitignore" \
