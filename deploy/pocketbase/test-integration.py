@@ -238,7 +238,7 @@ class Accounts(unittest.TestCase):
 
     @unittest.skipUnless(os.environ.get('POCKETBASE_BROWSER')=='1','Set POCKETBASE_BROWSER=1 to run full browser/export acceptance')
     def test_10_browser(self):
-        fixture={'base':self.base,'email':'fixture-a@example.invalid','password':self.password,'uid':self.users[0][0]}
+        fixture={'base':self.base,'email':'fixture-a@example.invalid','password':self.password,'uid':self.users[0][0],'otherEmail':'fixture-b@example.invalid','otherUid':self.users[1][0]}
         result=subprocess.run(['node',str(KIT/'test-browser.cjs')],input=json.dumps(fixture),text=True,capture_output=True,timeout=90)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         import zipfile

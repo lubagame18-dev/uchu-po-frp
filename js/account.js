@@ -12,6 +12,7 @@ const Account = (() => {
   const KEY = "uchu:account";
   const C = () => window.AccountsBackend ? AccountsBackend.config() : (() => { const a = window.UCHU_ACCOUNTS || window.UCHU_SITE?.accounts; if (a?.provider === "pocketbase") return {provider:"pocketbase",url:""}; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); })();
   const ready = () => !!(C().url && (C().provider === "pocketbase" || C().anonKey));
+  let changingAccount = false, accountGeneration = 0;
   let S = null; try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { }
   if (S?.local && C().provider === "pocketbase") {
     try { localStorage.setItem("uchu:previous-account",JSON.stringify({uid:"local-browser",endpoint:"local"}));localStorage.removeItem(KEY); } catch { }
@@ -91,6 +92,7 @@ const Account = (() => {
   }
   async function isolateLocalLessons(user) {
     let previous = null; try { previous = JSON.parse(localStorage.getItem("uchu:previous-account")); } catch { }
+    if (!previous && S?.uid && S.uid !== user.id) previous={uid:S.uid,endpoint:S.endpoint || "legacy"};
     if (!previous && C().provider === "pocketbase" && !S?.uid) previous={uid:"unassigned-browser",endpoint:"local"};
     if (!previous) return;
     if (previous.uid !== user.id && previous.uid !== user.legacy_id) {
@@ -112,7 +114,16 @@ const Account = (() => {
   async function phash(e, p) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("uchu-user:" + e.toLowerCase() + ":" + p)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
   async function localUp(email, password) { const u = lusers(), e = email.toLowerCase(); if (u[e]) throw new Error("already registered"); u[e] = { h: await phash(e, password), at: new Date().toISOString() }; localStorage.setItem(LKEY, JSON.stringify(u)); S = { email: e, local: true }; save(); return "ok"; }
   async function localIn(email, password) { const u = lusers()[email.toLowerCase()]; if (!u || u.h !== await phash(email, password)) throw new Error("Invalid login credentials"); S = { email: email.toLowerCase(), local: true }; save(); }
-  async function signIn(email, password) { if (C().provider === "pocketbase" && !ready()) throw new Error("Сервер кабинета ещё не настроен."); if (!ready()) return localIn(email, password); const j = await api("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }); await isolateLocalLessons(j.user); await restoreLocalTools(j.user); setSession(j, email); pull().catch(e => console.warn("sync", e)); } // уроки подтягиваются фоном — вход не ждёт синхронизации
+  async function signIn(email, password) {
+    if (C().provider === "pocketbase" && !ready()) throw new Error("Сервер кабинета ещё не настроен.");
+    if (!ready()) return localIn(email,password);
+    changingAccount=true;accountGeneration++;
+    try {
+      const j=await api("/auth/v1/token?grant_type=password",{method:"POST",body:JSON.stringify({email,password})});
+      await isolateLocalLessons(j.user);await restoreLocalTools(j.user);setSession(j,email);
+    } finally {changingAccount=false;}
+    pull().catch(e=>console.warn("sync",e));
+  }
   // одноразовые почтовые ящики — не принимаем (защита бесплатного тарифа от многократных регистраций)
   const TEMP = /@(mailinator|guerrillamail|guerrillamailblock|sharklasers|10minutemail|10minemail|tempmail|temp-mail|tempmailo|tempr|tmpmail|tmpeml|yopmail|throwawaymail|trashmail|getnada|nada|dispostable|fakeinbox|maildrop|mintemail|mohmal|emailondeck|moakt|mail\.tm|mailnesia|burnermail|spamgourmet|dropmail|1secmail|minuteinbox|inboxkitten|tempail|luxusmail|emailfake|fakemail|crazymailing|mytemp|tempinbox|mailcatch|discard|33mail|harakirimail|getairmail|byom|vusra|wuuvo)\./i;
   async function signUp(email, password) {
@@ -150,47 +161,65 @@ const Account = (() => {
   async function phoneCode(phone) { if (!ready()) throw new Error("Вход по телефону доступен, когда подключено облако."); await api("/auth/v1/otp", { method: "POST", body: JSON.stringify({ phone, create_user: true }) }); }
   async function phoneVerify(phone, token) { const j = await api("/auth/v1/verify", { method: "POST", body: JSON.stringify({ type: "sms", phone, token: String(token).trim() }) }); if (!j.access_token) throw new Error("Код не подошёл."); setSession(j, phone); push(true).catch(() => null); pull().catch(() => null); }
   async function refresh() {
-    if (S?.local || !ready()) return false;
-    if (!S?.refresh) return false;
+    if (S?.local || !ready() || !S?.refresh || changingAccount) return false;
     if (S.exp - Date.now() > 120000) return true;
-    try { setSession(await api("/auth/v1/token?grant_type=refresh_token", { method: "POST", body: JSON.stringify({ refresh_token: S.refresh }) }), S.email); return true; }
-    catch (e) { if (e.status === 400 || e.status === 401) { S = null; save(); } return false; }
+    const session={...S},generation=accountGeneration;
+    try {
+      const j=await api("/auth/v1/token?grant_type=refresh_token",{method:"POST",body:JSON.stringify({refresh_token:session.refresh})});
+      if (changingAccount || accountGeneration !== generation || S?.uid !== session.uid) return false;
+      setSession(j,session.email);return true;
+    } catch (e) {
+      if (accountGeneration === generation && S?.uid === session.uid && (e.status===400 || e.status===401)) {
+        try { localStorage.setItem("uchu:previous-account",JSON.stringify({uid:session.uid,endpoint:session.endpoint || "legacy"})); } catch { }
+        S=null;save();
+      }
+      return false;
+    }
   }
   async function signOut() {
     if (!S) return;
     try {
+      if (!S.local) await push(true);
+      changingAccount=true;accountGeneration++;
       const stores = await snapshotLocalStores();
       if (Object.values(stores).some(rows => rows.length)) {
         if (!window.AccountsBackend) throw new Error("Не загружен модуль локального архива.");
         await AccountsBackend.archive({uid:S.uid || "local-browser",endpoint:S.endpoint || "local"},stores.lessons.map(x=>x.value),stores);
       }
-      if (!S.local) await push(true);
       for (const name of Object.keys(stores)) await Store.clear(name);
-    } catch (e) { toast("Выход прерван: не удалось безопасно сохранить локальные данные. Попробуйте ещё раз.",9000); return; }
+    } catch (e) { changingAccount=false; toast("Выход прерван: не удалось безопасно сохранить локальные данные. Попробуйте ещё раз.",9000); return; }
     try { Object.keys(localStorage).forEach(k => { if (/uchu:lessons|uchu:lesson$/i.test(k)) localStorage.removeItem(k); }); } catch { }
-    S = null;
+    S = null;changingAccount=false;
     if (window.Dev?.on) try { Dev.exit(); } catch { }
     save(); window.Access?.paint(); toast("Вы вышли из кабинета. Локальная копия данных сохранена отдельно.");
   }
   /* ---------- синхронизация уроков ---------- */
   let pushT = null, busy = false;
-  async function upsert(rows) { if (!rows.length) return; await api("/rest/v1/lessons", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(rows) }); }
+  const sameSession = (session,generation) => !changingAccount && accountGeneration === generation && S?.uid === session.uid && S?.endpoint === session.endpoint;
+  async function upsert(rows, session) { if (!rows.length) return; await api("/rest/v1/lessons", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal", Authorization:"Bearer "+session.access }, body: JSON.stringify(rows) }); }
   async function push(all = false) {
-    if (!ready() || !S || busy) return; if (!(await refresh())) return;
+    if (!ready() || !S || busy || changingAccount) return; if (!(await refresh())) return;
+    const session={...S},generation=accountGeneration;
     busy = true;
     try {
-      const ls = await listLessons(), since = all ? "" : (S.pushedAt || "");
-      const rows = ls.filter(L => !L.sample && String(L.updatedAt || "") > since).map(L => ({ id: L.id, user_id: S.uid, data: L, updated_at: L.updatedAt || new Date().toISOString() }));
-      for (let i = 0; i < rows.length; i += 20) await upsert(rows.slice(i, i + 20));
+      const ls = await listLessons(), since = all ? "" : (session.pushedAt || "");
+      if (!sameSession(session,generation)) return;
+      const rows = ls.filter(L => !L.sample && String(L.updatedAt || "") > since).map(L => ({ id: L.id, user_id: session.uid, data: L, updated_at: L.updatedAt || new Date().toISOString() }));
+      for (let i = 0; i < rows.length; i += 20) { if (!sameSession(session,generation)) return; await upsert(rows.slice(i,i+20),session); }
+      if (!sameSession(session,generation)) return;
       S.pushedAt = new Date().toISOString(); S.syncedAt = S.pushedAt; save();
     } catch (e) { console.warn("cloud push", e); } finally { busy = false; }
   }
   async function pull() {
-    if (!ready() || !S) return 0; if (!(await refresh())) return 0;
-    const rows = await api("/rest/v1/lessons?select=id,data,updated_at&order=updated_at.desc&limit=1000");
+    if (!ready() || !S || changingAccount) return 0; if (!(await refresh())) return 0;
+    const session={...S},generation=accountGeneration;
+    const rows = await api("/rest/v1/lessons?select=id,data,updated_at&order=updated_at.desc&limit=1000",{headers:{Authorization:"Bearer "+session.access}});
+    if (!sameSession(session,generation)) return 0;
     const local = new Map((await listLessons()).map(L => [L.id, L])); let n = 0;
-    for (const r of rows || []) { const L = local.get(r.id); if (!L || String(L.updatedAt || "") < String(r.updated_at || "")) { await Store.put("lessons", r.id, r.data); n++; } }
+    for (const r of rows || []) { if (!sameSession(session,generation)) return 0; const L = local.get(r.id); if (!L || String(L.updatedAt || "") < String(r.updated_at || "")) { await Store.put("lessons", r.id, r.data); n++; } }
+    if (!sameSession(session,generation)) return 0;
     await push(true); // свои локальные уроки — в облако
+    if (!sameSession(session,generation)) return 0;
     S.syncedAt = new Date().toISOString(); save();
     if (n && typeof renderLibrary === "function" && state.view === "library") renderLibrary();
     return n;
@@ -202,14 +231,16 @@ const Account = (() => {
 
   /* ---------- профиль учителя: имя, школа, город, фото (всё по желанию) ---------- */
   async function loadInfo() {
+    const uid=S?.uid;
     if (!ready() || !S || S.local || !(await refresh())) return S?.info || null;
-    try { const r = (await api(`/rest/v1/user_info?id=eq.${S.uid}&select=name,school,city,avatar`))?.[0]; if (r) { S.info = r; save(); } } catch (e) { /* таблицы ещё нет — профиль хранится на устройстве */ }
+    try { const r = (await api(`/rest/v1/user_info?id=eq.${S.uid}&select=name,school,city,avatar`))?.[0]; if (r && S?.uid === uid) { S.info = r; save(); } } catch (e) { /* таблицы ещё нет — профиль хранится на устройстве */ }
     return S?.info || null;
   }
   async function saveInfo(info) {
-    if (!S) return;
+    if (!S || changingAccount) return;
+    const uid=S.uid;
     S.info = { ...(S.info || {}), ...info }; save();
-    if (!ready() || S.local || !(await refresh())) return;
+    if (!ready() || S.local || !(await refresh()) || S?.uid !== uid) return;
     try { await api("/rest/v1/user_info", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ id: S.uid, ...S.info, updated_at: new Date().toISOString() }) }); }
     catch (e) { console.warn("user_info", e); }
   }
@@ -240,6 +271,7 @@ const Account = (() => {
 
   const PLAN_NAMES = { promo: "бесплатный", free: "пробный", ai: "«С ИИ»", aiYear: "«С ИИ, год»" };
   async function plan() {
+    const uid=S?.uid;
     try {
       if (!(await refresh())) return null;
       const q = f => api(`/rest/v1/profiles?id=eq.${S.uid}&select=${f}`);
@@ -248,7 +280,7 @@ const Account = (() => {
       const freeOk = p?.promo_free_code ? !!(await api("/rest/v1/rpc/promo_free_ok", { method: "POST", body: "{}" }).catch(() => false)) : false;
       // бесплатный доступ «без срока»: сервер выдаёт тариф «С ИИ» с далёкой датой окончания
       const forever = (p?.plan === "ai" || p?.plan === "aiYear") && p?.paid_until && new Date(p.paid_until).getFullYear() >= 2090;
-      if (p && S) { S.plan = p.plan; S.promoFree = freeOk || forever; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
+      if (p && S?.uid === uid) { S.plan = p.plan; S.promoFree = freeOk || forever; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
       return p;
     } catch { return null; }
   }

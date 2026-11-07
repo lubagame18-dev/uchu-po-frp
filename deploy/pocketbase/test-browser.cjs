@@ -9,10 +9,13 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
  const page=await browser.newPage({viewport:{width:1280,height:900}});
  const errors=[],oldBackend=[];page.on('pageerror',e=>errors.push(e.message));
  const origin='http://localhost:18766';
+ let delayedToken=null,releaseDelay=null,startedDelay=null;
+ let delayGate,delayStarted;
  await page.route('**/*',async route=>{
   const req=route.request(),url=new URL(req.url());
   if(url.hostname.endsWith('supabase.co'))oldBackend.push(url.pathname);
   if(req.url().startsWith(fixture.base+'/api/')){
+   if(delayedToken && req.method()==='GET' && url.pathname==='/api/uchu/rest/v1/lessons' && req.headers().authorization===delayedToken){startedDelay();await delayGate;}
    const headers={...req.headers()};delete headers.host;
    const r=await fetch(req.url(),{method:req.method(),headers,body:req.method()==='GET'||req.method()==='HEAD'?undefined:req.postData()});
    return route.fulfill({status:r.status,body:await r.text(),headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'*'}});
@@ -69,6 +72,15 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
  assert.equal(await page.evaluate(async()=>!!(await AccountsBackend.archives()).find(x=>x.owner==='previous-fixture-owner')),true);
  await page.evaluate(async x=>{await Account.signIn(x.email,x.password);},fixture);
  assert.equal(await page.evaluate(async()=>(await Store.get('materials','owned-fixture')).text),'OWNED-MATERIAL');
+ await page.evaluate(async()=>{await Account.db('/rest/v1/lessons',{method:'POST',body:JSON.stringify({id:'late-owner-fixture',user_id:Account.session.uid,data:{id:'late-owner-fixture',updatedAt:new Date().toISOString(),docs:{lesson:'OWNER-A-PRIVATE'}}})});});
+ delayedToken='Bearer '+await page.evaluate(()=>Account.session.access);
+ delayGate=new Promise(r=>releaseDelay=r);delayStarted=new Promise(r=>startedDelay=r);
+ const pending=page.evaluate(()=>Account.pull());await delayStarted;
+ await page.evaluate(async x=>{await Account.signIn(x.otherEmail,x.password);},fixture);
+ delayedToken=null;releaseDelay();await pending;
+ assert.equal(await page.evaluate(()=>Account.session.uid),fixture.otherUid);
+ assert.equal(await page.evaluate(async()=>!!await Store.get('lessons','late-owner-fixture')),false);
+ assert.equal(await page.evaluate(async()=>!!await Store.get('materials','owned-fixture')),false);
  assert.deepEqual(oldBackend,[],'Browser contacted previous Supabase backend');
  if(errors.length)throw new Error('Browser errors: '+errors.join('; '));
  console.log('PASS: full existing site signs in, saves/pulls after reload, exports DOCX/PDF, deletes fixture; no old Supabase requests');
