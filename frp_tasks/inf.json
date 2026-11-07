@@ -1,0 +1,4901 @@
+{
+ "subject": "inf",
+ "title": "Информатика",
+ "lessons": [
+  {
+   "lesson_id": "inf-7-001",
+   "grade": 7,
+   "topic": "Компьютер – универсальное устройство обработки данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Компьютер – универсальное устройство обработки данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Компьютер – универсальное устройство обработки данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-002",
+   "grade": 7,
+   "topic": "Практическая работа. Включение компьютера и получение информации о его характеристиках",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Включение компьютера и получение информации о его характеристиках»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Включение компьютера и получение информации о его характеристиках»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-003",
+   "grade": 7,
+   "topic": "Программное обеспечение компьютера. Правовая охрана программ и данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Программное обеспечение компьютера. Правовая охрана программ и данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Программное обеспечение компьютера. Правовая охрана программ и данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-004",
+   "grade": 7,
+   "topic": "Файлы и папки. Файловая система",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Файлы и папки. Файловая система»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Файлы и папки. Файловая система»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-005",
+   "grade": 7,
+   "topic": "Практическая работа. Основные операции с файлами и папками",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Основные операции с файлами и папками»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Основные операции с файлами и папками»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-006",
+   "grade": 7,
+   "topic": "Практическая работа. Сравнение размеров текстовых, графических, звуковых и видеофайлов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Сравнение размеров текстовых, графических, звуковых и видеофайлов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Сравнение размеров текстовых, графических, звуковых и видеофайлов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-007",
+   "grade": 7,
+   "topic": "Практическая работа. Архивация данных. Использование программы-архиватора",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Архивация данных. Использование программы-архиватора»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Архивация данных. Использование программы-архиватора»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-008",
+   "grade": 7,
+   "topic": "Практическая работа. Защита информации от компьютерных вирусов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Защита информации от компьютерных вирусов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Защита информации от компьютерных вирусов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-009",
+   "grade": 7,
+   "topic": "Компьютерные сети. Интернет",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Компьютерные сети. Интернет»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Компьютерные сети. Интернет»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-010",
+   "grade": 7,
+   "topic": "Практическая работа. Поиск информации по ключевым словам и по изображению",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Поиск информации по ключевым словам и по изображению»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Поиск информации по ключевым словам и по изображению»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-011",
+   "grade": 7,
+   "topic": "Практическая работа. Интернет-коммуникации и безопасное общение",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Интернет-коммуникации и безопасное общение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Интернет-коммуникации и безопасное общение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-012",
+   "grade": 7,
+   "topic": "Информация и информационные процессы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Информация и информационные процессы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информация и информационные процессы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-013",
+   "grade": 7,
+   "topic": "Хранение, передача и обработка информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Хранение, передача и обработка информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Хранение, передача и обработка информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-014",
+   "grade": 7,
+   "topic": "Представление информации. Знаки и алфавит",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Представление информации. Знаки и алфавит»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Представление информации. Знаки и алфавит»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-015",
+   "grade": 7,
+   "topic": "Кодирование текстовой информации. Практическая работа. Код символа в разных кодировках",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование текстовой информации. Практическая работа. Код символа в разных кодировках»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование текстовой информации. Практическая работа. Код символа в разных кодировках»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-016",
+   "grade": 7,
+   "topic": "Кодирование цвета. Практическая работа. Код цвета в палитре RGB",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование цвета. Практическая работа. Код цвета в палитре RGB»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование цвета. Практическая работа. Код цвета в палитре RGB»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-017",
+   "grade": 7,
+   "topic": "Кодирование растровых изображений. Практическая работа. Сохранение в разных форматах",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование растровых изображений. Практическая работа. Сохранение в разных форматах»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование растровых изображений. Практическая работа. Сохранение в разных форматах»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-018",
+   "grade": 7,
+   "topic": "Кодирование звука. Практическая работа. Запись звука с разным качеством звучания",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование звука. Практическая работа. Запись звука с разным качеством звучания»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование звука. Практическая работа. Запись звука с разным качеством звучания»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-019",
+   "grade": 7,
+   "topic": "Кодирование видео. Единицы измерения информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование видео. Единицы измерения информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование видео. Единицы измерения информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-020",
+   "grade": 7,
+   "topic": "Решение задач на измерение информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Решение задач на измерение информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Решение задач на измерение информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-021",
+   "grade": 7,
+   "topic": "Обобщение по теме «Представление информации»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Обобщение по теме «Представление информации»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Обобщение по теме «Представление информации»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-022",
+   "grade": 7,
+   "topic": "Текстовые документы. Практическая работа. Клавиатурное письмо и создание небольшого документа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Текстовые документы. Практическая работа. Клавиатурное письмо и создание небольшого документа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Текстовые документы. Практическая работа. Клавиатурное письмо и создание небольшого документа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-023",
+   "grade": 7,
+   "topic": "Практическая работа. Форматирование символов и абзацев",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Форматирование символов и абзацев»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Форматирование символов и абзацев»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-024",
+   "grade": 7,
+   "topic": "Практическая работа. Параметры страницы, колонтитулы, номера страниц",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Параметры страницы, колонтитулы, номера страниц»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Параметры страницы, колонтитулы, номера страниц»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-025",
+   "grade": 7,
+   "topic": "Практическая работа. Списки, таблицы, изображения и формулы в документе",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Списки, таблицы, изображения и формулы в документе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Списки, таблицы, изображения и формулы в документе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-026",
+   "grade": 7,
+   "topic": "Практическая работа. Документ с цитатами и ссылками на источники",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Документ с цитатами и ссылками на источники»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Документ с цитатами и ссылками на источники»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-027",
+   "grade": 7,
+   "topic": "Компьютерная графика. Растровая и векторная графика",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Компьютерная графика. Растровая и векторная графика»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Компьютерная графика. Растровая и векторная графика»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-028",
+   "grade": 7,
+   "topic": "Практическая работа. Редактирование растрового изображения",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Редактирование растрового изображения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Редактирование растрового изображения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-029",
+   "grade": 7,
+   "topic": "Практическая работа. Создание векторного изображения",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Создание векторного изображения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Создание векторного изображения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-030",
+   "grade": 7,
+   "topic": "Мультимедийные презентации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Мультимедийные презентации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Мультимедийные презентации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-031",
+   "grade": 7,
+   "topic": "Практическая работа. Презентация с гиперссылками по шаблону",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Презентация с гиперссылками по шаблону»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Презентация с гиперссылками по шаблону»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-032",
+   "grade": 7,
+   "topic": "Практическая работа. Итоговый проект: презентация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Итоговый проект: презентация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Итоговый проект: презентация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-033",
+   "grade": 7,
+   "topic": "Итоговое повторение",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Итоговое повторение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-7-034",
+   "grade": 7,
+   "topic": "Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-001",
+   "grade": 8,
+   "topic": "Системы счисления. Позиционные и непозиционные системы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Системы счисления. Позиционные и непозиционные системы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Системы счисления. Позиционные и непозиционные системы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-002",
+   "grade": 8,
+   "topic": "Двоичная система счисления. Перевод целых чисел",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Двоичная система счисления. Перевод целых чисел»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Двоичная система счисления. Перевод целых чисел»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-003",
+   "grade": 8,
+   "topic": "Практическая работа. Перевод чисел с помощью калькулятора компьютера",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Перевод чисел с помощью калькулятора компьютера»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Перевод чисел с помощью калькулятора компьютера»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-004",
+   "grade": 8,
+   "topic": "Восьмеричная и шестнадцатеричная системы счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Восьмеричная и шестнадцатеричная системы счисления»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Восьмеричная и шестнадцатеричная системы счисления»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-005",
+   "grade": 8,
+   "topic": "Арифметические операции в двоичной системе счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Арифметические операции в двоичной системе счисления»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Арифметические операции в двоичной системе счисления»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-006",
+   "grade": 8,
+   "topic": "Контрольная работа по теме «Системы счисления»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Контрольная работа по теме «Системы счисления»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольная работа по теме «Системы счисления»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-007",
+   "grade": 8,
+   "topic": "Понятие высказывания. Логические операции",
+   "numbered_elements": [
+    "0",
+    "1",
+    "0",
+    "1"
+   ],
+   "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Логические операции",
+     "image": "knowledge/web/08_Информатика/03_Логические операции.png",
+     "table_title": "Логические операции"
+    }
+   ],
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-8-008",
+   "grade": 8,
+   "topic": "Таблицы истинности",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Таблицы истинности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Таблицы истинности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-009",
+   "grade": 8,
+   "topic": "Практическая работа. Таблицы истинности в электронной таблице",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Таблицы истинности в электронной таблице»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Таблицы истинности в электронной таблице»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-010",
+   "grade": 8,
+   "topic": "Логические выражения. Законы логики",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Логические выражения. Законы логики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Логические выражения. Законы логики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-011",
+   "grade": 8,
+   "topic": "Логические элементы и схемы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Логические элементы и схемы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Логические элементы и схемы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-012",
+   "grade": 8,
+   "topic": "Контрольная работа по теме «Элементы математической логики»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Контрольная работа по теме «Элементы математической логики»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольная работа по теме «Элементы математической логики»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-013",
+   "grade": 8,
+   "topic": "Понятие алгоритма. Исполнители",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Понятие алгоритма. Исполнители»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Понятие алгоритма. Исполнители»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-014",
+   "grade": 8,
+   "topic": "Практическая работа. Исполнитель Робот: линейные алгоритмы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Исполнитель Робот: линейные алгоритмы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Исполнитель Робот: линейные алгоритмы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-015",
+   "grade": 8,
+   "topic": "Способы записи алгоритмов. Блок-схемы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Способы записи алгоритмов. Блок-схемы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Способы записи алгоритмов. Блок-схемы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-016",
+   "grade": 8,
+   "topic": "Практическая работа. Преобразование алгоритма из одной формы записи в другую",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Преобразование алгоритма из одной формы записи в другую»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Преобразование алгоритма из одной формы записи в другую»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-017",
+   "grade": 8,
+   "topic": "Алгоритмическая конструкция «повторение»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Алгоритмическая конструкция «повторение»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Алгоритмическая конструкция «повторение»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-018",
+   "grade": 8,
+   "topic": "Практическая работа. Циклы для управления исполнителем Робот",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Циклы для управления исполнителем Робот»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Циклы для управления исполнителем Робот»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-019",
+   "grade": 8,
+   "topic": "Алгоритмическая конструкция «ветвление»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Алгоритмическая конструкция «ветвление»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Алгоритмическая конструкция «ветвление»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-020",
+   "grade": 8,
+   "topic": "Практическая работа. Ветвления и циклы с условием для исполнителя Чертёжник",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Ветвления и циклы с условием для исполнителя Чертёжник»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Ветвления и циклы с условием для исполнителя Чертёжник»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-021",
+   "grade": 8,
+   "topic": "Практическая работа. «Ручное» исполнение алгоритмов. Трассировочные таблицы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. «Ручное» исполнение алгоритмов. Трассировочные таблицы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. «Ручное» исполнение алгоритмов. Трассировочные таблицы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-022",
+   "grade": 8,
+   "topic": "Контрольная работа по теме «Исполнители и алгоритмы»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Контрольная работа по теме «Исполнители и алгоритмы»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольная работа по теме «Исполнители и алгоритмы»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-023",
+   "grade": 8,
+   "topic": "Язык программирования Python. Переменные и типы данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Язык программирования Python. Переменные и типы данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Язык программирования Python. Переменные и типы данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-024",
+   "grade": 8,
+   "topic": "Практическая работа. Линейные программы: ввод, вывод, арифметика",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Линейные программы: ввод, вывод, арифметика»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Линейные программы: ввод, вывод, арифметика»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-025",
+   "grade": 8,
+   "topic": "Арифметические и логические выражения в программе",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Арифметические и логические выражения в программе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Арифметические и логические выражения в программе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-026",
+   "grade": 8,
+   "topic": "Оператор ветвления if",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Оператор ветвления if»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Оператор ветвления if»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-027",
+   "grade": 8,
+   "topic": "Практическая работа. Программы с ветвлением",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Программы с ветвлением»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Программы с ветвлением»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-028",
+   "grade": 8,
+   "topic": "Цикл for",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Цикл for»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Цикл for»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-029",
+   "grade": 8,
+   "topic": "Цикл while",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Цикл while»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Цикл while»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-030",
+   "grade": 8,
+   "topic": "Практическая работа. Программы с циклами",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Программы с циклами»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Программы с циклами»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-031",
+   "grade": 8,
+   "topic": "Практическая работа. Мини-проект «Угадай число»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Мини-проект «Угадай число»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Мини-проект «Угадай число»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-032",
+   "grade": 8,
+   "topic": "Анализ алгоритмов: что делает программа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Анализ алгоритмов: что делает программа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Анализ алгоритмов: что делает программа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-033",
+   "grade": 8,
+   "topic": "Практическая работа. Тестирование и отладка программ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Тестирование и отладка программ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Тестирование и отладка программ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-8-034",
+   "grade": 8,
+   "topic": "Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-001",
+   "grade": 9,
+   "topic": "Глобальная сеть Интернет. Как устроен Интернет",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Глобальная сеть Интернет. Как устроен Интернет»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Глобальная сеть Интернет. Как устроен Интернет»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-002",
+   "grade": 9,
+   "topic": "Безопасное поведение в сети. Приватность, пароли, аутентификация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Безопасное поведение в сети. Приватность, пароли, аутентификация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Безопасное поведение в сети. Приватность, пароли, аутентификация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-003",
+   "grade": 9,
+   "topic": "Практическая работа. Создание веб-страницы по шаблону",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Создание веб-страницы по шаблону»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Создание веб-страницы по шаблону»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-004",
+   "grade": 9,
+   "topic": "Поиск информации в Интернете",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Поиск информации в Интернете»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Поиск информации в Интернете»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-005",
+   "grade": 9,
+   "topic": "Практическая работа. Поисковые запросы с логическими операциями",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Поисковые запросы с логическими операциями»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Поисковые запросы с логическими операциями»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-006",
+   "grade": 9,
+   "topic": "Практическая работа. Онлайн-офис и достоверность информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Онлайн-офис и достоверность информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Онлайн-офис и достоверность информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-007",
+   "grade": 9,
+   "topic": "Моделирование как метод познания. Виды моделей",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Моделирование как метод познания. Виды моделей»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Моделирование как метод познания. Виды моделей»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-008",
+   "grade": 9,
+   "topic": "Графы и деревья как модели",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Графы и деревья как модели»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Графы и деревья как модели»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-009",
+   "grade": 9,
+   "topic": "Практическая работа. Создание однотабличной базы данных",
+   "numbered_elements": [
+    "поле",
+    "запись",
+    "ключ",
+    "запрос"
+   ],
+   "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Базы данных",
+     "image": "knowledge/web/08_Информатика/05_Базы данных.png",
+     "table_title": "Базы данных"
+    }
+   ],
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-9-010",
+   "grade": 9,
+   "topic": "Практическая работа. Поиск данных в готовой базе",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Поиск данных в готовой базе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Поиск данных в готовой базе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-011",
+   "grade": 9,
+   "topic": "Практическая работа. Работа с готовыми компьютерными моделями",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Работа с готовыми компьютерными моделями»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Работа с готовыми компьютерными моделями»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-012",
+   "grade": 9,
+   "topic": "Математические модели и их программная реализация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Математические модели и их программная реализация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Математические модели и их программная реализация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-013",
+   "grade": 9,
+   "topic": "Практическая работа. Программная реализация простейшей модели",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Программная реализация простейшей модели»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Программная реализация простейшей модели»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-014",
+   "grade": 9,
+   "topic": "Контрольная работа по теме «Моделирование»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Контрольная работа по теме «Моделирование»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольная работа по теме «Моделирование»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-015",
+   "grade": 9,
+   "topic": "Вспомогательные алгоритмы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Вспомогательные алгоритмы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Вспомогательные алгоритмы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-016",
+   "grade": 9,
+   "topic": "Практическая работа. Программы с вспомогательными алгоритмами для исполнителя",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Программы с вспомогательными алгоритмами для исполнителя»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Программы с вспомогательными алгоритмами для исполнителя»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-017",
+   "grade": 9,
+   "topic": "Массивы (списки): ввод, вывод, обход",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Массивы (списки): ввод, вывод, обход»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Массивы (списки): ввод, вывод, обход»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-018",
+   "grade": 9,
+   "topic": "Практическая работа. Типовые алгоритмы обработки массивов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Типовые алгоритмы обработки массивов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Типовые алгоритмы обработки массивов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-019",
+   "grade": 9,
+   "topic": "Сортировка массива",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Сортировка массива»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сортировка массива»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-020",
+   "grade": 9,
+   "topic": "Практическая работа. Составление и отладка программ обработки массивов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Составление и отладка программ обработки массивов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Составление и отладка программ обработки массивов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-021",
+   "grade": 9,
+   "topic": "Управление. Роботы и системы управления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Управление. Роботы и системы управления»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Управление. Роботы и системы управления»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-022",
+   "grade": 9,
+   "topic": "Практическая работа. Учебная среда управления роботом",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Учебная среда управления роботом»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Учебная среда управления роботом»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-023",
+   "grade": 9,
+   "topic": "Электронные таблицы. Ввод данных и формул",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Электронные таблицы. Ввод данных и формул»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Электронные таблицы. Ввод данных и формул»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-024",
+   "grade": 9,
+   "topic": "Практическая работа. Ввод данных и формул, оформление таблицы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Ввод данных и формул, оформление таблицы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Ввод данных и формул, оформление таблицы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-025",
+   "grade": 9,
+   "topic": "Относительные и абсолютные ссылки",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Относительные и абсолютные ссылки»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Относительные и абсолютные ссылки»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-026",
+   "grade": 9,
+   "topic": "Практическая работа. Расчёты со встроенными функциями",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Расчёты со встроенными функциями»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Расчёты со встроенными функциями»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-027",
+   "grade": 9,
+   "topic": "Практическая работа. Сортировка и фильтрация данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Сортировка и фильтрация данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Сортировка и фильтрация данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-028",
+   "grade": 9,
+   "topic": "Практическая работа. Диаграммы и графики",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Диаграммы и графики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Диаграммы и графики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-029",
+   "grade": 9,
+   "topic": "Практическая работа. Обработка большого набора данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Обработка большого набора данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Обработка большого набора данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-030",
+   "grade": 9,
+   "topic": "Практическая работа. Численное моделирование в электронных таблицах",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Численное моделирование в электронных таблицах»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Численное моделирование в электронных таблицах»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-031",
+   "grade": 9,
+   "topic": "Контрольная работа по теме «Электронные таблицы»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Контрольная работа по теме «Электронные таблицы»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольная работа по теме «Электронные таблицы»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-032",
+   "grade": 9,
+   "topic": "Информационные технологии в современном обществе. Профессии ИКТ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Информационные технологии в современном обществе. Профессии ИКТ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационные технологии в современном обществе. Профессии ИКТ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-033",
+   "grade": 9,
+   "topic": "Практическая работа. Презентация о профессиях, связанных с ИКТ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Презентация о профессиях, связанных с ИКТ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Презентация о профессиях, связанных с ИКТ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-9-034",
+   "grade": 9,
+   "topic": "Итоговое повторение. Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Итоговое повторение. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-001",
+   "grade": 10,
+   "topic": "Компьютер. Аппаратное обеспечение",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Компьютер. Аппаратное обеспечение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Компьютер. Аппаратное обеспечение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-002",
+   "grade": 10,
+   "topic": "Практическая работа. Данные об аппаратной части и программном обеспечении компьютера",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Данные об аппаратной части и программном обеспечении компьютера»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Данные об аппаратной части и программном обеспечении компьютера»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-003",
+   "grade": 10,
+   "topic": "Программное обеспечение. Операционные системы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Программное обеспечение. Операционные системы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Программное обеспечение. Операционные системы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-004",
+   "grade": 10,
+   "topic": "Практическая работа. Файловая система: операции с файлами и папками",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Файловая система: операции с файлами и папками»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Файловая система: операции с файлами и папками»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-005",
+   "grade": 10,
+   "topic": "Практическая работа. Прикладные программы по выбранной специализации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Прикладные программы по выбранной специализации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Прикладные программы по выбранной специализации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-006",
+   "grade": 10,
+   "topic": "Правовые основы использования программ. Лицензии",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Правовые основы использования программ. Лицензии»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Правовые основы использования программ. Лицензии»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-007",
+   "grade": 10,
+   "topic": "Информация. Виды и свойства информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Информация. Виды и свойства информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информация. Виды и свойства информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-008",
+   "grade": 10,
+   "topic": "Информационные процессы. Системы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Информационные процессы. Системы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационные процессы. Системы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-009",
+   "grade": 10,
+   "topic": "Кодирование информации. Равномерные и неравномерные коды",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование информации. Равномерные и неравномерные коды»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование информации. Равномерные и неравномерные коды»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-010",
+   "grade": 10,
+   "topic": "Измерение информации. Алфавитный и содержательный подходы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Измерение информации. Алфавитный и содержательный подходы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Измерение информации. Алфавитный и содержательный подходы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-011",
+   "grade": 10,
+   "topic": "Информационные системы и процессы управления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Информационные системы и процессы управления»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационные системы и процессы управления»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-012",
+   "grade": 10,
+   "topic": "Системы счисления. Перевод чисел",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Системы счисления. Перевод чисел»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Системы счисления. Перевод чисел»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-013",
+   "grade": 10,
+   "topic": "Арифметика в позиционных системах счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Арифметика в позиционных системах счисления»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Арифметика в позиционных системах счисления»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-014",
+   "grade": 10,
+   "topic": "Представление чисел в компьютере",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Представление чисел в компьютере»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Представление чисел в компьютере»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-015",
+   "grade": 10,
+   "topic": "Кодирование текста. ASCII, Unicode, UTF-8",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование текста. ASCII, Unicode, UTF-8»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование текста. ASCII, Unicode, UTF-8»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-016",
+   "grade": 10,
+   "topic": "Кодирование графической информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование графической информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование графической информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-017",
+   "grade": 10,
+   "topic": "Практическая работа. Дискретизация графической информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Дискретизация графической информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Дискретизация графической информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-018",
+   "grade": 10,
+   "topic": "Кодирование звуковой информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Кодирование звуковой информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кодирование звуковой информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-019",
+   "grade": 10,
+   "topic": "Практическая работа. Дискретизация звуковой информации",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Дискретизация звуковой информации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Дискретизация звуковой информации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-020",
+   "grade": 10,
+   "topic": "Высказывания и логические операции",
+   "numbered_elements": [
+    "0",
+    "1",
+    "0",
+    "1"
+   ],
+   "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Логические операции",
+     "image": "knowledge/web/08_Информатика/03_Логические операции.png",
+     "table_title": "Логические операции"
+    }
+   ],
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-10-021",
+   "grade": 10,
+   "topic": "Таблицы истинности. Законы алгебры логики",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Таблицы истинности. Законы алгебры логики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Таблицы истинности. Законы алгебры логики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-022",
+   "grade": 10,
+   "topic": "Упрощение логических выражений",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Упрощение логических выражений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Упрощение логических выражений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-023",
+   "grade": 10,
+   "topic": "Логические уравнения",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Логические уравнения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Логические уравнения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-024",
+   "grade": 10,
+   "topic": "Нормальные формы: ДНФ и КНФ",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Нормальные формы: ДНФ и КНФ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Нормальные формы: ДНФ и КНФ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-025",
+   "grade": 10,
+   "topic": "Логические элементы компьютера",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Логические элементы компьютера»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Логические элементы компьютера»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-026",
+   "grade": 10,
+   "topic": "Решение логических задач",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Решение логических задач»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Решение логических задач»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-027",
+   "grade": 10,
+   "topic": "Контрольная работа по теме «Элементы алгебры логики»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Контрольная работа по теме «Элементы алгебры логики»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольная работа по теме «Элементы алгебры логики»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-028",
+   "grade": 10,
+   "topic": "Практическая работа. Многостраничные документы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Многостраничные документы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Многостраничные документы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-029",
+   "grade": 10,
+   "topic": "Практическая работа. Коллективная работа над документом",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Коллективная работа над документом»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Коллективная работа над документом»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-030",
+   "grade": 10,
+   "topic": "Практическая работа. Преобразование растровых изображений",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Преобразование растровых изображений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Преобразование растровых изображений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-031",
+   "grade": 10,
+   "topic": "Практическая работа. Векторная графика",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Векторная графика»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Векторная графика»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-032",
+   "grade": 10,
+   "topic": "Практическая работа. Презентация с изображениями, звуками и видео",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Презентация с изображениями, звуками и видео»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Презентация с изображениями, звуками и видео»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-033",
+   "grade": 10,
+   "topic": "Практическая работа. 3D-моделирование",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. 3D-моделирование»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. 3D-моделирование»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-10-034",
+   "grade": 10,
+   "topic": "Итоговое повторение. Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Итоговое повторение. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-001",
+   "grade": 11,
+   "topic": "Сетевые информационные технологии. Топологии и адресация",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Сетевые информационные технологии. Топологии и адресация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сетевые информационные технологии. Топологии и адресация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-002",
+   "grade": 11,
+   "topic": "Практическая работа. Локальная сеть",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Локальная сеть»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Локальная сеть»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-003",
+   "grade": 11,
+   "topic": "IP-адреса, имена и протоколы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «IP-адреса, имена и протоколы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «IP-адреса, имена и протоколы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-004",
+   "grade": 11,
+   "topic": "Практическая работа. Разработка веб-страницы (HTML)",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Разработка веб-страницы (HTML)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Разработка веб-страницы (HTML)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-005",
+   "grade": 11,
+   "topic": "Практическая работа. Оформление веб-страницы (CSS)",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Оформление веб-страницы (CSS)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Оформление веб-страницы (CSS)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-006",
+   "grade": 11,
+   "topic": "Практическая работа. Язык поисковых запросов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Язык поисковых запросов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Язык поисковых запросов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-007",
+   "grade": 11,
+   "topic": "Практическая работа. Использование интернет-сервисов",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Использование интернет-сервисов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Использование интернет-сервисов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-008",
+   "grade": 11,
+   "topic": "Основы социальной информатики. Информационная безопасность",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Основы социальной информатики. Информационная безопасность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основы социальной информатики. Информационная безопасность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-009",
+   "grade": 11,
+   "topic": "Практическая работа. Использование антивирусной программы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Использование антивирусной программы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Использование антивирусной программы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-010",
+   "grade": 11,
+   "topic": "Практическая работа. Архивация данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Архивация данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Архивация данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-011",
+   "grade": 11,
+   "topic": "Цифровая экономика и информационное общество",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Цифровая экономика и информационное общество»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Цифровая экономика и информационное общество»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-012",
+   "grade": 11,
+   "topic": "Информационное моделирование. Модели и их виды",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Информационное моделирование. Модели и их виды»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационное моделирование. Модели и их виды»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-013",
+   "grade": 11,
+   "topic": "Графы",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Графы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Графы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-014",
+   "grade": 11,
+   "topic": "Деревья. Выигрышные стратегии в играх",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Деревья. Выигрышные стратегии в играх»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Деревья. Выигрышные стратегии в играх»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-015",
+   "grade": 11,
+   "topic": "Моделирование: от задачи к модели",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Моделирование: от задачи к модели»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Моделирование: от задачи к модели»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-016",
+   "grade": 11,
+   "topic": "Алгоритмы и элементы программирования. Трассировка программ на Python",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Алгоритмы и элементы программирования. Трассировка программ на Python»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Алгоритмы и элементы программирования. Трассировка программ на Python»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-017",
+   "grade": 11,
+   "topic": "Практическая работа. Цифры целого числа в разных системах счисления",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Цифры целого числа в разных системах счисления»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Цифры целого числа в разных системах счисления»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-018",
+   "grade": 11,
+   "topic": "Практическая работа. Решение задач методом перебора",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Решение задач методом перебора»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Решение задач методом перебора»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-019",
+   "grade": 11,
+   "topic": "Практическая работа. Обработка числового массива",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Обработка числового массива»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Обработка числового массива»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-020",
+   "grade": 11,
+   "topic": "Практическая работа. Сортировка и поиск в массиве",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Сортировка и поиск в массиве»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Сортировка и поиск в массиве»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-021",
+   "grade": 11,
+   "topic": "Практическая работа. Обработка символьных строк",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Обработка символьных строк»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Обработка символьных строк»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-022",
+   "grade": 11,
+   "topic": "Практическая работа. Функции",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Функции»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Функции»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-023",
+   "grade": 11,
+   "topic": "Контрольная работа по теме «Алгоритмы и программирование»",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Контрольная работа по теме «Алгоритмы и программирование»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольная работа по теме «Алгоритмы и программирование»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-024",
+   "grade": 11,
+   "topic": "Электронные таблицы. Анализ данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Электронные таблицы. Анализ данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Электронные таблицы. Анализ данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-025",
+   "grade": 11,
+   "topic": "Практическая работа. Статистическая обработка данных",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Статистическая обработка данных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Статистическая обработка данных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-026",
+   "grade": 11,
+   "topic": "Практическая работа. Диаграммы по результатам обработки",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Диаграммы по результатам обработки»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Диаграммы по результатам обработки»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-027",
+   "grade": 11,
+   "topic": "Практическая работа. Корреляция и линия тренда",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Корреляция и линия тренда»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Корреляция и линия тренда»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-028",
+   "grade": 11,
+   "topic": "Практическая работа. Работа с готовой компьютерной моделью",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Работа с готовой компьютерной моделью»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Работа с готовой компьютерной моделью»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-029",
+   "grade": 11,
+   "topic": "Практическая работа. Подбор параметра",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Подбор параметра»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Подбор параметра»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-030",
+   "grade": 11,
+   "topic": "Базы данных. Реляционная модель",
+   "numbered_elements": [
+    "поле",
+    "запись",
+    "ключ",
+    "запрос"
+   ],
+   "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Базы данных",
+     "image": "knowledge/web/08_Информатика/05_Базы данных.png",
+     "table_title": "Базы данных"
+    }
+   ],
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-11-031",
+   "grade": 11,
+   "topic": "Практическая работа. Проектирование многотабличной базы данных",
+   "numbered_elements": [
+    "поле",
+    "запись",
+    "ключ",
+    "запрос"
+   ],
+   "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Базы данных",
+     "image": "knowledge/web/08_Информатика/05_Базы данных.png",
+     "table_title": "Базы данных"
+    }
+   ],
+   "text_source": "knowledge/web/08_Информатика/text.md"
+  },
+  {
+   "lesson_id": "inf-11-032",
+   "grade": 11,
+   "topic": "Практическая работа. Готовая база данных: запросы на выборку",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Практическая работа. Готовая база данных: запросы на выборку»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Практическая работа. Готовая база данных: запросы на выборку»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-033",
+   "grade": 11,
+   "topic": "Средства искусственного интеллекта. Практическая работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Средства искусственного интеллекта. Практическая работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Средства искусственного интеллекта. Практическая работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "inf-11-034",
+   "grade": 11,
+   "topic": "Итоговое повторение. Итоговая контрольная работа",
+   "numbered_elements": [
+    "Вход",
+    "Действие",
+    "Результат",
+    "Проверка"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Блок-схема по теме «Итоговое повторение. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  }
+ ]
+}

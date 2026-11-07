@@ -1,0 +1,2703 @@
+{
+ "subject": "obzh",
+ "title": "ОБЖ",
+ "lessons": [
+  {
+   "lesson_id": "obzh-8-001",
+   "grade": 8,
+   "topic": "Опасности в жилище",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Опасности в жилище»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Опасности в жилище»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-002",
+   "grade": 8,
+   "topic": "Электричество и бытовая техника",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Электричество и бытовая техника»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Электричество и бытовая техника»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-003",
+   "grade": 8,
+   "topic": "Газ и вода в доме",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Газ и вода в доме»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Газ и вода в доме»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-004",
+   "grade": 8,
+   "topic": "Лекарства и химикаты",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Лекарства и химикаты»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Лекарства и химикаты»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-005",
+   "grade": 8,
+   "topic": "Безопасность в подъезде и лифте",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Безопасность в подъезде и лифте»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Безопасность в подъезде и лифте»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-006",
+   "grade": 8,
+   "topic": "Участники дорожного движения",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Участники дорожного движения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Участники дорожного движения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-007",
+   "grade": 8,
+   "topic": "Светофор и регулировщик",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Светофор и регулировщик»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Светофор и регулировщик»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-008",
+   "grade": 8,
+   "topic": "Опасные дорожные ситуации",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Опасные дорожные ситуации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Опасные дорожные ситуации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-009",
+   "grade": 8,
+   "topic": "Велосипедист и пешеход",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Велосипедист и пешеход»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Велосипедист и пешеход»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-010",
+   "grade": 8,
+   "topic": "Безопасный маршрут в школу",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Безопасный маршрут в школу»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Безопасный маршрут в школу»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-011",
+   "grade": 8,
+   "topic": "Причины пожаров",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Причины пожаров»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Причины пожаров»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-012",
+   "grade": 8,
+   "topic": "Пожар в здании",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Пожар в здании»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Пожар в здании»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-013",
+   "grade": 8,
+   "topic": "Средства пожаротушения",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Средства пожаротушения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Средства пожаротушения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-014",
+   "grade": 8,
+   "topic": "Эвакуация при задымлении",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Эвакуация при задымлении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Эвакуация при задымлении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-015",
+   "grade": 8,
+   "topic": "Опасности в лесу",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Опасности в лесу»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Опасности в лесу»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-016",
+   "grade": 8,
+   "topic": "Поведение у водоёма",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Поведение у водоёма»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Поведение у водоёма»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-017",
+   "grade": 8,
+   "topic": "Ориентирование на местности",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Ориентирование на местности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Ориентирование на местности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-018",
+   "grade": 8,
+   "topic": "Погодные опасности",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Погодные опасности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Погодные опасности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-019",
+   "grade": 8,
+   "topic": "Что такое здоровье",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Что такое здоровье»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Что такое здоровье»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-020",
+   "grade": 8,
+   "topic": "Режим дня и питание",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Режим дня и питание»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Режим дня и питание»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-021",
+   "grade": 8,
+   "topic": "Двигательная активность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Двигательная активность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Двигательная активность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-022",
+   "grade": 8,
+   "topic": "Вредные привычки и профилактика",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Вредные привычки и профилактика»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Вредные привычки и профилактика»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-023",
+   "grade": 8,
+   "topic": "Вызов скорой помощи",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Вызов скорой помощи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Вызов скорой помощи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-024",
+   "grade": 8,
+   "topic": "Кровотечения и раны",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Кровотечения и раны»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Кровотечения и раны»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-025",
+   "grade": 8,
+   "topic": "Ожоги и обморожения",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Ожоги и обморожения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Ожоги и обморожения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-026",
+   "grade": 8,
+   "topic": "Обморок и переломы",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Обморок и переломы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Обморок и переломы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-8-027",
+   "grade": 8,
+   "topic": "Обобщение: безопасность школьника",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Обобщение: безопасность школьника»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Обобщение: безопасность школьника»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-001",
+   "grade": 9,
+   "topic": "Национальная безопасность России",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Национальная безопасность России»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Национальная безопасность России»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-002",
+   "grade": 9,
+   "topic": "Единая система защиты от ЧС",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Единая система защиты от ЧС»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Единая система защиты от ЧС»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-003",
+   "grade": 9,
+   "topic": "Сигналы оповещения",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Сигналы оповещения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Сигналы оповещения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-004",
+   "grade": 9,
+   "topic": "Роль человека в безопасности",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Роль человека в безопасности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Роль человека в безопасности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-005",
+   "grade": 9,
+   "topic": "Землетрясения и оползни",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Землетрясения и оползни»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Землетрясения и оползни»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-006",
+   "grade": 9,
+   "topic": "Наводнения",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Наводнения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Наводнения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-007",
+   "grade": 9,
+   "topic": "Ураганы и смерчи",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Ураганы и смерчи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Ураганы и смерчи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-008",
+   "grade": 9,
+   "topic": "Лесные пожары",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Лесные пожары»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Лесные пожары»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-009",
+   "grade": 9,
+   "topic": "Эвакуация как общее правило",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Эвакуация как общее правило»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Эвакуация как общее правило»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-010",
+   "grade": 9,
+   "topic": "Аварии на транспорте",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Аварии на транспорте»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Аварии на транспорте»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-011",
+   "grade": 9,
+   "topic": "Аварии на производстве",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Аварии на производстве»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Аварии на производстве»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-012",
+   "grade": 9,
+   "topic": "Радиационная опасность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Радиационная опасность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Радиационная опасность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-013",
+   "grade": 9,
+   "topic": "Химическая опасность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Химическая опасность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Химическая опасность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-014",
+   "grade": 9,
+   "topic": "Загрязнение окружающей среды",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Загрязнение окружающей среды»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Загрязнение окружающей среды»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-015",
+   "grade": 9,
+   "topic": "Экологические права и обязанности",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Экологические права и обязанности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Экологические права и обязанности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-016",
+   "grade": 9,
+   "topic": "Ресурсосбережение",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Ресурсосбережение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Ресурсосбережение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-017",
+   "grade": 9,
+   "topic": "Экологические решения в школе и дома",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Экологические решения в школе и дома»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Экологические решения в школе и дома»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-018",
+   "grade": 9,
+   "topic": "Инфекционные заболевания",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Инфекционные заболевания»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Инфекционные заболевания»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-019",
+   "grade": 9,
+   "topic": "Первая помощь при отравлении",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Первая помощь при отравлении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Первая помощь при отравлении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-020",
+   "grade": 9,
+   "topic": "Первая помощь при травмах",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Первая помощь при травмах»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Первая помощь при травмах»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-021",
+   "grade": 9,
+   "topic": "Психологическая поддержка",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Психологическая поддержка»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Психологическая поддержка»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-022",
+   "grade": 9,
+   "topic": "Безопасность в толпе",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Безопасность в толпе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Безопасность в толпе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-023",
+   "grade": 9,
+   "topic": "Противодействие терроризму",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Противодействие терроризму»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Противодействие терроризму»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-024",
+   "grade": 9,
+   "topic": "Безопасность в интернете",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Безопасность в интернете»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Безопасность в интернете»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-9-025",
+   "grade": 9,
+   "topic": "Обобщение: безопасность личности и общества",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Обобщение: безопасность личности и общества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Обобщение: безопасность личности и общества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-001",
+   "grade": 10,
+   "topic": "Задачи обороны государства",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Задачи обороны государства»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Задачи обороны государства»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-002",
+   "grade": 10,
+   "topic": "Вооружённые Силы России",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Вооружённые Силы России»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Вооружённые Силы России»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-003",
+   "grade": 10,
+   "topic": "Виды и рода войск",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Виды и рода войск»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Виды и рода войск»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-004",
+   "grade": 10,
+   "topic": "Правовые основы обороны",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Правовые основы обороны»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Правовые основы обороны»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-005",
+   "grade": 10,
+   "topic": "Воинская обязанность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Воинская обязанность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Воинская обязанность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-006",
+   "grade": 10,
+   "topic": "Подготовка к службе",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Подготовка к службе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Подготовка к службе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-007",
+   "grade": 10,
+   "topic": "Служба по призыву и контракту",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Служба по призыву и контракту»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Служба по призыву и контракту»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-008",
+   "grade": 10,
+   "topic": "Альтернативная служба",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Альтернативная служба»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Альтернативная служба»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-009",
+   "grade": 10,
+   "topic": "Традиции армии",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Традиции армии»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Традиции армии»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-010",
+   "grade": 10,
+   "topic": "Символы воинской чести",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Символы воинской чести»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Символы воинской чести»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-011",
+   "grade": 10,
+   "topic": "Памятные даты",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Памятные даты»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Памятные даты»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-012",
+   "grade": 10,
+   "topic": "Профессия защитника Отечества",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Профессия защитника Отечества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Профессия защитника Отечества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-013",
+   "grade": 10,
+   "topic": "Первая помощь при кровотечении",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Первая помощь при кровотечении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Первая помощь при кровотечении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-014",
+   "grade": 10,
+   "topic": "Сердечно-лёгочная реанимация",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Сердечно-лёгочная реанимация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Сердечно-лёгочная реанимация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-015",
+   "grade": 10,
+   "topic": "Помощь при шоке",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Помощь при шоке»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Помощь при шоке»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-016",
+   "grade": 10,
+   "topic": "Помощь в чрезвычайной ситуации",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Помощь в чрезвычайной ситуации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Помощь в чрезвычайной ситуации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-017",
+   "grade": 10,
+   "topic": "Терроризм и безопасность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Терроризм и безопасность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Терроризм и безопасность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-018",
+   "grade": 10,
+   "topic": "Информационные угрозы",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Информационные угрозы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Информационные угрозы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-019",
+   "grade": 10,
+   "topic": "Кибербезопасность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Кибербезопасность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Кибербезопасность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-020",
+   "grade": 10,
+   "topic": "Противодействие манипуляциям",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Противодействие манипуляциям»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Противодействие манипуляциям»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-10-021",
+   "grade": 10,
+   "topic": "Обобщение: безопасность и служба",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Обобщение: безопасность и служба»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Обобщение: безопасность и служба»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-001",
+   "grade": 11,
+   "topic": "Культура безопасности",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Культура безопасности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Культура безопасности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-002",
+   "grade": 11,
+   "topic": "Оценка рисков",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Оценка рисков»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Оценка рисков»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-003",
+   "grade": 11,
+   "topic": "Безопасный образ жизни",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Безопасный образ жизни»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Безопасный образ жизни»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-004",
+   "grade": 11,
+   "topic": "Военная служба",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Военная служба»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Военная служба»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-005",
+   "grade": 11,
+   "topic": "Права и обязанности военнослужащего",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Права и обязанности военнослужащего»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Права и обязанности военнослужащего»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-006",
+   "grade": 11,
+   "topic": "Дисциплина и порядок",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Дисциплина и порядок»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Дисциплина и порядок»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-007",
+   "grade": 11,
+   "topic": "Подготовка к службе",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Подготовка к службе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Подготовка к службе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-008",
+   "grade": 11,
+   "topic": "Сердечно-лёгочная реанимация",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Сердечно-лёгочная реанимация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Сердечно-лёгочная реанимация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-009",
+   "grade": 11,
+   "topic": "Ранения и травмы",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Ранения и травмы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Ранения и травмы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-010",
+   "grade": 11,
+   "topic": "Медицинские средства",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Медицинские средства»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Медицинские средства»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-011",
+   "grade": 11,
+   "topic": "Профилактика зависимостей",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Профилактика зависимостей»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Профилактика зависимостей»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-012",
+   "grade": 11,
+   "topic": "Классификация ЧС",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Классификация ЧС»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Классификация ЧС»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-013",
+   "grade": 11,
+   "topic": "Средства индивидуальной защиты",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Средства индивидуальной защиты»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Средства индивидуальной защиты»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-014",
+   "grade": 11,
+   "topic": "Защитные сооружения",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Защитные сооружения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Защитные сооружения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-015",
+   "grade": 11,
+   "topic": "Оповещение и эвакуация",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Оповещение и эвакуация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Оповещение и эвакуация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-016",
+   "grade": 11,
+   "topic": "Терроризм и экстремизм",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Терроризм и экстремизм»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Терроризм и экстремизм»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-017",
+   "grade": 11,
+   "topic": "Информационная безопасность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Информационная безопасность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Информационная безопасность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-018",
+   "grade": 11,
+   "topic": "Фейки и проверка источников",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Фейки и проверка источников»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Фейки и проверка источников»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-019",
+   "grade": 11,
+   "topic": "Личная ответственность",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Личная ответственность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Личная ответственность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  },
+  {
+   "lesson_id": "obzh-11-020",
+   "grade": 11,
+   "topic": "Обобщение: безопасность выпускника",
+   "numbered_elements": [
+    "Ситуация",
+    "Опасность",
+    "Действие",
+    "Результат"
+   ],
+   "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Ситуация по теме «Обобщение: безопасность выпускника»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Действия по теме «Обобщение: безопасность выпускника»",
+     "image": null,
+     "table_title": null
+    }
+   ],
+   "text_source": null
+  }
+ ]
+}
