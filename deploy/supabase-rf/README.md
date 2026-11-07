@@ -1,165 +1,194 @@
-# Self-hosted Supabase в РФ
+# Кабинет в РФ: комплект для Codex и владельца
 
-Комплект для переноса аккаунтов и персональных данных с зарубежного
-`supabase.com` на собственный сервер в России.
+Откройте **START.html** локально в браузере. Страница автономна, не загружает
+внешних ресурсов и не обращается к API. Ссылки открываются по нажатию.
+Отметки сохраняются в localStorage; это ручные подтверждения, не live-аудит.
 
-**Важно:** это не облачный сервис Supabase. Это открытый Supabase, который вы
-разворачиваете на своём российском VPS. Только так можно выполнить требование
-152-ФЗ о хранении персональных данных граждан РФ в базах на территории России.
+## Состояние и ответственность
 
-## Что нужно
+VPS ещё нет. Реальная миграция, вход старым паролем, SMS, восстановление, экспорт
+и оплата на целевом сервере **не проверены**. Рабочий сайт пока не переключён.
+Яндекс остаётся для статики и AI-прокси. Учебные тексты и генератор не меняются.
 
-- VPS в РФ: Timeweb, Beget, Selectel, Cloud.ru или другой российский провайдер.
-- Минимум: **4 vCPU, 8 ГБ RAM, 100 ГБ SSD**.
-- Ubuntu 24.04.
-- Домен и доступ к DNS.
-- Поддомены:
-  - `supa.uchu-po-frp.ru` — API Supabase;
-  - `studio.uchu-po-frp.ru` — админ-панель аккаунтов.
+Владелец: создать/оплатить VPS, DNS, предоставить SSH и доступ к исходному проекту
+через защищённые настройки среды, утвердить юридические документы, при необходимости
+оплатить SMS/SMTP. Все команды ниже выполняет Codex после получения доступа.
+Пароли, приватные ключи и строки с паролями не передавать в чат и не коммитить.
 
-## 1. DNS
+Официальные страницы (цены уточнить на сайте):
 
-Добавьте две A-записи на IP сервера:
+- https://timeweb.cloud/services/vds-vps
+- https://beget.com/ru/vps
+- https://selectel.ru/services/cloud/servers/
+- https://cloud.ru/products/evolution-compute
+- https://www.reg.ru/
+- https://dnschecker.org/
+- https://pd.rkn.gov.ru/
 
-```text
-supa    A   <IP VPS>
-studio  A   <IP VPS>
-```
+Шаблоны всех сообщений — в START.html. Российское размещение сервера само по
+себе не подтверждает соблюдение 152-ФЗ. Юридические решения принимает владелец.
 
-## 2. Сервер
+## 1. Подготовка VPS (Codex)
 
-```bash
-apt update && apt upgrade -y
-apt install -y docker.io docker-compose-plugin git curl ufw caddy
-systemctl enable --now docker
-ufw allow OpenSSH
-ufw allow 80
-ufw allow 443
-ufw enable
-```
-
-Порты **8000** (Kong) и **3000** (Studio) не открывайте наружу: к ним должен
-ходить только Caddy на этом же сервере.
-
-## 3. Запуск Supabase
+Ubuntu 24.04, рекомендовано 4 vCPU / 8 ГБ / 80 ГБ SSD; ёмкость уточнить по базе
+и Storage. Регион и размещение дисков, журналов, бэкапов подтвердить у провайдера.
+A-записи `supa` и `studio` → IPv4 VPS; конфликтующие AAAA убрать.
+Firewall провайдера: SSH только от администраторов, входящие 80/443; остальные
+порты закрыть. Docker-порты дополнительно привязаны к localhost: ufw недостаточно
+для защиты опубликованных Docker-портов.
 
 ```bash
-sudo bash deploy/supabase-rf/bootstrap.sh
+ssh -p <SSH_PORT> <USER>@<VPS_IP>
+# Codex копирует deploy/supabase-rf на VPS по SSH, например:
+scp -P <SSH_PORT> -r deploy/supabase-rf <USER>@<VPS_IP>:~/
+# На VPS:
+cd ~/supabase-rf
+sudo env DOMAIN=supa.<DOMAIN> STUDIO_DOMAIN=studio.<DOMAIN> \
+  EMAIL=<TLS_EMAIL> SITE_URL=https://<SITE_DOMAIN> bash bootstrap.sh
 ```
 
-Скрипт:
-
-1. клонирует официальный `supabase/supabase` в `/opt/supabase`;
-2. создаёт `.env` из примера;
-3. генерирует пароли и JWT-ключи;
-4. поднимает контейнеры;
-5. показывает `ANON_KEY` и `SERVICE_ROLE_KEY`.
-
-Если ключи не сгенерировались автоматически, используйте официальный
-`docker/utils/generate-keys.sh` из клона.
-
-Проверка:
+bootstrap требует чистой установки, закреплён `self-hosted/v0.8.4`. Сохраняет
+официальный compose в `/opt/uchu-supabase/docker`. Генерирует секреты один раз,
+не печатает их, сохраняет `.env` с правами 600. Повторный запуск не ротирует
+ключи. Не применять к существующему `/opt/supabase` из старой инструкции:
+сначала инвентаризация/бэкап. Не удалять существующие данные ради установки.
+Caddy разрешает API-пути на supa, закрывает Studio там; studio защищён basic auth.
+Пароль admin находится в `.env`, читается Codex по защищённому SSH, не в чат.
+Регистрация email/phone выключена до теста SMTP/SMS, автоподтверждение выключено.
 
 ```bash
-cd /opt/supabase/docker
-docker compose ps
-curl -s http://127.0.0.1:8000/auth/v1/health
+cd /opt/uchu-supabase/docker
+sudo docker compose ps
+curl --fail https://supa.<DOMAIN>/auth/v1/health
+curl -I https://studio.<DOMAIN>/  # без credentials ожидается 401
+curl -I https://supa.<DOMAIN>/    # ожидается 404
+sudo ss -lntp                   # 8000, 5432, 6543 только 127.0.0.1
+sudo systemctl status caddy --no-pager # Caddy loads env through its systemd unit; never source the bcrypt hash in a shell
 ```
 
-## 4. Caddy и HTTPS
+## 2. SMTP, SMS и социальный вход (Codex)
 
-Скопируйте `Caddyfile` на сервер, замените домен и выполните:
+Заполнить SMTP_HOST/PORT/USER/PASS/ADMIN_EMAIL/SENDER_NAME в root-only `.env`;
+у почтового провайдера настроить SPF/DKIM/DMARC. После теста доставки включить
+ENABLE_EMAIL_SIGNUP=true и перезапустить auth. Проверить подтверждение почты,
+восстановление и повторный вход. Для OAuth перенести настройки провайдера и
+callback на новый домен, не считать их частью дампа БД.
+
+Для существующего SMS-хука Яндекс-прокси задать GOTRUE_HOOK_SEND_SMS_ENABLED,
+GOTRUE_HOOK_SEND_SMS_URI и GOTRUE_HOOK_SEND_SMS_SECRETS в environment auth
+официального compose по актуальной документации Auth Hooks. Передать новый
+секрет в SMS_HOOK_SECRET прокси защищённым каналом; проверить подпись, лимит,
+неверный/истёкший код и повторы. Только после тестов включить
+ENABLE_PHONE_SIGNUP=true. ENABLE_PHONE_AUTOCONFIRM оставлять false.
+SMS/SMTP и договоры не настроены этим комплектом без доступа к провайдерам.
+
+## 3. Экспорт и импорт
+
+Подробный порядок, команды pg_dump/pg_restore, версии, Storage и окно запрета
+записи: **MIGRATION.md**. Сначала пробный перенос. Не запускать raw auth schema
+restore поверх живого self-hosted Auth: версии и миграции могут отличаться.
+Для финального переноса остановить **все** записи на источник, включая старые
+вкладки, мобильные клиенты и webhooks. Баннер обслуживания сам по себе не блокирует
+REST API. Перед переносом проверить, что тестовая запись действительно отклонена.
+
+## 4. Тесты на сервере
 
 ```bash
-cp deploy/supabase-rf/Caddyfile /etc/caddy/Caddyfile
-# отредактируйте домен
-systemctl reload caddy
+psql -X "$TARGET_DB_URL" -v ON_ERROR_STOP=1 -f verify.sql
+# Dedicated disposable test accounts; credentials in protected env, never shell history:
+CONFIRM_TEST_TARGET=yes python3 test-live.py
 ```
 
-Проверка:
+Для test-live.py требуются ACCOUNTS_URL, ACCOUNTS_ANON_KEY, TEST_A_EMAIL,
+TEST_A_PASSWORD, TEST_B_EMAIL, TEST_B_PASSWORD. Скрипт проверяет health, два входа,
+CRUD урока, чужой ID, запрет подмены user_id и удаления чужой записи.
+Тестовые аккаунты создаёт Codex на пробном сервере; данные реальных пользователей
+не использовать. Тест создаёт и удаляет строку с migration-test-UUID.
+
+Дополнительно по TESTS.md: старый пароль мигрированного тестового аккаунта,
+регистрация нового, подтверждение, logout/recovery/SMS, PDF/Word, платежи,
+повтор webhook и восстановление backup на отдельной ВМ. Платёжные проверки
+только в sandbox/тестовом режиме, реальные списания без владельца не делать.
+
+## 5. Переключение и откат (Codex)
+
+Сначала сверить UUID, хеши паролей, все пользовательские таблицы и RLS. Затем
+в одно окно изменить SUPABASE_URL и SUPABASE_SERVICE_KEY в окружении **всех**
+Яндекс-функций/прокси, использующих аккаунты (payments, quota, trial, AI pools,
+SMS, quiz). Новый service_role только на сервере; не в index.html/START.html.
+Сохранить старую конфигурацию в защищённом хранилище для отката.
 
 ```bash
-curl -s https://supa.uchu-po-frp.ru/auth/v1/health
+# public-anon.txt содержит только публичный anon JWT, не service_role.
+python3 deploy/supabase-rf/switch-accounts.py \
+  --url https://supa.<DOMAIN> --dashboard https://studio.<DOMAIN> \
+  --key-file <PRIVATE_DIR>/public-anon.txt
+# После live-проверок — та же команда с --write, затем review diff и деплой статики.
 ```
 
-## 5. Подключение сайта
+Скрипт меняет только accounts, сохраняет `index.html.before-accounts` (исключён
+из публикации). cloud/AI URL не меняет. Сессии привязаны к адресу API; старые токены
+не отправляются новому серверу, локальные уроки не стираются.
+Проверить кэш/service worker: старая вкладка не должна продолжать запись на источник.
 
-В `index.html` заполните:
+При откате сначала остановить новые записи, сверить изменения, сделанные после
+переключения. Нельзя просто вернуть старую БД и потерять новые уроки/платежи.
+После согласованного переноса дельты вернуть HTML из локальной резервной копии,
+старые серверные env и публикацию статики. Снова проверить вход/сохранение/оплату.
+Старый проект не удалять автоматически; срок хранения и удаление ПД утвердить
+с владельцем/юристом после проверки восстановления и окончания окна отката.
 
-```js
-accounts: {
-  url: "https://supa.uchu-po-frp.ru",
-  anonKey: "<ANON_KEY из /opt/supabase/docker/.env>",
-  dashboard: "https://studio.uchu-po-frp.ru"
-}
-```
-
-Пока `accounts` пуст, сайт использует старый `cloud`. После заполнения
-кабинет, профили, уроки и тесты переключатся на сервер в РФ.
-
-## 6. Яндекс Облако
-
-Яндекс Облако остаётся для:
-
-- статического сайта в Object Storage;
-- AI-прокси (функция).
-
-В настройках функции замените:
-
-```text
-SUPABASE_URL=https://supa.uchu-po-frp.ru
-SUPABASE_SERVICE_KEY=<SERVICE_ROLE_KEY>
-```
-
-Функция не хранит ПДн, только передаёт запросы; база — в РФ.
-
-## 7. Перенос данных
-
-Пока не переключайте `accounts`, пока не перенесены:
-
-- `auth.users` — пользователи;
-- `profiles` — профили;
-- `lessons` — уроки;
-- `quizzes`, `quiz_results` — тесты;
-- Storage — файлы.
-
-Порядок:
-
-1. Сделать дамп старого проекта (`pg_dump` / Supabase backup).
-2. Восстановить в новый PostgreSQL.
-3. Проверить, что пользователи входят (пароли переносятся хешами).
-4. Проверить RLS: чужой урок недоступен.
-5. Только потом заполнить `accounts` на сайте.
-
-Подробнее: `MIGRATION.md`.
-
-## 8. Бэкапы
+## 6. Backup и disaster recovery
 
 ```bash
-bash deploy/supabase-rf/backup.sh
+# Maintenance: Codex остановил внешние writers, volume зашифрован и размещён в РФ.
+sudo env BACKUP_ROOT=<ENCRYPTED_RF_VOLUME> MAINTENANCE_CONFIRMED=yes bash backup.sh
+# На отдельном совместимом тестовом сервере с тем же env и upstream revision:
+sudo env RESTORE_DIR=<BACKUP_DIRECTORY> CONFIRM_RESTORE=restore-test-target bash restore.sh
 ```
 
-Скрипт делает дамп БД и архив Storage в `/var/backups/uchu-supabase/`.
-Настройте cron и хранение копий **в РФ** (другой сервер или российский S3).
+backup: custom pg_dump БД, роли, env, версия, compose, файловый Storage, SHA256.
+Секреты и хеши паролей находятся в backup. Шифрование диска/отдельной копии,
+права доступа и размещение в РФ проверить; архивы сами по себе не зашифрованы.
+Копия на том же VPS не заменяет внешнюю резервную копию. Автоудаления архивов нет.
+roles.sql — инвентаризация ролей: на отдельной ВМ Codex проверяет и восстанавливает
+нестандартные роли до pg_restore; системные роли создаёт Supabase, их не дублировать.
+restore требует идентичный env; использует --clean и транзакцию, при ошибке
+останавливается и оставляет writers остановленными. Совместимость полного дампа
+с конкретной версией self-hosted требует пробного восстановления. Произвольные
+скрипты Storage/Edge Functions и изменения compose также сохранить отдельно.
+Назначить backup таймер после успешного restore drill и согласования окна простоя;
+не выдавать этот maintenance-backup за непрерывное PITR.
 
-## 9. 152-ФЗ
+## 7. Локальные проверки
 
-Перед реальными пользователями:
+```bash
+python3 deploy/supabase-rf/test-local.py
+node deploy/supabase-rf/test-session.cjs
+node --check js/account.js
+python3 deploy/check-site-deploy.py
+git diff --check
+```
 
-- оформить согласие на обработку ПДн;
-- опубликовать политику;
-- назначить ответственного за ПДн;
-- ограничить доступ к Studio;
-- включить HTTPS;
-- делать бэкапы в РФ;
-- описать сроки хранения и удаление аккаунта;
-- проверить, что за пределами РФ ПДн не сохраняются.
+Browser-тест START и screenshot: `test-start.cjs` (нужен Playwright и Chromium).
+Ни локальные тесты, ни 12 ручных «Да» не доказывают серверную миграцию.
 
-Это инженерный комплект, а не юридическая консультация.
+Документы проверены по официальным страницам 07.11.2026:
+https://supabase.com/changelog.md (CLI v3 меняет remote flags),
+https://supabase.com/docs/guides/self-hosting/docker,
+https://supabase.com/docs/guides/self-hosting/restore-from-platform.
 
-## Ограничения
+### Повторение проверки закреплённого compose
 
-- Self-hosted Supabase нужно обслуживать: обновления, бэкапы, мониторинг.
-- Один VPS — это одна точка отказа. Для продакшена нужен второй сервер
-  или управляемый PostgreSQL в РФ.
-- Не храните `.env` в Git.
+Для полного test-local.py Codex скачивает публичные fixtures, они не коммитятся:
+
+```bash
+mkdir -p work/supabase-docs
+curl -fsSL https://raw.githubusercontent.com/supabase/supabase/self-hosted/v0.8.4/docker/docker-compose.yml -o work/supabase-docs/compose.yml
+curl -fsSL https://raw.githubusercontent.com/supabase/supabase/self-hosted/v0.8.4/docker/.env.example -o work/supabase-docs/env.example
+python3 deploy/supabase-rf/test-local.py
+```
+
+Browser-проверка использует HTTP fixture Playwright без сервера/API. В данной
+облачной среде file:// запрещён политикой браузера, поэтому прямое локальное
+открытие проверено через эквивалентную HTTP-страницу. Скриншоты — в docs/supabase-rf/.
