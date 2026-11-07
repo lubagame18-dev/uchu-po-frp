@@ -11,7 +11,7 @@
   "source_inventory": false,
   "rollback": false,
   "login_methods_reviewed": false,
-  "sms_login": false,
+  "google_login": false,
   "yandex_login": false,
   "identity_linking": false
 }

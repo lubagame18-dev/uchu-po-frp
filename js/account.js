@@ -124,29 +124,31 @@ const Account = (() => {
     } finally {changingAccount=false;}
     pull().catch(e=>console.warn("sync",e));
   }
-  async function startYandex(link=false) {
-    if(C().provider!=="pocketbase") { location.href="https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex&site="+encodeURIComponent(location.origin+location.pathname);return; }
+  async function startSocial(kind,link=false) {
+    if(C().provider!=="pocketbase") { if(kind==="google")throw new Error("Откройте вход через Google на сайте.");location.href="https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex&site="+encodeURIComponent(location.origin+location.pathname);return; }
     if(!ready()) throw new Error("Сервер кабинета ещё не настроен.");
     if(link&&!S?.uid) throw new Error("Сначала войдите в кабинет.");
     const b64=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
       verifier=b64(crypto.getRandomValues(new Uint8Array(32))),state=b64(crypto.getRandomValues(new Uint8Array(32))),
       challenge=b64(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier)));
-    sessionStorage.setItem("uchu:yandex-pkce",JSON.stringify({verifier,state,endpoint:C().url,owner:link?S.uid:"",at:Date.now()}));
-    const j=await api("/auth/v1/yandex_start",{method:"POST",body:JSON.stringify({state,code_challenge:challenge,link})});
-    const url=new URL(j.url);if(url.origin!=="https://oauth.yandex.ru"||url.pathname!=="/authorize")throw new Error("Некорректный адрес Яндекс ID.");
+    sessionStorage.setItem("uchu:"+kind+"-pkce",JSON.stringify({verifier,state,endpoint:C().url,owner:link?S.uid:"",at:Date.now()}));
+    const j=await api("/auth/v1/"+kind+"_start",{method:"POST",body:JSON.stringify({state,code_challenge:challenge,link})});
+    const url=new URL(j.url);if(kind==="yandex"?(url.origin!=="https://oauth.yandex.ru"||url.pathname!=="/authorize"):(url.origin!=="https://accounts.google.com"||url.pathname!=="/o/oauth2/v2/auth"))throw new Error("Некорректный адрес сервиса входа.");
     location.assign(url.href);
   }
-  async function fromYandexPending() {
-    const raw=sessionStorage.getItem("uchu:yandex-pending");if(!raw)return;
-    sessionStorage.removeItem("uchu:yandex-pending");
+  const startYandex=link=>startSocial("yandex",link);
+  const startGoogle=link=>startSocial("google",link);
+  async function fromSocialPending() {
+    const raw=sessionStorage.getItem("uchu:oauth-pending");if(!raw)return;
+    sessionStorage.removeItem("uchu:oauth-pending");
     changingAccount=true;accountGeneration++;
     try {
       const j=JSON.parse(raw);
-      if(C().provider!=="pocketbase"||j.endpoint!==C().url||Date.now()-j.at>60000)throw new Error("Повторите вход через Яндекс ID.");
+      if(C().provider!=="pocketbase"||j.endpoint!==C().url||Date.now()-j.at>60000)throw new Error("Повторите вход через Яндекс или Google.");
       const user=await api("/auth/v1/user",{headers:{Authorization:"Bearer "+j.access_token}});
       await isolateLocalLessons(user);await restoreLocalTools(user);setSession({...j,user},user.email||user.phone);
-      toast("Вы вошли через Яндекс ID.");
-    } catch(e) {toast("Вход через Яндекс: "+e.message,8000);} finally {changingAccount=false;}
+      toast("Вы вошли в кабинет.");
+    } catch(e) {toast("Вход в кабинет: "+e.message,8000);} finally {changingAccount=false;}
     pull().catch(()=>null);loadInfo().catch(()=>null);
   }
   // одноразовые почтовые ящики — не принимаем (защита бесплатного тарифа от многократных регистраций)
@@ -379,7 +381,7 @@ const Account = (() => {
             <div class="row-btn"><button class="btn sm" type="submit">Сохранить</button>${I.avatar ? `<button class="btn sm ghost" type="button" id="acNoPhoto">Убрать фото</button>` : ""}<span class="small" id="acPMsg" role="status"></span></div>
           </div>
         </form>
-        ${C().provider==="pocketbase"?`<div class="field"><button type="button" class="btn sm" id="acLinkYandex">Привязать Яндекс ID</button><button type="button" class="btn sm" id="acLinkPhone">Привязать телефон</button><span class="small" id="acLinkMsg" role="status"></span></div>`:""}
+        ${C().provider==="pocketbase"?`<div class="field"><button type="button" class="btn sm" id="acLinkYandex">Привязать Яндекс ID</button><button type="button" class="btn sm" id="acLinkGoogle">Привязать Google</button><span class="small" id="acLinkMsg" role="status"></span></div>`:""}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
         <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button></div>${devLink()}</div></div>`);
       m.querySelector("#acArchive").onclick = async () => {
@@ -389,15 +391,7 @@ const Account = (() => {
         const a=document.createElement("a");a.href=url;a.download="uchu-local-lessons.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
       };
       m.querySelector("#acLinkYandex")?.addEventListener("click",()=>startYandex(true).catch(e=>{m.querySelector("#acLinkMsg").textContent=e.message;}));
-      m.querySelector("#acLinkPhone")?.addEventListener("click",()=>{
-        const dialog=openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Привязать телефон</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><form class="dlg-b" id="linkPhoneForm"><p>Номер станет дополнительным способом входа в этот кабинет.</p><div class="field"><label for="linkPhone">Телефон</label><input id="linkPhone" type="tel" autocomplete="tel" required placeholder="+7 900 000-00-00"></div><div class="field" id="linkCodeField" hidden><label for="linkCode">Код из SMS</label><input id="linkCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div><button class="btn" id="linkSubmit">Получить код</button><p class="small" id="linkStatus" role="status"></p></form></div>`);
-        let sent=false,number="";
-        dialog.querySelector("#linkPhoneForm").onsubmit=async ev=>{ev.preventDefault();const button=dialog.querySelector("#linkSubmit"),status=dialog.querySelector("#linkStatus");button.disabled=true;
-          try {if(!sent){number=dialog.querySelector("#linkPhone").value;await phoneCode(number,true);sent=true;dialog.querySelector("#linkPhone").readOnly=true;dialog.querySelector("#linkCodeField").hidden=false;button.textContent="Подтвердить";status.textContent="Код действует 5 минут. Если он истёк, закройте окно и запросите новый.";}
-            else {await phoneVerify(number,dialog.querySelector("#linkCode").value);closeModal();toast("Телефон привязан к кабинету.");}}
-          catch(e){status.textContent=e.message;}finally{button.disabled=false;}
-        };
-      });
+      m.querySelector("#acLinkGoogle")?.addEventListener("click",()=>startGoogle(true).catch(e=>{m.querySelector("#acLinkMsg").textContent=e.message;}));
       m.querySelector("#acQuiz").onclick = () => { closeModal(); window.QuizLink?.openResults(); };
       if (window.QuizLink && !S.local) { QuizLink.badge(m.querySelector("#acQuizN")); }
       bindDev(m);
@@ -415,7 +409,7 @@ const Account = (() => {
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Вход в личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <form class="dlg-b" id="acForm" autocomplete="on">
         <div class="seg mini" role="tablist"><button type="button" data-mode="in" aria-pressed="true">Вход</button><button type="button" data-mode="up" aria-pressed="false">Регистрация</button></div>
-        ${(window.UCHU_SITE || {}).phoneAuth ? `<div class="seg mini" role="tablist" id="acVia"><button type="button" data-via="mail" aria-pressed="true">По почте</button><button type="button" data-via="phone" aria-pressed="false">По телефону</button></div>` : ""}
+        ${(window.UCHU_SITE || {}).phoneAuth && C().provider!=="pocketbase" ? `<div class="seg mini" role="tablist" id="acVia"><button type="button" data-via="mail" aria-pressed="true">По почте</button><button type="button" data-via="phone" aria-pressed="false">По телефону</button></div>` : ""}
         <div id="acPhoneBox" hidden><div class="field"><label for="acPhone">Телефон</label><input type="tel" id="acPhone" autocomplete="tel" placeholder="+7 900 000-00-00" inputmode="tel"></div><div class="field" id="acCodeF" hidden><label for="acCode">Код из SMS</label><input type="text" id="acCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"><button type="button" class="btn sm ghost" id="acResend" disabled>Отправить код повторно</button><button type="button" class="btn sm ghost" id="acChangePhone">Изменить номер</button></div></div>
         <div class="field" data-mailf><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
         <div class="field" data-mailf><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div></div>
@@ -444,7 +438,7 @@ const Account = (() => {
       } catch (e) { toast("Не удалось открыть вход через " + provider + ": " + e.message, 6000); }
     };
     const gb = m.querySelector("#acGoogle"), yb = m.querySelector("#acYandex");
-    if (gb) gb.onclick = () => oauth("google");
+    if (gb) gb.onclick = () => C().provider==="pocketbase" ? startGoogle().catch(e=>{m.querySelector("#acMsg").textContent=e.message;}) : oauth("google");
     if (yb) yb.onclick = () => startYandex().catch(e=>{m.querySelector("#acMsg").textContent=e.message;});
     m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
     m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; m.querySelector("#acForgotW").hidden = mode !== "in" || via === "phone"; });
@@ -572,8 +566,8 @@ const Account = (() => {
     } catch (e) { toast("Вход не удался: " + (e.message || "ошибка"), 7000); return false; }
   }
   function bootAuth() {
-    if(C().provider==="pocketbase"&&sessionStorage.getItem("uchu:yandex-pending")){fromYandexPending();return true;}
-    if(C().provider==="pocketbase"&&/access_token/.test(location.hash)){history.replaceState(null,"",location.pathname+location.search);toast("Повторите вход кнопкой Яндекс ID или по телефону.",7000);return true;}
+    if(C().provider==="pocketbase"&&sessionStorage.getItem("uchu:oauth-pending")){fromSocialPending();return true;}
+    if(C().provider==="pocketbase"&&/access_token/.test(location.hash)){history.replaceState(null,"",location.pathname+location.search);toast("Повторите вход через Яндекс ID, Google или по почте.",7000);return true;}
     if (/access_token|error_description/.test(location.hash)) { fromLink(); return true; }
     if (/[?&]code=/.test(location.search)) { fromCode(); return true; }
     if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); paint(); paintNav(); }
@@ -589,6 +583,6 @@ const Account = (() => {
   paint();
   // запрос к облаку от имени вошедшего (права — по правилам таблиц)
   async function db(path, opt = {}) { if (!ready() || !S || S.local) throw new Error("войдите в личный кабинет"); if (!(await refresh())) throw new Error("войдите в личный кабинет заново"); return api(path, opt); }
-  return { open, db, refreshPlan: () => plan(), shareMaterial, sharedList, sharedGet, sharedDel, loadInfo, saveInfo, signIn, signUp, phoneCode, phoneVerify, startYandex, signOut, push, pull, remove, ready, get session() { return S; } };
+  return { open, db, refreshPlan: () => plan(), shareMaterial, sharedList, sharedGet, sharedDel, loadInfo, saveInfo, signIn, signUp, phoneCode, phoneVerify, startYandex, startGoogle, signOut, push, pull, remove, ready, get session() { return S; } };
 })();
 window.Account = Account;

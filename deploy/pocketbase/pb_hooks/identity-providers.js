@@ -38,3 +38,14 @@ exports.yandexIdentity = function(code,verifier,callback) {
   if (r.statusCode!==200 || !r.json || !/^[a-zA-Z0-9_-]{1,128}$/.test(String(r.json.id||''))) throw new Error('Invalid provider identity');
   return {id:String(r.json.id),email:String(r.json.default_email||'').trim().toLowerCase()};
 };
+
+exports.googleConfigured = () => !!(env('GOOGLE_CLIENT_ID')&&env('GOOGLE_CLIENT_SECRET'));
+exports.googleAuthorize = (state,challenge,callback) => 'https://accounts.google.com/o/oauth2/v2/auth?'+form({response_type:'code',client_id:env('GOOGLE_CLIENT_ID'),redirect_uri:callback,state:state,code_challenge:challenge,code_challenge_method:'S256',scope:'openid email profile'});
+exports.googleIdentity = function(code,verifier,callback) {
+  const token=post('https://oauth2.googleapis.com/token',{grant_type:'authorization_code',code:code,code_verifier:verifier,
+    client_id:env('GOOGLE_CLIENT_ID'),client_secret:env('GOOGLE_CLIENT_SECRET'),redirect_uri:callback});
+  if(typeof token.access_token!=='string'||!token.access_token)throw new Error('No provider access token');
+  const r=$http.send({url:'https://openidconnect.googleapis.com/v1/userinfo',method:'GET',headers:{Authorization:'Bearer '+token.access_token},timeout:15});
+  if(r.statusCode!==200||!r.json||r.json.email_verified!==true||!/^[a-zA-Z0-9_-]{1,128}$/.test(String(r.json.sub||'')))throw new Error('Invalid or unverified Google identity');
+  return {id:String(r.json.sub),email:String(r.json.email||'').trim().toLowerCase()};
+};

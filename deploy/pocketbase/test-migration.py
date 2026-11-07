@@ -41,7 +41,7 @@ class Migration(unittest.TestCase):
             subprocess.run(cmd+['--write','--acceptance-report',str(report)],capture_output=True,check=True)
             updated=(root/'index.html').read_text()
             self.assertIn('"provider": "pocketbase"',updated)
-            self.assertIn('phoneAuth: true',updated)
+            self.assertIn('phoneAuth: false',updated)
             self.assertEqual(original.split('  yandexFunction:')[1].splitlines()[0],updated.split('  yandexFunction:')[1].splitlines()[0])
             self.assertEqual((root/'work/pocketbase-cutover/index.html').read_text(),original)
             r=subprocess.run(cmd+['--write','--acceptance-report',str(report)],capture_output=True);self.assertNotEqual(r.returncode,0)

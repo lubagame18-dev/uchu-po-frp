@@ -15,9 +15,10 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
     const r=await fetch(req.url(),{method:req.method(),headers,body:['GET','HEAD'].includes(req.method())?undefined:req.postData()});
     return route.fulfill({status:r.status,body:await r.text(),headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'*'}});
    }
-   if(url.origin==='https://oauth.yandex.ru'){
+   if(['https://oauth.yandex.ru','https://accounts.google.com'].includes(url.origin)){
     oauthRequests++;assert.equal(url.searchParams.get('code_challenge_method'),'S256');
-    const callback=origin+'/yandex.html?code=browser&state='+encodeURIComponent(url.searchParams.get('state'));
+    const kind=url.hostname==='accounts.google.com'?'google':'yandex';
+    const callback=origin+'/'+kind+'.html?code=browser&state='+encodeURIComponent(url.searchParams.get('state'));
     return route.fulfill({contentType:'text/html',body:'<script>location.replace('+JSON.stringify(callback)+')</script>'});
    }
    if(url.origin===origin){
@@ -30,22 +31,23 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
    return route.abort();
   });
   await page.goto(origin+'/',{waitUntil:'load'});await page.waitForFunction(()=>window.Account);
-  await page.evaluate(()=>Account.open());await page.locator('#acYandex').click();
+  await page.evaluate(()=>Account.open());assert.equal(await page.locator('[data-via=phone]').count(),0);await page.locator('#acYandex').click();
   await page.waitForFunction(()=>window.Account?.session?.email==='browser-yandex@example.invalid');
   const yandexUid=await page.evaluate(()=>Account.session.uid);assert.equal(oauthRequests,1);assert.equal(new URL(page.url()).hash,'');assert(!page.url().includes('code='));
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('uchu:yandex-pkce')),null);
   await page.evaluate(async()=>{await Account.signOut();Account.open();});
-  await page.locator('[data-via=phone]').click();await page.locator('#acPhone').fill('+79000000008');await page.locator('#acAgree').check();await page.locator('#acGo').click();
-  await page.locator('#acCode').waitFor({state:'visible'});
-  assert(await page.locator('#acResend').isDisabled());assert(await page.locator('#acPhone').getAttribute('readonly')!==null);
-  const sms=await (await fetch(fixture.sink+'/last-sms')).json();assert.equal(sms.phone,'+79000000008');
-  await page.locator('#acCode').fill(sms.code==='000000'?'111111':'000000');await page.locator('#acGo').click();await page.waitForFunction(()=>document.querySelector('#acMsg')?.textContent.includes('неверный'));assert(await page.locator('#acCode').isVisible());
-  await page.locator('#acCode').fill(sms.code);await page.locator('#acGo').click();
-  await page.waitForFunction(()=>window.Account?.session?.uid&&window.Account.session.email==='+79000000008');
-  assert.notEqual(await page.evaluate(()=>Account.session.uid),yandexUid);assert.deepEqual(oldBackend,[]);
+  await page.locator('#acGoogle').click();
+  await page.waitForFunction(()=>window.Account?.session?.email==='browser-google@example.invalid');
+  assert.notEqual(await page.evaluate(()=>Account.session.uid),yandexUid);assert.deepEqual(oldBackend,[]);assert.equal(oauthRequests,2);
+  assert.equal(await page.evaluate(()=>sessionStorage.getItem('uchu:google-pkce')),null);
+  await page.evaluate(()=>Account.open());await page.locator('#acLinkGoogle').waitFor();assert.equal(await page.locator('#acLinkPhone').count(),0);
   // Reject callback state mismatch before any OAuth exchange or redirect.
   await page.goto(origin+'/yandex.html?code=unexpected&state=wrong',{waitUntil:'load'});
   assert((await page.locator('#m').textContent()).includes('устарела'));assert(!page.url().includes('code='));
-  console.log('PASS: Yandex button → PKCE callback → account, SMS UI → separate account, state mismatch blocked; no old Supabase/proxy auth calls.');
+  await page.goto(origin+'/',{waitUntil:'load'});await page.waitForFunction(()=>window.Account);
+  await page.evaluate(async()=>{await Account.signOut();window.UCHU_ACCOUNTS=null;Account.open();});
+  const legacyRequest=page.waitForRequest(req=>req.url().includes('/auth/v1/authorize?provider=google'));
+  await page.locator('#acGoogle').click();assert((await legacyRequest).url().includes('.supabase.co/'),'Legacy Google still uses original backend');
+  console.log('PASS: Yandex button → PKCE callback → account, Google UI → separate account, state mismatch blocked; no old Supabase/proxy auth calls.');
  } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

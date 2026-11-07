@@ -1,0 +1,23 @@
+[Unit]
+Description=Uchu PocketBase accounts (loopback only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pocketbase
+Group=pocketbase
+WorkingDirectory=/var/lib/pocketbase
+EnvironmentFile=/etc/pocketbase/pocketbase.env
+ExecStart=/opt/pocketbase/pocketbase serve --http=127.0.0.1:8090 --dir=/var/lib/pocketbase --hooksDir=/opt/pocketbase/pb_hooks --migrationsDir=/opt/pocketbase/pb_migrations --hooksWatch=false --encryptionEnv=PB_SETTINGS_KEY
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/pocketbase
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

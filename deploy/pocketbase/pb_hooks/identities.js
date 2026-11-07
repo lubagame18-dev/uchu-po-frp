@@ -71,43 +71,43 @@ function challenge(verifier) {
   const hex=$security.sha256(verifier),bytes=hex.match(/../g).map(x=>parseInt(x,16)),chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';let out='';
   for(let i=0;i<bytes.length;i+=3){const n=(bytes[i]<<16)|((bytes[i+1]||0)<<8)|(bytes[i+2]||0);out+=chars[(n>>>18)&63]+chars[(n>>>12)&63];if(i+1<bytes.length)out+=chars[(n>>>6)&63];if(i+2<bytes.length)out+=chars[n&63];}return out;
 }
-function callback() { const origin=$os.getenv('UCHU_SITE_ORIGIN')||'https://uchu-po-frp.ru';if(!/^https:\/\/[a-z0-9.-]+(?::[0-9]+)?$/i.test(origin))fail(503,'Invalid site origin');return origin+'/yandex.html'; }
-exports.yandexStart=e=>u.identityTools.send(e,()=>{
-  enabled('UCHU_ALLOW_YANDEX');if(!provider.yandexConfigured())fail(503,'Yandex ID is not configured');
+function callback(kind) { const origin=$os.getenv('UCHU_SITE_ORIGIN')||'https://uchu-po-frp.ru';if(!/^https:\/\/[a-z0-9.-]+(?::[0-9]+)?$/i.test(origin))fail(503,'Invalid site origin');return origin+'/'+kind+'.html'; }
+exports.oauthStart=(e,kind)=>u.identityTools.send(e,()=>{
+  enabled('UCHU_ALLOW_'+kind.toUpperCase());if(!provider[kind+'Configured']())fail(503,'OAuth identity is not configured');
   const b=e.requestInfo().body,c=u.identityTools.context(e),owner=b.link===true?c.uid:'';
-  if(b.link===true&&!owner)fail(401,'Sign in before linking Yandex ID');
+  if(b.link===true&&!owner)fail(401,'Sign in before linking OAuth identity');
   if(!/^[a-zA-Z0-9_-]{32,128}$/.test(String(b.state||''))||!/^[a-zA-Z0-9_-]{43}$/.test(String(b.code_challenge||'')))fail(400,'Invalid OAuth state or PKCE challenge');
   e.app.runInTransaction(app=>{
-    const key='yandex:'+hash(b.state);if(row(app,key))fail(409,'OAuth state already used');
-    limit(app,'yandex-ip:'+hash(e.realIP()),20,3600000);
+    const key=kind+':'+hash(b.state);if(row(app,key))fail(409,'OAuth state already used');
+    limit(app,kind+'-ip:'+hash(e.realIP()),20,3600000);
     save(app,key,{challenge:b.code_challenge,owner:owner,used:false},now()+300000);
   });
-  return e.json(200,{url:provider.yandexAuthorize(b.state,b.code_challenge,callback()),expires_in:300});
+  return e.json(200,{url:provider[kind+'Authorize'](b.state,b.code_challenge,callback(kind)),expires_in:300});
 });
-exports.yandexFinish=e=>u.identityTools.send(e,()=>{
-  enabled('UCHU_ALLOW_YANDEX');if(!provider.yandexConfigured())fail(503,'Yandex ID is not configured');
+exports.oauthFinish=(e,kind)=>u.identityTools.send(e,()=>{
+  enabled('UCHU_ALLOW_'+kind.toUpperCase());if(!provider[kind+'Configured']())fail(503,'OAuth identity is not configured');
   const b=e.requestInfo().body,c=u.identityTools.context(e);let login;
   if(!/^[a-zA-Z0-9_-]{32,128}$/.test(String(b.state||''))||!/^[a-zA-Z0-9._~-]{43,128}$/.test(String(b.code_verifier||''))||typeof b.code!=='string'||!b.code||b.code.length>2048)fail(400,'Invalid OAuth callback');
   e.app.runInTransaction(app=>{
-    const key='yandex:'+hash(b.state),r=row(app,key);login=r&&data(r);
+    const key=kind+':'+hash(b.state),r=row(app,key);login=r&&data(r);
     if(!login||login.used||r.getFloat('expires')<=now()||!$security.equal(login.challenge,challenge(b.code_verifier)))fail(400,'Invalid or expired OAuth state');
     if(login.owner&&login.owner!==c.uid)fail(401,'Sign in to the same account before linking');
     login.used=true;save(app,key,login,r.getFloat('expires'));
   });
-  let identity;try {identity=provider.yandexIdentity(b.code,b.code_verifier,callback());} catch(_){fail(502,'Yandex ID verification failed; start again');}
+  let identity;try {identity=provider[kind+'Identity'](b.code,b.code_verifier,callback(kind));} catch(_){fail(502,'OAuth identity verification failed; start again');}
   let record;
   e.app.runInTransaction(app=>{
-    record=userBy(app,'yandex_id',identity.id);
+    record=userBy(app,kind+'_id',identity.id);
     if(login.owner){
-      if(record&&record.id!==login.owner)fail(409,'Yandex ID is linked to another account');
+      if(record&&record.id!==login.owner)fail(409,'OAuth identity is linked to another account');
       record=app.findRecordById('uchu_users',login.owner);
-      if(record.getString('yandex_id')&&record.getString('yandex_id')!==identity.id)fail(409,'Changing a linked Yandex ID requires account recovery review');
-      record.set('yandex_id',identity.id);app.save(record);
+      if(record.getString(kind+'_id')&&record.getString(kind+'_id')!==identity.id)fail(409,'Changing a linked OAuth identity requires account recovery review');
+      record.set(kind+'_id',identity.id);app.save(record);
     } else if(!record){
-      if($os.getenv('UCHU_ALLOW_YANDEX_SIGNUP')!=='true')fail(403,'Yandex registration is not enabled');
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email))fail(400,'Yandex ID must provide an email address');
-      if(userBy(app,'email',identity.email))fail(409,'Sign in by email, then link Yandex ID from your account');
-      record=newUser(app,{email:identity.email,yandex_id:identity.id});
+      if($os.getenv('UCHU_ALLOW_'+kind.toUpperCase()+'_SIGNUP')!=='true')fail(403,'OAuth registration is not enabled');
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email))fail(400,'OAuth identity must provide an email address');
+      if(userBy(app,'email',identity.email))fail(409,'Sign in by email, then link OAuth identity from your account');
+      const fields={email:identity.email};fields[kind+'_id']=identity.id;record=newUser(app,fields);
     }
     if(!record.getBool('verified'))fail(403,'Account requires migration review');
   });

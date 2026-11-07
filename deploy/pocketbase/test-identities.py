@@ -29,9 +29,10 @@ class Provider(BaseHTTPRequestHandler):
         body=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
         if self.path=='/sms':
             self.messages.append(body);result={'ok':True}
-        elif self.path=='/yandex':
+        elif self.path in ('/yandex','/google'):
             if body['code']=='failed':self.send_response(502);self.end_headers();return
-            result={'id':'browser-yandex','email':'browser-yandex@example.invalid'} if body['code']=='browser' else json.loads(body['code'])
+            kind=self.path[1:]
+            result={'id':'browser-'+kind,'email':'browser-'+kind+'@example.invalid'} if body['code']=='browser' else json.loads(body['code'])
         else:self.send_response(404);self.end_headers();return
         self.send_response(200);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(json.dumps(result).encode())
 
@@ -47,9 +48,12 @@ class Identities(unittest.TestCase):
         (cls.hooks/'identity-providers.js').write_text("""
 exports.smsConfigured=()=>true;
 exports.yandexConfigured=()=>true;
+exports.googleConfigured=()=>true;
 exports.sendSms=(phone,code)=>{const r=$http.send({url:FIXTURE+'/sms',method:'POST',body:JSON.stringify({phone,code})});if(r.statusCode!==200)throw Error('fixture provider');};
 exports.yandexAuthorize=(state,challenge,callback)=>'https://oauth.yandex.ru/authorize?state='+state+'&code_challenge='+challenge+'&code_challenge_method=S256&redirect_uri='+encodeURIComponent(callback);
 exports.yandexIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTURE+'/yandex',method:'POST',body:JSON.stringify({code,verifier,callback})});if(r.statusCode!==200)throw Error('fixture provider');return r.json;};
+exports.googleAuthorize=(state,challenge,callback)=>'https://accounts.google.com/o/oauth2/v2/auth?state='+state+'&code_challenge='+challenge+'&code_challenge_method=S256&redirect_uri='+encodeURIComponent(callback);
+exports.googleIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTURE+'/google',method:'POST',body:JSON.stringify({code,verifier,callback})});if(r.statusCode!==200)throw Error('fixture provider');return r.json;};
 """.replace('FIXTURE',json.dumps(fixture)))
         cls.args=[str(integration.BINARY),'--dir',str(cls.data),'--hooksDir',str(cls.hooks),'--migrationsDir',str(KIT/'pb_migrations')]
         subprocess.run([*cls.args,'migrate','up'],capture_output=True,check=True)
@@ -61,7 +65,7 @@ exports.yandexIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         cls.api('/api/settings',method='PATCH',body={'rateLimits':{'enabled':False}},token=cls.admin,raw=True)
     @classmethod
     def start(cls):
-        cls.proc=subprocess.Popen([*cls.args,'serve','--http=127.0.0.1:'+str(cls.port),'--hooksWatch=false'],stdout=cls.log,stderr=cls.log,env=dict(os.environ,UCHU_SERVICE_TOKEN=cls.service,UCHU_ALLOW_SMS='true',UCHU_ALLOW_SMS_SIGNUP='true',UCHU_ALLOW_YANDEX='true',UCHU_ALLOW_YANDEX_SIGNUP='true'))
+        cls.proc=subprocess.Popen([*cls.args,'serve','--http=127.0.0.1:'+str(cls.port),'--hooksWatch=false'],stdout=cls.log,stderr=cls.log,env=dict(os.environ,UCHU_SERVICE_TOKEN=cls.service,UCHU_ALLOW_SMS='true',UCHU_ALLOW_SMS_SIGNUP='true',UCHU_ALLOW_YANDEX='true',UCHU_ALLOW_YANDEX_SIGNUP='true',UCHU_ALLOW_GOOGLE='true',UCHU_ALLOW_GOOGLE_SIGNUP='true'))
         for _ in range(100):
             try:
                 if cls.api('/auth/v1/health')[0]==200:return
@@ -74,7 +78,7 @@ exports.yandexIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
     def setUp(self):
         # Reset IP fixture counters between independent tests, not within a scenario.
         for r in self.states():
-            if r['key'].startswith(('sms-ip:','yandex-ip:')):self.native('/'+r['id'],method='DELETE')
+            if r['key'].startswith(('sms-ip:','yandex-ip:','google-ip:')):self.native('/'+r['id'],method='DELETE')
     def native(self,suffix='',**kw):return self.api('/api/collections/uchu_login_state/records'+suffix,token=self.admin,raw=True,**kw)
     def states(self):return self.native('?perPage=500')[1]['items']
     def patch_state(self,r,**changes):return self.native('/'+r['id'],method='PATCH',body=changes)
@@ -85,12 +89,12 @@ exports.yandexIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
     def email_user(self,label):
         status,u=self.api('/auth/v1/admin/users',body={'email':label+'@example.invalid','password':self.password,'email_confirm':True},service=True);self.assertEqual(status,201,u)
         status,s=self.api('/auth/v1/token?grant_type=password',body={'email':u['email'],'password':self.password});self.assertEqual(status,200,s);return s
-    def oauth(self,token=None,link=False):
+    def oauth(self,token=None,link=False,kind="yandex"):
         verifier=secrets.token_urlsafe(32);state=secrets.token_urlsafe(32);challenge=base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
-        body={'state':state,'code_challenge':challenge,'link':link};status,j=self.api('/auth/v1/yandex_start',body=body,token=token);self.assertEqual(status,200,j)
-        q=parse_qs(urlsplit(j['url']).query);self.assertEqual(q['state'],[state]);self.assertEqual(q['code_challenge'],[challenge]);self.assertEqual(q['redirect_uri'],['https://uchu-po-frp.ru/yandex.html'])
+        body={'state':state,'code_challenge':challenge,'link':link};status,j=self.api('/auth/v1/'+kind+'_start',body=body,token=token);self.assertEqual(status,200,j)
+        q=parse_qs(urlsplit(j['url']).query);self.assertEqual(q['state'],[state]);self.assertEqual(q['code_challenge'],[challenge]);self.assertEqual(q['redirect_uri'],['https://uchu-po-frp.ru/'+kind+'.html'])
         return {'state':state,'code_verifier':verifier}
-    def finish(self,b,identity,token=None):return self.api('/auth/v1/yandex_finish',body=dict(b,code=json.dumps(identity) if isinstance(identity,dict) else identity),token=token)
+    def finish(self,b,identity,token=None,kind='yandex'):return self.api('/auth/v1/'+kind+'_finish',body=dict(b,code=json.dumps(identity) if isinstance(identity,dict) else identity),token=token)
     def test_01_sms_single_use_and_ownership(self):
         p='+79000000001';code=self.sms(p);self.assertEqual(self.api('/auth/v1/otp',body={'phone':p})[0],429)
         status,s=self.verify(p,code);self.assertEqual(status,200,s);uid=s['user']['id'];self.assertEqual(s['user']['phone'],p);self.assertFalse(s['user']['email'])
@@ -144,6 +148,18 @@ exports.yandexIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         if os.environ.get('POCKETBASE_BROWSER')!='1':self.skipTest('Set POCKETBASE_BROWSER=1 for real browser identity flows')
         result=subprocess.run(['node',str(KIT/'test-identities-browser.cjs')],input=json.dumps({'base':self.base,'sink':'http://127.0.0.1:'+str(self.provider.server_port)}),text=True,capture_output=True,timeout=90)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    def test_08b_google_pkce_link_and_cross_provider(self):
+        b=self.oauth(kind='google');identity={'id':'google-subject','email':'google@example.invalid'}
+        self.assertEqual(self.finish(b,identity)[0],400) # Google state cannot enter Yandex route.
+        self.assertEqual(self.finish(dict(b,code_verifier='x'*43),identity,kind='google')[0],400)
+        status,session=self.finish(b,identity,kind='google');self.assertEqual(status,200,session)
+        self.assertEqual(self.finish(b,identity,kind='google')[0],400)
+        same=self.finish(self.oauth(kind='google'),dict(identity,email='changed@example.invalid'),kind='google')[1]
+        self.assertEqual(same['user']['id'],session['user']['id'])
+        owner=self.email_user('google-collision');identity={'id':'google-link','email':owner['user']['email']}
+        self.assertEqual(self.finish(self.oauth(kind='google'),identity,kind='google')[0],409)
+        linked=self.finish(self.oauth(owner['access_token'],True,kind='google'),identity,owner['access_token'],kind='google')
+        self.assertEqual(linked[0],200,linked);self.assertEqual(linked[1]['user']['id'],owner['user']['id'])
     def test_09_sms_budget_persists_and_blocks_delivery(self):
         r=next(r for r in self.states() if r['key'].startswith('sms-day:'));original=r['data'];self.patch_state(r,data={'n':30})
         try:
