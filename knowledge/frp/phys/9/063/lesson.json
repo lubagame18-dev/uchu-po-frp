@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Основная схема по теме «Отражение света. Закон отражения. Плоское зеркало»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "График/пример по теме «Отражение света. Закон отражения. Плоское зеркало»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Явление",
   "Величина",

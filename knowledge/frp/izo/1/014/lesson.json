@@ -10,6 +10,15 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "art",
+   "caption": "Репродукция по теме «Человек в рисунке»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Геометрическая модель по теме «Решение систем двух уравнений, одно из которых линейное, а другое – второй степени»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Решение/пример по теме «Решение систем двух уравнений, одно из которых линейное, а другое – второй степени»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Условие",
   "Правило",

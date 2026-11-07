@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Блок-схема по теме «Компьютерная графика. Растровая и векторная графика»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Пример по теме «Компьютерная графика. Растровая и векторная графика»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Вход",
   "Действие",

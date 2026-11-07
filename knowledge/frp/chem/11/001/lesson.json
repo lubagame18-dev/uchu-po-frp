@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/05_Химия/text.md",
  "table_title": "Строение атома",
  "image": "knowledge/web/05_Химия/04_Строение атома.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Строение атома",
+   "image": "knowledge/web/05_Химия/04_Строение атома.png",
+   "table_title": "Строение атома"
+  }
+ ],
  "elements": [
   "протон",
   "нейтрон",

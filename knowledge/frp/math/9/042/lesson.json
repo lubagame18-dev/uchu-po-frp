@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Геометрическая модель по теме «Системы линейных неравенств с одной переменной и их решение»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Решение/пример по теме «Системы линейных неравенств с одной переменной и их решение»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Условие",
   "Правило",

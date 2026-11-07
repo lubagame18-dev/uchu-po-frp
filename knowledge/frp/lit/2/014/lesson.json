@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "portrait",
+   "caption": "Портрет по теме «Стихи о природе»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "art",
+   "caption": "Иллюстрация/репродукция по теме «Стихи о природе»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

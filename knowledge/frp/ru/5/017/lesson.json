@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/01_Русский_язык/text.md",
  "table_title": "Вид глагола",
  "image": "knowledge/web/01_Русский_язык/41_Вид глагола.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Вид глагола",
+   "image": "knowledge/web/01_Русский_язык/41_Вид глагола.png",
+   "table_title": "Вид глагола"
+  }
+ ],
  "elements": [
   "что делать? → несовершенный: решать",
   "что сделать? → совершенный: решить"

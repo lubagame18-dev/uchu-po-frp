@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Геометрическая модель по теме «Независимые испытания. Серия независимых испытаний до первого успеха»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Решение/пример по теме «Независимые испытания. Серия независимых испытаний до первого успеха»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Условие",
   "Правило",

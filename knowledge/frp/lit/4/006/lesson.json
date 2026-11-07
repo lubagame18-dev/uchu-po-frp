@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/02_Литература/text.md",
  "table_title": "Лирический герой",
  "image": "knowledge/web/02_Литература/06_Лирический герой.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Лирический герой",
+   "image": "knowledge/web/02_Литература/06_Лирический герой.png",
+   "table_title": "Лирический герой"
+  }
+ ],
  "elements": [
   "Кто говорит «я»?",
   "Что его волнует?",

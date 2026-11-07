@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/05_Химия/text.md",
  "table_title": "Классы веществ",
  "image": "knowledge/web/05_Химия/03_Классы веществ.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Классы веществ",
+   "image": "knowledge/web/05_Химия/03_Классы веществ.png",
+   "table_title": "Классы веществ"
+  }
+ ],
  "elements": [
   "оксиды → основания → кислоты → соли",
   "кислота + основание → соль + вода (нейтрализация)",

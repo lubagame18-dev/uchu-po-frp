@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Основная схема по теме «Действие магнитного поля на проводник с током. Электродвигатель»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "График/пример по теме «Действие магнитного поля на проводник с током. Электродвигатель»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Явление",
   "Величина",

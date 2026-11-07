@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Ситуация по теме «Химическая опасность»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Действия по теме «Химическая опасность»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Ситуация",
   "Опасность",

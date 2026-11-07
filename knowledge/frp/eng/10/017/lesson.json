@@ -10,6 +10,15 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "photo",
+   "caption": "Фотография/иллюстрация по теме «Условные предложения первого типа (First Conditional) (тема «Здоровый образ жизни и забота о здоровье»)»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

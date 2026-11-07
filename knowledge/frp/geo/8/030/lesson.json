@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/07_География/text.md",
  "table_title": "Климатические пояса",
  "image": "knowledge/web/07_География/03_Климатические пояса.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Климатические пояса",
+   "image": "knowledge/web/07_География/03_Климатические пояса.png",
+   "table_title": "Климатические пояса"
+  }
+ ],
  "elements": [
   "Экваториальный",
   "Тропический",

@@ -13,6 +13,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Экономическая жизнь общества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Экономическая жизнь общества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -26,6 +42,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Экономическая система и ее функции. Собственность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Экономическая система и ее функции. Собственность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -39,6 +71,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Производство – источник экономических благ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Производство – источник экономических благ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -52,6 +100,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Предпринимательство»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Предпринимательство»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -65,6 +129,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Деньги, обмен, торговля»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Деньги, обмен, торговля»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -77,6 +157,15 @@
     "налоги — обязательные платежи государству"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Экономика",
+     "image": "knowledge/web/10_Обществознание/03_Экономика.png",
+     "table_title": "Экономика"
+    }
+   ],
    "text_source": "knowledge/web/10_Обществознание/text.md"
   },
   {
@@ -90,6 +179,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Спрос и предложение. Рыночное равновесие»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Спрос и предложение. Рыночное равновесие»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -103,6 +208,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Предприятие в экономике»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Предприятие в экономике»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -116,6 +237,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Заработная плата и стимулирование труда. Занятость и безработица»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Заработная плата и стимулирование труда. Занятость и безработица»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -129,6 +266,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Финансовый рынок и финансовые посредники»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Финансовый рынок и финансовые посредники»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -142,6 +295,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Банковские услуги»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Банковские услуги»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -155,6 +324,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Страховые услуги»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Страховые услуги»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -168,6 +353,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Финансовая безопасность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Финансовая безопасность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -181,6 +382,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Экономические функции домохозяйств»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Экономические функции домохозяйств»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -194,6 +411,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Потребление домашних хозяйств. Потребительские товары и товары длительного пользования»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Потребление домашних хозяйств. Потребительские товары и товары длительного пользования»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -207,6 +440,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Семейный бюджет и финансовое планирование»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Семейный бюджет и финансовое планирование»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -220,6 +469,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Экономические цели и функции государства»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Экономические цели и функции государства»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -233,6 +498,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Налоги. Государственный бюджет. Государственная политика по развитию конкуренции»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Налоги. Государственный бюджет. Государственная политика по развитию конкуренции»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -246,6 +527,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек в экономических отношениях»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек в экономических отношениях»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -259,6 +556,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек в экономических отношениях». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек в экономических отношениях». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -272,6 +585,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Культура, ее многообразие и формы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Культура, ее многообразие и формы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -285,6 +614,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Наука. Роль в развитии общества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Наука. Роль в развитии общества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -298,6 +643,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Образование в современном обществе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Образование в современном обществе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -311,6 +672,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Образование в Российской Федерации. Самообразование»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Образование в Российской Федерации. Самообразование»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -324,6 +701,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политика в сфере культуры и образования в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политика в сфере культуры и образования в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -337,6 +730,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Роль религии в жизни человека и общества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Роль религии в жизни человека и общества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -350,6 +759,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Национальные и мировые религии. Религии и религиозные объединения в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Национальные и мировые религии. Религии и религиозные объединения в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -363,6 +788,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Что такое искусство. Виды искусств»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Что такое искусство. Виды искусств»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -376,6 +817,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Роль искусства в жизни человека и общества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Роль искусства в жизни человека и общества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -389,6 +846,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Общество и его развитие. Информация и современный мир»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Общество и его развитие. Информация и современный мир»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -402,6 +875,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Роль информации и информационных технологий в современном мире»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Роль информации и информационных технологий в современном мире»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -415,6 +904,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек в мире культуры». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек в мире культуры». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -428,6 +933,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Защита проектов по теме «Финансовая грамотность»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Защита проектов по теме «Финансовая грамотность»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -441,6 +962,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Итоговое повторение по темам «Человек в экономических отношениях», «Человек в мире культуры»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение по темам «Человек в экономических отношениях», «Человек в мире культуры»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -454,6 +991,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политика и политическая власть»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политика и политическая власть»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -467,6 +1020,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Государство – политическая организация общества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Государство – политическая организация общества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -480,6 +1049,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политические режимы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политические режимы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -493,6 +1078,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Формы политического участия. Выборы, референдум»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Формы политического участия. Выборы, референдум»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -506,6 +1107,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политические партии, их роль в демократическом обществе. Общественно-политические организации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политические партии, их роль в демократическом обществе. Общественно-политические организации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -519,6 +1136,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек в политическом измерении»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек в политическом измерении»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -532,6 +1165,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Основы конституционного строя Российской Федерации (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основы конституционного строя Российской Федерации (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -545,6 +1194,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Основы конституционного строя Российской Федерации (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основы конституционного строя Российской Федерации (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -558,6 +1223,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Высшие органы публичной власти в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Высшие органы публичной власти в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -571,6 +1252,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Государственное управление и противодействие коррупции»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Государственное управление и противодействие коррупции»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -584,6 +1281,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Государственно-территориальное устройство Российской Федерации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Государственно-территориальное устройство Российской Федерации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -597,6 +1310,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Местное самоуправление»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Местное самоуправление»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -610,6 +1339,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Конституционный статус гражданина Российской Федерации. Гражданство Российской Федерации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Конституционный статус гражданина Российской Федерации. Гражданство Российской Федерации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -623,6 +1368,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Гражданин и государство». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Гражданин и государство». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -636,6 +1397,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Социальная структура общества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Социальная структура общества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -649,6 +1426,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Социальная мобильность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Социальная мобильность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -662,6 +1455,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Социальный статус человека в обществе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Социальный статус человека в обществе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -675,6 +1484,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Социальные роли. Ролевой набор подростка»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Социальные роли. Ролевой набор подростка»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -688,6 +1513,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Социализация личности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Социализация личности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -701,6 +1542,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Семья и ее функции»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Семья и ее функции»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -714,6 +1571,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Этнос и нация. Россия – многонациональное государство (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Этнос и нация. Россия – многонациональное государство (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -727,6 +1600,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Этнос и нация. Россия – многонациональное государство (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Этнос и нация. Россия – многонациональное государство (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -740,6 +1629,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Социальная политика Российского государства»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Социальная политика Российского государства»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -753,6 +1658,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Отклоняющееся поведение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Отклоняющееся поведение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -766,6 +1687,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек в системе социальных отношений»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек в системе социальных отношений»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -779,6 +1716,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Информационное общество»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационное общество»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -792,6 +1745,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Сущность глобализации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сущность глобализации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -805,6 +1774,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Молодежь – активный участник общественной жизни»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Молодежь – активный участник общественной жизни»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -818,6 +1803,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Профессии настоящего и будущего»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Профессии настоящего и будущего»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -831,6 +1832,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Здоровый образ жизни. Мода и спорт»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Здоровый образ жизни. Мода и спорт»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -844,6 +1861,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Защита проектов, итоговое повторение по теме «Человек в политическом измерении». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Защита проектов, итоговое повторение по теме «Человек в политическом измерении». Контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -857,6 +1890,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Защита проектов, итоговое повторение по теме «Гражданин и государство»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Защита проектов, итоговое повторение по теме «Гражданин и государство»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -870,6 +1919,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Защита проектов, итоговое повторение по теме «Человек в системе социальных отношений»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Защита проектов, итоговое повторение по теме «Человек в системе социальных отношений»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -883,6 +1948,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Защита проектов, итоговое повторение по теме «Человек в современном изменяющемся мире»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Защита проектов, итоговое повторение по теме «Человек в современном изменяющемся мире»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -896,6 +1977,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Сознание человека. Мировоззрение и ценности (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сознание человека. Мировоззрение и ценности (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -909,6 +2006,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Сознание человека. Мировоззрение и ценности (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сознание человека. Мировоззрение и ценности (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -922,6 +2035,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Мнение или знание? Способы познания окружающего мира (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Мнение или знание? Способы познания окружающего мира (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -935,6 +2064,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Мнение или знание? Способы познания окружающего мира (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Мнение или знание? Способы познания окружающего мира (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -948,6 +2093,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Логика и ее законы. Искусство спорить (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Логика и ее законы. Искусство спорить (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -961,6 +2122,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Логика и ее законы. Искусство спорить (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Логика и ее законы. Искусство спорить (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -974,6 +2151,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Деятельность человека как способ существования личности (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Деятельность человека как способ существования личности (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -987,6 +2180,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Деятельность человека как способ существования личности (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Деятельность человека как способ существования личности (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1000,6 +2209,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Общество как система. Человек в системе социальных взаимодействий (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Общество как система. Человек в системе социальных взаимодействий (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1013,6 +2238,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Общество как система. Человек в системе социальных взаимодействий (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Общество как система. Человек в системе социальных взаимодействий (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1026,6 +2267,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Общество как система. Человек в системе социальных взаимодействий (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Общество как система. Человек в системе социальных взаимодействий (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1039,6 +2296,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек и общество» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек и общество» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1052,6 +2325,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек и общество» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек и общество» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1065,6 +2354,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Государственная политика в сфере культуры (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Государственная политика в сфере культуры (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1078,6 +2383,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Государственная политика в сфере культуры (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Государственная политика в сфере культуры (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1091,6 +2412,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Как музеи сохраняют историю (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Как музеи сохраняют историю (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1104,6 +2441,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Как музеи сохраняют историю (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Как музеи сохраняют историю (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1117,6 +2470,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Библиотеки и архивы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Библиотеки и архивы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1130,6 +2499,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Театр (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Театр (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1143,6 +2528,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Театр (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Театр (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1156,6 +2557,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Музыка (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Музыка (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1169,6 +2586,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Музыка (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Музыка (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1182,6 +2615,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Кино»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Кино»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1195,6 +2644,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Культура. Искусство» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Культура. Искусство» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1208,6 +2673,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Культура. Искусство» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Культура. Искусство» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1220,6 +2701,15 @@
     "налоги — обязательные платежи государству"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Экономика",
+     "image": "knowledge/web/10_Обществознание/03_Экономика.png",
+     "table_title": "Экономика"
+    }
+   ],
    "text_source": "knowledge/web/10_Обществознание/text.md"
   },
   {
@@ -1232,6 +2722,15 @@
     "налоги — обязательные платежи государству"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Экономика",
+     "image": "knowledge/web/10_Обществознание/03_Экономика.png",
+     "table_title": "Экономика"
+    }
+   ],
    "text_source": "knowledge/web/10_Обществознание/text.md"
   },
   {
@@ -1245,6 +2744,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Рыночный механизм (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Рыночный механизм (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1258,6 +2773,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Рыночный механизм (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Рыночный механизм (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1271,6 +2802,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Предпринимательская деятельность (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Предпринимательская деятельность (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1284,6 +2831,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Предпринимательская деятельность (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Предпринимательская деятельность (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1297,6 +2860,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Предпринимательская деятельность (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Предпринимательская деятельность (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1310,6 +2889,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Банковская система. Финансовые услуги и страхование (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Банковская система. Финансовые услуги и страхование (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1323,6 +2918,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Банковская система. Финансовые услуги и страхование (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Банковская система. Финансовые услуги и страхование (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1336,6 +2947,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Банковская система. Финансовые услуги и страхование (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Банковская система. Финансовые услуги и страхование (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1348,6 +2975,15 @@
     "налоги — обязательные платежи государству"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Экономика",
+     "image": "knowledge/web/10_Обществознание/03_Экономика.png",
+     "table_title": "Экономика"
+    }
+   ],
    "text_source": "knowledge/web/10_Обществознание/text.md"
   },
   {
@@ -1360,6 +2996,15 @@
     "налоги — обязательные платежи государству"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Экономика",
+     "image": "knowledge/web/10_Обществознание/03_Экономика.png",
+     "table_title": "Экономика"
+    }
+   ],
    "text_source": "knowledge/web/10_Обществознание/text.md"
   },
   {
@@ -1373,6 +3018,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 1 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1386,6 +3047,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 2 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1399,6 +3076,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Экономическая жизнь общества» (урок 3 из 3)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1412,6 +3105,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политическая система общества (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политическая система общества (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1425,6 +3134,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политическая система общества (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политическая система общества (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1438,6 +3163,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политическая идеология (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политическая идеология (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1451,6 +3192,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политическая идеология (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политическая идеология (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1464,6 +3221,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Политические партии, общественно-политические организации и движения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Политические партии, общественно-политические организации и движения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1477,6 +3250,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Избирательная система (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Избирательная система (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1490,6 +3279,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Избирательная система (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Избирательная система (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1503,6 +3308,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Политическая жизнь общества» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Политическая жизнь общества» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1516,6 +3337,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Политическая жизнь общества» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Политическая жизнь общества» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1529,6 +3366,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Гражданское право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Гражданское право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1542,6 +3395,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Гражданское право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Гражданское право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1555,6 +3424,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Семейное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Семейное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1568,6 +3453,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Семейное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Семейное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1581,6 +3482,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Трудовое право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Трудовое право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1594,6 +3511,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Трудовое право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Трудовое право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1607,6 +3540,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Административное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Административное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1620,6 +3569,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Административное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Административное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1633,6 +3598,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Экологическое право»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Экологическое право»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1646,6 +3627,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Финансовое право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Финансовое право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1659,6 +3656,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Финансовое право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Финансовое право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1672,6 +3685,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Уголовное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Уголовное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1685,6 +3714,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Уголовное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Уголовное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1698,6 +3743,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Процессуальное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Процессуальное право (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1711,6 +3772,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Процессуальное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Процессуальное право (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1724,6 +3801,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Правовая система Российской Федерации» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Правовая система Российской Федерации» (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1737,6 +3830,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Правовая система Российской Федерации» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Правовая система Российской Федерации» (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1750,6 +3859,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Итоговое повторение (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1763,6 +3888,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Итоговое повторение (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1776,6 +3917,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Преемственность истории развития российской государственности (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Преемственность истории развития российской государственности (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1789,6 +3946,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Преемственность истории развития российской государственности (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Преемственность истории развития российской государственности (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1802,6 +3975,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Российская цивилизация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Российская цивилизация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1815,6 +4004,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Экономический суверенитет: производство и продовольствие»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Экономический суверенитет: производство и продовольствие»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1828,6 +4033,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Технологический и цифровой суверенитет (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Технологический и цифровой суверенитет (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1841,6 +4062,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Технологический и цифровой суверенитет (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Технологический и цифровой суверенитет (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1854,6 +4091,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Суверенитет»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Суверенитет»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1867,6 +4120,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Российское общество сегодня»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Российское общество сегодня»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1880,6 +4149,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Воинский долг»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Воинский долг»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1893,6 +4178,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Вооруженные силы России (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Вооруженные силы России (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1906,6 +4207,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Вооруженные силы России (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Вооруженные силы России (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1919,6 +4236,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Военное образование в России»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Военное образование в России»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1932,6 +4265,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Служба по контракту (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Служба по контракту (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1945,6 +4294,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Служба по контракту (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Служба по контракту (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1958,6 +4323,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Росгвардия и МВД России»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Росгвардия и МВД России»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1971,6 +4352,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Органы государственной безопасности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Органы государственной безопасности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1984,6 +4381,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Россия сегодня: государственные интересы и необходимость их защиты»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Россия сегодня: государственные интересы и необходимость их защиты»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1997,6 +4410,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Принципы экономического развития России (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Принципы экономического развития России (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2010,6 +4439,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Принципы экономического развития России (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Принципы экономического развития России (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2023,6 +4468,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Современные проблемы устойчивого развития (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Современные проблемы устойчивого развития (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2036,6 +4497,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Современные проблемы устойчивого развития (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Современные проблемы устойчивого развития (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2049,6 +4526,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Россия в глобальной экономике»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Россия в глобальной экономике»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2062,6 +4555,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «История трансформации миропорядков: от Вестфальского мира и Венского конгресса до Лиги Наций (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «История трансформации миропорядков: от Вестфальского мира и Венского конгресса до Лиги Наций (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2075,6 +4584,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «История трансформации миропорядков: от Вестфальского мира и Венского конгресса до Лиги Наций (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «История трансформации миропорядков: от Вестфальского мира и Венского конгресса до Лиги Наций (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2088,6 +4613,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Ялтинско-Потсдамская система послевоенного устройства мира (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Ялтинско-Потсдамская система послевоенного устройства мира (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2101,6 +4642,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Ялтинско-Потсдамская система послевоенного устройства мира (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Ялтинско-Потсдамская система послевоенного устройства мира (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2114,6 +4671,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Организация Объединенных Наций: история и проблемы (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Организация Объединенных Наций: история и проблемы (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2127,6 +4700,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Организация Объединенных Наций: история и проблемы (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Организация Объединенных Наций: история и проблемы (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2140,6 +4729,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Биполярный мир и холодная война (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Биполярный мир и холодная война (урок 1 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2153,6 +4758,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Биполярный мир и холодная война (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Биполярный мир и холодная война (урок 2 из 2)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2166,6 +4787,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Однополярный мир и движение к многополярности. Что такое справедливый миропорядок»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Однополярный мир и движение к многополярности. Что такое справедливый миропорядок»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2179,6 +4816,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Русский мир»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Русский мир»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2192,6 +4845,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Формирование справедливого миропорядка в XXI в.»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Формирование справедливого миропорядка в XXI в.»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2205,6 +4874,22 @@
     "Вывод"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Структура по теме «Итоговое повторение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговое повторение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   }
  ]

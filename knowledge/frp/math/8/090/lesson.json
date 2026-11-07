@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Геометрическая модель по теме «Функции, описывающие прямую и обратную пропорциональные зависимости, их графики»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Решение/пример по теме «Функции, описывающие прямую и обратную пропорциональные зависимости, их графики»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Условие",
   "Правило",

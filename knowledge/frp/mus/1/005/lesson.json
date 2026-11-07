@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/13_Музыка/text.md",
  "table_title": "Слушаем музыку",
  "image": "knowledge/web/13_Музыка/03_Слушаем музыку.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Слушаем музыку",
+   "image": "knowledge/web/13_Музыка/03_Слушаем музыку.png",
+   "table_title": "Слушаем музыку"
+  }
+ ],
  "elements": [
   "настроение → средства выразительности → форма (части) → образ → личное впечатление"
  ],

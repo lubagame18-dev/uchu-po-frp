@@ -10,6 +10,15 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "photo",
+   "caption": "Фотография/иллюстрация по теме «Взаимоотношения в семье и с друзьями: лексика (закрепление)»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

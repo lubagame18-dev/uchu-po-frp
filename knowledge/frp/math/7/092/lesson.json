@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Геометрическая модель по теме «Построение графика линейной функции. График функции y = | х |»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Решение/пример по теме «Построение графика линейной функции. График функции y = | х |»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Условие",
   "Правило",

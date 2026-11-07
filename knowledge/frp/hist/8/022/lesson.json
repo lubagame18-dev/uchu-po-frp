@@ -10,6 +10,29 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "portrait",
+   "caption": "Портрет по теме «Завершение Французской революции и ее итоги»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "map",
+   "caption": "Карта по теме «Завершение Французской революции и ее итоги»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 3,
+   "role": "monument",
+   "caption": "Памятник по теме «Завершение Французской революции и ее итоги»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

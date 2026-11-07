@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/01_Русский_язык/text.md",
  "table_title": "Однородные члены и знаки",
  "image": "knowledge/web/01_Русский_язык/27_Однородные члены и знаки.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Однородные члены и знаки",
+   "image": "knowledge/web/01_Русский_язык/27_Однородные члены и знаки.png",
+   "table_title": "Однородные члены и знаки"
+  }
+ ],
  "elements": [
   "О, О, О",
   "О и О",

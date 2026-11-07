@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/09_История/text.md",
  "table_title": "Реформа",
  "image": "knowledge/web/09_История/01_Реформа.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Реформа",
+   "image": "knowledge/web/09_История/01_Реформа.png",
+   "table_title": "Реформа"
+  }
+ ],
  "elements": [
   "причины → цели → содержание (что изменили) → итоги → значение"
  ],

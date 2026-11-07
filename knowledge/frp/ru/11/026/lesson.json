@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Схема правила по теме «Основные жанры публицистического стиля (обзор)»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Пример по теме «Основные жанры публицистического стиля (обзор)»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Языковое явление",
   "Признак",

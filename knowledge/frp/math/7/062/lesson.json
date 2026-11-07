@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/03_Математика/text.md",
  "table_title": "Уравнение",
  "image": "knowledge/web/03_Математика/02_Уравнение.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Уравнение",
+   "image": "knowledge/web/03_Математика/02_Уравнение.png",
+   "table_title": "Уравнение"
+  }
+ ],
  "elements": [
   "ax + b = c → ax = c − b → x = (c − b) : a",
   "проверка: подставить корень"

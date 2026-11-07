@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Основная схема по теме «Итоговая контрольная работа»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Дополнительный разрез/увеличение по теме «Итоговая контрольная работа»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Объект",
   "Строение",

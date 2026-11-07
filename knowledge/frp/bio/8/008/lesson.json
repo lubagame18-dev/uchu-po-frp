@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/06_Биология/text.md",
  "table_title": "Дыхание",
  "image": "knowledge/web/06_Биология/05_Дыхание.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Дыхание",
+   "image": "knowledge/web/06_Биология/05_Дыхание.png",
+   "table_title": "Дыхание"
+  }
+ ],
  "elements": [
   "органические вещества + кислород → углекислый газ + вода + энергия"
  ],

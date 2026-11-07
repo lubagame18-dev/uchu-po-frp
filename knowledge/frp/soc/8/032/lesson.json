@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Структура по теме «Повторительно-обобщающий урок по теме «Человек в мире культуры». Контрольная работа»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Пример по теме «Повторительно-обобщающий урок по теме «Человек в мире культуры». Контрольная работа»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Понятие",
   "Признак",

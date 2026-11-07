@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/04_Физика/text.md",
  "table_title": "Электрическая цепь",
  "image": "knowledge/web/04_Физика/02_Электрическая цепь.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Электрическая цепь",
+   "image": "knowledge/web/04_Физика/02_Электрическая цепь.png",
+   "table_title": "Электрическая цепь"
+  }
+ ],
  "elements": [
   "последовательно: I одинаков, U = U₁ + U₂, R = R₁ + R₂",
   "параллельно: U одинаков, I = I₁ + I₂, 1/R = 1/R₁ + 1/R₂",

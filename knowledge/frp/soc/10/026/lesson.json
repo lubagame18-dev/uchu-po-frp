@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/10_Обществознание/text.md",
  "table_title": "Экономика",
  "image": "knowledge/web/10_Обществознание/03_Экономика.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Экономика",
+   "image": "knowledge/web/10_Обществознание/03_Экономика.png",
+   "table_title": "Экономика"
+  }
+ ],
  "elements": [
   "доходы → расходы → бюджет",
   "рынок: спрос и предложение → цена",

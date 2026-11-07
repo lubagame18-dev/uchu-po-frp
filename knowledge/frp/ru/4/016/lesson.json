@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/01_Русский_язык/text.md",
  "table_title": "Обращение",
  "image": "knowledge/web/01_Русский_язык/29_Обращение.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Обращение",
+   "image": "knowledge/web/01_Русский_язык/29_Обращение.png",
+   "table_title": "Обращение"
+  }
+ ],
  "elements": [
   "О, … !",
   "…, О, …",

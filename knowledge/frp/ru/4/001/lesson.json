@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/01_Русский_язык/text.md",
  "table_title": "Части речи",
  "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Части речи",
+   "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+   "table_title": "Части речи"
+  }
+ ],
  "elements": [
   "Существительное",
   "Прилагательное",

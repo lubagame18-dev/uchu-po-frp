@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "map",
+   "caption": "Карта по теме «Атмосферное давление. Ветер и причины его возникновения. Роза ветров»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "photo",
+   "caption": "Фотография объекта по теме «Атмосферное давление. Ветер и причины его возникновения. Роза ветров»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

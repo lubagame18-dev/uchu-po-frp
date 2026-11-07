@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/03_Математика/text.md",
  "table_title": "Порядок действий",
  "image": "knowledge/web/03_Математика/05_Порядок действий.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Порядок действий",
+   "image": "knowledge/web/03_Математика/05_Порядок действий.png",
+   "table_title": "Порядок действий"
+  }
+ ],
  "elements": [
   "1) действия в скобках",
   "2) степени и корни",

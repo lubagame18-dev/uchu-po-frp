@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Схема правила по теме «Морфология как раздел лингвистики (повторение, обобщение)»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Пример по теме «Морфология как раздел лингвистики (повторение, обобщение)»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Языковое явление",
   "Признак",

@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/06_Биология/text.md",
  "table_title": "Систематика",
  "image": "knowledge/web/06_Биология/06_Систематика.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Систематика",
+   "image": "knowledge/web/06_Биология/06_Систематика.png",
+   "table_title": "Систематика"
+  }
+ ],
  "elements": [
   "вид → род → семейство → отряд (порядок) → класс → тип (отдел) → царство"
  ],

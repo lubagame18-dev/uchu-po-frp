@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "art",
+   "caption": "Произведение искусства по теме «Книга и кино»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "monument",
+   "caption": "Памятник архитектуры по теме «Книга и кино»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

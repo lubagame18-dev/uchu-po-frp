@@ -10,6 +10,29 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "portrait",
+   "caption": "Портрет по теме «Урок повторения и обобщения по теме «Ассирия. Персидская держава»»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "map",
+   "caption": "Карта по теме «Урок повторения и обобщения по теме «Ассирия. Персидская держава»»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 3,
+   "role": "monument",
+   "caption": "Памятник по теме «Урок повторения и обобщения по теме «Ассирия. Персидская держава»»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

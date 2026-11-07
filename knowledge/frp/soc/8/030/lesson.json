@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Структура по теме «Общество и его развитие. Информация и современный мир»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Пример по теме «Общество и его развитие. Информация и современный мир»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Понятие",
   "Признак",

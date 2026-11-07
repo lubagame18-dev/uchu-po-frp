@@ -10,6 +10,29 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "portrait",
+   "caption": "Портрет по теме «США и страны Западной Европы во второй половине XX в.»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "map",
+   "caption": "Карта по теме «США и страны Западной Европы во второй половине XX в.»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 3,
+   "role": "monument",
+   "caption": "Памятник по теме «США и страны Западной Европы во второй половине XX в.»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/06_Биология/text.md",
  "table_title": "Уровни организации",
  "image": "knowledge/web/06_Биология/02_Уровни организации.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Уровни организации",
+   "image": "knowledge/web/06_Биология/02_Уровни организации.png",
+   "table_title": "Уровни организации"
+  }
+ ],
  "elements": [
   "клетка → ткань → орган → система органов → организм"
  ],

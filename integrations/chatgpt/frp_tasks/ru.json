@@ -13,6 +13,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Что такое речь»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Что такое речь»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -26,6 +42,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Устная и письменная речь»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Устная и письменная речь»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -39,6 +71,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Слушаем и говорим»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Слушаем и говорим»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -52,6 +100,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Вежливые слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Вежливые слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -65,6 +129,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Рассказ по картинке»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Рассказ по картинке»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -78,6 +158,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Гласные звуки»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Гласные звуки»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -91,6 +187,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Согласные звуки»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Согласные звуки»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -102,6 +214,15 @@
     "всегда твёрдые: [ж], [ш], [ц]; всегда мягкие: [ч’], [щ’], [й’]"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Твёрдые и мягкие согласные",
+     "image": "knowledge/web/01_Русский_язык/04_Твёрдые и мягкие согласные.png",
+     "table_title": "Твёрдые и мягкие согласные"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -114,6 +235,15 @@
     "ложка ← ложечка"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Звонкие и глухие согласные в корне",
+     "image": "knowledge/web/01_Русский_язык/03_Звонкие и глухие согласные в корне.png",
+     "table_title": "Звонкие и глухие согласные в корне"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -127,6 +257,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Алфавит»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Алфавит»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -140,6 +286,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Слог»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Слог»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -151,6 +313,15 @@
     "ударение — выделение голосом одного слога: звонит, кухонный, щавель"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Слог и ударение",
+     "image": "knowledge/web/01_Русский_язык/05_Слог и ударение.png",
+     "table_title": "Слог и ударение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -164,6 +335,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Перенос слов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Перенос слов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -177,6 +364,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Слово и его значение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Слово и его значение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -193,6 +396,15 @@
     "[ = ], [ = ] — перечисление"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Сложное предложение",
+     "image": "knowledge/web/01_Русский_язык/31_Сложное предложение.png",
+     "table_title": "Сложное предложение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -206,6 +418,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Заглавная буква в предложении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Заглавная буква в предложении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -219,6 +447,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки в конце предложения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки в конце предложения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -232,6 +476,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Письмо строчных букв»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Письмо строчных букв»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -245,6 +505,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Письмо заглавных букв»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Письмо заглавных букв»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -258,6 +534,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Соединения букв»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Соединения букв»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -271,6 +563,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Жи-ши»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Жи-ши»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -284,6 +592,15 @@
     "Ж, Ш, Ц — всегда твёрдые; Ч, Щ, Й — всегда мягкие"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "ЖИ — ШИ, ЧА — ЩА, ЧУ — ЩУ",
+     "image": "knowledge/web/01_Русский_язык/82_ЖИ — ШИ, ЧА — ЩА, ЧУ — ЩУ.png",
+     "table_title": "ЖИ — ШИ, ЧА — ЩА, ЧУ — ЩУ"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -297,6 +614,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Списывание текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Списывание текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -310,6 +643,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Обобщение: чему научились»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Обобщение: чему научились»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -322,6 +671,15 @@
     "согласный + е, ё, ю, я, и, ь → согласный мягкий: [’]"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Звуки и буквы",
+     "image": "knowledge/web/01_Русский_язык/02_Звуки и буквы.png",
+     "table_title": "Звуки и буквы"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -333,6 +691,15 @@
     "ударение — выделение голосом одного слога: звонит, кухонный, щавель"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Слог и ударение",
+     "image": "knowledge/web/01_Русский_язык/05_Слог и ударение.png",
+     "table_title": "Слог и ударение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -346,6 +713,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Проверочная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Проверочная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -359,6 +742,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Исправляем ошибки»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Исправляем ошибки»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -371,6 +770,15 @@
     "согласный + е, ё, ю, я, и, ь → согласный мягкий: [’]"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Звуки и буквы",
+     "image": "knowledge/web/01_Русский_язык/02_Звуки и буквы.png",
+     "table_title": "Звуки и буквы"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -384,6 +792,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Мягкий знак»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Мягкий знак»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -397,6 +821,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Алфавит»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Алфавит»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -408,6 +848,15 @@
     "ударение — выделение голосом одного слога: звонит, кухонный, щавель"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Слог и ударение",
+     "image": "knowledge/web/01_Русский_язык/05_Слог и ударение.png",
+     "table_title": "Слог и ударение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -421,6 +870,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Безударные гласные»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Безударные гласные»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -434,6 +899,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Парные согласные»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Парные согласные»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -447,6 +928,15 @@
     "Ж, Ш, Ц — всегда твёрдые; Ч, Щ, Й — всегда мягкие"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "ЖИ — ШИ, ЧА — ЩА, ЧУ — ЩУ",
+     "image": "knowledge/web/01_Русский_язык/82_ЖИ — ШИ, ЧА — ЩА, ЧУ — ЩУ.png",
+     "table_title": "ЖИ — ШИ, ЧА — ЩА, ЧУ — ЩУ"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -460,6 +950,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Чк-чн»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Чк-чн»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -473,6 +979,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Разделительный мягкий знак»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Разделительный мягкий знак»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -486,6 +1008,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Однокоренные слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Однокоренные слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -499,6 +1037,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Корень слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Корень слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -512,6 +1066,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Приставка и суффикс»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Приставка и суффикс»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -525,6 +1095,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Окончание»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Окончание»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -538,6 +1124,15 @@
     "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя существительное",
+     "image": "knowledge/web/01_Русский_язык/35_Имя существительное.png",
+     "table_title": "Имя существительное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -550,6 +1145,15 @@
     "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя прилагательное",
+     "image": "knowledge/web/01_Русский_язык/39_Имя прилагательное.png",
+     "table_title": "Имя прилагательное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -561,6 +1165,15 @@
     "что сделать? → совершенный: решить"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Вид глагола",
+     "image": "knowledge/web/01_Русский_язык/41_Вид глагола.png",
+     "table_title": "Вид глагола"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -575,6 +1188,15 @@
     "отрицательные: никто, ничто, никакой, ничей; неопределённые: кто-то, что-нибудь, кое-кто"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Местоимение",
+     "image": "knowledge/web/01_Русский_язык/85_Местоимение.png",
+     "table_title": "Местоимение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -586,6 +1208,15 @@
     "по интонации: восклицательное (!) и невосклицательное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Виды предложений",
+     "image": "knowledge/web/01_Русский_язык/78_Виды предложений.png",
+     "table_title": "Виды предложений"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -599,6 +1230,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Главные члены предложения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Главные члены предложения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -612,6 +1259,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Связь слов в предложении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Связь слов в предложении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -625,6 +1288,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Текст и его части»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Текст и его части»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -638,6 +1317,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Изложение по вопросам»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Изложение по вопросам»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -651,6 +1346,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Описание предмета»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Описание предмета»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -664,6 +1375,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Письмо и поздравление»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Письмо и поздравление»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -677,6 +1404,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Обобщение: русский язык 2 класс»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Обобщение: русский язык 2 класс»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -690,6 +1433,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Повторение орфограмм»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторение орфограмм»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -703,6 +1462,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Повторение частей речи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторение частей речи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -716,6 +1491,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Итоговый диктант»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговый диктант»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -729,6 +1520,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Работа над ошибками»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Работа над ошибками»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -742,6 +1549,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Словарик класса»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Словарик класса»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -755,6 +1578,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Афиша правила»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Афиша правила»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -768,6 +1607,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Сообщение о слове»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сообщение о слове»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -781,6 +1636,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Корень слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Корень слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -794,6 +1665,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Приставка»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Приставка»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -805,6 +1692,15 @@
     "гласная сохраняется → -ик-: ключик — ключика"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Суффиксы -ЕК- и -ИК-",
+     "image": "knowledge/web/01_Русский_язык/37_Суффиксы -ЕК- и -ИК-.png",
+     "table_title": "Суффиксы -ЕК- и -ИК-"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -818,6 +1714,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Окончание»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Окончание»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -831,6 +1743,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Разбор слова по составу»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Разбор слова по составу»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -844,6 +1772,15 @@
     "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя существительное",
+     "image": "knowledge/web/01_Русский_язык/35_Имя существительное.png",
+     "table_title": "Имя существительное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -857,6 +1794,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Падежи (ознакомление)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Падежи (ознакомление)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -869,6 +1822,15 @@
     "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя прилагательное",
+     "image": "knowledge/web/01_Русский_язык/39_Имя прилагательное.png",
+     "table_title": "Имя прилагательное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -882,6 +1844,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Глагол: время и число»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Глагол: время и число»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -896,6 +1874,15 @@
     "отрицательные: никто, ничто, никакой, ничей; неопределённые: кто-то, что-нибудь, кое-кто"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Местоимение",
+     "image": "knowledge/web/01_Русский_язык/85_Местоимение.png",
+     "table_title": "Местоимение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -909,6 +1896,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Безударные гласные в корне»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Безударные гласные в корне»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -922,6 +1925,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Парные согласные»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Парные согласные»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -935,6 +1954,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Непроизносимые согласные»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Непроизносимые согласные»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -948,6 +1983,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Удвоенные согласные»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Удвоенные согласные»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -961,6 +2012,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Сложные слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сложные слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -974,6 +2041,15 @@
     "Осенний ветер срывает жёлтые листья с клёнов."
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Второстепенные члены предложения",
+     "image": "knowledge/web/01_Русский_язык/26_Второстепенные члены предложения.png",
+     "table_title": "Второстепенные члены предложения"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -987,6 +2063,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Распространённые предложения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Распространённые предложения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1004,6 +2096,15 @@
     "О, О, О — ОС"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Однородные члены и знаки",
+     "image": "knowledge/web/01_Русский_язык/27_Однородные члены и знаки.png",
+     "table_title": "Однородные члены и знаки"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1020,6 +2121,15 @@
     "[ = ], [ = ] — перечисление"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Сложное предложение",
+     "image": "knowledge/web/01_Русский_язык/31_Сложное предложение.png",
+     "table_title": "Сложное предложение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1033,6 +2143,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Типы текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Типы текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1046,6 +2172,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «План текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «План текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1059,6 +2201,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Изложение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Изложение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1072,6 +2230,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Сочинение по картине»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сочинение по картине»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1085,6 +2259,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Обобщение: русский язык 3 класс»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Обобщение: русский язык 3 класс»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1098,6 +2288,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Повторение: состав слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторение: состав слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1115,6 +2321,15 @@
     "Числительное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Части речи",
+     "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+     "table_title": "Части речи"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1128,6 +2343,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Контрольный диктант»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Контрольный диктант»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1141,6 +2372,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Анализ работы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Анализ работы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1154,6 +2401,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Интересные слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Интересные слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1167,6 +2430,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Правила в картинках»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Правила в картинках»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1180,6 +2459,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Устный журнал»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Устный журнал»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1197,6 +2492,15 @@
     "Числительное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Части речи",
+     "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+     "table_title": "Части речи"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1214,6 +2518,15 @@
     "Числительное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Части речи",
+     "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+     "table_title": "Части речи"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1229,6 +2542,15 @@
     "дефис: по-нашему, по-русски, во-первых, кое-как, где-то"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Наречие",
+     "image": "knowledge/web/01_Русский_язык/64_Наречие.png",
+     "table_title": "Наречие"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1242,6 +2564,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфологический разбор»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфологический разбор»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1255,6 +2593,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Три склонения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Три склонения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1268,6 +2622,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Падежи и вопросы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Падежи и вопросы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1281,6 +2651,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Склонение прилагательных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Склонение прилагательных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1294,6 +2680,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Спряжение глаголов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Спряжение глаголов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1307,6 +2709,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Время и лицо глагола»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Время и лицо глагола»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1320,6 +2738,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Безударные окончания существительных»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Безударные окончания существительных»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1333,6 +2767,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Личные окончания глаголов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Личные окончания глаголов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1346,6 +2796,15 @@
     "кратк. прилагательное — без Ь: свеж, хорош, могуч"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Ь после шипящих",
+     "image": "knowledge/web/01_Русский_язык/44_Ь после шипящих.png",
+     "table_title": "Ь после шипящих"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1359,6 +2818,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Не с глаголами»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Не с глаголами»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1375,6 +2850,15 @@
     "[ = ], [ = ] — перечисление"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Сложное предложение",
+     "image": "knowledge/web/01_Русский_язык/31_Сложное предложение.png",
+     "table_title": "Сложное предложение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1392,6 +2876,15 @@
     "О, О, О — ОС"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Однородные члены и знаки",
+     "image": "knowledge/web/01_Русский_язык/27_Однородные члены и знаки.png",
+     "table_title": "Однородные члены и знаки"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1404,6 +2897,15 @@
     "…, О!"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Обращение",
+     "image": "knowledge/web/01_Русский_язык/29_Обращение.png",
+     "table_title": "Обращение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1417,6 +2919,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Прямая речь (ознакомление)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Прямая речь (ознакомление)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1430,6 +2948,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Стили речи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Стили речи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1443,6 +2977,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Типы текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Типы текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1456,6 +3006,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Изложение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Изложение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1469,6 +3035,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Сочинение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сочинение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1482,6 +3064,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Редактирование текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Редактирование текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1495,6 +3093,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Обобщение: русский язык 4 класс»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Обобщение: русский язык 4 класс»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1512,6 +3126,15 @@
     "Числительное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Части речи",
+     "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+     "table_title": "Части речи"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1525,6 +3148,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Повторение: орфография и пунктуация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторение: орфография и пунктуация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1538,6 +3177,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Итоговый диктант»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Итоговый диктант»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1551,6 +3206,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Готовимся к пятой четверти»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Готовимся к пятой четверти»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1564,6 +3235,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Тема итогового проекта»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Тема итогового проекта»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1577,6 +3264,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Подготовка и оформление»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Подготовка и оформление»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1590,6 +3293,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Защита проекта»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Защита проекта»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1603,6 +3322,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Богатство и выразительность русского языка. Лингвистика как наука о языке»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Богатство и выразительность русского языка. Лингвистика как наука о языке»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1616,6 +3351,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Язык и речь. Монолог. Диалог. Полилог. Виды речевой деятельности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Язык и речь. Монолог. Диалог. Полилог. Виды речевой деятельности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1629,6 +3380,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Текст и его основные признаки. Композиционная структура текста. Функционально-смысловые типы речи. Повествование как тип речи. Рассказ. Смысловой анализ текста. Информационная переработка текста. Редактирование текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Текст и его основные признаки. Композиционная структура текста. Функционально-смысловые типы речи. Повествование как тип речи. Рассказ. Смысловой анализ текста. Информационная переработка текста. Редактирование текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1643,6 +3410,15 @@
     "язык художественной литературы: образ (тропы)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Функциональные разновидности языка",
+     "image": "knowledge/web/01_Русский_язык/80_Функциональные разновидности языка.png",
+     "table_title": "Функциональные разновидности языка"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1656,6 +3432,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Фонетика. Графика. Орфоэпия. Орфография»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Фонетика. Графика. Орфоэпия. Орфография»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1669,6 +3461,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфемика. Орфография»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфемика. Орфография»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1682,6 +3490,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Лексикология»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Лексикология»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1695,6 +3519,15 @@
     "примыкание: бежать быстро (зависимое неизменяемое)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Словосочетание",
+     "image": "knowledge/web/01_Русский_язык/23_Словосочетание.png",
+     "table_title": "Словосочетание"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1708,6 +3541,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Простое двусоставное предложение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Простое двусоставное предложение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1721,6 +3570,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Простое осложненное предложение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Простое осложненное предложение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1737,6 +3602,15 @@
     "[ = ], [ = ] — перечисление"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Сложное предложение",
+     "image": "knowledge/web/01_Русский_язык/31_Сложное предложение.png",
+     "table_title": "Сложное предложение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1750,6 +3624,15 @@
     "«П, — а. — П»."
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Прямая речь и диалог",
+     "image": "knowledge/web/01_Русский_язык/32_Прямая речь и диалог.png",
+     "table_title": "Прямая речь и диалог"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1763,6 +3646,15 @@
     "«П, — а. — П»."
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Прямая речь и диалог",
+     "image": "knowledge/web/01_Русский_язык/32_Прямая речь и диалог.png",
+     "table_title": "Прямая речь и диалог"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1776,6 +3668,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Система частей речи в русском языке»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Система частей речи в русском языке»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1789,6 +3697,15 @@
     "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя существительное",
+     "image": "knowledge/web/01_Русский_язык/35_Имя существительное.png",
+     "table_title": "Имя существительное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1801,6 +3718,15 @@
     "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя прилагательное",
+     "image": "knowledge/web/01_Русский_язык/39_Имя прилагательное.png",
+     "table_title": "Имя прилагательное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1812,6 +3738,15 @@
     "что сделать? → совершенный: решить"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Вид глагола",
+     "image": "knowledge/web/01_Русский_язык/41_Вид глагола.png",
+     "table_title": "Вид глагола"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1825,6 +3760,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные функции русского языка»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные функции русского языка»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1838,6 +3789,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Литературный язык»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Литературный язык»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1851,6 +3818,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Виды речи. Монолог и диалог. Их разновидности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Виды речи. Монолог и диалог. Их разновидности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1864,6 +3847,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Информационная переработка текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационная переработка текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1877,6 +3876,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Функционально-смысловые типы речи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Функционально-смысловые типы речи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1890,6 +3905,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Виды описания. Смысловой анализ текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Виды описания. Смысловой анализ текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1903,6 +3934,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1916,6 +3963,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Группы лексики по происхождению. Активный и пассивный запас лексики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Группы лексики по происхождению. Активный и пассивный запас лексики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1929,6 +3992,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Лексика с точки зрения сферы употребления. Стилистическая окраска слова. Лексические средства выразительности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Лексика с точки зрения сферы употребления. Стилистическая окраска слова. Лексические средства выразительности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1940,6 +4019,15 @@
     "в предложении — один член: Бил баклуши весь день"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Фразеологизм",
+     "image": "knowledge/web/01_Русский_язык/22_Фразеологизм.png",
+     "table_title": "Фразеологизм"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -1953,6 +4041,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфемика и словообразование как разделы лингвистики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфемика и словообразование как разделы лингвистики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1966,6 +4070,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Виды морфем. Основные способы образования слов в русском языке. Правописание сложных и сложносокращенных слов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Виды морфем. Основные способы образования слов в русском языке. Правописание сложных и сложносокращенных слов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1979,6 +4099,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Орфографический анализ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Орфографический анализ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1992,6 +4128,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Понятие об этимологии»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Понятие об этимологии»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2005,6 +4157,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфемный и словообразовательный анализ слов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфемный и словообразовательный анализ слов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2022,6 +4190,15 @@
     "Числительное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Части речи",
+     "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+     "table_title": "Части речи"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2035,6 +4212,15 @@
     "1 скл.: м. и ж. р. на -а, -я; 2 скл.: м. р. с нулевым окончанием, ср. р. на -о, -е; 3 скл.: ж. р. на -ь"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя существительное",
+     "image": "knowledge/web/01_Русский_язык/35_Имя существительное.png",
+     "table_title": "Имя существительное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2047,6 +4233,15 @@
     "полное: весёлый (в предложении определение или сказуемое), краткое: весел (сказуемое)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя прилагательное",
+     "image": "knowledge/web/01_Русский_язык/39_Имя прилагательное.png",
+     "table_title": "Имя прилагательное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2061,6 +4256,15 @@
     "склоняются обе части: пятьюдесятью, о пятистах"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Имя числительное",
+     "image": "knowledge/web/01_Русский_язык/86_Имя числительное.png",
+     "table_title": "Имя числительное"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2075,6 +4279,15 @@
     "отрицательные: никто, ничто, никакой, ничей; неопределённые: кто-то, что-нибудь, кое-кто"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Местоимение",
+     "image": "knowledge/web/01_Русский_язык/85_Местоимение.png",
+     "table_title": "Местоимение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2086,6 +4299,15 @@
     "что сделать? → совершенный: решить"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Вид глагола",
+     "image": "knowledge/web/01_Русский_язык/41_Вид глагола.png",
+     "table_title": "Вид глагола"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2099,6 +4321,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Язык как развивающееся явление»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Язык как развивающееся явление»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2112,6 +4350,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Монолог и его виды»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Монолог и его виды»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2125,6 +4379,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Диалог и его виды»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Диалог и его виды»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2138,6 +4408,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные признаки текста (повторение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные признаки текста (повторение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2151,6 +4437,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Информационная переработка текста. Смысловой анализ текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационная переработка текста. Смысловой анализ текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2164,6 +4466,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Функционально-смысловые типы речи. Рассуждение как функционально-смысловой тип речи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Функционально-смысловые типы речи. Рассуждение как функционально-смысловой тип речи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2177,6 +4495,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Публицистический стиль»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Публицистический стиль»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2190,6 +4524,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Официально-деловой стиль»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Официально-деловой стиль»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2203,6 +4553,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфология как раздел науки о языке (обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфология как раздел науки о языке (обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2214,6 +4580,15 @@
     "какой? что делающий? что сделавший?: поющая птица"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Причастие",
+     "image": "knowledge/web/01_Русский_язык/34_Причастие.png",
+     "table_title": "Причастие"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2225,6 +4600,15 @@
     "какой? что делающий? что сделавший?: поющая птица"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Причастие",
+     "image": "knowledge/web/01_Русский_язык/34_Причастие.png",
+     "table_title": "Причастие"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2240,6 +4624,15 @@
     "дефис: по-нашему, по-русски, во-первых, кое-как, где-то"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Наречие",
+     "image": "knowledge/web/01_Русский_язык/64_Наречие.png",
+     "table_title": "Наречие"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2251,6 +4644,15 @@
     "наречие: Он весело смеялся. (весело — обстоятельство)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Слова категории состояния",
+     "image": "knowledge/web/01_Русский_язык/65_Слова категории состояния.png",
+     "table_title": "Слова категории состояния"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2268,6 +4670,15 @@
     "Числительное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Части речи",
+     "image": "knowledge/web/01_Русский_язык/81_Части речи.png",
+     "table_title": "Части речи"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2281,6 +4692,15 @@
     "несмотря на (= вопреки) — слитно; не смотря (= не глядя) — раздельно"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Производные предлоги",
+     "image": "knowledge/web/01_Русский_язык/66_Производные предлоги.png",
+     "table_title": "Производные предлоги"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2294,6 +4714,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Союз»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Союз»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2307,6 +4743,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Частица»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Частица»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2320,6 +4772,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Междометия и звукоподражательные слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Междометия и звукоподражательные слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2333,6 +4801,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Омонимия слов разных частей речи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Омонимия слов разных частей речи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2346,6 +4830,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Русский язык в кругу других славянских языков»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Русский язык в кругу других славянских языков»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2359,6 +4859,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Виды речи. Монолог и диалог. Их разновидности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Виды речи. Монолог и диалог. Их разновидности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2372,6 +4888,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Текст и его признаки. Функционально-смысловые типы речи. Смысловой анализ текста. Информационная переработка текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Текст и его признаки. Функционально-смысловые типы речи. Смысловой анализ текста. Информационная переработка текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2385,6 +4917,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Официально-деловой стиль. Жанры официально-делового стиля. Научный стиль. Жанры научного стиля»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2398,6 +4946,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Синтаксис как раздел лингвистики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Синтаксис как раздел лингвистики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2411,6 +4975,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Пунктуация. Функции знаков препинания»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Пунктуация. Функции знаков препинания»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2424,6 +5004,15 @@
     "примыкание: бежать быстро (зависимое неизменяемое)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Словосочетание",
+     "image": "knowledge/web/01_Русский_язык/23_Словосочетание.png",
+     "table_title": "Словосочетание"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2435,6 +5024,15 @@
     "по интонации: восклицательное (!) и невосклицательное"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Виды предложений",
+     "image": "knowledge/web/01_Русский_язык/78_Виды предложений.png",
+     "table_title": "Виды предложений"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2447,6 +5045,15 @@
     "Утро было тихим."
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Грамматическая основа",
+     "image": "knowledge/web/01_Русский_язык/24_Грамматическая основа.png",
+     "table_title": "Грамматическая основа"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2460,6 +5067,15 @@
     "Осенний ветер срывает жёлтые листья с клёнов."
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Второстепенные члены предложения",
+     "image": "knowledge/web/01_Русский_язык/26_Второстепенные члены предложения.png",
+     "table_title": "Второстепенные члены предложения"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2474,6 +5090,15 @@
     "назывное: Зима. Тишина."
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Односоставные предложения",
+     "image": "knowledge/web/01_Русский_язык/71_Односоставные предложения.png",
+     "table_title": "Односоставные предложения"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2487,6 +5112,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Простое осложненное предложение. Предложения с однородными членами»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Простое осложненное предложение. Предложения с однородными членами»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2498,6 +5139,15 @@
     "то есть, или (= то есть), а именно, например, даже, особенно, в том числе → выделяем вместе с этими словами"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Уточняющие члены",
+     "image": "knowledge/web/01_Русский_язык/76_Уточняющие члены.png",
+     "table_title": "Уточняющие члены"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2510,6 +5160,15 @@
     "…, О!"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Обращение",
+     "image": "knowledge/web/01_Русский_язык/29_Обращение.png",
+     "table_title": "Обращение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2523,6 +5182,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Роль русского языка в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Роль русского языка в Российской Федерации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2536,6 +5211,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Русский язык в современном мире»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Русский язык в современном мире»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2549,6 +5240,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Речь устная и письменная, монологическая и диалогическая (повторение). Виды речевой деятельности: аудирование, чтение, говорение, письмо»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Речь устная и письменная, монологическая и диалогическая (повторение). Виды речевой деятельности: аудирование, чтение, говорение, письмо»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2562,6 +5269,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Текст и его признаки (обобщение). Функционально-смысловые типы речи (обобщение). Смысловой анализ текста (обобщение). Информационная переработка текста»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Текст и его признаки (обобщение). Функционально-смысловые типы речи (обобщение). Смысловой анализ текста (обобщение). Информационная переработка текста»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2576,6 +5299,15 @@
     "язык художественной литературы: образ (тропы)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Функциональные разновидности языка",
+     "image": "knowledge/web/01_Русский_язык/80_Функциональные разновидности языка.png",
+     "table_title": "Функциональные разновидности языка"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2589,6 +5321,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Научный стиль»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Научный стиль»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2605,6 +5353,15 @@
     "[ = ], [ = ] — перечисление"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Сложное предложение",
+     "image": "knowledge/web/01_Русский_язык/31_Сложное предложение.png",
+     "table_title": "Сложное предложение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2616,6 +5373,15 @@
     "общий второстепенный член — запятой нет: Весной [трава зеленеет] и [птицы поют]."
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Сложносочинённое предложение",
+     "image": "knowledge/web/01_Русский_язык/55_Сложносочинённое предложение.png",
+     "table_title": "Сложносочинённое предложение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2629,6 +5395,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Сложноподчиненное предложение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сложноподчиненное предложение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2645,6 +5427,15 @@
     "[ = ], [ = ] — перечисление"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Сложное предложение",
+     "image": "knowledge/web/01_Русский_язык/31_Сложное предложение.png",
+     "table_title": "Сложное предложение"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2658,6 +5449,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Сложные предложения с разными видами союзной и бессоюзной связи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Сложные предложения с разными видами союзной и бессоюзной связи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2671,6 +5478,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Прямая и косвенная речь. Цитирование»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Прямая и косвенная речь. Цитирование»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2684,6 +5507,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Язык как знаковая система. Основные функции языка. Лингвистика как наука»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Язык как знаковая система. Основные функции языка. Лингвистика как наука»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2697,6 +5536,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Язык и культура»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Язык и культура»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2710,6 +5565,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Русский язык – государственный язык Российской Федерации, средство межнационального общения, национальный язык русского народа, один из мировых языков»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Русский язык – государственный язык Российской Федерации, средство межнационального общения, национальный язык русского народа, один из мировых языков»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2723,6 +5594,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Формы существования русского национального языка»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Формы существования русского национального языка»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2736,6 +5623,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Система языка, её устройство, функционирование»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Система языка, её устройство, функционирование»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2749,6 +5652,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Культура речи как раздел лингвистики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Культура речи как раздел лингвистики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2762,6 +5681,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Языковая норма, её основные признаки и функции. Виды языковых норм»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Языковая норма, её основные признаки и функции. Виды языковых норм»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2775,6 +5710,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Качества хорошей речи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Качества хорошей речи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2788,6 +5739,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные виды словарей (обзор)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные виды словарей (обзор)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2801,6 +5768,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Фонетика и орфоэпия как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства фонетики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Фонетика и орфоэпия как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства фонетики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2814,6 +5797,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Орфоэпические (произносительные и акцентологические) нормы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Орфоэпические (произносительные и акцентологические) нормы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2827,6 +5826,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Лексикология и фразеология как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства лексики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Лексикология и фразеология как разделы лингвистики (повторение, обобщение). Изобразительно-выразительные средства лексики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2840,6 +5855,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные лексические нормы современного русского литературного языка»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные лексические нормы современного русского литературного языка»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2853,6 +5884,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Функционально-стилистическая окраска слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Функционально-стилистическая окраска слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2866,6 +5913,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Экспрессивно-стилистическая окраска слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Экспрессивно-стилистическая окраска слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2879,6 +5942,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Фразеология русского языка (повторение, обобщение). Крылатые слова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Фразеология русского языка (повторение, обобщение). Крылатые слова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2892,6 +5971,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфемика и словообразование как разделы лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфемика и словообразование как разделы лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2905,6 +6000,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Словообразовательные нормы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Словообразовательные нормы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2918,6 +6029,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфология как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфология как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2931,6 +6058,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Морфологические нормы современного русского литературного языка (общее представление)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Морфологические нормы современного русского литературного языка (общее представление)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2944,6 +6087,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Орфография как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Орфография как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2957,6 +6116,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Правописание гласных и согласных в корне»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Правописание гласных и согласных в корне»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2968,6 +6143,15 @@
     "но: межинститутский, сверхинтересный, взимать"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Ы — И после приставок",
+     "image": "knowledge/web/01_Русский_язык/15_Ы — И после приставок.png",
+     "table_title": "Ы — И после приставок"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -2981,6 +6165,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Правописание суффиксов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Правописание суффиксов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2994,6 +6194,15 @@
     "наречие на -о → как в слове, от которого образовано: взволнованно (взволнованный)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Н и НН",
+     "image": "knowledge/web/01_Русский_язык/48_Гласные перед Н и НН в причастиях.png",
+     "table_title": "Н и НН"
+    }
+   ],
    "text_source": "knowledge/web/01_Русский_язык/text.md"
   },
   {
@@ -3007,6 +6216,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Правописание не и ни»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Правописание не и ни»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3020,6 +6245,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Правописание окончаний имён существительных, имён прилагательных и глаголов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Правописание окончаний имён существительных, имён прилагательных и глаголов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3033,6 +6274,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Слитное, дефисное и раздельное написание слов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Слитное, дефисное и раздельное написание слов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3046,6 +6303,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Речь как деятельность. Виды речевой деятельности (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Речь как деятельность. Виды речевой деятельности (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3059,6 +6332,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Речевое общение и его виды. Основные сферы речевого общения. Речевая ситуация и её компоненты»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Речевое общение и его виды. Основные сферы речевого общения. Речевая ситуация и её компоненты»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3072,6 +6361,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Речевой этикет»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Речевой этикет»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3085,6 +6390,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Публичное выступление»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Публичное выступление»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3098,6 +6419,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Текст, его основные признаки (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Текст, его основные признаки (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3111,6 +6448,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Логико-смысловые отношения между предложениями в тексте (общее представление)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Логико-смысловые отношения между предложениями в тексте (общее представление)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3124,6 +6477,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Информативность текста. Виды информации в тексте»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информативность текста. Виды информации в тексте»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3137,6 +6506,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Информационно-смысловая переработка текста. План. Тезисы. Конспект. Реферат. Аннотация. Отзыв. Рецензия»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Информационно-смысловая переработка текста. План. Тезисы. Конспект. Реферат. Аннотация. Отзыв. Рецензия»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3150,6 +6535,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Культура речи в экологическом аспекте»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Культура речи в экологическом аспекте»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3163,6 +6564,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Синтаксис как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Синтаксис как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3176,6 +6593,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Изобразительно-выразительные средства синтаксиса»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Изобразительно-выразительные средства синтаксиса»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3189,6 +6622,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Синтаксические нормы. Основные нормы согласования сказуемого с подлежащим»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Синтаксические нормы. Основные нормы согласования сказуемого с подлежащим»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3202,6 +6651,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные нормы управления»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные нормы управления»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3215,6 +6680,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные нормы употребления однородных членов предложения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные нормы употребления однородных членов предложения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3228,6 +6709,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные нормы употребления причастных и деепричастных оборотов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные нормы употребления причастных и деепричастных оборотов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3241,6 +6738,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные нормы построения сложных предложений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные нормы построения сложных предложений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3254,6 +6767,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Обобщение и систематизация по теме «Синтаксис. Синтаксические нормы»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Обобщение и систематизация по теме «Синтаксис. Синтаксические нормы»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3267,6 +6796,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Пунктуация как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Пунктуация как раздел лингвистики (повторение, обобщение)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3280,6 +6825,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки препинания между подлежащим и сказуемым»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки препинания между подлежащим и сказуемым»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3293,6 +6854,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки препинания в предложениях с однородными членами»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки препинания в предложениях с однородными членами»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3306,6 +6883,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки препинания при обособлении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки препинания при обособлении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3319,6 +6912,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки препинания в предложениях с вводными конструкциями, обращениями, междометиями»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки препинания в предложениях с вводными конструкциями, обращениями, междометиями»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3332,6 +6941,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки препинания в сложном предложении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки препинания в сложном предложении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3345,6 +6970,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки препинания в сложном предложении с разными видами связи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки препинания в сложном предложении с разными видами связи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3358,6 +6999,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Знаки препинания при передаче чужой речи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Знаки препинания при передаче чужой речи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3371,6 +7028,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Повторение и обобщение по темам раздела «Пунктуация. Основные правила пунктуации»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Повторение и обобщение по темам раздела «Пунктуация. Основные правила пунктуации»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3384,6 +7057,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Функциональная стилистика как раздел лингвистики»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Функциональная стилистика как раздел лингвистики»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3397,6 +7086,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Разговорная речь»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Разговорная речь»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3410,6 +7115,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные жанры разговорной речи: устный рассказ, беседа, спор (обзор)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные жанры разговорной речи: устный рассказ, беседа, спор (обзор)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3423,6 +7144,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Научный стиль»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Научный стиль»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3436,6 +7173,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные жанры научного стиля (обзор)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные жанры научного стиля (обзор)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3449,6 +7202,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Официально-деловой стиль. Основные жанры официально-делового стиля (обзор)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Официально-деловой стиль. Основные жанры официально-делового стиля (обзор)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3462,6 +7231,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Публицистический стиль»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Публицистический стиль»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3475,6 +7260,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Основные жанры публицистического стиля (обзор)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Основные жанры публицистического стиля (обзор)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -3488,6 +7289,22 @@
     "Пример"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Схема правила по теме «Язык художественной литературы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Пример по теме «Язык художественной литературы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   }
  ]

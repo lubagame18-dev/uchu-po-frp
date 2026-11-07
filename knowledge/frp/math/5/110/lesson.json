@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/03_Математика/text.md",
  "table_title": "Площадь и периметр",
  "image": "knowledge/web/03_Математика/04_Площадь и периметр.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Площадь и периметр",
+   "image": "knowledge/web/03_Математика/04_Площадь и периметр.png",
+   "table_title": "Площадь и периметр"
+  }
+ ],
  "elements": [
   "прямоугольник: S = a · b, P = 2(a + b)",
   "квадрат: S = a², P = 4a"

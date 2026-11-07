@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/06_Биология/text.md",
  "table_title": "Фотосинтез",
  "image": "knowledge/web/06_Биология/04_Фотосинтез.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Фотосинтез",
+   "image": "knowledge/web/06_Биология/04_Фотосинтез.png",
+   "table_title": "Фотосинтез"
+  }
+ ],
  "elements": [
   "углекислый газ + вода —(свет, хлорофилл)→ органические вещества + кислород"
  ],

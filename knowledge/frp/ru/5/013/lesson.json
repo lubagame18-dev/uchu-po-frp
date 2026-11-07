@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/01_Русский_язык/text.md",
  "table_title": "Прямая речь и диалог",
  "image": "knowledge/web/01_Русский_язык/32_Прямая речь и диалог.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Прямая речь и диалог",
+   "image": "knowledge/web/01_Русский_язык/32_Прямая речь и диалог.png",
+   "table_title": "Прямая речь и диалог"
+  }
+ ],
  "elements": [
   "А: «П». А: «П?» А: «П!»",
   "«П», — а. «П?» — а. «П!» — а.",

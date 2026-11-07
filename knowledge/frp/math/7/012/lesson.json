@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/03_Математика/text.md",
  "table_title": "Проценты",
  "image": "knowledge/web/03_Математика/03_Проценты.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Проценты",
+   "image": "knowledge/web/03_Математика/03_Проценты.png",
+   "table_title": "Проценты"
+  }
+ ],
  "elements": [
   "1% = 1/100",
   "p% от a = a · p : 100",

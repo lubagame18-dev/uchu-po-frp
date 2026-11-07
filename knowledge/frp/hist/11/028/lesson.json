@@ -10,6 +10,29 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "portrait",
+   "caption": "Портрет по теме «Место и роль СССР в послевоенном мире. Внешняя политика СССР в 1945 – 1953 гг.»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "map",
+   "caption": "Карта по теме «Место и роль СССР в послевоенном мире. Внешняя политика СССР в 1945 – 1953 гг.»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 3,
+   "role": "monument",
+   "caption": "Памятник по теме «Место и роль СССР в послевоенном мире. Внешняя политика СССР в 1945 – 1953 гг.»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Элемент 1",
   "Элемент 2",

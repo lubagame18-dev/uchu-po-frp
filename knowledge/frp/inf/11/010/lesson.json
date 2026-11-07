@@ -10,6 +10,22 @@
  "text_source": null,
  "table_title": null,
  "image": null,
+ "images": [
+  {
+   "order": 1,
+   "role": "main",
+   "caption": "Блок-схема по теме «Практическая работа. Архивация данных»",
+   "image": null,
+   "table_title": null
+  },
+  {
+   "order": 2,
+   "role": "detail",
+   "caption": "Пример по теме «Практическая работа. Архивация данных»",
+   "image": null,
+   "table_title": null
+  }
+ ],
  "elements": [
   "Вход",
   "Действие",

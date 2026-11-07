@@ -13,6 +13,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Предмет химии. Роль химии в жизни человека. Химия в системе наук»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Предмет химии. Роль химии в жизни человека. Химия в системе наук»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -26,6 +42,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Тела и вещества. Физические свойства веществ. Агрегатные состояния. Лабораторный опыт «Изучение и описание физических свойств образцов неорганических веществ»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Тела и вещества. Физические свойства веществ. Агрегатные состояния. Лабораторный опыт «Изучение и описание физических свойств образцов неорганических веществ»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -39,6 +71,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №1 «Правила работы в лаборатории и приёмы обращения с лабораторным оборудованием»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №1 «Правила работы в лаборатории и приёмы обращения с лабораторным оборудованием»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -52,6 +100,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Чистые вещества и смеси. Способы разделения смесей. Лабораторный опыт «Разделение смеси с помощью магнита»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Чистые вещества и смеси. Способы разделения смесей. Лабораторный опыт «Разделение смеси с помощью магнита»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -65,6 +129,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №2 «Разделение смесей (на примере очистки поваренной соли)»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №2 «Разделение смесей (на примере очистки поваренной соли)»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -78,6 +158,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Атомы и молекулы. Химические элементы. Символы химических элементов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Атомы и молекулы. Химические элементы. Символы химических элементов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -91,6 +187,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Простые и сложные вещества. Атомно-молекулярное учение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Простые и сложные вещества. Атомно-молекулярное учение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -104,6 +216,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химическая формула. Относительная атомная и относительная молекулярная массы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химическая формула. Относительная атомная и относительная молекулярная массы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -117,6 +245,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Массовая доля химического элемента в соединении»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Массовая доля химического элемента в соединении»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -130,6 +274,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Валентность. Составление формул бинарных соединений по валентности»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Валентность. Составление формул бинарных соединений по валентности»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -143,6 +303,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Закон постоянства состава веществ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Закон постоянства состава веществ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -156,6 +332,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Количество вещества. Моль. Число структурных единиц»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Количество вещества. Моль. Число структурных единиц»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -169,6 +361,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Молярная масса. Взаимосвязь количества, массы и числа частиц вещества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Молярная масса. Взаимосвязь количества, массы и числа частиц вещества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -182,6 +390,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Расчёты по формулам химических соединений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Расчёты по формулам химических соединений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -195,6 +419,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Физические и химические явления. Признаки и условия протекания химических реакций»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Физические и химические явления. Признаки и условия протекания химических реакций»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -208,6 +448,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Закон сохранения массы веществ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Закон сохранения массы веществ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -221,6 +477,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические уравнения. Расстановка коэффициентов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические уравнения. Расстановка коэффициентов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -234,6 +506,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Расчёты по уравнениям химических реакций: количество и масса вещества»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Расчёты по уравнениям химических реакций: количество и масса вещества»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -247,6 +535,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Классификация химических реакций: соединения, разложения, замещения, обмена»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Классификация химических реакций: соединения, разложения, замещения, обмена»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -260,6 +564,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Контрольная работа №1 «Вещества и химические реакции»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Контрольная работа №1 «Вещества и химические реакции»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -273,6 +593,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Воздух – смесь газов. Состав воздуха. Загрязнение воздуха»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Воздух – смесь газов. Состав воздуха. Загрязнение воздуха»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -286,6 +622,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Кислород – элемент и простое вещество. Нахождение в природе, физические свойства, получение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Кислород – элемент и простое вещество. Нахождение в природе, физические свойства, получение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -299,6 +651,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №3 «Получение и собирание кислорода, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №3 «Получение и собирание кислорода, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -312,6 +680,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические свойства кислорода. Оксиды. Горение и медленное окисление»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические свойства кислорода. Оксиды. Горение и медленное окисление»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -325,6 +709,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Тепловой эффект химической реакции. Термохимические уравнения. Топливо»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Тепловой эффект химической реакции. Термохимические уравнения. Топливо»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -338,6 +738,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Озон – аллотропная модификация кислорода. Круговорот кислорода. Применение кислорода»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Озон – аллотропная модификация кислорода. Круговорот кислорода. Применение кислорода»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -351,6 +767,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Водород – элемент и простое вещество. Нахождение в природе, физические свойства, получение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Водород – элемент и простое вещество. Нахождение в природе, физические свойства, получение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -364,6 +796,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические свойства водорода. Применение водорода»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические свойства водорода. Применение водорода»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -377,6 +825,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №4 «Получение и собирание водорода, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №4 «Получение и собирание водорода, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -390,6 +854,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Молярный объём газов. Закон объёмных отношений газов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Молярный объём газов. Закон объёмных отношений газов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -403,6 +883,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Расчёты по уравнениям реакций с участием газов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Расчёты по уравнениям реакций с участием газов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -416,6 +912,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Понятие о кислотах. Состав, названия, классификация. Взаимодействие кислот с металлами»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Понятие о кислотах. Состав, названия, классификация. Взаимодействие кислот с металлами»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -429,6 +941,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Понятие о солях. Состав, названия, растворимость солей»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Понятие о солях. Состав, названия, растворимость солей»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -442,6 +970,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Решение расчётных задач по уравнениям реакций»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Решение расчётных задач по уравнениям реакций»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -455,6 +999,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Вода: физические и химические свойства, вода как растворитель. Круговорот воды. Охрана и очистка природных вод»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Вода: физические и химические свойства, вода как растворитель. Круговорот воды. Охрана и очистка природных вод»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -468,6 +1028,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Растворы. Насыщенные и ненасыщенные растворы. Растворимость веществ в воде. Понятие об основаниях»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Растворы. Насыщенные и ненасыщенные растворы. Растворимость веществ в воде. Понятие об основаниях»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -481,6 +1057,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Массовая доля растворённого вещества. Решение задач»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Массовая доля растворённого вещества. Решение задач»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -494,6 +1086,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №5 «Приготовление растворов с определённой массовой долей растворённого вещества»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №5 «Приготовление растворов с определённой массовой долей растворённого вещества»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -507,6 +1115,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Решение расчётных задач на растворы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Решение расчётных задач на растворы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -520,6 +1144,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Классификация неорганических соединений. Оксиды: классификация, номенклатура»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Классификация неорганических соединений. Оксиды: классификация, номенклатура»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -533,6 +1173,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Свойства оксидов. Получение оксидов. Лабораторный опыт «Взаимодействие раствора серной кислоты с оксидом меди (II)»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Свойства оксидов. Получение оксидов. Лабораторный опыт «Взаимодействие раствора серной кислоты с оксидом меди (II)»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -546,6 +1202,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Основания: классификация, номенклатура, получение. Лабораторный опыт «Получение нерастворимых оснований»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Основания: классификация, номенклатура, получение. Лабораторный опыт «Получение нерастворимых оснований»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -559,6 +1231,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические свойства оснований. Реакция нейтрализации. Индикаторы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические свойства оснований. Реакция нейтрализации. Индикаторы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -572,6 +1260,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Кислоты: классификация, номенклатура, физические и химические свойства»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Кислоты: классификация, номенклатура, физические и химические свойства»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -585,6 +1289,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Ряд активности металлов Н. Н. Бекетова. Лабораторный опыт «Вытеснение одного металла другим из раствора соли»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Ряд активности металлов Н. Н. Бекетова. Лабораторный опыт «Вытеснение одного металла другим из раствора соли»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -598,6 +1318,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Соли: номенклатура, физические и химические свойства, получение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Соли: номенклатура, физические и химические свойства, получение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -611,6 +1347,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Генетическая связь между классами неорганических соединений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Генетическая связь между классами неорганических соединений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -624,6 +1376,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Расчёты по уравнениям реакций по теме «Классы неорганических соединений»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Расчёты по уравнениям реакций по теме «Классы неорганических соединений»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -637,6 +1405,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №6 «Решение экспериментальных задач по теме «Важнейшие классы неорганических соединений»»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №6 «Решение экспериментальных задач по теме «Важнейшие классы неорганических соединений»»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -650,6 +1434,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Контрольная работа №2 «Важнейшие представители неорганических веществ»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Контрольная работа №2 «Важнейшие представители неорганических веществ»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -663,6 +1463,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Первые попытки классификации химических элементов. Группы сходных элементов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Первые попытки классификации химических элементов. Группы сходных элементов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -676,6 +1492,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Периодический закон Д. И. Менделеева. Периодическая система: периоды и группы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Периодический закон Д. И. Менделеева. Периодическая система: периоды и группы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -689,6 +1521,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Строение атомов. Состав атомных ядер. Изотопы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Строение атомов. Состав атомных ядер. Изотопы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -702,6 +1550,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Электроны. Строение электронных оболочек атомов первых 20 элементов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Электроны. Строение электронных оболочек атомов первых 20 элементов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -715,6 +1579,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Характеристика химического элемента по его положению в Периодической системе. Амфотерные оксиды и гидроксиды»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Характеристика химического элемента по его положению в Периодической системе. Амфотерные оксиды и гидроксиды»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -728,6 +1608,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Закономерности изменения радиуса атомов, металлических и неметаллических свойств. Лабораторный опыт «Ознакомление с образцами металлов и неметаллов»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Закономерности изменения радиуса атомов, металлических и неметаллических свойств. Лабораторный опыт «Ознакомление с образцами металлов и неметаллов»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -741,6 +1637,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Значение Периодического закона. Д. И. Менделеев – учёный и гражданин»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Значение Периодического закона. Д. И. Менделеев – учёный и гражданин»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -754,6 +1666,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химическая связь. Электроотрицательность химических элементов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химическая связь. Электроотрицательность химических элементов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -767,6 +1695,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Ковалентная неполярная связь»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Ковалентная неполярная связь»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -780,6 +1724,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Ковалентная полярная связь»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Ковалентная полярная связь»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -793,6 +1753,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Ионная связь»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Ионная связь»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -806,6 +1782,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Степень окисления. Определение степеней окисления по формулам»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Степень окисления. Определение степеней окисления по формулам»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -819,6 +1811,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Окислительно-восстановительные реакции. Процессы окисления и восстановления. Окислители и восстановители»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Окислительно-восстановительные реакции. Процессы окисления и восстановления. Окислители и восстановители»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -832,6 +1840,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Обобщение по темам «Периодический закон. Строение атомов. Химическая связь»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Обобщение по темам «Периодический закон. Строение атомов. Химическая связь»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -845,6 +1869,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Контрольная работа №3 «Периодический закон. Строение атомов. Химическая связь. Окислительно-восстановительные реакции»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Контрольная работа №3 «Периодический закон. Строение атомов. Химическая связь. Окислительно-восстановительные реакции»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -857,6 +1897,15 @@
     "индикаторы: лакмус (красный в кислоте, синий в щёлочи), фенолфталеин (малиновый в щёлочи)"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Классы веществ",
+     "image": "knowledge/web/05_Химия/03_Классы веществ.png",
+     "table_title": "Классы веществ"
+    }
+   ],
    "text_source": "knowledge/web/05_Химия/text.md"
   },
   {
@@ -870,6 +1919,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Итоговая контрольная работа №4 за курс химии 8 класса»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Итоговая контрольная работа №4 за курс химии 8 класса»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -883,6 +1948,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Анализ итоговой работы. Резервный урок»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Анализ итоговой работы. Резервный урок»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -896,6 +1977,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Периодический закон и Периодическая система. Строение атомов элементов первых трёх периодов, калия и кальция»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Периодический закон и Периодическая система. Строение атомов элементов первых трёх периодов, калия и кальция»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -909,6 +2006,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Строение вещества: виды химической связи. Типы кристаллических решёток»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Строение вещества: виды химической связи. Типы кристаллических решёток»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -922,6 +2035,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Зависимость свойств вещества от типа кристаллической решётки и вида химической связи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Зависимость свойств вещества от типа кристаллической решётки и вида химической связи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -935,6 +2064,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Классификация и номенклатура неорганических веществ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Классификация и номенклатура неорганических веществ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -948,6 +2093,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические свойства основных классов неорганических веществ. Генетическая связь»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические свойства основных классов неорганических веществ. Генетическая связь»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -961,6 +2122,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Классификация химических реакций по различным признакам. Экзо- и эндотермические реакции»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Классификация химических реакций по различным признакам. Экзо- и эндотермические реакции»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -974,6 +2151,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Скорость химической реакции. Катализ. Факторы, влияющие на скорость»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Скорость химической реакции. Катализ. Факторы, влияющие на скорость»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -987,6 +2180,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Обратимые и необратимые реакции. Химическое равновесие. Смещение равновесия»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Обратимые и необратимые реакции. Химическое равновесие. Смещение равновесия»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1000,6 +2209,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Окислительно-восстановительные реакции. Метод электронного баланса»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Окислительно-восстановительные реакции. Метод электронного баланса»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1013,6 +2238,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Электролиты и неэлектролиты. Теория электролитической диссоциации. Механизм диссоциации»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Электролиты и неэлектролиты. Теория электролитической диссоциации. Механизм диссоциации»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1026,6 +2267,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Степень диссоциации. Сильные и слабые электролиты»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Степень диссоциации. Сильные и слабые электролиты»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1039,6 +2296,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Реакции ионного обмена. Полные и сокращённые ионные уравнения. Лабораторный опыт «Реакции ионного обмена»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Реакции ионного обмена. Полные и сокращённые ионные уравнения. Лабораторный опыт «Реакции ионного обмена»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1052,6 +2325,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Условия протекания реакций ионного обмена до конца. Расчёты по уравнениям реакций»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Условия протекания реакций ионного обмена до конца. Расчёты по уравнениям реакций»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1065,6 +2354,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Свойства кислот, оснований и солей в свете теории электролитической диссоциации. Качественные реакции на ионы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Свойства кислот, оснований и солей в свете теории электролитической диссоциации. Качественные реакции на ионы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1078,6 +2383,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Понятие о гидролизе солей»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Понятие о гидролизе солей»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1091,6 +2412,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №1 «Решение экспериментальных задач по теме «Электролитическая диссоциация»»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №1 «Решение экспериментальных задач по теме «Электролитическая диссоциация»»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1104,6 +2441,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Контрольная работа №1 «Вещество и химические реакции»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Контрольная работа №1 «Вещество и химические реакции»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1117,6 +2470,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Галогены: общая характеристика, строение атомов, свойства простых веществ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Галогены: общая характеристика, строение атомов, свойства простых веществ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1130,6 +2499,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические свойства хлора. Хлороводород и соляная кислота. Хлориды. Качественная реакция на хлорид-ион»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические свойства хлора. Хлороводород и соляная кислота. Хлориды. Качественная реакция на хлорид-ион»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1143,6 +2528,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №2 «Получение соляной кислоты, изучение её свойств»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №2 «Получение соляной кислоты, изучение её свойств»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1156,6 +2557,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Расчёты по уравнениям реакций, если один из реагентов дан в избытке. Обобщение по теме «Галогены»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Расчёты по уравнениям реакций, если один из реагентов дан в избытке. Обобщение по теме «Галогены»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1169,6 +2586,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Общая характеристика элементов VIА-группы. Кислород и сера. Аллотропия. Свойства серы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Общая характеристика элементов VIА-группы. Кислород и сера. Аллотропия. Свойства серы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1182,6 +2615,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Сероводород. Оксиды серы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Сероводород. Оксиды серы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1195,6 +2644,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Серная кислота: общие свойства кислот. Лабораторный опыт «Химические свойства разбавленной серной кислоты»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Серная кислота: общие свойства кислот. Лабораторный опыт «Химические свойства разбавленной серной кислоты»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1208,6 +2673,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Специфические свойства серной кислоты. Промышленное получение серной кислоты. Применение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Специфические свойства серной кислоты. Промышленное получение серной кислоты. Применение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1221,6 +2702,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Соли серной кислоты. Качественная реакция на сульфат-ион. Сера и её соединения в природе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Соли серной кислоты. Качественная реакция на сульфат-ион. Сера и её соединения в природе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1234,6 +2731,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Соединения серы и охрана окружающей среды. Кислотные дожди. Обобщение по теме»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Соединения серы и охрана окружающей среды. Кислотные дожди. Обобщение по теме»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1247,6 +2760,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Общая характеристика элементов VА-группы. Азот: свойства, круговорот азота в природе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Общая характеристика элементов VА-группы. Азот: свойства, круговорот азота в природе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1260,6 +2789,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Аммиак: строение, свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Аммиак: строение, свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1273,6 +2818,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №3 «Получение аммиака, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №3 «Получение аммиака, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1286,6 +2847,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Соли аммония. Качественная реакция на ион аммония»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Соли аммония. Качественная реакция на ион аммония»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1299,6 +2876,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Азотная кислота: получение, общие и специфические свойства. Нитраты»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Азотная кислота: получение, общие и специфические свойства. Нитраты»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1312,6 +2905,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Фосфор и его соединения. Фосфорная кислота. Качественная реакция на фосфат-ион»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Фосфор и его соединения. Фосфорная кислота. Качественная реакция на фосфат-ион»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1325,6 +2934,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Минеральные удобрения. Загрязнение окружающей среды соединениями азота. Решение задач»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Минеральные удобрения. Загрязнение окружающей среды соединениями азота. Решение задач»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1338,6 +2963,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Общая характеристика элементов IVА-группы. Углерод: аллотропия, адсорбция, круговорот в природе»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Общая характеристика элементов IVА-группы. Углерод: аллотропия, адсорбция, круговорот в природе»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1351,6 +2992,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Оксиды углерода. Парниковый эффект. Угольная кислота и её соли. Качественная реакция на карбонат-ион»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Оксиды углерода. Парниковый эффект. Угольная кислота и её соли. Качественная реакция на карбонат-ион»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1364,6 +3021,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Получение, собирание, распознавание углекислого газа. Лабораторный опыт «Изучение свойств углекислого газа»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Получение, собирание, распознавание углекислого газа. Лабораторный опыт «Изучение свойств углекислого газа»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1377,6 +3050,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №4 «Получение углекислого газа, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №4 «Получение углекислого газа, изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1390,6 +3079,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Кремний и его соединения. Силикаты. Строительные материалы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Кремний и его соединения. Силикаты. Строительные материалы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1403,6 +3108,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Первоначальные понятия об органических веществах. Природные источники углеводородов. Жиры, белки, углеводы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Первоначальные понятия об органических веществах. Природные источники углеводородов. Жиры, белки, углеводы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1416,6 +3137,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №5 «Решение экспериментальных задач по теме «Важнейшие неметаллы и их соединения»»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №5 «Решение экспериментальных задач по теме «Важнейшие неметаллы и их соединения»»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1429,6 +3166,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Контрольная работа №2 «Неметаллы и их соединения»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Контрольная работа №2 «Неметаллы и их соединения»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1442,6 +3195,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Положение металлов в Периодической системе. Металлическая связь. Лабораторный опыт «Ознакомление с образцами металлов и сплавов»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Положение металлов в Периодической системе. Металлическая связь. Лабораторный опыт «Ознакомление с образцами металлов и сплавов»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1455,6 +3224,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Физические и химические свойства металлов. Электрохимический ряд напряжений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Физические и химические свойства металлов. Электрохимический ряд напряжений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1468,6 +3253,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Общие способы получения металлов. Коррозия металлов и защита от неё»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Общие способы получения металлов. Коррозия металлов и защита от неё»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1481,6 +3282,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Сплавы и их применение. Расчёты по уравнениям реакций, если реагент содержит примеси»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Сплавы и их применение. Расчёты по уравнениям реакций, если реагент содержит примеси»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1494,6 +3311,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Щелочные металлы: положение в Периодической системе, строение атомов, физические свойства»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Щелочные металлы: положение в Периодической системе, строение атомов, физические свойства»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1507,6 +3340,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические свойства натрия и калия»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические свойства натрия и калия»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1520,6 +3369,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Оксиды и гидроксиды натрия и калия. Применение щелочных металлов и их соединений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Оксиды и гидроксиды натрия и калия. Применение щелочных металлов и их соединений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1533,6 +3398,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Щелочноземельные металлы: магний и кальций»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Щелочноземельные металлы: магний и кальций»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1546,6 +3427,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Важнейшие соединения кальция: оксид, гидроксид, соли»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Важнейшие соединения кальция: оксид, гидроксид, соли»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1559,6 +3456,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Жёсткость воды и способы её устранения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Жёсткость воды и способы её устранения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1572,6 +3485,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №6 «Жёсткость воды и методы её устранения»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №6 «Жёсткость воды и методы её устранения»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1584,6 +3513,15 @@
     "электрон"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Строение атома",
+     "image": "knowledge/web/05_Химия/04_Строение атома.png",
+     "table_title": "Строение атома"
+    }
+   ],
    "text_source": "knowledge/web/05_Химия/text.md"
   },
   {
@@ -1597,6 +3535,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Амфотерные свойства оксида и гидроксида алюминия. Лабораторный опыт «Исследование амфотерных свойств гидроксидов алюминия и цинка»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Амфотерные свойства оксида и гидроксида алюминия. Лабораторный опыт «Исследование амфотерных свойств гидроксидов алюминия и цинка»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1609,6 +3563,15 @@
     "электрон"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Строение атома",
+     "image": "knowledge/web/05_Химия/04_Строение атома.png",
+     "table_title": "Строение атома"
+    }
+   ],
    "text_source": "knowledge/web/05_Химия/text.md"
   },
   {
@@ -1622,6 +3585,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Оксиды и гидроксиды железа (II) и железа (III)»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Оксиды и гидроксиды железа (II) и железа (III)»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1635,6 +3614,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Соли железа (II) и железа (III). Качественные реакции на ионы железа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Соли железа (II) и железа (III). Качественные реакции на ионы железа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1648,6 +3643,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Качественные реакции на ионы металлов. Лабораторный опыт «Качественные реакции на ионы магния, кальция, цинка, меди (II)»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Качественные реакции на ионы металлов. Лабораторный опыт «Качественные реакции на ионы магния, кальция, цинка, меди (II)»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1661,6 +3672,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Расчёты по уравнениям реакций: массовая доля выхода продукта, примеси, избыток»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Расчёты по уравнениям реакций: массовая доля выхода продукта, примеси, избыток»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1674,6 +3701,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №7 «Решение экспериментальных задач по теме «Важнейшие металлы и их соединения»»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №7 «Решение экспериментальных задач по теме «Важнейшие металлы и их соединения»»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1687,6 +3730,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Контрольная работа №3 «Металлы и их соединения»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Контрольная работа №3 «Металлы и их соединения»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1700,6 +3759,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Вещества и материалы в повседневной жизни. Безопасное использование веществ. Первая помощь при химических ожогах и отравлениях»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Вещества и материалы в повседневной жизни. Безопасное использование веществ. Первая помощь при химических ожогах и отравлениях»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1713,6 +3788,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химическое загрязнение окружающей среды. Предельно допустимая концентрация. Роль химии в решении экологических проблем»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химическое загрязнение окружающей среды. Предельно допустимая концентрация. Роль химии в решении экологических проблем»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1726,6 +3817,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Обобщение курса химии основной школы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Обобщение курса химии основной школы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1739,6 +3846,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Повторение: основные понятия и законы химии»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Повторение: основные понятия и законы химии»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1752,6 +3875,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Итоговая контрольная работа №4 за курс химии основной школы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Итоговая контрольная работа №4 за курс химии основной школы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1765,6 +3904,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Анализ итоговой работы. Резервный урок»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Анализ итоговой работы. Резервный урок»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1778,6 +3933,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Предмет органической химии. Теория строения органических соединений А. М. Бутлерова»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Предмет органической химии. Теория строения органических соединений А. М. Бутлерова»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1791,6 +3962,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Структурные формулы. Гомология и изомерия. Лабораторный опыт «Моделирование молекул органических веществ»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Структурные формулы. Гомология и изомерия. Лабораторный опыт «Моделирование молекул органических веществ»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1804,6 +3991,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химическая связь в органических соединениях: σ- и π-связи. Классификация и номенклатура органических веществ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химическая связь в органических соединениях: σ- и π-связи. Классификация и номенклатура органических веществ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1817,6 +4020,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Алканы: состав и строение, гомологический ряд, изомерия, номенклатура»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Алканы: состав и строение, гомологический ряд, изомерия, номенклатура»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1830,6 +4049,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Метан и этан: физические и химические свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Метан и этан: физические и химические свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1843,6 +4078,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Алкены: состав и строение, гомологический ряд. Этилен»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Алкены: состав и строение, гомологический ряд. Этилен»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1856,6 +4107,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №1 «Получение этилена и изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №1 «Получение этилена и изучение его свойств»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1869,6 +4136,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химические свойства алкенов: гидрирование, галогенирование, гидратация, окисление, полимеризация»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химические свойства алкенов: гидрирование, галогенирование, гидратация, окисление, полимеризация»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1882,6 +4165,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Алкадиены. Бутадиен-1,3 и метилбутадиен-1,3. Каучук и резина»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Алкадиены. Бутадиен-1,3 и метилбутадиен-1,3. Каучук и резина»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1895,6 +4194,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Алкины: состав и строение, гомологический ряд. Ацетилен»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Алкины: состав и строение, гомологический ряд. Ацетилен»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1908,6 +4223,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Расчётные задачи: вывод молекулярной формулы вещества по массовым долям элементов и продуктам сгорания»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Расчётные задачи: вывод молекулярной формулы вещества по массовым долям элементов и продуктам сгорания»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1921,6 +4252,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Арены: бензол и толуол. Строение, физические и химические свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Арены: бензол и толуол. Строение, физические и химические свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1934,6 +4281,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Генетическая связь углеводородов. Влияние бензола на организм человека»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Генетическая связь углеводородов. Влияние бензола на организм человека»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1947,6 +4310,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Природный газ и попутные нефтяные газы. Нефть и её происхождение. Лабораторный опыт «Качественное определение углерода и водорода в органических веществах»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Природный газ и попутные нефтяные газы. Нефть и её происхождение. Лабораторный опыт «Качественное определение углерода и водорода в органических веществах»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1960,6 +4339,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Переработка нефти: перегонка, крекинг. Каменный уголь и продукты его переработки»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Переработка нефти: перегонка, крекинг. Каменный уголь и продукты его переработки»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1973,6 +4368,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Контрольная работа №1 «Углеводороды»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Контрольная работа №1 «Углеводороды»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1986,6 +4397,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Предельные одноатомные спирты: метанол и этанол. Водородная связь. Лабораторный опыт «Горение спиртов»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Предельные одноатомные спирты: метанол и этанол. Водородная связь. Лабораторный опыт «Горение спиртов»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -1999,6 +4426,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Многоатомные спирты: этиленгликоль и глицерин. Лабораторный опыт «Взаимодействие глицерина с гидроксидом меди (II)»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Многоатомные спирты: этиленгликоль и глицерин. Лабораторный опыт «Взаимодействие глицерина с гидроксидом меди (II)»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2012,6 +4455,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Фенол: строение молекулы, свойства, токсичность, применение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Фенол: строение молекулы, свойства, токсичность, применение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2025,6 +4484,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Альдегиды: формальдегид и ацетальдегид. Строение, свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Альдегиды: формальдегид и ацетальдегид. Строение, свойства, получение, применение»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2038,6 +4513,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Качественные реакции альдегидов. Лабораторный опыт «Окисление альдегидов аммиачным раствором оксида серебра (I) и гидроксидом меди (II)»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Качественные реакции альдегидов. Лабораторный опыт «Окисление альдегидов аммиачным раствором оксида серебра (I) и гидроксидом меди (II)»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2051,6 +4542,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Одноосновные предельные карбоновые кислоты. Уксусная кислота»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Одноосновные предельные карбоновые кислоты. Уксусная кислота»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2064,6 +4571,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №2 «Свойства раствора уксусной кислоты»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №2 «Свойства раствора уксусной кислоты»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2077,6 +4600,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Высшие карбоновые кислоты. Мыла как соли высших карбоновых кислот»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Высшие карбоновые кислоты. Мыла как соли высших карбоновых кислот»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2090,6 +4629,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Сложные эфиры. Реакция этерификации. Гидролиз сложных эфиров»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Сложные эфиры. Реакция этерификации. Гидролиз сложных эфиров»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2103,6 +4658,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Жиры как производные глицерина и высших карбоновых кислот. Гидролиз жиров»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Жиры как производные глицерина и высших карбоновых кислот. Гидролиз жиров»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2116,6 +4687,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Углеводы: состав и классификация. Глюкоза»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Углеводы: состав и классификация. Глюкоза»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2129,6 +4716,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Фруктоза. Сахароза. Фотосинтез»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Фруктоза. Сахароза. Фотосинтез»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2142,6 +4745,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Крахмал и целлюлоза как природные полимеры. Лабораторный опыт «Взаимодействие крахмала с иодом»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Крахмал и целлюлоза как природные полимеры. Лабораторный опыт «Взаимодействие крахмала с иодом»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2155,6 +4774,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Амины. Метиламин: состав, строение, свойства»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Амины. Метиламин: состав, строение, свойства»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2168,6 +4803,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Аминокислоты как амфотерные органические соединения. Глицин. Синтез пептидов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Аминокислоты как амфотерные органические соединения. Глицин. Синтез пептидов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2181,6 +4832,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Белки как природные полимеры: структура, гидролиз, денатурация, качественные реакции»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Белки как природные полимеры: структура, гидролиз, денатурация, качественные реакции»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2194,6 +4861,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Высокомолекулярные соединения: мономер, полимер, структурное звено. Полимеризация и поликонденсация. Пластмассы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Высокомолекулярные соединения: мономер, полимер, структурное звено. Полимеризация и поликонденсация. Пластмассы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2207,6 +4890,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Каучуки и волокна: натуральные, искусственные, синтетические. Обобщение курса органической химии»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Каучуки и волокна: натуральные, искусственные, синтетические. Обобщение курса органической химии»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2219,6 +4918,15 @@
     "электрон"
    ],
    "elements_source": "ready_table",
+   "images": [
+    {
+     "order": 1,
+     "role": "table",
+     "caption": "Строение атома",
+     "image": "knowledge/web/05_Химия/04_Строение атома.png",
+     "table_title": "Строение атома"
+    }
+   ],
    "text_source": "knowledge/web/05_Химия/text.md"
   },
   {
@@ -2232,6 +4940,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Электронные конфигурации атомов. s-, p-, d-, f-элементы»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Электронные конфигурации атомов. s-, p-, d-, f-элементы»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2245,6 +4969,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Периодический закон и Периодическая система в свете строения атомов. Закономерности изменения свойств элементов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Периодический закон и Периодическая система в свете строения атомов. Закономерности изменения свойств элементов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2258,6 +4998,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химическая связь: ковалентная, ионная, металлическая, водородная. Механизмы образования ковалентной связи»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химическая связь: ковалентная, ионная, металлическая, водородная. Механизмы образования ковалентной связи»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2271,6 +5027,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Электроотрицательность, валентность, степень окисления. Вещества молекулярного и немолекулярного строения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Электроотрицательность, валентность, степень окисления. Вещества молекулярного и немолекулярного строения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2284,6 +5056,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Типы кристаллических решёток и свойства веществ. Закон постоянства состава»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Типы кристаллических решёток и свойства веществ. Закон постоянства состава»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2297,6 +5085,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Дисперсные системы. Истинные растворы. Массовая доля вещества в растворе. Классификация и номенклатура неорганических веществ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Дисперсные системы. Истинные растворы. Массовая доля вещества в растворе. Классификация и номенклатура неорганических веществ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2310,6 +5114,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Классификация химических реакций. Законы сохранения массы и энергии. Термохимические расчёты»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Классификация химических реакций. Законы сохранения массы и энергии. Термохимические расчёты»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2323,6 +5143,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Скорость химической реакции и факторы, влияющие на неё»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Скорость химической реакции и факторы, влияющие на неё»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2336,6 +5172,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №1 «Влияние различных факторов на скорость химической реакции»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №1 «Влияние различных факторов на скорость химической реакции»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2349,6 +5201,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Обратимые реакции. Химическое равновесие. Принцип Ле Шателье»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Обратимые реакции. Химическое равновесие. Принцип Ле Шателье»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2362,6 +5230,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Электролитическая диссоциация. Среда водных растворов. Водородный показатель. Реакции ионного обмена. Лабораторный опыт «Определение среды растворов с помощью универсального индикатора»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Электролитическая диссоциация. Среда водных растворов. Водородный показатель. Реакции ионного обмена. Лабораторный опыт «Определение среды растворов с помощью универсального индикатора»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2375,6 +5259,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Окислительно-восстановительные реакции. Электролиз расплавов и растворов солей»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Окислительно-восстановительные реакции. Электролиз расплавов и растворов солей»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2388,6 +5288,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Положение металлов в Периодической системе. Физические свойства, сплавы, применение металлов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Положение металлов в Периодической системе. Физические свойства, сплавы, применение металлов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2401,6 +5317,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Электрохимический ряд напряжений. Способы получения металлов. Коррозия металлов и защита от неё»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Электрохимический ряд напряжений. Способы получения металлов. Коррозия металлов и защита от неё»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2414,6 +5346,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Металлы главных подгрупп: IА- и IIА-группы. Алюминий. Лабораторный опыт «Взаимодействие гидроксида алюминия с растворами кислот и щелочей»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Металлы главных подгрупп: IА- и IIА-группы. Алюминий. Лабораторный опыт «Взаимодействие гидроксида алюминия с растворами кислот и щелочей»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2427,6 +5375,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Металлы побочных подгрупп: медь, цинк, хром, железо. Важнейшие соединения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Металлы побочных подгрупп: медь, цинк, хром, железо. Важнейшие соединения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2440,6 +5404,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Качественные реакции на катионы металлов. Расчёты по уравнениям, если вещество дано в виде раствора»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Качественные реакции на катионы металлов. Расчёты по уравнениям, если вещество дано в виде раствора»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2453,6 +5433,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №2 «Решение экспериментальных задач по теме «Металлы»»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №2 «Решение экспериментальных задач по теме «Металлы»»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2466,6 +5462,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Положение неметаллов в Периодической системе. Физические свойства, аллотропия»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Положение неметаллов в Периодической системе. Физические свойства, аллотропия»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2479,6 +5491,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Галогены: свойства простых веществ и соединений»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Галогены: свойства простых веществ и соединений»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2492,6 +5520,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Сера и её соединения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Сера и её соединения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2505,6 +5549,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Азот и его соединения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Азот и его соединения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2518,6 +5578,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Фосфор и его соединения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Фосфор и его соединения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2531,6 +5607,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Углерод и кремний и их соединения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Углерод и кремний и их соединения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2544,6 +5636,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Оксиды неметаллов. Кислородсодержащие кислоты. Водородные соединения неметаллов»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Оксиды неметаллов. Кислородсодержащие кислоты. Водородные соединения неметаллов»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2557,6 +5665,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Качественные реакции на анионы и катион аммония. Расчёты по уравнениям, если вещество содержит примеси»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Качественные реакции на анионы и катион аммония. Расчёты по уравнениям, если вещество содержит примеси»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2570,6 +5694,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Практическая работа №3 «Решение экспериментальных задач по теме «Неметаллы»»»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Практическая работа №3 «Решение экспериментальных задач по теме «Неметаллы»»»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2583,6 +5723,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Неорганические и органические кислоты и основания. Амфотерные соединения»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Неорганические и органические кислоты и основания. Амфотерные соединения»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2596,6 +5752,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Генетическая связь неорганических и органических веществ»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Генетическая связь неорганических и органических веществ»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2609,6 +5781,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Роль химии в обеспечении экологической, энергетической и пищевой безопасности. Научные методы познания веществ и реакций»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Роль химии в обеспечении экологической, энергетической и пищевой безопасности. Научные методы познания веществ и реакций»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2622,6 +5810,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Общие научные принципы промышленного получения веществ: аммиак, серная кислота, метанол»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Общие научные принципы промышленного получения веществ: аммиак, серная кислота, метанол»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2635,6 +5839,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Химия и здоровье человека. Лекарственные препараты. Бытовая химическая грамотность»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Химия и здоровье человека. Лекарственные препараты. Бытовая химическая грамотность»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   },
   {
@@ -2648,6 +5868,22 @@
     "Реакция"
    ],
    "elements_source": "topic_structure",
+   "images": [
+    {
+     "order": 1,
+     "role": "main",
+     "caption": "Основная схема по теме «Обобщение курса химии. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    },
+    {
+     "order": 2,
+     "role": "detail",
+     "caption": "Дополнительный пример/строение по теме «Обобщение курса химии. Итоговая контрольная работа»",
+     "image": null,
+     "table_title": null
+    }
+   ],
    "text_source": null
   }
  ]

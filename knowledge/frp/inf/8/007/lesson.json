@@ -10,6 +10,15 @@
  "text_source": "knowledge/web/08_Информатика/text.md",
  "table_title": "Логические операции",
  "image": "knowledge/web/08_Информатика/03_Логические операции.png",
+ "images": [
+  {
+   "order": 1,
+   "role": "table",
+   "caption": "Логические операции",
+   "image": "knowledge/web/08_Информатика/03_Логические операции.png",
+   "table_title": "Логические операции"
+  }
+ ],
  "elements": [
   "0",
   "1",
