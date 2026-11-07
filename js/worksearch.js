@@ -105,10 +105,8 @@ const WorkSearch = (() => {
     m.querySelector("#wsGo").onclick = go; m.querySelector("#wsQ").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); go(); } });
     go();
   }
-  // кнопка над листом (рабочий лист и конспект)
-  const btn = document.createElement("button"); btn.className = "btn sm ghost"; btn.id = "btnFind"; btn.type = "button"; btn.textContent = "🔍 Найти задания"; btn.hidden = true; btn.onclick = open;
-  function syncBtn() { const tools = document.getElementById("wsTools"); if (tools && !tools.contains(btn)) tools.prepend(btn); btn.hidden = !(state.lesson && ["worksheet", "conspect"].includes(state.active)); }
-  document.addEventListener("DOMContentLoaded", syncBtn);
+  // Кнопка «Найти задания» убрана: задания встраиваются в лист/конспект автоматически.
+  function syncBtn() { }
   return { search, quality, open, insert, syncBtn };
 })();
 window.WorkSearch = WorkSearch;

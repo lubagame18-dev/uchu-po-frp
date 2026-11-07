@@ -2509,7 +2509,7 @@ function syncTools() {
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
   { const bm = $("#btnMore"); if (bm) { const bx = $("#wsMoreBox"); if (bx) bx.hidden = !(state.active === "worksheet" && has); bm.hidden = false; const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
   { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = true;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
-  $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; { const dev = !window.Access || !Access.commercial() || Access.isDev(), isWs = state.active === "worksheet" && has; $("#btnAppx").hidden = !isWs; $("#btnPng").hidden = !(isWs && (state.lesson.art?.banner || state.lesson.art?.slots?.length)); $("#btnMdToggle").hidden = !dev; } $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
+  $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; { const dev = !window.Access || !Access.commercial() || Access.isDev(), isWs = state.active === "worksheet" && has; $("#btnPng").hidden = !(isWs && (state.lesson.art?.banner || state.lesson.art?.slots?.length)); $("#btnMdToggle").hidden = !dev; } $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
   $("#btnStop").hidden = !state.gen;
@@ -3104,7 +3104,7 @@ async function docxBlobs(L, d) {
 }
 async function exportDocx() { const L = state.lesson; const files = (await docxBlobs(L, state.active)).filter(([n]) => !APPX_RE.test(n)); for (const [n, b] of files) await saveFile(n, b); }
 /* ответы учителя и памятка — отдельным файлом и только по кнопке */
-async function exportAppx() { const L = state.lesson; const f = (await docxBlobs(L, "worksheet")).filter(([n]) => APPX_RE.test(n)); if (!f.length) { toast("Ключей отдельным файлом нет: в этом листе они не созданы (включите «Ключи и критерии» в дополнительных настройках).", 6000); return; } for (const [n, b] of f) await saveFile(n, b); }
+async function exportAppx() { const L = state.lesson; if (!L?.docs?.worksheet) { toast("Сначала соберите или откройте урок с рабочим листом.", 5000); return; } const f = (await docxBlobs(L, "worksheet")).filter(([n]) => APPX_RE.test(n)); if (!f.length) { toast("Ключей отдельным файлом нет: в этом листе они не созданы (включите «Ключи и критерии» в дополнительных настройках).", 6000); return; } for (const [n, b] of f) await saveFile(n, b); }
 /* лист картинками (PNG): страницы нельзя редактировать */
 async function exportPng() {
   const L = state.lesson; if (!L?.docs.worksheet) return;
@@ -3545,7 +3545,7 @@ function bind() {
   window.addEventListener("uchu:access", () => { try { syncRefineScope(); } catch { } });
   $("#btnMore").onclick = () => addExtraSheet();
   $("#btnDeco").onclick = () => decorateWorksheet();
-  $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnAppx").onclick = guarded(exportAppx); $("#btnPng").onclick = guarded(exportPng); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf); if (window.TableKit) $("#btnTable").onclick = () => TableKit.open();
+  $("#btnPackZip").onclick = guarded(() => exportOne(state.lesson, "pack", "zip")); $("#btnDocx").onclick = guarded(exportDocx); $("#btnAppxMat").onclick = guarded(exportAppx); $("#btnPng").onclick = guarded(exportPng); $("#btnPptx").onclick = guarded(exportPptx); $("#btnPdf").onclick = guarded(exportPdf);
   // материалы
   const drop = $("#matDrop");
   ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
