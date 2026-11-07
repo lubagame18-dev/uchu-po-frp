@@ -1,0 +1,27 @@
+{
+  "kind": "imagegen_raster_gallery",
+  "total_uploaded": 2,
+  "images": [
+    {
+      "lesson_id": "ru-1-015",
+      "grade": 1,
+      "topic": "Предложение",
+      "file": "grade-1/ru-1-015.webp",
+      "format": "image/webp",
+      "width": 1672,
+      "height": 941
+    },
+    {
+      "lesson_id": "ru-8-009",
+      "grade": 8,
+      "topic": "Главные члены предложения",
+      "file": "grade-8/ru-8-009.webp",
+      "format": "image/webp",
+      "width": 1672,
+      "height": 941
+    }
+  ],
+  "other_svg_files_not_counted": true,
+  "not_full_course": true,
+  "requires_editorial_review": true
+}
