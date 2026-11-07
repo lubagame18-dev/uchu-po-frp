@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "only_subjects": [
+    "biology",
+    "chemistry",
+    "physics",
+    "social"
+  ],
+  "tasks": [
+    {
+      "id": "bio-cell",
+      "subject": "biology",
+      "topic": "Строение клетки",
+      "numbered_elements": [
+        "Оболочка",
+        "Цитоплазма",
+        "Ядро",
+        "Митохондрии",
+        "Рибосомы",
+        "Хлоропласты"
+      ],
+      "text_source": "knowledge-base/06_Биология/Биология. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "bio-levels",
+      "subject": "biology",
+      "topic": "Уровни организации",
+      "numbered_elements": [
+        "Клетка",
+        "Ткань",
+        "Орган",
+        "Система органов",
+        "Организм"
+      ],
+      "text_source": "knowledge-base/06_Биология/Биология. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "bio-kingdoms",
+      "subject": "biology",
+      "topic": "Царства живой природы",
+      "numbered_elements": [
+        "Бактерии",
+        "Грибы",
+        "Растения",
+        "Животные"
+      ],
+      "text_source": "knowledge-base/06_Биология/Биология. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "bio-photosynthesis",
+      "subject": "biology",
+      "topic": "Фотосинтез",
+      "numbered_elements": [
+        "Углекислый газ",
+        "Вода",
+        "Свет",
+        "Хлорофилл",
+        "Органические вещества",
+        "Кислород"
+      ],
+      "text_source": "knowledge-base/06_Биология/Биология. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "chem-atom",
+      "subject": "chemistry",
+      "topic": "Строение атома",
+      "numbered_elements": [
+        "Протон",
+        "Нейтрон",
+        "Электрон"
+      ],
+      "text_source": "knowledge-base/05_Химия/Химия. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "chem-classes",
+      "subject": "chemistry",
+      "topic": "Классы неорганических веществ",
+      "numbered_elements": [
+        "Оксиды",
+        "Основания",
+        "Кислоты",
+        "Соли"
+      ],
+      "text_source": "knowledge-base/05_Химия/Химия. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "chem-reactions",
+      "subject": "chemistry",
+      "topic": "Типы химических реакций",
+      "numbered_elements": [
+        "Соединение",
+        "Разложение",
+        "Замещение",
+        "Обмен"
+      ],
+      "text_source": "knowledge-base/05_Химия/Химия. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "chem-organic",
+      "subject": "chemistry",
+      "topic": "Классы органических веществ",
+      "numbered_elements": [
+        "Алканы",
+        "Алкены",
+        "Спирты",
+        "Карбоновые кислоты",
+        "Сложные эфиры"
+      ],
+      "text_source": "knowledge-base/05_Химия/Химия. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "phys-solve",
+      "subject": "physics",
+      "topic": "Порядок решения задачи",
+      "numbered_elements": [
+        "Дано",
+        "Найти",
+        "СИ",
+        "Решение",
+        "Ответ"
+      ],
+      "text_source": "knowledge-base/04_Физика/Физика. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "phys-circuit",
+      "subject": "physics",
+      "topic": "Электрическая цепь",
+      "numbered_elements": [
+        "Источник тока",
+        "Ключ",
+        "Резистор",
+        "Амперметр",
+        "Вольтметр"
+      ],
+      "text_source": "knowledge-base/04_Физика/Физика. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "phys-values",
+      "subject": "physics",
+      "topic": "Величина, формула, единица",
+      "numbered_elements": [
+        "Величина",
+        "Формула",
+        "Единица"
+      ],
+      "text_source": "knowledge-base/04_Физика/Физика. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "soc-rights",
+      "subject": "social",
+      "topic": "Права и обязанности",
+      "numbered_elements": [
+        "Право",
+        "Обязанность",
+        "Конституция"
+      ],
+      "text_source": "knowledge-base/10_Обществознание/Обществознание. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "soc-state",
+      "subject": "social",
+      "topic": "Государство и власть",
+      "numbered_elements": [
+        "Территория",
+        "Власть",
+        "Законы",
+        "Гражданство"
+      ],
+      "text_source": "knowledge-base/10_Обществознание/Обществознание. Таблицы, схемы, алгоритмы.md"
+    },
+    {
+      "id": "soc-branches",
+      "subject": "social",
+      "topic": "Ветви власти",
+      "numbered_elements": [
+        "Законодательная",
+        "Исполнительная",
+        "Судебная"
+      ],
+      "text_source": "knowledge-base/10_Обществознание/Обществознание. Таблицы, схемы, алгоритмы.md"
+    }
+  ]
+}
