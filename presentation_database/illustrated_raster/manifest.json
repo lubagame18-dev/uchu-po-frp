@@ -1,6 +1,6 @@
 {
   "kind": "imagegen_raster_gallery",
-  "total_uploaded": 2,
+  "total_uploaded": 6,
   "images": [
     {
       "lesson_id": "ru-1-015",
@@ -19,9 +19,55 @@
       "format": "image/webp",
       "width": 1672,
       "height": 941
+    },
+    {
+      "lesson_id": "ru-1-001",
+      "grade": 1,
+      "topic": "Что такое речь",
+      "file": "grade-1/ru-1-001.webp",
+      "format": "image/webp",
+      "width": 1280,
+      "height": 720,
+      "source": "generated_illustration",
+      "editorial_review": "required_before_classroom_use"
+    },
+    {
+      "lesson_id": "ru-1-002",
+      "grade": 1,
+      "topic": "Устная и письменная речь",
+      "file": "grade-1/ru-1-002.webp",
+      "format": "image/webp",
+      "width": 1280,
+      "height": 720,
+      "source": "generated_illustration",
+      "editorial_review": "required_before_classroom_use"
+    },
+    {
+      "lesson_id": "ru-1-003",
+      "grade": 1,
+      "topic": "Слушаем и говорим",
+      "file": "grade-1/ru-1-003.webp",
+      "format": "image/webp",
+      "width": 1280,
+      "height": 720,
+      "source": "generated_illustration",
+      "editorial_review": "required_before_classroom_use"
+    },
+    {
+      "lesson_id": "ru-1-004",
+      "grade": 1,
+      "topic": "Вежливые слова",
+      "file": "grade-1/ru-1-004.webp",
+      "format": "image/webp",
+      "width": 1280,
+      "height": 720,
+      "source": "generated_illustration",
+      "editorial_review": "required_before_classroom_use"
     }
   ],
   "other_svg_files_not_counted": true,
   "not_full_course": true,
-  "requires_editorial_review": true
+  "requires_editorial_review": true,
+  "generated_image_count": 6,
+  "missing_genuine_illustrations": 261
 }
