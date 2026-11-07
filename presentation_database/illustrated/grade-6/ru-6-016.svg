@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<rect width="1920" height="1080" fill="#fff9f0"/>
+<rect x="34" y="28" width="1852" height="1024" rx="42" fill="none" stroke="#682c37" stroke-width="8"/>
+<rect x="66" y="58" width="1788" height="140" rx="28" fill="#762b35"/>
+<text x="120" y="116" font-family="DejaVu Sans,Arial,sans-serif" font-size="34" font-weight="bold" fill="#fffaf3">РУССКИЙ ЯЗЫК · 6 КЛАСС</text>
+<text x="125" y="267" font-family="DejaVu Sans,Arial,sans-serif" font-size="52" font-weight="bold" fill="#762b35">Части речи в русском языке</text>
+<path d="M125 357 H1790" stroke="#cfb6a9" stroke-width="3"/>
+<text x="126" y="410" font-family="DejaVu Sans,Arial,sans-serif" font-size="26" font-weight="bold" fill="#496153">ЯЗЫК И ЕГО УСТРОЙСТВО</text>
+<circle cx="1692" cy="122" r="42" fill="#f1e2d4"/>
+<text x="1692" y="138" font-family="DejaVu Sans" font-size="38" fill="#762b35" text-anchor="middle">6</text>
+<path d="M1550 900 C1620 810 1710 870 1790 760" fill="none" stroke="#b5bfa8" stroke-width="9" stroke-linecap="round"/>
+<path d="M1550 900 C1570 825 1630 820 1645 855 C1600 865 1570 870 1550 900" fill="#b5bfa8"/>
+<path d="M1700 827 C1700 760 1770 740 1790 760 C1750 795 1720 805 1700 827" fill="#b5bfa8"/>
+<rect x="125" y="460" width="1665" height="83" rx="22" fill="#f3e8d7"/>
+<circle cx="180" cy="501" r="26" fill="#762b35"/>
+<text x="180" y="511" text-anchor="middle" font-family="DejaVu Sans" font-size="27" fill="white">1</text>
+<text x="232" y="498" font-family="DejaVu Sans,Arial,sans-serif" font-size="27" font-weight="normal" fill="#332d2e">Существительное</text>
+<rect x="125" y="559" width="1665" height="83" rx="22" fill="#f7ede6"/>
+<circle cx="180" cy="600" r="26" fill="#762b35"/>
+<text x="180" y="610" text-anchor="middle" font-family="DejaVu Sans" font-size="27" fill="white">2</text>
+<text x="232" y="597" font-family="DejaVu Sans,Arial,sans-serif" font-size="27" font-weight="normal" fill="#332d2e">Прилагательное</text>
+<rect x="125" y="658" width="1665" height="83" rx="22" fill="#f3e8d7"/>
+<circle cx="180" cy="699" r="26" fill="#762b35"/>
+<text x="180" y="709" text-anchor="middle" font-family="DejaVu Sans" font-size="27" fill="white">3</text>
+<text x="232" y="696" font-family="DejaVu Sans,Arial,sans-serif" font-size="27" font-weight="normal" fill="#332d2e">Глагол</text>
+<rect x="125" y="757" width="1665" height="83" rx="22" fill="#f7ede6"/>
+<circle cx="180" cy="798" r="26" fill="#762b35"/>
+<text x="180" y="808" text-anchor="middle" font-family="DejaVu Sans" font-size="27" fill="white">4</text>
+<text x="232" y="795" font-family="DejaVu Sans,Arial,sans-serif" font-size="27" font-weight="normal" fill="#332d2e">Причастие</text>
+<rect x="125" y="856" width="1665" height="83" rx="22" fill="#f3e8d7"/>
+<circle cx="180" cy="897" r="26" fill="#762b35"/>
+<text x="180" y="907" text-anchor="middle" font-family="DejaVu Sans" font-size="27" fill="white">5</text>
+<text x="232" y="894" font-family="DejaVu Sans,Arial,sans-serif" font-size="27" font-weight="normal" fill="#332d2e">Деепричастие</text>
+<text x="125" y="990" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" font-weight="normal" fill="#736962">Сведения перенесены из исходных материалов ·</text><text x="125" y="1022" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" font-weight="normal" fill="#736962">требуют проверки</text>
+<text x="1615" y="990" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="normal" fill="#736962">ru-6-016</text>
+</svg>

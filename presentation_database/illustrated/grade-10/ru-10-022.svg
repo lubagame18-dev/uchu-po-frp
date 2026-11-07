@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<rect width="1920" height="1080" fill="#fff9f0"/>
+<rect x="34" y="28" width="1852" height="1024" rx="42" fill="none" stroke="#682c37" stroke-width="8"/>
+<rect x="66" y="58" width="1788" height="140" rx="28" fill="#762b35"/>
+<text x="120" y="116" font-family="DejaVu Sans,Arial,sans-serif" font-size="34" font-weight="bold" fill="#fffaf3">РУССКИЙ ЯЗЫК · 10 КЛАСС</text>
+<text x="125" y="267" font-family="DejaVu Sans,Arial,sans-serif" font-size="52" font-weight="bold" fill="#762b35">Правописание гласных и согласных в корне</text>
+<path d="M125 357 H1790" stroke="#cfb6a9" stroke-width="3"/>
+<text x="126" y="410" font-family="DejaVu Sans,Arial,sans-serif" font-size="26" font-weight="bold" fill="#496153">ОРФОГРАФИЯ</text>
+<circle cx="1692" cy="122" r="42" fill="#f1e2d4"/>
+<text x="1692" y="138" font-family="DejaVu Sans" font-size="38" fill="#762b35" text-anchor="middle">10</text>
+<path d="M1550 900 C1620 810 1710 870 1790 760" fill="none" stroke="#b5bfa8" stroke-width="9" stroke-linecap="round"/>
+<path d="M1550 900 C1570 825 1630 820 1645 855 C1600 865 1570 870 1550 900" fill="#b5bfa8"/>
+<path d="M1700 827 C1700 760 1770 740 1790 760 C1750 795 1720 805 1700 827" fill="#b5bfa8"/>
+<rect x="125" y="458" width="1665" height="168" rx="25" fill="#f3e8d7"/>
+<text x="169" y="505" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" font-weight="bold" fill="#762b35">РАЗБЕРЁМ ПРИМЕР</text>
+<text x="169" y="572" font-family="DejaVu Sans,Arial,sans-serif" font-size="43" font-weight="bold" fill="#2f3030">вода́ → во́ды</text>
+<rect x="125" y="670" width="1665" height="110" rx="21" fill="#f8ece5"/>
+<circle cx="176" cy="725" r="25" fill="#762b35"/>
+<text x="176" y="735" font-family="DejaVu Sans" font-size="27" text-anchor="middle" fill="#ffffff">1</text>
+<text x="228" y="713" font-family="DejaVu Sans,Arial,sans-serif" font-size="29" font-weight="normal" fill="#322b2c">Проверяемую безударную гласную в корне проверяют однокоренным словом или формой слова с</text><text x="228" y="749" font-family="DejaVu Sans,Arial,sans-serif" font-size="29" font-weight="normal" fill="#322b2c">ударением.</text>
+<rect x="125" y="798" width="1665" height="110" rx="21" fill="#f8ece5"/>
+<circle cx="176" cy="853" r="25" fill="#762b35"/>
+<text x="176" y="863" font-family="DejaVu Sans" font-size="27" text-anchor="middle" fill="#ffffff">2</text>
+<text x="228" y="841" font-family="DejaVu Sans,Arial,sans-serif" font-size="29" font-weight="normal" fill="#322b2c">В проверочном слове гласная должна быть под ударением. Непроверяемые написания уточняют</text><text x="228" y="877" font-family="DejaVu Sans,Arial,sans-serif" font-size="29" font-weight="normal" fill="#322b2c">по словарю.</text>
+<text x="125" y="990" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" font-weight="normal" fill="#736962">Проверяемый пример · требуется редакционная</text><text x="125" y="1022" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" font-weight="normal" fill="#736962">проверка</text>
+<text x="1615" y="990" font-family="DejaVu Sans,Arial,sans-serif" font-size="21" font-weight="normal" fill="#736962">ru-10-022</text>
+</svg>
