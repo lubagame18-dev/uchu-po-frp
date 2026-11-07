@@ -1,0 +1,65 @@
+{
+  "total_lessons": 267,
+  "grades": {
+    "1": {
+      "source_tables": 7,
+      "topic_maps": 21,
+      "errors": 0
+    },
+    "2": {
+      "source_tables": 8,
+      "topic_maps": 24,
+      "errors": 0
+    },
+    "3": {
+      "source_tables": 8,
+      "topic_maps": 23,
+      "errors": 0
+    },
+    "4": {
+      "source_tables": 8,
+      "topic_maps": 22,
+      "errors": 0
+    },
+    "5": {
+      "source_tables": 8,
+      "topic_maps": 9,
+      "errors": 0
+    },
+    "6": {
+      "source_tables": 7,
+      "topic_maps": 14,
+      "errors": 0
+    },
+    "7": {
+      "source_tables": 6,
+      "topic_maps": 13,
+      "errors": 0
+    },
+    "8": {
+      "source_tables": 7,
+      "topic_maps": 7,
+      "errors": 0
+    },
+    "9": {
+      "source_tables": 4,
+      "topic_maps": 8,
+      "errors": 0
+    },
+    "10": {
+      "source_tables": 2,
+      "topic_maps": 34,
+      "errors": 0
+    },
+    "11": {
+      "source_tables": 0,
+      "topic_maps": 27,
+      "errors": 0
+    }
+  },
+  "limitations": [
+    "topic_maps reproduce only topic names, not validated rules",
+    "no automatic morphemic or syntactic markup without verified examples",
+    "source tables reproduced as supplied, not independently fact-checked"
+  ]
+}
