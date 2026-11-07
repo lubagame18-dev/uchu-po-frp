@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>База знаний — таблицы, схемы, алгоритмы</title>
+<link rel="stylesheet" href="knowledge.css">
+</head>
+<body>
+<header class="kb-top">
+  <a class="kb-back" href="../index.html">← На сайт</a>
+  <div>
+    <h1>Таблицы, схемы, алгоритмы</h1>
+    <p>Текст и изображения связаны: слева — таблица из источника, справа — её текст без изменений.</p>
+  </div>
+</header>
+<main class="kb-layout">
+  <aside class="kb-side">
+    <label class="kb-label" for="kbSubject">Предмет</label>
+    <select id="kbSubject"></select>
+    <label class="kb-label" for="kbSection" style="margin-top:12px">Таблица / тема</label>
+    <select id="kbSection"></select>
+    <div id="kbMeta" class="kb-meta"></div>
+    <div id="kbImageList" class="kb-thumbs"></div>
+  </aside>
+  <section class="kb-frame" aria-label="Изображение таблицы">
+    <div class="kb-frame-head">
+      <span id="kbCounter">—</span>
+      <div class="kb-nav">
+        <button type="button" id="kbPrev" aria-label="Предыдущее изображение">←</button>
+        <button type="button" id="kbNext" aria-label="Следующее изображение">→</button>
+      </div>
+    </div>
+    <div class="kb-imgwrap"><img id="kbImage" alt="Таблица из источника" loading="lazy"></div>
+    <p id="kbCaption" class="kb-caption"></p>
+    <p id="kbSource" class="kb-source"></p>
+  </section>
+  <section class="kb-text" aria-label="Текст таблицы">
+    <div id="kbText" class="kb-markdown"><p>Загрузка…</p></div>
+  </section>
+</main>
+<script src="../vendor/marked.umd.js"></script>
+<script src="knowledge.js"></script>
+</body>
+</html>

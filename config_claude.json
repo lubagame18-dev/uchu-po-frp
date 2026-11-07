@@ -1,0 +1,232 @@
+{
+  "schema": "uchu.images.claude/1",
+  "model": "claude",
+  "role": "Поиск реальных изображений для базы знаний. Никакой генерации картинок.",
+  "hard_rules": [
+    "Не придумывать факты, подписи, годы, имена и названия. Брать только то, что есть в тексте таблицы или в проверенном источнике.",
+    "Не генерировать изображения и не заменять их рисунками ИИ.",
+    "Для каждого задания вернуть прямую ссылку на страницу источника, название изображения и лицензию/права.",
+    "Если точного изображения нет — вернуть null, не подставлять похожее.",
+    "Подпись на сайте печатает DeepSeek по полям caption; Claude не пишет подпись от себя."
+  ],
+  "allowed_sources": [
+    "edu.gov.ru",
+    "culture.ru",
+    "prlib.ru",
+    "histrf.ru",
+    "rgo.ru",
+    "mchs.gov.ru",
+    "commons.wikimedia.org"
+  ],
+  "caption_contract": {
+    "geography": "{map_title} · {region}",
+    "literature": "{person_or_work}; {author_or_artist}, {year_if_known}",
+    "history": "{full_name}, {life_years}, {role}"
+  },
+  "subjects": {
+    "geography": {
+      "policy": "real_maps_and_photos_only",
+      "text_source": "knowledge-base/07_География/География. Таблицы, схемы, алгоритмы.md",
+      "tasks": [
+        {
+          "id": "geo-coordinates",
+          "topic": "Географические координаты",
+          "need": "физическая карта мира или России с сеткой координат",
+          "caption_fields": [
+            "map_title",
+            "region"
+          ]
+        },
+        {
+          "id": "geo-atmosphere",
+          "topic": "Атмосфера и погода",
+          "need": "климатическая карта или фото природного объекта",
+          "caption_fields": [
+            "map_title",
+            "region"
+          ]
+        },
+        {
+          "id": "geo-climate",
+          "topic": "Климатические пояса",
+          "need": "официальная климатическая карта",
+          "caption_fields": [
+            "map_title",
+            "region"
+          ]
+        },
+        {
+          "id": "geo-map",
+          "topic": "Работа с картой",
+          "need": "политико-административная или физическая карта",
+          "caption_fields": [
+            "map_title",
+            "region"
+          ]
+        },
+        {
+          "id": "geo-object",
+          "topic": "Географический объект",
+          "need": "фотография природного объекта или карта региона",
+          "caption_fields": [
+            "map_title",
+            "region"
+          ]
+        }
+      ]
+    },
+    "literature": {
+      "policy": "real_portraits_and_art_only",
+      "text_source": "knowledge-base/02_Литература/Литература. Таблицы, схемы, алгоритмы.md",
+      "tasks": [
+        {
+          "id": "lit-poem",
+          "topic": "Анализ стихотворения",
+          "need": "портрет автора или репродукция/иллюстрация к произведению",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        },
+        {
+          "id": "lit-episode",
+          "topic": "Анализ эпизода",
+          "need": "репродукция классической картины или книжная иллюстрация сцены",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        },
+        {
+          "id": "lit-plot",
+          "topic": "Сюжет",
+          "need": "иллюстрации ключевых сцен",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        },
+        {
+          "id": "lit-tropes",
+          "topic": "Средства выразительности",
+          "need": "картина/иллюстрация, где виден приём",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        },
+        {
+          "id": "lit-verse",
+          "topic": "Стихотворный размер и рифма",
+          "need": "портрет поэта и репродукция/иллюстрация",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        },
+        {
+          "id": "lit-hero",
+          "topic": "Лирический герой",
+          "need": "портрет автора/поэта",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        },
+        {
+          "id": "lit-conflict",
+          "topic": "Конфликт произведения",
+          "need": "иллюстрация сцены конфликта",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        },
+        {
+          "id": "lit-genres",
+          "topic": "Роды и жанры литературы",
+          "need": "обложка/иллюстрация классического издания",
+          "caption_fields": [
+            "person_or_work",
+            "author_or_artist",
+            "year_if_known"
+          ]
+        }
+      ]
+    },
+    "history": {
+      "policy": "real_portraits_maps_monuments_only",
+      "text_source": "knowledge-base/09_История/История. Таблицы, схемы, алгоритмы.md",
+      "tasks": [
+        {
+          "id": "hist-event",
+          "topic": "Историческое событие",
+          "need": "портрет деятеля, карта события или фотография памятника",
+          "caption_fields": [
+            "full_name",
+            "life_years",
+            "role"
+          ]
+        },
+        {
+          "id": "hist-reform",
+          "topic": "Реформа",
+          "need": "портрет деятеля и карта/схема реформы",
+          "caption_fields": [
+            "full_name",
+            "life_years",
+            "role"
+          ]
+        },
+        {
+          "id": "hist-war",
+          "topic": "Война / сражение",
+          "need": "карта сражения и фотография памятника",
+          "caption_fields": [
+            "full_name",
+            "life_years",
+            "role"
+          ]
+        },
+        {
+          "id": "hist-uprising",
+          "topic": "Народное выступление",
+          "need": "портрет деятеля и карта/фото места",
+          "caption_fields": [
+            "full_name",
+            "life_years",
+            "role"
+          ]
+        },
+        {
+          "id": "hist-timeline",
+          "topic": "Лента времени",
+          "need": "карта эпохи и фотографии памятников",
+          "caption_fields": [
+            "full_name",
+            "life_years",
+            "role"
+          ]
+        },
+        {
+          "id": "hist-causes",
+          "topic": "Причины и следствия",
+          "need": "историческая карта и фотография памятника",
+          "caption_fields": [
+            "full_name",
+            "life_years",
+            "role"
+          ]
+        }
+      ]
+    }
+  },
+  "other_subjects_policy": "Русский, математика, информатика, английский, ИЗО, музыка: только исходный текст таблиц; изображения не генерировать без отдельного задания."
+}

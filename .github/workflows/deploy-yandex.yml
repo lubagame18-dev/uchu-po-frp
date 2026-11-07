@@ -6,6 +6,9 @@
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "deploy/**"
+      - "knowledge-base/**"
   workflow_dispatch:
 
 concurrency:
@@ -38,7 +41,7 @@ jobs:
         if: steps.keys.outputs.ok == '1'
         run: |
           aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --no-progress \
-            --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" --exclude "docs/*" \
+            --exclude ".git/*" --exclude ".github/*" --exclude "proxy/*" --exclude "api/*" --exclude "docs/*" --exclude "knowledge-base/*" \
             --exclude "*.md" --exclude "*.sql" --exclude "*.zip" --exclude "wrangler.toml" --exclude "vercel.json" --exclude "_worker.js" \
             --exclude ".assetsignore" --exclude ".nojekyll" --exclude "CNAME" --exclude ".gitignore" \
             --cache-control "public, max-age=300"
