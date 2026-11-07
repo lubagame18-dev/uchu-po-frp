@@ -5,6 +5,7 @@ on:
     paths:
       - 'presentation_database/render_high_school.py'
       - 'frp_tasks/ru.json'
+      - 'presentation_database/audit_russian.py'
       - '.github/workflows/render_high_school.yml'
   workflow_dispatch:
 permissions:
@@ -19,11 +20,12 @@ jobs:
           python-version: '3.11'
       - run: pip install Pillow==11.3.0
       - run: python presentation_database/render_high_school.py
+      - run: python presentation_database/audit_russian.py
       - name: Commit generated slides
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add presentation_database/high_school/
+          git add presentation_database/high_school/ presentation_database/quality/
           if ! git diff --cached --quiet; then
             git commit -m "Generate Russian high-school table slides"
             git push
