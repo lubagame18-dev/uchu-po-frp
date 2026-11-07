@@ -21,6 +21,6 @@ BEGIN
   END LOOP;
 END $$;
 select jsonb_build_object('users',
-  (select coalesce(jsonb_agg(jsonb_build_object('id',id,'email',email,'phone',phone,'email_confirmed_at',email_confirmed_at)), '[]'::jsonb) from auth.users),
+  (select coalesce(jsonb_agg(jsonb_build_object('id',id,'email',email,'phone',phone,'email_confirmed_at',email_confirmed_at,'phone_confirmed_at',phone_confirmed_at)), '[]'::jsonb) from auth.users),
   'tables',(select coalesce(jsonb_object_agg(name, rows), '{}'::jsonb) from account_export));
 rollback;

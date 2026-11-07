@@ -108,7 +108,7 @@ class Accounts(unittest.TestCase):
         self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':'fixture-a@example.invalid','password':'wrong'})[0],400)
         self.assertEqual(self.api('/auth/v1/signup',body={'email':'new@example.invalid','password':self.password})[0],503)
         self.assertEqual(self.api('/auth/v1/token?grant_type=refresh_token',body={'refresh_token':token})[0],200)
-        self.assertEqual(self.api('/auth/v1/otp',body={})[0],501)
+        self.assertEqual(self.api('/auth/v1/otp',body={})[0],503)
 
     def test_02_tenant_crud_and_upsert_collision(self):
         aid,at=self.users[0];bid,bt=self.users[1]

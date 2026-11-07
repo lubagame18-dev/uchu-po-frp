@@ -598,6 +598,7 @@ async function handler(req, res) {
 
   /* ---------- вход через Яндекс (свой OAuth) ---------- */
   if (route === "/auth/yandex") {
+    if (require("./accounts-backend.js").pocketbase()) return send(res,409,{error:"Обновите страницу сайта и войдите через Яндекс ID заново."});
     const yid = process.env.YANDEX_CLIENT_ID || "", ysec = process.env.YANDEX_CLIENT_SECRET || "";
     if (!yid || !ysec) return send(res, 503, { error: "вход через Яндекс не настроен" });
     const fnUrl = "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex";

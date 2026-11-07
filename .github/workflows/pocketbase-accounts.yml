@@ -6,6 +6,8 @@ on:
       - 'js/account*.js'
       - 'js/cloudbase.js'
       - 'js/rules.js'
+      - 'js/yandex-auth.js'
+      - 'yandex.html'
       - 'proxy/**'
       - '.github/workflows/pocketbase-accounts.yml'
   push:
@@ -13,6 +15,8 @@ on:
     paths:
       - 'deploy/pocketbase/**'
       - 'js/account*.js'
+      - 'js/yandex-auth.js'
+      - 'yandex.html'
       - 'proxy/**'
       - '.github/workflows/pocketbase-accounts.yml'
 permissions:
@@ -31,6 +35,8 @@ jobs:
           node-version: '22'
       - run: python deploy/pocketbase/fetch-binary.py
       - run: python deploy/pocketbase/test-integration.py
+      - run: python deploy/pocketbase/test-identities.py
+      - run: node deploy/pocketbase/test-identity-providers.cjs
       - run: python deploy/pocketbase/test-migration.py
       - run: node deploy/pocketbase/test-client.cjs
       - run: node deploy/supabase-rf/test-session.cjs

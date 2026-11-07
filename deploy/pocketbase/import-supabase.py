@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import re
 import urllib.request
 import urllib.error
 from urllib.parse import urlsplit
@@ -15,14 +16,27 @@ TABLES={'lessons':'id','profiles':'id','user_info':'id','payments':'order_id','q
  'quiz_questions':'quiz_id','quiz_results':'id','shared_materials':'id','site_admins':'email','bot_links':'chat_id',
  'base_materials':'id','site_rules':'id','promo_codes':'code','ai_keys':'slot','img_keys':'slot','free_usage':'key'}
 
+def phone_identity(user):
+    value=str(user.get('phone') or '')
+    if not value:return ''
+    digits=re.sub(r'[^0-9]','',value)
+    if not re.fullmatch(r'79[0-9]{9}',digits) or not user.get('phone_confirmed_at'):
+        raise ValueError('Unverified or unsupported phone requires migration review')
+    if user.get('email') and not user.get('email_confirmed_at'):
+        raise ValueError('Verified phone with unverified email requires migration review')
+    return '+'+digits
+
 def validate(data):
     if not isinstance(data,dict) or not isinstance(data.get('users'),list) or not isinstance(data.get('tables'),dict):
         raise ValueError('Expected users array and tables object')
-    users=data['users'];ids=set();emails=set()
+    users=data['users'];ids=set();emails=set();phones=set()
     for u in users:
-        if not u.get('id') or not u.get('email'): raise ValueError('Phone-only users require a separate reviewed migration')
-        if u['id'] in ids or u['email'].lower() in emails: raise ValueError('Duplicate user identity')
-        ids.add(u['id']);emails.add(u['email'].lower())
+        email=str(u.get('email') or '').strip().lower();phone=phone_identity(u)
+        if not u.get('id') or not (email or phone) or (email and not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email)):raise ValueError('Missing or invalid user identity')
+        if u['id'] in ids or (email and email in emails) or (phone and phone in phones):raise ValueError('Duplicate user identity')
+        ids.add(u['id'])
+        if email:emails.add(email)
+        if phone:phones.add(phone)
     for table,rows in data['tables'].items():
         if table not in TABLES: raise ValueError('Unreviewed source table: '+table)
         if not isinstance(rows,list): raise ValueError('Expected table rows')
@@ -55,7 +69,7 @@ if __name__=='__main__':
     print(json.dumps(summary)) # counts only, no PII or credentials
     if not args.apply: raise SystemExit('Dry run: no target was contacted')
     if not args.empty_target_confirmed: p.error('--apply requires --empty-target-confirmed and a tested target backup')
-    if data['users'] and not args.allow_password_reset: p.error('Nonempty users require reviewed password reset plan; no passwords changed')
+    if any(u.get('email') for u in data['users']) and not args.allow_password_reset: p.error('Existing email users require reviewed password reset plan; no passwords changed')
     base=os.environ['POCKETBASE_URL'].rstrip('/');secret=os.environ['POCKETBASE_SERVICE_TOKEN']
     url=urlsplit(base)
     if url.scheme!='https' or url.username or url.password or url.path not in ('','/') or url.query or url.fragment:
@@ -66,8 +80,8 @@ if __name__=='__main__':
     if inventory['users'] or any(inventory['tables'].values()): raise SystemExit('Target contains data; import refused')
     mapping={}
     for u in data['users']:
-        created=api(base,secret,'/auth/v1/admin/users',{'email':u['email'],'password':secrets.token_urlsafe(48),
-          'email_confirm':bool(u.get('email_confirmed_at')),'legacy_id':u['id']})
+        created=api(base,secret,'/auth/v1/admin/users',{'email':u.get('email') or '','phone':phone_identity(u),'password':secrets.token_urlsafe(48),
+          'email_confirm':bool(u.get('email_confirmed_at')),'phone_confirm':bool(u.get('phone_confirmed_at')),'legacy_id':u['id']})
         mapping[u['id']]=created['id']
     # Retain external lesson/quiz/order IDs; change only references to user identities.
     for table in TABLES:

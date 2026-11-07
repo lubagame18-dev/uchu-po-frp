@@ -18,6 +18,11 @@ class Migration(unittest.TestCase):
         with self.assertRaises(ValueError):m.validate({'users':[],'tables':{'lessons':[{'id':'fixture','user_id':'missing'}]}})
         with self.assertRaises(ValueError):m.validate({'users':[{'id':'old','email':None}],'tables':{}})
         with self.assertRaises(ValueError):m.validate({'users':[],'tables':{'quiz_results':[{'id':'fixture','quiz_id':'missing'}]}})
+        phone={'id':'old-phone','phone':'79000000000','phone_confirmed_at':'verified'}
+        self.assertEqual(m.validate({'users':[phone],'tables':{}})['users'],1)
+        with self.assertRaises(ValueError):m.validate({'users':[dict(phone,phone_confirmed_at=None)],'tables':{}})
+        with self.assertRaises(ValueError):m.validate({'users':[phone,dict(phone,id='duplicate')],'tables':{}})
+        with self.assertRaises(ValueError):m.validate({'users':[dict(phone,email='unverified@example.invalid')],'tables':{}})
 
     def test_switch_guard_and_backup(self):
         m=module('switch-accounts.py')
@@ -36,7 +41,7 @@ class Migration(unittest.TestCase):
             subprocess.run(cmd+['--write','--acceptance-report',str(report)],capture_output=True,check=True)
             updated=(root/'index.html').read_text()
             self.assertIn('"provider": "pocketbase"',updated)
-            self.assertIn('phoneAuth: false',updated)
+            self.assertIn('phoneAuth: true',updated)
             self.assertEqual(original.split('  yandexFunction:')[1].splitlines()[0],updated.split('  yandexFunction:')[1].splitlines()[0])
             self.assertEqual((root/'work/pocketbase-cutover/index.html').read_text(),original)
             r=subprocess.run(cmd+['--write','--acceptance-report',str(report)],capture_output=True);self.assertNotEqual(r.returncode,0)

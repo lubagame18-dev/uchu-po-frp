@@ -170,14 +170,17 @@ exports.rest = function(e) { return send(e, () => {
   return e.json(200, result);
 }); };
 function publicUser(r) {
-  return {id: r.id, legacy_id: r.getString('legacy_id'), email: r.getString('email'), email_confirmed_at: r.getBool('verified') ? 'verified' : null,
+  return {id: r.id, legacy_id: r.getString('legacy_id'), email: r.getString('email'), phone:r.getString('phone'), email_confirmed_at: r.getString('email') && r.getBool('verified') ? 'verified' : null,
     user_metadata: {}, confirmed_at: r.getBool('verified') ? 'verified' : null};
 }
 function session(r) { const token = r.newAuthToken(); return {access_token: token, refresh_token: token, expires_in: 1209600, user: publicUser(r)}; }
+// Only imported by the server's identity routes, never exposed as a client RPC.
+exports.identityTools = {send:send,fail:fail,context:context,session:session,write:write};
 exports.auth = function(e) { return send(e, () => {
   const action = e.request.pathValue('action') || 'user', body = e.requestInfo().body, c = context(e);
   if (action === 'signup') {
     if ($os.getenv('UCHU_ALLOW_SIGNUP') !== 'true') fail(503, 'Registration is not enabled until email delivery is tested');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(body.email || ''))) fail(400, 'Invalid email address');
     if (typeof body.password !== 'string' || body.password.length < 8 || body.password.length > 256) fail(400, 'Password must have at least 8 characters');
     const record = new Record(e.app.findCollectionByNameOrId('uchu_users'));
     record.set('email', String(body.email || '').toLowerCase()); record.set('password', body.password); record.set('passwordConfirm', body.password);
@@ -290,12 +293,16 @@ function applyPayment(app, body, c) {
 exports.adminUser = function(e) { return send(e, () => {
   const c = context(e), body = e.requestInfo().body;
   if (!c.service) fail(403, 'Server credential required');
+  const email=String(body.email||'').trim().toLowerCase(),phone=String(body.phone||'');
+  if ((!email&&!phone) || (email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || (phone&&!/^\+79[0-9]{9}$/.test(phone))) fail(400,'Invalid imported identity');
+  if (phone && (body.phone_confirm!==true || (email&&body.email_confirm!==true))) fail(400,'Mixed or unverified identity requires migration review');
   // Only provisioning: no implicit linking of an existing email to a supplied external identity.
-  let exists; try { exists=e.app.findAuthRecordByEmail('uchu_users',String(body.email || '').toLowerCase()); } catch (_) {}
+  let exists; try { if(email)exists=e.app.findAuthRecordByEmail('uchu_users',email); } catch (_) {}
+  if(phone&&e.app.findRecordsByFilter('uchu_users','phone = {:phone}','',1,0,{phone:phone}).length) fail(409,'Phone already exists; identity linking requires review');
   if (exists) fail(409, 'User already exists; identity linking requires review');
   const r=new Record(e.app.findCollectionByNameOrId('uchu_users'));
-  r.set('email',String(body.email || '').toLowerCase());r.set('password',body.password);r.set('passwordConfirm',body.password);
-  r.set('verified',body.email_confirm === true);r.set('legacy_id',body.legacy_id || '');
+  r.set('email',email);r.set('phone',phone);r.set('password',body.password);r.set('passwordConfirm',body.password);
+  r.set('verified',body.email_confirm === true || !!phone);r.set('legacy_id',body.legacy_id || '');
   e.app.runInTransaction(tx => {tx.save(r);write(tx,'profiles',{id:r.id,email:r.getString('email'),plan:'free',ai_left:2,tokens_limit:80000,tokens_used:0},{service:true},'POST');});
   return e.json(201,publicUser(r));
 }); };

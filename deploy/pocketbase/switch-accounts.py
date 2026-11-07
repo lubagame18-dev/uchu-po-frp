@@ -15,8 +15,8 @@ def prepare(root, origin):
     index = root/'index.html';old=index.read_text()
     changed,n=re.subn(r'accounts:\s*\{[^{}\n]*\}',lambda _:'accounts: '+json.dumps(config),old)
     if n!=1: raise ValueError('Expected exactly one accounts configuration')
-    # Phone/OAuth require a separate provider integration and acceptance tests before enabling.
-    changed=re.sub(r'phoneAuth:\s*(true|false)', 'phoneAuth: false', changed)
+    # SMS and Yandex ID are required by the owner; never silently disable them.
+    changed=re.sub(r'phoneAuth:\s*(true|false)', 'phoneAuth: true', changed)
     shared='/* Public endpoint only. No service token here. */\nwindow.UCHU_ACCOUNTS = '+json.dumps(config)+';\n'
     changes={index:changed,root/'js/accounts-config.js':shared}
     for rel in ('test/index.html','taras-bulba/index.html','taras-bulba/results.html'):
@@ -40,7 +40,7 @@ if __name__=='__main__':
     if args.write:
         if not args.acceptance_report: p.error('--write requires --acceptance-report')
         report=json.loads(args.acceptance_report.read_text())
-        gates=['remote_health','email_delivery','login','lesson_crud','tenant_isolation','exports','proxy','payments','backup_restore','source_inventory','rollback','login_methods_reviewed']
+        gates=['remote_health','email_delivery','login','lesson_crud','tenant_isolation','exports','proxy','payments','backup_restore','source_inventory','rollback','login_methods_reviewed','sms_login','yandex_login','identity_linking']
         if any(report.get(g) is not True for g in gates): raise SystemExit('Acceptance gates are incomplete; site was not changed')
         backup=args.root/'work/pocketbase-cutover'
         backup.mkdir(parents=True,exist_ok=True)
