@@ -37,6 +37,7 @@ jobs:
       - run: python deploy/pocketbase/test-integration.py
       - run: python deploy/pocketbase/test-identities.py
       - run: node deploy/pocketbase/test-identity-providers.cjs
+      - run: node deploy/pocketbase/test-start.cjs
       - run: python deploy/pocketbase/test-migration.py
       - run: node deploy/pocketbase/test-client.cjs
       - run: node deploy/supabase-rf/test-session.cjs
