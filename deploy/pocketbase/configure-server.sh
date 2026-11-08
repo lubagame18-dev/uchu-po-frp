@@ -155,6 +155,8 @@ archive=sorted(Path('/var/backups/pocketbase').glob('uchu-*.age'))[-1]
 # The decrypted check stays root-only outside the live database.
 folder=Path(tempfile.mkdtemp(prefix='uchu-restore-',dir='/var/backups'))/'verified'
 subprocess.run(['/usr/local/sbin/uchu-pocketbase-restore-check','--archive',str(archive),'--to',str(folder)],check=True)
+Path('/var/backups/pocketbase/restore-check.ok').write_text(time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())+'\n')
+Path('/var/backups/pocketbase/restore-check.ok').chmod(0o600)
 print('PASS: local health after backup; encrypted snapshot and fresh-directory restore verified')
 PY
 echo 'Caddy configured for accounts.uchu-po-frp.ru; real HTTPS still depends on correct DNS.'
