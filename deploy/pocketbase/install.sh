@@ -17,7 +17,7 @@ flock -n 9 || { echo 'Another installation is running'; exit 1; }
 }
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y python3 python3-pip python3-venv ca-certificates curl unzip dnsutils
+apt-get -o Dpkg::Use-Pty=0 install -y python3 python3-pip python3-venv ca-certificates curl unzip dnsutils
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 BASE="https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/$REF/deploy/pocketbase"

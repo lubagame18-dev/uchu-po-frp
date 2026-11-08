@@ -12,7 +12,7 @@ if [[ -f /etc/caddy/Caddyfile ]] && ! grep -q 'uchu-pocketbase-managed' /etc/cad
   echo 'Existing Caddy configuration detected; review it before running this step'; exit 1
 fi
 export DEBIAN_FRONTEND=noninteractive
-apt-get install -y age caddy
+apt-get -o Dpkg::Use-Pty=0 install -y age caddy
 systemctl stop caddy
 cp -p /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-uchu
 cat > /etc/caddy/Caddyfile <<'CADDY'
