@@ -21,7 +21,7 @@ apt-get install -y python3 python3-pip python3-venv ca-certificates curl unzip d
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 BASE="https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/$REF/deploy/pocketbase"
-FILES=(spaceweb_api.py pocketbase.service backup.sh restore.sh Caddyfile.example
+FILES=(pocketbase.service backup.sh restore.sh Caddyfile.example
  pb_hooks/uchu.js pb_hooks/uchu.pb.js pb_hooks/identities.js pb_hooks/identity-providers.js pb_hooks/registration.pb.js
  pb_migrations/1794069018_uchu_accounts.js pb_migrations/1794072092_account_identities.js pb_migrations/1794084615_google_identity.js)
 for file in "${FILES[@]}"; do
@@ -77,10 +77,4 @@ for attempt in {1..30}; do
 done
 echo 'PocketBase local health OK; systemd autostart enabled. Registration and SMS disabled.'
 echo 'Pending: accounts DNS in Yandex, HTTPS, SMTP, Google/Yandex credentials, backups and live acceptance. Main site was not switched.'
-echo 'Optional SpaceWeb check: /opt/pocketbase/tools-venv/bin/python /opt/pocketbase/spaceweb_api.py check'
-echo 'It prompts for login and hidden password. Variables SWEB_LOGIN / SWEB_PASSWORD are at the top of that file; never commit actual values.'
-
-if [[ -t 0 ]]; then
-  # Credentials are entered once in Python/getpass, never in Bash history or process arguments.
-  /opt/pocketbase/tools-venv/bin/python /opt/pocketbase/spaceweb_api.py check --optional || echo 'SpaceWeb authorization not completed; local PocketBase remains installed. No order/payment was made.'
-fi
+echo 'Provider accounts are not accessed. SpaceWeb domain/mail and Yandex DNS/site/function stay unchanged.'

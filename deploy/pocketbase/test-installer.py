@@ -44,4 +44,8 @@ class Installer(unittest.TestCase):
         subprocess.run(['bash','-n',str(KIT/'install.sh')],check=True)
         result=subprocess.run(['bash',str(KIT/'install.sh'),'--ref','main'],capture_output=True,text=True)
         self.assertEqual(result.returncode,2);self.assertIn('40-character',result.stdout)
+        source=(KIT/'install.sh').read_text()
+        self.assertNotIn('spaceweb_api',source)
+        self.assertNotIn('SWEB_PASSWORD',source)
+        self.assertNotIn('api.sweb.ru',source)
 if __name__=='__main__':unittest.main(verbosity=2)
