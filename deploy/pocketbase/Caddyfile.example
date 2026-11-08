@@ -3,7 +3,11 @@
 <ACCOUNTS_DOMAIN> {
     @admin path /_/* /api/collections/_superusers/* /api/backups* /api/settings*
     respond @admin 404
-    reverse_proxy 127.0.0.1:8090
+    reverse_proxy 127.0.0.1:8090 {
+        header_up X-Real-IP {http.request.remote.host}
+    }
 }
 # Admin UI is accessed through a protected local tunnel, not the public hostname.
 # Confirmation and reset pages are on the existing static site (accounts-confirm.html).
+
+# configure-server.sh sets trustedProxy.headers=[X-Real-IP] only for loopback PocketBase.
