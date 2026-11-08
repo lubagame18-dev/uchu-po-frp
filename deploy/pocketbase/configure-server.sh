@@ -160,4 +160,4 @@ Path('/var/backups/pocketbase/restore-check.ok').chmod(0o600)
 print('PASS: local health after backup; encrypted snapshot and fresh-directory restore verified')
 PY
 echo 'Caddy configured for accounts.uchu-po-frp.ru; real HTTPS still depends on correct DNS.'
-echo 'Three encrypted local snapshots retained; an independent off-server copy and key custody are still required.'
+echo 'Retention: up to three encrypted local snapshots; an independent off-server copy and key custody are still required.'

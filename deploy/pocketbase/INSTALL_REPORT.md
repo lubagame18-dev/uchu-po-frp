@@ -1,85 +1,111 @@
-# Подготовка кабинета: почта, Яндекс и Google
+# PocketBase: фактическая установка и границы приёмки
 
-Рабочий сайт не переключён. SMS по последнему решению владельца выключен.
-Один новый кабинет PocketBase; пять прежних аккаунтов остаются в Supabase.
+08.11.2026. Рабочий сайт **не переключён**. Один новый кабинет PocketBase;
+пять прежних аккаунтов остаются в Supabase без импорта. SMS выключен.
 
-## Текущий выбор размещения
+## Сделано самостоятельно
 
-Только PocketBase — на отдельный VPS в РФ; рассматриваются 4VPS, RUVDS и VDSina. Домен и почта SpaceWeb, статика, Cloud DNS
-и функция Яндекса сохраняются. Установщик больше не скачивает SpaceWeb-клиент
-и не запрашивает его пароль. См. HOSTING_OPTIONS.md: RUVDS Старт Хит SSD — 349 ₽/месяц без подтверждённой доплаты за бэкапы;
-окончательный выбор пока не принят. 4VPS Москва 590 ₽ / 30 дней выше
-предела 520 ₽, дешёвые найденные Promo недоступны. Оплата и развёртывание не выполнены.
+- Через предоставленную владельцем консоль JustHost установлен PocketBase 0.40.6
+  на реальном VPS в РФ (Новосибирск), Ubuntu 24.04 amd64, 1 CPU / 1 ГБ / 10 ГБ.
+  Python/pip/requests установлены; служба Systemd под отдельным пользователем,
+  backend только loopback, секреты вне checkout, права 600.
+- Caddy настроен для accounts.uchu-po-frp.ru. Админка и native collection API
+  снаружи закрыты; доверенный IP приходит только через локальный прокси.
+- Ежедневные age-зашифрованные локальные снимки, до трёх копий,
+  02:15 Екатеринбург + задержка до 5 минут. Первичный бэкап создан;
+  восстановление в отдельный новый каталог и целостность SQLite проверены.
+- Выполнены обновления пакетов Ubuntu и перезагрузка VPS.
+- В репозитории подготовлены email/Яндекс/Google, PKCE, одноразовые OAuth-состояния,
+  явная привязка входов, изоляция данных и атомарные операции тарифов.
+- Обновлены START.html, README, JUSTHOST_SETUP.md и приватный пульт с реальными
+  ссылками, точной DNS-записью, указаниями «куда вставить» / «что сообщить».
+  Новая покупка VPS и повторная установка из инструкции убраны.
 
-## Сделано в репозитории
+## Проверки
 
-- Google OAuth: PKCE S256, одноразовое состояние, проверенный email, стабильный provider ID,
-  явная привязка к существующему кабинету. Email и Яндекс сохранены.
-- В новом кабинете скрыт телефон; переключатель требует приёмку Google вместо SMS.
-- `install.sh`: Ubuntu amd64, Python/pip/requests в venv, проверка последнего релиза
-  PocketBase и checksum, файлы `/opt/pocketbase`, закрытые данные и секреты,
-  registration hook, служба Systemd с автозапуском и локальным health.
-- API-клиент SpaceWeb: JSON-RPC, скрытый ввод пароля, безопасные ошибки,
-  ограниченное изменение существующей accounts A-записи. Делегация на Яндекс
-  блокирует DNS-запись через SpaceWeb. Покупок и платежей скрипт не делает; эта прежняя утилита для нового запуска не используется.
-- Обновлена [страница с семью шагами](https://uchu-rf-setup-guide.keenlarch65.chatgpt.site),
-  START.html и README: ссылки на реальные панели, что копировать, куда вставить,
-  что сообщить Codex. Отметки новой версии не наследуют прежнюю приёмку SMS.
+На реальном VPS прошли health, активность/автозапуск службы, loopback-only,
+отказ приватным урокам без входа, закрытые native collections, права секретов,
+целостность БД, закрытая регистрация/SMS, отсутствие тестовых пользователей,
+таймер, зашифрованная копия, восстановление и конфигурация Caddy.
+После обновлений и перезагрузки все эти проверки повторно прошли.
+Фактическая версия ОС после обновлений: Ubuntu 24.04.5 LTS.
 
-Основные изменённые файлы: `install.sh`, `spaceweb_api.py`, `pocketbase.service`,
-`pb_hooks/registration.pb.js`, `pb_hooks/identities.js`, `pb_hooks/identity-providers.js`,
-`pb_hooks/uchu.pb.js`, новая миграция Google, `js/account.js`, `js/yandex-auth.js`,
-`google.html`, `sw.js`, переключатель, server env, acceptance gates, тесты и workflow.
-Учебные тексты и генератор не менялись.
+Дополнительно на том же VPS прошли **6 интеграционных тестов** на отдельной
+временной БД: вход, CRUD/изоляция и коллизии upsert, запрет подмены привилегий
+и обхода через native API, конкурентные начисления/повторы, атомарные лимиты,
+приватность quiz. Реальных платежей и обращений к платёжному провайдеру нет.
+Тестовая БД удаляется после завершения; рабочая база не используется.
 
-## Проверки и команды
+Локально в этой итерации:
 
 ```bash
-POCKETBASE_BROWSER=1 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright python deploy/pocketbase/test-integration.py
-POCKETBASE_BROWSER=1 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright python deploy/pocketbase/test-identities.py
-POCKETBASE_BROWSER=1 PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright python deploy/pocketbase/test-identities.py Identities.test_08_browser
-python deploy/pocketbase/test-migration.py
-python deploy/pocketbase/test-installer.py
-node deploy/pocketbase/test-identity-providers.cjs
-node deploy/pocketbase/test-client.cjs
-node deploy/supabase-rf/test-session.cjs
+python3 deploy/pocketbase/test-server-config.py
+python3 deploy/pocketbase/test-installer.py
+python3 deploy/pocketbase/test-migration.py
+python3 deploy/check-site-deploy.py
 node deploy/pocketbase/test-start.cjs
-python deploy/check-site-deploy.py
-bash -n deploy/pocketbase/install.sh
-node --check js/account.js
-node --check js/yandex-auth.js
+node deploy/pocketbase/test-start.cjs /workspace/sites/uchu-rf-setup-guide/dist/index.html
+bash -n deploy/pocketbase/configure-server.sh
 git diff --check
 git status --short
 ```
 
-Пройдены 11 интеграционных, 12 identity, 3 migration, 3 installer-проверки и
-перечисленные Node/deploy-проверки. Браузер: оба OAuth-входа, сохранение старого
-Google-маршрута до переключения, отсутствие SMS-формы в PocketBase, 360 px;
-основной набор включает Word/PDF, изоляцию, лимиты и повторы платёжного webhook.
-Настоящие внешние OAuth и платёжный провайдер имитировались.
+Пройдены 1 проверка trusted proxy на настоящем временном PocketBase,
+3 installer, 3 migration, deploy и обе DOM-проверки пульта:
+localStorage сохраняется, 11/12 блокирует финал, 12/12 разрешает,
+последующий «Нет» снова блокирует. В пульте нет внешних API, секретных полей
+и подключаемых внешних скриптов. Все textarea содержат только публичные значения.
 
-Проверено HTTP-скачивание install.sh по неизменяемому SHA
-`25ce41bc219bfaa853cae1f5c6760b724956285e` и совпадение содержимого с коммитом.
-Полная установка apt/Systemd на Ubuntu VPS не выполнялась: VPS и SSH отсутствуют.
-Нет нового скриншота инструкции: Sites preview relay недоступен и браузерный
-инструмент Sites отсутствует. Логика localStorage и 12/12 проверена DOM-фикстурой.
+Ранее на этой ветке прошли 11 интеграционных и 12 identity-проверок,
+браузерные проверки Word/PDF, кабинета при 360 px и OAuth-маршрутов.
+Внешние OAuth/платёжный провайдер имитировались; настоящая доставка почты
+локальным SMTP-приёмником не подтверждается. Изменений этих сценариев сейчас нет.
 
-## Внешние действия
+Для новой версии страницы-инструкции браузерная проверка/скриншот страницы
+не выполнены: Sites preview недоступен, поддерживаемого browser-инструмента нет.
+Мобильный CSS сохранён, поведение проверено DOM-фикстурой; это не визуальная
+приёмка 360 px. Скриншот реальной серверной проверки приложен в приватном пульте.
 
-- Владелец выбирает провайдера и подтверждает итоговую цену с IPv4 и бэкапами, затем создаёт/оплачивает VPS
-  в РФ и подключает SSH. Прежний предел 520 ₽ автоматически не увеличен. При отсутствии подключённого SSH предусмотрена
-  одна команда для веб-консоли нового VPS.
-- Владелец подтверждает Google/Яндекс-приложения, размещение секретов защищённым
-  способом, DNS в Яндексе и юридические документы. Codex выполняет доступные
-  технические настройки и приёмку после получения доступа.
-- Единственная выполненная попытка авторизации SpaceWeb дала -32400: токен,
-  реальный счёт и реквизиты оплаты не получены. VPS не заказан. Оплата только
-  по 4VPS пока не выполнялась; действуют ссылки из 4VPS_SETUP.md. Переданный в чат пароль SpaceWeb сменить.
-- До настоящих HTTPS/SMTP/OAuth, проверки бэкапов и оплаты переключение запрещено.
+## Источники и команды на сервере
 
-## Проверки смены провайдера
+Базовая установка: `321519bb8b20f25d292734f2dfb0dc3e3ef8a61d`.
+Caddy/age и checker: `d7053882a2e6471915a9ebc92058bcf4b43dcdc6`.
+Перед запуском SHA256 установочных файлов совпали с проверенными локально.
 
-`python deploy/pocketbase/test-installer.py` и `python deploy/pocketbase/test-migration.py`
-прошли: по 3 сценария. `node deploy/pocketbase/test-start.cjs` проверяет сохранение
-отметок, блокировку 11/12 и разблокировку 12/12. Полная браузерная/серверная приёмка
-из-за смены названия провайдера не повторялась; новых auth/платёжных изменений нет.
+```bash
+bash /root/uchu-install-v2.sh --ref 321519bb8b20f25d292734f2dfb0dc3e3ef8a61d
+bash /root/uchu-configure.sh accounts.uchu-po-frp.ru
+python3 /root/uchu-check.py --expect-empty --require-backup
+DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Use-Pty=0 -o Dpkg::Options::=--force-confold upgrade -y
+systemctl reboot
+# Отдельная тестовая копия hooks/migrations; production data не используется:
+POCKETBASE_BINARY=/opt/pocketbase/pocketbase python3 /root/uchu-smoke/deploy/pocketbase/test-integration.py -k '*test_0[1-6]*'
+```
+
+Первый apt завершал установку некорректно при PTY; выполнено
+`DEBIAN_FRONTEND=noninteractive dpkg --configure -a`, затем исправленный
+установщик с `Dpkg::Use-Pty=0` прошёл. Файлы блокировок не удалялись.
+Секреты не печатались и не включались в команды/репозиторий.
+
+## Что требует внешнего доступа владельца
+
+- DNS: A accounts → 79.171.152.97, TTL 300 в существующей зоне Яндекс Cloud DNS.
+  Пока имя не разрешается, настоящий HTTPS не принят.
+- Приложения Яндекс/Google: подтверждение в аккаунтах, Client ID и защищённое
+  внесение Client Secret. SMTP: отдельный пароль приложения/данные отправки.
+- Доступ к независимому приватному хранилищу в РФ, копия вне VPS и отдельное
+  хранение ключа восстановления. Сейчас копия и ключ находятся на VPS.
+- Юридические документы/согласия подтверждает владелец.
+- Прямой SSH из среды недоступен, но предоставленная консоль работает:
+  установка выполнена через проверенные HTTPS API/WebSocket с обычной проверкой TLS.
+  Дополнительный SSH для уже выполненной работы не требуется.
+
+Нет IAM-доступа для DNS/настроек Yandex Function, нет настоящих SMTP/OAuth-секретов
+и доступа к независимому backup-хранилищу. Нельзя завершить публичную приёмку
+без этих внешних настроек. Основной сайт, Cloud Function и старый Supabase
+не переключались, новые платежи и платные услуги Codex не оформлял.
+Реальную оплату/AI и полный откат нужно проверить перед переключением;
+автопродление подписок пока не принято.
+
+Изменены только инженерные файлы deploy/pocketbase и приватный сайт-инструкция.
+Учебные тексты, генератор и knowledge не менялись.
