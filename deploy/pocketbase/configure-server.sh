@@ -18,8 +18,8 @@ cp -p /etc/caddy/Caddyfile /etc/caddy/Caddyfile.before-uchu
 cat > /etc/caddy/Caddyfile <<'CADDY'
 # uchu-pocketbase-managed: only the new account hostname
 accounts.uchu-po-frp.ru {
-    @admin path /_/* /api/collections/_superusers/* /api/backups* /api/settings*
-    respond @admin 404
+    @private not path /api/uchu/* /api/collections/uchu_users/confirm-verification /api/collections/uchu_users/confirm-password-reset
+    respond @private 404
     header {
         X-Content-Type-Options nosniff
         Referrer-Policy no-referrer
