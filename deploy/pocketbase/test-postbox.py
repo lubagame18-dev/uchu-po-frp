@@ -64,4 +64,28 @@ class Bootstrap(unittest.TestCase):
                 # No send call is made with these fixture credentials.
             finally:m.Accounts.tearDownClass()
 
+class SmtpCheck(unittest.TestCase):
+    def test_auth_only_uses_verified_tls_and_never_sends(self):
+        spec=importlib.util.spec_from_file_location('checker',Path(__file__).with_name('check-postbox.py'))
+        checker=importlib.util.module_from_spec(spec);spec.loader.exec_module(checker)
+        import ssl
+        calls=[]
+        class Client:
+            def __init__(self,host,port,timeout,context):
+                assert host=='postbox.cloud.yandex.net' and port==465
+                assert context.check_hostname and context.verify_mode==ssl.CERT_REQUIRED
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+            def ehlo(self):pass
+            def login(self,key,secret):calls.append('login')
+            def sendmail(self,*args):raise AssertionError('Checker must not send mail')
+        with patch.object(checker.smtplib,'SMTP_SSL',Client):
+            result=checker.check_smtp({'UCHU_POSTBOX_API_KEY_ID':'fixture-id','UCHU_POSTBOX_API_KEY_SECRET':'fixture-secret'})
+        self.assertTrue(result['smtp_authenticated']);self.assertFalse(result['email_sent']);self.assertEqual(calls,['login'])
+        class Rejected(Client):
+            def login(self,key,secret):raise checker.smtplib.SMTPAuthenticationError(535,b'fixture-secret-do-not-print')
+        with patch.object(checker.smtplib,'SMTP_SSL',Rejected):
+            result=checker.check_smtp({'UCHU_POSTBOX_API_KEY_ID':'fixture-id','UCHU_POSTBOX_API_KEY_SECRET':'fixture-secret'})
+        self.assertEqual(result['smtp_code'],535);self.assertNotIn('fixture-secret',str(result))
+
 if __name__=='__main__':unittest.main(verbosity=2)
