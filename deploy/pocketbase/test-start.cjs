@@ -16,4 +16,7 @@ assert(a.ids.finish.disabled);a=boot();assert(a.steps[0].checked);assert(a.ids.f
 a.radios.find(r=>r.name==='q11'&&r.value==='yes').handlers.change();assert(!a.ids.finish.disabled);
 a.ids.finish.handlers.click();assert(a.ids.feedback.textContent.includes('12'));a=boot();assert(!a.ids.finish.disabled);assert(a.ids.feedback.textContent.includes('12'));
 a.radios.find(r=>r.name==='q1'&&r.value==='no').handlers.change();assert(a.ids.finish.disabled);assert.equal(a.ids.feedback.textContent,'');
-console.log('PASS: progress persists after reload; 11/12 stays locked; 12/12 unlocks; No relocks. DOM fixture, no browser rendering claim.');
+for(const key of Object.keys(cache))delete cache[key];
+cache['uchu:pocketbase-accounts:v8']=JSON.stringify({steps:{0:true},answers:{0:'yes'},finished:true});
+a=boot();assert(a.steps[0].checked);assert(a.ids.finish.disabled);assert.equal(a.radios.filter(r=>r.checked).length,0);
+console.log('PASS: progress persists; 11/12 locks; 12/12 unlocks; No relocks; revised checklist keeps old steps but resets old answers. DOM fixture, no browser rendering claim.');
