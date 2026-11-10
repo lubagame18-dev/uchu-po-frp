@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Hidden OAuth secret entry on the VPS console. No secrets in arguments or output."""
 import argparse
-import getpass
 import os
 from pathlib import Path
 import re
@@ -9,7 +8,7 @@ import stat
 import subprocess
 import sys
 import tempfile
-import warnings
+import termios
 
 PROVIDERS = {
     'yandex': ('YANDEX_CLIENT_ID', 'YANDEX_CLIENT_SECRET', r'[a-f0-9]{32}'),
@@ -41,26 +40,91 @@ def update_environment(path, updates):
             os.unlink(name)
 
 
+def disable_echo():
+    settings = termios.tcgetattr(sys.stdin.fileno())
+    settings[3] &= ~termios.ECHO
+    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, settings)
+
+
+def masked_input(prompt):
+    """Read from a real terminal, showing only stars. Never use echoed fallback."""
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        raise OSError('A real terminal is required')
+    fd = sys.stdin.fileno()
+    old = termios.tcgetattr(fd)
+    settings = termios.tcgetattr(fd)
+    settings[3] &= ~(termios.ECHO | termios.ICANON)
+    settings[6][termios.VMIN] = 1
+    settings[6][termios.VTIME] = 0
+    value = []
+    try:
+        termios.tcsetattr(fd, termios.TCSAFLUSH, settings)
+        print(prompt, end='', flush=True)
+        while True:
+            char = os.read(fd, 1)
+            if not char or char == b'\x04':
+                raise EOFError()
+            if char in (b'\r', b'\n'):
+                print(flush=True)
+                return ''.join(value)
+            if char in (b'\x7f', b'\x08'):
+                if value:
+                    value.pop()
+                    print('\b \b', end='', flush=True)
+            elif char == b'\x15':
+                print('\b \b' * len(value), end='', flush=True)
+                value.clear()
+            elif 32 <= char[0] <= 126 and len(value) < 513:
+                value.append(chr(char[0]))
+                print('*', end='', flush=True)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+
+
+def collect_secret(path, provider, client_id):
+    id_key, secret_key, _ = PROVIDERS[provider]
+    print('\nUCHU PRIVATE SETUP: '+provider.upper(), flush=True)
+    print('Input shows STARS only. Enter saves. Backspace deletes. Ctrl+U clears.', flush=True)
+    while True:
+        try:
+            secret = masked_input(provider.upper()+' CLIENT SECRET (stars): ')
+        except (KeyboardInterrupt, EOFError):
+            print('\nInput cancelled. This form stays open; try again.', flush=True)
+            continue
+        if not re.fullmatch(r'[A-Za-z0-9._~-]{16,512}', secret):
+            print('Empty or invalid input. Use English letters and copy Client Secret exactly. Try again.', flush=True)
+            continue
+        update_environment(path, {id_key: client_id, secret_key: secret})
+        del secret
+        print(provider.upper()+': saved privately. Login/signup flags were not changed.', flush=True)
+        return
+
+
+def park():
+    """Keep accidental follow-up input out of the root shell."""
+    disable_echo()
+    print('CONSOLE INPUT CLOSED. Close this browser tab. Codex will check the service.', flush=True)
+    while True:
+        try:
+            masked_input('CLOSED (nothing else will be saved): ')
+        except (KeyboardInterrupt, EOFError):
+            print('\nConsole stays locked. Close the browser tab.', flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for provider in PROVIDERS:
         parser.add_argument('--'+provider+'-client-id', required=True)
     args = parser.parse_args()
-    if os.geteuid() != 0 or not sys.stdin.isatty():
+    if os.geteuid() != 0 or not sys.stdin.isatty() or not sys.stdout.isatty():
         raise ValueError('Use the root terminal on the VPS; redirected input is refused')
-    # Never allow getpass to fall back to echoed stdin.
-    warnings.simplefilter('error', getpass.GetPassWarning)
-    path = Path('/etc/pocketbase/pocketbase.env')
-    for provider, (id_key, secret_key, pattern) in PROVIDERS.items():
-        client_id = getattr(args, provider+'_client_id')
-        if not re.fullmatch(pattern, client_id):
+    disable_echo()
+    for provider, (_, _, pattern) in PROVIDERS.items():
+        if not re.fullmatch(pattern, getattr(args, provider+'_client_id')):
             raise ValueError('Invalid public Client ID')
-        print('\nUCHU PRIVATE SETUP: '+provider.upper(), flush=True)
-        print('Paste ONLY this provider Client Secret. Input is hidden. Enter saves it.', flush=True)
-        secret = getpass.getpass(provider.upper()+' CLIENT SECRET (hidden): ')
-        update_environment(path, {id_key:client_id, secret_key:secret})
-        del secret
-        print(provider.upper()+': saved privately. Login/signup flags were not changed.', flush=True)
+    path = Path('/etc/pocketbase/pocketbase.env')
+    for provider in PROVIDERS:
+        collect_secret(path, provider, getattr(args, provider+'_client_id'))
     subprocess.run(['systemctl','restart','pocketbase'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print('\nSAVED BOTH PROVIDERS. Service restarted. Do not paste anything else.', flush=True)
     print('Real OAuth login is NOT accepted yet; production website was not switched.', flush=True)
@@ -68,10 +132,11 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except (KeyboardInterrupt, EOFError):
-        print('\nEntry stopped. Already saved fields remain private; login/signup flags unchanged.', file=sys.stderr)
-        sys.exit(1)
     except Exception:
-        # Do not interpolate exception messages: they may contain supplied values.
-        print('Private setup failed; no supplied values were printed. Ask Codex to check it.', file=sys.stderr)
-        sys.exit(1)
+        # Values and exception messages are never printed.
+        print('SETUP PAUSED. No supplied values were printed. Ask Codex to check it.', file=sys.stderr)
+        if not sys.stdin.isatty() or not sys.stdout.isatty():
+            sys.exit(1)
+    except (KeyboardInterrupt, EOFError):
+        print('SETUP PAUSED. Ask Codex to check it.', file=sys.stderr)
+    park()
