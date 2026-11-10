@@ -88,4 +88,29 @@ class SmtpCheck(unittest.TestCase):
             result=checker.check_smtp({'UCHU_POSTBOX_API_KEY_ID':'fixture-id','UCHU_POSTBOX_API_KEY_SECRET':'fixture-secret'})
         self.assertEqual(result['smtp_code'],535);self.assertNotIn('fixture-secret',str(result))
 
+    def test_single_explicit_message_cannot_repeat(self):
+        spec=importlib.util.spec_from_file_location('checker',Path(__file__).with_name('check-postbox.py'))
+        checker=importlib.util.module_from_spec(spec);spec.loader.exec_module(checker)
+        sent=[]
+        class Client:
+            def __init__(self,*args,**kwargs):pass
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+            def ehlo(self):pass
+            def login(self,*args):pass
+            def send_message(self,message):sent.append(message);return {}
+        import tempfile,stat
+        with tempfile.TemporaryDirectory() as tmp,patch.object(checker.smtplib,'SMTP_SSL',Client):
+            marker=Path(tmp)/'reserved'
+            values={'UCHU_POSTBOX_API_KEY_ID':'fixture-id','UCHU_POSTBOX_API_KEY_SECRET':'fixture-secret'}
+            first=checker.check_smtp(values,'fixture@example.invalid',marker)
+            self.assertTrue(first['email_sent']);self.assertEqual(len(sent),1)
+            self.assertEqual(stat.S_IMODE(marker.stat().st_mode),0o600)
+            self.assertNotIn('fixture@example.invalid',marker.read_text())
+            self.assertEqual(str(sent[0]['To']),'fixture@example.invalid')
+            self.assertNotIn('fixture-secret',sent[0].as_string())
+            second=checker.check_smtp(values,'fixture@example.invalid',marker)
+            self.assertFalse(second['email_sent']);self.assertEqual(second['error'],'FileExistsError')
+            self.assertEqual(len(sent),1)
+
 if __name__=='__main__':unittest.main(verbosity=2)
