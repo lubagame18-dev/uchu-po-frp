@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hidden OAuth secret entry on the VPS console. No secrets in arguments or output."""
+"""Private credential entry on the VPS console. No secrets in arguments or output."""
 import argparse
 import os
 from pathlib import Path
@@ -13,6 +13,7 @@ import termios
 PROVIDERS = {
     'yandex': ('YANDEX_CLIENT_ID', 'YANDEX_CLIENT_SECRET', r'[a-f0-9]{32}'),
     'google': ('GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', r'[A-Za-z0-9_-]+\.apps\.googleusercontent\.com'),
+    'postbox': ('UCHU_POSTBOX_API_KEY_ID','UCHU_POSTBOX_API_KEY_SECRET',r'[A-Za-z0-9_-]{16,64}'),
 }
 
 def update_environment(path, updates):
@@ -113,20 +114,28 @@ def park():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for provider in PROVIDERS:
-        parser.add_argument('--'+provider+'-client-id', required=True)
+    parser.add_argument('--yandex-client-id')
+    parser.add_argument('--google-client-id')
+    parser.add_argument('--postbox-key-id')
     args = parser.parse_args()
     if os.geteuid() != 0 or not sys.stdin.isatty() or not sys.stdout.isatty():
         raise ValueError('Use the root terminal on the VPS; redirected input is refused')
     disable_echo()
-    for provider, (_, _, pattern) in PROVIDERS.items():
-        if not re.fullmatch(pattern, getattr(args, provider+'_client_id')):
-            raise ValueError('Invalid public Client ID')
+    if args.postbox_key_id:
+        if args.yandex_client_id or args.google_client_id:
+            raise ValueError('Choose Postbox or OAuth setup, not both')
+        selected={'postbox':args.postbox_key_id}
+    else:
+        selected={key:value for key,value in {'yandex':args.yandex_client_id,'google':args.google_client_id}.items() if value}
+        if not selected:raise ValueError('Provide a public identifier')
+    for provider, client_id in selected.items():
+        if not client_id or not re.fullmatch(PROVIDERS[provider][2],client_id):
+            raise ValueError('Invalid public key identifier')
     path = Path('/etc/pocketbase/pocketbase.env')
-    for provider in PROVIDERS:
-        collect_secret(path, provider, getattr(args, provider+'_client_id'))
+    for provider, client_id in selected.items():
+        collect_secret(path, provider, client_id)
     subprocess.run(['systemctl','restart','pocketbase'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print('\nSAVED BOTH PROVIDERS. Service restarted. Do not paste anything else.', flush=True)
+    print('\n'+('POSTBOX KEY SAVED' if args.postbox_key_id else 'SAVED BOTH PROVIDERS')+'. Service restarted. Do not paste anything else.', flush=True)
     print('Real OAuth login is NOT accepted yet; production website was not switched.', flush=True)
 
 if __name__ == '__main__':

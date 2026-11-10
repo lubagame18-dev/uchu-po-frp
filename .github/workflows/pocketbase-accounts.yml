@@ -46,5 +46,6 @@ jobs:
       - run: python deploy/pocketbase/test-installer.py
       - run: python deploy/pocketbase/test-server-config.py
       - run: python deploy/pocketbase/test-oauth-secrets.py
+      - run: python deploy/pocketbase/test-postbox.py
       - run: node deploy/pocketbase/test-client.cjs
       - run: node deploy/supabase-rf/test-session.cjs

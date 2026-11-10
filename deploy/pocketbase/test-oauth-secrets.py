@@ -31,6 +31,16 @@ class PrivateEntry(unittest.TestCase):
             p.chmod(0o644)
             with self.assertRaises(ValueError):module.update_environment(p,{'YANDEX_CLIENT_SECRET':'fixture-secret-123456'})
             self.assertEqual(p.read_bytes(),before)
+    def test_postbox_entry_preserves_oauth_and_signup_flags(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)/'private.env';p.write_text('YANDEX_CLIENT_SECRET=fixture-yandex-secret\nGOOGLE_CLIENT_SECRET=fixture-google-secret\nUCHU_ALLOW_SIGNUP=false\n');p.chmod(0o600)
+            module.update_environment(p,{'UCHU_POSTBOX_API_KEY_ID':'fixture-postbox-key-id','UCHU_POSTBOX_API_KEY_SECRET':'fixture-postbox-secret-123456'})
+            data=p.read_text()
+            self.assertIn('YANDEX_CLIENT_SECRET=fixture-yandex-secret\n',data)
+            self.assertIn('GOOGLE_CLIENT_SECRET=fixture-google-secret\n',data)
+            self.assertIn('UCHU_ALLOW_SIGNUP=false\n',data)
+            self.assertIn('UCHU_POSTBOX_API_KEY_SECRET=fixture-postbox-secret-123456\n',data)
+
     def test_non_terminal_refused_without_echo(self):
         fixture='fixture-secret-do-not-echo-123456'
         r=subprocess.run([sys.executable,str(Path(__file__).with_name('enter-oauth-secrets.py')),'--yandex-client-id','f'*32,'--google-client-id','fixture.apps.googleusercontent.com'],input=fixture,capture_output=True,text=True)

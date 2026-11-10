@@ -49,9 +49,12 @@ class Accounts(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory(prefix='uchu-pb-test-')
         cls.data = Path(cls.tmp.name) / 'pb_data'
+        # Native admin schema tests can auto-generate migrations; never write into source.
+        cls.migrations = Path(cls.tmp.name) / 'migrations'
+        shutil.copytree(KIT / 'pb_migrations', cls.migrations)
         cls.service = secrets.token_hex(32)
         cls.password = secrets.token_urlsafe(24)
-        cls.args = [str(BINARY), '--dir', str(cls.data), '--hooksDir', str(KIT/'pb_hooks'), '--migrationsDir', str(KIT/'pb_migrations')]
+        cls.args = [str(BINARY), '--dir', str(cls.data), '--hooksDir', str(KIT/'pb_hooks'), '--migrationsDir', str(cls.migrations)]
         subprocess.run([*cls.args,'migrate','up'], capture_output=True, check=True)
         subprocess.run([*cls.args,'superuser','create','fixture-admin@example.invalid',cls.password],capture_output=True,check=True)
         with socket.socket() as s:

@@ -22,8 +22,8 @@ STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 BASE="https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/$REF/deploy/pocketbase"
 FILES=(pocketbase.service backup.sh restore.sh Caddyfile.example
- pb_hooks/uchu.js pb_hooks/uchu.pb.js pb_hooks/identities.js pb_hooks/identity-providers.js pb_hooks/registration.pb.js
- pb_migrations/1794069018_uchu_accounts.js pb_migrations/1794072092_account_identities.js pb_migrations/1794084615_google_identity.js)
+ pb_hooks/uchu.js pb_hooks/uchu.pb.js pb_hooks/identities.js pb_hooks/identity-providers.js pb_hooks/registration.pb.js pb_hooks/postbox.pb.js
+ pb_migrations/1794069018_uchu_accounts.js pb_migrations/1794072092_account_identities.js pb_migrations/1794084615_google_identity.js pb_migrations/1794327600_mail_budget.js)
 for file in "${FILES[@]}"; do
   mkdir -p "$STAGE/$(dirname "$file")"
   curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --max-time 60 "$BASE/$file" -o "$STAGE/$file"
