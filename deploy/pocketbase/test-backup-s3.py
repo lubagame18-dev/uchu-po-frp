@@ -9,7 +9,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).parent
 
@@ -23,6 +24,7 @@ def load(name, filename):
 
 backup = load('backup', 'backup-s3.py')
 entry = load('backup_entry', 'enter-backup-secret.py')
+restore = load('restore', 'restore-s3-check.py')
 terminal = load('console_tests', 'test-oauth-secrets.py')
 
 
@@ -78,6 +80,56 @@ class Anonymous:
 
 
 class Backups(unittest.TestCase):
+    def restore_fixture(self):
+        marker = {'bucket': backup.BUCKET, 'key': 'pocketbase/slot-0.age', 'ok': True,
+                  'anonymous_access_denied': True, 'verified_utc': datetime.now(timezone.utc).isoformat()}
+        data = self.archive.read_bytes()
+        client = Mock()
+        client.get_object.return_value = {'Body': io.BytesIO(data), 'Metadata': {'snapshot': self.archive.name}, 'ContentLength': len(data)}
+        return client, marker
+
+    def test_remote_restore_uses_fresh_private_directory_and_cleans_it(self):
+        client, marker = self.restore_fixture()
+        def checker(command, **kwargs):
+            downloaded, target = Path(command[2]), Path(command[4])
+            self.assertEqual(downloaded.read_bytes(), self.archive.read_bytes())
+            self.assertFalse(target.exists())
+            self.assertNotEqual(target.parent, self.folder)
+            self.assertEqual(target.parent.stat().st_mode & 0o077, 0)
+            return subprocess.CompletedProcess(command, 0)
+        with patch.object(restore.subprocess, 'run', side_effect=checker):
+            result = restore.verify_restore(client, backup, marker, '/fixture/checker')
+        self.assertTrue(result['restore_database_integrity_ok'])
+        self.assertTrue(client.get_object.return_value['Body'].closed)
+
+    def test_remote_restore_corruption_cannot_reach_decryption(self):
+        client, marker = self.restore_fixture()
+        data = self.archive.read_bytes()
+        client.get_object.return_value['Body'] = io.BytesIO(data[:-1] + b'z')
+        with patch.object(restore.subprocess, 'run') as runner:
+            with self.assertRaises(ValueError): restore.verify_restore(client, backup, marker, '/fixture/checker')
+            runner.assert_not_called()
+
+    def test_remote_restore_cannot_traverse_snapshot_path(self):
+        client, marker = self.restore_fixture()
+        client.get_object.return_value['Metadata']['snapshot'] = '../outside.age'
+        with patch.object(restore.subprocess, 'run') as runner:
+            with self.assertRaises(ValueError): restore.verify_restore(client, backup, marker, '/fixture/checker')
+            runner.assert_not_called()
+
+    def test_remote_restore_requires_recent_verified_upload(self):
+        client, marker = self.restore_fixture()
+        marker['verified_utc'] = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
+        with self.assertRaises(ValueError): restore.verify_restore(client, backup, marker, '/fixture/checker')
+        client.get_object.assert_not_called()
+
+    def test_failed_restore_does_not_report_success_or_retain_temporary_files(self):
+        client, marker = self.restore_fixture()
+        before = set(self.folder.parent.glob('uchu-offsite-restore-*'))
+        with patch.object(restore.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1)):
+            with self.assertRaises(ValueError): restore.verify_restore(client, backup, marker, '/fixture/checker')
+        self.assertEqual(before, set(self.folder.parent.glob('uchu-offsite-restore-*')))
+
     def test_policy_uses_supported_yandex_actions_and_scoped_resources(self):
         # Contract from Yandex's S3 policy actions reference, not AWS's superset:
         # https://yandex.cloud/ru/docs/storage/s3/api-ref/policy/actions
