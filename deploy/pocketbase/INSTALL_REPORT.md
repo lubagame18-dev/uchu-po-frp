@@ -320,3 +320,16 @@ email_sent=false. Проверочный скрипт с SHA256 49c5b41b5323d0a6
 expiry, пять попыток, одно использование, точная вставка, отсутствие эха).
 Отдельный restore-s3-check.py прошёл пять новых тестов, всего S3-тестов 17;
 настоящее восстановление облачной копии пока не запускалось.
+
+11.11.2026: install-backup-key-web.sh ebffdbfc реально выполнен на VPS, SHA256
+745829a671df0af9ad423157b6969f02daaca359ab53973553ee550dd3f5f5c9
+сверен перед запуском; source backup-key-web.py также сверён. Временный root-сервис
+с loopback:8091, ProtectSystem=strict, read-only home, NoNewPrivileges и пустым
+CapabilityBoundingSet запущен с RuntimeMaxSec=1800. В Caddy добавлен только
+private-backup-setup; исходник сохранён, SHA256 изменённого конфига — в приватном
+/run-маркере для проверки перед удалением маршрута.
+
+Внешняя проверка с обычным TLS: форма HTTP 200, no-store, nonce CSP/frame-ancestors
+none, поле password и fragment-handoff присутствуют. POST без токена: 403 (без
+отправки ключа). Health 200; native collections и админка 404. Секретная capability
+не опубликована в исходниках/пульте. Реальный успешный S3-ввод ещё ожидается.
