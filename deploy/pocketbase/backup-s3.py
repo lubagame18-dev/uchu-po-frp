@@ -34,34 +34,37 @@ def read_config(path):
     return config
 
 
-def assert_private_bucket(client):
+def require_anonymous_denial(operation, **kwargs):
+    """Only an explicit AccessDenied counts as a successful privacy check."""
+    try:
+        operation(**kwargs)
+    except Exception as error:
+        response = getattr(error, 'response', {})
+        if response.get('ResponseMetadata', {}).get('HTTPStatusCode') == 403 and response.get('Error', {}).get('Code') in ('AccessDenied', '403'):
+            return
+        raise
+    raise ValueError('Anonymous access is allowed')
+
+
+def assert_private_bucket(client, anonymous):
     acl = client.get_bucket_acl(Bucket=BUCKET)
     for grant in acl.get('Grants', []):
         who = grant.get('Grantee', {})
         if who.get('Type') == 'Group' or who.get('URI'):
             raise ValueError('Public or group bucket access is refused')
-    try:
-        policy = json.loads(client.get_bucket_policy(Bucket=BUCKET)['Policy'])
-    except Exception as error:
-        if getattr(error, 'response', {}).get('Error', {}).get('Code') != 'NoSuchBucketPolicy':
-            raise
-        policy = {}
-    statements = policy.get('Statement', [])
-    if isinstance(statements, dict):
-        statements = [statements]
-    for statement in statements:
-        # Fail closed for anonymous Allow, even if a condition narrows it.
-        principal = statement.get('Principal')
-        if statement.get('Effect') == 'Allow' and '*' in json.dumps(principal):
-            raise ValueError('Anonymous bucket policy is refused')
+    # Yandex bucket policies do not support the AWS s3:GetBucketPolicy action.
+    # Check effective anonymous access instead of requiring broader account roles.
     if client.get_bucket_versioning(Bucket=BUCKET).get('Status'):
         raise ValueError('Versioning must never have been enabled for bounded retention')
     listing = client.list_objects_v2(Bucket=BUCKET, MaxKeys=1000)
     if listing.get('IsTruncated') or any(obj['Key'] not in SLOTS for obj in listing.get('Contents', [])):
         raise ValueError('Backup bucket contains unexpected objects; nothing deleted')
+    require_anonymous_denial(anonymous.list_objects_v2, Bucket=BUCKET, MaxKeys=1)
+    for obj in listing.get('Contents', []):
+        require_anonymous_denial(anonymous.head_object, Bucket=BUCKET, Key=obj['Key'])
 
 
-def upload(client, archive, now=None):
+def upload(client, anonymous, archive, now=None):
     info = private_file(archive)
     if archive.parent != BACKUPS or not archive.name.startswith('uchu-') or archive.suffix != '.age':
         raise ValueError('Only managed encrypted snapshots may be uploaded')
@@ -74,7 +77,7 @@ def upload(client, archive, now=None):
         source.seek(0)
         digest = hashlib.file_digest(source, 'sha256').hexdigest()
         source.seek(0)
-        assert_private_bucket(client)
+        assert_private_bucket(client, anonymous)
         now = now or datetime.now(timezone.utc)
         key = f'pocketbase/slot-{int(now.timestamp()) // 86400 % 3}.age'
         client.put_object(Bucket=BUCKET, Key=key, Body=source, ContentLength=info.st_size,
@@ -96,7 +99,8 @@ def upload(client, archive, now=None):
         body.close()
     if count != info.st_size or remote.hexdigest() != digest:
         raise ValueError('Remote bytes did not match the local ciphertext')
-    return {'ok': True, 'bucket': BUCKET, 'key': key, 'bytes': count, 'ciphertext_sha256_verified': True}
+    require_anonymous_denial(anonymous.head_object, Bucket=BUCKET, Key=key)
+    return {'ok': True, 'bucket': BUCKET, 'key': key, 'bytes': count, 'ciphertext_sha256_verified': True, 'anonymous_access_denied': True}
 
 
 def main():
@@ -111,16 +115,20 @@ def main():
         return
     config = read_config(CONFIG)
     import boto3
+    from botocore import UNSIGNED
     from botocore.config import Config
     client = boto3.client('s3', endpoint_url='https://storage.yandexcloud.net', region_name='ru-central1',
                           aws_access_key_id=config['access_key_id'], aws_secret_access_key=config['secret_access_key'],
                           config=Config(signature_version='s3v4', connect_timeout=10, read_timeout=60,
                                         retries={'max_attempts': 2}, s3={'addressing_style': 'path'}))
+    anonymous = boto3.client('s3', endpoint_url='https://storage.yandexcloud.net', region_name='ru-central1',
+                             config=Config(signature_version=UNSIGNED, connect_timeout=10, read_timeout=60,
+                                           retries={'max_attempts': 2}, s3={'addressing_style': 'path'}))
     import fcntl
     with open('/run/uchu-pocketbase-backup.lock', 'w') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         archive = max(BACKUPS.glob('uchu-*.age'))
-        result = upload(client, archive)
+        result = upload(client, anonymous, archive)
         fd, temporary = tempfile.mkstemp(prefix='.offsite-', dir=BACKUPS)
         try:
             with os.fdopen(fd, 'w') as output:

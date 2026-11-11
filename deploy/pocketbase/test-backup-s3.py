@@ -30,7 +30,6 @@ class S3:
     def __init__(self):
         self.objects = {}
         self.acl = {'Grants': []}
-        self.policy = {'Statement': []}
         self.versioning = {}
         self.corrupt = False
         self.puts = 0
@@ -38,9 +37,6 @@ class S3:
     def get_bucket_acl(self, **kwargs):
         assert kwargs['Bucket'] == backup.BUCKET
         return self.acl
-
-    def get_bucket_policy(self, **kwargs):
-        return {'Policy': json.dumps(self.policy)}
 
     def get_bucket_versioning(self, **kwargs):
         return self.versioning
@@ -61,7 +57,35 @@ class S3:
         return {'Body': io.BytesIO(data[:-1] if self.corrupt else data)}
 
 
+class Denied(Exception):
+    response = {'ResponseMetadata': {'HTTPStatusCode': 403}, 'Error': {'Code': 'AccessDenied'}}
+
+
+class Anonymous:
+    public_list = False
+    public_objects = False
+    error = None
+
+    def list_objects_v2(self, **kwargs):
+        if self.error: raise self.error
+        if not self.public_list: raise Denied()
+        return {}
+
+    def head_object(self, **kwargs):
+        if self.error: raise self.error
+        if not self.public_objects: raise Denied()
+        return {}
+
+
 class Backups(unittest.TestCase):
+    def test_policy_uses_supported_yandex_actions_and_scoped_resources(self):
+        # Contract from Yandex's S3 policy actions reference, not AWS's superset:
+        # https://yandex.cloud/ru/docs/storage/s3/api-ref/policy/actions
+        policy = json.loads((ROOT / 'backup-bucket-policy.example.json').read_text())
+        actions = {action for rule in policy['Statement'] for action in rule['Action']}
+        self.assertEqual(actions, {'s3:GetBucketAcl', 's3:GetBucketVersioning', 's3:ListBucket', 's3:GetObject', 's3:PutObject'})
+        self.assertEqual(set(policy['Statement'][1]['Resource']), {f'arn:aws:s3:::uchu-frp-backups/{key}' for key in backup.SLOTS})
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.folder = Path(self.tmp.name)
@@ -71,6 +95,7 @@ class Backups(unittest.TestCase):
         self.archive.write_bytes(b'age-encryption.org/v1\n' + b'fixture-ciphertext-' * 8)
         self.archive.chmod(0o600)
         self.client = S3()
+        self.anonymous = Anonymous()
 
     def tearDown(self):
         backup.BACKUPS = self.previous
@@ -78,46 +103,63 @@ class Backups(unittest.TestCase):
 
     def test_daily_slots_bound_retention_and_verify_download(self):
         for day in range(1, 12):
-            result = backup.upload(self.client, self.archive, datetime(2026, 11, day, tzinfo=timezone.utc))
+            result = backup.upload(self.client, self.anonymous, self.archive, datetime(2026, 11, day, tzinfo=timezone.utc))
             self.assertTrue(result['ciphertext_sha256_verified'])
+            self.assertTrue(result['anonymous_access_denied'])
         self.assertEqual(set(self.client.objects), backup.SLOTS)
         self.assertEqual(self.client.puts, 11)
 
-    def test_public_acl_and_anonymous_policy_refused_before_upload(self):
+    def test_public_acl_and_anonymous_listing_refused_before_upload(self):
         self.client.acl = {'Grants': [{'Grantee': {'Type': 'Group', 'URI': 'http://acs.amazonaws.com/groups/global/AllUsers'}}]}
-        with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
         self.client.acl = {'Grants': []}
-        self.client.policy = {'Statement': [{'Effect': 'Allow', 'Principal': {'AWS': '*'}}]}
-        with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+        self.anonymous.public_list = True
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
+        self.assertEqual(self.client.puts, 0)
+
+    def test_public_existing_object_refused_before_replacement(self):
+        self.client.objects['pocketbase/slot-0.age'] = b'existing ciphertext'
+        self.anonymous.public_objects = True
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
+        self.assertEqual(self.client.puts, 0)
+
+    def test_new_object_public_access_is_not_accepted(self):
+        self.anonymous.public_objects = True
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
+        self.assertEqual(self.client.puts, 1)
+
+    def test_network_error_cannot_count_as_anonymous_denial(self):
+        self.anonymous.error = TimeoutError('fixture network failure')
+        with self.assertRaises(TimeoutError): backup.upload(self.client, self.anonymous, self.archive)
         self.assertEqual(self.client.puts, 0)
 
     def test_version_history_and_unexpected_data_refused_without_deletion(self):
         for status in ('Enabled', 'Suspended'):
             self.client.versioning = {'Status': status}
-            with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+            with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
         self.client.versioning = {}
         self.client.objects['unrelated-owner-file'] = b'preserve me'
-        with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
         self.assertEqual(self.client.objects['unrelated-owner-file'], b'preserve me')
         self.assertEqual(self.client.puts, 0)
 
     def test_plaintext_public_file_symlink_and_size_refused(self):
         self.archive.write_bytes(b'plaintext with personal data' * 5)
-        with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
         self.archive.write_bytes(b'age-encryption.org/v1\n' + b'x' * 32)
         self.archive.chmod(0o644)
-        with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
         self.archive.chmod(0o600)
         link = self.folder / 'uchu-symlink.age'
         link.symlink_to(self.archive)
-        with self.assertRaises(ValueError): backup.upload(self.client, link)
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, link)
         with self.archive.open('wb') as output: output.truncate(backup.MAX_BYTES + 1)
-        with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
         self.assertEqual(self.client.puts, 0)
 
     def test_corrupted_download_is_not_accepted(self):
         self.client.corrupt = True
-        with self.assertRaises(ValueError): backup.upload(self.client, self.archive)
+        with self.assertRaises(ValueError): backup.upload(self.client, self.anonymous, self.archive)
 
     def test_credentials_are_separate_private_and_target_is_fixed(self):
         path = self.folder / 'backup-s3.json'
