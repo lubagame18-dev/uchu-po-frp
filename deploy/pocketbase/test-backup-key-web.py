@@ -133,6 +133,7 @@ class RecoveryDownload(unittest.TestCase):
         status, headers, body = self.request('GET')
         self.assertEqual(status, 200)
         self.assertIn(b'action="recovery"', body)
+        self.assertIn(b'<meta name="referrer" content="same-origin">', body)
         self.assertNotIn(self.fixture, body)
         self.assertNotIn(self.state['token'].encode(), body)
         self.assertEqual(headers['Cache-Control'], 'no-store')
