@@ -15,10 +15,10 @@ fi
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 curl --proto '=https' --tlsv1.2 -fSsL --retry 2 \
-  https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/017864c58863d18234f5cb55144226d6c9d75937/deploy/pocketbase/backup-key-web.py \
+  https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/9f15d3242eda814c2c837a907a178db7544da7ca/deploy/pocketbase/backup-key-web.py \
   -o "$STAGE/backup-key-web.py"
 (cd "$STAGE" && sha256sum -c - <<'SHA'
-324e347895ab0eabd97bd3ac9e63afa4002d02a7ae6b562e504e42ada7d38d13  backup-key-web.py
+c27760f2c51749523c6933f4c9272e5f4d1cf013d77b2b470f2cc0ecc146dd16  backup-key-web.py
 SHA
 )
 install -m 700 "$STAGE/backup-key-web.py" /root/uchu-backup-key-web.py
