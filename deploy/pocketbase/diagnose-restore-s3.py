@@ -13,6 +13,8 @@ SAFE_REASONS = {
     'Remote object exceeded the expected size',
     'Restore validation failed; output was kept private',
     'Expected a private regular file',
+    'Unknown snapshot manifest; verify a fresh upload first',
+    'Local ciphertext differs from the verified upload manifest',
 }
 
 

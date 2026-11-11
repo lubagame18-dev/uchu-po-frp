@@ -1,6 +1,7 @@
 """Offline tests: bounded encrypted uploads, privacy gates and separate secret entry."""
 import importlib.util
 import io
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -84,6 +85,7 @@ class Backups(unittest.TestCase):
         marker = {'bucket': backup.BUCKET, 'key': 'pocketbase/slot-0.age', 'ok': True,
                   'anonymous_access_denied': True, 'verified_utc': datetime.now(timezone.utc).isoformat()}
         data = self.archive.read_bytes()
+        marker.update(snapshot=self.archive.name, bytes=len(data), ciphertext_sha256=hashlib.sha256(data).hexdigest())
         client = Mock()
         client.get_object.return_value = {'Body': io.BytesIO(data), 'Metadata': {'snapshot': self.archive.name}, 'ContentLength': len(data)}
         return client, marker
@@ -112,7 +114,20 @@ class Backups(unittest.TestCase):
 
     def test_remote_restore_cannot_traverse_snapshot_path(self):
         client, marker = self.restore_fixture()
-        client.get_object.return_value['Metadata']['snapshot'] = '../outside.age'
+        marker['snapshot'] = '../outside.age'
+        with patch.object(restore.subprocess, 'run') as runner:
+            with self.assertRaises(ValueError): restore.verify_restore(client, backup, marker, '/fixture/checker')
+            runner.assert_not_called()
+
+    def test_restore_works_without_optional_provider_metadata(self):
+        client, marker = self.restore_fixture()
+        client.get_object.return_value['Metadata'] = {}
+        with patch.object(restore.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)):
+            self.assertTrue(restore.verify_restore(client, backup, marker, '/fixture/checker')['download_sha256_verified'])
+
+    def test_local_archive_must_match_private_upload_manifest(self):
+        client, marker = self.restore_fixture()
+        marker['ciphertext_sha256'] = '0' * 64
         with patch.object(restore.subprocess, 'run') as runner:
             with self.assertRaises(ValueError): restore.verify_restore(client, backup, marker, '/fixture/checker')
             runner.assert_not_called()

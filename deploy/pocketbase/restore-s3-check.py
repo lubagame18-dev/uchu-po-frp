@@ -19,18 +19,21 @@ def verify_restore(client, backup, marker, restore_command):
     elapsed = (datetime.now(timezone.utc) - datetime.fromisoformat(marker['verified_utc'])).total_seconds()
     if not -300 <= elapsed <= 86400:
         raise ValueError('Upload acceptance is too old; upload a fresh snapshot first')
+    # Bind the download to our private upload manifest, not optional provider metadata.
+    snapshot = marker.get('snapshot', '')
+    if not re.fullmatch(r'uchu-[A-Za-z0-9_-]+\.age', snapshot) or not re.fullmatch(r'[a-f0-9]{64}', marker.get('ciphertext_sha256', '')):
+        raise ValueError('Unknown snapshot manifest; verify a fresh upload first')
     response = client.get_object(Bucket=backup.BUCKET, Key=marker['key'])
     body = response['Body']
     try:
-        snapshot = response.get('Metadata', {}).get('snapshot', '')
-        if not re.fullmatch(r'uchu-[A-Za-z0-9_-]+\.age', snapshot):
-            raise ValueError('Unknown snapshot metadata')
         local = backup.BACKUPS / snapshot
         info = backup.private_file(local)
-        if not 32 <= info.st_size <= backup.MAX_BYTES or response.get('ContentLength') != info.st_size:
+        if not 32 <= info.st_size <= backup.MAX_BYTES or response.get('ContentLength') != info.st_size or marker.get('bytes') != info.st_size:
             raise ValueError('Unexpected snapshot size')
         with local.open('rb') as source:
             expected = hashlib.file_digest(source, 'sha256').hexdigest()
+        if expected != marker['ciphertext_sha256']:
+            raise ValueError('Local ciphertext differs from the verified upload manifest')
         with tempfile.TemporaryDirectory(prefix='uchu-offsite-restore-', dir=backup.BACKUPS.parent) as temporary:
             folder = Path(temporary)
             folder.chmod(0o700)

@@ -140,7 +140,9 @@ def upload(client, anonymous, archive, now=None):
     if count != info.st_size or remote.hexdigest() != digest:
         raise ValueError('Remote bytes did not match the local ciphertext')
     require_anonymous_denial(anonymous.head_object, Bucket=BUCKET, Key=key)
-    return {'ok': True, 'bucket': BUCKET, 'key': key, 'bytes': count, 'ciphertext_sha256_verified': True, 'anonymous_access_denied': True}
+    return {'ok': True, 'bucket': BUCKET, 'key': key, 'bytes': count,
+            'snapshot': archive.name, 'ciphertext_sha256': digest,
+            'ciphertext_sha256_verified': True, 'anonymous_access_denied': True}
 
 
 def main():
