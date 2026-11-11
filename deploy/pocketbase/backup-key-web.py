@@ -68,7 +68,9 @@ def handler_for(state, validator):
             self.send_header('Content-Type', 'text/html; charset=utf-8' if html else 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(body)))
             self.send_header('Cache-Control', 'no-store')
-            self.send_header('Referrer-Policy', 'no-referrer')
+            # A native POST with no-referrer sends Origin: null in browsers.
+            # same-origin preserves CSRF validation and omits cross-origin referrers.
+            self.send_header('Referrer-Policy', 'same-origin' if document == RECOVERY_HTML else 'no-referrer')
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.send_header('X-Frame-Options', 'DENY')
             self.send_header('Content-Security-Policy', "default-src 'none'; script-src 'nonce-"+nonce+"'; style-src 'nonce-"+nonce+"'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'")

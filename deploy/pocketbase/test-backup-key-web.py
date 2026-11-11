@@ -136,11 +136,13 @@ class RecoveryDownload(unittest.TestCase):
         self.assertNotIn(self.fixture, body)
         self.assertNotIn(self.state['token'].encode(), body)
         self.assertEqual(headers['Cache-Control'], 'no-store')
+        self.assertEqual(headers['Referrer-Policy'], 'same-origin')
         self.assertFalse(self.state['used'])
 
     def test_only_authenticated_same_origin_request_can_download(self):
         self.assertEqual(self.request(token='wrong-token')[0], 403)
         self.assertEqual(self.request(headers={'Origin': 'https://other.example'})[0], 403)
+        self.assertEqual(self.request(headers={'Origin': 'null'})[0], 403)
         self.assertEqual(self.request(headers={'Host': 'other.example'})[0], 403)
         self.assertFalse(self.receipt.exists())
 
