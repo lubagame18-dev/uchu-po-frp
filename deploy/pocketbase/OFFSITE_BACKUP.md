@@ -135,3 +135,17 @@ python3 deploy/pocketbase/test-backup-s3.py
 - https://yandex.cloud/ru/docs/iam/operations/authentication/manage-access-keys
 - https://yandex.cloud/ru/docs/storage/operations/buckets/policy
 - https://yandex.cloud/ru/docs/storage/pricing
+
+## Если форма сообщает общий отказ
+
+Не считать это автоматически неправильным секретом. Сначала Codex смотрит
+фиксированные метаданные /run/uchu-backup-access-check.json: этап acl, versioning,
+list, anonymous_list/object, либо проверку локальной конфигурации. Содержимое
+секрета и тексты удалённых ответов в диагностику не попадают. Форма остаётся
+открытой и сохраняет поле; после обновления достаточно снова нажать кнопку,
+не обновляя страницу. Роли и ключи вслепую не заменяются.
+
+Очистка после приёмки: close-backup-key-web.py сначала без аргументов проверяет
+контрольную сумму и первоначальный Caddyfile. Затем Codex запускает --apply и
+проверяет health и закрытие private-backup-setup. Если конфиг изменён другим
+действием, очистка откажется от перезаписи — нужно проверить разницу.
