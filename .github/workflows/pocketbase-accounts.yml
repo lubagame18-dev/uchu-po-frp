@@ -49,5 +49,6 @@ jobs:
       - run: python deploy/pocketbase/test-postbox.py
       - run: python deploy/pocketbase/test-backup-s3.py
       - run: python deploy/pocketbase/test-backup-key-web.py
+      - run: python deploy/pocketbase/test-backup-key-cleanup.py
       - run: node deploy/pocketbase/test-client.cjs
       - run: node deploy/supabase-rf/test-session.cjs
