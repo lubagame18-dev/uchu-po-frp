@@ -10,7 +10,7 @@ DROPIN=/etc/systemd/system/uchu-pocketbase-backup.service.d/offsite.conf
 if [[ -e $DROPIN ]] && ! grep -q '^# uchu-managed-offsite-v1$' "$DROPIN"; then
   echo 'Existing custom backup drop-in requires review'; exit 1
 fi
-REF=355572c9faa8ec0f817fec0e604dad733ecccf7d
+REF=e9a96e18c37e7422fc1aa21d38996e5210679207
 BASE="https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/$REF/deploy/pocketbase"
 STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
@@ -18,7 +18,7 @@ for file in backup-s3.py enter-backup-secret.py; do
   curl --proto '=https' --tlsv1.2 -fSsL --retry 2 "$BASE/$file" -o "$STAGE/$file"
 done
 (cd "$STAGE" && sha256sum -c - <<'SHA'
-4aaaddca5e5a72ef1f394a84ab9308297a18c5cdd17a4f4d9d15692ee9299c0e  backup-s3.py
+97097875bae9bdc2d1ff106341c8d20e81d5f95db747624d30364307e62ef04f  backup-s3.py
 59fdb795c7b1dd116905d8d5482db6b60654e6549ccda5dc6fec6e73a742ea05  enter-backup-secret.py
 SHA
 )
