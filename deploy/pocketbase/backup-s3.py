@@ -15,6 +15,45 @@ CONFIG = Path('/etc/pocketbase/backup-s3.json')
 BACKUPS = Path('/var/backups/pocketbase')
 MAX_BYTES = 200 * 1024 * 1024
 SLOTS = {f'pocketbase/slot-{i}.age' for i in range(3)}
+DIAGNOSTIC = Path('/run/uchu-backup-access-check.json')
+
+
+def report_check(stage, ok, error=None):
+    """Fixed diagnostic fields only. No error messages, HTTP bodies, or credentials."""
+    response = getattr(error, 'response', {})
+    code = response.get('Error', {}).get('Code')
+    status = response.get('ResponseMetadata', {}).get('HTTPStatusCode')
+    record = {'stage': stage, 'ok': ok, 'utc': datetime.now(timezone.utc).isoformat()}
+    if not ok:
+        record['code'] = code if code in ('AccessDenied', 'SignatureDoesNotMatch', 'InvalidAccessKeyId', 'NoSuchBucket', '403', '404') else 'validation_or_transport_error'
+        record['http_status'] = status if isinstance(status, int) and 100 <= status <= 599 else None
+    pending = None
+    try:
+        fd, pending = tempfile.mkstemp(prefix='.uchu-access-', dir=DIAGNOSTIC.parent)
+        with os.fdopen(fd, 'w') as output:
+            json.dump(record, output)
+        os.replace(pending, DIAGNOSTIC)
+    except OSError:
+        pass  # Diagnostics must not change the outcome of an access check.
+    finally:
+        if pending and os.path.exists(pending):
+            os.unlink(pending)
+
+
+def checked(stage, callback, *args, **kwargs):
+    try:
+        result = callback(*args, **kwargs)
+    except Exception as error:
+        report_check(stage, False, error)
+        raise
+    report_check(stage, True)
+    return result
+
+
+def reject(stage, message):
+    error = ValueError(message)
+    report_check(stage, False, error)
+    raise error
 
 
 def private_file(path):
@@ -47,21 +86,22 @@ def require_anonymous_denial(operation, **kwargs):
 
 
 def assert_private_bucket(client, anonymous):
-    acl = client.get_bucket_acl(Bucket=BUCKET)
+    acl = checked('acl', client.get_bucket_acl, Bucket=BUCKET)
     for grant in acl.get('Grants', []):
         who = grant.get('Grantee', {})
         if who.get('Type') == 'Group' or who.get('URI'):
-            raise ValueError('Public or group bucket access is refused')
+            reject('public_acl', 'Public or group bucket access is refused')
     # Yandex bucket policies do not support the AWS s3:GetBucketPolicy action.
     # Check effective anonymous access instead of requiring broader account roles.
-    if client.get_bucket_versioning(Bucket=BUCKET).get('Status'):
-        raise ValueError('Versioning must never have been enabled for bounded retention')
-    listing = client.list_objects_v2(Bucket=BUCKET, MaxKeys=1000)
+    if checked('versioning', client.get_bucket_versioning, Bucket=BUCKET).get('Status'):
+        reject('versioning_enabled_or_suspended', 'Versioning must never have been enabled for bounded retention')
+    listing = checked('list', client.list_objects_v2, Bucket=BUCKET, MaxKeys=1000)
     if listing.get('IsTruncated') or any(obj['Key'] not in SLOTS for obj in listing.get('Contents', [])):
-        raise ValueError('Backup bucket contains unexpected objects; nothing deleted')
-    require_anonymous_denial(anonymous.list_objects_v2, Bucket=BUCKET, MaxKeys=1)
+        reject('unexpected_objects', 'Backup bucket contains unexpected objects; nothing deleted')
+    checked('anonymous_list', require_anonymous_denial, anonymous.list_objects_v2, Bucket=BUCKET, MaxKeys=1)
     for obj in listing.get('Contents', []):
-        require_anonymous_denial(anonymous.head_object, Bucket=BUCKET, Key=obj['Key'])
+        checked('anonymous_object', require_anonymous_denial, anonymous.head_object, Bucket=BUCKET, Key=obj['Key'])
+    report_check('access_checks_complete', True)
 
 
 def upload(client, anonymous, archive, now=None):

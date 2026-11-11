@@ -142,6 +142,8 @@ class Backups(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.folder = Path(self.tmp.name)
         self.previous = backup.BACKUPS
+        self.previous_diagnostic = backup.DIAGNOSTIC
+        backup.DIAGNOSTIC = self.folder / 'diagnostic.json'
         backup.BACKUPS = self.folder
         self.archive = self.folder / 'uchu-fixture.age'
         self.archive.write_bytes(b'age-encryption.org/v1\n' + b'fixture-ciphertext-' * 8)
@@ -151,7 +153,20 @@ class Backups(unittest.TestCase):
 
     def tearDown(self):
         backup.BACKUPS = self.previous
+        backup.DIAGNOSTIC = self.previous_diagnostic
         self.tmp.cleanup()
+
+    def test_failure_diagnostic_exposes_only_fixed_status_fields(self):
+        class Error(Exception):
+            response = {'Error': {'Code': 'AccessDenied', 'Message': 'fixture-private-secret'},
+                        'ResponseMetadata': {'HTTPStatusCode': 403, 'HTTPHeaders': {'Authorization': 'fixture-private-secret'}}}
+        def fail(): raise Error('fixture-private-secret')
+        with self.assertRaises(Error): backup.checked('acl', fail)
+        record = json.loads(backup.DIAGNOSTIC.read_text())
+        self.assertEqual(record['stage'], 'acl')
+        self.assertEqual(record['code'], 'AccessDenied')
+        self.assertEqual(stat.S_IMODE(backup.DIAGNOSTIC.stat().st_mode), 0o600)
+        self.assertNotIn('fixture-private-secret', backup.DIAGNOSTIC.read_text())
 
     def test_daily_slots_bound_retention_and_verify_download(self):
         for day in range(1, 12):
