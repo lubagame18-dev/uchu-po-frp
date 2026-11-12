@@ -1,14 +1,15 @@
 'use strict';
 // All other proxy requests (AI, images, payment provider) retain their destinations.
-function config() {
-  if (process.env.ACCOUNTS_BACKEND === 'pocketbase') {
+function pocketbaseConfig() {
     const origin = (process.env.POCKETBASE_URL || '').replace(/\/+$/, '');
     const key = process.env.POCKETBASE_SERVICE_TOKEN || '';
     if (!origin || key.length < 32) throw new Error('PocketBase accounts environment is incomplete');
     const url = new URL(origin);
     if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost','127.0.0.1'].includes(url.hostname))) throw new Error('PocketBase requires HTTPS');
     return {url: origin + '/api/uchu', key};
-  }
+}
+function config() {
+  if (process.env.ACCOUNTS_BACKEND === 'pocketbase') return pocketbaseConfig();
   return {url: (process.env.SUPABASE_URL || '').replace(/\/+$/, ''), key: process.env.SUPABASE_SERVICE_KEY || ''};
 }
 function wrapRequest(request) {
@@ -30,4 +31,16 @@ function wrapRequest(request) {
     return request(cfg.url + suffix, {...options, headers, body});
   };
 }
-module.exports = {config, wrapRequest, pocketbase: () => process.env.ACCOUNTS_BACKEND === 'pocketbase'};
+async function probePocketbase(request, readAll) {
+  const cfg = pocketbaseConfig();
+  const health = await request(cfg.url + '/auth/v1/health', {method:'GET'});
+  const info = JSON.parse(await readAll(health));
+  if (health.statusCode !== 200 || info.ok !== true || info.provider !== 'pocketbase') throw new Error('Account health check failed');
+  const inventory = await request(cfg.url + '/rest/v1/rpc/migration_inventory', {
+    method:'POST', headers:{apikey:cfg.key,'Content-Type':'application/json'}, body:'{}'
+  });
+  const data = JSON.parse(await readAll(inventory));
+  if (inventory.statusCode !== 200 || !Number.isSafeInteger(data.users) || data.users < 0) throw new Error('Account service authentication failed');
+  return {ok:true,provider:'pocketbase',health:true,serviceAuthenticated:true,users:data.users};
+}
+module.exports = {config, wrapRequest, probePocketbase, pocketbase: () => process.env.ACCOUNTS_BACKEND === 'pocketbase'};

@@ -757,6 +757,11 @@ async function handler(req, res) {
     try { const r = await fetchImage(String(u.searchParams.get("url") || "")); res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "public, max-age=86400" }); return res.end(r.buf); }
     catch (e) { return send(res, e.status || 502, { error: e.message }); }
   }
+  if (req.method === "GET" && route === "/admin/accounts-check") {
+    if (!process.env.ADMIN_TOKEN || req.headers["x-admin-token"] !== process.env.ADMIN_TOKEN) return send(res, 403, { error: "нужен токен владельца" });
+    try { return send(res, 200, await require('./accounts-backend.js').probePocketbase(request, readAll)); }
+    catch (_) { return send(res, 502, {ok:false,error:"PocketBase connection check failed"}); }
+  }
   if (req.method === "GET" && route === "/deepseek/balance") {
     // баланс аккаунтов — только владельцу (заголовок X-Admin-Token = переменная ADMIN_TOKEN)
     if (!process.env.ADMIN_TOKEN || req.headers["x-admin-token"] !== process.env.ADMIN_TOKEN) return send(res, 403, { error: "нужен токен владельца" });
