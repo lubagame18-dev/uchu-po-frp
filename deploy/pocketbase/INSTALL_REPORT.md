@@ -544,3 +544,10 @@ prepare подтвердил production_changed=false. deploy завершилс
 existing_environment_preserved, health_unchanged, cloud_to_pocketbase_verified=true.
 Содержимое служебных ключей оставалось на защищённых путях VPS/Cloud Functions;
 исходный authorized JSON key не включён ни в одну сборку.
+
+
+GitHub check account-storage для 383ae879 завершился success. Внешний
+Workers Builds: uchu-po-frp имеет failure также на 23401c09, до обновления
+облачной функции; summary содержит только ссылку на Cloudflare build, не лог.
+Этот внешний путь не использовался для проведённого деплоя в Яндекс.
+Нельзя утверждать, что все внешние проверки репозитория зелёные.
