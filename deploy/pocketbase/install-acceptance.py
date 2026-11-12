@@ -23,7 +23,7 @@ def install():
     if ENV.exists() or DATA.exists():raise ValueError('Acceptance already exists; preserve it, do not overwrite')
     if subprocess.run(['systemctl','is-active','--quiet','uchu-backup-web.service']).returncode==0:raise ValueError('Close key entry first')
     caddy=Path('/etc/caddy/Caddyfile');original=caddy.read_text()
-    if 'uchu-pocketbase-managed' not in original or 'handle /check/' in original or 'private-backup-setup' in original:raise ValueError('Unexpected proxy state')
+    if 'uchu-pocketbase-managed' not in original or 'handle @acceptance' in original or 'private-backup-setup' in original:raise ValueError('Unexpected proxy state')
     src_env=dict(line.split('=',1) for line in Path('/etc/pocketbase/pocketbase.env').read_text().splitlines() if line and not line.startswith('#'))
     if src_env.get('UCHU_ALLOW_SIGNUP')!='false':raise ValueError('Expected closed production signup')
     with sqlite3.connect('file:'+str(SOURCE)+'?mode=ro',uri=True) as db:
@@ -96,7 +96,7 @@ MemoryMax=96M
     modified='\n'.join(lines)+'\n'
     anchor='    reverse_proxy 127.0.0.1:8090 {'
     if modified.count(anchor)!=1:raise ValueError('Unexpected proxy layout')
-    modified=modified.replace(anchor,'    handle /check/* /google.html /yandex.html /api/check/* {\n        reverse_proxy 127.0.0.1:8091\n    }\n'+anchor)
+    modified=modified.replace(anchor,'    @acceptance path /check/* /google.html /yandex.html /api/check/*\n    handle @acceptance {\n        reverse_proxy 127.0.0.1:8091\n    }\n'+anchor)
     staged=ROOT/'Caddyfile';staged.write_text(modified);staged.chmod(0o644)
     run('caddy','validate','--config',str(staged),'--adapter','caddyfile')
     backup=Path('/etc/caddy/Caddyfile.before-acceptance');backup.write_text(original);backup.chmod(0o600)
