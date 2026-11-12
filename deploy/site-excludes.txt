@@ -30,3 +30,8 @@ CNAME
 .gitignore
 *.before-accounts
 pb_data/*
+presentation_database/*
+frp_tasks/*
+integrations/*
+test/*
+*.zip

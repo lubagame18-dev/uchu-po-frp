@@ -22,7 +22,7 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
   }
   if(url.origin===origin){
    const rel=decodeURIComponent(url.pathname).replace(/^\//,'')||'index.html';
-   if(rel==='js/accounts-config.js')return route.fulfill({contentType:'application/javascript',body:'window.UCHU_ACCOUNTS='+JSON.stringify({provider:'pocketbase',url:fixture.base})+';'});
+   if(rel==='js/accounts-config.js')return route.fulfill({contentType:'application/javascript',body:'window.UCHU_ACCOUNTS='+JSON.stringify({provider:'pocketbase',url:fixture.base,ownerTesting:true})+';'});
    const filename=path.resolve(root,rel);if(!filename.startsWith(root+path.sep))return route.abort();
    if(fs.existsSync(filename)&&fs.statSync(filename).isFile()){
     const type={'.js':'application/javascript','.html':'text/html','.css':'text/css','.json':'application/json','.svg':'image/svg+xml'}[path.extname(filename)]||'application/octet-stream';
@@ -35,6 +35,9 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
  });
  await page.goto(origin+'/',{waitUntil:'load'});
  await page.waitForFunction(()=>window.Account&&typeof mdToDocxBlob==='function');
+ await page.evaluate(()=>Account.open());
+ assert.equal(await page.locator('#acForm [data-mode=up]').isHidden(),true);
+ await page.locator('#acForm').locator('..').locator('[data-close]').click();
  await page.evaluate(async()=>{
   await Store.put('lessons','foreign-draft-fixture',{id:'foreign-draft-fixture',updatedAt:new Date().toISOString(),docs:{lesson:'FOREIGN-OWNER'}});
   localStorage.setItem('uchu:previous-account',JSON.stringify({uid:'previous-fixture-owner',endpoint:'https://previous.example'}));
