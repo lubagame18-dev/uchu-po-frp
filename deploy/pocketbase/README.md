@@ -354,3 +354,36 @@ SMTP, без обращения к реальному Postbox: конфигур�
 
 Независимая копия в новом бакете владельца: [OFFSITE_BACKUP.md](OFFSITE_BACKUP.md).
 Загрузка ещё не принята: ожидаются отдельный S3-ключ и политика доступа только к бакету.
+
+
+## Закрытая проверка владельцем на существующем VPS
+
+12.11.2026 установлена отдельная страница `/check/` на accounts.uchu-po-frp.ru.
+Основной сайт не переключается. Тестовые данные из `/var/lib/uchu-acceptance`
+не являются основным кабинетом и не импортируются в Supabase или основную БД.
+Приёмка выполняется по личной ссылке из чата (24 часа), без повторного ввода
+SMTP/OAuth-ключей. Ссылка отсутствует в исходниках и приватном пульте.
+
+Внутри страницы: реальная регистрация/подтверждение и сброс пароля, вход/привязка
+Google и Яндекса, CRUD тестовой записи. Перед OAuth владелец добавляет
+`https://accounts.uchu-po-frp.ru/google.html` и
+`https://accounts.uchu-po-frp.ru/yandex.html` в соответствующие приложения,
+сохраняя прежние Redirect URI. Ссылки на панели и кнопки копирования есть в UI.
+
+Оператор: результаты без секретов находятся в
+`/var/lib/uchu-acceptance/results.jsonl`. Повторную личную ссылку создаёт
+`python3 /opt/uchu-acceptance/acceptance-server.py link`; она сохраняется в
+`/run/uchu-acceptance-link` root:600. Основные серверные ключи не перевыпускаются.
+После приёмки вернуть `/etc/caddy/Caddyfile.before-acceptance` только если текущий
+SHA256 совпадает с `/opt/uchu-acceptance/installed-proxy-sha256`, проверить Caddy
+и остановить `uchu-acceptance-web` / `uchu-acceptance-backend`. Тестовую БД
+не удалять до проверки результатов владельца. Эта операция выполняется Codex.
+
+Проверки:
+
+```bash
+python3 deploy/pocketbase/test-acceptance.py
+PLAYWRIGHT_MODULE=/opt/codex/cua_node/lib/node_modules/playwright node deploy/pocketbase/test-acceptance-browser.cjs
+```
+
+Эти тесты не выполняют настоящие OAuth-входы и не списывают деньги.
