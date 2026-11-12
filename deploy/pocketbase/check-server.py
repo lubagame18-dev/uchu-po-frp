@@ -2,7 +2,7 @@
 """Read-only VPS checks. No account creation, credentials or provider calls."""
 import argparse,json,os,sqlite3,stat,subprocess,urllib.request,urllib.error
 from pathlib import Path
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--expect-empty',action='store_true');p.add_argument('--require-backup',action='store_true');a=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--expect-empty',action='store_true');p.add_argument('--require-backup',action='store_true');p.add_argument('--registration-open',action='store_true');a=p.parse_args()
 if os.geteuid()!=0:raise SystemExit('Run as root on the VPS')
 def unit(name,verb):
     r=subprocess.run(['systemctl',verb,name],capture_output=True,text=True)
@@ -21,7 +21,7 @@ report['native_collection_closed']=get('/api/collections/uchu_lessons/records')[
 env_path=Path('/etc/pocketbase/pocketbase.env');report['secrets_mode_600']=stat.S_IMODE(env_path.stat().st_mode)==0o600
 env=dict(line.split('=',1) for line in env_path.read_text().splitlines() if line and not line.startswith('#'))
 report['server_keys_present']=len(env.get('UCHU_SERVICE_TOKEN',''))>=32 and len(env.get('PB_SETTINGS_KEY',''))==32
-report['signup_closed']=env.get('UCHU_ALLOW_SIGNUP')=='false'
+report['signup_state_expected']=env.get('UCHU_ALLOW_SIGNUP')==('true' if a.registration_open else 'false')
 report['sms_disabled']=env.get('UCHU_ALLOW_SMS')=='false' and env.get('UCHU_ALLOW_SMS_SIGNUP')=='false'
 listeners=subprocess.check_output(['ss','-lnt'],text=True)
 report['backend_loopback_only']='127.0.0.1:8090' in listeners and not any(s in listeners for s in ('0.0.0.0:8090','[::]:8090','*:8090'))

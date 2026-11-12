@@ -595,7 +595,7 @@ window.UCHU_SITE = {
      или совместимый сервер. Облачный supabase.com для ПДн граждан РФ не подходит.
      Если поля заполнены, кабинет, профили, уроки и quiz работают с этим адресом,
      а не с cloud. Яндекс Облако остаётся только для статики и AI-прокси. */
-  accounts: {"provider": "pocketbase", "url": "https://accounts.uchu-po-frp.ru", "anonKey": "", "dashboard": "https://accounts.uchu-po-frp.ru/_/", "ownerTesting": true},
+  accounts: {"provider": "pocketbase", "url": "https://accounts.uchu-po-frp.ru", "anonKey": "", "dashboard": "https://accounts.uchu-po-frp.ru/_/", "ownerTesting": false},
   /* ИИ сайта: true — когда в Яндекс-функции настроен пул аккаунтов DeepSeek (DEEPSEEK_POOL); учителям свой ключ не нужен */
   siteAi: true,
   /* Nano Banana для платных тарифов («Учитель + ИИ» и выше): адрес серверной функции, где лежат ключи (Арина АИ / Google). Функция получает заголовок X-User-Token, проверяет тариф и возвращает {image}. Пока пусто — картинки доступны только разработчику со своим ключом. */
