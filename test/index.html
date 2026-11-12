@@ -87,7 +87,7 @@ a{color:color-mix(in srgb,var(--accent) 75%,#000)}
 </div>
 <script>
 "use strict";
-const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj" };
+const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : {"url": "https://accounts.uchu-po-frp.ru/api/uchu", "anonKey": "", "key": "", "lesson": "taras-bulba-2"};
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const qid = new URLSearchParams(location.search).get("q") || "";

@@ -32,6 +32,7 @@ jobs:
       AWS_DEFAULT_REGION: ru-central1
       BUCKET: uchu-po-frp.ru
       ENDPOINT: https://storage.yandexcloud.net
+      ACCOUNT_FILES: js/accounts-backend.js js/account.js js/cloudbase.js js/rules.js js/yandex-auth.js accounts-confirm.html google.html yandex.html test/index.html taras-bulba/index.html taras-bulba/results.html sw.js js/accounts-config.js index.html
     steps:
       - name: Проверка ключей
         run: |
@@ -41,12 +42,41 @@ jobs:
           ref: ${{ inputs.assets_ref || github.ref }}
       - name: Проверка доступа к бакету
         run: aws s3api head-bucket --bucket "$BUCKET" --endpoint-url "$ENDPOINT"
-      - name: Файлы кабинета
+      - name: Сохранить текущие файлы кабинета
         if: ${{ !inputs.check_only && inputs.accounts_only }}
         run: |
-          for f in js/accounts-backend.js js/account.js js/cloudbase.js js/rules.js js/yandex-auth.js accounts-confirm.html google.html yandex.html test/index.html taras-bulba/index.html taras-bulba/results.html taras-bulba/audio.html sw.js js/accounts-config.js index.html; do
+          mkdir -p "$RUNNER_TEMP/account-before"
+          for f in $ACCOUNT_FILES; do
+            mkdir -p "$RUNNER_TEMP/account-before/$(dirname "$f")"
+            if ! aws s3 cp "s3://$BUCKET/$f" "$RUNNER_TEMP/account-before/$f" --endpoint-url "$ENDPOINT" --no-progress 2>"$RUNNER_TEMP/backup-error"; then
+              if rg -q 'NoSuchKey|\(404\)|Not Found' "$RUNNER_TEMP/backup-error"; then
+                rm -f "$RUNNER_TEMP/account-before/$f"
+                echo "$f" >> "$RUNNER_TEMP/account-before/missing.txt"
+              else
+                echo "::error::Не удалось сохранить $f перед выкладкой"; exit 1
+              fi
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: ${{ !inputs.check_only && inputs.accounts_only }}
+        with:
+          name: account-before-${{ github.run_id }}
+          path: ${{ runner.temp }}/account-before
+          retention-days: 30
+      - name: Файлы кабинета
+        id: account_upload
+        if: ${{ !inputs.check_only && inputs.accounts_only }}
+        run: |
+          for f in $ACCOUNT_FILES; do
             [ -f "$f" ] || continue
             aws s3 cp "$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress
+          done
+      - name: Вернуть файлы после неудачной выкладки
+        if: ${{ failure() && steps.account_upload.outcome == 'failure' }}
+        run: |
+          for f in $ACCOUNT_FILES; do
+            [ -f "$RUNNER_TEMP/account-before/$f" ] || continue
+            aws s3 cp "$RUNNER_TEMP/account-before/$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress
           done
       - name: Все файлы сайта
         if: ${{ !inputs.check_only && !inputs.accounts_only }}

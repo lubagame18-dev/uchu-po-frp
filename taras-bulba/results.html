@@ -64,7 +64,7 @@ tr.det td{background:var(--paper2);font-size:14.5px}
   </div>
 </div>
 <script>
-const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : { url: "https://omnqygnlibkcybwryrrh.supabase.co", key: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj", lesson: "taras-bulba-2" };
+const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : {"url": "https://accounts.uchu-po-frp.ru/api/uchu", "anonKey": "", "key": "", "lesson": "taras-bulba-2"};
 const $ = s => document.querySelector(s);
 const ls = { get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 let rows = [], sortKey = "created_at", sortDir = -1, open = new Set(), timer = null;
