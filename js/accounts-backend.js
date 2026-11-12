@@ -6,7 +6,7 @@
     if (a.provider === 'pocketbase') {
       const origin = String(a.url || '').replace(/\/+$/, '');
       if (origin && !/^https:\/\//.test(origin) && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) throw new Error('PocketBase requires HTTPS');
-      return {provider: 'pocketbase', url: origin ? origin + '/api/uchu' : '', anonKey: '', dashboard: a.dashboard || ''};
+      return {provider: 'pocketbase', url: origin ? origin + '/api/uchu' : '', anonKey: '', dashboard: a.dashboard || '', ownerTesting: a.ownerTesting === true};
     }
     return a.url && a.anonKey ? a : (window.UCHU_SITE?.cloud || {});
   }

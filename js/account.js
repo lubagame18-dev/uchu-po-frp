@@ -368,6 +368,7 @@ const Account = (() => {
     if (S) {
       const I = S.info || {};
       const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+        ${C().ownerTesting?'<p class="small" role="status">Проверка нового кабинета владельцем. Новая регистрация пока закрыта.</p>':''}
         <form class="ac-prof" id="acProf">
           <label class="ac-ava" title="Нажмите, чтобы выбрать фото">${I.avatar ? `<img src="${esc(I.avatar)}" alt="">` : `<span>${esc(initials(I.name) || "👤")}</span>`}<input type="file" id="acPhoto" accept="image/*" hidden><em>${I.avatar ? "сменить" : "фото"}</em></label>
           <div class="ac-ava-set" id="acAvaSet" hidden>
@@ -408,7 +409,8 @@ const Account = (() => {
     }
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Вход в личный кабинет</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <form class="dlg-b" id="acForm" autocomplete="on">
-        <div class="seg mini" role="tablist"><button type="button" data-mode="in" aria-pressed="true">Вход</button><button type="button" data-mode="up" aria-pressed="false">Регистрация</button></div>
+        ${C().ownerTesting?'<p class="small" role="status">Кабинет подключён для проверки владельцем. Войдите с почтой и паролем, которые использовали при проверке. Новая регистрация пока закрыта.</p>':''}
+        <div class="seg mini" role="tablist"><button type="button" data-mode="in" aria-pressed="true">Вход</button><button type="button" data-mode="up" aria-pressed="false" ${C().ownerTesting?'hidden':''}>Регистрация</button></div>
         ${(window.UCHU_SITE || {}).phoneAuth && C().provider!=="pocketbase" ? `<div class="seg mini" role="tablist" id="acVia"><button type="button" data-via="mail" aria-pressed="true">По почте</button><button type="button" data-via="phone" aria-pressed="false">По телефону</button></div>` : ""}
         <div id="acPhoneBox" hidden><div class="field"><label for="acPhone">Телефон</label><input type="tel" id="acPhone" autocomplete="tel" placeholder="+7 900 000-00-00" inputmode="tel"></div><div class="field" id="acCodeF" hidden><label for="acCode">Код из SMS</label><input type="text" id="acCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"><button type="button" class="btn sm ghost" id="acResend" disabled>Отправить код повторно</button><button type="button" class="btn sm ghost" id="acChangePhone">Изменить номер</button></div></div>
         <div class="field" data-mailf><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>

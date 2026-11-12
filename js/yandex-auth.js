@@ -29,7 +29,7 @@
     if(attempt.owner){const current=JSON.parse(localStorage.getItem('uchu:account'));if(current?.uid!==attempt.owner||current.endpoint!==endpoint)throw new Error('Сначала войдите в исходный кабинет.');headers.Authorization='Bearer '+current.access;}
     const r=await fetch(endpoint+'/auth/v1/'+kind+'_finish',{method:'POST',headers,signal:ctl.signal,body:JSON.stringify({code,state,code_verifier:attempt.verifier})});
     const j=await r.json();
-    if(!r.ok||!j.access_token)throw new Error(r.status===409?'Эта почта или способ входа уже связаны с кабинетом. Войдите прежним способом и нажмите «Привязать Яндекс ID / Google» в профиле.':'Не удалось подтвердить вход. Повторите вход.');
+    if(!r.ok||!j.access_token)throw new Error(r.status===409||r.status===403?'Сначала войдите на сайте по почте и паролю, затем в кабинете нажмите «Привязать Яндекс ID / Google».':'Не удалось подтвердить вход. Повторите вход.');
     // Session stays within this tab, never in a URL or referrer.
     sessionStorage.setItem('uchu:oauth-pending',JSON.stringify({...j,endpoint,at:Date.now()}));location.replace('/');
   } catch(e){show(e.name==='AbortError'?'Сервер долго не отвечает. Повторите вход.':e.message);} finally {clearTimeout(timeout);}

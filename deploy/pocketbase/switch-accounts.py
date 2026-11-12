@@ -7,15 +7,16 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 
-def prepare(root, origin):
+def prepare(root, origin, owner_testing=False):
     url = urlsplit(origin)
     if url.scheme != 'https' or not url.hostname or url.username or url.password or url.path not in ('','/') or url.query or url.fragment:
         raise ValueError('Expected an HTTPS origin without credentials or path')
     config = {'provider':'pocketbase','url':origin.rstrip('/'),'anonKey':'','dashboard':origin.rstrip('/')+'/_/'}
+    if owner_testing: config['ownerTesting'] = True
     index = root/'index.html';old=index.read_text()
     changed,n=re.subn(r'accounts:\s*\{[^{}\n]*\}',lambda _:'accounts: '+json.dumps(config),old)
     if n!=1: raise ValueError('Expected exactly one accounts configuration')
-    # SMS and Yandex ID are required by the owner; never silently disable them.
+    # SMS is disabled by the owner's current decision; email/Google/Yandex remain.
     changed=re.sub(r'phoneAuth:\s*(true|false)', 'phoneAuth: false', changed)
     shared='/* Public endpoint only. No service token here. */\nwindow.UCHU_ACCOUNTS = '+json.dumps(config)+';\n'
     changes={index:changed,root/'js/accounts-config.js':shared}
@@ -34,13 +35,16 @@ if __name__=='__main__':
     p.add_argument('--url',required=True)
     p.add_argument('--root',type=Path,default=ROOT)
     p.add_argument('--write',action='store_true')
+    p.add_argument('--owner-test',action='store_true',help='Explicit owner testing; not full public-launch acceptance')
     p.add_argument('--acceptance-report',type=Path,help='Required for --write: every named gate must be true')
     args=p.parse_args()
-    changes=prepare(args.root,args.url)
+    changes=prepare(args.root,args.url,args.owner_test)
     if args.write:
         if not args.acceptance_report: p.error('--write requires --acceptance-report')
         report=json.loads(args.acceptance_report.read_text())
         gates=['remote_health','email_delivery','login','lesson_crud','tenant_isolation','exports','proxy','payments','backup_restore','source_inventory','rollback','login_methods_reviewed','google_login','yandex_login','identity_linking']
+        if args.owner_test:
+            gates=['owner_testing_authorized','remote_health','email_delivery','login','lesson_crud','tenant_isolation','exports','proxy','backup_restore','source_inventory','rollback','registration_closed']
         if any(report.get(g) is not True for g in gates): raise SystemExit('Acceptance gates are incomplete; site was not changed')
         backup=args.root/'work/pocketbase-cutover'
         backup.mkdir(parents=True,exist_ok=True)
