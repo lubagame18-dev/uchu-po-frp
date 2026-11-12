@@ -4,6 +4,11 @@
  const tell=s=>{status.textContent=s;status.scrollIntoView({block:'nearest'});};
  let session;try{session=JSON.parse(sessionStorage.getItem('uchu:check:session'));}catch{}
  const query=new URLSearchParams(location.search),fragment=location.hash.slice(1),pathname=location.pathname;
+ // Keep a mail action within this tab if the mail app opens a browser without the private cookie.
+ if(['/check/verify','/check/reset'].includes(pathname)){
+  const token=query.get('token')||fragment;
+  if(token&&token.length<=4096)sessionStorage.setItem('uchu:check:mail',JSON.stringify({path:pathname,token,at:Date.now()}));
+ }
  history.replaceState(null,'',pathname);
  async function api(path,body,method='POST'){
   const headers={'Content-Type':'application/json'};if(session?.access_token)headers.Authorization='Bearer '+session.access_token;
@@ -19,14 +24,20 @@
   if(pathname==='/check/'&&fragment){const r=await fetch('/check/open',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:fragment})});if(!r.ok)throw Error('Личная ссылка устарела. Сообщите Codex — повторно вводить ключи не нужно.');}
   const ready=await fetch('/check/status',{cache:'no-store'});if(!ready.ok)throw Error('Откройте последнюю личную ссылку проверки из сообщения Codex в этом же браузере.');
   $('main').hidden=false;render();tell('Проверка открыта. Начните с почты, затем проверьте Яндекс и Google.');
-  if(pathname==='/check/verify'){if(!fragment)throw Error('Нет ссылки подтверждения. Откройте письмо заново.');await api('native/confirm-verification',{token:fragment});tell('Почта подтверждена. Теперь войдите по почте и тестовому паролю.');}
-  if(pathname==='/check/reset'){$('#reset').hidden=false;$('#reset-form').onsubmit=run(async()=>{await api('native/confirm-password-reset',{token:fragment,password:$('#new-password').value,passwordConfirm:$('#new-password').value});$('#new-password').value='';$('#reset').hidden=true;session=null;sessionStorage.removeItem('uchu:check:session');render();tell('Тестовый пароль изменён. Теперь войдите с новым паролем.');});}
+  let mail;try{mail=JSON.parse(sessionStorage.getItem('uchu:check:mail'));}catch{}
+  if(mail&&Date.now()-mail.at>1800000){sessionStorage.removeItem('uchu:check:mail');mail=null;}
+  if(pathname.startsWith('/check/')&&mail?.path==='/check/verify'){
+   await api('native/confirm-verification',{token:mail.token});sessionStorage.removeItem('uchu:check:mail');tell('Почта подтверждена. Теперь войдите по почте и тестовому паролю.');
+  }
+  if(pathname.startsWith('/check/')&&mail?.path==='/check/reset'){
+   $('#reset').hidden=false;$('#reset-form').onsubmit=run(async()=>{await api('native/confirm-password-reset',{token:mail.token,password:$('#new-password').value,passwordConfirm:$('#new-password').value});sessionStorage.removeItem('uchu:check:mail');$('#new-password').value='';$('#reset').hidden=true;session=null;sessionStorage.removeItem('uchu:check:session');render();tell('Тестовый пароль изменён. Теперь войдите с новым паролем.');});
+  }
   if(pathname==='/google.html'||pathname==='/yandex.html'){
    const kind=pathname.slice(1,-5);let attempt;try{attempt=JSON.parse(sessionStorage.getItem('uchu:check:'+kind));}catch{}sessionStorage.removeItem('uchu:check:'+kind);
    if(query.get('error')||!query.get('code')||!attempt||attempt.state!==query.get('state')||Date.now()-attempt.at>300000)throw Error('Вход отменён или устарел. Вернитесь на страницу проверки и нажмите кнопку ещё раз.');
    const j=await api('auth/v1/'+kind+'_finish',{code:query.get('code'),state:attempt.state,code_verifier:attempt.verifier});save(j);tell((kind==='google'?'Google':'Яндекс')+': вход подтверждён. Можно вернуться к следующему шагу.');
   }
- }catch(e){tell(e.message);return;}
+ }catch(e){tell(e.message);if($('main').hidden)return;}
  $('#email-form').onsubmit=run(async e=>{const action=e.submitter.value,j=await api('auth/v1/'+(action==='signup'?'signup':'token?grant_type=password'),{email:$('#email').value,password:$('#password').value});$('#password').value='';if(action==='signup')tell('Тестовый кабинет создан. Откройте письмо подтверждения в этом же браузере.');else{save(j);tell('Вход по почте подтверждён.');}});
  for(const action of ['resend','recover'])$('#'+action).onclick=run(async()=>{if(!$('#email').reportValidity())return;await api('auth/v1/'+action,{email:$('#email').value});tell('Запрос принят. Проверьте входящие и спам на указанной почте.');});
  for(const b of document.querySelectorAll('[data-copy]'))b.onclick=run(async()=>{await navigator.clipboard.writeText(b.dataset.copy);tell('Адрес скопирован. Вставьте его в поле Redirect URI и сохраните.');});

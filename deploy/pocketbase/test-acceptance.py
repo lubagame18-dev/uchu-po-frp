@@ -1,9 +1,10 @@
 """Private acceptance gateway and real isolated PocketBase bootstrap. No external providers."""
 from http.server import ThreadingHTTPServer
-import http.client,importlib.util,json,os,secrets,shutil,socket,subprocess,tempfile,threading,time,unittest
+import email,html,http.client,importlib.util,json,os,re,secrets,shutil,socket,socketserver,subprocess,tempfile,threading,time,unittest
 from pathlib import Path
 from unittest.mock import patch
 from urllib.request import Request,urlopen
+from urllib.parse import urlsplit,parse_qs
 
 KIT=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('gate',KIT/'acceptance-server.py');gate=importlib.util.module_from_spec(spec);spec.loader.exec_module(gate)
@@ -63,7 +64,7 @@ class Bootstrap(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);hooks=root/'hooks';shutil.copytree(KIT/'pb_hooks',hooks)
             args=[str(binary),'--dir',str(root/'data'),'--hooksDir',str(hooks),'--migrationsDir',str(KIT/'pb_migrations')]
-            env=dict(os.environ,UCHU_ACCEPTANCE='true',UCHU_SERVICE_TOKEN=secrets.token_hex(32));password="Fixture-"+secrets.token_urlsafe(24)
+            env=dict(os.environ,UCHU_ACCEPTANCE='true',UCHU_ALLOW_SIGNUP='true',UCHU_SERVICE_TOKEN=secrets.token_hex(32));password="Fixture-"+secrets.token_urlsafe(24)
             for cmd in [['migrate','up'],['superuser','create','fixture@example.invalid',password]]:
                 r=subprocess.run(args+cmd,env=env,capture_output=True);self.assertEqual(r.returncode,0,'Isolated fixture setup failed: '+r.stderr.decode()[-1000:]+r.stdout.decode()[-1000:])
             shutil.copy(KIT/'acceptance-bootstrap.pb.js',hooks/'zz-acceptance.pb.js')
@@ -78,16 +79,40 @@ class Bootstrap(unittest.TestCase):
                         except Exception:
                             if n==59:self.fail('Acceptance fixture bootstrap did not start: '+(root/'log').read_text()[-1500:])
                             time.sleep(.1)
-                    def req(path,body=None,token=None):
+                    def req(path,body=None,token=None,method=None):
                         h={'Content-Type':'application/json'}
                         if token:h['Authorization']=token
-                        with urlopen(Request(base+path,data=json.dumps(body).encode() if body is not None else None,headers=h),timeout=4) as r:return json.load(r)
+                        with urlopen(Request(base+path,data=json.dumps(body).encode() if body is not None else None,headers=h,method=method),timeout=4) as r:return {} if r.status==204 else json.load(r)
                     token=req('/api/collections/_superusers/auth-with-password',{'identity':'fixture@example.invalid','password':password})['token']
                     c=req('/api/collections/uchu_users',token=token);settings=req('/api/settings',token=token)
-                    self.assertIn('{APP_URL}/check/verify#{TOKEN}',c['verificationTemplate']['body'])
-                    self.assertIn('{APP_URL}/check/reset#{TOKEN}',c['resetPasswordTemplate']['body'])
+                    self.assertIn('{APP_URL}/check/verify?token={TOKEN}',c['verificationTemplate']['body'])
+                    self.assertIn('{APP_URL}/check/reset?token={TOKEN}',c['resetPasswordTemplate']['body'])
                     self.assertEqual(settings['meta']['appURL'],gate.ORIGIN)
                     self.assertEqual(req('/api/collections/uchu_users/records',token=token)['totalItems'],0)
+                    mail_spec=importlib.util.spec_from_file_location('integration_mail',KIT/'test-integration.py');mail_module=importlib.util.module_from_spec(mail_spec);mail_spec.loader.exec_module(mail_module)
+                    mail_module.MailSink.messages=[]
+                    sink=socketserver.ThreadingTCPServer(('127.0.0.1',0),mail_module.MailSink)
+                    mail_thread=threading.Thread(target=sink.serve_forever,daemon=True);mail_thread.start()
+                    try:
+                        req('/api/settings',{'smtp':{'enabled':True,'host':'127.0.0.1','port':sink.server_address[1],'username':'','password':'','tls':False,'authMethod':'PLAIN'}},token=token,method='PATCH')
+                        req('/api/uchu/auth/v1/signup',{'email':'mail-fixture@example.invalid','password':password})
+                        def mail_link(kind):
+                            message=email.message_from_bytes(mail_module.MailSink.messages[-1]);body=''.join(p.get_payload(decode=True).decode() for p in message.walk() if p.get_content_type()=='text/html')
+                            links=[html.unescape(x) for x in re.findall(r'href="([^"]+)"',body)]
+                            link=next(x for x in links if '/check/'+kind+'?' in x)
+                            parsed=urlsplit(link);self.assertEqual(parsed.scheme,'https');self.assertEqual(parsed.hostname,'accounts.uchu-po-frp.ru')
+                            value=parse_qs(parsed.query)['token'][0];self.assertEqual(len(value.split('.')),3)
+                            self.assertNotIn('{TOKEN}',body);self.assertNotIn('{APP_URL}',body)
+                            self.assertIn(html.escape(link,quote=False),body)
+                            return value
+                        verification=mail_link('verify')
+                        req('/api/collections/uchu_users/confirm-verification',{'token':verification})
+                        self.assertIn('access_token',req('/api/uchu/auth/v1/token?grant_type=password',{'email':'mail-fixture@example.invalid','password':password}))
+                        req('/api/uchu/auth/v1/recover',{'email':'mail-fixture@example.invalid'})
+                        reset=mail_link('reset');changed='Changed-'+secrets.token_urlsafe(16)
+                        req('/api/collections/uchu_users/confirm-password-reset',{'token':reset,'password':changed,'passwordConfirm':changed})
+                        self.assertIn('access_token',req('/api/uchu/auth/v1/token?grant_type=password',{'email':'mail-fixture@example.invalid','password':changed}))
+                    finally:sink.shutdown();sink.server_close();mail_thread.join()
                 finally:proc.terminate();proc.wait(timeout=10)
 
 if __name__=='__main__':unittest.main(verbosity=2)
