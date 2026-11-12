@@ -49,7 +49,7 @@ jobs:
           for f in $ACCOUNT_FILES; do
             mkdir -p "$RUNNER_TEMP/account-before/$(dirname "$f")"
             if ! aws s3 cp "s3://$BUCKET/$f" "$RUNNER_TEMP/account-before/$f" --endpoint-url "$ENDPOINT" --no-progress 2>"$RUNNER_TEMP/backup-error"; then
-              if rg -q 'NoSuchKey|\(404\)|Not Found' "$RUNNER_TEMP/backup-error"; then
+              if grep -Eq 'NoSuchKey|\(404\)|Not Found' "$RUNNER_TEMP/backup-error"; then
                 rm -f "$RUNNER_TEMP/account-before/$f"
                 echo "$f" >> "$RUNNER_TEMP/account-before/missing.txt"
               else
