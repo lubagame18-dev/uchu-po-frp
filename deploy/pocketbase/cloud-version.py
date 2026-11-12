@@ -14,7 +14,7 @@ SOURCE_REF='f36a6523cd9418b3e4f277403351ee04092705cc'
 SOURCE_HASHES={"accounts-backend.js":"e6241b71b8a9e7fb76f2e29937fa20a1270c57aa05f17e571f39bfcd4784ccf6","botbrain.js":"e390a29595e9f522698f1c55eda8f6358d1d77dc3a37377585a6c4292baf1d6a","deepseek-pool.js":"5652128791512bdf94cb88be3c36f6e3a8b782ca1ab159cd967df54c7806a532","image-pool.js":"3f43aca9643fcf2f1a3cd224ce8b90c8e84dadffe12acbfe646ae93ee59f1214","maxbot.js":"2eae9e779ec9b8a7bb553fb77910f37a1128e7ac93649b04edff8f9fbed641b8","payments.js":"fb22563f702b44775dd816c8c88296e0ab3869c34e6472025dbd95af596e7096","proxy.js":"588d83e00d36b01b766a32a7708825d1a44f1738699ee2a2da550a641fd97e1d","quota.js":"9fb87a69d1a67cb3b726f7ffd6413fa21be1be5578a9e02b2f1549450571e05e","sms-hook.js":"76a8ceb4872fbf61c376aaa8257159fcb9e540f1a34ab7726516b51071cb19e7","yandex-function.js":"172670eac1f31700be81377ed213c8cf2f3d19380565c8ffb70fe1cc6125ed54"}
 ZIP_SHA256='ac6cdc46a61589d6350a54b5b017272154f58f50f3a873d04ed200238a5603f0'
 COPY_FIELDS=('runtime','entrypoint','resources','executionTimeout','serviceAccountId','environment','namedServiceAccounts','concurrency','connectivity','secrets','logOptions','storageMounts','asyncInvocationConfig','tmpfsSize','mounts','metadataOptions')
-KNOWN=set(COPY_FIELDS)|{'id','functionId','createdAt','status','tags','imageSize'}
+KNOWN=set(COPY_FIELDS)|{'id','functionId','createdAt','status','tags','imageSize','description'}
 
 def private_write(name,value):
     p=ROOT/name;p.write_text(json.dumps(value));p.chmod(0o600)

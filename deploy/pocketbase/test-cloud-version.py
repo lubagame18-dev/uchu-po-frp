@@ -1,5 +1,6 @@
 """Only request planning is tested; no cloud calls or real credentials."""
 import base64,copy,importlib.util
+from unittest.mock import patch
 from pathlib import Path
 import unittest
 spec=importlib.util.spec_from_file_location('deploy',Path(__file__).with_name('cloud-version.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
@@ -18,4 +19,9 @@ class Planning(unittest.TestCase):
         with self.assertRaises(ValueError):m.base_body(self.old)
     def test_rollback_plan_keeps_legacy_environment(self):
         body=m.base_body(self.old);self.assertNotIn('POCKETBASE_SERVICE_TOKEN',body['environment']);self.assertEqual(body['environment'],self.old['environment']);self.assertNotIn('content',body)
+    def test_deployed_version_description_is_accepted_but_unknown_settings_refused(self):
+        version={**self.old,'status':'ACTIVE','description':'owner test'}
+        with patch.object(m,'request',return_value=(200,version)):self.assertEqual(m.latest('fixture')['id'],'fixture-before')
+        with patch.object(m,'request',return_value=(200,{**version,'unreviewedSetting':{}})):
+            with self.assertRaises(ValueError):m.latest('fixture')
 if __name__=='__main__':unittest.main(verbosity=2)
