@@ -2492,6 +2492,7 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
     try {
       if (src.startsWith("idb:")) blob = await Store.get("images", src.slice(4));
       else if (/^https?:/.test(src)) blob = await toBlob(src);
+      else if (/^(data:image|img\/|\.\/img\/|\/img\/)/.test(src)) { const r = await fetch(new URL(src, location.href).href); if (r.ok) blob = await r.blob(); }
     } catch { return null; }
     if (!blob) return null;
     const bmp = await createImageBitmap(blob).catch(() => null); if (!bmp) return null;

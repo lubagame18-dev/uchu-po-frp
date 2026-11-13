@@ -375,7 +375,7 @@ const Deck = (() => {
     const credit = im => `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
     let k = 0;
     const out = cards.map(c => {
-      if (!c || k >= L.length || !/^commons:/.test(String(c.img || "")) || /портрет/i.test(c.img)) return c;
+      if (!c || k >= L.length || !/^commons:/.test(String(c.img || "")) || /портрет|(?:^|[\s:])карт[аыу]?(?:\s|$)|\bmap\b/i.test(c.img)) return c;
       const im = L[k++];
       return { ...c, img: im.img, cap: im.title, notes: [c.notes, im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
     });

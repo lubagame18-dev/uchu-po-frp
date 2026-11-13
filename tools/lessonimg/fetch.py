@@ -296,6 +296,9 @@ def main():
             log.append(f"+ {x['lesson_id']} [{via}] {topic[:60]} → " + "; ".join(caps) + (f" (+портрет {entry['person']})" if entry.get("person") else ""))
     used = {k for e in lessons.values() if e for k in e["keys"]}
     images = {k: v for k, v in images.items() if k in used}
+    for fn in os.listdir(IMG):  # файлы, которые больше ни к одному уроку не относятся, убираем
+        if fn.endswith(".webp") and fn[:-5] not in images:
+            os.remove(os.path.join(IMG, fn))
     js = "/* База иллюстраций к урокам «Учу по ФРП» – собрано tools/lessonimg/fetch.py из Википедии и Викисклада (только свободные лицензии). Не редактировать вручную. */\n"
     js += "window.UCHU_LESSON_IMAGES = " + json.dumps({"images": images, "lessons": lessons}, ensure_ascii=False, separators=(",", ":")) + ";\n"
     open(OUT_JS, "w", encoding="utf-8").write(js)
