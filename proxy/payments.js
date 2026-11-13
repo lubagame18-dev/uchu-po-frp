@@ -198,8 +198,19 @@ async function notify(raw, headers, request, readAll) {
   const promo = !!p.promo || p.plan === "promo";
   const expect = expectOf(type, item, p);
   if (!expect || sum + 0.01 < expect) return { status: 200, text: "success" }; // сумма меньше цены — тариф не выдаём
+  // Продамус повторяет уведомление, пока не получит ответ: один платёж начисляем ровно один раз.
+  // Ключ платежа – order_id (для автосписаний по подписке к нему добавляем номер списания).
+  const oid = String(data.order_id || ""), key = /^(plan|up|pack|custom)_/.test(String(oid.split(".")[1] || "")) ? oid : `sub.${uid}.${String(data.order_num || data.payment_num || data.date || data.order_id || Date.now())}`;
+  const row = (await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(key)}&select=status`)).json?.[0];
+  if (row?.status === "paid") return { status: 200, text: "success" }; // уже начислено
+  if (row) {
+    const claim = await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(key)}&status=neq.paid`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
+    if (!claim || claim.status >= 300 || !Array.isArray(claim.json) || !claim.json.length) return { status: 200, text: "success" }; // параллельное уведомление уже заняло платёж
+  } else {
+    const ins = await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: key, user_id: uid, kind, amount: sum, status: "paid" } }).catch(() => null);
+    if (!ins || ins.status >= 300) return { status: 200, text: "success" }; // такой платёж уже записан (первичный ключ) – второй раз не начисляем
+  }
   await apply(uid, p, type, item, promo, request, readAll);
-  await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(String(data.order_id || ""))}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
   return { status: 200, text: "success" };
 }
 /* Начисление тарифа (после оплаты или тестовой оплаты): срок, уроки с ИИ и лимит токенов.

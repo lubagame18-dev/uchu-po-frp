@@ -648,7 +648,7 @@ const Deck = (() => {
         if (pts.length) out.push({ id: (c.id || "k" + i) + "-ans", on: c.on !== false, kind: "list", title: `${/задач/i.test(String(c.title)) ? "Решение" : "Ответы"}: ${String(c.title).replace(/^ответы:\s*/i, "")}`, points: pts, notes: "Показываем после того, как класс выполнил это задание." });
         return;
       }
-      if (c.kind === "check" && (c.answers || []).some(Boolean)) {
+      if (c.kind === "check" && (c.answers || []).some(Boolean) && false) { // ответы теперь за кнопкой «Ответ» на самом слайде (qa)
         const nx = cards[i + 1]; if (nx && /^ответ/i.test(String(nx.title || ""))) return;
         out.push({ id: (c.id || "chk" + i) + "-ans", on: c.on !== false, kind: "list", title: `Ответы: ${String(c.title || "Проверь себя").replace(/^ответы:\s*/i, "")}`, points: (c.points || []).map((q, k) => c.answers[k] ? `${k + 1}) ${c.answers[k]}` : "").filter(Boolean), notes: "Показываем после того, как класс ответил на это задание." });
       }
@@ -839,7 +839,7 @@ const Deck = (() => {
   function cardMd(card) {
     const set = {};
     let title = card.title || "", level = 2, body = "";
-    const isrc = card.img ? (/^commons:/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
+    const isrc = card.img ? (/^(commons:|img\/|https?:)/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
     const img = card.img ? `![${md1(card.cap || card.title).replace(/[\[\]()]/g, "")}](${isrc})` : "";
     switch (card.kind) {
       case "title": level = 1; set.layout = "title"; body = (card.points || []).join("\n\n"); break;
@@ -876,7 +876,11 @@ const Deck = (() => {
         break;
       }
       /* «Проверь себя»: 2–4 вопроса; ответы — в заметках учителя (комментарий <!-- … -->) */
-      case "check": set.layout = "list"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
+      case "check": set.layout = "list";
+        // есть ответы – вопрос с кнопкой «Ответ»: в показе и в PowerPoint ответ открывается на своём слайде, оттуда – назад к вопросу
+        if ((card.answers || []).filter(Boolean).length >= Math.max(1, (card.points || []).length - 1)) { set.qa = 1; body = (card.points || []).map((x, i) => `- ${md1(x).replace(/\|\|/g, "|")} || ${md1(card.answers[i] || "—").replace(/\|\|/g, "|")}`).join("\n"); }
+        else body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n");
+        body += card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""; break;
       /* «Алгоритм»: нумерованные шаги + опора */
       case "algo": set.layout = "steps"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n") + (card.tip ? `\n\n> **Опора:** ${md1(card.tip)}` : ""); break;
       /* «Картина»: репродукция + вопросы к ней (для ИЗО, МХК, музыки, литературы) */
