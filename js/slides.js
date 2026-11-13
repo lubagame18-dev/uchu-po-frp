@@ -83,7 +83,11 @@ const SlideEditor = (() => {
     document.head.appendChild(l);
     return new Promise(r => { l.onload = () => (document.fonts?.ready || Promise.resolve()).then(r); l.onerror = r; setTimeout(r, 4000); });
   }
-  const fontCss = (fk) => { const f = (fk && FONTS[fk]) || fontSet(); return `--sx-fh:'${f.h}', Georgia, serif;--sx-fb:'${f.b}', Arial, sans-serif;`; }; // одинарные кавычки: стиль стоит внутри атрибута style="…"
+  /* В PowerPoint у учителя обычно нет веб-шрифтов (Montserrat, PT Serif…): PowerPoint подменяет их, строки становятся шире
+     и текст наезжает. Поэтому при выгрузке слайды меряются и сохраняются стандартными шрифтами Windows. */
+  let pxSafe = false;
+  const SERIF = /Georgia|Playfair|Cormorant|PT Serif|Lora|Marck|Times/i;
+  const fontCss = (fk) => { const f = (fk && FONTS[fk]) || fontSet(); if (pxSafe) return `--sx-fh:${SERIF.test(f.h) ? "Georgia, 'Times New Roman'" : "Arial"}, serif;--sx-fb:Arial, sans-serif;`; return `--sx-fh:'${f.h}', Georgia, serif;--sx-fb:'${f.b}', Arial, sans-serif;`; }; // одинарные кавычки: стиль стоит внутри атрибута style="…"
   const MIN = 0.82, MAX = 1.3; // пределы автоподбора шрифта: мельче не делаем — лучше делим слайд
   let cur = 0, clipboard = null;
   const undo = [], redo = [];
@@ -1360,7 +1364,42 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     // межстрочный интервал — точно в пунктах, как на экране (у PowerPoint «множитель» считается иначе, чем в браузере)
     return { fontFace: fam, fontSize: Math.round(fsz * k * 0.75 * 10) / 10, color: hex(cs.color) || "000000", bold: +cs.fontWeight >= 600, italic: cs.fontStyle === "italic", align: /center/.test(cs.textAlign) ? "center" : /right|end/.test(cs.textAlign) ? "right" : "left", lineSpacing: Math.round(lhPx * k * 0.75 * 10) / 10 };
   }
-  async function pptxSlide(pptx, sl, i, host, total) {
+  /* Вопросы с ответами для PowerPoint: «- вопрос || ответ» (qa), «Задание: … || Ответ: …» (викторина), «[!answer] …».
+     В PowerPoint вопрос – карточка с кнопкой «Ответ ▸», ответ – на скрытом слайде сразу после, там кнопка «↩ К вопросу». */
+  const QA_LINE = /^[-*]\s*(?:Задание:\s*)?([^|\n]+?)\s*\|\|\s*(?:Ответ:\s*)?([^\n]+)$/gm;
+  function qaOf(sl) {
+    const b = String(sl.body || ""), out = [];
+    if (sl.set?.qa || sl.set?.quiz) for (const m of b.matchAll(QA_LINE)) out.push({ q: m[1].trim(), a: m[2].trim() });
+    for (const m of b.matchAll(/^\[!answer\]\s*(.+)$/gm)) out.push({ q: String(sl.title || "Вопрос").replace(/[*_#]/g, "").trim(), a: m[1].trim(), rv: true });
+    return out;
+  }
+  function pptxView(sl, pairs) {
+    if (!pairs.length) return sl;
+    const esc = x => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    const md1 = x => (window.marked?.parseInline ? window.marked.parseInline(String(x)) : esc(x));
+    let b = String(sl.body || "");
+    if (sl.set?.qa || sl.set?.quiz) {
+      const lines = b.split("\n"), outL = []; let buf = [];
+      const flush = () => { if (buf.length) { outL.push(`<ol class="qa-x">${buf.map(q => `<li>${md1(q)}</li>`).join("")}</ol>`); buf = []; } };
+      for (const l of lines) { const m = l.match(/^[-*]\s*(?:Задание:\s*)?([^|\n]+?)\s*\|\|\s*(?:Ответ:\s*)?([^\n]+)$/); if (m) buf.push(m[1].trim()); else { if (l.trim()) flush(); outL.push(l); } }
+      flush(); b = outL.join("\n");
+    }
+    b = b.replace(/^\[!answer\]\s*(.+)$/gm, '<p class="rv-x">Показать ответ</p>').replace(/^\[!hint\]\s*(.+)$/gm, "");
+    const set = { ...sl.set }; delete set.qa; delete set.quiz;
+    return { ...sl, body: b, set };
+  }
+  async function answerSlide(pptx, look, x, back, n, all) {
+    const s = pptx.addSlide(); s.hidden = true; // в обычном показе пропускается, открывается только по кнопке
+    s.background = { color: look.bg };
+    if (look.bgImg) s.addImage({ data: look.bgImg, x: 0, y: 0, w: PX / IN, h: PY / IN });
+    s.addShape(pptx.ShapeType.roundRect, { x: 0.6, y: 0.45, w: 12.13, h: 6.55, rectRadius: 0.12, fill: { color: "FFFFFF", transparency: 8 }, line: { color: look.acc, width: 1.5 } });
+    s.addText(all > 1 ? `Ответ ${n} из ${all}` : "Ответ", { x: 1.0, y: 0.7, w: 11.3, h: 0.75, margin: 0, fontFace: look.tf, fontSize: 30, bold: true, color: look.acc });
+    s.addText(x.q, { x: 1.0, y: 1.5, w: 11.3, h: 1.15, margin: 0, valign: "top", wrap: true, fontFace: look.bf, fontSize: x.q.length > 160 ? 16 : 20, italic: true, color: "555555" });
+    const L1 = x.a.length; s.addText(x.a, { x: 1.0, y: 2.75, w: 11.3, h: 3.2, margin: 0.2, valign: "middle", wrap: true, fontFace: look.bf, fontSize: L1 > 320 ? 20 : L1 > 160 ? 24 : L1 > 70 ? 30 : 36, bold: true, color: "1A1A1A", shape: pptx.ShapeType.roundRect, rectRadius: 0.1, fill: { color: look.soft }, line: { type: "none" } });
+    s.addText([{ text: "↩  Вернуться к вопросу", options: { hyperlink: { slide: back + 1, tooltip: "Назад к вопросу" } } }], { x: 8.6, y: 6.15, w: 3.95, h: 0.62, margin: 0, align: "center", valign: "middle", shape: pptx.ShapeType.roundRect, rectRadius: 0.2, fill: { color: look.acc }, line: { type: "none" }, color: "FFFFFF", bold: true, fontFace: look.bf, fontSize: 18 });
+  }
+  async function pptxSlide(pptx, sl, i, host, total, ext = {}) {
+    const look = {};
     host.innerHTML = slideHtml(sl, i);
     const sx = host.firstElementChild;
     sx.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
@@ -1375,8 +1414,9 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     // художественный фон темы — картинкой под всем остальным (текст поверх остаётся редактируемым)
     if (sx.querySelector(".sx-deco") && window.ThemeKit) {
       const lay = autoLayout(sl, i), side = ThemeKit.sideOf(lay, sx.matches(".acc") ? (sl.set.acc || "") : sl.set.photo ? "right" : ""), bgData = await ThemeKit.rasterSvg(ThemeKit.svg(theme(), i, lay === "title" || lay === "section" ? lay : "", side, L()?.slidePalette, "bg"), 1280, 720, "image/jpeg");
-      if (bgData) s.addImage({ data: bgData, x: 0, y: 0, w: PX / IN, h: PY / IN });
+      if (bgData) { s.addImage({ data: bgData, x: 0, y: 0, w: PX / IN, h: PY / IN }); look.bgImg = bgData; }
     }
+    look.bg = bgc;
     const addImg = async (img, fig) => {
       const b = box(img); if (b.w < .05 || b.h < .05) return;
       const o = Media.parseOpts ? { z: fig?.dataset.z, x: fig?.dataset.x, y: fig?.dataset.y } : {};
@@ -1407,6 +1447,10 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       s.addText(runs, { x: b.x, y: b.y, w: b.w * 1.04 + 0.05, h: b.h + 0.08, margin: 0, valign: "top", fit: "none", wrap: true, ...st, ...extra });
     };
     const shape = (el, opts) => { const b = box(el); s.addShape(pptx.ShapeType.roundRect, { x: b.x, y: b.y, w: b.w, h: b.h, rectRadius: 0.1, line: { type: "none" }, ...opts }); };
+    { const t0 = sx.querySelector(".sx-title"), b0 = sx.querySelector(".sx-body p, .sx-body li, .sx-body") || sx, ts = t0 ? textStyle(t0) : {}, bs = textStyle(b0);
+      look.tf = ts.fontFace || bs.fontFace || "Arial"; look.bf = bs.fontFace || "Arial"; look.acc = (ts.color && ts.color !== "FFFFFF" ? ts.color : null) || "2F5D8A"; look.soft = "F4F1EA"; }
+    const qaBtn = (x, y, w, h, label, t) => s.addText([{ text: label, options: t != null ? { hyperlink: { slide: t + 1, tooltip: "Открыть ответ" } } : {} }], { x, y, w, h, margin: 0, align: "center", valign: "middle", shape: pptx.ShapeType.roundRect, rectRadius: 0.18, fill: { color: look.acc }, line: { type: "none" }, color: "FFFFFF", bold: true, fontFace: look.bf, fontSize: 15 });
+    let qaK = 0;
     const title = sx.querySelector(".sx-title"); if (title && title.textContent.trim()) {
       text(title);
       if (sx.matches(".lay-title")) { const cs = getComputedStyle(title, "::after"); if (cs.content !== "none") { const b = box(title); s.addShape(pptx.ShapeType.rect, { x: sx.matches(".acc") ? b.x : b.x + b.w / 2 - 0.6, y: b.y + b.h + 0.02, w: 1.2, h: 0.05, fill: { color: hex(cs.backgroundColor) || "2F5D8A" }, line: { type: "none" } }); } }
@@ -1431,6 +1475,18 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
         s.addTable(rows, { x: b.x, y: b.y, w: b.w, colW, fontFace: st.fontFace, fontSize: st.fontSize, color: st.color, border: { type: "solid", color: "999999", pt: 1 }, valign: "top", margin: 3 });
         continue;
       }
+      // вопросы: карточка вопроса + кнопка «Ответ ▸» на скрытый слайд ответа
+      if (blk.matches("ol.qa-x")) {
+        for (const li of [...blk.children]) {
+          const b = box(li), st = textStyle(li), t = (ext.qa || [])[qaK++];
+          s.addShape(pptx.ShapeType.roundRect, { x: b.x, y: b.y, w: b.w, h: b.h, rectRadius: 0.08, fill: { color: "FFFFFF", transparency: 10 }, line: { color: look.acc, width: 1.25 } });
+          s.addText(`${qaK}.`, { x: b.x + 0.08, y: b.y, w: 0.5, h: b.h, margin: 0, valign: "middle", ...st, bold: true, color: look.acc });
+          const runs = runsOf(li, {}); if (runs.length) s.addText(runs, { x: b.x + 0.58, y: b.y + 0.03, w: Math.max(1, b.w - 2.15), h: b.h - 0.06, margin: 0, valign: "middle", wrap: true, ...st });
+          qaBtn(b.x + b.w - 1.45, b.y + Math.max(0.06, (b.h - 0.5) / 2), 1.32, Math.min(0.5, b.h - 0.1), "Ответ ▸", t);
+        }
+        continue;
+      }
+      if (blk.matches("p.rv-x")) { const b = box(blk), t = (ext.qa || [])[qaK++]; qaBtn(b.x, b.y, 3.2, 0.55, "Показать ответ ▸", t); continue; }
       if (blk.matches("ul,ol")) {
         const cards = sx.matches(".lay-cards"), steps = sx.matches(".lay-steps");
         const items = [...blk.children].filter(li => li.tagName === "LI");
@@ -1450,7 +1506,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
         // обычный список: одна надпись с маркерами или номерами
         const b = box(blk), st = textStyle(items[0] || blk);
         const runs = [];
-        items.forEach((li, n) => { const r = runsOf(li, {}); if (!r.length) return; r[0].options = { ...r[0].options, bullet: blk.tagName === "OL" ? { type: "number", startAt: +blk.getAttribute("start") || 1 } : { code: "25CF" }, indentLevel: 0 }; r[r.length - 1].options = { ...r[r.length - 1].options, breakLine: true, paraSpaceAfter: Math.round(parseFloat(getComputedStyle(li).marginBottom) * 0.75) }; runs.push(...r); });
+        items.forEach((li, n) => { const r = runsOf(li, {}); if (!r.length) return; const bu = blk.tagName === "OL" ? { type: "number", startAt: +blk.getAttribute("start") || 1 } : { code: "25CF" }; r.forEach(x => { x.options = { ...x.options, bullet: bu, indentLevel: 0 }; }); r[r.length - 1].options = { ...r[r.length - 1].options, breakLine: true, paraSpaceAfter: Math.round(parseFloat(getComputedStyle(li).marginBottom) * 0.75) }; runs.push(...r); });
         if (runs.length) s.addText(runs, { x: b.x - 0.05, y: b.y, w: b.w * 1.04 + 0.1, h: b.h + 0.1, margin: 0, valign: "top", wrap: true, ...st });
         continue;
       }
@@ -1468,7 +1524,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     }
     // кнопки-переходы: отдельная надпись-кнопка со ссылкой на слайд (работает в режиме показа PowerPoint)
     for (const a of sx.querySelectorAll("a.sx-btn")) {
-      const b = box(a), cs = getComputedStyle(a), t = navTarget(a.getAttribute("href"), i, total);
+      const b = box(a), cs = getComputedStyle(a), t0 = navTarget(a.getAttribute("href"), i, total), t = t0 === null ? null : ext.at ? ext.at[t0] : t0;
       s.addText([{ text: cs.textTransform === "uppercase" ? a.textContent.trim().toUpperCase() : a.textContent.trim(), options: t !== null ? { hyperlink: { slide: t + 1, tooltip: "Перейти" } } : {} }], { x: b.x, y: b.y, w: b.w * 1.06 + 0.06, h: b.h, shape: pptx.ShapeType.roundRect, rectRadius: 0.2, fill: { color: hex(cs.backgroundColor) || "7A0F1C" }, line: cs.outlineStyle !== "none" ? { color: hex(cs.outlineColor) || "7A0F1C", width: 1.5 } : { type: "none" }, color: hex(cs.color) || "FFFFFF", bold: true, fontFace: textStyle(a).fontFace, fontSize: Math.round(parseFloat(cs.fontSize) * 0.75), align: "center", valign: "middle", margin: 2 });
     }
     // стикеры — картинками (в PowerPoint их можно двигать и поворачивать)
@@ -1482,17 +1538,43 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       if (d) s.addImage({ data: d, x: b.x, y: b.y, w: b.w, h: b.h, rotate: parseFloat((st0.match(/-?[\d.]+/) || [0])[0]) || 0 });
     }
     if (sl.notes || sl.set.video?.u) s.addNotes([sl.notes, sl.set.video?.u ? `Видео: ${window.VideoKit ? VideoKit.watchUrl(sl.set.video) : sl.set.video.u} ${window.VideoKit ? VideoKit.span(sl.set.video) : ""}` : ""].filter(Boolean).join("\n"));
+    return look;
   }
   async function toPptxBlob(md, title) {
     const pptx = new window.PptxGenJS(); pptx.layout = "LAYOUT_WIDE"; pptx.title = title || "";
     const host = document.createElement("div"); host.className = "sx-export theme-" + theme(); document.body.appendChild(host);
+    pxSafe = true;
     try {
       const arr = splitSlides(md).map(parse);
-      const gi = arr.findIndex(x => ["glossary", "terms"].includes(x.set?.kind)); glSlide = gi >= 0 ? gi : null;
-      for (let i = 0; i < arr.length; i++) await (pxCur = i, pptxSlide)(pptx, arr[i], i, host, arr.length);
-    } finally { host.remove(); }
-    const blob = await pptx.write({ outputType: "blob" });
+      // слайды ответов встают сразу за своим вопросом (скрытыми): заранее считаем номера всех слайдов
+      const qas = arr.map(qaOf), at = []; let pos = 0;
+      arr.forEach((x, i) => { at[i] = pos; pos += 1 + qas[i].length; });
+      const gi = arr.findIndex(x => ["glossary", "terms"].includes(x.set?.kind)); glSlide = gi >= 0 ? at[gi] : null;
+      const css = document.createElement("style"); css.textContent = ".sx-export ol.qa-x{list-style:none;padding:0;margin:.2em 0;display:flex;flex-direction:column;gap:.45em}.sx-export ol.qa-x>li{padding:.45em 150px .45em 52px;min-height:2.2em;border-radius:.4em}.sx-export p.rv-x{display:inline-block;padding:.4em 1em;min-width:300px;min-height:1.6em}"; host.appendChild(css);
+      for (let i = 0; i < arr.length; i++) {
+        pxCur = at[i];
+        const look = await pptxSlide(pptx, pptxView(arr[i], qas[i]), i, host, arr.length, { at, qa: qas[i].map((_, k) => at[i] + 1 + k) }) || {};
+        host.appendChild(css);
+        for (let k = 0; k < qas[i].length; k++) await answerSlide(pptx, { bg: "FFFFFF", acc: "2F5D8A", soft: "F4F1EA", tf: "Arial", bf: "Arial", ...look }, qas[i][k], at[i], k + 1, qas[i].length);
+      }
+    } finally { host.remove(); pxSafe = false; }
+    const blob0 = await pptx.write({ outputType: "blob" });
+    const blob = await clickableShapes(blob0).catch(() => blob0);
     return anim().mode === "none" ? blob : addTransitions(blob).catch(() => blob);
+  }
+  /* Кнопка-переход должна срабатывать по всей кнопке, а не только по буквам: ссылку текста дублируем на саму фигуру */
+  async function clickableShapes(blob) {
+    if (!window.JSZip) await loadScript("jszip");
+    const z = await window.JSZip.loadAsync(blob);
+    for (const f of Object.keys(z.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f))) {
+      let x = await z.file(f).async("string"), ch = false;
+      x = x.replace(/<p:sp>([\s\S]*?)<\/p:sp>/g, (m, inner) => {
+        const h = inner.match(/<a:hlinkClick [^>]*?\/>|<a:hlinkClick [^>]*?>[\s\S]*?<\/a:hlinkClick>/); if (!h || /<p:cNvPr[^>]*>\s*<a:hlinkClick/.test(inner)) return m;
+        const r2 = inner.replace(/<p:cNvPr([^>]*?)\/>/, (mm, at) => `<p:cNvPr${at}>${h[0]}</p:cNvPr>`); if (r2 === inner) return m; ch = true; return `<p:sp>${r2}</p:sp>`;
+      });
+      if (ch) z.file(f, x);
+    }
+    return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" });
   }
   /* PowerPoint: плавные переходы между слайдами (по кругу: появление, выталкивание, сдвиг, растворение) */
   async function addTransitions(blob) {
