@@ -839,7 +839,7 @@ const Deck = (() => {
   function cardMd(card) {
     const set = {};
     let title = card.title || "", level = 2, body = "";
-    const isrc = card.img ? (/^commons:/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
+    const isrc = card.img ? (/^(commons:|img\/|https?:)/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
     const img = card.img ? `![${md1(card.cap || card.title).replace(/[\[\]()]/g, "")}](${isrc})` : "";
     switch (card.kind) {
       case "title": level = 1; set.layout = "title"; body = (card.points || []).join("\n\n"); break;

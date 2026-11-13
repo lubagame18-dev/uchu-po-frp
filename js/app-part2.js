@@ -1871,6 +1871,16 @@ function deckCardsExtras(cards, p) {
       if (MN) Mnemo.cards(MN, plain).filter(c => !((c.kind === "check" || /^проверь себя/i.test(String(c.title || ""))) && out.some(x => /^(проверь себя|check yourself)/i.test(String(x.title || ""))))).forEach(c => insert(c));
     }
   } catch (e) { console.warn("deck extras mnemo", e); }
+  // история: портреты деятелей темы из своей базы (Викиданные + Викисклад) – после титульного слайда
+  try {
+    const P = window.UCHU_PEOPLE?.people;
+    if (P && p.subject === "hist" && !out.some(c => c.kind === "author")) {
+      const T = " " + String(p.topic || "").toLowerCase().replace(/ё/g, "е") + " ";
+      const who = Object.values(P).filter(x => x.group === "hist" && (x.forms || []).some(f => { const nf = String(f).toLowerCase().replace(/ё/g, "е"); return nf.length >= 4 && (nf.includes(" ") ? T.includes(nf) : new RegExp("[^а-я]" + nf.slice(0, Math.max(4, nf.length - 1)).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[а-я]{0,3}[^а-я]").test(T)); })).slice(0, 2);
+      const at = Math.max(1, out.findIndex(c => c.kind === "title") + 1);
+      who.reverse().forEach((x, k) => out.splice(at, 0, { id: "pp" + k, on: true, kind: "author", title: x.name, img: x.img, acc: "left", points: [x.years, x.desc || x.role].filter(Boolean), notes: `Портрет: ${x.name}${x.author ? `. Автор изображения: ${x.author}` : ""}${x.license ? `, ${x.license}` : ""}. Источник: Викисклад.` }));
+    }
+  } catch (e) { console.warn("deck extras people", e); }
   try {
     const creative = /^(izo|mhk|mus|lit)$/.test(String(p.subject || ""));
     if (creative && !hasKind("art")) insert({ id: "pa1", on: true, kind: "art", title: "Картина", img: `commons:${p.topic} картина`, cap: "Репродукция картины", points: ["Что изображено и как построена композиция?", "Какие цвета, свет и детали важны для понимания темы?", "Какое настроение создаёт произведение и как это связано с уроком?"], note: "Подпись (художник, название, год) уточните по источнику изображения." });
