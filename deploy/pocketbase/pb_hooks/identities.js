@@ -75,7 +75,7 @@ function challenge(verifier) {
 function callback(kind) { const origin=$os.getenv('UCHU_SITE_ORIGIN')||'https://uchu-po-frp.ru';if(!/^https:\/\/[a-z0-9.-]+(?::[0-9]+)?$/i.test(origin))fail(503,'Invalid site origin');return origin+'/'+kind+'.html'; }
 exports.oauthStart=(e,kind)=>u.identityTools.send(e,()=>{
   enabled('UCHU_ALLOW_'+kind.toUpperCase());if(!provider[kind+'Configured']())fail(503,'OAuth identity is not configured');
-  const b=e.requestInfo().body,c=u.identityTools.context(e),owner=b.link===true?c.uid:'',legal=b.link===true?null:require(__hooks+'/privacy.js').acceptance(b);
+  const b=e.requestInfo().body,c=u.identityTools.context(e),owner=b.link===true?c.uid:'',legal=b.link===true||!b.legal?null:require(__hooks+'/privacy.js').acceptance(b);
   if(b.link===true&&!owner)fail(401,'Sign in before linking OAuth identity');
   if(!/^[a-zA-Z0-9_-]{32,128}$/.test(String(b.state||''))||!/^[a-zA-Z0-9_-]{43}$/.test(String(b.code_challenge||'')))fail(400,'Invalid OAuth state or PKCE challenge');
   e.app.runInTransaction(app=>{
@@ -105,6 +105,7 @@ exports.oauthFinish=(e,kind)=>u.identityTools.send(e,()=>{
       if(record.getString(kind+'_id')&&record.getString(kind+'_id')!==identity.id)fail(409,'Changing a linked OAuth identity requires account recovery review');
       record.set(kind+'_id',identity.id);app.save(record);require(__hooks+'/privacy.js').claimTrial(app,record);
     } else if(!record){
+      if(!login.legal)fail(403,'Registration required: on the site choose Registration and accept the terms');
       if($os.getenv('UCHU_ALLOW_'+kind.toUpperCase()+'_SIGNUP')!=='true')fail(403,'OAuth registration is not enabled');
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email))fail(400,'OAuth identity must provide an email address');
       if(userBy(app,'email',identity.email))fail(409,'Sign in by email, then link OAuth identity from your account');

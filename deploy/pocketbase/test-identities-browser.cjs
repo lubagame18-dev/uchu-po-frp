@@ -31,15 +31,16 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
    return route.abort();
   });
   await page.goto(origin+'/',{waitUntil:'load'});await page.waitForFunction(()=>window.Account);
-  await page.evaluate(()=>Account.open());assert.equal(await page.locator('[data-via=phone]').count(),0);await page.locator('#acYandex').click();await page.locator('#privacyOffer').check();await page.locator('#privacyChoice [type=submit]').click();
+  await page.evaluate(()=>Account.open());assert.equal(await page.locator('[data-via=phone]').count(),0);assert.equal(await page.locator('#acConsentL').isHidden(),true);await page.locator('[data-mode=up]').click();await page.locator('#acAgree').check();await page.locator('#acYandex').click();
   await page.waitForFunction(()=>window.Account?.session?.email==='browser-yandex@example.invalid');
   const yandexUid=await page.evaluate(()=>Account.session.uid);assert.equal(oauthRequests,1);assert.equal(new URL(page.url()).hash,'');assert(!page.url().includes('code='));
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('uchu:yandex-pkce')),null);
   await page.evaluate(async()=>{await Account.signOut();Account.open();});
-  await page.locator('#acGoogle').click();await page.locator('#privacyOffer').check();await page.locator('#privacyChoice [type=submit]').click();
+  await page.locator('[data-mode=up]').click();await page.locator('#acAgree').check();await page.locator('#acGoogle').click();
   await page.waitForFunction(()=>window.Account?.session?.email==='browser-google@example.invalid');
   assert.notEqual(await page.evaluate(()=>Account.session.uid),yandexUid);assert.deepEqual(oldBackend,[]);assert.equal(oauthRequests,2);
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('uchu:google-pkce')),null);
+  await page.evaluate(async()=>{await Account.signOut();Account.open();});assert.equal(await page.locator('#acConsentL').isHidden(),true);await page.locator('#acGoogle').click();await page.waitForFunction(()=>window.Account?.session?.email==='browser-google@example.invalid');assert.equal(await page.locator('#privacyChoice').count(),0);
   await page.evaluate(()=>Account.open());await page.locator('#acLinkGoogle').waitFor();assert.equal(await page.locator('#acLinkPhone').count(),0);
   // Reject callback state mismatch before any OAuth exchange or redirect.
   await page.goto(origin+'/yandex.html?code=unexpected&state=wrong',{waitUntil:'load'});

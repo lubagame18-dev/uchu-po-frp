@@ -89,9 +89,9 @@ exports.googleIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
     def email_user(self,label):
         status,u=self.api('/auth/v1/admin/users',body={'email':label+'@example.invalid','password':self.password,'email_confirm':True},service=True);self.assertEqual(status,201,u)
         status,s=self.api('/auth/v1/token?grant_type=password',body={'email':u['email'],'password':self.password});self.assertEqual(status,200,s);return s
-    def oauth(self,token=None,link=False,kind="yandex"):
+    def oauth(self,token=None,link=False,kind="yandex",registration=True):
         verifier=secrets.token_urlsafe(32);state=secrets.token_urlsafe(32);challenge=base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
-        body={'state':state,'code_challenge':challenge,'link':link,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'}};status,j=self.api('/auth/v1/'+kind+'_start',body=body,token=token);self.assertEqual(status,200,j)
+        body={'state':state,'code_challenge':challenge,'link':link,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'} if registration else None};status,j=self.api('/auth/v1/'+kind+'_start',body=body,token=token);self.assertEqual(status,200,j)
         q=parse_qs(urlsplit(j['url']).query);self.assertEqual(q['state'],[state]);self.assertEqual(q['code_challenge'],[challenge]);self.assertEqual(q['redirect_uri'],['https://uchu-po-frp.ru/'+kind+'.html'])
         return {'state':state,'code_verifier':verifier}
     def finish(self,b,identity,token=None,kind='yandex'):return self.api('/auth/v1/'+kind+'_finish',body=dict(b,code=json.dumps(identity) if isinstance(identity,dict) else identity),token=token)
@@ -134,6 +134,14 @@ exports.googleIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         status,s=self.finish(b,identity);self.assertEqual(status,200,s);uid=s['user']['id']
         self.assertEqual(self.finish(b,identity)[0],400)
         status,again=self.finish(self.oauth(),{'id':'subject-1','email':'new-address@example.invalid'});self.assertEqual(status,200,again);self.assertEqual(again['user']['id'],uid)
+    def test_05b_registration_consent_not_required_for_existing_login(self):
+        for kind in ['google','yandex']:
+            identity={'id':'consent-once-'+kind,'email':'consent-once-'+kind+'@example.invalid'}
+            status,j=self.finish(self.oauth(kind=kind,registration=False),identity,kind=kind);self.assertEqual(status,403,j)
+            self.assertIn('Registration required',str(j))
+            status,created=self.finish(self.oauth(kind=kind),identity,kind=kind);self.assertEqual(status,200,created)
+            status,again=self.finish(self.oauth(kind=kind,registration=False),identity,kind=kind);self.assertEqual(status,200,again)
+            self.assertEqual(created['user']['id'],again['user']['id'])
     def test_06_yandex_email_collision_requires_link(self):
         owner=self.email_user('yandex-collision');other=self.email_user('yandex-other');identity={'id':'subject-2','email':owner['user']['email']}
         self.assertEqual(self.finish(self.oauth(),identity)[0],409)

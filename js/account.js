@@ -124,21 +124,20 @@ const Account = (() => {
     } finally {changingAccount=false;}
     pull().catch(e=>console.warn("sync",e));
   }
-  async function startSocial(kind,link=false) {
+  async function startSocial(kind,link=false,legal=null) {
     if(C().provider!=="pocketbase") { if(kind==="google")throw new Error("Откройте вход через Google на сайте.");location.href="https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex&site="+encodeURIComponent(location.origin+location.pathname);return; }
     if(!ready()) throw new Error("Сервер кабинета ещё не настроен.");
     if(link&&!S?.uid) throw new Error("Сначала войдите в кабинет.");
     const b64=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
       verifier=b64(crypto.getRandomValues(new Uint8Array(32))),state=b64(crypto.getRandomValues(new Uint8Array(32))),
       challenge=b64(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier)));
-    const legal=link?null:await Privacy.askRegistration();if(!link&&!legal)return;
     sessionStorage.setItem("uchu:"+kind+"-pkce",JSON.stringify({verifier,state,endpoint:C().url,owner:link?S.uid:"",at:Date.now()}));
     const j=await api("/auth/v1/"+kind+"_start",{method:"POST",body:JSON.stringify({state,code_challenge:challenge,link,legal})});
     const url=new URL(j.url);if(kind==="yandex"?(url.origin!=="https://oauth.yandex.ru"||url.pathname!=="/authorize"):(url.origin!=="https://accounts.google.com"||url.pathname!=="/o/oauth2/v2/auth"))throw new Error("Некорректный адрес сервиса входа.");
     location.assign(url.href);
   }
-  const startYandex=link=>startSocial("yandex",link);
-  const startGoogle=link=>startSocial("google",link);
+  const startYandex=(link,legal)=>startSocial("yandex",link,legal);
+  const startGoogle=(link,legal)=>startSocial("google",link,legal);
   async function fromSocialPending() {
     const raw=sessionStorage.getItem("uchu:oauth-pending");if(!raw)return;
     sessionStorage.removeItem("uchu:oauth-pending");
@@ -418,13 +417,13 @@ const Account = (() => {
         <div class="field" data-mailf><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
         <div class="field" data-mailf><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div></div>
         <div class="small" id="acForgotW" style="margin:-4px 0 10px"><button type="button" id="acForgot" class="link" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Забыли пароль?</button></div>
-        <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank" rel="noopener">договор-оферту</a>. С <a href="legal/privacy.html" target="_blank" rel="noopener">политикой обработки данных</a> ознакомлен(а).</span></label><label class="check ac-agree" id="acConsentL" hidden><input type="checkbox" id="acProfileConsent"> <span>Даю <a href="legal/consent.html" target="_blank" rel="noopener">отдельное согласие</a> на необязательные данные профиля: имя, школу, город и фото. Можно не отмечать.</span></label>
+        <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank" rel="noopener">договор-оферту</a>. С <a href="legal/privacy.html" target="_blank" rel="noopener">политикой обработки данных</a> ознакомлен(а).</span></label><label class="check ac-agree" id="acConsentL" hidden><input type="checkbox" id="acProfileConsent"> <span>Даю <a href="legal/consent.html" target="_blank" rel="noopener">согласие на обработку персональных данных</a>. <span class="small">Необязательно.</span></span></label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
           <button class="btn sm" type="button" id="acGoogle"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.5 30.2 0 24 0 14.6 0 6.4 5.4 2.5 13.2l7.8 6.1C12.2 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.5c-.5 2.9-2.2 5.4-4.6 7l7.1 5.5c4.2-3.9 6.6-9.6 7.1-17z"/><path fill="#FBBC05" d="M10.3 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.5-2 15.3-5.5l-7.1-5.5c-2 1.4-4.7 2.3-8.2 2.3-6.4 0-11.8-3.7-13.7-8.8l-7.8 6.1C6.4 42.6 14.6 48 24 48z"/></svg>Войти через Google</button>
           <button class="btn sm" type="button" id="acYandex"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><circle cx="12" cy="12" r="12" fill="#FC3F1D"/><path fill="#fff" d="M13.6 7.6h-1.2c-1.5 0-2.2.7-2.2 1.8 0 1.2.5 1.8 1.9 2.5l1.2.6-2.9 4.6h-1.8l2.6-4.1c-1.6-.8-2.4-1.7-2.4-3.3 0-2.1 1.4-3.5 3.8-3.5h2.8v10.9h-1.6V7.6z"/></svg>Войти через Яндекс</button>
         </div>
-        <p class="small" style="margin-top:6px">${C().ownerTesting?'Сначала войдите по почте и паролю. Затем в кабинете нажмите «Привязать Google» или «Привязать Яндекс ID». После привязки можно входить соответствующей кнопкой.':'Первый вход через Google или Яндекс — это регистрация: кабинет создаётся сам. Дальше входите этой же кнопкой — без почты и пароля.'}</p>
+        <p class="small" style="margin-top:6px">${C().ownerTesting?'Сначала войдите по почте и паролю. Затем в кабинете нажмите «Привязать Google» или «Привязать Яндекс ID». После привязки можно входить соответствующей кнопкой.':'Новый кабинет: выберите «Регистрация», примите условия и нажмите Google или Яндекс. Если кабинет уже есть — просто нажмите кнопку входа.'}</p>
         ${devLink()}
       </form></div>`);
     bindDev(m);
@@ -442,8 +441,9 @@ const Account = (() => {
       } catch (e) { toast("Не удалось открыть вход через " + provider + ": " + e.message, 6000); }
     };
     const gb = m.querySelector("#acGoogle"), yb = m.querySelector("#acYandex");
-    if (gb) gb.onclick = () => C().provider==="pocketbase" ? startGoogle().catch(e=>{m.querySelector("#acMsg").textContent=e.message;}) : oauth("google");
-    if (yb) yb.onclick = () => startYandex().catch(e=>{m.querySelector("#acMsg").textContent=e.message;});
+    const socialLegal=()=>{if(mode!=="up")return null;if(!m.querySelector("#acAgree").checked)throw new Error("Для регистрации примите оферту.");return Privacy.legal(m.querySelector("#acProfileConsent").checked);};
+    if(gb)gb.onclick=async()=>{try{if(C().provider==="pocketbase")await startGoogle(false,socialLegal());else await oauth("google");}catch(e){m.querySelector("#acMsg").textContent=e.message;}};
+    if(yb)yb.onclick=async()=>{try{await startYandex(false,socialLegal());}catch(e){m.querySelector("#acMsg").textContent=e.message;}};
     m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
     m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acConsentL").hidden=mode!=="up"; m.querySelector("#acPass").minLength=mode==="up"&&C().provider==="pocketbase"?8:6; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; m.querySelector("#acForgotW").hidden = mode !== "in" || via === "phone"; });
     let via = "mail", codeSent = false, cool = 0, coolT = null;

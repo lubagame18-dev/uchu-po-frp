@@ -1,7 +1,7 @@
 {
   "version": "2026-11-13",
   "files": {
-    "deploy/pocketbase/pb_hooks/identities.js": "b1c126fe838b75f8786bf11afab2d9f2fb76008ce0bdbb5bf6bf0eb8723ffb72",
+    "deploy/pocketbase/pb_hooks/identities.js": "3336e36d05317a28b9b00bdd2002a6ad914f797c72ad2c3f2fb041ba870a57e1",
     "deploy/pocketbase/pb_hooks/identity-providers.js": "f0836d6455d7a6c04470188b4e4929da15bb1e3f3c533eeb268c72b5ea57e826",
     "deploy/pocketbase/pb_hooks/postbox.pb.js": "fdcb8b53f446867a670fdf59c2c6cd80968d72d11c7a11610e667f13b7d1e18e",
     "deploy/pocketbase/pb_hooks/privacy-documents.js": "4c12758c08e467fd3a9e32c004c659e06f161a6cbb945344e535737b7b821158",
@@ -30,7 +30,8 @@
     "deploy/privacy/test-legal.py": "2cdec60ec2aad57d58e094cabba9520eda94bf4cbc1ca70f4a3fa1b4006c0c46",
     "deploy/privacy/uchu-privacy-snapshot.path": "90a1f6dc6a1ff2e42858dbc89c10cae04b8aded8c5b8e62d3fd37e70b2d65cdc",
     "deploy/privacy/uchu-privacy-snapshot.service": "1a27c058f812f9abf55587288696ddc714ca8e5bb480d6ab4d6880e65324b2dd",
-    "deploy/privacy/upgrade.py": "73bb1e6af211c532cf21836a8a0e4aaf2885acdb7c8be6dc379d340b8180e0c2"
+    "deploy/privacy/upgrade.py": "73bb1e6af211c532cf21836a8a0e4aaf2885acdb7c8be6dc379d340b8180e0c2",
+    "deploy/privacy/update-consent.py": "e57a1d7b63559708dbb0e46bb8bfeea0d54b4ecca8d1f2ff22cc778200091478"
   },
   "public_files": {
     "accounts-confirm.html": "ded5f042f1af5af6f6b00a503f175fe54c83f88aca78b96cd46c3536b4faf960",
@@ -38,14 +39,14 @@
     "google.html": "962e28c8acf2346df906400a6c6083c0ce529b26c6f32d61d8fa05a672d017a6",
     "index.html": "41ea3ab0da51af574190fdfcdccd8acd50e18adacfe576a6faa3816371314bfa",
     "js/access.js": "ce941e20aca47f3f67dad966d6b6e6165390ec7b7e68e985ab5483fdc554d58b",
-    "js/account.js": "1b51673e94114672d9beb84729ec3327eb2226cda6f77776caea39d5bcfa2968",
+    "js/account.js": "825209cbc4617ca4104303d1d296074c23f4630d4be769bd8962f771932a8f64",
     "js/accounts-backend.js": "dbcc7544217b74a27c17eae150e8d37c2b48300bdc2decb7877daf1c89842c88",
     "js/accounts-config.js": "93a3b59078ec1415d3ffcf5c520a3c1d94e9315847c498453f314009b4cc66c8",
     "js/cloudbase.js": "3999995b5445a6135ffe6e6538fbd0e24271e3d5bbc8a8ae5c31c008a006c632",
-    "js/privacy.js": "e187b0799bcae7f60dbd4a85cf18709944700232423ef56c839da38e7aac4ea0",
+    "js/privacy.js": "1b9f0df989e7e703d610bd48404ca1788bff54c850550853a3192822e1e0b687",
     "js/quizlink.js": "2f2a7830018c4ddfb3076995bd46f12899f86bd524e62d77bcbe6c1d153ab806",
     "js/rules.js": "aae3c582a8b60686c9d4e3934c7edc9bbf09364bd19c8e657c15a411115bbbc0",
-    "js/yandex-auth.js": "9371641a93cb4a88e37205196a0c29449dd8b6ccc0ec9aa181d8845f60e04537",
+    "js/yandex-auth.js": "edad83d2d573692e3b0a61898178591369089362eeeee93289d9f6c83c6d96cc",
     "legal/archive/2026-11-13/consent.html": "815a093ca22469ade09a26bfef46600e2418292b8a8bda51e0b5674215b64675",
     "legal/archive/2026-11-13/oferta.html": "e29d48c158724b9eaf32d0911410277114b5427d310db60624b505c3d10e1851",
     "legal/archive/2026-11-13/privacy.html": "61d415375f46ae46c29d0476a82b2f75a2ed180550dbf316bfd6284090a2d76b",
@@ -56,7 +57,7 @@
     "legal/oferta.html": "7a94bf09505390fdff83090f7010b0badc64c11883971cf8a632ebef272d64ee",
     "legal/privacy.html": "0ef71d3a2300a5224e36785d6348b235b9f55e2b9877c87c476fa58bef9a89f6",
     "legal/tarify.html": "1b2d5b442565277878a0e31f21c93351a40d4393e1f4c9f6ea4c181c87f477d6",
-    "sw.js": "33175fe34aa4c30c35093a192e2261ddf3fc85a5763199f66bb04e1dcdd81c5d",
+    "sw.js": "f4b877a15af91d7870d1d0b8d63a5142dad1d65892410fe07b49881532612c7e",
     "taras-bulba/index.html": "868345f478035517eb3f1b0ae47e71151c2ea442dee4bcd4ee9cbc5fbefa9ccd",
     "taras-bulba/results.html": "b73ac3015b947a21222d78200ab87deb5b430a32721661f0cadbfdebf7ce2a55",
     "test/index.html": "f247fd56462b7859746d576be9021c86f6a7b8ceac04315b3d5a8240436b2b37",
