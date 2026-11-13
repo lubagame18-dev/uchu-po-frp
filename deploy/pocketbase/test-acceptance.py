@@ -95,7 +95,7 @@ class Bootstrap(unittest.TestCase):
                     mail_thread=threading.Thread(target=sink.serve_forever,daemon=True);mail_thread.start()
                     try:
                         req('/api/settings',{'smtp':{'enabled':True,'host':'127.0.0.1','port':sink.server_address[1],'username':'','password':'','tls':False,'authMethod':'PLAIN'}},token=token,method='PATCH')
-                        req('/api/uchu/auth/v1/signup',{'email':'mail-fixture@example.invalid','password':password})
+                        req('/api/uchu/auth/v1/signup',{'email':'mail-fixture@example.invalid','password':password,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'}})
                         def mail_link(kind):
                             message=email.message_from_bytes(mail_module.MailSink.messages[-1]);body=''.join(p.get_payload(decode=True).decode() for p in message.walk() if p.get_content_type()=='text/html')
                             links=[html.unescape(x) for x in re.findall(r'href="([^"]+)"',body)]
