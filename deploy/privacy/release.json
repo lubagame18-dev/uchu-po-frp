@@ -1,7 +1,7 @@
 {
   "version": "2026-11-13",
   "files": {
-    "deploy/pocketbase/pb_hooks/identities.js": "3336e36d05317a28b9b00bdd2002a6ad914f797c72ad2c3f2fb041ba870a57e1",
+    "deploy/pocketbase/pb_hooks/identities.js": "fe95e7ee1b26d3c7dee5790be16a2e4f1dfe678c2a6bf688cdf7503f31426990",
     "deploy/pocketbase/pb_hooks/identity-providers.js": "f0836d6455d7a6c04470188b4e4929da15bb1e3f3c533eeb268c72b5ea57e826",
     "deploy/pocketbase/pb_hooks/postbox.pb.js": "fdcb8b53f446867a670fdf59c2c6cd80968d72d11c7a11610e667f13b7d1e18e",
     "deploy/pocketbase/pb_hooks/privacy-documents.js": "4c12758c08e467fd3a9e32c004c659e06f161a6cbb945344e535737b7b821158",
@@ -31,7 +31,7 @@
     "deploy/privacy/uchu-privacy-snapshot.path": "90a1f6dc6a1ff2e42858dbc89c10cae04b8aded8c5b8e62d3fd37e70b2d65cdc",
     "deploy/privacy/uchu-privacy-snapshot.service": "1a27c058f812f9abf55587288696ddc714ca8e5bb480d6ab4d6880e65324b2dd",
     "deploy/privacy/upgrade.py": "73bb1e6af211c532cf21836a8a0e4aaf2885acdb7c8be6dc379d340b8180e0c2",
-    "deploy/privacy/update-consent.py": "e57a1d7b63559708dbb0e46bb8bfeea0d54b4ecca8d1f2ff22cc778200091478"
+    "deploy/privacy/update-consent.py": "771844cdd67d56ebbad291e0189277b305d5830b641ad1fea16d69550f77fc81"
   },
   "public_files": {
     "accounts-confirm.html": "ded5f042f1af5af6f6b00a503f175fe54c83f88aca78b96cd46c3536b4faf960",

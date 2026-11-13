@@ -16,7 +16,7 @@ def run(*cmd):subprocess.run(cmd,check=True,capture_output=True,timeout=180)
 def main():
  p=argparse.ArgumentParser();p.add_argument('--ref',required=True);a=p.parse_args()
  if os.geteuid()!=0 or not re.fullmatch('[0-9a-f]{40}',a.ref):raise ValueError('Root and immutable ref required')
- os.umask(0o077);root=Path('/root/uchu-consent-update');root.mkdir(mode=0o700,exist_ok=True)
+ os.umask(0o077);root=Path('/root/uchu-consent-update')/a.ref;root.mkdir(mode=0o700,parents=True,exist_ok=True)
  if (root/'receipt.json').exists():raise ValueError('Already accepted; inspect receipt')
  base='https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/'+a.ref+'/'
  with urlopen(base+'deploy/privacy/release.json',timeout=30) as r:manifest=json.load(r)

@@ -145,6 +145,7 @@ exports.googleIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
     def test_06_yandex_email_collision_requires_link(self):
         owner=self.email_user('yandex-collision');other=self.email_user('yandex-other');identity={'id':'subject-2','email':owner['user']['email']}
         self.assertEqual(self.finish(self.oauth(),identity)[0],409)
+        self.assertEqual(self.finish(self.oauth(registration=False),identity)[0],409) # Existing email: direct linking guidance, no new registration consent.
         status,s=self.finish(self.oauth(owner['access_token'],True),identity,owner['access_token']);self.assertEqual(status,200,s);self.assertEqual(s['user']['id'],owner['user']['id'])
         self.assertEqual(self.finish(self.oauth(other['access_token'],True),identity,other['access_token'])[0],409)
         self.assertEqual(self.api('/auth/v1/yandex_start',body={'link':True})[0],401)

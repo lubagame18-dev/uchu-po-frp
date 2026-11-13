@@ -105,10 +105,10 @@ exports.oauthFinish=(e,kind)=>u.identityTools.send(e,()=>{
       if(record.getString(kind+'_id')&&record.getString(kind+'_id')!==identity.id)fail(409,'Changing a linked OAuth identity requires account recovery review');
       record.set(kind+'_id',identity.id);app.save(record);require(__hooks+'/privacy.js').claimTrial(app,record);
     } else if(!record){
-      if(!login.legal)fail(403,'Registration required: on the site choose Registration and accept the terms');
       if($os.getenv('UCHU_ALLOW_'+kind.toUpperCase()+'_SIGNUP')!=='true')fail(403,'OAuth registration is not enabled');
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email))fail(400,'OAuth identity must provide an email address');
       if(userBy(app,'email',identity.email))fail(409,'Sign in by email, then link OAuth identity from your account');
+      if(!login.legal)fail(403,'Registration required: on the site choose Registration and accept the terms');
       const fields={email:identity.email};fields[kind+'_id']=identity.id;record=newUser(app,fields);
       require(__hooks+'/privacy.js').recordAcceptance(app,record.id,login.legal,kind);
     }
