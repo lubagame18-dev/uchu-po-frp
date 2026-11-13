@@ -377,11 +377,11 @@ const Deck = (() => {
     const out = cards.map(c => {
       if (!c || k >= L.length || !/^commons:/.test(String(c.img || "")) || /портрет/i.test(c.img)) return c;
       const im = L[k++];
-      return { ...c, img: im.img, cap: im.caption || im.title, notes: [c.notes, credit(im)].filter(Boolean).join(" ") };
+      return { ...c, img: im.img, cap: im.title, notes: [c.notes, im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
     });
     if (k === 0 && !out.some(c => c && c.img && c.on !== false && c.kind !== "title")) {
       const im = L[0], end = out.findIndex(c => c && (["concl", "hw"].includes(c.kind) || /рефлекс|подвед|итог урока|домашн/i.test(String(c.title || ""))));
-      const card = { id: "li1", on: true, kind: "image", title: im.title, img: im.img, cap: im.caption || im.title, notes: credit(im) };
+      const card = { id: "li1", on: true, kind: "image", title: im.title, img: im.img, cap: im.title, notes: [im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
       if (end >= 0) out.splice(end, 0, card); else out.push(card);
     }
     return out;

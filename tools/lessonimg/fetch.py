@@ -86,7 +86,7 @@ def read_rules(subj):
         m = re.match(r"@(\d+)-(\d+)\s+", rx)  # «@1-4 регулярка» — правило только для этих классов
         if m:
             g, rx = (int(m.group(1)), int(m.group(2))), rx[m.end():]
-        out.append((re.compile(rx), [] if titles == "-" else [t.strip() for t in titles.split(";") if t.strip()], g))
+        out.append((re.compile(rx, re.I), [] if titles == "-" else [t.strip() for t in titles.split(";") if t.strip()], g))
     return out
 
 
@@ -243,6 +243,7 @@ def main():
         rules = read_rules(subj)
         st = stat.setdefault(subj, [0, 0])
         log.append(f"\n== {subj} ==")
+        prev = None
         for x in json.load(open(os.path.join(base, fn), encoding="utf-8")).get("lessons", []):
             st[1] += 1
             topic = x["topic"]
@@ -280,12 +281,18 @@ def main():
                 pk, p = person_for(probe, people, subj)
                 if pk:
                     entry["person"] = pk
+            if not keys and prev and prev["grade"] == x["grade"] and prev.get("keys") and subj not in FRP_SUBJ and titles != []:
+                keys[:] = prev["keys"][:1]
+                caps[:] = prev["caps"][:1]
+                via = "соседний урок"
             if not keys and not entry.get("person"):
                 log.append(f"– {x['lesson_id']} {topic[:80]}: нет")
                 lessons[x["lesson_id"]] = None
                 continue
             st[0] += 1
             lessons[x["lesson_id"]] = entry
+            if keys:
+                prev = entry
             log.append(f"+ {x['lesson_id']} [{via}] {topic[:60]} → " + "; ".join(caps) + (f" (+портрет {entry['person']})" if entry.get("person") else ""))
     used = {k for e in lessons.values() if e for k in e["keys"]}
     images = {k: v for k, v in images.items() if k in used}
