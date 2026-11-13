@@ -20,6 +20,8 @@ import hashlib, io, json, os, re, sys, time, urllib.parse, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SRC = os.path.join(ROOT, "tools", "lessonimg")
 TASKS = os.path.join(ROOT, "integrations", "chatgpt", "claude_tasks")
+FRP_TASKS = os.path.join(ROOT, "integrations", "chatgpt", "frp_tasks")
+FRP_SUBJ = {"bio", "chem", "phys", "soc", "obzh"}  # реальные фото и схемы с Викисклада; задания ChatGPT не трогаем, только читаем темы
 IMG = os.path.join(ROOT, "img", "lessons")
 OUT_JS = os.path.join(ROOT, "data", "lesson-images.js")
 PEOPLE_JS = os.path.join(ROOT, "data", "people.js")
@@ -29,7 +31,7 @@ RW = "https://ru.wikipedia.org/w/api.php"
 CM = "https://commons.wikimedia.org/w/api.php"
 OK_LIC = re.compile(r"public domain|^pd|cc0|cc[- ]by(?:[- ]sa)?[- ]?\d|cc[- ]by(?:-sa)?$", re.I)
 BAD_LIC = re.compile(r"\bnc\b|non-?commercial|\bnd\b|no-?deriv|fair use", re.I)
-SEARCH_SUBJ = {"hist", "lit", "mhk", "geo"}
+SEARCH_SUBJ = {"hist", "lit", "mhk", "geo", "bio", "chem", "phys", "soc", "obzh"}
 STOP = set("урок уроки тема теме темы обобщение повторение контроль контроля введение курс курса как что это для или его их при над под без про также который которые между этапы этап основные основы роль место значение общая характеристика особенности развитие история истории россии мира века веке начало конец середина середине второй первой половине половина годы годов край наш".split())
 
 _cache = {}
@@ -215,19 +217,19 @@ def main():
         by_title[a["title"]] = key
         return key
 
-    for fn in sorted(os.listdir(TASKS)):
-        if not fn.endswith(".json"):
-            continue
+    files = [(TASKS, fn) for fn in sorted(os.listdir(TASKS)) if fn.endswith(".json")]
+    files += [(FRP_TASKS, fn) for fn in sorted(os.listdir(FRP_TASKS)) if fn[:-5] in FRP_SUBJ] if os.path.isdir(FRP_TASKS) else []
+    for base, fn in files:
         subj = fn[:-5]
         if subj_only and subj not in subj_only:
-            for x in json.load(open(os.path.join(TASKS, fn), encoding="utf-8")).get("lessons", []):
+            for x in json.load(open(os.path.join(base, fn), encoding="utf-8")).get("lessons", []):
                 if x["lesson_id"] in old.get("lessons", {}):
                     lessons[x["lesson_id"]] = old["lessons"][x["lesson_id"]]
             continue
         rules = read_rules(subj)
         st = stat.setdefault(subj, [0, 0])
         log.append(f"\n== {subj} ==")
-        for x in json.load(open(os.path.join(TASKS, fn), encoding="utf-8")).get("lessons", []):
+        for x in json.load(open(os.path.join(base, fn), encoding="utf-8")).get("lessons", []):
             st[1] += 1
             topic = x["topic"]
             probe = topic + " " + (x.get("section") or "")

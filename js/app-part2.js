@@ -1960,7 +1960,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     catch (e) { if (e?.code === "cancelled") throw e; } finally { state.gen = null; }
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(deckCardsExtras(convCards(PL.cards(p, type), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(Deck.localImages(deckCardsExtras(convCards(PL.cards(p, type), p), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -1969,7 +1969,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = deckCardsExtras(convCards(PL.cards(p, type), p), p);
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = window.Deck?.localImages ? Deck.localImages(deckCardsExtras(convCards(PL.cards(p, type), p), p), p) : deckCardsExtras(convCards(PL.cards(p, type), p), p);
         // тема без готового материала в базе: презентация из 3–4 общих слайдов – строим её по ходу урока из конспекта
         { const body = cs => (cs || []).filter(c => !["title", "hw", "goal", "board"].includes(c.kind)).length;
           if (body(L.deckOutline) < 6 && window.Deck?.outline) { try { const src = L.docs.lesson || L.docs.conspect || PL.lesson(p, type); const alt = Deck.outline(src, p, type); if (body(alt) > body(L.deckOutline)) { L.deckOutline = alt; md = Deck.toMarkdown(alt); } } catch (e) { console.warn("thin deck", e); } }

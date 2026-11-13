@@ -356,6 +356,36 @@ const Deck = (() => {
     return out;
   }
   /* Картинки-акценты: почти на каждом слайде, кроме дословных цитат/стихов/упражнений, доски и карточки-картины. */
+  /* Своя база иллюстраций (data/lesson-images.js, собрано из Википедии/Викисклада, только свободные лицензии):
+     картинки урока подставляются вместо поиска «commons:…»; если в уроке нет ни одной картинки — добавляется слайд с ней. */
+  const LIMG_NORM = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/g, " ").trim();
+  let limgIdx = null;
+  function lessonImages(p) {
+    const B = window.UCHU_LESSON_IMAGES; if (!B || !B.lessons || !p) return [];
+    if (!limgIdx) { limgIdx = new Map(); for (const [id, e] of Object.entries(B.lessons)) if (e) { const k = e.subject + "|" + e.grade + "|" + LIMG_NORM(e.topic); if (!limgIdx.has(k)) limgIdx.set(k, e); } }
+    const t = LIMG_NORM(p.topic), pre = p.subject + "|" + p.grade + "|";
+    let e = limgIdx.get(pre + t);
+    if (!e && t.length >= 8) for (const [k, v] of limgIdx) if (k.startsWith(pre) && (k.slice(pre.length).startsWith(t) || t.startsWith(k.slice(pre.length)))) { e = v; break; }
+    if (!e) return [];
+    return (e.keys || []).map(k => B.images?.[k]).filter(Boolean);
+  }
+  function localImages(cards, p, o) {
+    if (!Array.isArray(cards) || (o && o.images === "none")) return cards;
+    const L = lessonImages(p); if (!L.length) return cards;
+    const credit = im => `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
+    let k = 0;
+    const out = cards.map(c => {
+      if (!c || k >= L.length || !/^commons:/.test(String(c.img || "")) || /портрет/i.test(c.img)) return c;
+      const im = L[k++];
+      return { ...c, img: im.img, cap: im.caption || im.title, notes: [c.notes, credit(im)].filter(Boolean).join(" ") };
+    });
+    if (k === 0 && !out.some(c => c && c.img && c.on !== false && c.kind !== "title")) {
+      const im = L[0], end = out.findIndex(c => c && (["concl", "hw"].includes(c.kind) || /рефлекс|подвед|итог урока|домашн/i.test(String(c.title || ""))));
+      const card = { id: "li1", on: true, kind: "image", title: im.title, img: im.img, cap: im.caption || im.title, notes: credit(im) };
+      if (end >= 0) out.splice(end, 0, card); else out.push(card);
+    }
+    return out;
+  }
   function fillImages(cards, p, o) {
     /* Картинки — только там, где они действительно уместны (литература, история, МХК, ИЗО, музыка, карты).
        Для остальных предметов слайды идут без изображений: лучше чисто, чем случайное фото. */
@@ -689,7 +719,7 @@ const Deck = (() => {
     if (lvl === "high" && cfg.amount !== "detailed") cfg.amount = "detailed";
     if (lvl === "weak" && cfg.amount === "detailed") cfg.amount = "medium";
     const cards = expandCards(enrich(outline0(md, p, type, cfg), p, cfg, md), p, cfg);
-    return prune(fillImages(cards, p, cfg));
+    return prune(localImages(fillImages(cards, p, cfg), p, cfg));
   }
   function outline0(md, p, type, o = opts()) {
     curTopic = p.topic; curKit = p.plan?.kit || null;
@@ -1232,6 +1262,6 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
   }
 
-  return { prune, childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { prune, localImages, lessonImages, childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
 })();
 window.Deck = Deck;
