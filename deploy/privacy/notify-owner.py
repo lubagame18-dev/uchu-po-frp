@@ -10,6 +10,7 @@ ROOT=Path('/root/uchu-privacy-upgrade');RECIPIENT='gladyshevalu14@mail.ru'
 def main():
  if os.geteuid()!=0:raise ValueError('Run on the VPS as root')
  os.umask(0o077);receipt=json.loads((ROOT/'receipt.json').read_text());manifest=json.loads((ROOT/'release.json').read_text())
+ if not json.loads((ROOT/'finish-receipt.json').read_text()).get('privacy_snapshot_path_exercised'):raise ValueError('Final operation checks are required')
  if not json.loads((ROOT/'function-receipt.json').read_text()).get('function_updated'):raise ValueError('Accepted quota Function release is required')
  if not receipt.get('installed') or not receipt.get('encrypted_backup_and_restore_check'):raise ValueError('Accepted server release is required')
  for name in ['index.html','js/account.js','js/privacy.js','legal/privacy.html','legal/consent.html','data/legal.js','sw.js']:
@@ -27,6 +28,8 @@ def main():
   if row:c.execute('update uchu_mail_budget set attempts=attempts+1 where id=?',(row[0],))
   else:c.execute('insert into uchu_mail_budget(id,day,attempts) values(substr(lower(hex(randomblob(8))),1,15),?,1)',(today.isoformat(),))
  message=EmailMessage();message['From']='Учу по ФРП <accounts@uchu-po-frp.ru>';message['To']=RECIPIENT;message['Subject']='Учу по ФРП: доработки опубликованы, можно готовить уведомление РКН';message['Date']=formatdate(localtime=False);message['Message-ID']=make_msgid(domain='uchu-po-frp.ru')
+ google_check=ROOT/'google-check.json'
+ google_problem=google_check.exists() and json.loads(google_check.read_text()).get('invalid_client_detected')
  message.set_content('''Здравствуйте, Любовь!
 
 Технические доработки опубликованы на https://uchu-po-frp.ru/ .
@@ -50,7 +53,7 @@ https://uchu-rf-setup-guide.keenlarch65.chatgpt.site/rkn.html
 Выгрузка и удаление: https://uchu-po-frp.ru/legal/data-rights.html
 
 Пароли, коды удаления и ключи в ответном письме не отправляйте.
-''')
+'''+('\nВыявленная проблема Google: провайдер отклоняет сохранённые реквизиты приложения (invalid_client). Вход через Google пока не принят. Нужна проверка Web client и его Client Secret в вашем Google Cloud; в пульте РКН добавлен отдельный пункт с официальной ссылкой. Самостоятельно получить новый секрет из вашего аккаунта я не могу. Вход по почте и Яндексу включён.\n' if google_problem else ''))
  with smtplib.SMTP_SSL('postbox.cloud.yandex.net',465,timeout=25,context=ssl.create_default_context()) as client:
   client.login(values['UCHU_POSTBOX_API_KEY_ID'],values['UCHU_POSTBOX_API_KEY_SECRET']);refused=client.send_message(message)
   if refused:raise ValueError('Recipient refused')

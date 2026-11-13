@@ -1,6 +1,7 @@
 [Unit]
 Description=Watch for account deletion snapshots
 [Path]
+PathExists=/var/lib/pocketbase/.privacy-backup-needed
 PathChanged=/var/lib/pocketbase/.privacy-backup-needed
 Unit=uchu-privacy-snapshot.service
 [Install]

@@ -12,4 +12,5 @@ try:
  with urlopen(Request('https://oauth2.googleapis.com/token',data=body,headers={'Content-Type':'application/x-www-form-urlencoded'}),timeout=25) as r:status=r.status;value=json.load(r)
 except HTTPError as e:status=e.code;value=json.loads(e.read())
 allowed={'invalid_client','invalid_grant','invalid_request','unauthorized_client','redirect_uri_mismatch'}
-error=value.get('error');print(json.dumps({'http_status':status,'provider_error':error if error in allowed else 'other','invalid_client_detected':error=='invalid_client','real_user_login_tested':False}))
+error=value.get('error');report={'http_status':status,'provider_error':error if error in allowed else 'other','invalid_client_detected':error=='invalid_client','real_user_login_tested':False}
+Path('/root/uchu-privacy-upgrade/google-check.json').write_text(json.dumps(report));print(json.dumps(report))
