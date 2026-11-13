@@ -367,7 +367,7 @@ const Deck = (() => {
     let e = limgIdx.get(pre + t);
     if (!e && t.length >= 8) for (const [k, v] of limgIdx) if (k.startsWith(pre) && (k.slice(pre.length).startsWith(t) || t.startsWith(k.slice(pre.length)))) { e = v; break; }
     if (!e) return [];
-    return (e.keys || []).map(k => B.images?.[k]).filter(Boolean);
+    return (e.keys || []).map((k, i) => B.images?.[k] ? { ...B.images[k], caption: (e.caps || [])[i] || B.images[k].caption, title: String((e.caps || [])[i] || B.images[k].title).split(" — ")[0] } : null).filter(Boolean);
   }
   function localImages(cards, p, o) {
     if (!Array.isArray(cards) || (o && o.images === "none")) return cards;

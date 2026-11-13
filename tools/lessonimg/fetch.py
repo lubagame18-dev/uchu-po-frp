@@ -34,6 +34,8 @@ BAD_LIC = re.compile(r"\bnc\b|non-?commercial|\bnd\b|no-?deriv|fair use", re.I)
 SEARCH_SUBJ = {"hist", "lit", "mhk", "geo", "bio", "chem", "phys", "soc", "obzh"}
 STOP = set("урок уроки тема теме темы обобщение повторение контроль контроля введение курс курса как что это для или его их при над под без про также который которые между этапы этап основные основы роль место значение общая характеристика особенности развитие история истории россии мира века веке начало конец середина середине второй первой половине половина годы годов край наш".split())
 
+GENERIC = {w[:5] for w in "запад восток государство революция культура общество человек религия искусство наука война политика экономика власть народ народы страна страны город природа право мораль семья реформа реформы империя".split()}
+
 _cache = {}
 
 
@@ -80,7 +82,11 @@ def read_rules(subj):
         if not rx:
             continue
         titles = titles.strip()
-        out.append((re.compile(rx.strip()), [] if titles == "-" else [t.strip() for t in titles.split(";") if t.strip()]))
+        rx, g = rx.strip(), (1, 11)
+        m = re.match(r"@(\d+)-(\d+)\s+", rx)  # «@1-4 регулярка» — правило только для этих классов
+        if m:
+            g, rx = (int(m.group(1)), int(m.group(2))), rx[m.end():]
+        out.append((re.compile(rx), [] if titles == "-" else [t.strip() for t in titles.split(";") if t.strip()], g))
     return out
 
 
@@ -110,8 +116,8 @@ def commons_info(fname):
     return None
 
 
-def words(s):
-    return {w[:5] for w in re.findall(r"[а-яёa-z]{4,}", s.lower()) if w not in STOP}
+def words(s, n=4):
+    return {w[:5] for w in re.findall(r"[а-яёa-z]{%d,}" % n, s.lower().replace("ё", "е")) if w not in STOP}
 
 
 def clean_topic(t):
@@ -124,17 +130,21 @@ def clean_topic(t):
 
 def search_titles(topic):
     q = clean_topic(topic)
-    tw = words(q)
+    tw = words(q, 3)
     if not tw:
         return []
     j = get(RW, {"action": "query", "list": "search", "srsearch": q, "srlimit": 5, "srnamespace": 0, "format": "json"})
-    out = []
+    # строго: каждое значимое слово заголовка статьи есть в теме урока; без годов, списков и уточнений в скобках, которых нет в теме
     for h in j.get("query", {}).get("search", []):
-        hw = words(h["title"])
-        common = hw & tw
-        if common and (len(common) >= 2 or len(hw) <= 2):
-            out.append(h["title"])
-    return out[:2]
+        t = h["title"]
+        if re.search(r"\d", t) and not re.search(re.escape(re.sub(r"\D+", " ", t).strip().split(" ")[0]), q):
+            continue
+        if re.match(r"(Список|Категория|Шаблон)", t) or "(" in t:
+            continue
+        hw = words(re.sub(r"[—–-].*$", "", t), 3)
+        if hw and hw <= tw and not (len(hw) == 1 and next(iter(hw)) in GENERIC):
+            return [t]
+    return []
 
 
 def load_people():
@@ -167,12 +177,15 @@ def main():
     images = dict(old.get("images", {}))
     by_title = {v.get("title"): k for k, v in images.items() if v.get("title")}
     bad_title = set()
+    art_of = {}
     people = load_people()
     lessons, log, stat = {}, [], {}
     subj_only = set(sys.argv[1:])
 
     def fetch_title(title):
         if title in by_title and os.path.exists(os.path.join(ROOT, images[by_title[title]]["img"])):
+            if title not in art_of:
+                art_of[title] = article(title) or {"title": title, "desc": ""}
             return by_title[title]
         if title in bad_title:
             return None
@@ -215,6 +228,7 @@ def main():
                        "author": info["artist"], "license": info["license"], "source": info["page"], "wiki": a["url"]}
         by_title[title] = key
         by_title[a["title"]] = key
+        art_of[title] = a
         return key
 
     files = [(TASKS, fn) for fn in sorted(os.listdir(TASKS)) if fn.endswith(".json")]
@@ -234,29 +248,34 @@ def main():
             topic = x["topic"]
             probe = topic + " " + (x.get("section") or "")
             titles, via = None, "правило"
-            for rx, ts in rules:
+            rules_g = [(rx, ts) for rx, ts, g in rules if g[0] <= int(x["grade"]) <= g[1]]
+            for rx, ts in rules_g:
                 if rx.search(topic):
                     titles = ts
                     break
             if titles is None:
-                for rx, ts in rules:
+                for rx, ts in rules_g:
                     if rx.search(probe):
                         titles, via = ts, "раздел"
                         break
-            keys = []
-            for t in titles or []:
+            keys, caps = [], []
+            def take(t):
                 k = fetch_title(t)
                 if k and k not in keys:
+                    a = art_of.get(t) or {"title": t, "desc": ""}
                     keys.append(k)
+                    caps.append(a["title"] + (f" — {a['desc']}" if a.get("desc") else ""))
+                    return True
+                return False
+            for t in titles or []:
+                take(t)
                 if len(keys) >= 2:
                     break
             if not keys and subj in SEARCH_SUBJ and titles != []:
                 for t in search_titles(topic):
-                    k = fetch_title(t)
-                    if k and k not in keys:
-                        keys.append(k)
+                    if take(t):
                         via = "поиск"
-            entry = {"keys": keys, "topic": topic, "grade": x["grade"], "subject": subj}
+            entry = {"keys": keys, "caps": caps, "topic": topic, "grade": x["grade"], "subject": subj}
             if subj == "lit" or subj == "hist":
                 pk, p = person_for(probe, people, subj)
                 if pk:
@@ -267,7 +286,7 @@ def main():
                 continue
             st[0] += 1
             lessons[x["lesson_id"]] = entry
-            log.append(f"+ {x['lesson_id']} [{via}] {topic[:60]} → " + "; ".join(images[k]["title"] for k in keys) + (f" (+портрет {entry['person']})" if entry.get("person") else ""))
+            log.append(f"+ {x['lesson_id']} [{via}] {topic[:60]} → " + "; ".join(caps) + (f" (+портрет {entry['person']})" if entry.get("person") else ""))
     used = {k for e in lessons.values() if e for k in e["keys"]}
     images = {k: v for k, v in images.items() if k in used}
     js = "/* База иллюстраций к урокам «Учу по ФРП» – собрано tools/lessonimg/fetch.py из Википедии и Викисклада (только свободные лицензии). Не редактировать вручную. */\n"
