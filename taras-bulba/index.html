@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>«Тарас Бульба» – урок на телефоне</title>
 <meta name="theme-color" content="#2a0e11">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Ruslan+Display&display=swap" rel="stylesheet">
+<link href="/vendor/fonts/fonts.css" rel="stylesheet">
 <style>
 /* ШРИФТЫ МЕНЯЮТСЯ ЗДЕСЬ */
 :root{
@@ -199,7 +197,7 @@ textarea{width:100%;font:inherit;font-size:16px;border-radius:12px;border:1px so
     <h1>Тарас Бульба</h1>
     <p>История · сюжет · герои и их выбор · смысл повести</p>
     <div class="gate" id="gate">
-      <div class="name"><input id="fam" placeholder="Фамилия" autocomplete="family-name"><input id="im" placeholder="Имя" autocomplete="given-name"></div>
+      <div class="name"><input id="fam" placeholder="Код участника без ФИО" autocomplete="off" maxlength="32"><input id="im" value="" hidden aria-hidden="true"><p class="small">Используй условный код от учителя. Не вводи фамилию, имя, телефон или адрес. <a href="/legal/privacy.html">Политика данных</a></p></div>
       <div class="name"><input id="kl" placeholder="Класс (7Г)" style="flex:0 0 45%"><button class="btn gold" id="start">Начать</button></div>
       <div class="gmsg" id="gmsg"></div>
     </div>
@@ -466,14 +464,15 @@ const res = { hist: 0, s1: null, s2: 0, s2n: 0, ch: 0, s3: null, s4: 0 };
 const fb = (el, cls, html) => { el.className = "fb show " + cls; el.innerHTML = html; };
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-/* ученик: фамилия, имя, класс – до начала работы */
+/* Условный код участника вместо ФИО; содержание урока не изменяется. */
 const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : {"url": "https://accounts.uchu-po-frp.ru/api/uchu", "anonKey": "", "key": "", "lesson": "taras-bulba-2"};
 window.ME = store.get("me", null);
+if(window.ME && (!/^[a-zA-Z0-9_-]{6,32}$/.test(window.ME.fam||"") || window.ME.im)){window.ME=null;store.set("me",null);}
 ["fam", "im", "kl"].forEach(k => { if (window.ME && window.ME[k]) $("#" + k).value = window.ME[k]; });
-const fullName = () => window.ME ? `${window.ME.fam} ${window.ME.im}` : "";
+const fullName = () => window.ME ? window.ME.fam : "";
 function startLesson() {
-  const fam = $("#fam").value.trim(), im = $("#im").value.trim(), kl = $("#kl").value.trim();
-  if (fam.length < 2 || im.length < 2) { $("#gmsg").textContent = "Впиши фамилию и имя полностью – так учитель увидит твой результат."; return; }
+  const fam = $("#fam").value.trim(), im = "", kl = $("#kl").value.trim();
+  if (!/^[a-zA-Z0-9_-]{6,32}$/.test(fam) || (kl && !/^(?:[1-9]|1[01])[A-Za-zА-Яа-я]?$/.test(kl))) { $("#gmsg").textContent = "Введи код участника: 6–32 латинских символа, цифры, _ или -. Класс — например 7А."; return; }
   Object.assign(window, { ME: { fam, im, kl } }); store.set("me", window.ME);
   $("#gate").classList.add("hidden"); $("#whoLine").classList.remove("hidden");
   $("#whoLine").innerHTML = `Работает: <b>${fam} ${im}</b>${kl ? ", " + kl : ""} · <a href="#" id="chg" style="color:var(--gold2)">изменить</a>`;
@@ -699,9 +698,10 @@ function finish() {
 async function send() {
   const m = $("#sendMsg"); m.className = "send"; m.textContent = "Отправляю учителю…"; $("#resend").classList.add("hidden");
   try {
-    /* ?q=… – интерактив учителя с сайта «Учу по ФРП»: результат уходит ему в кабинет; без q – общая таблица урока */
+    /* Результат отправляется только в тест конкретного учителя; общей таблицы учеников нет. */
     const qid = new URLSearchParams(location.search).get("q");
-    const path = qid ? "/rest/v1/quiz_results" : "/rest/v1/lesson_results";
+    if(!qid){m.className="send ok";m.textContent="Результат остался в этом браузере. Для отправки в кабинет учителя нужна его ссылка с кодом теста; можно показать этот экран учителю.";return;}
+    const path = "/rest/v1/quiz_results";
     const body = qid ? { quiz_id: qid, student: payload.student, klass: payload.klass, score: payload.score, total: payload.total, details: payload.details } : payload;
     const r = await fetch(CLOUD.url + path, { method: "POST", headers: { apikey: CLOUD.key, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify(body) });
     if (!r.ok) throw new Error(r.status);

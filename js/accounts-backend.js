@@ -38,5 +38,10 @@
     try{return await new Promise((resolve,reject)=>{const req=db.transaction('archives').objectStore('archives').getAll();req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
     finally{db.close();}
   }
-  window.AccountsBackend = Object.freeze({config, body, archive, archives, ready: () => { const c = config(); return !!c.url && (c.provider === 'pocketbase' || !!c.anonKey); }});
+  async function removeArchives(owner,endpoint) {
+    const db=await archiveDb();
+    try {await new Promise((resolve,reject)=>{const tx=db.transaction('archives','readwrite'),req=tx.objectStore('archives').openCursor();req.onsuccess=()=>{const c=req.result;if(!c)return;if(c.value.owner===owner&&c.value.endpoint===endpoint)c.delete();c.continue();};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}
+    finally{db.close();}
+  }
+  window.AccountsBackend = Object.freeze({config, body, archive, archives, removeArchives, ready: () => { const c = config(); return !!c.url && (c.provider === 'pocketbase' || !!c.anonKey); }});
 })();

@@ -53,7 +53,7 @@ class Accounts(unittest.TestCase):
         cls.migrations = Path(cls.tmp.name) / 'migrations'
         shutil.copytree(KIT / 'pb_migrations', cls.migrations)
         cls.service = secrets.token_hex(32)
-        cls.password = secrets.token_urlsafe(24)
+        cls.password = 'Fixture-'+secrets.token_urlsafe(24)
         cls.args = [str(BINARY), '--dir', str(cls.data), '--hooksDir', str(KIT/'pb_hooks'), '--migrationsDir', str(cls.migrations)]
         subprocess.run([*cls.args,'migrate','up'], capture_output=True, check=True)
         subprocess.run([*cls.args,'superuser','create','fixture-admin@example.invalid',cls.password],capture_output=True,check=True)
@@ -217,8 +217,8 @@ class Accounts(unittest.TestCase):
               'smtp':{'enabled':True,'host':'127.0.0.1','port':sink.server_address[1],'username':'','password':'','tls':False,'authMethod':'PLAIN'}})
             self.assertEqual(status,200)
             email_address='signup-fixture@example.invalid'
-            self.assertEqual(self.api('/auth/v1/signup',body={'email':email_address,'password':self.password})[0],200)
-            self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':email_address,'password':self.password})[0],403)
+            self.assertEqual(self.api('/auth/v1/signup',body={'email':email_address,'password':self.password,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'}})[0],200)
+            self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':email_address,'password':self.password,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'}})[0],403)
             def last_token(kind):
                 message=email.message_from_bytes(MailSink.messages[-1])
                 text=''.join(part.get_payload(decode=True).decode(errors='replace') for part in message.walk() if part.get_content_type()=='text/html')
@@ -229,12 +229,12 @@ class Accounts(unittest.TestCase):
             token=last_token('verification')
             self.assertEqual(len(token.split('.')),3,'Expected a resolved email token')
             self.assertEqual(self.api('/api/collections/uchu_users/confirm-verification',raw=True,body={'token':token})[0],204)
-            self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':email_address,'password':self.password})[0],200)
+            self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':email_address,'password':self.password,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'}})[0],200)
             self.assertEqual(self.api('/auth/v1/recover',body={'email':email_address})[0],200)
             reset=last_token('recovery');new_password=secrets.token_urlsafe(24)
             self.assertEqual(self.api('/api/collections/uchu_users/confirm-password-reset',raw=True,body={'token':reset,'password':new_password,'passwordConfirm':new_password})[0],204)
             self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':email_address,'password':new_password})[0],200)
-            self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':email_address,'password':self.password})[0],400)
+            self.assertEqual(self.api('/auth/v1/token?grant_type=password',body={'email':email_address,'password':self.password,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'}})[0],400)
             self.assertNotEqual(self.api('/api/collections/uchu_users/confirm-password-reset',raw=True,body={'token':reset,'password':self.password,'passwordConfirm':self.password})[0],204)
         finally:
             sink.shutdown();sink.server_close()

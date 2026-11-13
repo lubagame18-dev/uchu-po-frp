@@ -40,7 +40,7 @@ class Identities(unittest.TestCase):
     api=classmethod(integration.Accounts.api.__func__)
     @classmethod
     def setUpClass(cls):
-        cls.tmp=tempfile.TemporaryDirectory(prefix='uchu-identities-');cls.data=Path(cls.tmp.name)/'data';cls.service=secrets.token_hex(32);cls.password=secrets.token_urlsafe(24)
+        cls.tmp=tempfile.TemporaryDirectory(prefix='uchu-identities-');cls.data=Path(cls.tmp.name)/'data';cls.service=secrets.token_hex(32);cls.password='Fixture-'+secrets.token_urlsafe(24)
         cls.hooks=Path(cls.tmp.name)/'hooks';shutil.copytree(KIT/'pb_hooks',cls.hooks)
         cls.provider=ThreadingHTTPServer(('127.0.0.1',0),Provider);cls.thread=threading.Thread(target=cls.provider.serve_forever,daemon=True);cls.thread.start()
         fixture='http://127.0.0.1:'+str(cls.provider.server_port)
@@ -91,7 +91,7 @@ exports.googleIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         status,s=self.api('/auth/v1/token?grant_type=password',body={'email':u['email'],'password':self.password});self.assertEqual(status,200,s);return s
     def oauth(self,token=None,link=False,kind="yandex"):
         verifier=secrets.token_urlsafe(32);state=secrets.token_urlsafe(32);challenge=base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
-        body={'state':state,'code_challenge':challenge,'link':link};status,j=self.api('/auth/v1/'+kind+'_start',body=body,token=token);self.assertEqual(status,200,j)
+        body={'state':state,'code_challenge':challenge,'link':link,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'}};status,j=self.api('/auth/v1/'+kind+'_start',body=body,token=token);self.assertEqual(status,200,j)
         q=parse_qs(urlsplit(j['url']).query);self.assertEqual(q['state'],[state]);self.assertEqual(q['code_challenge'],[challenge]);self.assertEqual(q['redirect_uri'],['https://uchu-po-frp.ru/'+kind+'.html'])
         return {'state':state,'code_verifier':verifier}
     def finish(self,b,identity,token=None,kind='yandex'):return self.api('/auth/v1/'+kind+'_finish',body=dict(b,code=json.dumps(identity) if isinstance(identity,dict) else identity),token=token)

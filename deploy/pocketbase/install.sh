@@ -22,8 +22,8 @@ STAGE=$(mktemp -d)
 trap 'rm -rf "$STAGE"' EXIT
 BASE="https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/$REF/deploy/pocketbase"
 FILES=(pocketbase.service backup.sh restore.sh Caddyfile.example
- pb_hooks/uchu.js pb_hooks/uchu.pb.js pb_hooks/identities.js pb_hooks/identity-providers.js pb_hooks/registration.pb.js pb_hooks/postbox.pb.js
- pb_migrations/1794069018_uchu_accounts.js pb_migrations/1794072092_account_identities.js pb_migrations/1794084615_google_identity.js pb_migrations/1794327600_mail_budget.js)
+ pb_hooks/privacy.js pb_hooks/privacy-documents.js pb_hooks/uchu.js pb_hooks/uchu.pb.js pb_hooks/identities.js pb_hooks/identity-providers.js pb_hooks/registration.pb.js pb_hooks/postbox.pb.js
+ pb_migrations/1794069018_uchu_accounts.js pb_migrations/1794072092_account_identities.js pb_migrations/1794084615_google_identity.js pb_migrations/1794327600_mail_budget.js pb_migrations/1794571200_privacy.js)
 for file in "${FILES[@]}"; do
   mkdir -p "$STAGE/$(dirname "$file")"
   curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location --max-time 60 "$BASE/$file" -o "$STAGE/$file"
@@ -60,7 +60,7 @@ import os,secrets
 path='/etc/pocketbase/pocketbase.env'
 if not os.path.exists(path):
     with os.fdopen(os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600),'w') as f:
-        f.write('UCHU_SERVICE_TOKEN='+secrets.token_hex(32)+'\nPB_SETTINGS_KEY='+secrets.token_hex(16)+'\n')
+        f.write('UCHU_SERVICE_TOKEN='+secrets.token_hex(32)+'\nPB_SETTINGS_KEY='+secrets.token_hex(16)+'\nUCHU_PRIVACY_HMAC_KEY='+secrets.token_hex(32)+'\n')
         f.write('UCHU_SITE_ORIGIN=https://uchu-po-frp.ru\nUCHU_ALLOW_SIGNUP=false\nUCHU_ALLOW_SMS=false\nUCHU_ALLOW_SMS_SIGNUP=false\nUCHU_ALLOW_YANDEX=false\nUCHU_ALLOW_YANDEX_SIGNUP=false\nUCHU_ALLOW_GOOGLE=false\nUCHU_ALLOW_GOOGLE_SIGNUP=false\n')
 # Refuse unsafe existing secrets rather than generating replacement encryption keys.
 if os.stat(path).st_mode & 0o077:raise SystemExit('Environment permissions must be 600')

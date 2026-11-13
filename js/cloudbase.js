@@ -49,7 +49,7 @@ const CloudBase = (() => {
   /* разработчик: материал — сразу в общую базу */
   async function publish(m) {
     if (!ok() || !window.Account?.session || !(m.text || "").trim()) return false;
-    const row = { id: "cb_" + String(m.hash || m.id), name: m.name, title: m.title || null, kind: m.kind || null, type: m.type || null, subject: m.subject || "ru", grade: Number.isFinite(+m.grade) && m.grade ? +m.grade : null, topic: m.topic || null, tags: m.tags || null, text: String(m.text).slice(0, 600000), chars: (m.text || "").length, hash: m.hash || null, added_by: window.Account.session.email, updated_at: new Date().toISOString() };
+    const row = { id: "cb_" + String(m.hash || m.id), name: m.name, title: m.title || null, kind: m.kind || null, type: m.type || null, subject: m.subject || "ru", grade: Number.isFinite(+m.grade) && m.grade ? +m.grade : null, topic: m.topic || null, tags: m.tags || null, text: String(m.text).slice(0, 600000), chars: (m.text || "").length, hash: m.hash || null, updated_at: new Date().toISOString() };
     await window.Account.db("/rest/v1/base_materials?on_conflict=id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(row) });
     await load(); cache.items = cache.items.filter(x => x.id !== row.id).concat(row); await keep();
     return true;

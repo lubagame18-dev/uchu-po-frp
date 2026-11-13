@@ -4,6 +4,12 @@ on:
     paths:
       - 'deploy/pocketbase/**'
       - 'js/account*.js'
+      - 'js/privacy.js'
+      - 'js/access.js'
+      - 'js/quizlink.js'
+      - 'legal/**'
+      - 'data/legal.js'
+      - 'deploy/privacy/**'
       - 'js/cloudbase.js'
       - 'js/rules.js'
       - 'js/yandex-auth.js'
@@ -16,6 +22,12 @@ on:
     paths:
       - 'deploy/pocketbase/**'
       - 'js/account*.js'
+      - 'js/privacy.js'
+      - 'js/access.js'
+      - 'js/quizlink.js'
+      - 'legal/**'
+      - 'data/legal.js'
+      - 'deploy/privacy/**'
       - 'js/yandex-auth.js'
       - 'yandex.html'
       - 'google.html'
@@ -36,6 +48,9 @@ jobs:
         with:
           node-version: '22'
       - run: python deploy/pocketbase/fetch-binary.py
+      - run: python deploy/privacy/test-ledger.py
+      - run: python deploy/privacy/test-legal.py
+      - run: python deploy/pocketbase/test-privacy.py
       - run: python deploy/pocketbase/test-integration.py
       - run: python deploy/pocketbase/test-identities.py
       - run: python deploy/pocketbase/test-sms-setup.py

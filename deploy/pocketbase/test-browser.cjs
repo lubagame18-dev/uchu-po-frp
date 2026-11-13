@@ -46,11 +46,19 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
  assert.equal(await page.evaluate(()=>Store.get('lessons','foreign-draft-fixture')),undefined);
  assert.equal(await page.evaluate(async()=>{const archive=(await AccountsBackend.archives()).find(x=>x?.owner==='previous-fixture-owner');return archive?.lessons[0]?.docs?.lesson;}),'FOREIGN-OWNER');
  assert.equal(await page.evaluate(()=>Account.session.uid),fixture.uid);
+ await page.evaluate(()=>Privacy.settings());
+ assert.equal(await page.locator('#privacyExport').count(),1);
+ const exported=page.waitForEvent('download');await page.locator('#privacyExport').click();const archive=await exported;
+ const ownData=JSON.parse(fs.readFileSync(await archive.path(),'utf8'));assert.equal(ownData.server.account.id,fixture.uid);assert(ownData.local.materials);assert(ownData.local.images);
+ await page.locator('#privacyStatus').waitFor();
+ await page.evaluate(()=>closeModal());
+
  await page.waitForTimeout(150);
  await page.evaluate(async()=>{
    const lesson={id:'browser-fixture',title:'Persistence fixture',updatedAt:new Date().toISOString(),params:{subject:'ru',grade:5},docs:{lesson:'# Persistence fixture\n\nSTORAGE-MARKER-789'}};
    await Store.put('lessons',lesson.id,lesson);await Account.push(true);
  });
+ await page.evaluate(()=>Privacy.settings());const zipEvent=page.waitForEvent('download');await page.locator('#privacyZip').click();const zipped=await zipEvent;const zippedBytes=fs.readFileSync(await zipped.path());assert.equal(zippedBytes.subarray(0,2).toString(),'PK');fs.mkdirSync(path.join(root,'work/pocketbase-browser'),{recursive:true});fs.writeFileSync(path.join(root,'work/pocketbase-browser/fixture-all.zip'),zippedBytes);await page.evaluate(()=>closeModal());
  const saved=await page.evaluate(()=>Account.db('/rest/v1/lessons?id=eq.browser-fixture'));
  assert.equal(saved[0].data.docs.lesson.includes('STORAGE-MARKER-789'),true);
  await page.reload({waitUntil:'load'});await page.waitForFunction(()=>window.Account?.session?.uid);
@@ -85,6 +93,7 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
  assert.equal(await page.evaluate(async()=>!!await Store.get('lessons','late-owner-fixture')),false);
  assert.equal(await page.evaluate(async()=>!!await Store.get('materials','owned-fixture')),false);
  assert.deepEqual(oldBackend,[],'Browser contacted previous Supabase backend');
+ await page.evaluate(()=>Account.clearDeletedSession());assert.equal(await page.evaluate(()=>Account.session),null);assert.equal(await page.evaluate(async()=>(await Store.all('lessons')).length),0);
  if(errors.length)throw new Error('Browser errors: '+errors.join('; '));
  console.log('PASS: full existing site signs in, saves/pulls after reload, exports DOCX/PDF, deletes fixture; no old Supabase requests');
  }finally{await browser.close();}

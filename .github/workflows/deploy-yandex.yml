@@ -32,7 +32,7 @@ jobs:
       AWS_DEFAULT_REGION: ru-central1
       BUCKET: uchu-po-frp.ru
       ENDPOINT: https://storage.yandexcloud.net
-      ACCOUNT_FILES: js/accounts-backend.js js/account.js js/cloudbase.js js/rules.js js/yandex-auth.js accounts-confirm.html google.html yandex.html test/index.html taras-bulba/index.html taras-bulba/results.html sw.js js/accounts-config.js index.html
+      ACCOUNT_FILES: vendor/jszip.min.js vendor/docx.umd.js data/legal.js js/privacy.js js/access.js js/quizlink.js legal/legal.css legal/privacy.html legal/consent.html legal/data-rights.html legal/oferta.html legal/contacts.html legal/tarify.html legal/archive/2026-11-13/privacy.html legal/archive/2026-11-13/consent.html legal/archive/2026-11-13/oferta.html vendor/fonts/fonts.css vendor/fonts/*.woff2 vendor/fonts/*LICENSE.txt js/accounts-backend.js js/account.js js/cloudbase.js js/rules.js js/yandex-auth.js accounts-confirm.html google.html yandex.html test/index.html taras-bulba/index.html taras-bulba/results.html sw.js js/accounts-config.js index.html
     steps:
       - name: Проверка ключей
         run: |

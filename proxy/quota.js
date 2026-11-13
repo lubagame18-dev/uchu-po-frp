@@ -35,6 +35,7 @@ async function check(userToken, request, readAll) {
   const id = u.json.id;
   let p = (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0];
   const month = new Date().toISOString().slice(0, 7);
+  if (!p && require("./accounts-backend.js").pocketbase()) return {ok:false,status:503,reason:"profile",message:"Профиль кабинета не найден. Обратитесь в поддержку: gladyshevalu14@mail.ru."};
   if (!p) p = (await sb(request, readAll, "/rest/v1/profiles", { method: "POST", body: { id, email: (u.json.email || "").toLowerCase(), plan: "free", ai_left: FREE(), free_month: month, tokens_limit: FREE_TOK(), tokens_used: 0 } })).json?.[0] || { id, plan: "free", ai_left: FREE(), free_month: month };
   else if (!p.email && u.json.email) await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: { email: u.json.email.toLowerCase() } });
   // бесплатный доступ по промокоду: без лимитов, пока код существует и включён (удалили код — доступ закончился)
@@ -44,9 +45,11 @@ async function check(userToken, request, readAll) {
   const patch = b => sb(request, readAll, `/rest/v1/profiles?id=eq.${id}`, { method: "PATCH", body: b });
   if (p.plan === "promo" && p.free_month !== month) { p.ai_left = FREE(); p.free_month = month; const b = { ai_left: p.ai_left, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
   // пробный доступ: 2 урока с ИИ — токены начисляем один раз (старые профили, созданные без лимита)
-  if (p.plan === "free" && tok && (p.tokens_limit || 0) <= 0 && (p.tokens_used || 0) <= 0) { p.tokens_limit = FREE_TOK(); await patch({ tokens_limit: FREE_TOK(), tokens_used: 0 }); }
-  if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = 0; const b = { plan: "free", ai_left: 0, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
+  if (!require("./accounts-backend.js").pocketbase() && p.plan === "free" && tok && (p.tokens_limit || 0) <= 0 && (p.tokens_used || 0) <= 0) { p.tokens_limit = FREE_TOK(); await patch({ tokens_limit: FREE_TOK(), tokens_used: 0 }); }
+  if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = 0; const b = { plan: "free", ai_left: 0, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = require("./accounts-backend.js").pocketbase()?0:FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
   const NO = { ok: false, status: 402, reason: "quota", message: "Лимит 50 уроков с ИИ на этот месяц закончился. Докупите уроки в личном кабинете: пакет 10, 30 или 50 уроков — или своё количество от 1 до 200. Лимит обновится в начале месяца." };
+  if(p.trial_blocked)NO.message="Пробный доступ для этой почты или входа уже предоставлялся. Подключите тариф или пакет в кабинете.";
+  else if(p.plan==="free")NO.message="Пробный лимит закончился. Подключите тариф или пакет в кабинете.";
   if (tok) { const left = (p.tokens_limit || 0) - (p.tokens_used || 0); if (left <= 0) return NO; return { ok: true, id, tok: true, left, used: p.tokens_used || 0, limit: p.tokens_limit || 0 }; }
   if (!(p.ai_left > 0)) return NO;
   return { ok: true, id, left: p.ai_left };
@@ -138,7 +141,7 @@ async function join(userToken, code, request, readAll) {
   return { ok: true, email };
 }
 /* Бесплатный тариф: учёт уроков на сервере сразу по трём ключам — учётная запись, устройство
-   (отпечаток браузера, не сбрасывается очисткой) и сеть (/24). Новая почта на том же устройстве
+   (случайный локальный ID) и сеть (/24). Новая почта на том же устройстве
    лимит не обнуляет. Сеть — с запасом: в школе многие учителя выходят с одного адреса. */
 const FREE_LESSONS = () => Number(process.env.FREE_LESSONS || 2), FREE_NET = () => Number(process.env.FREE_NET || 8);
 async function freeUse(userToken, body, ip, request, readAll) {
@@ -148,7 +151,7 @@ async function freeUse(userToken, body, ip, request, readAll) {
   const H = s => require("crypto").createHash("sha256").update("uchu-free:" + s).digest("hex").slice(0, 32);
   const net = String(ip || "").replace(/^::ffff:/, "").split(".").slice(0, 3).join(".");
   const month = new Date().toISOString().slice(0, 7);
-  const keys = [["u:" + u.json.id, FREE_LESSONS()], ...(body.fp ? [["f:" + H(String(body.fp).slice(0, 200)), FREE_LESSONS()]] : []), ...(body.dev ? [["d:" + H(String(body.dev).slice(0, 100)), FREE_LESSONS()]] : []), ...(net ? [["n:" + H(net), FREE_NET()]] : [])];
+  const keys = [["u:" + u.json.id, FREE_LESSONS()], ...(body.dev ? [["d:" + H(String(body.dev).slice(0, 100)), FREE_LESSONS()]] : []), ...(net ? [["n:" + H(net), FREE_NET()]] : [])];
   const netMsg = "С этой сети бесплатные уроки на этот месяц закончились. Выберите тариф.";
   const devMsg = "Бесплатные уроки на этот месяц закончились (на этом устройстве или в этом кабинете). Выберите тариф — уроки без ограничений.";
   // атомарно: проверка и списание всех ключей одной функцией в БД (free_use_bump из supabase.sql) — не обойти параллельными запросами

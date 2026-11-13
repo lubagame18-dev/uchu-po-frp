@@ -11,4 +11,5 @@ SOURCE=$(realpath "$PB_RESTORE_FROM")
 # Only trusted locally generated snapshots. No network archive is accepted here.
 mkdir -m 700 -p "$PB_RESTORE_TO"
 tar -xzf "$SOURCE/pb_data.tar.gz" -C "$PB_RESTORE_TO"
-echo 'Snapshot extracted. Start the pinned binary with matching hooks and key, then run acceptance tests.'
+touch "$PB_RESTORE_TO/.privacy-review-required"
+echo 'Snapshot extracted; apply the latest signed deletion ledger before production use. Start the pinned binary with matching hooks and key, then run acceptance tests.'

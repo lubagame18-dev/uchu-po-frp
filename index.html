@@ -18,9 +18,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Учу по ФРП","url":"https://uchu-po-frp.ru/","applicationCategory":"EducationalApplication","inLanguage":"ru","description":"Конструктор уроков по ФРП для учителей 5–11 классов: русский язык, литература, математика, история, английский, биология, география, физика, химия, обществознание, информатика и другие предметы. По теме урока собирает конспект, технологическую карту, презентацию и рабочий лист.","image":"https://uchu-po-frp.ru/icons/icon-512.png","audience":{"@type":"Audience","audienceType":"Учителя школ 5–11 классов"}}</script>
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="icons/icon.svg"><link rel="icon" type="image/png" sizes="48x48" href="icons/icon-48.png"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Учу по ФРП — конструктор уроков для учителей всех предметов</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link media="print" onload="this.media='all'" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
 <style>
 /* Layout: школьная «наклейка» — кремовая бумага, чернильные контуры 3px и жёсткие тени;
    слева пульт урока, справа лист, который правится прямо на месте. Одна светлая тема — намеренно. */
@@ -798,6 +796,7 @@ window.UCHU_SITE = {
 <main id="view-help" class="wrap page help" hidden><div class="sheet" id="helpBody"></div></main>
 
 
+<p class="small" style="padding:8px 20px;text-align:center"><a href="legal/privacy.html">Политика обработки данных</a> · <a href="legal/consent.html">Отдельное согласие</a> · <a href="legal/data-rights.html">Выгрузка и удаление</a> · <a href="legal/contacts.html">Реквизиты</a></p>
 <script src="data/legal.js"></script>
 <script>(function(){var L=window.UCHU_LEGAL||{},el=document.getElementById("footLegal");if(el&&L.name)el.textContent="© «Учу по ФРП» · "+L.name+", "+(L.status||"").split(" (")[0]+(L.inn&&!/_/.test(L.inn)?", ИНН "+L.inn:"")+(L.email?" · "+L.email:"");})();</script>
 <div id="pdfstage" aria-hidden="true"></div>
@@ -1029,6 +1028,7 @@ window.UCHU_SITE = {
 <script src="js/devcover.js"></script>
 <script src="js/accounts-config.js"></script>
 <script src="js/accounts-backend.js"></script>
+<script src="js/privacy.js"></script>
 <script src="js/account.js"></script>
 <script src="js/cloudbase.js"></script>
 <script src="js/rules.js"></script>

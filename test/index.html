@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#15202b">
 <title>Проверка знаний</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<link href="/vendor/fonts/fonts.css" rel="stylesheet">
 <style>
 :root{
   --bg1:#eefaff;--bg2:#c8ecf7;--accent:#0e7490;--accent2:#22b8cf;
@@ -144,13 +142,13 @@ function intro() {
   $("app").innerHTML = `<div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(d.title || "Проверка знаний")}</h1>
     <div class="meta">${esc(d.subject || "")}${d.grade ? " · " + esc(d.grade) + " класс" : ""}</div>
     <div class="chip">${d.questions.length} вопросов · проверка знаний</div>
-    <label for="name">Фамилия и имя</label><input id="name" autocomplete="name" placeholder="Иванов Иван">
+    <label for="name">Код участника от учителя</label><input id="name" autocomplete="off" placeholder="Например, student_42" maxlength="32"><p class="small">Не вводите ФИО, телефон и другие личные сведения. Используйте условный код. <a href="/legal/privacy.html" target="_blank" rel="noopener">Как обрабатываются результаты</a>.</p>
     <label for="klass">Класс</label><input id="klass" autocomplete="off" placeholder="${esc(d.grade || "")}">
     <button class="btn accent" id="start">Начать тест →</button><p class="err" id="err"></p>
     <p class="small" style="margin-top:12px">Результат увидит учитель в личном кабинете.</p></div>`;
   $("start").onclick = () => {
     const name = $("name").value.trim();
-    if (name.length < 3) { $("err").textContent = "Впишите фамилию и имя."; return; }
+    if (!/^[a-zA-Z0-9_-]{6,32}$/.test(name)) { $("err").textContent = "Введите условный код от учителя: 6–32 латинских символа, цифры, _ или -."; return; }
     S.student = name; S.klass = $("klass").value.trim(); quiz();
   };
 }

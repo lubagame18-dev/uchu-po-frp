@@ -18,3 +18,8 @@ cronAdd('uchu_login_state_cleanup', '17 * * * *', () => {
   // No phone numbers, codes, provider tokens or session credentials in logs.
   for (const r of $app.findRecordsByFilter('uchu_login_state','expires < {:now}','',1000,0,{now:Date.now()})) $app.delete(r);
 });
+
+routerAdd('GET','/api/uchu/privacy/v1/{action}',e=>require(__hooks+'/privacy.js').handle(e));
+routerAdd('POST','/api/uchu/privacy/v1/{action}',e=>require(__hooks+'/privacy.js').handle(e));
+
+cronAdd('uchu_privacy_retention','37 2 * * *',()=>require(__hooks+'/privacy.js').cleanup($app));

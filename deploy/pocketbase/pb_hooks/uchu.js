@@ -62,12 +62,13 @@ function validateWrite(app, table, row, old, c, method) {
   if (table === 'quiz_results' && method === 'POST') {
     if (old) fail(403, 'Result is immutable');
     if (!lookup(app, 'quizzes', String(row.quiz_id))) fail(400, 'Unknown quiz');
-    if (typeof row.student !== 'string' || row.student.length < 3 || row.student.length > 80 || String(row.klass || '').length > 20 || JSON.stringify(row.details || {}).length > 20000) fail(400, 'Invalid result');
+    if (typeof row.student !== 'string' || !/^[a-zA-Z0-9_-]{6,32}$/.test(row.student) || !/^(?:[1-9]|1[01])[A-Za-zА-Яа-я]?$|^$/.test(String(row.klass || '')) || JSON.stringify(row.details || {}).length > 20000) fail(400, 'Invalid result');
     if (!Number.isInteger(row.score) || !Number.isInteger(row.total) || row.total < 1 || row.score < 0 || row.score > row.total) fail(400, 'Invalid score');
     return;
   }
   if (!c.uid) fail(401, 'Authentication required');
   if (table === 'quiz_results' && method !== 'DELETE') fail(403, 'Result is immutable');
+  if (table === 'user_info') require(__hooks+'/privacy.js').validateProfile(app,c.uid,row);
   if (table === 'shared_materials') {
     if (method !== 'POST' || old) { if (!admin(app, c)) fail(403, 'Admin required'); return; }
     if (row.user_id !== c.uid) fail(403, 'Invalid owner');
@@ -83,7 +84,7 @@ function write(app, table, row, c, method) {
   const next = Object.assign({}, old || {}, row);
   validateWrite(app, table, next, old, c, method);
   if (!r) { r = new Record(app.findCollectionByNameOrId('uchu_' + table)); next.created_at = next.created_at || new Date().toISOString(); }
-  r.set('key', key); r.set('owner', ownerOf(app, table, next)); r.set('payload', next); app.save(r);
+  r.set('key', key); r.set('owner', table==='base_materials' ? (r.getString('owner')||c.uid||'') : ownerOf(app, table, next)); r.set('payload', next); app.save(r);
   return next;
 }
 function query(e) {
@@ -167,6 +168,7 @@ exports.rest = function(e) { return send(e, () => {
     const fields = q.select.split(','); if (fields.some(k => !/^[a-z_][a-z0-9_]*$/.test(k))) fail(400, 'Unsupported projection');
     result = result.map(row => { const out = {}; fields.forEach(k => { if (row[k] !== undefined) out[k] = row[k]; }); return out; });
   }
+  if(table==='base_materials')result=result.map(row=>{const copy=Object.assign({},row);for(const field of ['added_by','email','user_id','author_name'])delete copy[field];return copy;});
   return e.json(200, result);
 }); };
 function publicUser(r) {
@@ -182,11 +184,14 @@ exports.auth = function(e) { return send(e, () => {
     if ($os.getenv('UCHU_ALLOW_SIGNUP') !== 'true') fail(503, 'Registration is not enabled until email delivery is tested');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(body.email || ''))) fail(400, 'Invalid email address');
     if (typeof body.password !== 'string' || body.password.length < 8 || body.password.length > 256) fail(400, 'Password must have at least 8 characters');
+    const legal=require(__hooks+'/privacy.js').acceptance(body);
     const record = new Record(e.app.findCollectionByNameOrId('uchu_users'));
     record.set('email', String(body.email || '').toLowerCase()); record.set('password', body.password); record.set('passwordConfirm', body.password);
     e.app.runInTransaction(tx => {
       tx.save(record);
-      write(tx, 'profiles', {id: record.id, email: record.getString('email'), plan: 'free', ai_left: 2, tokens_limit: 80000, tokens_used: 0}, {service: true}, 'POST');
+      const eligible=require(__hooks+'/privacy.js').claimTrial(tx,record);
+      require(__hooks+'/privacy.js').recordAcceptance(tx,record.id,legal,'email');
+      write(tx, 'profiles', {id: record.id, email: record.getString('email'), plan: 'free', ai_left: eligible?2:0, tokens_limit: eligible?80000:0, tokens_used: 0, trial_blocked:!eligible}, {service: true}, 'POST');
     });
     $mails.sendRecordVerification(e.app, record);
     return e.json(200, {user: publicUser(record)});
@@ -250,6 +255,7 @@ exports.rpc = function(e) { return send(e, () => {
       write(tx, 'profiles', p, c, 'PATCH'); result = true;
     } else if (name === 'free_use_bump') {
       const keys = body.keys, lims = body.lims;
+      for(const key of (Array.isArray(keys)?keys:[]))if(String(key).startsWith('u:')){const profile=lookup(tx,'profiles',String(key).slice(2));if(profile&&payload(profile).trial_blocked){result={over:key,left:0};return;}}
       if (!Array.isArray(keys) || !Array.isArray(lims) || keys.length !== lims.length || keys.length > 10 || new Set(keys).size !== keys.length) fail(400, 'Invalid limits');
       const data = keys.map((k,i) => { const r = lookup(tx, 'free_usage', String(k)+'\n'+String(body.mon)); return {r: r, row: r ? payload(r) : {key: k, month: body.mon, n: 0}, limit: Number(lims[i])}; });
       if (data.some(x => !Number.isFinite(x.limit) || x.limit < 0)) fail(400, 'Invalid limit');

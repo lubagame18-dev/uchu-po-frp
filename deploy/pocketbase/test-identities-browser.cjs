@@ -31,12 +31,12 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
    return route.abort();
   });
   await page.goto(origin+'/',{waitUntil:'load'});await page.waitForFunction(()=>window.Account);
-  await page.evaluate(()=>Account.open());assert.equal(await page.locator('[data-via=phone]').count(),0);await page.locator('#acYandex').click();
+  await page.evaluate(()=>Account.open());assert.equal(await page.locator('[data-via=phone]').count(),0);await page.locator('#acYandex').click();await page.locator('#privacyOffer').check();await page.locator('#privacyChoice [type=submit]').click();
   await page.waitForFunction(()=>window.Account?.session?.email==='browser-yandex@example.invalid');
   const yandexUid=await page.evaluate(()=>Account.session.uid);assert.equal(oauthRequests,1);assert.equal(new URL(page.url()).hash,'');assert(!page.url().includes('code='));
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('uchu:yandex-pkce')),null);
   await page.evaluate(async()=>{await Account.signOut();Account.open();});
-  await page.locator('#acGoogle').click();
+  await page.locator('#acGoogle').click();await page.locator('#privacyOffer').check();await page.locator('#privacyChoice [type=submit]').click();
   await page.waitForFunction(()=>window.Account?.session?.email==='browser-google@example.invalid');
   assert.notEqual(await page.evaluate(()=>Account.session.uid),yandexUid);assert.deepEqual(oldBackend,[]);assert.equal(oauthRequests,2);
   assert.equal(await page.evaluate(()=>sessionStorage.getItem('uchu:google-pkce')),null);
@@ -45,7 +45,7 @@ const fixture=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,
   await page.goto(origin+'/yandex.html?code=unexpected&state=wrong',{waitUntil:'load'});
   assert((await page.locator('#m').textContent()).includes('устарела'));assert(!page.url().includes('code='));
   await page.goto(origin+'/',{waitUntil:'load'});await page.waitForFunction(()=>window.Account);
-  await page.evaluate(async()=>{await Account.signOut();window.UCHU_ACCOUNTS=null;Account.open();});
+  await page.evaluate(async()=>{await Account.signOut();window.UCHU_ACCOUNTS=null;window.UCHU_SITE.accounts=null;Account.open();});
   const legacyRequest=page.waitForRequest(req=>req.url().includes('/auth/v1/authorize?provider=google'));
   await page.locator('#acGoogle').click();assert((await legacyRequest).url().includes('.supabase.co/'),'Legacy Google still uses original backend');
   console.log('PASS: Yandex button → PKCE callback → account, Google UI → separate account, state mismatch blocked; no old Supabase/proxy auth calls.');

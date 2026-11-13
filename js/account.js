@@ -131,8 +131,9 @@ const Account = (() => {
     const b64=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
       verifier=b64(crypto.getRandomValues(new Uint8Array(32))),state=b64(crypto.getRandomValues(new Uint8Array(32))),
       challenge=b64(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier)));
+    const legal=link?null:await Privacy.askRegistration();if(!link&&!legal)return;
     sessionStorage.setItem("uchu:"+kind+"-pkce",JSON.stringify({verifier,state,endpoint:C().url,owner:link?S.uid:"",at:Date.now()}));
-    const j=await api("/auth/v1/"+kind+"_start",{method:"POST",body:JSON.stringify({state,code_challenge:challenge,link})});
+    const j=await api("/auth/v1/"+kind+"_start",{method:"POST",body:JSON.stringify({state,code_challenge:challenge,link,legal})});
     const url=new URL(j.url);if(kind==="yandex"?(url.origin!=="https://oauth.yandex.ru"||url.pathname!=="/authorize"):(url.origin!=="https://accounts.google.com"||url.pathname!=="/o/oauth2/v2/auth"))throw new Error("Некорректный адрес сервиса входа.");
     location.assign(url.href);
   }
@@ -153,14 +154,14 @@ const Account = (() => {
   }
   // одноразовые почтовые ящики — не принимаем (защита бесплатного тарифа от многократных регистраций)
   const TEMP = /@(mailinator|guerrillamail|guerrillamailblock|sharklasers|10minutemail|10minemail|tempmail|temp-mail|tempmailo|tempr|tmpmail|tmpeml|yopmail|throwawaymail|trashmail|getnada|nada|dispostable|fakeinbox|maildrop|mintemail|mohmal|emailondeck|moakt|mail\.tm|mailnesia|burnermail|spamgourmet|dropmail|1secmail|minuteinbox|inboxkitten|tempail|luxusmail|emailfake|fakemail|crazymailing|mytemp|tempinbox|mailcatch|discard|33mail|harakirimail|getairmail|byom|vusra|wuuvo)\./i;
-  async function signUp(email, password) {
+  async function signUp(email, password, legal) {
     if (C().provider === "pocketbase" && !ready()) throw new Error("Сервер кабинета ещё не настроен.");
     if (C().provider === "pocketbase" && password.length < 8) throw new Error("Пароль нового кабинета — не короче 8 знаков.");
     if (TEMP.test(email)) throw new Error("Одноразовые почтовые ящики не подходят — укажите свою постоянную почту.");
     if (!ready()) return localUp(email, password);
     // ссылка из письма должна вести обратно на сайт (а не на корень github.io)
     const back = location.origin + location.pathname;
-    const j = await api("/auth/v1/signup?redirect_to=" + encodeURIComponent(back), { method: "POST", body: JSON.stringify({ email, password }) });
+    const j = await api("/auth/v1/signup?redirect_to=" + encodeURIComponent(back), { method: "POST", body: JSON.stringify({ email, password, ...(C().provider === "pocketbase" ? {legal} : {}) }) });
     if (j.access_token) { await isolateLocalLessons(j.user); await restoreLocalTools(j.user); setSession(j, email); push(true).catch(() => null); return "ok"; }
     return "confirm"; // в проекте включено подтверждение почты
   }
@@ -384,7 +385,8 @@ const Account = (() => {
         </form>
         ${C().provider==="pocketbase"?`<div class="field"><button type="button" class="btn sm" id="acLinkYandex">Привязать Яндекс ID</button><button type="button" class="btn sm" id="acLinkGoogle">Привязать Google</button><span class="small" id="acLinkMsg" role="status"></span></div>`:""}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button></div>${devLink()}</div></div>`);
+        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button>${C().provider==="pocketbase"?'<button class="btn sm ghost" id="acSettings">Настройки и данные</button>':''}</div>${devLink()}</div></div>`);
+      m.querySelector("#acSettings")?.addEventListener("click",()=>Privacy.settings().catch(e=>toast(e.message,8000)));
       m.querySelector("#acArchive").onclick = async () => {
         const archive = await ownedArchive({id:S.uid,legacy_id:S.legacyId});
         if (!archive?.lessons?.length) { toast("Для этого кабинета пока нет локальной копии уроков."); return; }
@@ -399,7 +401,7 @@ const Account = (() => {
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
       const pm = m.querySelector("#acPMsg");
       const fields = () => ({ name: m.querySelector("#acName").value.trim(), school: m.querySelector("#acSchool").value.trim(), city: m.querySelector("#acCity").value.trim() });
-      m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; await saveInfo(fields()); pm.textContent = "Сохранено ✓"; };
+      m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; try {await saveInfo(fields()); pm.textContent = "Сохранено ✓";} catch(er){pm.textContent=er.message;} };
       m.querySelector("#acPhoto").onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { pm.textContent = "Загружаю фото…"; await saveInfo({ ...fields(), avatar: await shrink(f) }); closeModal(); open(); } catch (er) { pm.textContent = "Не получилось: " + er.message; } };
       m.querySelector("#acNoPhoto")?.addEventListener("click", async () => { await saveInfo({ ...fields(), avatar: null }); closeModal(); open(); });
       (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el) el.innerHTML = planCard(p); });
@@ -416,7 +418,7 @@ const Account = (() => {
         <div class="field" data-mailf><label for="acEmail">Почта</label><input type="email" id="acEmail" name="email" autocomplete="username" required></div>
         <div class="field" data-mailf><label for="acPass">Пароль</label><div class="pw-wrap"><input type="password" id="acPass" name="password" autocomplete="current-password" minlength="6" required><button type="button" class="pw-eye" id="acEye" aria-label="Показать пароль" title="Показать пароль">👁</button></div></div>
         <div class="small" id="acForgotW" style="margin:-4px 0 10px"><button type="button" id="acForgot" class="link" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Забыли пароль?</button></div>
-        <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank">договор-оферту</a> и даю согласие на обработку персональных данных по <a href="legal/privacy.html" target="_blank">политике конфиденциальности</a></span></label>
+        <label class="check ac-agree" id="acAgreeL" hidden style="align-items:flex-start;border:0;padding:0;background:none;font-weight:500;font-size:13.5px"><input type="checkbox" id="acAgree"> <span>Принимаю <a href="legal/oferta.html" target="_blank" rel="noopener">договор-оферту</a>. С <a href="legal/privacy.html" target="_blank" rel="noopener">политикой обработки данных</a> ознакомлен(а).</span></label><label class="check ac-agree" id="acConsentL" hidden><input type="checkbox" id="acProfileConsent"> <span>Даю <a href="legal/consent.html" target="_blank" rel="noopener">отдельное согласие</a> на необязательные данные профиля: имя, школу, город и фото. Можно не отмечать.</span></label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn flame" type="submit" id="acGo">Войти</button><span class="small" id="acMsg" role="status"></span></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
           <button class="btn sm" type="button" id="acGoogle"><svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.5 30.2 0 24 0 14.6 0 6.4 5.4 2.5 13.2l7.8 6.1C12.2 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.5c-.5 2.9-2.2 5.4-4.6 7l7.1 5.5c4.2-3.9 6.6-9.6 7.1-17z"/><path fill="#FBBC05" d="M10.3 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.8-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.5-2 15.3-5.5l-7.1-5.5c-2 1.4-4.7 2.3-8.2 2.3-6.4 0-11.8-3.7-13.7-8.8l-7.8 6.1C6.4 42.6 14.6 48 24 48z"/></svg>Войти через Google</button>
@@ -443,7 +445,7 @@ const Account = (() => {
     if (gb) gb.onclick = () => C().provider==="pocketbase" ? startGoogle().catch(e=>{m.querySelector("#acMsg").textContent=e.message;}) : oauth("google");
     if (yb) yb.onclick = () => startYandex().catch(e=>{m.querySelector("#acMsg").textContent=e.message;});
     m.querySelector("#acEye").onclick = () => { const i = m.querySelector("#acPass"), show = i.type === "password"; i.type = show ? "text" : "password"; m.querySelector("#acEye").textContent = show ? "🙈" : "👁"; m.querySelector("#acEye").setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль"); i.focus(); };
-    m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; m.querySelector("#acForgotW").hidden = mode !== "in" || via === "phone"; });
+    m.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; m.querySelectorAll("[data-mode]").forEach(x => x.setAttribute("aria-pressed", x === b)); m.querySelector("#acGo").textContent = mode === "in" ? "Войти" : "Зарегистрироваться"; m.querySelector("#acAgreeL").hidden = via === "phone" ? false : mode !== "up"; m.querySelector("#acConsentL").hidden=mode!=="up"; m.querySelector("#acPass").minLength=mode==="up"&&C().provider==="pocketbase"?8:6; m.querySelector("#acPass").autocomplete = mode === "in" ? "current-password" : "new-password"; m.querySelector("#acForgotW").hidden = mode !== "in" || via === "phone"; });
     let via = "mail", codeSent = false, cool = 0, coolT = null;
     const updateResend=()=>{const b=m.querySelector("#acResend");b.disabled=cool>0;b.textContent=cool>0?`Повторить через ${cool} с`:"Отправить код повторно";};
     const requestPhoneCode=async phone=>{
@@ -480,7 +482,7 @@ const Account = (() => {
     const phoneSubmit = async () => {
       const msg = m.querySelector("#acMsg"), phone = normPhone(m.querySelector("#acPhone").value), go = m.querySelector("#acGo");
       if (!phone) { msg.textContent = "Введите российский номер: +7 900 000-00-00."; return; }
-      if (!m.querySelector("#acAgree").checked) { msg.textContent = "Отметьте согласие с офертой и политикой конфиденциальности."; return; }
+      if (!m.querySelector("#acAgree").checked) { msg.textContent = "Для создания кабинета примите оферту и ознакомьтесь с политикой обработки данных."; return; }
       if (go.disabled) return; go.disabled = true;
       try {
         if (!codeSent) {
@@ -497,11 +499,11 @@ const Account = (() => {
       if (via === "phone") { e.preventDefault(); return phoneSubmit(); }
       e.preventDefault(); const email = m.querySelector("#acEmail").value.trim(), pass = m.querySelector("#acPass").value, msg = m.querySelector("#acMsg");
       if (pass.length < 6) { msg.textContent = "Пароль — не короче 6 знаков."; return; }
-      if (mode === "up" && !m.querySelector("#acAgree").checked) { msg.textContent = "Отметьте согласие с офертой и политикой конфиденциальности."; return; }
+      if (mode === "up" && !m.querySelector("#acAgree").checked) { msg.textContent = "Для создания кабинета примите оферту и ознакомьтесь с политикой обработки данных."; return; }
       msg.textContent = mode === "in" ? "Вхожу…" : "Создаю кабинет…";
       const go = m.querySelector("#acGo"); if (go.disabled) return; go.disabled = true;
       try {
-        if (mode === "up") { const r = await signUp(email, pass); if (r === "confirm") { msg.innerHTML = "Почти готово! Мы отправили письмо на <b>" + email + "</b>. Откройте его и нажмите ссылку подтверждения."; return; } } // боты Telegram и MAX пока не предлагаем (готовятся отдельно)
+        if (mode === "up") { const r = await signUp(email, pass, Privacy.legal(m.querySelector("#acProfileConsent").checked)); if (r === "confirm") { msg.innerHTML = "Почти готово! Мы отправили письмо на <b>" + email + "</b>. Откройте его и нажмите ссылку подтверждения."; return; } } // боты Telegram и MAX пока не предлагаем (готовятся отдельно)
         else await signIn(email, pass);
         if (window.PasswordCredential) { try { navigator.credentials.store(new PasswordCredential({ id: email, password: pass })).catch(() => null); } catch { } } // не ждём: окно браузера «сохранить пароль» не должно держать вход
         closeModal(); toast("Вы вошли. Уроки сохраняются в личном кабинете.");
@@ -585,6 +587,20 @@ const Account = (() => {
   paint();
   // запрос к облаку от имени вошедшего (права — по правилам таблиц)
   async function db(path, opt = {}) { if (!ready() || !S || S.local) throw new Error("войдите в личный кабинет"); if (!(await refresh())) throw new Error("войдите в личный кабинет заново"); return api(path, opt); }
-  return { open, db, refreshPlan: () => plan(), shareMaterial, sharedList, sharedGet, sharedDel, loadInfo, saveInfo, signIn, signUp, phoneCode, phoneVerify, startYandex, startGoogle, signOut, push, pull, remove, ready, get session() { return S; } };
+  async function clearDeletedSession(deletedUid=S?.uid,deletedEndpoint=S?.endpoint) {
+    const previous=S;
+    if(deletedUid)await AccountsBackend.removeArchives(deletedUid,deletedEndpoint);
+    const stored=JSON.parse(localStorage.getItem("uchu:account")||"null");
+    if(previous?.uid!==deletedUid||stored?.uid!==deletedUid){location.reload();return false;}
+    changingAccount=true;accountGeneration++;S=null;save();paint();paintNav();
+    try {
+      for(const name of ["lessons","materials","images","kv"])await Store.clear(name);
+
+      for(const key of Object.keys(localStorage))if(key.startsWith("uchu:")&&key!==LKEY)localStorage.removeItem(key);
+      sessionStorage.removeItem("uchu:oauth-pending");sessionStorage.removeItem("uchu:google-pkce");sessionStorage.removeItem("uchu:yandex-pkce");
+    } finally {changingAccount=false;}
+    document.dispatchEvent(new Event("uchu:auth"));
+  }
+  return { clearDeletedSession, open, db, refreshPlan: () => plan(), shareMaterial, sharedList, sharedGet, sharedDel, loadInfo, saveInfo, signIn, signUp, phoneCode, phoneVerify, startYandex, startGoogle, signOut, push, pull, remove, ready, get session() { return S; } };
 })();
 window.Account = Account;

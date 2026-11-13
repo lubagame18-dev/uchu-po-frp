@@ -11,7 +11,8 @@ function newUser(app,fields) {
   const r=new Record(app.findCollectionByNameOrId('uchu_users')),password=$security.randomString(64);
   r.set('password',password);r.set('passwordConfirm',password);r.set('verified',true);
   Object.keys(fields).forEach(k=>r.set(k,fields[k]));app.save(r);
-  u.identityTools.write(app,'profiles',{id:r.id,email:r.getString('email'),plan:'free',ai_left:2,tokens_limit:80000,tokens_used:0},{service:true},'POST');return r;
+  const eligible=require(__hooks+'/privacy.js').claimTrial(app,r);
+  u.identityTools.write(app,'profiles',{id:r.id,email:r.getString('email'),plan:'free',ai_left:eligible?2:0,tokens_limit:eligible?80000:0,tokens_used:0,trial_blocked:!eligible},{service:true},'POST');return r;
 }
 function enabled(flag) { if($os.getenv(flag)!=='true'||$os.getenv('UCHU_SERVICE_TOKEN').length<32)fail(503,'This login method is not enabled on this server'); }
 function limit(app,key,max,duration) {
@@ -74,13 +75,13 @@ function challenge(verifier) {
 function callback(kind) { const origin=$os.getenv('UCHU_SITE_ORIGIN')||'https://uchu-po-frp.ru';if(!/^https:\/\/[a-z0-9.-]+(?::[0-9]+)?$/i.test(origin))fail(503,'Invalid site origin');return origin+'/'+kind+'.html'; }
 exports.oauthStart=(e,kind)=>u.identityTools.send(e,()=>{
   enabled('UCHU_ALLOW_'+kind.toUpperCase());if(!provider[kind+'Configured']())fail(503,'OAuth identity is not configured');
-  const b=e.requestInfo().body,c=u.identityTools.context(e),owner=b.link===true?c.uid:'';
+  const b=e.requestInfo().body,c=u.identityTools.context(e),owner=b.link===true?c.uid:'',legal=b.link===true?null:require(__hooks+'/privacy.js').acceptance(b);
   if(b.link===true&&!owner)fail(401,'Sign in before linking OAuth identity');
   if(!/^[a-zA-Z0-9_-]{32,128}$/.test(String(b.state||''))||!/^[a-zA-Z0-9_-]{43}$/.test(String(b.code_challenge||'')))fail(400,'Invalid OAuth state or PKCE challenge');
   e.app.runInTransaction(app=>{
     const key=kind+':'+hash(b.state);if(row(app,key))fail(409,'OAuth state already used');
     limit(app,kind+'-ip:'+hash(e.realIP()),20,3600000);
-    save(app,key,{challenge:b.code_challenge,owner:owner,used:false},now()+300000);
+    save(app,key,{challenge:b.code_challenge,owner:owner,used:false,legal:legal},now()+300000);
   });
   return e.json(200,{url:provider[kind+'Authorize'](b.state,b.code_challenge,callback(kind)),expires_in:300});
 });
@@ -102,12 +103,13 @@ exports.oauthFinish=(e,kind)=>u.identityTools.send(e,()=>{
       if(record&&record.id!==login.owner)fail(409,'OAuth identity is linked to another account');
       record=app.findRecordById('uchu_users',login.owner);
       if(record.getString(kind+'_id')&&record.getString(kind+'_id')!==identity.id)fail(409,'Changing a linked OAuth identity requires account recovery review');
-      record.set(kind+'_id',identity.id);app.save(record);
+      record.set(kind+'_id',identity.id);app.save(record);require(__hooks+'/privacy.js').claimTrial(app,record);
     } else if(!record){
       if($os.getenv('UCHU_ALLOW_'+kind.toUpperCase()+'_SIGNUP')!=='true')fail(403,'OAuth registration is not enabled');
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email))fail(400,'OAuth identity must provide an email address');
       if(userBy(app,'email',identity.email))fail(409,'Sign in by email, then link OAuth identity from your account');
       const fields={email:identity.email};fields[kind+'_id']=identity.id;record=newUser(app,fields);
+      require(__hooks+'/privacy.js').recordAcceptance(app,record.id,login.legal,kind);
     }
     if(!record.getBool('verified'))fail(403,'Account requires migration review');
   });

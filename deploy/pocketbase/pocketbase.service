@@ -8,6 +8,7 @@ User=pocketbase
 Group=pocketbase
 WorkingDirectory=/var/lib/pocketbase
 EnvironmentFile=/etc/pocketbase/pocketbase.env
+ExecStartPre=/usr/bin/test ! -f /var/lib/pocketbase/.privacy-review-required
 ExecStart=/opt/pocketbase/pocketbase serve --http=127.0.0.1:8090 --dir=/var/lib/pocketbase --hooksDir=/opt/pocketbase/pb_hooks --migrationsDir=/opt/pocketbase/pb_migrations --hooksWatch=false --encryptionEnv=PB_SETTINGS_KEY
 Restart=on-failure
 RestartSec=5
