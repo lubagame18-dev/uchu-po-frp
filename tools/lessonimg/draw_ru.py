@@ -112,6 +112,8 @@ def morph(p, spans, kinds, top, bottom, color=BLUE):
         elif k == "suf":
             p.line([(a + 4, top - 2), ((a + b) / 2, top - 30), (b - 4, top - 2)], color, 4)
         elif k == "end":
+            if b - a < 4:  # нулевое окончание – пустая рамка
+                a, b = a + 8, a + 38
             p.d.rectangle([a - 3, top + 2, b + 3, bottom], outline=color, width=4)
 
 
@@ -347,6 +349,8 @@ card("r_not_verbs", "НЕ с глаголами", "Не с глаголами п
 card("r_capital", "Заглавная буква", "Заглавная буква в начале предложения и в именах собственных",
      "Пиши с большой буквы", [["*М*ама", "*М*осква", "*В*олга"], ["*Ж*учка", "*Т*аня", "*У*рал"]])
 declension(); conjugation(); parts_of_speech(); punct_schemes(); participle(); gerund(); syllables(); text_parts(); styles(); phrase()
+
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "draw_ru_more.py"), encoding="utf-8").read())
 
 json.dump(meta, open(META, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print(sum(k.startswith("r_") for k in meta), "схем по русскому")

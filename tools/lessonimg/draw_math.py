@@ -868,5 +868,8 @@ def order_ops():
 
 order_ops()
 
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "draw_math_more.py"), encoding="utf-8").read())
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "draw_math_cards.py"), encoding="utf-8").read())
+
 json.dump(meta, open(META, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print(len(meta), "картинок")

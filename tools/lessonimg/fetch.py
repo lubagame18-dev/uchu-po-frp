@@ -38,6 +38,7 @@ BAD_LIC = re.compile(r"\bnc\b|non-?commercial|\bnd\b|no-?deriv|fair use", re.I)
 BAD_FILE = re.compile(r"flag[_ ]of|coat[_ ]of[_ ]arms|герб|флаг|logo|логотип|icon|иконка|symbol|commons-|wiki|ambox|question[_ ]book|disambig|edit-|crystal[_ ]|nuvola|padlock|folder|wiktionary|portal|pictogram|emblem|seal[_ ]of|signature|подпись|blank|placeholder|\.(ogg|oga|ogv|webm|mid|midi|pdf|djvu|tif|tiff|wav|mp3|flac)$", re.I)
 STOP = set("урок уроки тема теме темы обобщение повторение контроль контроля введение курс курса как что это для или его их при над под без про также который которые между этапы этап основные основы роль место значение общая характеристика особенности развитие история истории века веке начало конец середина середине второй первой половине половина годы годов край наш виды вид понятие понятия свойства свойство решение задач задачи работа практическая лабораторная".split())
 GENERIC = {w[:5] for w in "запад восток государство революция культура общество человек религия искусство наука война политика экономика власть народ народы страна страны город природа право мораль семья реформа реформы империя россия мир".split()}
+BAD_PAREN = re.compile(r"\((?:[^)]*\b)?(фильм|телесериал|сериал|мультфильм|песня|альбом|значения|кинотрилогия|группа|игра|журнал|газета|футбольный клуб|телепередача|сингл|компания|издательство|телеканал|видеоигра)", re.I)
 REVIEW = re.compile(r"^(контрольн|итогов|резервн|повторени|обобщени|проверочн|анализ|работа над ошибками|защита|диктант|всероссийская проверочная|урок повторения|повторительно)", re.I)
 
 _cache, _lock = {}, threading.Lock()
@@ -77,11 +78,12 @@ def strip_html(s):
 
 
 def read_rules(subj):
-    fn = os.path.join(SRC, subj + ".txt")
     out = []
-    if not os.path.exists(fn):
-        return out
-    for line in open(fn, encoding="utf-8"):
+    lines = []
+    for fn in (os.path.join(SRC, subj + "_own.txt"), os.path.join(SRC, subj + ".txt")):  # сначала точные правила собственных карточек
+        if os.path.exists(fn):
+            lines += open(fn, encoding="utf-8").read().splitlines()
+    for line in lines:
         line = line.rstrip("\n")
         if not line.strip() or line.lstrip().startswith("#") or " | " not in line:
             continue
@@ -131,7 +133,9 @@ def search_articles(topic):
         j = get(RW, {"action": "query", "list": "search", "srsearch": q, "srlimit": 8, "srnamespace": 0, "format": "json"})
         for h in j.get("query", {}).get("search", []):
             t = h["title"]
-            if t in out or re.match(r"(Список|Категория|Шаблон|Хронология)", t):
+            if t in out or re.match(r"(Список|Категория|Шаблон|Хронология)", t) or BAD_PAREN.search(t):
+                continue
+            if any(w.lower() not in set(re.findall(r"[а-яёa-z]+", topic.lower())) for w in re.findall(r"\b[А-Яа-яЁёA-Za-z]{1,2}\b", re.sub(r"\s*\(.*?\)", "", t)) if w.lower() not in ("и", "в", "на", "с", "о", "к", "у")):
                 continue
             base = re.sub(r"\s*\(.*?\)\s*", " ", t)
             if re.search(r"\d", base) and not all(d in topic for d in re.findall(r"\d+", base)):
@@ -139,9 +143,9 @@ def search_articles(topic):
             hw = words(re.sub(r"\s[—–-]\s.*$", "", base), 3)
             if hw and hw <= tw and not (len(hw) == 1 and next(iter(hw)) in GENERIC):
                 out.append(t)
-        if len(out) >= 4:
+        if len(out) >= 6:
             break
-    return out[:4]
+    return out[:6]
 
 
 def article_files(title):
@@ -156,7 +160,7 @@ def article_files(title):
     for f in (p.get("parse", {}) or {}).get("images", [])[:30]:
         if f not in files:
             files.append(f)
-    art["files"] = [f for f in files if not BAD_FILE.search(f)][:14]
+    art["files"] = [f for f in files if not BAD_FILE.search(f)][:24]
     return art
 
 
@@ -231,6 +235,8 @@ def main():
             titles = next((ts for rx, ts in rg if rx.search(topic)), None)
             if titles is None:
                 titles = next((ts for rx, ts in rg if rx.search(probe)), None)
+            elif subj in OWN_FIRST:  # точные чертежи: кандидаты из всех подходящих правил по порядку
+                titles = [t for rx, ts in rg if rx.search(topic) for t in ts]
             plan.append((subj, x, titles))
 
     # 1. кандидаты: статьи по теме (параллельно)
@@ -246,7 +252,11 @@ def main():
                 continue
             seen.add(t)
             if t.startswith("own:"):
-                arts.append({"own": t[4:]})
+                name = t[4:]
+                if name.endswith("*"):
+                    arts += [{"own": k} for k in sorted(own_meta) if k.startswith(name[:-1])]
+                else:
+                    arts.append({"own": name})
             else:
                 a = article_files(t)
                 if a and a["files"]:
@@ -288,9 +298,9 @@ def main():
             keys, caps = core_keys[(subj, core)]; via = "та же тема"
         else:
             fresh = [c for c in cands if c[0] not in u]
-            pick = fresh[:2] if fresh else ([] if not review else cands[:1])
-            if not pick and cands:
-                pick = cands[:1]; via = "повтор"
+            # картинки не повторяются: уже занятая другой темой картинка не берётся;
+            # если своей нет – урок остаётся без картинки базы, и сайт ищет её в Википедии при сборке
+            pick = (fresh[:1] if fresh[0][3] == "собственная схема" else fresh[:2]) if fresh else ([] if not review else cands[:1])
             for key, title, cap, v, src in pick:
                 keys.append(key); caps.append(cap if cap != title else title); via = via or v
                 if not review:
@@ -306,8 +316,6 @@ def main():
                                    "author": "Учу по ФРП", "license": "собственный чертёж", "source": "", "wiki": ""}
             if keys and not review:
                 core_keys[(subj, core)] = (keys, caps)
-        if not keys and prev.get(subj) and prev[subj]["grade"] == x["grade"] and titles != []:
-            keys, caps = prev[subj]["keys"][:1], prev[subj]["caps"][:1]; via = "соседний урок"
         entry = {"keys": keys, "caps": caps, "topic": x["topic"], "grade": x["grade"], "subject": subj}
         if subj in ("lit", "hist"):
             pk = person_for(x["topic"] + " " + (x.get("section") or ""), people, subj)
