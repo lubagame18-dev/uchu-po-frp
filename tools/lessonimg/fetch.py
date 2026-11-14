@@ -21,7 +21,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 SRC = os.path.join(ROOT, "tools", "lessonimg")
 TASKS = os.path.join(ROOT, "integrations", "chatgpt", "claude_tasks")
 FRP_TASKS = os.path.join(ROOT, "integrations", "chatgpt", "frp_tasks")
-FRP_SUBJ = {"bio", "chem", "phys", "soc", "obzh"}  # реальные фото и схемы с Викисклада; задания ChatGPT не трогаем, только читаем темы
+FRP_SUBJ = {"bio", "chem", "phys", "soc", "obzh", "math", "inf", "ru"}  # реальные фото и схемы с Викисклада; задания ChatGPT не трогаем, только читаем темы
 IMG = os.path.join(ROOT, "img", "lessons")
 OUT_JS = os.path.join(ROOT, "data", "lesson-images.js")
 PEOPLE_JS = os.path.join(ROOT, "data", "people.js")
@@ -122,7 +122,7 @@ def words(s, n=4):
 
 def clean_topic(t):
     m = re.search(r"«([^»]+)»", t)
-    if m and re.search(r"контрол|повторен|обобщ|по теме|проект", t, re.I):
+    if m and re.search(r"контрол|повторен|обобщ|по теме|проект|лаборатор|практическ|решение задач|практикум", t, re.I):
         t = m.group(1)
     t = re.sub(r"\(.*?\)", " ", t)
     return re.sub(r"\s+", " ", t).strip(" .:")
@@ -281,7 +281,7 @@ def main():
                 pk, p = person_for(probe, people, subj)
                 if pk:
                     entry["person"] = pk
-            if not keys and prev and prev["grade"] == x["grade"] and prev.get("keys") and subj not in FRP_SUBJ and titles != []:
+            if not keys and prev and prev["grade"] == x["grade"] and prev.get("keys") and subj != "ru" and titles != []:
                 keys[:] = prev["keys"][:1]
                 caps[:] = prev["caps"][:1]
                 via = "соседний урок"
