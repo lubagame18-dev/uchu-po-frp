@@ -1175,3 +1175,6 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .sx.k-qr .sx-body{overflow:hidden}
 .sx.k-qr figure.pic{margin-left:auto}
 .sx.k-qr .sx-body p{margin:.15em 0 .35em}
+
+/* собственные чертежи и схемы (img/lessons/own) – целиком, без обрезки */
+figure.pic[data-src*="lessons/own/"] img { object-fit: contain !important; background: #fff; }
