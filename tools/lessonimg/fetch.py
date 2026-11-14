@@ -1,54 +1,61 @@
 #!/usr/bin/env python3
-"""База иллюстраций к урокам «Учу по ФРП».
+"""База иллюстраций к урокам «Учу по ФРП» (версия 2: своя картинка для каждой темы).
 
 Работает в GitHub Actions (там есть интернет). Для каждого урока из
-integrations/chatgpt/claude_tasks/<предмет>.json:
-1) по правилам tools/lessonimg/<предмет>.txt («регулярка | статья; статья») выбирает статьи
-   русской Википедии по теме урока; если правила нет — живой поиск статьи по теме
-   с проверкой, что заголовок статьи совпадает с темой по смыслу (общие значимые слова);
-2) берёт главную иллюстрацию статьи, проверяет на Викискладе лицензию — только общественное
-   достояние и CC0 / CC BY / CC BY-SA (без NC и ND); файлы, лежащие только в Википедии
-   (добросовестное использование), не берутся;
-3) сохраняет уменьшенную копию в img/lessons/<код>.webp (одна картинка на несколько уроков);
-4) пишет data/lesson-images.js: подпись (название статьи и её краткое описание из Википедии),
-   автор, лицензия, ссылка на источник. Ничего не придумывает; нет точного — null.
-Литература: если правило не нашлось, а в теме есть автор из базы портретов — ставится портрет.
-Запуск: python3 tools/lessonimg/fetch.py
+integrations/chatgpt/claude_tasks/*.json и frp_tasks/*.json:
+1) ищет в русской Википедии статьи именно по теме урока: по всей формулировке и по её частям.
+   Статья принимается, только если все значимые слова её названия есть в теме урока
+   (без годов, списков и посторонних уточнений) – так отсекаются случайные совпадения;
+2) добавляет статьи из правил tools/lessonimg/<предмет>.txt («регулярка | статья; статья»,
+   собственные чертежи – «own:имя»);
+3) собирает картинки этих статей в порядке появления в тексте (главная иллюстрация первой),
+   оставляет только файлы Викисклада со свободной лицензией (PD, CC0, CC BY, CC BY-SA),
+   без значков, флагов, гербов, логотипов и мелочи;
+4) назначает каждой теме картинку, которая в этом предмете ещё не занята другой темой
+   (уроки одной и той же темы и контрольные/повторительные уроки могут совпадать);
+5) пишет data/lesson-images.js и отчёт tools/lessonimg/report.txt (урок → статья → файл).
+Подпись – описание файла на Викискладе (если оно на русском) или название статьи.
+Запуск: python3 tools/lessonimg/fetch.py [предметы]
 """
-import hashlib, io, json, os, re, sys, time, urllib.parse, urllib.request
+import concurrent.futures as cf
+import hashlib, io, json, os, re, sys, threading, time, urllib.parse, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SRC = os.path.join(ROOT, "tools", "lessonimg")
 TASKS = os.path.join(ROOT, "integrations", "chatgpt", "claude_tasks")
 FRP_TASKS = os.path.join(ROOT, "integrations", "chatgpt", "frp_tasks")
-FRP_SUBJ = {"bio", "chem", "phys", "soc", "obzh", "math", "inf", "ru"}  # реальные фото и схемы с Викисклада; задания ChatGPT не трогаем, только читаем темы
+FRP_SUBJ = {"bio", "chem", "phys", "soc", "obzh", "math", "inf", "ru"}  # темы ChatGPT только читаем
+OWN_FIRST = {"math", "ru"}  # точные собственные схемы важнее фото
 IMG = os.path.join(ROOT, "img", "lessons")
 OUT_JS = os.path.join(ROOT, "data", "lesson-images.js")
 PEOPLE_JS = os.path.join(ROOT, "data", "people.js")
 OUT_LOG = os.path.join(SRC, "report.txt")
-UA = "UchuPoFRP-lessonimages/1.0 (https://uchu-po-frp.ru; educational site)"
+UA = "UchuPoFRP-lessonimages/2.0 (https://uchu-po-frp.ru; educational site)"
 RW = "https://ru.wikipedia.org/w/api.php"
 CM = "https://commons.wikimedia.org/w/api.php"
 OK_LIC = re.compile(r"public domain|^pd|cc0|cc[- ]by(?:[- ]sa)?[- ]?\d|cc[- ]by(?:-sa)?$", re.I)
 BAD_LIC = re.compile(r"\bnc\b|non-?commercial|\bnd\b|no-?deriv|fair use", re.I)
-SEARCH_SUBJ = {"hist", "lit", "mhk", "geo", "bio", "chem", "phys", "soc", "obzh"}
-STOP = set("урок уроки тема теме темы обобщение повторение контроль контроля введение курс курса как что это для или его их при над под без про также который которые между этапы этап основные основы роль место значение общая характеристика особенности развитие история истории россии мира века веке начало конец середина середине второй первой половине половина годы годов край наш".split())
+BAD_FILE = re.compile(r"flag[_ ]of|coat[_ ]of[_ ]arms|герб|флаг|logo|логотип|icon|иконка|symbol|commons-|wiki|ambox|question[_ ]book|disambig|edit-|crystal[_ ]|nuvola|padlock|folder|wiktionary|portal|pictogram|emblem|seal[_ ]of|signature|подпись|blank|placeholder|\.(ogg|oga|ogv|webm|mid|midi|pdf|djvu|tif|tiff|wav|mp3|flac)$", re.I)
+STOP = set("урок уроки тема теме темы обобщение повторение контроль контроля введение курс курса как что это для или его их при над под без про также который которые между этапы этап основные основы роль место значение общая характеристика особенности развитие история истории века веке начало конец середина середине второй первой половине половина годы годов край наш виды вид понятие понятия свойства свойство решение задач задачи работа практическая лабораторная".split())
+GENERIC = {w[:5] for w in "запад восток государство революция культура общество человек религия искусство наука война политика экономика власть народ народы страна страны город природа право мораль семья реформа реформы империя россия мир".split()}
+REVIEW = re.compile(r"^(контрольн|итогов|резервн|повторени|обобщени|проверочн|анализ|работа над ошибками|защита|диктант|всероссийская проверочная|урок повторения|повторительно)", re.I)
 
-GENERIC = {w[:5] for w in "запад восток государство революция культура общество человек религия искусство наука война политика экономика власть народ народы страна страны город природа право мораль семья реформа реформы империя".split()}
-
-_cache = {}
+_cache, _lock = {}, threading.Lock()
 
 
 def get(url, params, tries=4):
     q = url + "?" + urllib.parse.urlencode(params)
-    if q in _cache:
-        return _cache[q]
+    with _lock:
+        if q in _cache:
+            return _cache[q]
     for k in range(tries):
         try:
             req = urllib.request.Request(q, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=30) as r:
-                _cache[q] = json.loads(r.read().decode("utf-8"))
-                return _cache[q]
+            with urllib.request.urlopen(req, timeout=40) as r:
+                j = json.loads(r.read().decode("utf-8"))
+            with _lock:
+                _cache[q] = j
+            return j
         except Exception:
             time.sleep(2 + 3 * k)
     return {}
@@ -76,75 +83,114 @@ def read_rules(subj):
         return out
     for line in open(fn, encoding="utf-8"):
         line = line.rstrip("\n")
-        if not line.strip() or line.lstrip().startswith("#") or "|" not in line:
+        if not line.strip() or line.lstrip().startswith("#") or " | " not in line:
             continue
         rx, _, titles = line.rpartition(" | ")
-        if not rx:
-            continue
-        titles = titles.strip()
         rx, g = rx.strip(), (1, 11)
-        m = re.match(r"@(\d+)-(\d+)\s+", rx)  # «@1-4 регулярка» — правило только для этих классов
+        m = re.match(r"@(\d+)-(\d+)\s+", rx)  # «@1-4 регулярка» – правило только для этих классов
         if m:
             g, rx = (int(m.group(1)), int(m.group(2))), rx[m.end():]
+        titles = titles.strip()
         out.append((re.compile(rx, re.I), [] if titles == "-" else [t.strip() for t in titles.split(";") if t.strip()], g))
     return out
 
 
-def article(title):
-    """Главная иллюстрация и краткое описание статьи русской Википедии."""
-    j = get(RW, {"action": "query", "titles": title, "prop": "pageimages|description|info", "piprop": "name",
-                 "redirects": 1, "inprop": "url", "format": "json"})
-    for p in (j.get("query", {}).get("pages", {}) or {}).values():
-        if "missing" in p:
-            return None
-        return {"title": p.get("title", title), "file": p.get("pageimage"), "desc": p.get("description", ""),
-                "url": p.get("fullurl") or "https://ru.wikipedia.org/wiki/" + urllib.parse.quote(p.get("title", title))}
-    return None
-
-
-def commons_info(fname):
-    j = get(CM, {"action": "query", "titles": "File:" + fname, "prop": "imageinfo",
-                 "iiprop": "url|extmetadata|mime", "iiurlwidth": 960, "format": "json"})
-    for p in (j.get("query", {}).get("pages", {}) or {}).values():
-        ii = (p.get("imageinfo") or [None])[0]
-        if not ii:
-            return None
-        md = ii.get("extmetadata", {})
-        lic = strip_html((md.get("LicenseShortName") or {}).get("value", ""))
-        return {"thumb": ii.get("thumburl") or ii.get("url"), "page": ii.get("descriptionurl"), "license": lic,
-                "artist": strip_html((md.get("Artist") or {}).get("value", ""))[:160], "mime": ii.get("mime", "")}
-    return None
-
-
-def words(s, n=4):
+def words(s, n=3):
     return {w[:5] for w in re.findall(r"[а-яёa-z]{%d,}" % n, s.lower().replace("ё", "е")) if w not in STOP}
 
 
 def clean_topic(t):
     m = re.search(r"«([^»]+)»", t)
-    if m and re.search(r"контрол|повторен|обобщ|по теме|проект|лаборатор|практическ|решение задач|практикум", t, re.I):
+    if m and re.search(r"контрол|повторен|обобщ|по теме|проект|лаборатор|практическ|решение задач|практикум|проверочн", t, re.I):
         t = m.group(1)
-    t = re.sub(r"\(.*?\)", " ", t)
+    t = re.sub(r"\((урок|часть)[^)]*\)", " ", t)
+    t = re.sub(r"(Лабораторная|Практическая) работа(\s*№\s*\d+)?\.?", " ", t)
     return re.sub(r"\s+", " ", t).strip(" .:")
 
 
-def search_titles(topic):
-    q = clean_topic(topic)
-    tw = words(q, 3)
+def topic_core(t):
+    return " ".join(sorted(words(clean_topic(t), 3)))
+
+
+def segments(t):
+    q = clean_topic(t)
+    parts = [q] + [p.strip() for p in re.split(r"[.;:!?]|\s[–—-]\s", q) if len(p.strip()) > 3]
+    out = []
+    for p in parts:
+        if p and p not in out:
+            out.append(p)
+    return out[:5]
+
+
+def search_articles(topic):
+    tw = words(clean_topic(topic), 3)
     if not tw:
         return []
-    j = get(RW, {"action": "query", "list": "search", "srsearch": q, "srlimit": 5, "srnamespace": 0, "format": "json"})
-    # строго: каждое значимое слово заголовка статьи есть в теме урока; без годов, списков и уточнений в скобках, которых нет в теме
-    for h in j.get("query", {}).get("search", []):
-        t = h["title"]
-        if re.search(r"\d", t) and not re.search(re.escape(re.sub(r"\D+", " ", t).strip().split(" ")[0]), q):
-            continue
-        if re.match(r"(Список|Категория|Шаблон)", t) or "(" in t:
-            continue
-        hw = words(re.sub(r"[—–-].*$", "", t), 3)
-        if hw and hw <= tw and not (len(hw) == 1 and next(iter(hw)) in GENERIC):
-            return [t]
-    return []
+    out = []
+    for q in segments(topic):
+        j = get(RW, {"action": "query", "list": "search", "srsearch": q, "srlimit": 8, "srnamespace": 0, "format": "json"})
+        for h in j.get("query", {}).get("search", []):
+            t = h["title"]
+            if t in out or re.match(r"(Список|Категория|Шаблон|Хронология)", t):
+                continue
+            base = re.sub(r"\s*\(.*?\)\s*", " ", t)
+            if re.search(r"\d", base) and not all(d in topic for d in re.findall(r"\d+", base)):
+                continue
+            hw = words(re.sub(r"\s[—–-]\s.*$", "", base), 3)
+            if hw and hw <= tw and not (len(hw) == 1 and next(iter(hw)) in GENERIC):
+                out.append(t)
+        if len(out) >= 4:
+            break
+    return out[:4]
+
+
+def article_files(title):
+    """Файлы статьи в порядке появления; главная иллюстрация первой."""
+    j = get(RW, {"action": "query", "titles": title, "prop": "pageimages|description|info", "piprop": "name", "redirects": 1, "inprop": "url", "format": "json"})
+    page = next(iter((j.get("query", {}).get("pages", {}) or {}).values()), None)
+    if not page or "missing" in page:
+        return None
+    art = {"title": page.get("title", title), "desc": page.get("description", ""), "url": page.get("fullurl", "")}
+    files = [page["pageimage"]] if page.get("pageimage") else []
+    p = get(RW, {"action": "parse", "page": art["title"], "prop": "images", "format": "json"})
+    for f in (p.get("parse", {}) or {}).get("images", [])[:30]:
+        if f not in files:
+            files.append(f)
+    art["files"] = [f for f in files if not BAD_FILE.search(f)][:14]
+    return art
+
+
+def commons_batch(files):
+    out = {}
+    for i in range(0, len(files), 40):
+        chunk = files[i:i + 40]
+        j = get(CM, {"action": "query", "titles": "|".join("File:" + f for f in chunk), "prop": "imageinfo",
+                     "iiprop": "url|extmetadata|size|mime", "iiurlwidth": 960, "iiextmetadatalanguage": "ru", "format": "json"})
+        norm = {n["to"]: n["from"] for n in j.get("query", {}).get("normalized", [])}
+        for pg in (j.get("query", {}).get("pages", {}) or {}).values():
+            ii = (pg.get("imageinfo") or [None])[0]
+            if not ii:
+                continue
+            name = norm.get(pg["title"], pg["title"])[5:]
+            md = ii.get("extmetadata", {})
+            lic = strip_html((md.get("LicenseShortName") or {}).get("value", ""))
+            if BAD_LIC.search(lic) or not OK_LIC.search(lic):
+                continue
+            if min(ii.get("width", 0), ii.get("height", 0)) < 220 or not re.match(r"image/(jpeg|png|svg|gif|webp)", ii.get("mime", "")):
+                continue
+            desc = strip_html((md.get("ImageDescription") or {}).get("value", ""))
+            out[name.replace(" ", "_")] = {"thumb": ii.get("thumburl") or ii.get("url"), "page": ii.get("descriptionurl"), "license": lic,
+                                           "artist": strip_html((md.get("Artist") or {}).get("value", ""))[:160], "desc": desc}
+    return out
+
+
+def ru_caption(desc, fallback):
+    d = re.sub(r"\s+", " ", desc or "").strip()
+    cyr = len(re.findall(r"[а-яё]", d.lower())); lat = len(re.findall(r"[a-z]", d.lower()))
+    if d and cyr > 8 and cyr > 2 * lat:
+        d = re.split(r"(?<=[.!?])\s", d)[0]
+        return d[:140].rstrip(" ,;:") + ("…" if len(d) > 140 else "")
+    return fallback
 
 
 def load_people():
@@ -161,160 +207,167 @@ def person_for(topic, people, group):
             continue
         for f in p.get("forms") or []:
             if f and re.search(r"(?<![а-яё])" + re.escape(f.lower()) + r"(?![а-яё])", low):
-                return k, p
-    return None, None
+                return k
+    return None
 
 
 def main():
     from PIL import Image
     os.makedirs(IMG, exist_ok=True)
-    old = {}
-    if os.path.exists(OUT_JS):
-        try:
-            old = json.loads(re.search(r"=\s*(\{.*\})\s*;?\s*$", open(OUT_JS, encoding="utf-8").read(), re.S).group(1))
-        except Exception:
-            old = {}
-    images = dict(old.get("images", {}))
-    by_title = {v.get("title"): k for k, v in images.items() if v.get("title")}
-    bad_title = set()
-    art_of = {}
-    people = load_people()
-    lessons, log, stat = {}, [], {}
-    subj_only = set(sys.argv[1:])
-
     own_meta = json.load(open(os.path.join(SRC, "own.json"), encoding="utf-8")) if os.path.exists(os.path.join(SRC, "own.json")) else {}
-
-    def fetch_title(title):
-        if title.startswith("own:"):  # собственные чертежи (tools/lessonimg/draw_math.py)
-            name = title[4:]
-            m = own_meta.get(name)
-            if not m or not os.path.exists(os.path.join(IMG, "own", name + ".webp")):
-                log.append(f"   · «{title}»: нет собственного чертежа")
-                return None
-            images[name] = {"img": f"img/lessons/own/{name}.webp", "title": m["title"], "desc": m["caption"], "caption": m["title"] + " — " + m["caption"],
-                            "author": "Учу по ФРП", "license": "собственный чертёж", "source": "", "wiki": ""}
-            art_of[title] = {"title": m["title"], "desc": m["caption"]}
-            return name
-        if title in by_title and os.path.exists(os.path.join(ROOT, images[by_title[title]]["img"])):
-            if title not in art_of:
-                art_of[title] = article(title) or {"title": title, "desc": ""}
-            return by_title[title]
-        if title in bad_title:
-            return None
-        a = article(title)
-        if not a or not a.get("file"):
-            bad_title.add(title)
-            log.append(f"   · «{title}»: {'нет статьи' if not a else 'в статье нет иллюстрации'}")
-            return None
-        info = commons_info(a["file"])
-        if not info or not info.get("thumb"):
-            bad_title.add(title)
-            log.append(f"   · «{title}»: файл не на Викискладе (не свободный)")
-            return None
-        if BAD_LIC.search(info["license"]) or not OK_LIC.search(info["license"]):
-            bad_title.add(title)
-            log.append(f"   · «{title}»: лицензия не подходит ({info['license']})")
-            return None
-        key = hashlib.md5(a["file"].encode("utf-8")).hexdigest()[:12]
-        path = os.path.join(IMG, key + ".webp")
-        if not os.path.exists(path):
-            data = raw(info["thumb"])
-            if not data:
-                log.append(f"   · «{title}»: не скачался")
-                return None
-            try:
-                im = Image.open(io.BytesIO(data))
-                im = im.convert("RGBA" if im.mode in ("RGBA", "LA", "P") else "RGB")
-                if im.mode == "RGBA":
-                    bg = Image.new("RGB", im.size, (255, 255, 255))
-                    bg.paste(im, mask=im.split()[3])
-                    im = bg
-                im.thumbnail((960, 720))
-                im.save(path, "WEBP", quality=80, method=6)
-            except Exception as e:
-                log.append(f"   · «{title}»: не открылся ({e})")
-                return None
-            time.sleep(0.2)
-        images[key] = {"img": f"img/lessons/{key}.webp", "title": a["title"], "desc": a["desc"],
-                       "caption": a["title"] + (f" — {a['desc']}" if a["desc"] else ""),
-                       "author": info["artist"], "license": info["license"], "source": info["page"], "wiki": a["url"]}
-        by_title[title] = key
-        by_title[a["title"]] = key
-        art_of[title] = a
-        return key
-
+    people = load_people()
+    subj_only = set(sys.argv[1:])
     files = [(TASKS, fn) for fn in sorted(os.listdir(TASKS)) if fn.endswith(".json")]
     files += [(FRP_TASKS, fn) for fn in sorted(os.listdir(FRP_TASKS)) if fn[:-5] in FRP_SUBJ] if os.path.isdir(FRP_TASKS) else []
+    plan = []  # (subj, lesson, rule_titles)
     for base, fn in files:
         subj = fn[:-5]
         if subj_only and subj not in subj_only:
-            for x in json.load(open(os.path.join(base, fn), encoding="utf-8")).get("lessons", []):
-                if x["lesson_id"] in old.get("lessons", {}):
-                    lessons[x["lesson_id"]] = old["lessons"][x["lesson_id"]]
             continue
         rules = read_rules(subj)
-        st = stat.setdefault(subj, [0, 0])
-        log.append(f"\n== {subj} ==")
-        prev = None
         for x in json.load(open(os.path.join(base, fn), encoding="utf-8")).get("lessons", []):
-            st[1] += 1
-            topic = x["topic"]
-            probe = topic + " " + (x.get("section") or "")
-            titles, via = None, "правило"
-            rules_g = [(rx, ts) for rx, ts, g in rules if g[0] <= int(x["grade"]) <= g[1]]
-            for rx, ts in rules_g:
-                if rx.search(topic):
-                    titles = ts
-                    break
+            topic, probe = x["topic"], x["topic"] + " " + (x.get("section") or "")
+            rg = [(rx, ts) for rx, ts, g in rules if g[0] <= int(x["grade"]) <= g[1]]
+            titles = next((ts for rx, ts in rg if rx.search(topic)), None)
             if titles is None:
-                for rx, ts in rules_g:
-                    if rx.search(probe):
-                        titles, via = ts, "раздел"
-                        break
-            keys, caps = [], []
-            def take(t):
-                k = fetch_title(t)
-                if k and k not in keys:
-                    a = art_of.get(t) or {"title": t, "desc": ""}
-                    keys.append(k)
-                    caps.append(a["title"] + (f" — {a['desc']}" if a.get("desc") else ""))
-                    return True
-                return False
-            for t in titles or []:
-                take(t)
-                if len(keys) >= 2:
-                    break
-            if not keys and subj in SEARCH_SUBJ and titles != []:
-                for t in search_titles(topic):
-                    if take(t):
-                        via = "поиск"
-            entry = {"keys": keys, "caps": caps, "topic": topic, "grade": x["grade"], "subject": subj}
-            if subj == "lit" or subj == "hist":
-                pk, p = person_for(probe, people, subj)
-                if pk:
-                    entry["person"] = pk
-            if not keys and prev and prev["grade"] == x["grade"] and prev.get("keys") and titles != []:
-                keys[:] = prev["keys"][:1]
-                caps[:] = prev["caps"][:1]
-                via = "соседний урок"
-            if not keys and not entry.get("person"):
-                log.append(f"– {x['lesson_id']} {topic[:80]}: нет")
-                lessons[x["lesson_id"]] = None
+                titles = next((ts for rx, ts in rg if rx.search(probe)), None)
+            plan.append((subj, x, titles))
+
+    # 1. кандидаты: статьи по теме (параллельно)
+    def gather(item):
+        subj, x, titles = item
+        found = [] if titles == [] else search_articles(x["topic"])
+        rule_wiki = [t for t in (titles or []) if not t.startswith("own:")]
+        own = [t for t in (titles or []) if t.startswith("own:")]
+        order = (own + found + rule_wiki) if subj in OWN_FIRST else (found + rule_wiki + own)
+        seen, arts = set(), []
+        for t in order:
+            if t in seen:
                 continue
-            st[0] += 1
-            lessons[x["lesson_id"]] = entry
-            if keys:
-                prev = entry
-            log.append(f"+ {x['lesson_id']} [{via}] {topic[:60]} → " + "; ".join(caps) + (f" (+портрет {entry['person']})" if entry.get("person") else ""))
-    used = {k for e in lessons.values() if e for k in e["keys"]}
-    images = {k: v for k, v in images.items() if k in used}
-    for fn in os.listdir(IMG):  # файлы, которые больше ни к одному уроку не относятся, убираем
+            seen.add(t)
+            if t.startswith("own:"):
+                arts.append({"own": t[4:]})
+            else:
+                a = article_files(t)
+                if a and a["files"]:
+                    a["via"] = "поиск" if t in found else "правило"
+                    arts.append(a)
+        return arts
+
+    with cf.ThreadPoolExecutor(8) as ex:
+        cand_arts = list(ex.map(gather, plan))
+    all_files = sorted({f for arts in cand_arts for a in arts for f in a.get("files", [])})
+    info = {}
+    with cf.ThreadPoolExecutor(6) as ex:
+        for part in ex.map(commons_batch, [all_files[i:i + 40] for i in range(0, len(all_files), 40)]):
+            info.update(part)
+
+    # 2. назначение: своя картинка для каждой темы внутри предмета
+    images, lessons, log, stat = {}, {}, [], {}
+    used, core_keys, prev = {}, {}, {}
+    need = {}
+    for (subj, x, titles), arts in zip(plan, cand_arts):
+        st = stat.setdefault(subj, [0, 0, 0]); st[1] += 1
+        u = used.setdefault(subj, set())
+        core = topic_core(x["topic"])
+        review = bool(REVIEW.search(x["topic"].strip()))
+        cands = []
+        for a in arts:
+            if "own" in a:
+                m = own_meta.get(a["own"])
+                if m and os.path.exists(os.path.join(IMG, "own", a["own"] + ".webp")):
+                    cands.append((a["own"], m["title"], m["caption"], "собственная схема", None))
+                continue
+            for f in a["files"]:
+                inf = info.get(f.replace(" ", "_"))
+                if inf:
+                    key = hashlib.md5(f.encode("utf-8")).hexdigest()[:12]
+                    cands.append((key, a["title"], ru_caption(inf["desc"], a["title"]), a.get("via", ""), (f, inf, a)))
+        keys, caps, via = [], [], ""
+        if (subj, core) in core_keys:  # та же тема уже была – та же картинка
+            keys, caps = core_keys[(subj, core)]; via = "та же тема"
+        else:
+            fresh = [c for c in cands if c[0] not in u]
+            pick = fresh[:2] if fresh else ([] if not review else cands[:1])
+            if not pick and cands:
+                pick = cands[:1]; via = "повтор"
+            for key, title, cap, v, src in pick:
+                keys.append(key); caps.append(cap if cap != title else title); via = via or v
+                if not review:
+                    u.add(key)
+                if src:
+                    f, inf, a = src
+                    need[key] = (f, inf, a)
+                    images[key] = {"img": f"img/lessons/{key}.webp", "title": a["title"], "desc": inf["desc"][:300], "caption": cap,
+                                   "author": inf["artist"], "license": inf["license"], "source": inf["page"], "wiki": a.get("url", "")}
+                else:
+                    m = own_meta[key]
+                    images[key] = {"img": f"img/lessons/own/{key}.webp", "title": m["title"], "desc": m["caption"], "caption": m["caption"],
+                                   "author": "Учу по ФРП", "license": "собственный чертёж", "source": "", "wiki": ""}
+            if keys and not review:
+                core_keys[(subj, core)] = (keys, caps)
+        if not keys and prev.get(subj) and prev[subj]["grade"] == x["grade"] and titles != []:
+            keys, caps = prev[subj]["keys"][:1], prev[subj]["caps"][:1]; via = "соседний урок"
+        entry = {"keys": keys, "caps": caps, "topic": x["topic"], "grade": x["grade"], "subject": subj}
+        if subj in ("lit", "hist"):
+            pk = person_for(x["topic"] + " " + (x.get("section") or ""), people, subj)
+            if pk:
+                entry["person"] = pk
+        if not keys and not entry.get("person"):
+            lessons[x["lesson_id"]] = None
+            log.append(f"– {x['lesson_id']} {x['topic'][:90]}: нет")
+            continue
+        st[0] += 1
+        if via in ("повтор", "соседний урок", "та же тема"):
+            st[2] += 1
+        lessons[x["lesson_id"]] = entry
+        if keys:
+            prev[subj] = entry
+        arts_txt = "; ".join(f"{images[k]['title']} [{need[k][0] if k in need else 'own:' + k}]" for k in keys)
+        log.append(f"+ {x['lesson_id']} [{via}] {x['topic'][:80]} → {arts_txt}" + (f" (+портрет {entry['person']})" if entry.get("person") else ""))
+
+    # 3. скачивание (параллельно), уменьшенная копия webp
+    def down(item):
+        key, (f, inf, a) = item
+        path = os.path.join(IMG, key + ".webp")
+        if os.path.exists(path):
+            return key, True
+        data = raw(inf["thumb"])
+        if not data:
+            return key, False
+        try:
+            im = Image.open(io.BytesIO(data))
+            im = im.convert("RGBA" if im.mode in ("RGBA", "LA", "P") else "RGB")
+            if im.mode == "RGBA":
+                bg = Image.new("RGB", im.size, (255, 255, 255)); bg.paste(im, mask=im.split()[3]); im = bg
+            im.thumbnail((960, 720)); im.save(path, "WEBP", quality=80, method=6)
+            return key, True
+        except Exception:
+            return key, False
+
+    with cf.ThreadPoolExecutor(8) as ex:
+        bad = {k for k, ok in ex.map(down, list(need.items())) if not ok}
+    for e in lessons.values():
+        if e and bad & set(e["keys"]):
+            idx = [i for i, k in enumerate(e["keys"]) if k not in bad]
+            e["keys"] = [e["keys"][i] for i in idx]; e["caps"] = [e["caps"][i] for i in idx]
+    usedk = {k for e in lessons.values() if e for k in e["keys"]}
+    images = {k: v for k, v in images.items() if k in usedk}
+    if subj_only and os.path.exists(OUT_JS):  # частичный прогон: остальные предметы сохраняем
+        old = json.loads(re.search(r"=\s*(\{.*\})\s*;?\s*$", open(OUT_JS, encoding="utf-8").read(), re.S).group(1))
+        for lid, e in old.get("lessons", {}).items():
+            if lid not in lessons and (not e or e.get("subject") not in subj_only):
+                lessons[lid] = e
+                for k in (e or {}).get("keys", []):
+                    if k in old.get("images", {}):
+                        images[k] = old["images"][k]
+    for fn in os.listdir(IMG):
         if fn.endswith(".webp") and fn[:-5] not in images:
             os.remove(os.path.join(IMG, fn))
-    js = "/* База иллюстраций к урокам «Учу по ФРП» – собрано tools/lessonimg/fetch.py из Википедии и Викисклада (только свободные лицензии). Не редактировать вручную. */\n"
+    js = "/* База иллюстраций к урокам «Учу по ФРП» – собрано tools/lessonimg/fetch.py из Википедии и Викисклада (только свободные лицензии) и собственных схем. Не редактировать вручную. */\n"
     js += "window.UCHU_LESSON_IMAGES = " + json.dumps({"images": images, "lessons": lessons}, ensure_ascii=False, separators=(",", ":")) + ";\n"
     open(OUT_JS, "w", encoding="utf-8").write(js)
-    head = "Покрытие уроков иллюстрациями:\n" + "\n".join(f"  {s}: {a} из {b}" for s, (a, b) in stat.items()) + f"\nКартинок: {len(images)}\n"
+    head = "Покрытие уроков иллюстрациями (уроков с картинкой / всего; из них с повтором картинки):\n" + "\n".join(f"  {s}: {a} из {b}; повтор {r}" for s, (a, b, r) in stat.items()) + f"\nКартинок: {len(images)}\n"
     open(OUT_LOG, "w", encoding="utf-8").write(head + "\n".join(log) + "\n")
     print(head)
 

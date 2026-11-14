@@ -2196,10 +2196,23 @@ const Media = (() => {
     }
     return out.slice(0, 3);
   }
+  /* Своя база иллюстраций к урокам (data/lesson-images.js): картинки, чьё название или подпись совпадают с запросом по смыслу, идут первыми. */
+  function localLessons(query) {
+    const B = window.UCHU_LESSON_IMAGES?.images; if (!B) return [];
+    const ws = q => new Set((pnorm(q).match(/[a-zа-я0-9]{3,}/g) || []).map(w => w.slice(0, 5)));
+    const qw = ws(query); if (!qw.size) return [];
+    const out = [];
+    for (const im of Object.values(B)) {
+      const tw = ws(im.title + " " + (im.caption || ""));
+      let hit = 0; qw.forEach(w => { if (tw.has(w)) hit++; });
+      if (hit && hit >= Math.min(2, qw.size)) out.push({ score: hit, url: im.img, thumb: im.img, title: im.caption || im.title, local: true, src: /собственн/.test(im.license || "") ? "Схема сайта" : "База сайта", credit: im.author ? `${im.author}; ${im.license}` : im.license });
+    }
+    return out.sort((a, b) => b.score - a.score).slice(0, 6);
+  }
   async function search(query, limit = 12, opts = {}) {
     const yq = String(query || "").trim(), useYa = opts.yandex !== false;
-    const mine = localPeople(yq);
-    if (mine.length && /портрет/i.test(yq)) return mine;
+    const mine = [...localPeople(yq), ...(/портрет/i.test(yq) ? [] : localLessons(yq))];
+    if (mine.length && /портрет/i.test(yq) && mine[0].local) return mine;
     // картины и иллюстрации с автором и названием (Викисклад) — первыми, если запрос про иллюстрацию, картину или портрет
     const art = /иллюстрац|картин|портрет|художник|живопис/i.test(yq) ? await commons(yq.replace(/иллюстрация|картина/gi, "").trim() + " иллюстрация", 6).catch(() => []) : [];
     const ya = useYa ? await yandexSearch(yq, Math.max(limit, 16)) : [];
