@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "appName": "Учу по ФРП",
+    "appURL": "https://uchu-po-frp.ru",
+    "senderName": "Учу по ФРП",
+    "senderAddress": "<АДРЕС_В_ПОДТВЕРЖДЕННОМ_ДОМЕНЕ>"
+  },
+  "smtp": {
+    "enabled": false,
+    "host": "postbox.cloud.yandex.net",
+    "port": 465,
+    "username": "<POSTBOX_API_KEY_ID>",
+    "password": "<ВВЕСТИ_ТОЛЬКО_НА_СЕРВЕРЕ>",
+    "tls": true,
+    "authMethod": "PLAIN"
+  }
+}

@@ -18,9 +18,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Учу по ФРП","url":"https://uchu-po-frp.ru/","applicationCategory":"EducationalApplication","inLanguage":"ru","description":"Конструктор уроков по ФРП для учителей 5–11 классов: русский язык, литература, математика, история, английский, биология, география, физика, химия, обществознание, информатика и другие предметы. По теме урока собирает конспект, технологическую карту, презентацию и рабочий лист.","image":"https://uchu-po-frp.ru/icons/icon-512.png","audience":{"@type":"Audience","audienceType":"Учителя школ 5–11 классов"}}</script>
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="icons/icon.svg"><link rel="icon" type="image/png" sizes="48x48" href="icons/icon-48.png"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Учу по ФРП — конструктор уроков для учителей всех предметов</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link media="print" onload="this.media='all'" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
 <style>
 /* Layout: школьная «наклейка» — кремовая бумага, чернильные контуры 3px и жёсткие тени;
    слева пульт урока, справа лист, который правится прямо на месте. Одна светлая тема — намеренно. */
@@ -595,7 +593,7 @@ window.UCHU_SITE = {
      или совместимый сервер. Облачный supabase.com для ПДн граждан РФ не подходит.
      Если поля заполнены, кабинет, профили, уроки и quiz работают с этим адресом,
      а не с cloud. Яндекс Облако остаётся только для статики и AI-прокси. */
-  accounts: { url: "", anonKey: "", dashboard: "" },
+  accounts: {"provider": "pocketbase", "url": "https://accounts.uchu-po-frp.ru", "anonKey": "", "dashboard": "https://accounts.uchu-po-frp.ru/_/", "ownerTesting": false},
   /* ИИ сайта: true — когда в Яндекс-функции настроен пул аккаунтов DeepSeek (DEEPSEEK_POOL); учителям свой ключ не нужен */
   siteAi: true,
   /* Nano Banana для платных тарифов («Учитель + ИИ» и выше): адрес серверной функции, где лежат ключи (Арина АИ / Google). Функция получает заголовок X-User-Token, проверяет тариф и возвращает {image}. Пока пусто — картинки доступны только разработчику со своим ключом. */
@@ -606,7 +604,7 @@ window.UCHU_SITE = {
   /* Оплата: true — когда в Яндекс-функции настроен Продамус (PRODAMUS_URL, PRODAMUS_KEY) */
   payments: true,
   /* Вход по номеру телефона (SMS-код): true — когда в Supabase включён Phone и подключён хук Send SMS (см. НАСТРОЙКА_ПО_ШАГАМ.md) */
-  phoneAuth: true,
+  phoneAuth: false,
   /* Автоплатёж (подписки в Продамусе): true — когда созданы подписки и заданы PRODAMUS_SUB_… */
   autopay: false
 };</script>
@@ -798,12 +796,13 @@ window.UCHU_SITE = {
 <main id="view-help" class="wrap page help" hidden><div class="sheet" id="helpBody"></div></main>
 
 
+<p class="small" style="padding:8px 20px;text-align:center"><a href="legal/privacy.html">Политика обработки данных</a> · <a href="legal/consent.html">Отдельное согласие</a> · <a href="legal/data-rights.html">Выгрузка и удаление</a> · <a href="legal/contacts.html">Реквизиты</a></p>
 <script src="data/legal.js"></script>
 <script>(function(){var L=window.UCHU_LEGAL||{},el=document.getElementById("footLegal");if(el&&L.name)el.textContent="© «Учу по ФРП» · "+L.name+", "+(L.status||"").split(" (")[0]+(L.inn&&!/_/.test(L.inn)?", ИНН "+L.inn:"")+(L.email?" · "+L.email:"");})();</script>
 <div id="pdfstage" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 <div class="toast" id="toast" hidden role="status"></div>
-<script>window.UCHU_VER="5.411";</script>
+<script>window.UCHU_VER="5.412";</script>
 <script src="js/app-part1.js"></script>
 <script>
 /* ===================================================================
@@ -1027,6 +1026,9 @@ window.UCHU_SITE = {
 <script src="js/collect.js"></script>
 <script src="js/devmode.js"></script>
 <script src="js/devcover.js"></script>
+<script src="js/accounts-config.js"></script>
+<script src="js/accounts-backend.js"></script>
+<script src="js/privacy.js"></script>
 <script src="js/account.js"></script>
 <script src="js/cloudbase.js"></script>
 <script src="js/rules.js"></script>
@@ -1038,6 +1040,8 @@ window.UCHU_SITE = {
 <script src="js/video.js"></script>
 <script src="js/photostk.js"></script>
 <script src="data/promo.js"></script>
+<script src="data/people.js" onerror="window.UCHU_PEOPLE=window.UCHU_PEOPLE||{people:{}}"></script>
+<script src="data/lesson-images.js" onerror="window.UCHU_LESSON_IMAGES=window.UCHU_LESSON_IMAGES||{images:{},lessons:{}}"></script>
 <script src="js/access.js"></script>
 <script src="js/qr.js"></script><script src="js/quizlink.js"></script>
 <script src="js/deck.js"></script>

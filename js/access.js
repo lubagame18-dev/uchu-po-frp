@@ -129,12 +129,7 @@ const Access = (() => {
   /* Бесплатный тариф: урок — только после входа в кабинет; счёт ведёт сервер (кабинет + устройство + сеть) */
   const DEVK = "uchu:dev-id";
   function deviceId() { try { let d = localStorage.getItem(DEVK); if (!d) { d = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now(); localStorage.setItem(DEVK, d); } return d; } catch { return ""; } }
-  // отпечаток браузера: не меняется при очистке данных сайта и при входе с другой почты
-  function fingerprint() {
-    let gl = ""; try { const c = document.createElement("canvas").getContext("webgl"); const e = c && c.getExtension("WEBGL_debug_renderer_info"); gl = e ? c.getParameter(e.UNMASKED_RENDERER_WEBGL) : ""; } catch { }
-    let cv = ""; try { const c = document.createElement("canvas"); c.width = 220; c.height = 30; const x = c.getContext("2d"); x.textBaseline = "top"; x.font = "16px Arial"; x.fillStyle = "#f60"; x.fillRect(0, 0, 60, 20); x.fillStyle = "#069"; x.fillText("Учу по ФРП ✏ 2026", 2, 4); cv = c.toDataURL().slice(-80); } catch { }
-    return [navigator.userAgent, navigator.language, navigator.hardwareConcurrency, navigator.platform, screen.width + "x" + screen.height + "x" + screen.colorDepth, Intl.DateTimeFormat().resolvedOptions().timeZone, gl, cv].join("|");
-  }
+  // A random device ID supports trial limits; no Canvas/WebGL fingerprint is collected.
   async function canBuildAsync(useAi) {
     if (!canBuild(useAi)) return false;
     if (useAi || !commercial() || level() !== "free") return true; // серверный учёт пробных уроков — только для бесплатного уровня
@@ -144,7 +139,7 @@ const Access = (() => {
     try {
       await window.Account?.refreshPlan?.();
       const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/free/use")}` : base + "/free/use";
-      const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify({ dev: deviceId(), fp: await sha(fingerprint()) }) });
+      const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify({ dev: deviceId() }) });
       if (r.status === 402) { const j = await r.json().catch(() => ({})); open(j.error || "Бесплатные уроки на этот месяц закончились. Выберите тариф."); return false; }
       if (r.status === 401) { toast("Войдите в личный кабинет заново.", 5000); window.Account?.open(); return false; }
     } catch { /* сервер недоступен — работает учёт в браузере */ }

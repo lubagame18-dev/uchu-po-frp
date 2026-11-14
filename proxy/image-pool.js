@@ -15,7 +15,7 @@ const DEF_MODEL = () => process.env.IMG_MODEL || "flux-schnell";
 /* Лимит листов с картинками входит в тариф «С ИИ» (и «С ИИ, год»): 6 в месяц, переменная IMG_QUOTA_AI */
 const IMG_MONTH = () => +process.env.IMG_QUOTA_AI || 6;
 const QUOTA = { ai: IMG_MONTH(), aiYear: IMG_MONTH() }; // справочно; проверка — в check() ниже
-const SB = () => ({ url: (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key: process.env.SUPABASE_SERVICE_KEY || "" });
+const SB = () => ({ url: require("./accounts-backend.js").config().url, key: require("./accounts-backend.js").config().key });
 const isPlaceholder = k => !k || /^\.+$/.test(k) || k.length < 10;
 const mask = e => String(e).replace(/^(.).*(@.*)$/, "$1***$2");
 const tail = k => isPlaceholder(k) ? "" : String(k).slice(0, 3) + "…" + String(k).slice(-4);

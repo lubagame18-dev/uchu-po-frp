@@ -29,8 +29,8 @@ const Rules = (() => {
   const get = k => R[k] ?? DEF[k];
   const all = () => ({ ...R, ai_rules: [...(R.ai_rules || [])] });
 
-  const C = () => { const a = window.UCHU_SITE?.accounts; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); };
-  const ok = () => !!(C().url && C().anonKey);
+  const C = () => window.AccountsBackend ? AccountsBackend.config() : (() => { const a = window.UCHU_ACCOUNTS || window.UCHU_SITE?.accounts; if (a?.provider === "pocketbase") return {provider:"pocketbase",url:""}; return (a && a.url && a.anonKey) ? a : (window.UCHU_SITE?.cloud || {}); })();
+  const ok = () => !!(C().url && (C().provider === "pocketbase" || C().anonKey));
   async function sync() {
     if (!ok()) return;
     try {

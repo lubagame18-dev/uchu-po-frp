@@ -1871,6 +1871,16 @@ function deckCardsExtras(cards, p) {
       if (MN) Mnemo.cards(MN, plain).filter(c => !((c.kind === "check" || /^проверь себя/i.test(String(c.title || ""))) && out.some(x => /^(проверь себя|check yourself)/i.test(String(x.title || ""))))).forEach(c => insert(c));
     }
   } catch (e) { console.warn("deck extras mnemo", e); }
+  // история: портреты деятелей темы из своей базы (Викиданные + Викисклад) – после титульного слайда
+  try {
+    const P = window.UCHU_PEOPLE?.people;
+    if (P && p.subject === "hist" && !out.some(c => c.kind === "author")) {
+      const T = " " + String(p.topic || "").toLowerCase().replace(/ё/g, "е") + " ";
+      const who = Object.values(P).filter(x => x.group === "hist" && (x.forms || []).some(f => { const nf = String(f).toLowerCase().replace(/ё/g, "е"); return nf.length >= 4 && (nf.includes(" ") ? T.includes(nf) : new RegExp("[^а-я]" + nf.slice(0, Math.max(4, nf.length - 1)).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[а-я]{0,3}[^а-я]").test(T)); })).slice(0, 2);
+      const at = Math.max(1, out.findIndex(c => c.kind === "title") + 1);
+      who.reverse().forEach((x, k) => out.splice(at, 0, { id: "pp" + k, on: true, kind: "author", title: x.name, img: x.img, acc: "left", points: [x.years, x.desc || x.role].filter(Boolean), notes: `Портрет: ${x.name}${x.author ? `. Автор изображения: ${x.author}` : ""}${x.license ? `, ${x.license}` : ""}. Источник: Викисклад.` }));
+    }
+  } catch (e) { console.warn("deck extras people", e); }
   try {
     const creative = /^(izo|mhk|mus|lit)$/.test(String(p.subject || ""));
     if (creative && !hasKind("art")) insert({ id: "pa1", on: true, kind: "art", title: "Картина", img: `commons:${p.topic} картина`, cap: "Репродукция картины", points: ["Что изображено и как построена композиция?", "Какие цвета, свет и детали важны для понимания темы?", "Какое настроение создаёт произведение и как это связано с уроком?"], note: "Подпись (художник, название, год) уточните по источнику изображения." });
@@ -1950,7 +1960,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     catch (e) { if (e?.code === "cancelled") throw e; } finally { state.gen = null; }
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(deckCardsExtras(convCards(PL.cards(p, type), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(Deck.localImages(deckCardsExtras(convCards(PL.cards(p, type), p), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -1959,7 +1969,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = deckCardsExtras(convCards(PL.cards(p, type), p), p);
+      if (f === "slides") { autoTheme(L, p); L.deckOutline = window.Deck?.localImages ? Deck.localImages(deckCardsExtras(convCards(PL.cards(p, type), p), p), p) : deckCardsExtras(convCards(PL.cards(p, type), p), p);
         // тема без готового материала в базе: презентация из 3–4 общих слайдов – строим её по ходу урока из конспекта
         { const body = cs => (cs || []).filter(c => !["title", "hw", "goal", "board"].includes(c.kind)).length;
           if (body(L.deckOutline) < 6 && window.Deck?.outline) { try { const src = L.docs.lesson || L.docs.conspect || PL.lesson(p, type); const alt = Deck.outline(src, p, type); if (body(alt) > body(L.deckOutline)) { L.deckOutline = alt; md = Deck.toMarkdown(alt); } } catch (e) { console.warn("thin deck", e); } }

@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "CanonicalUser": "<SERVICE_ACCOUNT_ID>" },
+      "Action": ["s3:GetBucketAcl", "s3:GetBucketVersioning", "s3:ListBucket"],
+      "Resource": "arn:aws:s3:::uchu-frp-backups"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": { "CanonicalUser": "<SERVICE_ACCOUNT_ID>" },
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": [
+        "arn:aws:s3:::uchu-frp-backups/pocketbase/slot-0.age",
+        "arn:aws:s3:::uchu-frp-backups/pocketbase/slot-1.age",
+        "arn:aws:s3:::uchu-frp-backups/pocketbase/slot-2.age"
+      ]
+    }
+  ]
+}

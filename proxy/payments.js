@@ -53,7 +53,7 @@ function parseForm(raw) {
 }
 /* ---------- облако ---------- */
 async function sb(request, readAll, path, { method = "GET", body, token } = {}) {
-  const res = await request(env("SUPABASE_URL").replace(/\/+$/, "") + path, { method, headers: { apikey: env("SUPABASE_SERVICE_KEY"), Authorization: "Bearer " + (token || env("SUPABASE_SERVICE_KEY")), "Content-Type": "application/json", Prefer: "return=representation" }, body: body ? JSON.stringify(body) : undefined, timeout: 15000 });
+  const res = await request(require("./accounts-backend.js").config().url + path, { method, headers: { apikey: require("./accounts-backend.js").config().key, Authorization: "Bearer " + (token || require("./accounts-backend.js").config().key), "Content-Type": "application/json", Prefer: "return=representation" }, body: body ? JSON.stringify(body) : undefined, timeout: 15000 });
   const t = await readAll(res); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
   return { status: res.statusCode, json: j };
 }
@@ -67,6 +67,13 @@ function expectOf(type, item, p) {
   return 10; // повышение тарифа
 }
 
+// PocketBase commits the stored order and the balance together. No client-supplied plan patches.
+const pocketbaseAccounts = () => require("./accounts-backend.js").pocketbase();
+async function settlePocketBase(order, amount, request, readAll, uid, kind) {
+  const r = await sb(request, readAll, "/rest/v1/rpc/apply_payment", {method:"POST", body:{order_id:order,amount,user_id:uid,kind}});
+  if (r.status >= 300) return {status:503, json:{error:"начисление не выполнено; уведомление нужно повторить"}};
+  return {status:200, text:"success"};
+}
 /* ---------- 1. Ссылка на оплату ---------- */
 async function create(body, userToken, request, readAll) {
   if (!on()) return { status: 503, json: { error: "оплата ещё не подключена" } };
@@ -100,7 +107,12 @@ async function create(body, userToken, request, readAll) {
       if (body.autopay && !promo) sub = env("PRODAMUS_SUB_" + item.toUpperCase());
     }
   } else return { status: 400, json: { error: "нет такого тарифа" } };
-  const order = `${user.id}.${kind}.${Date.now()}`;
+  const order = `${user.id}.${kind}.${Date.now()}` + (pocketbaseAccounts() ? "." + crypto.randomBytes(8).toString("hex") : "");
+  if (pocketbaseAccounts()) {
+    if (body.autopay) return {status:503,json:{error:"автоплатёж требует отдельной проверки PocketBase"}};
+    const saved = await sb(request, readAll, "/rest/v1/payments", {method:"POST",body:{order_id:order,user_id:user.id,kind,amount:price,status:"created"}});
+    if (saved.status >= 300) return {status:503,json:{error:"не удалось сохранить заказ; платёж не создан"}};
+  }
   const site = env("SITE_URL") || "https://uchu-po-frp.ru/";
   if (yk()) return ykCreate({ order, user, kind, price, name, site, method: body.method === "any" ? "" : "sbp" }, request, readAll);
   const data = { do: "pay", order_id: order, ...(user.email ? { customer_email: user.email } : { customer_phone: "+" + String(user.phone || "").replace(/\D/g, "") }), urlReturn: site + "?pay=cancel", urlSuccess: site + "?pay=ok", sys: "", npd_income_type: "FROM_INDIVIDUAL" };
@@ -109,7 +121,7 @@ async function create(body, userToken, request, readAll) {
   const q = new URLSearchParams();
   const add = (o, pre) => { for (const [k, v] of Object.entries(o)) { const key = pre ? `${pre}[${k}]` : k; if (v && typeof v === "object") add(v, key); else q.append(key, v); } };
   add(data, "");
-  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: price, status: "created" } }).catch(() => null);
+  if (!pocketbaseAccounts()) await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: price, status: "created" } }).catch(() => null);
   return { status: 200, json: { url: env("PRODAMUS_URL").replace(/\/+$/, "") + "/?" + q.toString(), price, name } };
 }
 
@@ -134,7 +146,7 @@ async function ykCreate({ order, user, kind, price, name, site, method }, reques
     if (r.status === 401 || r.status === 403) return { status: 503, json: { error: "ЮKassa не приняла ключи магазина — проверьте YOOKASSA_SHOP_ID и YOOKASSA_KEY" } };
   }
   if (!used) return { status: 502, json: { error: "ЮKassa не создала платёж: " + (r?.json?.description || r?.status || "нет ответа") } };
-  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: Number(price), status: "created" } }).catch(() => null);
+  if (!pocketbaseAccounts()) await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: Number(price), status: "created" } }).catch(() => null);
   return { status: 200, json: { url: r.json.confirmation.confirmation_url, price, name, method: used } };
 }
 // уведомлению не верим на слово: статус платежа запрашиваем у ЮKassa по его номеру
@@ -144,6 +156,10 @@ async function ykNotify(raw, request, readAll) {
   const r = await ykApi("GET", "/payments/" + encodeURIComponent(id), null, "", request, readAll);
   const pay = r.json; if (r.status !== 200 || pay?.status !== "succeeded" || !pay.paid) return { status: 200 };
   const { order, uid, kind } = pay.metadata || {}; if (!uid || !/^(plan|up|pack|custom)_/.test(kind || "")) return { status: 200 };
+  if (pocketbaseAccounts()) {
+    if (pay.amount?.currency !== "RUB") return {status:400,json:{error:"invalid currency"}};
+    return settlePocketBase(order, Number(pay.amount?.value), request, readAll, uid, kind);
+  }
   const row = (await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order || "")}&select=status`)).json?.[0];
   if (row?.status === "paid") return { status: 200 }; // уже начислено (ЮKassa может прислать уведомление повторно)
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
@@ -163,6 +179,10 @@ async function notify(raw, headers, request, readAll) {
   if (!verify(data, env("PRODAMUS_KEY"), headers["sign"])) return { status: 400, text: "bad sign" };
   if (!/success/i.test(String(data.payment_status || "success"))) return { status: 200, text: "success" };
   const sum = parseFloat(String(data.sum || "0").replace(",", "."));
+  if (pocketbaseAccounts()) {
+    if (String(data.payment_status || "").toLowerCase() !== "success") return {status:200,text:"success"};
+    return settlePocketBase(String(data.order_id || ""), sum, request, readAll);
+  }
   let [uid, kind] = String(data.order_id || "").split(".");
   // автосписание по подписке: ищем учителя по почте, тариф — по номеру подписки
   if (!kind || !/^(plan|up|pack|custom)_/.test(kind)) {
@@ -178,8 +198,19 @@ async function notify(raw, headers, request, readAll) {
   const promo = !!p.promo || p.plan === "promo";
   const expect = expectOf(type, item, p);
   if (!expect || sum + 0.01 < expect) return { status: 200, text: "success" }; // сумма меньше цены — тариф не выдаём
+  // Продамус повторяет уведомление, пока не получит ответ: один платёж начисляем ровно один раз.
+  // Ключ платежа – order_id (для автосписаний по подписке к нему добавляем номер списания).
+  const oid = String(data.order_id || ""), key = /^(plan|up|pack|custom)_/.test(String(oid.split(".")[1] || "")) ? oid : `sub.${uid}.${String(data.order_num || data.payment_num || data.date || data.order_id || Date.now())}`;
+  const row = (await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(key)}&select=status`)).json?.[0];
+  if (row?.status === "paid") return { status: 200, text: "success" }; // уже начислено
+  if (row) {
+    const claim = await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(key)}&status=neq.paid`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
+    if (!claim || claim.status >= 300 || !Array.isArray(claim.json) || !claim.json.length) return { status: 200, text: "success" }; // параллельное уведомление уже заняло платёж
+  } else {
+    const ins = await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: key, user_id: uid, kind, amount: sum, status: "paid" } }).catch(() => null);
+    if (!ins || ins.status >= 300) return { status: 200, text: "success" }; // такой платёж уже записан (первичный ключ) – второй раз не начисляем
+  }
   await apply(uid, p, type, item, promo, request, readAll);
-  await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(String(data.order_id || ""))}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
   return { status: 200, text: "success" };
 }
 /* Начисление тарифа (после оплаты или тестовой оплаты): срок, уроки с ИИ и лимит токенов.

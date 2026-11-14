@@ -34,7 +34,7 @@ function loadPool() {
   return list.map((a, i) => ({ id: i, email: String(a.email || "аккаунт " + (i + 1)), key: String(a.key || "").trim(), isActive: a.isActive !== false }));
 }
 /* ---------- ключи из облака (таблица ai_keys, читает только сервер) ---------- */
-const SB = () => ({ url: (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key: process.env.SUPABASE_SERVICE_KEY || "" });
+const SB = () => ({ url: require("./accounts-backend.js").config().url, key: require("./accounts-backend.js").config().key });
 let dbCache = { at: 0, list: [] };
 async function sb(request, readAll, path, { method = "GET", body } = {}) {
   const { url, key } = SB(); if (!url || !key) return { status: 0, json: null };

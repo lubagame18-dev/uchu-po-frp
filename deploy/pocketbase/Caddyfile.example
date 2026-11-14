@@ -1,0 +1,13 @@
+# Template for a future server. Static site remains in Yandex Object Storage.
+# Replace <ACCOUNTS_DOMAIN> before validation; do not publish an unconfigured template.
+<ACCOUNTS_DOMAIN> {
+    @private not path /api/uchu/* /api/collections/uchu_users/confirm-verification /api/collections/uchu_users/confirm-password-reset
+    respond @private 404
+    reverse_proxy 127.0.0.1:8090 {
+        header_up X-Real-IP {http.request.remote.host}
+    }
+}
+# Admin UI is accessed through a protected local tunnel, not the public hostname.
+# Confirmation and reset pages are on the existing static site (accounts-confirm.html).
+
+# configure-server.sh sets trustedProxy.headers=[X-Real-IP] only for loopback PocketBase.

@@ -1,0 +1,12 @@
+[Unit]
+Description=Verified encrypted snapshot after account deletion
+ConditionPathExists=/var/lib/pocketbase/.privacy-backup-needed
+StartLimitIntervalSec=0
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 30
+ExecStart=/usr/local/sbin/uchu-privacy-snapshot
+Restart=on-failure
+RestartSec=3600
+TimeoutStartSec=360
+UMask=0077
