@@ -182,7 +182,19 @@ def main():
     lessons, log, stat = {}, [], {}
     subj_only = set(sys.argv[1:])
 
+    own_meta = json.load(open(os.path.join(SRC, "own.json"), encoding="utf-8")) if os.path.exists(os.path.join(SRC, "own.json")) else {}
+
     def fetch_title(title):
+        if title.startswith("own:"):  # собственные чертежи (tools/lessonimg/draw_math.py)
+            name = title[4:]
+            m = own_meta.get(name)
+            if not m or not os.path.exists(os.path.join(IMG, "own", name + ".webp")):
+                log.append(f"   · «{title}»: нет собственного чертежа")
+                return None
+            images[name] = {"img": f"img/lessons/own/{name}.webp", "title": m["title"], "desc": m["caption"], "caption": m["title"] + " — " + m["caption"],
+                            "author": "Учу по ФРП", "license": "собственный чертёж", "source": "", "wiki": ""}
+            art_of[title] = {"title": m["title"], "desc": m["caption"]}
+            return name
         if title in by_title and os.path.exists(os.path.join(ROOT, images[by_title[title]]["img"])):
             if title not in art_of:
                 art_of[title] = article(title) or {"title": title, "desc": ""}
@@ -281,7 +293,7 @@ def main():
                 pk, p = person_for(probe, people, subj)
                 if pk:
                     entry["person"] = pk
-            if not keys and prev and prev["grade"] == x["grade"] and prev.get("keys") and subj != "ru" and titles != []:
+            if not keys and prev and prev["grade"] == x["grade"] and prev.get("keys") and titles != []:
                 keys[:] = prev["keys"][:1]
                 caps[:] = prev["caps"][:1]
                 via = "соседний урок"

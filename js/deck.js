@@ -372,7 +372,7 @@ const Deck = (() => {
   function localImages(cards, p, o) {
     if (!Array.isArray(cards) || (o && o.images === "none")) return cards;
     const L = lessonImages(p); if (!L.length) return cards;
-    const credit = im => `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
+    const credit = im => /собственн/.test(im.license || "") ? `Схема: собственный чертёж «Учу по ФРП».` : `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
     let k = 0;
     const out = cards.map(c => {
       if (!c || k >= L.length || !/^commons:/.test(String(c.img || "")) || /портрет|(?:^|[\s:])карт[аыу]?(?:\s|$)|\bmap\b/i.test(c.img)) return c;
