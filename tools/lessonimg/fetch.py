@@ -82,7 +82,8 @@ def read_rules(subj):
     lines = []
     for fn in (os.path.join(SRC, subj + "_own.txt"), os.path.join(SRC, subj + ".txt")):  # сначала точные правила собственных карточек
         if os.path.exists(fn):
-            lines += open(fn, encoding="utf-8").read().splitlines()
+            own_file = fn.endswith("_own.txt")
+            lines += [l.replace(" | own:", " | !own-first; own:", 1) if own_file else l for l in open(fn, encoding="utf-8").read().splitlines()]
     for line in lines:
         line = line.rstrip("\n")
         if not line.strip() or line.lstrip().startswith("#") or " | " not in line:
@@ -243,9 +244,10 @@ def main():
     def gather(item):
         subj, x, titles = item
         found = [] if titles == [] else search_articles(x["topic"])
-        rule_wiki = [t for t in (titles or []) if not t.startswith("own:")]
+        own_first = subj in OWN_FIRST or "!own-first" in (titles or [])
+        rule_wiki = [t for t in (titles or []) if not t.startswith(("own:", "!"))]
         own = [t for t in (titles or []) if t.startswith("own:")]
-        order = (own + found + rule_wiki) if subj in OWN_FIRST else (found + rule_wiki + own)
+        order = (own + found + rule_wiki) if own_first else (found + rule_wiki + own)
         seen, arts = set(), []
         for t in order:
             if t in seen:

@@ -20,7 +20,7 @@ MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 BLUE, RED, GREEN, GOLD, VIOLET = "#4F84D1", "#DB6A5E", "#4FA87F", "#E2A93B", "#8E72CC"
 SOFT = {"blue": "#DCE8F8", "red": "#F9DEDA", "green": "#DDF1E6", "gold": "#FBEFD2", "violet": "#E9E1F6"}
 INK, GREY = "#2B2F3A", "#5A6170"
-meta = {k: v for k, v in (json.load(open(META, encoding="utf-8")) if os.path.exists(META) else {}).items() if not k.startswith("r_")}
+meta = {k: v for k, v in (json.load(open(META, encoding="utf-8")) if os.path.exists(META) else {}).items() if not k.startswith(("r_", "e_"))}
 
 
 class Pic:
@@ -351,6 +351,7 @@ card("r_capital", "Заглавная буква", "Заглавная букв�
 declension(); conjugation(); parts_of_speech(); punct_schemes(); participle(); gerund(); syllables(); text_parts(); styles(); phrase()
 
 exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "draw_ru_more.py"), encoding="utf-8").read())
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "draw_eng.py"), encoding="utf-8").read())
 
 json.dump(meta, open(META, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 print(sum(k.startswith("r_") for k in meta), "схем по русскому")
