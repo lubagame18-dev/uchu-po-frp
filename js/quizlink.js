@@ -3,7 +3,7 @@
      дальше сюда же добавляются новые страницы (в будущем — собранные нейросетью по уроку).
    • Учитель отмечает «📱 Интерактив с тестом» → при сборке презентации в облаке создаётся запись quizzes (владелец — учитель),
      в конец презентации ставится слайд с QR-кодом и ссылкой …?q=<код>.
-   • Ученик вводит условный код, класс; результат пишется в quiz_results и виден только владельцу (RLS, supabase_quizzes.sql).
+   • Ученик вводит фамилию, имя и класс; результат пишется в quiz_results и виден только владельцу (RLS, supabase_quizzes.sql).
    • Кабинет → «Результаты тестов»: уроки, ученики, баллы, ошибки, ответы своими словами; значок с числом новых результатов. */
 const QuizLink = (() => {
   "use strict";
@@ -84,7 +84,7 @@ const QuizLink = (() => {
     const parts = a ? `${a.data.questions.length} вопросов по теме` : (t ? t.parts : "");
     const md = [`## 🧪 Проверка знаний: тест по теме`, img, [
       "- Наведите камеру телефона на QR-код",
-      "- Впишите условный код участника и класс",
+      "- Впишите фамилию, имя и класс",
       `- ${parts}`,
       "- Результат придёт учителю в личный кабинет"
       ].filter(x => x !== null).join("\n"),
@@ -107,7 +107,7 @@ const QuizLink = (() => {
     const set = { kind: "qr", acc: "right" };
     return [`## 🧪 Проверка знаний: тест по теме`, img, [
       "- Наведите камеру телефона на QR-код",
-      "- Впишите условный код участника и класс",
+      "- Впишите фамилию, имя и класс",
       `- ${qt.title || p.topic || "тест"}`,
       "- Результат придёт учителю в личный кабинет"
       ].join("\n"), `<!--@ ${JSON.stringify(set)} -->`].filter(Boolean).join("\n\n");
@@ -219,7 +219,7 @@ const QuizLink = (() => {
       let lastOnly = true; const open = new Set();
       const draw = () => {
         let rs = cache.results.filter(r => r.quiz_id === id);
-        if (lastOnly) { const mm = new Map(); rs.forEach(r => { const k = (r.student + "|" + (r.klass || "")).toLowerCase(); if (!mm.has(k)) mm.set(k, r); }); rs = [...mm.values()]; }
+        if (lastOnly) { const mm = new Map(); rs.forEach(r => { const k = ((r.details?.full_name || r.student) + "|" + (r.klass || "")).toLowerCase(); if (!mm.has(k)) mm.set(k, r); }); rs = [...mm.values()]; }
         const n = rs.length, avg = n ? (rs.reduce((a, r) => a + (r.score || 0), 0) / n).toFixed(1) : "—", tot = rs[0]?.total || "—";
         const wr = {}; rs.forEach(r => (r.details?.wrong || []).forEach(x => wr[x] = (wr[x] || 0) + 1));
         const hard = Object.entries(wr).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, c]) => `№${k} (${c})`).join(", ") || "—";
@@ -230,7 +230,7 @@ const QuizLink = (() => {
           <div class="qz-stats"><div class="qz-stat"><b>${n}</b><span class="small">учеников</span></div><div class="qz-stat"><b>${avg}</b><span class="small">средний балл из ${tot}</span></div><div class="qz-stat"><b style="font-size:15px">${hard}</b><span class="small">вопросы с ошибками</span></div></div>
           ${n ? `<div style="overflow-x:auto"><table class="qz-tab"><tr><th>Ученик</th><th>Класс</th><th>Тест</th>${secs.filter(x => !/Тест/.test(x)).map(x => `<th>${esc(x)}</th>`).join("")}<th>Время</th></tr>${rs.map(r => {
             const sc = r.details?.sections || {};
-            return `<tr data-r="${esc(r.id)}" class="${r.created_at > prevSeen ? "qz-new" : ""}" style="cursor:pointer"><td><b>${esc(r.student)}</b></td><td>${esc(r.klass || "")}</td><td><b>${r.score}/${r.total}</b></td>${secs.filter(x => !/Тест/.test(x)).map(x => `<td>${esc(sc[x])}</td>`).join("")}<td>${new Date(r.created_at).toLocaleString("ru", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</td></tr>` +
+            return `<tr data-r="${esc(r.id)}" class="${r.created_at > prevSeen ? "qz-new" : ""}" style="cursor:pointer"><td><b>${esc(r.details?.full_name || r.student)}</b></td><td>${esc(r.klass || "")}</td><td><b>${r.score}/${r.total}</b></td>${secs.filter(x => !/Тест/.test(x)).map(x => `<td>${esc(sc[x])}</td>`).join("")}<td>${new Date(r.created_at).toLocaleString("ru", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</td></tr>` +
               (open.has(r.id) ? `<tr class="qz-det"><td colspan="${4 + secs.length}"><b>Ошибки в тесте:</b> ${(r.details?.wrong || []).join(", ") || "нет"}<br><b>Ответ своими словами:</b> ${esc(r.details?.own) || "<i>не написал</i>"}</td></tr>` : ""); }).join("")}</table></div><p class="small">Нажмите на строку — откроются ошибки и ответ ученика своими словами. Подсвечены новые результаты.</p>`
             : `<p>Пока никто не прошёл. Покажите ученикам QR-код со слайда или отправьте ссылку.</p>`}`;
         body.querySelector("#qzBack").onclick = list;
@@ -239,7 +239,7 @@ const QuizLink = (() => {
         body.querySelector("#qzCopy").onclick = () => { navigator.clipboard?.writeText(url).then(() => window.toast?.("Ссылка скопирована.")); };
         body.querySelector("#qzCsv").onclick = () => {
           const head = ["Ученик", "Класс", "Балл", "Из", ...secs, "Ошибки в тесте", "Ответ своими словами", "Время"];
-          const lines = rs.map(r => [r.student, r.klass || "", r.score, r.total, ...secs.map(x => r.details?.sections?.[x] ?? ""), (r.details?.wrong || []).join(" "), r.details?.own || "", new Date(r.created_at).toLocaleString("ru")]);
+          const lines = rs.map(r => [r.details?.full_name || r.student, r.klass || "", r.score, r.total, ...secs.map(x => r.details?.sections?.[x] ?? ""), (r.details?.wrong || []).join(" "), r.details?.own || "", new Date(r.created_at).toLocaleString("ru")]);
           const csv = "﻿" + [head, ...lines].map(l => l.map(x => `"${String(x ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
           const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `${(q.title || "Интерактив").replace(/[\\/:*?"<>|«»]/g, "").slice(0, 60)} – результаты.csv`; a.click();
         };
