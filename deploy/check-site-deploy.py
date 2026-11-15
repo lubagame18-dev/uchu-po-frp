@@ -43,7 +43,8 @@ manifest=json.loads((ROOT/'deploy/balances/release.json').read_text())
 assert set(manifest['public_files']) <= copies
 for command in commands[1:]:
     assert command[:2] == ['s3', 'cp']
-    assert not excluded(command[2])
+    # This explicit public student quiz page is also in the account-only deployment.
+    assert not excluded(command[2]) or command[2] == 'test/index.html'
     assert command[command.index('--cache-control') + 1] == 'no-cache'
 ps = (ROOT / 'deploy/local-deploy.ps1').read_text()
 assert 'site-excludes.txt' in ps and '@exclusions' in ps
