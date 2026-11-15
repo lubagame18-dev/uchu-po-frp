@@ -1,0 +1,49 @@
+{
+  "version": "2026-11-15",
+  "files": {
+    "deploy/pocketbase/pb_hooks/identities.js": "0cea68217f25f2d90ecb12bccaa8667eac8565f773e46548bdb9f8d155afef41",
+    "deploy/pocketbase/pb_hooks/identity-providers.js": "f0836d6455d7a6c04470188b4e4929da15bb1e3f3c533eeb268c72b5ea57e826",
+    "deploy/pocketbase/pb_hooks/postbox.pb.js": "fdcb8b53f446867a670fdf59c2c6cd80968d72d11c7a11610e667f13b7d1e18e",
+    "deploy/pocketbase/pb_hooks/privacy-documents.js": "59c24c85099c708214ae9a456fb7875c56ef235ee774dd3085cb2771a5fd5df6",
+    "deploy/pocketbase/pb_hooks/privacy.js": "bdada952851d09d67b8503c01640c3aeb849f2922dc5e258a479c6b161f81079",
+    "deploy/pocketbase/pb_hooks/registration.pb.js": "32939e1aad8e9183f0bb255137a429ea6d1fd1f4d3cb05d96fe0fb379e9a4c59",
+    "deploy/pocketbase/pb_hooks/uchu.js": "478d8e19f34ac4b8262707ddf39a91631f2e42e79f22e82167a54b77a9902f99",
+    "deploy/pocketbase/pb_hooks/uchu.pb.js": "08b3b87966e1e7f55f5e9d65cad5120ff3aebf86a4e87e37a4c230db45b1e363",
+    "deploy/pocketbase/pb_migrations/1794069018_uchu_accounts.js": "0650d259a3fd2c6f3f7085f21b9bb069a975bdf732a1284dc9b0eafd6842e18f",
+    "deploy/pocketbase/pb_migrations/1794072092_account_identities.js": "b77ce52b11046e3c077206a9e45152a416d5045c6022d9d2727441d939c17dee",
+    "deploy/pocketbase/pb_migrations/1794084615_google_identity.js": "cf00215f8cc8cb4cc64e83781b40bd8113b6ce633f5fd2ae363ec5f0ca2647bd",
+    "deploy/pocketbase/pb_migrations/1794327600_mail_budget.js": "e610d18b2b454b7696211f0499bb3c9bf636000aed7ee979d380576204144db8",
+    "deploy/pocketbase/pb_migrations/1794571200_privacy.js": "cdd93ce34c369afa310fc1be2e9d55bb2f7ebee7e8a6c63490a4f3624844ebe7",
+    "deploy/pocketbase/pb_migrations/1794758400_account_balances.js": "e64539f0cbc6849333cf1b9a8215e3d0270ddc72e82b30a02546ad7f332e83e7"
+  },
+  "public_files": {
+    "index.html": "94fbe32519be8131056dce22220765a13234a652af7828e87c82c9eaa5f1d21d",
+    "js/access.js": "69d6cdd592f40dc622f40497243ba455121135592a732260f5837f73ab1eb022",
+    "js/account.js": "ec26b44ad0f473d9dbe3650fdb187e54f657fc3c9a3df7c5d31af2d5b202cb5c",
+    "js/app-part2.js": "a623bd4aac1261ac771bbaddfe0a794866fa9dfca7a89ebb5d7c375a0405bee4",
+    "js/privacy.js": "f4ab8e98abf8fda3d015cb632c2c580f70bf5d63ba7e8b371df7ea48105aa17a",
+    "data/legal.js": "6496c141222aab9c0b960d4865388d02c68b6e6e53c5d91bce86d277e2553d94",
+    "sw.js": "c81efd3002fc3fc6d2735f8a2744f01e6c9986507cb47fbfc75f0d6dc45472ab",
+    "legal/oferta.html": "6d3e9c5fc405de92eb392d89c3ed14cfd0a5ecb940670d5bd9093bdab227e5dd",
+    "legal/privacy.html": "66caffb98207e0717a659f9347d4378fd3b02c6cf18a705e970ab46c1ba31cc2",
+    "legal/consent.html": "1b7ad69cf33f657997789fbc48bec28ba8548217b3aecf3dac655d74fc7cb157",
+    "legal/tarify.html": "26a6cadb840c79c89ab82cf9963554cd40813c23d22ca6afd9ae60aacccbb3df",
+    "legal/archive/2026-11-15/consent.html": "65c23f4ccd8d2c7c1489432e802521c5be7892147f7bb3a473fd272886b844b0",
+    "legal/archive/2026-11-15/oferta.html": "12ff345bd014fffdd99ccb7cbcc91f6abf2dbf81047098570f3b3fb61584a66f",
+    "legal/archive/2026-11-15/privacy.html": "ebec391e62c36d5fdca1ee363caa531650800289fa9312cd7982345ce4b7ed36"
+  },
+  "proxy_files": {
+    "accounts-backend.js": "e6241b71b8a9e7fb76f2e29937fa20a1270c57aa05f17e571f39bfcd4784ccf6",
+    "botbrain.js": "e390a29595e9f522698f1c55eda8f6358d1d77dc3a37377585a6c4292baf1d6a",
+    "deepseek-pool.js": "5652128791512bdf94cb88be3c36f6e3a8b782ca1ab159cd967df54c7806a532",
+    "image-pool.js": "3f43aca9643fcf2f1a3cd224ce8b90c8e84dadffe12acbfe646ae93ee59f1214",
+    "maxbot.js": "2eae9e779ec9b8a7bb553fb77910f37a1128e7ac93649b04edff8f9fbed641b8",
+    "payments.js": "3bfff50f030a2b19c88fd29bae8839891868c9a742bfef3e02bfa5d3bb6226d6",
+    "proxy.js": "588d83e00d36b01b766a32a7708825d1a44f1738699ee2a2da550a641fd97e1d",
+    "quota.js": "c20cfe2353ba179ade05e8d3ff35ce0cc49ab12f70cdd5638f09baa9f5d25bcf",
+    "sms-hook.js": "76a8ceb4872fbf61c376aaa8257159fcb9e540f1a34ab7726516b51071cb19e7",
+    "yandex-function.js": "172670eac1f31700be81377ed213c8cf2f3d19380565c8ffb70fe1cc6125ed54"
+  },
+  "function_stored_zip_sha256": "4ab8498e674887a9660ea2c5731330eabdcc05be8283dc0a63d19103fc3d11b0",
+  "cloud_helper_sha256": "7a6d8b5fd75f9aa48b6718d1652a162691d90f936aa1ddf5cb01e0a6a59ca68f"
+}

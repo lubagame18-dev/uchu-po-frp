@@ -26,7 +26,11 @@ const Account = (() => {
     S = null;
     try { localStorage.removeItem(KEY); } catch { }
   }
-  const save = () => { try { S ? localStorage.setItem(KEY, JSON.stringify(S)) : localStorage.removeItem(KEY); } catch { } paint(); window.Access?.paint?.(); };
+  if(S){delete S.aiLeft;delete S.aiLimit;delete S.tokens;delete S.paidUntil;S.profileState="loading";}
+  let planRequest=null,usageRefresh;
+  const storedSession=()=>S?Object.fromEntries(Object.entries(S).filter(([key])=>!["aiLeft","aiLimit","tokens","paidUntil","profileState"].includes(key))):null;
+  try{if(S)localStorage.setItem(KEY,JSON.stringify(storedSession()));}catch{}
+  const save = () => { try { S ? localStorage.setItem(KEY, JSON.stringify(storedSession())) : localStorage.removeItem(KEY); } catch { } paint(); window.Access?.paint?.(); };
   const api = (path, opt = {}) => api0(path, opt).catch(e => { if (e.name === "AbortError") { const x = new Error("Сервер долго не отвечает. Проверьте интернет и попробуйте ещё раз."); x.status = 0; throw x; } if (e instanceof TypeError) { const x = new Error("Нет связи с сервером. Проверьте интернет или VPN и попробуйте ещё раз."); x.status = 0; throw x; } throw e; });
   const api0 = async (path, opt = {}) => {
     // без ответа сервера дольше 20 с — понятная ошибка, а не вечное «Вхожу…»
@@ -107,7 +111,7 @@ const Account = (() => {
     }
     localStorage.removeItem("uchu:previous-account");
   }
-  function setSession(j, email) { S = { endpoint: endpoint(), legacyId: j.user?.legacy_id || "", email: j.user?.email || email, uid: j.user?.id, access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { paintNav(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
+  function setSession(j, email) { S = { endpoint: endpoint(), legacyId: j.user?.legacy_id || "", email: j.user?.email || email, uid: j.user?.id, profileState:"loading", access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, pic: j.user?.user_metadata?.avatar_url || j.user?.user_metadata?.picture || "" }; save(); try { paint(); } catch { } try { paintNav(); } catch { } try { document.dispatchEvent(new Event("uchu:auth")); } catch { } }
   /* Пока облако не подключено — учётная запись в этом браузере (почта + отпечаток пароля); уроки — тоже здесь */
   const LKEY = "uchu:local-users";
   const lusers = () => { try { return JSON.parse(localStorage.getItem(LKEY)) || {}; } catch { return {}; } };
@@ -304,41 +308,56 @@ const Account = (() => {
   async function sharedGet(id) { await refresh(); return (await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}&select=*`))?.[0] || null; }
   async function sharedDel(id) { await refresh(); await api(`/rest/v1/shared_materials?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" }); }
 
-  const PLAN_NAMES = { promo: "бесплатный", free: "пробный", ai: "«С ИИ»", aiYear: "«С ИИ, год»" };
+  const PLAN_NAMES = {none:"Уроки не подключены",single:"Покупка уроков",promo:"По промокоду",free:"Уроки не подключены",ai: "«С ИИ»", aiYear: "«С ИИ, год»" };
   async function plan() {
-    const uid=S?.uid;
-    try {
-      if (!(await refresh())) return null;
-      const q = f => api(`/rest/v1/profiles?id=eq.${S.uid}&select=${f}`);
-      const p = (await q("plan,ai_left,paid_until,promo,promo_pct,promo_free_code,tokens_used,tokens_limit").catch(() => q("plan,ai_left,paid_until,promo,tokens_used,tokens_limit")).catch(() => q("plan,ai_left,paid_until,promo")).catch(() => q("plan,ai_left,paid_until")))?.[0] || null; // новых колонок может ещё не быть
-      // бесплатный доступ по промокоду — только пока код существует и включён (проверяет облако, сами коды не видны)
-      const freeOk = p?.promo_free_code ? !!(await api("/rest/v1/rpc/promo_free_ok", { method: "POST", body: "{}" }).catch(() => false)) : false;
-      // бесплатный доступ «без срока»: сервер выдаёт тариф «С ИИ» с далёкой датой окончания
-      const forever = (p?.plan === "ai" || p?.plan === "aiYear") && p?.paid_until && new Date(p.paid_until).getFullYear() >= 2090;
-      if (p && S?.uid === uid) { S.plan = p.plan; S.aiLeft = typeof p.ai_left === "number" ? p.ai_left : null; S.paidUntil = p.paid_until || null; S.promoFree = freeOk || forever; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
-      return p;
-    } catch { return null; }
+    if(!S||S.local)return null;
+    const uid=S.uid,origin=S.endpoint,generation=accountGeneration;
+    if(planRequest?.uid===uid&&planRequest.origin===origin)return planRequest.promise;
+    const request={uid,origin};
+    request.promise=(async()=>{
+      try {
+        if(!(await refresh()))return null;
+        const fields="plan,ai_left,paid_until,promo,promo_pct,promo_free_code,tokens_used,tokens_limit"+(C().provider==="pocketbase"?",ai_limit":"");
+        const p=(await api(`/rest/v1/profiles?id=eq.${uid}&select=${fields}`))?.[0]||null;
+        const freeOk=p?.promo_free_code?!!(await api("/rest/v1/rpc/promo_free_ok",{method:"POST",body:"{}"}).catch(()=>false)):false;
+        if(!sameSession({uid,endpoint:origin},generation))return null;
+        if(!p){S.profileState="missing";save();return null;}
+        const number=n=>typeof n==="number"&&Number.isFinite(n)&&n>=0?n:null;
+        S.plan=p.plan;S.aiLeft=number(p.ai_left);S.aiLimit=number(p.ai_limit);S.paidUntil=p.paid_until||null;
+        S.tokens=number(p.tokens_limit)!==null&&number(p.tokens_used)!==null?{used:p.tokens_used,limit:p.tokens_limit}:null;
+        S.promoFree=freeOk||(["ai","aiYear"].includes(p.plan)&&p.paid_until&&new Date(p.paid_until).getFullYear()>=2090);
+        S.promoPct=p.promo_pct||null;S.promo=!freeOk&&(!!p.promo||p.plan==="promo");S.profileState="ready";save();return p;
+      }catch {if(sameSession({uid,endpoint:origin},generation)){S.profileState="error";save();}return null;}
+      finally{if(planRequest===request)planRequest=null;}
+    })();planRequest=request;return request.promise;
   }
+  document.addEventListener("uchu:auth",()=>plan());
+  window.addEventListener("focus",()=>plan());
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)plan();});
+  window.addEventListener("uchu:usage",()=>{clearTimeout(usageRefresh);usageRefresh=setTimeout(()=>plan(),300);});
   /* Карточка тарифа в кабинете: всё, что оплачено и сколько осталось — с самого начала */
-  const TOK = { free: 0, ai: 2700000, aiYear: 2700000 }; // запас токенов тарифа «С ИИ»: 50 уроков + правки
+  const TOK = { none:0,free:0, ai: 2700000, aiYear: 2700000 }; // запас токенов тарифа «С ИИ»: 50 уроков + правки
   function planCard(p) {
+    if(!p)return `<div class="plan-card" role="status">${S?.profileState==="loading"?"Загрузка данных кабинета…":"Данные кабинета пока недоступны. Попробуйте обновить."}</div>`;
     // старые тарифы («Без ИИ», «Методист») показываем как «С ИИ» — доступ сохранён
-    const raw = p ? (p.plan === "promo" ? "free" : p.plan) : "free";
+    const raw = p ? (["promo","free"].includes(p.plan)?"none":p.plan) : "none";
     const plan = S?.promoFree ? "ai" : (raw === "basic" || raw === "basicYear" || raw === "pro" ? "ai" : raw);
     const name = PLAN_NAMES[plan] || plan, dev = window.Access?.isDev?.();
-    const until = p?.paid_until && plan !== "free" ? new Date(p.paid_until) : null, days = until ? Math.max(0, Math.ceil((until - Date.now()) / 864e5)) : null;
+    const until = p?.paid_until && plan !== "none" ? new Date(p.paid_until) : null, days = until ? Math.max(0, Math.ceil((until - Date.now()) / 864e5)) : null;
     const hasTok = typeof p?.tokens_limit === "number";
-    const lim = hasTok ? p.tokens_limit : TOK[plan] || 0, used = hasTok ? Math.min(p.tokens_used || 0, Math.max(lim, p.tokens_used || 0)) : 0, left = Math.max(0, lim - used);
+    const lim = hasTok ? p.tokens_limit : 0, used = hasTok ? Math.min(p.tokens_used || 0, Math.max(lim, p.tokens_used || 0)) : 0, left = Math.max(0, lim - used);
     const pct = lim ? Math.round(used / lim * 100) : 0;
     const row = (k, v) => `<div class="pc-row"><span>${k}</span><b>${v}</b></div>`;
-    let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promoFree ? `<span class="tag ok">бесплатный доступ по промокоду</span>` : S.promo ? `<span class="tag ok">промокод −${S.promoPct || 50}%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
+    let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promoFree ? `<span class="tag ok">доступ по промокоду</span>` : S.promo ? `<span class="tag ok">промокод −${S.promoPct || 50}%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
     if (S?.promoFree) { h += row("Доступ", "все возможности сайта, без оплаты и без срока") + (window.Usage ? Usage.html({}) : "") + "</div>"; return h; }
-    h += row("Оплачено до", until ? `${until.toLocaleDateString("ru-RU")} (ещё ${days} дн.)` : plan === "free" ? "бесплатно, без срока" : "—");
-    { const leftL = window.Access?.lessonsLeft?.(), n = leftL === Infinity ? "∞" : (leftL ?? (plan === "free" ? 2 : 50)); h += row("Уроки с ИИ", plan === "free" ? `пробный доступ: 2 урока с ИИ за 2 дня (осталось ${n})` : `50 в месяц (осталось ${n})`); }
+    h += row("Оплачено до", until ? `${until.toLocaleDateString("ru-RU")} (ещё ${days} дн.)` : "—");
+    {const leftL=window.Access?.lessonsLeft?.(),n=leftL===Infinity?"∞":leftL??"—";h+=row("Уроков доступно",n);}
+
     if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");
     else if (!lim && !dev) h += row("ИИ сайта", "не входит в тариф");
     // расход в ⚡ (1 ⚡ = 4 000 токенов): по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера
-    if (window.Usage && (lim || dev || S.promo || Usage.stats().ops.length)) h += Usage.html({ dev, planTok: !dev && !S.promo && lim ? lim : 0, usedTok: !dev && !S.promo && lim && hasTok ? used : null });
+    h+=row("Токены на доработки",hasTok&&typeof p.tokens_used==="number"?`${Math.max(0,p.tokens_limit-p.tokens_used).toLocaleString("ru-RU")} / ${p.tokens_limit.toLocaleString("ru-RU")}`:"—");
+    if(window.Usage&&(dev||S.promo))h+=Usage.html({dev,planTok:0,usedTok:null});
     h += "</div>";
     return h;
   }
@@ -384,7 +403,7 @@ const Account = (() => {
         </form>
         ${C().provider==="pocketbase"?`<div class="field"><button type="button" class="btn sm" id="acLinkYandex">Привязать Яндекс ID</button><button type="button" class="btn sm" id="acLinkGoogle">Привязать Google</button><span class="small" id="acLinkMsg" role="status"></span></div>`:""}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}${window.Access?.commercial() && window.Access?.level?.() === "free" ? `<button class="btn sm flame" id="acSingle" title="Разовый урок с ИИ и доработками">📘 1 урок — 30 ₽</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button>${C().provider==="pocketbase"?'<button class="btn sm ghost" id="acSettings">Настройки и данные</button>':''}</div>${devLink()}</div></div>`);
+        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}${window.Access?.commercial() && window.Access?.level?.() === "none" ? `<button class="btn sm flame" id="acSingle" title="30 ₽ за один урок с ИИ и доработками">📘 1 урок — 30 ₽</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button>${C().provider==="pocketbase"?'<button class="btn sm ghost" id="acSettings">Настройки и данные</button>':''}</div>${devLink()}</div></div>`);
       m.querySelector("#acSettings")?.addEventListener("click",()=>Privacy.settings().catch(e=>toast(e.message,8000)));
       m.querySelector("#acArchive").onclick = async () => {
         const archive = await ownedArchive({id:S.uid,legacy_id:S.legacyId});
@@ -575,7 +594,7 @@ const Account = (() => {
     if(C().provider==="pocketbase"&&/access_token/.test(location.hash)){history.replaceState(null,"",location.pathname+location.search);toast("Повторите вход через Яндекс ID, Google или по почте.",7000);return true;}
     if (/access_token|error_description/.test(location.hash)) { fromLink(); return true; }
     if (/[?&]code=/.test(location.search)) { fromCode(); return true; }
-    if (S && ready()) { pull().catch(() => null); loadInfo().catch(() => null); paint(); paintNav(); }
+    if (S && ready()) { plan(); pull().catch(() => null); loadInfo().catch(() => null); paint(); paintNav(); }
     return false;
   }
   document.addEventListener("uchu:ready", bootAuth);

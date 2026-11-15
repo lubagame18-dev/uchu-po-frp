@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'deploy/pocketbase/**'
+      - 'deploy/balances/**'
       - 'js/account*.js'
       - 'js/privacy.js'
       - 'js/access.js'
@@ -21,6 +22,7 @@ on:
     branches: [main]
     paths:
       - 'deploy/pocketbase/**'
+      - 'deploy/balances/**'
       - 'js/account*.js'
       - 'js/privacy.js'
       - 'js/access.js'
@@ -50,6 +52,8 @@ jobs:
       - run: python deploy/pocketbase/fetch-binary.py
       - run: python deploy/privacy/test-ledger.py
       - run: python deploy/privacy/test-legal.py
+      - run: python deploy/pocketbase/test-balances.py
+      - run: python -m py_compile deploy/balances/update-server.py deploy/balances/deploy-function.py
       - run: python deploy/pocketbase/test-privacy.py
       - run: python deploy/pocketbase/test-integration.py
       - run: python deploy/pocketbase/test-identities.py
