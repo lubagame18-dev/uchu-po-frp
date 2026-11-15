@@ -86,6 +86,6 @@ jobs:
             [ -z "$pattern" ] || exclusions+=(--exclude "$pattern")
           done < deploy/site-excludes.txt
           aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --size-only --no-progress "${exclusions[@]}" --cache-control "public, max-age=300"
-          for f in sw.js index.html js/accounts-config.js; do
+          for f in sw.js index.html js/accounts-config.js test/index.html js/quizlink.js; do
             aws s3 cp "$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress
           done
