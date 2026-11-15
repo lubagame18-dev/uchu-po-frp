@@ -384,7 +384,7 @@ const Account = (() => {
         </form>
         ${C().provider==="pocketbase"?`<div class="field"><button type="button" class="btn sm" id="acLinkYandex">Привязать Яндекс ID</button><button type="button" class="btn sm" id="acLinkGoogle">Привязать Google</button><span class="small" id="acLinkMsg" role="status"></span></div>`:""}
         <div class="acc-plan" id="acPlan"><b>Тариф:</b> загружаю…</div>
-        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button>${C().provider==="pocketbase"?'<button class="btn sm ghost" id="acSettings">Настройки и данные</button>':''}</div>${devLink()}</div></div>`);
+        <div class="mat-row">${window.Access?.commercial() ? `<button class="btn sm" id="acPlans">Тарифы и промокод</button>` : ""}${window.Access?.commercial() && window.Access?.level?.() === "free" ? `<button class="btn sm flame" id="acSingle" title="Разовый урок с ИИ и доработками">📘 1 урок — 30 ₽</button>` : ""}<button class="btn sm ghost" id="acQuiz">📱 Результаты тестов<span class="qz-badge" id="acQuizN" hidden></span></button><button class="btn sm ghost" id="acOut">Выйти</button><button class="btn sm ghost" id="acArchive">Копия локальных уроков</button>${C().provider==="pocketbase"?'<button class="btn sm ghost" id="acSettings">Настройки и данные</button>':''}</div>${devLink()}</div></div>`);
       m.querySelector("#acSettings")?.addEventListener("click",()=>Privacy.settings().catch(e=>toast(e.message,8000)));
       m.querySelector("#acArchive").onclick = async () => {
         const archive = await ownedArchive({id:S.uid,legacy_id:S.legacyId});
@@ -398,6 +398,7 @@ const Account = (() => {
       if (window.QuizLink && !S.local) { QuizLink.badge(m.querySelector("#acQuizN")); }
       bindDev(m);
       m.querySelector("#acPlans")?.addEventListener("click", () => { closeModal(); Access.open(); });
+      m.querySelector("#acSingle")?.addEventListener("click", () => { closeModal(); Access.checkout("single"); });
       const pm = m.querySelector("#acPMsg");
       const fields = () => ({ name: m.querySelector("#acName").value.trim(), school: m.querySelector("#acSchool").value.trim(), city: m.querySelector("#acCity").value.trim() });
       m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; try {await saveInfo(fields()); pm.textContent = "Сохранено ✓";} catch(er){pm.textContent=er.message;} };
