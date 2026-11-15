@@ -17,13 +17,13 @@
     "deploy/pocketbase/pb_migrations/1794758400_account_balances.js": "e64539f0cbc6849333cf1b9a8215e3d0270ddc72e82b30a02546ad7f332e83e7"
   },
   "public_files": {
-    "index.html": "94fbe32519be8131056dce22220765a13234a652af7828e87c82c9eaa5f1d21d",
-    "js/access.js": "69d6cdd592f40dc622f40497243ba455121135592a732260f5837f73ab1eb022",
+    "index.html": "02042a5c4b1a4f46a4e81cfaed2f20b20b385c81c5898dd736dbe51beb18b98c",
+    "js/access.js": "1131a5de6cc1363882f9e5dd4cf624da54adaffef682ce6460c911c17c5aa4c2",
     "js/account.js": "ec26b44ad0f473d9dbe3650fdb187e54f657fc3c9a3df7c5d31af2d5b202cb5c",
     "js/app-part2.js": "a623bd4aac1261ac771bbaddfe0a794866fa9dfca7a89ebb5d7c375a0405bee4",
     "js/privacy.js": "f4ab8e98abf8fda3d015cb632c2c580f70bf5d63ba7e8b371df7ea48105aa17a",
     "data/legal.js": "6496c141222aab9c0b960d4865388d02c68b6e6e53c5d91bce86d277e2553d94",
-    "sw.js": "c81efd3002fc3fc6d2735f8a2744f01e6c9986507cb47fbfc75f0d6dc45472ab",
+    "sw.js": "622179ac64218bf8fa63d9cc9737e672d0b8deb779d5479cd8bb8b3bb77b68d4",
     "legal/oferta.html": "6d3e9c5fc405de92eb392d89c3ed14cfd0a5ecb940670d5bd9093bdab227e5dd",
     "legal/privacy.html": "66caffb98207e0717a659f9347d4378fd3b02c6cf18a705e970ab46c1ba31cc2",
     "legal/consent.html": "1b7ad69cf33f657997789fbc48bec28ba8548217b3aecf3dac655d74fc7cb157",
