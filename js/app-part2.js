@@ -1649,7 +1649,6 @@ async function createLesson() {
       } catch { }
     }
   }
-  if (window.Access) Access.countLesson();
   const { notes: _n, ...pParams } = p;
   const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason }, control: p.control, examFocus: p.examFocus, wsDesign: p.wsDesign }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
   if (p.variantLabel) L.variant = { label: p.variantLabel, control: p.control, focus: p.examFocus, seed: p.variantSeed };
@@ -1671,7 +1670,13 @@ async function createLesson() {
     if (wantDeck) await stage("slides", "рисую картинки", () => aiDeckPics(L));
     if (wantWs) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
   };
-  try { return await runJob(L, p, type, gen, formats, useAi, hideTech); } finally { window.Account?.refreshPlan?.().then(() => window.Access?.paint()).catch(() => null); }
+  try {
+    const result=await runJob(L,p,type,gen,formats,useAi,hideTech);
+    if(Object.values(L.docs||{}).some(text=>typeof text==="string"&&text.trim())){
+      try{await window.Access?.countLesson(L.id);}catch(e){toast("Урок сохранён, но остаток пока не обновлён: "+e.message,8000);}
+    }
+    return result;
+  } finally {window.Account?.refreshPlan?.().then(()=>window.Access?.paint()).catch(()=>null);}
 }
 /* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
 function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте ключ: режим разработчика → «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций» → «Проверить и нарисовать тест»." : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }

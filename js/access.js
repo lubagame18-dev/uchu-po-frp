@@ -1,7 +1,7 @@
 /* ===================================================================
    «Учу по ФРП» — доступ: тарифы и промокод.
    Коммерческая версия (UCHU_SITE.commercial = true):
-     • пробный доступ (2 дня) — 2 урока с ИИ за пробный период, ИИ доступен, картинки нет;
+     • 30 ₽ за один урок; бесплатного пробного тарифа нет;
      • «С ИИ» — 400 ₽/мес или «С ИИ, год» — 3900 ₽/год: всё доступно (техкарта, контроль,
        памятки, домашние задания, конспекты и правки с ИИ, листы с картинками, доп. листы,
        выгрузка, облако), 50 уроков с ИИ в месяц; расход ИИ считает сервер;
@@ -16,6 +16,7 @@ const Access = (() => {
   const site = () => window.UCHU_SITE || {};
   const commercial = () => site().commercial === true;
   let A = {}; try { A = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { }
+  for(const key of ["used","month","singleUsed","singlePlan","planKey","trialUsed","trialStart","day","dayUsed","trialExpired"])delete A[key];
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(A)); } catch { } paint(); };
   // регистр, пробелы и похожие русские буквы (Р, С, А, В, Е, К, М, Н, О, Т, Х, У) не важны
   const LOOK = { А: "A", В: "B", Е: "E", Ё: "E", К: "K", М: "M", Н: "H", О: "O", Р: "P", С: "C", Т: "T", Х: "X", У: "Y" };
@@ -29,12 +30,12 @@ const Access = (() => {
     ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai50: ["🤖", "#a43fd0", "50 уроков с ИИ в месяц"],
     pics: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 6 в месяц"],
     pics40: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: без ограничений"],
-    more: ["➕", "#ff9f1c", "Докупка уроков с ИИ в подписке — 10 ₽ за урок"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"], three: ["🎁", "#2f8f5b", "2 урока с ИИ за пробный период — со всеми функциями"]
+    more: ["➕", "#ff9f1c", "Докупка уроков с ИИ в подписке — 10 ₽ за урок"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"]
   };
   const PLANS = {
   dev: { name: "Разработчик", price: 0, lessons: Infinity, extraSheets: 999, ai: true, img: true, imgQuota: 999, hidden: true, art: "🛠", tag: "разработчик", feats: ["unlim", "ai", "pics40", "more", "download", "cloud"] },
-    free: { name: "Пробный доступ", price: 0, lessons: 2, trialDays: 2, extraSheets: 0, ai: true, img: false, imgQuota: 0, hidden: true, art: "🎁", tag: "2 урока с ИИ за пробный период", feats: ["three", "ai", "lesson", "slides", "sheet", "download", "cloud"] },
-    single: { name: "Один урок", price: 30, once: true, lessons: 1, ai: true, img: false, imgQuota: 0, extraSheets: 0, art: "📘", tag: "разово, с доработками", feats: ["lesson", "tech", "ai", "download", "cloud"] },
+    none:{name:"Уроки не подключены",price:0,lessons:0,extraSheets:0,ai:false,img:false,imgQuota:0,hidden:true,feats:[]},
+    single: { name: "Один урок", price: 30, once: true, lessons: 1, ai: true, img: false, imgQuota: 0, extraSheets: 0, art: "📘", tag:"30 ₽ за один урок", feats: ["lesson", "tech", "ai", "download", "cloud"] },
     ai: { name: "С ИИ", price: 400, period: "мес", lessons: 50, ai: true, img: true, imgQuota: 6, extraSheets: 20, art: "✨", tag: "всё с ИИ", feats: ["tech", "ai", "ai50", "pics", "more", "download", "cloud"] },
     aiYear: { name: "С ИИ, год", price: 3900, period: "год", days: 365, lessons: 50, ai: true, img: true, imgQuota: 6, extraSheets: 20, art: "✨", tag: "год, −19%", feats: ["tech", "ai", "ai50", "pics", "more", "download", "cloud"] }
 
@@ -45,7 +46,7 @@ const Access = (() => {
   const customPrice = n => Math.max(CUSTOM.minPrice, Math.ceil(n * CUSTOM.per));
   /* Служебный «полный доступ» для промокода: все функции и без лимитов; в витрине тарифов не показывается */
   const FULL = { name: "Всё открыто", price: 0, lessons: Infinity, extraSheets: Infinity, ai: true, img: true, imgQuota: Infinity, tech: true, feats: [] };
-  const planOf = k => PLANS[k] || (k === "promoFree" ? FULL : PLANS.free);
+  const planOf = k => PLANS[k] || (k === "promoFree" ? FULL : PLANS.none);
   try { const dc = JSON.parse(localStorage.getItem("uchu:dev:cfg") || "null"); if (dc) { for (const k of Object.keys(dc.prices || {})) if (PLANS[k] && +dc.prices[k] > 0) PLANS[k].price = +dc.prices[k]; window.UCHU_DEV_CFG = dc; } } catch { }
 
 
@@ -58,46 +59,20 @@ const Access = (() => {
   /* Уровень = тариф (промокод скидки — отдельная отметка: свой процент и своя нейросеть; код бесплатного доступа — всё открыто) */
   function level() {
     if (!commercial() || isDev()) return "dev";
-    if (window.Account?.session?.promoFree && me()) return "promoFree"; // бесплатный доступ по промокоду — все возможности (служебный уровень FULL, не тариф витрины)
+    if (window.Account?.session?.promoFree && me()) return "promoFree"; // доступ по промокоду — все возможности (служебный уровень FULL, не тариф витрины)
     const p = window.Account?.session?.plan;
     // старые тарифы («Без ИИ» / «Без ИИ, год» / «Методист») переводим на «С ИИ»: действующие подписчики не теряют доступ
     if (p === "basic" || p === "basicYear" || p === "pro") return "ai";
     // отметка «скидка по промокоду»: тариф «С ИИ», ИИ — своя нейросеть (ключ требует isPromo)
     if (p === "promo") return "ai";
-    return PLANS[p] ? p : "free";
+    return PLANS[p] ? p : "none";
   }
   // промокод — только у вошедшего, закреплён за его почтой
   const promoFree = () => !isDev() && !!me() && !!window.Account?.session?.promoFree;
   const isPromo = () => !isDev() && !!me() && !promoFree() && (!!window.Account?.session?.promo || window.Account?.session?.plan === "promo" || (!!A.promo && A.promo.email === me()));
   const pct = () => Math.max(1, Math.min(99, +window.Account?.session?.promoPct || +A.promo?.pct || 50)); // скидку задаёт тот, кто выдал код
-  /* синхронизация бесплатного доступа с сервером (один аккаунт — один доступ) */
-  async function syncTrial() {
-    const tk = window.Account?.session?.access; if (!tk) return;
-    try {
-      const r = await fetch("https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/trial/status", { headers: { "X-User-Token": tk } });
-      const j = await r.json();
-      if (!r.ok || !j || !j.ok) return;
-      if (j.startAt) { A.trialStart = j.startAt; A.day = j.dayIndex; A.dayUsed = j.usedToday; A.trialExpired = !!j.expired; save(); }
-    } catch { }
-  }
-  document.addEventListener("uchu:auth", () => { syncTrial(); });
-  if (document.readyState !== "loading") setTimeout(syncTrial, 1200); else document.addEventListener("DOMContentLoaded", () => setTimeout(syncTrial, 1200));
-
-  /* живой счётчик пробного периода в окне тарифов */
-  if (!window.__trialTick) {
-    window.__trialTick = setInterval(() => {
-      const el = document.getElementById("trialLeft"); if (!el) return;
-      const st = A.trialStart, days = PLANS.free.trialDays || 2;
-      if (!st) { el.textContent = "—"; return; }
-      const ms = st + days * 86400000 - Date.now();
-      if (ms <= 0) { el.textContent = "0"; el.closest("p")?.classList.add("expired"); return; }
-      const h = Math.floor(ms / 3600000);
-      el.textContent = h >= 24 ? Math.floor(h / 24) + " д " + (h % 24) + " ч" : h + " ч " + Math.floor(ms % 3600000 / 60000) + " мин";
-    }, 30000);
-  }
-
   const priceOf = k => { const P = PLANS[k] || PACKS[k]; return P ? (isPromo() ? Math.round(P.price * (1 - pct() / 100)) : P.price) : 0; };
-  const label = () => { const L = level(); return L === "dev" ? "разработчик" : promoFree() ? "бесплатный доступ по промокоду" : `тариф «${planOf(L).name}»${isPromo() ? ` · промокод −${pct()}%` : ""}`; };
+  const label = () => { const L = level(); return L === "dev" ? "разработчик" : promoFree() ? "доступ по промокоду" : `тариф «${planOf(L).name}»${isPromo() ? ` · промокод −${pct()}%` : ""}`; };
   const free = () => level() === "dev";
   // свои ключи: разработчику — любые; по промокоду — одна своя нейросеть на тарифе с ИИ
   const ownAi = () => free() || (isPromo() && !!planOf(level()).ai);
@@ -106,45 +81,41 @@ const Access = (() => {
   const techAllowed = () => free() || promoFree() || !!planOf(level()).ai;
   const imagesAllowed = () => free() || !!planOf(level()).img;
   const month = () => new Date().toISOString().slice(0, 7);
-  /* Пробные уроки: общий расход за весь пробный период, без суточного сброса */
-  function trialUsed() {
-    if (A.trialUsed === undefined) { A.trialUsed = A.dayUsed || 0; save(); }
-    return Math.max(0, +A.trialUsed || 0);
-  }
-  function lessonsLeft() { const L = level(); if (L === "single") { if (A.singlePlan !== "single") { A.singleUsed = 0; A.singlePlan = "single"; save(); } const total = Math.max(1, Number(window.Account?.session?.aiLeft || 1)); return Math.max(0, total - (A.singleUsed || 0)); } if (A.singlePlan) { delete A.singlePlan; delete A.singleUsed; save(); } if (L === "free") { const used = trialUsed(), max = PLANS.free.lessons || 2, days = PLANS.free.trialDays || 2; if (A.trialStart && Date.now() - A.trialStart >= days * 86400000) return 0; if (used >= max) return 0; return Math.max(0, max - used); } const lim = planOf(L).lessons; if (lim === Infinity) return Infinity; const planKey = `${L}|${window.Account?.session?.paidUntil || ""}|${month()}`; if (A.planKey !== planKey) { A.planKey = planKey; A.used = 0; save(); } const used = A.month === month() ? A.used || 0 : 0; return Math.max(0, lim - used); }
+  const pocketbase=()=>window.AccountsBackend?.config().provider==="pocketbase";
+  function lessonsLeft(){if(free()||promoFree())return Infinity;const S=window.Account?.session;return S?.profileState==="ready"&&typeof S.aiLeft==="number"?S.aiLeft:null;}
   /* картинки для листов: лимит в месяц по тарифу (на сайте считается в браузере; настоящий лимит ставит серверная функция) */
   const imageLeft = () => { if (free()) return Infinity; const q = planOf(level()).imgQuota || 0; if (A.imgMonth !== month()) return q; return Math.max(0, q - (A.imgUsed || 0)); };
   function countImage(n = 1) { if (free()) return; if (A.imgMonth !== month()) { A.imgMonth = month(); A.imgUsed = 0; } A.imgUsed = (A.imgUsed || 0) + n; save(); }
   /* дополнительные листы сверх базовых двух страниц: свой месячный лимит (на сервере его ставят так же) */
   const sheetsLeft = () => { if (free()) return Infinity; const q = planOf(level()).extraSheets || 0; if (A.shMonth !== month()) return q; return Math.max(0, q - (A.shUsed || 0)); };
   function countSheet(n = 1) { if (free()) return; if (A.shMonth !== month()) { A.shMonth = month(); A.shUsed = 0; } A.shUsed = (A.shUsed || 0) + n; save(); }
-  function countLesson() { const L = level(); if (L === "single") { A.singlePlan = "single"; A.singleUsed = (A.singleUsed || 0) + 1; save(); return; } if (free() || L === "free") { const used = trialUsed(); if (!A.trialStart) { A.trialStart = Date.now(); A.day = 0; A.dayUsed = 0; } const d = Math.floor((Date.now() - A.trialStart) / 86400000); if (A.day !== d) { A.day = d; A.dayUsed = 0; } A.trialUsed = used + 1; A.dayUsed = (A.dayUsed || 0) + 1; save(); try { const tk = window.Account?.session?.access; if (tk) fetch("https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/trial/use", { method: "POST", headers: { "X-User-Token": tk } }).catch(() => null); } catch { } return; } if (planOf(L).lessons === Infinity) return; if (A.month !== month()) { A.month = month(); A.used = 0; } A.used = (A.used || 0) + 1; save(); }
+  async function countLesson(id) {
+    if(pocketbase()&&!free()&&!promoFree()){
+      const S=window.Account?.session,lesson=id&&await Store.get("lessons",id);
+      if(!S||!lesson||window.Account.session?.uid!==S.uid)throw new Error("Кабинет изменился. Повторите вход.");
+      for(let attempt=0;attempt<2;attempt++){
+        try {
+          await Account.db("/rest/v1/lessons",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({id,user_id:S.uid,data:lesson,updated_at:lesson.updatedAt})});
+          await Account.db("/rest/v1/rpc/consume_lesson",{method:"POST",body:JSON.stringify({lesson_id:id})});
+          await Account.refreshPlan();return;
+        }catch(e){if(attempt||e.status)throw e;}
+      }
+    }    return;
+  }
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
-    if (useAi && !aiAllowed()) { open("Уроки с ИИ входят в тариф «С ИИ» (400 ₽/мес) или можно купить один урок за 30 ₽. Пробный доступ — 2 дня и 2 урока с ИИ."); return false; }
+    if (useAi && !aiAllowed()) { open("Купите урок за 30 ₽ или подключите подписку «С ИИ»."); return false; }
     if (useAi && isPromo() && !window.AI?.ownConfigured?.()) { toast("Подключите ключ своей нейросети — кнопка «⚙ Подключить ИИ» вверху.", 6000); window.AI?.openLite?.(); return false; }
-    if (free() && !window.Account?.session) { toast("Чтобы создать урок, зарегистрируйтесь и войдите в кабинет. Бесплатный доступ — 2 дня и 2 урока с ИИ за пробный период.", 7000); window.Account?.open?.(); return false; }
-    if (lessonsLeft() <= 0) { open(level() === "free" ? "Бесплатный доступ истёк: прошло 2 дня или израсходованы 2 урока с ИИ за пробный период. Подключите тариф, чтобы продолжать." : "Лимит уроков с ИИ закончился. Докупите уроки в разделе «Тарифы»: в подписке — 10 ₽ за урок, без подписки — 30 ₽ за один урок."); return false; }
+    if (free() && !window.Account?.session) { toast("Чтобы создать урок, войдите в кабинет и выберите нужное количество уроков.", 7000); window.Account?.open?.(); return false; }
+    if (lessonsLeft() !== null && lessonsLeft() <= 0) { open("Уроки закончились. Купите нужное количество: 30 ₽ за один урок или докупите уроки к подписке."); return false; }
     return true;
   }
-  /* Бесплатный тариф: урок — только после входа в кабинет; счёт ведёт сервер (кабинет + устройство + сеть) */
-  const DEVK = "uchu:dev-id";
-  function deviceId() { try { let d = localStorage.getItem(DEVK); if (!d) { d = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now(); localStorage.setItem(DEVK, d); } return d; } catch { return ""; } }
-  // A random device ID supports trial limits; no Canvas/WebGL fingerprint is collected.
-  async function canBuildAsync(useAi) {
-    if (!canBuild(useAi)) return false;
-    if (useAi || !commercial() || level() !== "free") return true; // серверный учёт пробных уроков — только для бесплатного уровня
-    if (!me()) { toast("Чтобы собрать урок, войдите или зарегистрируйтесь — это минута.", 6000); window.Account?.open(); return false; }
-    const fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
-    if (!fn || !tok || window.Account?.session?.local) return true;
-    try {
-      await window.Account?.refreshPlan?.();
-      const base = fn.replace(/\/+$/, ""), u = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/free/use")}` : base + "/free/use";
-      const r = await fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify({ dev: deviceId() }) });
-      if (r.status === 402) { const j = await r.json().catch(() => ({})); open(j.error || "Бесплатные уроки на этот месяц закончились. Выберите тариф."); return false; }
-      if (r.status === 401) { toast("Войдите в личный кабинет заново.", 5000); window.Account?.open(); return false; }
-    } catch { /* сервер недоступен — работает учёт в браузере */ }
-    return true;
+  async function canBuildAsync(useAi){
+    if(!commercial()||free()||promoFree())return canBuild(useAi);
+    if(!window.Account?.session){window.Account?.open();return false;}
+    await Account.refreshPlan();
+    if(Account.session?.profileState!=="ready"){toast("Не удалось загрузить остаток уроков. Проверьте соединение и повторите.",6000);return false;}
+    return canBuild(useAi);
   }
   async function applyPromo(code) {
     const h = await sha(SALT + norm(code));
@@ -163,14 +134,13 @@ const Access = (() => {
   /* ---------- окно тарифов ---------- */
   function open(reason) {
     const L = level(), cur = L === "dev" ? null : L, pr = isPromo();
-    const showPlan = (k, p) => !p.hidden && !promoFree() && (k !== "single" || !cur || cur === "free" || cur === "single");
+    const showPlan = (k, p) => !p.hidden && !promoFree() && (k !== "single" || !cur || cur === "none" || cur === "single");
     const noPics = f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false);
     const featsOf = (k, p) => (pr && p.ai ? p.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : p.feats).filter(noPics);
     const m = openModal(`<div class="dialog wide tr-dlg"><div class="dlg-h"><h2>Тарифы</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       ${reason ? `<p class="tr-reason">${esc(reason)}</p>` : ""}
-      ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас бесплатный доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L === "free" && PLANS.free.trialDays ? `<p class="tr-now" id="trialBanner">⏳ <b>Пробный период: ${PLANS.free.trialDays} дня</b> · ${A.trialStart ? `осталось <b id="trialLeft">${(() => { const ms = A.trialStart + PLANS.free.trialDays * 86400000 - Date.now(); if (ms <= 0) return "0"; const h = Math.floor(ms / 3600000); return h >= 24 ? Math.floor(h / 24) + " д " + (h % 24) + " ч" : h + " ч " + Math.floor(ms % 3600000 / 60000) + " мин"; })()}</b> · 2 урока с ИИ за пробный период` : "начнётся с первого урока"}` + (lessonsLeft() === 0 ? " · <b>истёк</b> ⛔" : "") + `</p>` : L !== "dev" && planOf(L).lessons !== Infinity ? `<p class="tr-now">Осталось уроков в этом месяце: <b>${lessonsLeft()}</b></p>` : ""}
-      <div class="tr-grid">${Object.entries(PLANS).filter(([k, p]) => showPlan(k, p)).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur && k !== "single" ? `<span class="tr-badge">${promoFree() ? "ваш доступ по промокоду" : "ваш тариф"}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div>${p.price ? "" : `<h3>${p.name}</h3>`}<div class="tr-price">${promoFree() && k === cur ? `<s>${p.price}</s> 0 ₽` : p.price ? (pr ? `<s>${p.price}</s> ${priceOf(k)} ₽<small> ${p.once ? "разово" : "в " + (p.period === "год" ? "год" : "месяц")}</small>` : `${p.price} ₽<small> ${p.once ? "разово" : "в " + (p.period === "год" ? "год" : "месяц")}</small>`) : "0 ₽"}</div><ul class="tr-feats">${featsOf(k, p).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === "single" ? `<span class="tr-cur">${cur === "single" ? "Куплен" : ""}</span><button class="btn sm flame" data-buy="single">Купить урок</button>` : k === cur ? `<span class="tr-cur">${promoFree() ? "Всё открыто бесплатно" : "Подключён сейчас"}</span>` : k === "free" || promoFree() ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && planOf(cur).price && p.price > planOf(cur).price ? "Повысить" : cur && planOf(cur).price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
-      ${!site().payments && me() && cur && cur !== "free" && !promoFree() ? `<p class="small tr-reset"><button type="button" class="btn plain" id="trReset">🧪 Тест: вернуть бесплатный тариф</button></p>` : ""}
+      ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L !== "dev" && planOf(L).lessons !== Infinity ? `<p class="tr-now">Уроков доступно: <b>${lessonsLeft()??"Загрузка…"}</b></p>` : ""}
+      <div class="tr-grid">${Object.entries(PLANS).filter(([k, p]) => showPlan(k, p)).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur && k !== "single" ? `<span class="tr-badge">${promoFree() ? "ваш доступ по промокоду" : "ваш тариф"}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div>${p.price ? "" : `<h3>${p.name}</h3>`}<div class="tr-price">${promoFree() && k === cur ? `<s>${p.price}</s> 0 ₽` : p.price ? (pr ? `<s>${p.price}</s> ${priceOf(k)} ₽<small> ${p.once ? "за один урок" : "в " + (p.period === "год" ? "год" : "месяц")}</small>` : `${p.price} ₽<small> ${p.once ? "за один урок" : "в " + (p.period === "год" ? "год" : "месяц")}</small>`) : "0 ₽"}</div><ul class="tr-feats">${featsOf(k, p).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === "single" ? `<span class="tr-cur">${cur === "single" ? "Куплен" : ""}</span><button class="btn sm flame" data-buy="single">Купить урок</button>` : k === cur ? `<span class="tr-cur">${promoFree() ? "Всё открыто по промокоду" : "Подключён сейчас"}</span>` : k === "none" || promoFree() ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && planOf(cur).price && p.price > planOf(cur).price ? "Повысить" : cur && planOf(cur).price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
       ${(cur === "ai" || cur === "aiYear") && !pr && !promoFree() ? `<div class="tr-packs"><b>Докупить уроки в подписке</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}
         <details style="flex:1 1 100%;margin-top:6px"><summary class="small">Своё количество уроков (10 ₽ за урок)</summary>
         <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:8px">
@@ -182,7 +152,7 @@ const Access = (() => {
         <div class="small" style="flex:1 1 100%">Итоговую сумму считает сервер.</div>
         </details>
       </div>` : ""}
-      ${(cur === "free" || cur === "single" || !cur) && !promoFree() ? `<div class="tr-packs"><b>Разовые уроки</b><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px"><label class="small" for="oneN">Сколько уроков:</label><input type="number" id="oneN" min="1" max="50" step="1" value="${Number(A.singleQty || 1)}" inputmode="numeric" style="width:90px;padding:6px 8px;border:1.5px solid #1b1b1b;border-radius:10px;font:inherit;background:#fff"><span class="small">— <b id="onePrice">${Number(A.singleQty || 1) * 30} ₽</b></span><button class="btn sm flame" type="button" id="oneBuy">Купить уроки</button></div><div class="small" style="flex:1 1 100%">30 ₽ за урок, включая доработки. Оплата разовая.</div></div>` : ""}
+      ${(cur === "none" || cur === "single" || !cur) && !promoFree() ? `<div class="tr-packs"><b>Купить уроки — 30 ₽ за каждый</b><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px"><label class="small" for="oneN">Сколько уроков:</label><input type="number" id="oneN" min="1" max="50" step="1" value="${Number(A.singleQty || 1)}" inputmode="numeric" style="width:90px;padding:6px 8px;border:1.5px solid #1b1b1b;border-radius:10px;font:inherit;background:#fff"><span class="small">— <b id="onePrice">${Number(A.singleQty || 1) * 30} ₽</b></span><button class="btn sm flame" type="button" id="oneBuy">Купить уроки</button></div><div class="small" style="flex:1 1 100%">30 ₽ за каждый урок, включая токены на доработки.</div></div>` : ""}
       ${promoFree() ? "" : !me() ? `<div class="tr-promo"><b>Промокод</b><span class="small">Чтобы ввести промокод, войдите в личный кабинет.</span><button type="button" class="btn sm" id="trLogin">Войти или зарегистрироваться</button></div>` : `<form class="tr-promo" id="trPromo"><label for="trCode"><b>${pr ? "Другой промокод" : "Промокод"}</b></label><div class="row-btn"><input type="text" id="trCode" autocomplete="off" spellcheck="false" placeholder="Введите промокод"><button class="btn sm" type="submit">Применить</button></div><span class="small" id="trMsg" role="status"></span></form>`}
     </div></div>`);
     m.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buy(b.dataset.buy));
@@ -210,25 +180,24 @@ const Access = (() => {
       on.addEventListener("input", upd); on.addEventListener("change", () => { on.value = String(clamp(on.value)); upd(); }); upd();
       m.querySelector("#oneBuy")?.addEventListener("click", () => { A.singleQty = clamp(on.value); save(); buy("single"); });
     }
-    m.querySelector("#trReset")?.addEventListener("click", () => { closeModal(); const mm = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Вернуть бесплатный тариф</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">${testBox("Вернуть бесплатный")}</div></div>`); bindTest(mm, "free"); });
     const lg = m.querySelector("#trLogin"); if (lg) lg.onclick = () => { closeModal(); Access.wantPromo = true; window.Account?.open(); };
     if (m.querySelector("#trPromo")) m.querySelector("#trPromo").onsubmit = async e => {
       e.preventDefault(); const msg = m.querySelector("#trMsg"), code = m.querySelector("#trCode").value;
       if (!code.trim()) return; msg.textContent = "Проверяю…";
       const ok = await applyPromo(code);
-      if (ok?.free) { closeModal(); toast("Промокод принят: открыт бесплатный доступ ко всем возможностям сайта.", 6000); }
+      if (ok?.free) { closeModal(); toast("Промокод принят: открыт доступ по промокоду ко всем возможностям сайта.", 6000); }
       else if (ok) { closeModal(); toast(`Промокод принят: тарифы — со скидкой ${ok.pct}%.`, 5000); open(); }
       else msg.textContent = "Такого промокода нет. Проверьте написание.";
     };
   }
   /* Покупка: сначала вход в кабинет → сразу после входа — оформление выбранного тарифа → оплата */
   function buy(item) {
-    if (promoFree()) { closeModal(); toast("У вас бесплатный доступ по промокоду: все тарифы и функции уже открыты.", 5000); return; }
+    if (promoFree()) { closeModal(); toast("У вас доступ по промокоду: все тарифы и функции уже открыты.", 5000); return; }
     if (!me()) { closeModal(); Access.wantBuy = item; try { localStorage.setItem("uchu:want-buy", item); } catch { } toast("Войдите или зарегистрируйтесь — после этого сразу перейдёте к оплате.", 5000); window.Account?.open(); return; }
     checkout(item);
   }
   function checkout(item) {
-    if (promoFree()) { toast("У вас бесплатный доступ по промокоду: все тарифы и функции уже открыты.", 5000); return; }
+    if (promoFree()) { toast("У вас доступ по промокоду: все тарифы и функции уже открыты.", 5000); return; }
     // докупка своего количества уроков: buy("aiCustom:30") — количество и цену всё равно проверит сервер
     const cm = /^aiCustom:(\d{1,3})$/.exec(String(item || ""));
     const cn = cm ? Math.max(CUSTOM.min, Math.min(CUSTOM.max, Math.round(+cm[1]))) : 0;
@@ -239,7 +208,7 @@ const Access = (() => {
     const needKey = pr && P?.ai && !window.AI?.ownConfigured?.();
     const feats = P ? (pr && P.ai ? P.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : P.feats).filter(f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false)) : [];
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Оформление</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-      <div class="co-item"><span class="co-art">${P ? P.art : "✨"}</span><div><b>${singleN ? `${singleN} уроков (разово)` : P ? `Тариф «${P.name}»` : K.name}</b><div class="co-price">${P ? (up ? "доплата за оставшиеся дни" : `${singleN ? singleN * 30 : priceOf(item)} ₽ ${P.once ? "разово" : "/ " + (P.period || "мес")}${pr ? ` <s>${P.price} ₽</s> · промокод −${pct()}%` : ""}`) : `${K.price} ₽`}</div></div></div>
+      <div class="co-item"><span class="co-art">${P ? P.art : "✨"}</span><div><b>${singleN ? `${singleN} уроков` : P ? `Тариф «${P.name}»` : K.name}</b><div class="co-price">${P ? (up ? "доплата за оставшиеся дни" : `${singleN ? singleN * 30 : priceOf(item)} ₽ ${P.once ? "итого · 30 ₽ за каждый урок" : "/ " + (P.period || "мес")}${pr ? ` <s>${P.price} ₽</s> · промокод −${pct()}%` : ""}`) : `${K.price} ₽`}</div></div></div>
       ${needKey ? `<div class="co-key"><b>Чтобы этот тариф работал, подключите ключ своей нейросети.</b><button type="button" class="btn sm flame" id="coKey">Подключить ключ</button></div>` : ""}
       ${P ? `<ul class="tr-feats">${feats.filter(f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false)).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>` : `<p>Уроки с ИИ добавятся к вашему тарифу и не сгорают до конца оплаченного периода.</p>`}
       ${P && !P.once && !up && site().autopay && !pr ? `<label class="check"><input type="checkbox" id="coAuto" checked> Автоплатёж каждый месяц (отключить можно в любой момент по ссылке в письме)</label>` : ""}
@@ -252,7 +221,7 @@ const Access = (() => {
     payBtns.forEach(btn => btn.onclick = async () => {
       const method = btn.dataset.method;
       const msg = m.querySelector("#coMsg"), fn = window.UCHU_AI_CFG?.yandexFn || site().yandexFunction, tok = window.Account?.session?.access;
-      if (!site().payments || !fn) { msg.textContent = "Оплата открывается совсем скоро. Пока можно пользоваться бесплатным тарифом."; return; }
+      if (!site().payments || !fn) { msg.textContent = "Оплата сейчас недоступна. Попробуйте позже или обратитесь в поддержку."; return; }
       if (!tok) { msg.textContent = "Войдите в личный кабинет заново."; return; }
       msg.textContent = "Готовлю оплату…";
       try {
@@ -291,7 +260,7 @@ const Access = (() => {
         const S = window.Account?.session; if (S && j.patch) { if (j.patch.plan) S.plan = j.patch.plan; if (typeof j.patch.tokens_limit === "number") S.tokens = { used: j.patch.tokens_used || 0, limit: j.patch.tokens_limit }; paint(); }
         window.Account?.refreshPlan?.().catch(() => null);
         closeModal();
-        const nm = PLANS[item]?.name || PACKS[item]?.name || (n ? `${n} уроков с ИИ` : "Бесплатный");
+        const nm = PLANS[item]?.name || PACKS[item]?.name || (n ? `${n} уроков с ИИ` : "Доступ отключён");
         toast(`🧪 Тест: «${nm}» включён.${isDev() ? " Вы видите сайт как разработчик — чтобы увидеть, что видит учитель, нажмите «Посмотреть как учитель» в панели разработчика." : ""}`, 7000);
       } catch (e) { b.disabled = false; msg.textContent = "Не получилось: " + (e.name === "AbortError" ? "сервер не ответил за 30 секунд. Проверьте интернет и что в Яндекс Облаке загружен последний архив функции, затем нажмите ещё раз." : e instanceof TypeError ? "нет связи с сервером (интернет, VPN или адрес функции в настройках)." : (e.message || e)); }
       finally { clearTimeout(to); clearTimeout(slow); }
@@ -301,7 +270,7 @@ const Access = (() => {
   function afterPay() {
     const q = new URLSearchParams(location.search).get("pay"); if (!q) return;
     history.replaceState(null, "", location.pathname + location.hash);
-    if (q === "ok") { delete A.singlePlan; delete A.singleUsed; save(); toast("Оплата прошла! Тариф подключается — это занимает несколько секунд.", 7000); setTimeout(() => window.Account?.refreshPlan?.(), 2500); setTimeout(() => window.Account?.refreshPlan?.(), 8000); }
+    if (q === "ok") { window.Account?.refreshPlan?.(); delete A.singlePlan; delete A.singleUsed; save(); toast("Оплата прошла! Тариф подключается — это занимает несколько секунд.", 7000); setTimeout(() => window.Account?.refreshPlan?.(), 2500); setTimeout(() => window.Account?.refreshPlan?.(), 8000); }
     else toast("Оплата не завершена. Можно попробовать ещё раз в «Тарифах».", 6000);
   }
   document.addEventListener("uchu:ready", afterPay);
@@ -311,18 +280,24 @@ const Access = (() => {
     let b = document.getElementById("btnPlan");
     if (!b && commercial()) { b = document.createElement("button"); b.type = "button"; b.id = "btnPlan"; b.className = "btn sm ghost"; b.onclick = () => open(); document.querySelector(".nav")?.prepend(b); }
     // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
-    // счётчики перед доступом: уроки и токены на доработки
-    let lb = document.getElementById("lessonBadge");
-    const showCounters = commercial() && !isDev() && !promoFree() && !!window.Account?.session && ["free", "single", "ai", "aiYear"].includes(window.Account.session.plan);
-    if (showCounters && !lb) { lb = document.createElement("span"); lb.id = "lessonBadge"; lb.className = "small"; lb.style.cssText = "padding:4px 10px;border:1.5px solid var(--ink,#333);border-radius:999px;white-space:nowrap;font-weight:600"; document.querySelector(".account")?.prepend(lb); }
-    if (lb) { lb.hidden = !showCounters; if (showCounters) { const left = lessonsLeft(); lb.textContent = `📘 ${level() === "free" ? "Пробных уроков" : "Уроков доступно"}: ${left}`; lb.title = "Счётчик уроков по тарифу"; } }
-    // окошко расхода: сколько токенов потрачено и сколько осталось (только у вошедших, на платных и бесплатном тарифе)
-    let tk = document.getElementById("tokBadge");
-    const T = window.Account?.session?.tokens, show = commercial() && !isDev() && !promoFree() && !!window.Account?.session && ["free", "single", "ai", "aiYear"].includes(window.Account.session.plan);
-    if (show && !tk) { tk = document.createElement("span"); tk.id = "tokBadge"; tk.className = "small"; tk.style.cssText = "padding:4px 10px;border:1.5px solid var(--ink,#333);border-radius:999px;white-space:nowrap;font-weight:600"; document.querySelector(".account")?.prepend(tk); }
-    if (tk) { tk.hidden = !show; if (show) { const k = n => (n >= 1000 ? Math.round(n / 1000) + " тыс." : n); if (T) { const cr = n => Math.round(n / 4000 * 10) / 10, left = Math.max(0, T.limit - T.used); tk.textContent = `⚡ На доработки: ${cr(left)} из ${cr(T.limit)}`; tk.title = `Токены на доработки, правки и комментарии. Потрачено ${cr(T.used)}, осталось ${cr(left)}. Обновляется после каждой сборки.`; } else { tk.textContent = "⚡ Кредиты появятся после первой сборки"; tk.title = ""; } } }
+    let counters=document.getElementById("quotaCounters");
+    if(!counters){counters=document.createElement("div");counters.id="quotaCounters";counters.className="quota-counters";document.querySelector(".account")?.prepend(counters);}
+    counters.hidden=!commercial()||isDev()||promoFree();
+    if(!counters.hidden){
+      const S=window.Account?.session,ready=S?.profileState==="ready",loading=!!S&&(!S.profileState||S.profileState==="loading");
+      const fmt=n=>new Intl.NumberFormat("ru-RU").format(n),unknown=loading?"Загрузка…":S?"—":"Войдите";
+      const render=(id,label,left,limit,tokens)=>{
+        const known=typeof left==="number"&&Number.isFinite(left)&&typeof limit==="number"&&Number.isFinite(limit)&&limit>=0;
+        const ratio=known&&limit>0?Math.max(0,Math.min(1,left/limit)):0,color=ratio<.1?"low":ratio<.3?"medium":"high";
+        const value=known?(tokens?`${fmt(left)} / ${fmt(limit)}`:fmt(left)):unknown;
+        return `<div class="quota-counter" id="${id}"><span class="quota-label" role="tooltip" id="${id}Label">${label}</span><span class="quota-battery ${known?color:"unknown"}" tabindex="0" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?`${fmt(left)} из ${fmt(limit)}`:unknown}"><span class="quota-fill" style="width:${ratio*100}%"></span><b class="quota-value">${value}</b></span>${!tokens&&known&&left===0?'<button class="quota-buy" type="button">Докупите уроки</button>':""}</div>`;
+      };
+      const left=ready?S.aiLeft:null,limit=ready?(S.plan==="single"?S.aiLimit:S.plan==="none"?0:["ai","aiYear"].includes(S.plan)?50:null):null,T=ready?S.tokens:null;
+      counters.innerHTML=render("lessonBadge","Уроков доступно",left,limit,false)+render("tokBadge","Токены на доработки",T?Math.max(0,T.limit-T.used):null,T?.limit,true);
+      counters.querySelector(".quota-buy")?.addEventListener("click",()=>open());
+    }
     document.dispatchEvent(new Event("uchu:access"));
-    if (b) { const L = level(); b.textContent = promoFree() ? "✨ Тариф «С ИИ» · всё открыто" : `💳 ${planOf(L)?.name || "Тарифы"}`; b.title = promoFree() ? "Бесплатный доступ по промокоду: все возможности сайта" : "Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
+    if (b) { const L = level(); b.textContent = promoFree() ? "✨ Тариф «С ИИ» · всё открыто" : `Тарифы${window.Account?.session?.profileState==="ready"?" · "+(planOf(L)?.name||""):""}`; b.title = promoFree() ? "Бесплатный доступ по промокоду: все возможности сайта" : "Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);

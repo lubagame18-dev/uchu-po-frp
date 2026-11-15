@@ -11,8 +11,7 @@ function newUser(app,fields) {
   const r=new Record(app.findCollectionByNameOrId('uchu_users')),password=$security.randomString(64);
   r.set('password',password);r.set('passwordConfirm',password);r.set('verified',true);
   Object.keys(fields).forEach(k=>r.set(k,fields[k]));app.save(r);
-  const eligible=require(__hooks+'/privacy.js').claimTrial(app,r);
-  u.identityTools.write(app,'profiles',{id:r.id,email:r.getString('email'),plan:'free',ai_left:eligible?2:0,tokens_limit:eligible?80000:0,tokens_used:0,trial_blocked:!eligible},{service:true},'POST');return r;
+  u.identityTools.write(app,'profiles',{id:r.id,email:r.getString('email'),plan:'none',ai_left:0,ai_limit:0,tokens_limit:0,tokens_used:0},{service:true},'POST');return r;
 }
 function enabled(flag) { if($os.getenv(flag)!=='true'||$os.getenv('UCHU_SERVICE_TOKEN').length<32)fail(503,'This login method is not enabled on this server'); }
 function limit(app,key,max,duration) {
@@ -103,7 +102,7 @@ exports.oauthFinish=(e,kind)=>u.identityTools.send(e,()=>{
       if(record&&record.id!==login.owner)fail(409,'OAuth identity is linked to another account');
       record=app.findRecordById('uchu_users',login.owner);
       if(record.getString(kind+'_id')&&record.getString(kind+'_id')!==identity.id)fail(409,'Changing a linked OAuth identity requires account recovery review');
-      record.set(kind+'_id',identity.id);app.save(record);require(__hooks+'/privacy.js').claimTrial(app,record);
+      record.set(kind+'_id',identity.id);app.save(record);
     } else if(!record){
       if($os.getenv('UCHU_ALLOW_'+kind.toUpperCase()+'_SIGNUP')!=='true')fail(403,'OAuth registration is not enabled');
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity.email))fail(400,'OAuth identity must provide an email address');

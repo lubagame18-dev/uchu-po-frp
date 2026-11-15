@@ -79,6 +79,11 @@ function write(app, table, row, c, method) {
   if (!key || key.length > 512) fail(400, 'Missing/invalid record key');
   let r = lookup(app, table, key);
   const old = r ? payload(r) : null;
+  if(table==='profiles'&&c.service&&row.plan==='free'){
+    // Legacy proxies POST an empty profile before applying a promo/payment. Keep existing credits.
+    if(old&&method==='POST')return old;
+    row=Object.assign({},row,{plan:'none',ai_left:0,ai_limit:0,tokens_limit:0,tokens_used:0});
+  }
   // Never merge a record from a different tenant, including collision on a guessed ID.
   if (old && !canRead(app, table, old, c)) fail(403, 'Record belongs to another user');
   const next = Object.assign({}, old || {}, row);
@@ -189,9 +194,8 @@ exports.auth = function(e) { return send(e, () => {
     record.set('email', String(body.email || '').toLowerCase()); record.set('password', body.password); record.set('passwordConfirm', body.password);
     e.app.runInTransaction(tx => {
       tx.save(record);
-      const eligible=require(__hooks+'/privacy.js').claimTrial(tx,record);
       require(__hooks+'/privacy.js').recordAcceptance(tx,record.id,legal,'email');
-      write(tx, 'profiles', {id: record.id, email: record.getString('email'), plan: 'free', ai_left: eligible?2:0, tokens_limit: eligible?80000:0, tokens_used: 0, trial_blocked:!eligible}, {service: true}, 'POST');
+      write(tx, 'profiles', {id: record.id, email: record.getString('email'), plan:'none',ai_left:0,ai_limit:0,tokens_limit:0,tokens_used:0}, {service: true}, 'POST');
     });
     $mails.sendRecordVerification(e.app, record);
     return e.json(200, {user: publicUser(record)});
@@ -235,6 +239,24 @@ exports.rpc = function(e) { return send(e, () => {
     const p = c.uid && lookup(e.app, 'profiles', c.uid), row = p && payload(p);
     const promo = row && row.promo_free_code && lookup(e.app, 'promo_codes', row.promo_free_code);
     return e.json(200, !!promo && payload(promo).active === true && payload(promo).free === true);
+  }
+  if(name==='consume_lesson'){
+    if(!c.uid)fail(401,'Sign in before counting a lesson');
+    if(!/^[A-Za-z0-9_-]{1,128}$/.test(String(body.lesson_id||'')))fail(400,'Invalid lesson ID');
+    let result;e.app.runInTransaction(app=>{
+      const lesson=lookup(app,'lessons',body.lesson_id),profile=lookup(app,'profiles',c.uid);
+      if(!lesson||lesson.getString('owner')!==c.uid)fail(403,'Lesson does not belong to this account');
+      if(!profile)fail(404,'Profile not found');
+      const p=payload(profile);
+      if(!lesson.getBool('quota_counted')){
+        if(!Object.values(payload(lesson).data?.docs||{}).some(x=>typeof x==='string'&&x.trim()))fail(400,'Lesson has no completed materials');
+        if(!Number.isInteger(p.ai_left)||p.ai_left<0)fail(503,'Lesson balance is not available');
+        if(p.ai_left===0)fail(402,'No lessons remaining');
+        if(p.plan==='single'&&!Number.isFinite(p.ai_limit))p.ai_limit=p.ai_left;
+        p.ai_left--;write(app,'profiles',p,{service:true},'PATCH');lesson.set('quota_counted',true);app.save(lesson);
+      }
+      result={ai_left:p.ai_left,ai_limit:p.ai_limit,tokens_limit:p.tokens_limit,tokens_used:p.tokens_used};
+    });return e.json(200,result);
   }
   if (!c.service) fail(403, 'Server credential required');
   if (name === 'migration_inventory') {
@@ -281,21 +303,26 @@ function applyPayment(app, body, c) {
   const plan = plans[item], promo = !!p.promo || p.plan === 'promo';
   if (type === 'single') {
     const n = Math.max(1, Math.min(50, Number(item) || 1));
+    p.ai_limit=Math.max(0,p.ai_limit??p.ai_left??0)+n;
     p.plan = 'single'; p.ai_left = (p.ai_left || 0) + n;
     p.tokens_limit = (p.tokens_limit || 0) + n * 80000;
     p.tokens_used = 0;
     p.paid_until = new Date(Date.now() + 365*86400000).toISOString();
   } else if (type === 'plan' && plan) {
     const same = p.plan === item, until = Math.max(Date.now(), Date.parse(p.paid_until || '') || 0);
+    p.ai_limit=plan.ai;
     p.ai_left = (promo ? 0 : plan.ai) + (same ? Math.max(0,p.ai_left || 0) : 0);
     p.tokens_limit = (promo ? 0 : plan.tokens) + (same ? Math.max(0,(p.tokens_limit || 0)-(p.tokens_used || 0)) : 0);
     p.tokens_used = 0; p.paid_until = new Date((same ? until : Date.now())+plan.days*86400000).toISOString(); p.plan = item;
   } else if (type === 'up' && plan) {
+    p.ai_limit=plan.ai;
     const old = plans[p.plan] || {ai:0,tokens:0}; p.plan=item;
     p.ai_left = Math.max(0,(p.ai_left || 0)+(promo ? 0 : plan.ai-old.ai));
     p.tokens_limit = (p.tokens_limit || 0)+(promo ? 0 : Math.max(0,plan.tokens-old.tokens));
   } else if ((type === 'pack' && packs[item]) || (type === 'custom' && /^\d+$/.test(item) && Number(item)>=1 && Number(item)<=200)) {
     const n = promo ? 0 : (type === 'pack' ? packs[item] : Number(item));
+    if(['none','free'].includes(p.plan))p.plan='single';
+    if(p.plan==='single')p.ai_limit=(p.ai_limit??p.ai_left??0)+n;
     p.ai_left=(p.ai_left || 0)+n; p.tokens_limit=(p.tokens_limit || 0)+n*40000;
   } else fail(409, 'Invalid stored product');
   write(app, 'profiles', p, c, 'PATCH'); order.status='paid'; write(app, 'payments', order, c, 'PATCH');
@@ -315,6 +342,6 @@ exports.adminUser = function(e) { return send(e, () => {
   const r=new Record(e.app.findCollectionByNameOrId('uchu_users'));
   r.set('email',email);r.set('phone',phone);r.set('password',body.password);r.set('passwordConfirm',body.password);
   r.set('verified',body.email_confirm === true || !!phone);r.set('legacy_id',body.legacy_id || '');
-  e.app.runInTransaction(tx => {tx.save(r);write(tx,'profiles',{id:r.id,email:r.getString('email'),plan:'free',ai_left:2,tokens_limit:80000,tokens_used:0},{service:true},'POST');});
+  e.app.runInTransaction(tx => {tx.save(r);write(tx,'profiles',{id:r.id,email:r.getString('email'),plan:'none',ai_left:0,ai_limit:0,tokens_limit:0,tokens_used:0},{service:true},'POST');});
   return e.json(201,publicUser(r));
 }); };
