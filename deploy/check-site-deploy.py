@@ -18,10 +18,10 @@ with tempfile.TemporaryDirectory() as tmp:
     fake.chmod(0o755)
     calls = Path(tmp) / 'calls'
     env = dict(os.environ, PATH=tmp + os.pathsep + os.environ['PATH'],
-               AWS_CALLS=str(calls), BUCKET='test-only', ENDPOINT='https://example.invalid')
+               AWS_CALLS=str(calls), ACCOUNT_FILES=workflow['jobs']['deploy']['env']['ACCOUNT_FILES'], BUCKET='test-only', ENDPOINT='https://example.invalid')
     subprocess.run(['bash', '-e', '-c', script], cwd=ROOT, env=env, check=True)
     commands = [json.loads(line) for line in calls.read_text().splitlines()]
-assert len(commands) == 4
+assert len(commands) > 4
 sync = commands[0]
 assert sync[:3] == ['s3', 'sync', '.']
 assert '--size-only' in sync
@@ -36,8 +36,15 @@ for path in ['knowledge-base/a.json', 'knowledge/frp/a.json', 'knowledge/a/b.htm
     assert excluded(path), path
 for path in ['index.html', 'sw.js', 'js/app.js', 'css/style.css']:
     assert not excluded(path), path
-for command, name in zip(commands[1:], ['sw.js', 'index.html', 'js/accounts-config.js']):
-    assert command[:3] == ['s3', 'cp', name]
+copies={command[2] for command in commands[1:]}
+# These source changes can have exactly the old byte length (e.g. 13 -> 15).
+# Every account release file must be copied even when bulk sync skips it.
+manifest=json.loads((ROOT/'deploy/balances/release.json').read_text())
+assert set(manifest['public_files']) <= copies
+for command in commands[1:]:
+    assert command[:2] == ['s3', 'cp']
+    # This explicit public student quiz page is also in the account-only deployment.
+    assert not excluded(command[2]) or command[2] == 'test/index.html'
     assert command[command.index('--cache-control') + 1] == 'no-cache'
 ps = (ROOT / 'deploy/local-deploy.ps1').read_text()
 assert 'site-excludes.txt' in ps and '@exclusions' in ps
