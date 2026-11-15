@@ -315,7 +315,7 @@ const Account = (() => {
       const freeOk = p?.promo_free_code ? !!(await api("/rest/v1/rpc/promo_free_ok", { method: "POST", body: "{}" }).catch(() => false)) : false;
       // бесплатный доступ «без срока»: сервер выдаёт тариф «С ИИ» с далёкой датой окончания
       const forever = (p?.plan === "ai" || p?.plan === "aiYear") && p?.paid_until && new Date(p.paid_until).getFullYear() >= 2090;
-      if (p && S?.uid === uid) { S.plan = p.plan; S.promoFree = freeOk || forever; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
+      if (p && S?.uid === uid) { S.plan = p.plan; S.aiLeft = typeof p.ai_left === "number" ? p.ai_left : null; S.paidUntil = p.paid_until || null; S.promoFree = freeOk || forever; S.promoPct = p.promo_pct || null; S.promo = !freeOk && (!!p.promo || p.plan === "promo"); S.tokens = typeof p.tokens_limit === "number" ? { used: p.tokens_used || 0, limit: p.tokens_limit || 0 } : null; save(); window.Access?.paint(); }
       return p;
     } catch { return null; }
   }

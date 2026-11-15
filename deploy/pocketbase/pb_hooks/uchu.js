@@ -279,7 +279,13 @@ function applyPayment(app, body, c) {
   const p = payload(profile), parts = String(order.kind).split('_'), type = parts[0], item = parts[1];
   const plans = {single:{ai:1,tokens:80000,days:365},ai:{ai:50,tokens:2700000,days:30},aiYear:{ai:50,tokens:2700000,days:365}}, packs={ai10:10,ai30:30,ai50:50};
   const plan = plans[item], promo = !!p.promo || p.plan === 'promo';
-  if (type === 'plan' && plan) {
+  if (type === 'single') {
+    const n = Math.max(1, Math.min(50, Number(item) || 1));
+    p.plan = 'single'; p.ai_left = (p.ai_left || 0) + n;
+    p.tokens_limit = (p.tokens_limit || 0) + n * 80000;
+    p.tokens_used = 0;
+    p.paid_until = new Date(Date.now() + 365*86400000).toISOString();
+  } else if (type === 'plan' && plan) {
     const same = p.plan === item, until = Math.max(Date.now(), Date.parse(p.paid_until || '') || 0);
     p.ai_left = (promo ? 0 : plan.ai) + (same ? Math.max(0,p.ai_left || 0) : 0);
     p.tokens_limit = (promo ? 0 : plan.tokens) + (same ? Math.max(0,(p.tokens_limit || 0)-(p.tokens_used || 0)) : 0);

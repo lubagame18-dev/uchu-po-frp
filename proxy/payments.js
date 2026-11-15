@@ -62,6 +62,7 @@ async function userOf(token, request, readAll) { if (!token) return null; const 
 async function profile(id, request, readAll) { return (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0] || null; }
 /* Сколько должен стоить платёж: сумму сверяем с ценой сервера, а не с тем, что прислал браузер */
 function expectOf(type, item, p) {
+  if (type === "single") return /^\d{1,2}$/.test(String(item)) ? Number(item) * 30 : undefined;
   if (type === "pack") return PACKS[item]?.price;
   if (type === "custom") return customN(item) ? customPrice(+item) : undefined;
   if (type === "plan") return Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined;
@@ -102,9 +103,15 @@ async function create(body, userToken, request, readAll) {
     if (cur && left > 0 && PLANS[item].price > cur.price) {
       // повышение тарифа: доплата разницы только за оставшиеся дни
       kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / ((PLANS[item]?.days || 30) * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
+    } else if (item === "single") {
+      const n = Math.max(1, Math.min(50, Math.round(+body.n || 1)));
+      kind = "single_" + n;
+      price = n * 30;
+      name = `${n} урок(ов) разово`;
+      sub = "";
     } else {
-      const per = PLANS[item].days === 365 && item === "single" ? "разово" : (PLANS[item].days || 30) >= 365 ? "1 год" : "1 месяц";
-      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `${item === "single" ? "Один урок" : "Тариф «" + PLANS[item].name + "»"}, ${per}${promo ? ` (промокод −${pct()}%)` : ""}`;
+      const per = (PLANS[item].days || 30) >= 365 ? "1 год" : "1 месяц";
+      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», ${per}${promo ? ` (промокод −${pct()}%)` : ""}`;
       if (body.autopay && !promo) sub = env("PRODAMUS_SUB_" + item.toUpperCase());
     }
   } else return { status: 400, json: { error: "нет такого тарифа" } };
@@ -222,6 +229,7 @@ function patchFor(p, type, item, promo) {
   const now = Date.now(), until = p.paid_until && new Date(p.paid_until) > now ? new Date(p.paid_until).getTime() : now;
   const leftTok = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0));
   if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + (PLANS[item]?.days || 30) * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
+  if (type === "single") { const n = Math.max(1, Math.min(50, +item || 1)); return { plan: "single", ai_left: (p.ai_left || 0) + n, paid_until: new Date(now + 365 * DAY).toISOString(), tokens_limit: (p.tokens_limit || 0) + n * 80000, tokens_used: 0 }; }
   if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: (p.tokens_limit || 0) + Math.max(0, tokOf(item) - tokOf(p.plan)) };
   // докупка: пакет (pack) или своё количество (custom) — уроки и токены добавляются к текущим.
   // По промокоду докупка не нужна (ИИ — своя нейросеть), поэтому ничего не начисляем.
