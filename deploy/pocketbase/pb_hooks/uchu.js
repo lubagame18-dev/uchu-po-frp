@@ -277,7 +277,7 @@ function applyPayment(app, body, c) {
   if (!Number.isFinite(body.amount) || Math.abs(body.amount - order.amount) > 0.01) fail(409, 'Payment amount mismatch');
   const profile = lookup(app, 'profiles', order.user_id); if (!profile) fail(409, 'Missing profile');
   const p = payload(profile), parts = String(order.kind).split('_'), type = parts[0], item = parts[1];
-  const plans = {ai:{ai:50,tokens:2700000,days:30},aiYear:{ai:50,tokens:2700000,days:365}}, packs={ai10:10,ai30:30,ai50:50};
+  const plans = {single:{ai:1,tokens:80000,days:365},ai:{ai:50,tokens:2700000,days:30},aiYear:{ai:50,tokens:2700000,days:365}}, packs={ai10:10,ai30:30,ai50:50};
   const plan = plans[item], promo = !!p.promo || p.plan === 'promo';
   if (type === 'plan' && plan) {
     const same = p.plan === item, until = Math.max(Date.now(), Date.parse(p.paid_until || '') || 0);

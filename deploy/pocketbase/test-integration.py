@@ -142,19 +142,19 @@ class Accounts(unittest.TestCase):
     def test_04_payment_transaction_retries_and_concurrency(self):
         uid,token=self.users[0]
         self.assertEqual(self.api('/rest/v1/profiles',body={'id':uid,'plan':'ai','ai_left':0,'tokens_limit':0,'tokens_used':0},service=True)[0],201)
-        self.assertEqual(self.api('/rest/v1/payments',body={'order_id':'fixture-order','user_id':uid,'kind':'pack_ai10','amount':70,'status':'created'},service=True)[0],201)
+        self.assertEqual(self.api('/rest/v1/payments',body={'order_id':'fixture-order','user_id':uid,'kind':'pack_ai10','amount':100,'status':'created'},service=True)[0],201)
         path='/rest/v1/rpc/apply_payment'
         self.assertEqual(self.api(path,body={'order_id':'fixture-order','amount':1},service=True)[0],409)
-        self.assertEqual(self.api(path,body={'order_id':'missing','amount':70},service=True)[0],409)
+        self.assertEqual(self.api(path,body={'order_id':'missing','amount':100},service=True)[0],409)
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
-            results=list(pool.map(lambda _:self.api(path,body={'order_id':'fixture-order','amount':70},service=True),range(8)))
+            results=list(pool.map(lambda _:self.api(path,body={'order_id':'fixture-order','amount':100},service=True),range(8)))
         self.assertTrue(all(status==200 for status,_ in results),results)
         self.assertEqual(sum(1 for _,r in results if r['applied']),1)
         status,rows=self.api('/rest/v1/profiles?id=eq.'+uid,token=token)
         self.assertEqual(status,200);self.assertEqual(rows[0]['ai_left'],10);self.assertEqual(rows[0]['tokens_limit'],400000)
         # Rollback when the transaction discovers an unknown stored product.
-        self.api('/rest/v1/payments',body={'order_id':'bad-product','user_id':uid,'kind':'unknown','amount':70,'status':'created'},service=True)
-        self.assertEqual(self.api(path,body={'order_id':'bad-product','amount':70},service=True)[0],409)
+        self.api('/rest/v1/payments',body={'order_id':'bad-product','user_id':uid,'kind':'unknown','amount':100,'status':'created'},service=True)
+        self.assertEqual(self.api(path,body={'order_id':'bad-product','amount':100},service=True)[0],409)
         self.assertEqual(self.api('/rest/v1/payments?order_id=eq.bad-product',service=True)[1][0]['status'],'created')
 
     def test_05_atomic_spend(self):
@@ -184,8 +184,8 @@ class Accounts(unittest.TestCase):
     def test_07_proxy_webhook(self):
         uid,_=self.users[0]
         self.api('/rest/v1/profiles',body={'id':uid,'plan':'ai','ai_left':0,'tokens_limit':0,'tokens_used':0},service=True)
-        self.api('/rest/v1/payments',body={'order_id':'proxy-fixture','user_id':uid,'kind':'pack_ai10','amount':70,'status':'created'},service=True)
-        scenario={'payment':{'status':'succeeded','paid':True,'amount':{'value':'70.00','currency':'RUB'},'metadata':{'uid':uid,'order':'proxy-fixture','kind':'pack_ai10'}},'expectedLessons':10,'expectedTokens':400000}
+        self.api('/rest/v1/payments',body={'order_id':'proxy-fixture','user_id':uid,'kind':'pack_ai10','amount':100,'status':'created'},service=True)
+        scenario={'payment':{'status':'succeeded','paid':True,'amount':{'value':'100.00','currency':'RUB'},'metadata':{'uid':uid,'order':'proxy-fixture','kind':'pack_ai10'}},'expectedLessons':10,'expectedTokens':400000}
         result=subprocess.run(['node',str(KIT/'test-proxy.cjs')],input=json.dumps(scenario),text=True,capture_output=True,
           env=dict(os.environ,ACCOUNTS_BACKEND='pocketbase',POCKETBASE_URL=self.base,POCKETBASE_SERVICE_TOKEN=self.service,YOOKASSA_SHOP_ID='fixture',YOOKASSA_KEY='fixture'))
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)

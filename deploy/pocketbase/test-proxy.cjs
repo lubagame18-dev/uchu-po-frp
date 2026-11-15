@@ -18,6 +18,6 @@ const request=backend.wrapRequest(raw),readAll=async r=>r.body;
  assert.equal(first.status,200);assert.equal(second.status,200);
  const r=await fetch(base+'/rest/v1/profiles?id=eq.'+scenario.payment.metadata.uid,{headers:{apikey:process.env.POCKETBASE_SERVICE_TOKEN}});
  const row=(await r.json())[0];assert.equal(row.ai_left,scenario.expectedLessons);assert.equal(row.tokens_limit,scenario.expectedTokens);
- const invalid=await PAY.notify('order_id='+encodeURIComponent(order)+'&sum=70&payment_status=success',{sign:'wrong-signature'},request,readAll);assert.equal(invalid.status,400);
+ const invalid=await PAY.notify('order_id='+encodeURIComponent(order)+'&sum=100&payment_status=success',{sign:'wrong-signature'},request,readAll);assert.equal(invalid.status,400);
  console.log('PASS: real Yandex payment module settles once in PocketBase; invalid Prodamus signature refused');
 })().catch(e=>{console.error(e.message);process.exit(1)});

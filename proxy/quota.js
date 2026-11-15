@@ -47,7 +47,7 @@ async function check(userToken, request, readAll) {
   // пробный доступ: 2 урока с ИИ — токены начисляем один раз (старые профили, созданные без лимита)
   if (!require("./accounts-backend.js").pocketbase() && p.plan === "free" && tok && (p.tokens_limit || 0) <= 0 && (p.tokens_used || 0) <= 0) { p.tokens_limit = FREE_TOK(); await patch({ tokens_limit: FREE_TOK(), tokens_used: 0 }); }
   if (p.plan !== "free" && p.plan !== "promo" && p.paid_until && new Date(p.paid_until) < new Date()) { p.plan = "free"; p.ai_left = 0; const b = { plan: "free", ai_left: 0, free_month: month }; if (tok) { b.tokens_limit = p.tokens_limit = require("./accounts-backend.js").pocketbase()?0:FREE_TOK(); b.tokens_used = p.tokens_used = 0; } await patch(b); }
-  const NO = { ok: false, status: 402, reason: "quota", message: "Лимит 50 уроков с ИИ на этот месяц закончился. Докупите уроки в личном кабинете: пакет 10, 30 или 50 уроков — или своё количество от 1 до 200. Лимит обновится в начале месяца." };
+  const NO = { ok: false, status: 402, reason: "quota", message: "Лимит уроков с ИИ закончился. Докупите уроки в разделе «Тарифы»: в подписке — 10 ₽ за урок, без подписки — 30 ₽ за один урок." };
   if(p.trial_blocked)NO.message="Пробный доступ для этой почты или входа уже предоставлялся. Подключите тариф или пакет в кабинете.";
   else if(p.plan==="free")NO.message="Пробный лимит закончился. Подключите тариф или пакет в кабинете.";
   if (tok) { const left = (p.tokens_limit || 0) - (p.tokens_used || 0); if (left <= 0) return NO; return { ok: true, id, tok: true, left, used: p.tokens_used || 0, limit: p.tokens_limit || 0 }; }

@@ -55,15 +55,15 @@ class Privacy(unittest.TestCase):
         result=subprocess.run(['node',str(Path(__file__).with_name('test-trial-quota.cjs'))],input=json.dumps({'base':self.base,'service':self.service,'token':newtoken,'allowed':False}),text=True,capture_output=True,timeout=20)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertEqual(self.api('/rest/v1/profiles',token=newtoken)[1][0]['tokens_limit'],0)
-        self.api('/rest/v1/payments',service=True,body={'order_id':'recreated-paid-pack','user_id':recreated['user']['id'],'kind':'pack_ai10','amount':70,'status':'created'})
-        self.assertEqual(self.api('/rest/v1/rpc/apply_payment',service=True,body={'order_id':'recreated-paid-pack','amount':70})[0],200)
+        self.api('/rest/v1/payments',service=True,body={'order_id':'recreated-paid-pack','user_id':recreated['user']['id'],'kind':'pack_ai10','amount':100,'status':'created'})
+        self.assertEqual(self.api('/rest/v1/rpc/apply_payment',service=True,body={'order_id':'recreated-paid-pack','amount':100})[0],200)
         result=subprocess.run(['node',str(Path(__file__).with_name('test-trial-quota.cjs'))],input=json.dumps({'base':self.base,'service':self.service,'token':newtoken,'allowed':True}),text=True,capture_output=True,timeout=20)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
         status,claims=self.api('/api/collections/uchu_trial_claims/records?perPage=100',raw=True,token=self.admin);self.assertEqual(status,200);self.assertNotIn('gmail.com',json.dumps(claims));self.assertNotIn('Trial.Fixture',json.dumps(claims))
     def test_02b_pending_payment_blocks_deletion_until_reconciled(self):
         session=self.create_user('privacy-pending@example.invalid');uid=session['user']['id'];token=session['access_token']
-        self.api('/rest/v1/payments',service=True,body={'order_id':'privacy-pending-order','user_id':uid,'kind':'pack_ai10','amount':70,'status':'created'})
+        self.api('/rest/v1/payments',service=True,body={'order_id':'privacy-pending-order','user_id':uid,'kind':'pack_ai10','amount':100,'status':'created'})
         self.assertEqual(self.api('/privacy/v1/delete-start',token=token,body={})[0],200)
         msg=email.message_from_bytes(integration.MailSink.messages[-1]);text=''.join(p.get_payload(decode=True).decode(errors='replace') for p in msg.walk() if p.get_content_type()=='text/html');code=re.search(r'<strong>([0-9]{8})</strong>',text).group(1)
         self.assertEqual(self.api('/privacy/v1/delete-confirm',body={'code':code},token=token)[0],409)

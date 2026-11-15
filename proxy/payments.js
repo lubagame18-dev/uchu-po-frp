@@ -8,25 +8,26 @@
      SUPABASE_URL, SUPABASE_SERVICE_KEY — облако кабинета (тариф записывается туда)
    Маршруты: POST /pay/create (сайт просит ссылку на оплату), POST /pay/notify (Продамус сообщает об оплате).
    Тарифы: единственный платный — «С ИИ» (400 ₽/мес) и «С ИИ, год» (3900 ₽/год): всё доступно, 50 уроков с ИИ в месяц.
-   Докупка уроков: пакеты 10/30/50 (70/190/300 ₽) и «своё количество» от 1 до 200 (7 ₽ за урок, не меньше 70 ₽).
+   Докупка уроков в подписке: пакеты 10/30/50 (100/300/500 ₽) и «своё количество» от 1 до 200 (10 ₽ за урок).
    Цены — только здесь, на сервере: подменить цену со стороны браузера нельзя.
    =================================================================== */
 const crypto = require("crypto");
 /* tokens — запас токенов ИИ сайта (DeepSeek) на 50 уроков (≈ 40 тыс. токенов на урок) плюс правки и пересборки */
 const PLANS = {
+  single: { name: "Один урок", price: 30, ai: 1, tokens: 80000, days: 365 },
   ai: { name: "С ИИ", price: 400, ai: 50, tokens: 2700000, days: 30 },
   aiYear: { name: "С ИИ, год", price: 3900, ai: 50, tokens: 2700000, days: 365 }
 };
 const PROMO_K = 0.5; // скидка по промокоду, если у кода не задан свой процент
 const kOf = p => (!!p.promo || p.plan === "promo") ? (p.promo_pct ? 1 - Math.max(1, Math.min(99, +p.promo_pct)) / 100 : PROMO_K) : 1;
 const PACKS = {
-  ai10: { name: "10 уроков с ИИ", price: 70, ai: 10, tokens: 400000 },
-  ai30: { name: "30 уроков с ИИ", price: 190, ai: 30, tokens: 1200000 },
-  ai50: { name: "50 уроков с ИИ", price: 300, ai: 50, tokens: 2000000 }
+  ai10: { name: "10 уроков с ИИ", price: 100, ai: 10, tokens: 400000 },
+  ai30: { name: "30 уроков с ИИ", price: 300, ai: 30, tokens: 1200000 },
+  ai50: { name: "50 уроков с ИИ", price: 500, ai: 50, tokens: 2000000 }
 };
 const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
-/* «Своё количество» уроков: 1–200, цена max(70, ceil(n×7)) ₽ — считается только на сервере */
-const CUSTOM = { min: 1, max: 200, per: 7, minPrice: 70 };
+/* «Своё количество» уроков: 1–200, 10 ₽ за урок — считается только на сервере */
+const CUSTOM = { min: 1, max: 200, per: 10, minPrice: 10 };
 const customPrice = n => Math.max(CUSTOM.minPrice, Math.ceil(n * CUSTOM.per));
 const customN = v => { const n = Number(v); return Number.isInteger(n) && n >= CUSTOM.min && n <= CUSTOM.max ? n : 0; };
 const DAY = 864e5;
@@ -102,8 +103,8 @@ async function create(body, userToken, request, readAll) {
       // повышение тарифа: доплата разницы только за оставшиеся дни
       kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / ((PLANS[item]?.days || 30) * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
     } else {
-      const per = (PLANS[item].days || 30) >= 365 ? "1 год" : "1 месяц";
-      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», ${per}${promo ? ` (промокод −${pct}%)` : ""}`;
+      const per = PLANS[item].days === 365 && item === "single" ? "разово" : (PLANS[item].days || 30) >= 365 ? "1 год" : "1 месяц";
+      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `${item === "single" ? "Один урок" : "Тариф «" + PLANS[item].name + "»"}, ${per}${promo ? ` (промокод −${pct()}%)` : ""}`;
       if (body.autopay && !promo) sub = env("PRODAMUS_SUB_" + item.toUpperCase());
     }
   } else return { status: 400, json: { error: "нет такого тарифа" } };
