@@ -1,7 +1,7 @@
 /* ===================================================================
    «Учу по ФРП» — расход ИИ в понятных единицах.
-   ⚡ 1 кредит = 4 000 токенов (≈ 2–3 страницы текста туда и обратно).
-   Урок с ИИ целиком ≈ 10 ⚡, пересборка одного документа ≈ 3 ⚡, правка по просьбе ≈ 1–2 ⚡.
+   ⚡ 1 балл = 2 000 расчётных единиц себестоимости. Баллы — представление серверного остатка, не отдельный кошелёк.
+   Полная покупка одного урока включает 10 баллов только на доработки; создание оплачивается отдельным уроком.
    Каждый ответ нейросети записывается сюда: сколько токенов ушло и на что
    (сборка урока, правка, пересборка). Если сервис не прислал точную цифру,
    токены оцениваются по длине текста. Журнал хранится в этом браузере,
@@ -11,7 +11,7 @@
    =================================================================== */
 const Usage = (() => {
   "use strict";
-  const KEY = "uchu:usage", PER = 4000, USD = { in: 0.30, out: 1.20 }, RUB = 95;
+  const KEY = "uchu:usage", PER = 2000, USD = { in: 0.30, out: 1.20 }, RUB = 82.1516;
   let label = "", topic = "", lastAt = 0;
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || { ops: [] }; } catch { return { ops: [] }; } };
   const store = d => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch { } };
@@ -34,7 +34,8 @@ const Usage = (() => {
   }
   const credits = tok => tok / PER;
   /* ⚡ без огромных чисел: 0,4 ⚡ · 3 ⚡ · 12 ⚡ */
-  const fmt = tok => { const c = credits(tok); return (c < 10 ? (Math.round(c * 10) / 10).toLocaleString("ru-RU") : Math.round(c).toLocaleString("ru-RU")) + " ⚡"; };
+  const balance=tok=>{const value=Math.floor(Math.max(0,tok)/PER*10)/10;return tok>0&&value===0?"<0,1":value.toLocaleString("ru-RU");};
+  const fmt = tok => balance(tok) + " ⚡";
   const rub = op => ((op.in * USD.in + op.out * USD.out) / 1e6) * RUB;
   const fmtRub = r => r < 1 ? r.toFixed(2).replace(".", ",") + " ₽" : (Math.round(r * 10) / 10).toLocaleString("ru-RU") + " ₽";
   function stats() {
@@ -77,6 +78,6 @@ const Usage = (() => {
       <p class="small">Расчёт: DeepSeek flash днём $0,30 / $1,20 за 1 млн токенов (ночью вдвое дешевле), курс ${RUB} ₽ за $. Один урок с ИИ ≈ 40 тыс. токенов ≈ ${fmtRub(LESSON_TOK * perTok)}; лист с картинками ≈ ${IMG_UNIT} ₽. Комиссия платёжного сервиса и налог самозанятой — ≈ 10%: с 400 ₽ это ≈ 40 ₽. В пересчёте на месяц годовой тариф даёт ≈ 325 ₽, себестоимость ИИ при полном расходе лимитов ≈ 281 ₽, комиссия и налог ≈ 32 ₽ — остаётся ≈ 12 ₽/мес (≈ 133 ₽ за год). 1 ⚡ ≈ ${fmtRub(PER * perTok)}. Урок с ИИ по вашему журналу ≈ ${fmtRub((s.avgLesson || LESSON_TOK) * perTok)}${s.avgLesson ? " (по вашим урокам)" : ""}. $2 на балансе DeepSeek ≈ ${Math.round(2 * RUB / ((s.avgLesson || LESSON_TOK) * perTok))} уроков с ИИ.</p>`;
   }
   const esc = x => String(x ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  return { begin, add, stats, html, cost, fmt, credits, PER };
+  return { begin, add, stats, html, cost, fmt, balance, credits, PER };
 })();
 window.Usage = Usage;

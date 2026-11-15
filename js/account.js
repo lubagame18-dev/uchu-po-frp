@@ -355,19 +355,21 @@ const Account = (() => {
 
     if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");
     else if (!lim && !dev) h += row("ИИ сайта", "не входит в тариф");
-    // расход в ⚡ (1 ⚡ = 4 000 токенов): по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера
-    h+=row("Токены на доработки",hasTok&&typeof p.tokens_used==="number"?`${Math.max(0,p.tokens_limit-p.tokens_used).toLocaleString("ru-RU")} / ${p.tokens_limit.toLocaleString("ru-RU")}`:"—");
+    // расход в баллах ИИ: по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера
+    const points=n=>window.Usage?.balance?Usage.balance(n):(Math.floor(n/200)/10).toLocaleString("ru-RU");
+    h+=row("Баллы ИИ",hasTok&&typeof p.tokens_used==="number"?`${points(Math.max(0,p.tokens_limit-p.tokens_used))} / ${points(p.tokens_limit)}`:"—");
+    h+='<p class="small">Баллы расходуются только на доработки. Создание списывает один урок и не уменьшает этот запас. Расход правок зависит от длины текста.</p>';
     if(window.Usage&&(dev||S.promo))h+=Usage.html({dev,planTok:0,usedTok:null});
     h += "</div>";
     return h;
   }
   /* Расход ИИ по тарифу: полоска «потрачено из доступного» */
-  const kTok = n => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace(".", ",") + " млн" : Math.round(n / 1000) + " тыс.";
+  const kTok = n => (Math.floor(n/200)/10).toLocaleString("ru-RU")+" бал.";
   function tokLine(p) {
     const lim = p.tokens_limit || 0, used = Math.min(p.tokens_used || 0, lim || p.tokens_used || 0), left = Math.max(0, lim - used);
     if (!lim) return "<br><b>ИИ сайта:</b> не входит в тариф";
     const pct = Math.round(used / lim * 100);
-    const U = n => window.Usage ? Usage.fmt(n) : kTok(n); return `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div><span class="small"><b>ИИ:</b> потрачено ${U(used)} из ${U(lim)} · осталось ≈ ${Math.floor(left / 40000)} уроков с ИИ</span>`;
+    const U = n => window.Usage ? Usage.fmt(n) : kTok(n); return `<div class="tok-bar" role="img" aria-label="Потрачено ${pct}%"><span style="width:${pct}%"></span></div><span class="small"><b>ИИ:</b> потрачено ${U(used)} из ${U(lim)} · осталось ${U(left)} на доработки</span>`;
   }
   /* Неприметный вход разработчика — в самом низу окна кабинета, справа */
   const devLink = () => ""; /* вход разработчика только на /dev.html */

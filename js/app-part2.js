@@ -1670,13 +1670,7 @@ async function createLesson() {
     if (wantDeck) await stage("slides", "рисую картинки", () => aiDeckPics(L));
     if (wantWs) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
   };
-  try {
-    const result=await runJob(L,p,type,gen,formats,useAi,hideTech);
-    if(Object.values(L.docs||{}).some(text=>typeof text==="string"&&text.trim())){
-      try{await window.Access?.countLesson(L.id);}catch(e){toast("Урок сохранён, но остаток пока не обновлён: "+e.message,8000);}
-    }
-    return result;
-  } finally {window.Account?.refreshPlan?.().then(()=>window.Access?.paint()).catch(()=>null);}
+  return runJob(L,p,type,gen,formats,useAi,hideTech);
 }
 /* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
 function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте ключ: режим разработчика → «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций» → «Проверить и нарисовать тест»." : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
@@ -1830,6 +1824,19 @@ function saveJob(J) { try { localStorage.setItem(JOB_KEY, JSON.stringify(J)); } 
 function loadJob() { try { return JSON.parse(localStorage.getItem(JOB_KEY)); } catch { return null; } }
 function clearJob(id) { const J = loadJob(); if (!J || !id || J.id === id) try { localStorage.removeItem(JOB_KEY); } catch { } }
 async function runJob(L, p, type, gen, formats, useAi, hideTech) {
+  const paid=window.AccountsBackend?.config().provider==='pocketbase'&&Account.session?.uid&&window.Access?.commercial()&&!Access.isDev()&&!Access.promoFree();
+  if(paid&&useAi){
+    await Account.db('/rest/v1/lessons',{method:'POST',body:JSON.stringify({id:L.id,user_id:Account.session.uid,data:L,updated_at:L.updatedAt})});
+    window.AI?.setCreationLesson?.(L.id);
+  }
+  try{return await runJobContent(L,p,type,gen,formats,useAi,hideTech);}
+  finally{
+    if(paid&&useAi)window.AI?.setCreationLesson?.('');
+    if(paid&&Object.values(L.docs||{}).some(text=>typeof text==='string'&&text.trim()))try{await Access.countLesson(L.id);}catch(e){toast('Урок сохранён, но остаток пока не обновлён: '+e.message,8000);}
+    window.Account?.refreshPlan?.().then(()=>window.Access?.paint()).catch(()=>null);
+  }
+}
+async function runJobContent(L, p, type, gen, formats, useAi, hideTech) {
   const PL = window.Subjects?.plugin(p.subject); if (PL) return runPlugin(L, p, type, gen, formats, useAi, hideTech, PL);
   // файлы из заметок участвуют в сборке только этого урока
   const noteMats = window.Notes ? Notes.lessonMaterials(p.notes) : [];

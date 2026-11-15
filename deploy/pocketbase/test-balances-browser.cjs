@@ -1,9 +1,15 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright'),f=JSON.parse(fs.readFileSync(0,'utf8')),root=path.resolve(__dirname,'../..'),origin='http://localhost:18766';
+Object.assign(process.env,{ACCOUNTS_BACKEND:'pocketbase',POCKETBASE_URL:f.base,POCKETBASE_SERVICE_TOKEN:f.service,YOOKASSA_SHOP_ID:'fixture',YOOKASSA_KEY:'fixture'});
+const PAY=require('../../proxy/payments.js'),backend=require('../../proxy/accounts-backend.js');let providerPayment=null;
+const paymentRequest=backend.wrapRequest(async(url,opt={})=>{if(url.startsWith('https://api.yookassa.ru/'))return {statusCode:200,body:JSON.stringify(providerPayment)};const r=await fetch(url,{method:opt.method||'GET',headers:opt.headers,body:opt.body});return {statusCode:r.status,body:await r.text()};});
 (async()=>{const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});try{
  const errors=[];let hold=true,release;const gate=new Promise(r=>release=r);
  async function context(){const c=await browser.newContext();await c.route('**/*',async route=>{const req=route.request(),u=new URL(req.url());
+  if(u.hostname==='functions.yandexcloud.net'&&u.searchParams.get('path')==='/pay/status'){
+   const r=await PAY.status(JSON.parse(req.postData()||'{}'),req.headers()['x-user-token'],paymentRequest,async x=>x.body);return route.fulfill({status:r.status,contentType:'application/json',body:JSON.stringify(r.json)});
+  }
   if(req.url().startsWith(f.base+'/api/')){
    if(hold&&req.method()==='GET'&&u.pathname.endsWith('/profiles'))await gate;
    const headers={...req.headers()};delete headers.host;
@@ -24,8 +30,8 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright'),f=JSON.par
  const b=await context();await b.evaluate(x=>Account.signIn(x.email,x.password),f);await refresh(b);assert.equal(await b.locator('#lessonBadge .quota-value').innerText(),'2');
  await b.evaluate(()=>localStorage.setItem('uchu:access',JSON.stringify({used:999,singleUsed:999,trialUsed:999})));await b.reload();await b.waitForFunction(()=>Account.session?.profileState==='ready');assert.equal(await b.locator('#lessonBadge .quota-value').innerText(),'2');
  await lesson(b,'browser-charge-2');await a.evaluate(()=>window.dispatchEvent(new Event('focus')));await a.locator('#lessonBadge .quota-value').filter({hasText:'1'}).waitFor();
- await api('/rest/v1/rpc/spend_ai',{p_id:f.uid,p_tok:true,p_tokens:50000});await a.evaluate(()=>window.dispatchEvent(new Event('uchu:usage')));await a.locator('#tokBadge .quota-value').filter({hasText:'180'}).waitFor();assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'1');
- await profile('ai',50,2700000,2470000,50);await refresh(a);assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'50');assert.equal((await a.locator('#tokBadge .quota-value').innerText()).replace(/\s/g,''),'230000/2700000');
+ await api('/rest/v1/rpc/spend_ai',{p_id:f.uid,p_tok:true,p_tokens:50000});await a.evaluate(()=>window.dispatchEvent(new Event('uchu:usage')));await a.locator('#tokBadge .quota-value').filter({hasText:'90'}).waitFor();assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'1');
+ await profile('ai',50,2700000,2470000,50);await refresh(a);assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'50');assert.equal((await a.locator('#tokBadge .quota-value').innerText()).replace(/\s/g,''),'115/1350');
  await a.mouse.move(0,850);assert.equal(await a.locator('#lessonBadgeLabel').isVisible(),false);
  await a.locator('#lessonBadge .quota-meter').hover();assert.equal(await a.locator('#lessonBadgeLabel').isVisible(),true);
  await a.mouse.move(0,850);await a.locator('#tokBadge .quota-meter').focus();assert.equal(await a.locator('#tokBadgeLabel').isVisible(),true);await a.locator('#tokBadge .quota-meter').blur();
@@ -45,9 +51,15 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright'),f=JSON.par
  }
  const beforeCharge=await tiles(a);await lesson(a,'browser-subscription-charge');assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'49');assert.deepEqual(await tiles(a),beforeCharge,'Balance update must not move the tiles');
  await profile('aiYear',50,2700000,0,50);await refresh(a);assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'50');
- await profile('ai',0,2700000,0,50);await refresh(a);assert.equal(await a.locator('#lessonBadge [role=progressbar]').getAttribute('aria-valuenow'),'0');assert.equal(await a.locator('.quota-buy').count(),0);await a.locator('#btnPlan').click();await a.locator('.tr-dlg').waitFor();assert(!(await a.locator('.tr-dlg').innerText()).includes('Пробный'));await a.evaluate(()=>closeModal());
+ await profile('ai',0,2700000,0,50);await refresh(a);assert.equal(await a.locator('#lessonBadge [role=progressbar]').getAttribute('aria-valuenow'),'0');assert.equal(await a.locator('.quota-buy').count(),0);await a.locator('#lessonBadge .quota-action').click();await a.locator('.tr-dlg').waitFor();assert(!(await a.locator('.tr-dlg').innerText()).includes('Пробный'));await a.evaluate(()=>closeModal());
  for(const [used,color] of [[80,'medium'],[95,'low'],[0,'high']]){await profile('single',3,100,used,3);await refresh(a);assert(await a.locator('#tokBadge .quota-meter').evaluate((x,c)=>x.classList.contains(c),color));}
  await api('/rest/v1/profiles',{id:f.uid,plan:'single',ai_left:null,ai_limit:null,tokens_limit:null,tokens_used:null});await refresh(a);assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'—');assert.equal(await a.locator('#tokBadge .quota-value').innerText(),'—');assert.equal(await a.locator('#tokBadge [role=progressbar]').getAttribute('aria-valuenow'),null);
  await api('/rest/v1/profiles',{id:f.uid,plan:'none',ai_left:0,ai_limit:0,tokens_limit:0,tokens_used:0});await refresh(a);await a.evaluate(()=>Account.open());await a.locator('#acPlans').click();assert((await a.locator('.tr-dlg').innerText()).includes('30 ₽'));assert(!(await a.locator('.tr-dlg').innerText()).includes('разово'));assert(!(await a.locator('.tr-dlg').innerText()).includes('Пробный'));
+ await a.evaluate(()=>closeModal());
+ const order='browser-instant-paid';await api('/rest/v1/payments',{order_id:order,user_id:f.uid,kind:'single_1',amount:30,status:'created',provider_id:'browser-payment'});
+ providerPayment={id:'browser-payment',status:'succeeded',paid:true,amount:{value:'30.00',currency:'RUB'},metadata:{order,uid:f.uid,kind:'single_1'}};
+ await a.evaluate(order=>{history.replaceState(null,'','/?pay=ok&order='+order);document.dispatchEvent(new Event('uchu:ready'));},order);
+ await a.waitForFunction(()=>Account.session.aiLeft===1);assert.equal(await a.locator('#tokBadge .quota-value').innerText(),'10 / 10');assert.equal(await a.locator('.quota-action').count(),0);
+ await a.evaluate(()=>Access.checkPayment('browser-instant-paid'));assert.equal(await a.locator('#lessonBadge .quota-value').innerText(),'1');
  assert.deepEqual(errors,[]);console.log('PASS: real PocketBase values; two-device sync; unchanged balances; equal stationary hero tiles; desktop column/mobile row; no upsell; 320–1440px and ARIA.');
 }finally{await browser.close();}})().catch(e=>{console.error(e.stack);process.exit(1)});

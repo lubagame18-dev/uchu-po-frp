@@ -231,6 +231,7 @@ const Access = (() => {
         let j = await ask(method);
         if (!j.url && method === "sbp" && ![401, 403, 503].includes(j.status)) { msg.textContent = "СБП сейчас недоступна — открываю оплату картой или SberPay…"; j = await ask("any"); } // СБП не вышла: сразу вторая страница, без лишних нажатий
         if (!j.url) throw new Error(j.err);
+        if(j.order_id)try{sessionStorage.setItem("uchu:pending-payment",JSON.stringify({uid:Account.session.uid,order:j.order_id}));}catch{}
         location.href = j.url;
       } catch (e) { payBtns.forEach(b => b.disabled = false); msg.textContent = "Не получилось: " + (e.message || e) + (method === "sbp" ? " Попробуйте «Картой или SberPay»." : ""); }
     });
@@ -266,14 +267,49 @@ const Access = (() => {
       finally { clearTimeout(to); clearTimeout(slow); }
     };
   }
-  /* Возврат с оплаты: ?pay=ok — обновить тариф из кабинета */
+  /* Confirm with the payment provider on return/focus; a redirect alone is not proof of payment. */
+  let paymentCheck=null,paymentTimer=null;
+  function pendingOrder(){try{const p=JSON.parse(sessionStorage.getItem("uchu:pending-payment")||"null");return p?.uid===window.Account?.session?.uid?p.order:"";}catch{return "";}}
+  async function checkPayment(order=pendingOrder(),notify=false,attempt=0){
+    const uid=window.Account?.session?.uid;if(!uid||Account.session.local)return null;
+    if(paymentCheck?.uid===uid){if(order&&paymentCheck.order!==order)return paymentCheck.promise.then(()=>checkPayment(order,notify,attempt));return paymentCheck.promise;}
+    const job={uid,order};job.promise=(async()=>{
+      try{
+        await Account.refreshPlan();if(Account.session?.uid!==uid)return null;
+        const fn=window.UCHU_AI_CFG?.yandexFn||site().yandexFunction;if(!fn)return null;
+        const base=fn.replace(/\/+$/,""),url=/functions\.yandexcloud\.net/.test(base)?`${base}?path=${encodeURIComponent("/pay/status")}`:base+"/pay/status";
+        const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-User-Token":Account.session.access},body:JSON.stringify(order?{order_id:order}:{}),signal:AbortSignal.timeout(20000)}),j=await r.json();
+        if(Account.session?.uid!==uid)return null;
+        if(!r.ok)throw new Error(j.error||"Подтверждение оплаты пока недоступно.");
+        if(j.state==="paid"){
+          clearTimeout(paymentTimer);await Account.refreshPlan();
+          if(Account.session?.uid===uid){try{sessionStorage.removeItem("uchu:pending-payment");}catch{}if(notify)toast("Оплата подтверждена. Уроки добавлены в кабинет.",7000);}
+        }else if(j.state==="pending"){
+          if(notify&&attempt===0)toast("Проверяем подтверждение банка. Повторно оплачивать не нужно.",7000);
+          if(attempt<5){clearTimeout(paymentTimer);paymentTimer=setTimeout(()=>checkPayment(order,notify,attempt+1),[1000,2000,4000,8000,15000][attempt]);}
+        }else if(j.state==="canceled"){
+          try{sessionStorage.removeItem("uchu:pending-payment");}catch{}if(notify)toast("Платёж отменён банком. Уроки не списывались.",7000);
+        }
+        return j;
+      }catch(e){
+        if(Account.session?.uid!==uid)return null;
+        if(notify&&attempt===0)toast((e.message||"Не удалось проверить оплату.")+" Повторно не платите.",8000);
+        if((order||notify)&&attempt<5){clearTimeout(paymentTimer);paymentTimer=setTimeout(()=>checkPayment(order,notify,attempt+1),[1000,2000,4000,8000,15000][attempt]);}
+        return null;
+      }finally{if(paymentCheck===job)paymentCheck=null;}
+    })();paymentCheck=job;return job.promise;
+  }
   function afterPay() {
     const q = new URLSearchParams(location.search).get("pay"); if (!q) return;
+    const order=new URLSearchParams(location.search).get("order")||pendingOrder();
     history.replaceState(null, "", location.pathname + location.hash);
-    if (q === "ok") { window.Account?.refreshPlan?.(); delete A.singlePlan; delete A.singleUsed; save(); toast("Оплата прошла! Тариф подключается — это занимает несколько секунд.", 7000); setTimeout(() => window.Account?.refreshPlan?.(), 2500); setTimeout(() => window.Account?.refreshPlan?.(), 8000); }
+    if (q === "ok") { delete A.singlePlan;delete A.singleUsed;save();checkPayment(order,true); }
     else toast("Оплата не завершена. Можно попробовать ещё раз в «Тарифах».", 6000);
   }
   document.addEventListener("uchu:ready", afterPay);
+  window.addEventListener("focus",()=>checkPayment());
+  document.addEventListener("uchu:auth",()=>checkPayment());
+  document.addEventListener("uchu:ready",()=>checkPayment());
   /* ---------- навигация и остатки в закреплённой области первого экрана ---------- */
   function paint() {
     const ai = document.getElementById("btnAi"); if (ai) ai.hidden = !isDev(); /* ключи ИИ — только у разработчика */
@@ -286,20 +322,23 @@ const Access = (() => {
     if(!counters.hidden){
       const S=window.Account?.session,ready=S?.profileState==="ready",loading=!!S&&(!S.profileState||S.profileState==="loading");
       const fmt=n=>new Intl.NumberFormat("ru-RU").format(n),unknown=loading?"Загрузка…":S?"—":"Войдите";
+      const points=n=>window.Usage?.balance?Usage.balance(n):(n>0&&n<200?"<0,1":fmt(Math.floor(n/200)/10));
       const render=(id,label,left,limit,tokens)=>{
         const known=typeof left==="number"&&Number.isFinite(left)&&typeof limit==="number"&&Number.isFinite(limit)&&limit>=0;
         const ratio=known&&limit>0?Math.max(0,Math.min(1,left/limit)):0,color=ratio<.1?"low":ratio<.3?"medium":"high";
-        const value=known?(tokens?`${fmt(left)} / ${fmt(limit)}`:fmt(left)):unknown;
-        return `<div class="quota-counter" id="${id}"><span class="quota-label" role="tooltip" id="${id}Label">${label}</span><span class="quota-meter ${known?color:"unknown"}" tabindex="0" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?`${fmt(left)} из ${fmt(limit)}`:unknown}"><span class="quota-fill" style="width:${ratio*100}%"></span><b class="quota-value">${value}</b></span></div>`;
+        const value=known?(tokens?`${points(left)} / ${points(limit)}`:fmt(left)):unknown;
+        const empty=known&&left===0;
+        return `<div class="quota-counter" id="${id}"><span class="quota-label" role="tooltip" id="${id}Label">${label}</span><span class="quota-meter ${known?color:"unknown"}" tabindex="${empty?-1:0}" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?(tokens?`${points(left)} из ${points(limit)} баллов`:`${fmt(left)} из ${fmt(limit)}`):unknown}"><span class="quota-fill" style="width:${ratio*100}%"></span><b class="quota-value">${value}</b></span>${empty?`<button class="quota-action" type="button" aria-label="${label}: ${value}. Купить уроки" aria-haspopup="dialog"></button>`:""}</div>`;
       };
       const left=ready?S.aiLeft:null,limit=ready?(S.plan==="single"?S.aiLimit:S.plan==="none"?0:["ai","aiYear"].includes(S.plan)?50:null):null,T=ready?S.tokens:null;
-      counters.innerHTML=render("lessonBadge","Уроков доступно",left,limit,false)+render("tokBadge","Токены на доработки",T?Math.max(0,T.limit-T.used):null,T?.limit,true);
+      counters.innerHTML=render("lessonBadge","Уроков доступно",left,limit,false)+render("tokBadge","Баллы на доработки",T?Math.max(0,T.limit-T.used):null,T?.limit,true);
+      counters.querySelectorAll(".quota-action").forEach(button=>button.addEventListener("click",()=>open()));
     }
     document.dispatchEvent(new Event("uchu:access"));
     if (b) { const L = level(); b.textContent = "Тарифы"; b.title = promoFree() ? "Доступ по промокоду: все возможности сайта" : window.Account?.session?.profileState==="ready"?`Тарифы и промокод · ${planOf(L)?.name||""}`:"Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);
-  return { sheetsLeft, countSheet, imageLeft, countImage, promoFree, asTeacher, canBuildAsync, techAllowed, imagesAllowed, level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, customPrice, CUSTOM, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
+  return { checkPayment, sheetsLeft, countSheet, imageLeft, countImage, promoFree, asTeacher, canBuildAsync, techAllowed, imagesAllowed, level, label, isDev, isPromo, priceOf, afterKey: null, wantPromo: false, wantBuy: null, checkout, PACKS, customPrice, CUSTOM, ownAi, aiAllowed, canBuild, countLesson, lessonsLeft, applyPromo, leavePromo, open, paint, PLANS, sha: s => sha(SALT + norm(s)), commercial };
 })();
 window.Access = Access;
