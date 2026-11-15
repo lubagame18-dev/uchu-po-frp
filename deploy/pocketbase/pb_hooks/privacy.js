@@ -1,5 +1,5 @@
 'use strict';
-const VERSION='2026-11-13', u=()=>require(__hooks+'/uchu.js'), DAY=86400000;
+const VERSION='2026-11-15', u=()=>require(__hooks+'/uchu.js'), DAY=86400000;
 const fail=(status,message)=>{throw Object.assign(new Error(message),{status});};
 function rows(app,name,owner){return app.findRecordsByFilter('uchu_'+name,owner===undefined?'':'owner = {:owner}','',10001,0,{owner:owner||''});}
 function data(r){return JSON.parse(r.getString('payload'));}
@@ -74,8 +74,6 @@ exports.handle=e=>u().identityTools.send(e,()=>{
       s.attempts++;r.set('data',s);app.save(r);
       if(!$security.equal(s.hash,digest(c.uid+':'+body.code))){error='Неверный код.';return;}
       if(rows(app,'payments',c.uid).some(r=>data(r).status==='created'))fail(409,'Есть незавершённый платёж. Для сверки и удаления напишите оператору: gladyshevalu14@mail.ru. Рабочие данные пока не удалялись.');
-      exports.claimTrial(app,c.user);
-      for(const key of identities(c.user)){const claim=get(app,'trial_claims',key);if(claim&&claim.getString('owner')===c.uid)put(app,'trial_claims',key,'',{recorded_at:new Date().toISOString(),expires:threeYearsFrom(Date.now())});}
       // Keep minimal payment/acceptance evidence for accounting and claims; never expose it to a new account.
       for(const r of rows(app,'free_usage'))if(data(r).key==='u:'+c.uid)app.delete(r);
       for(const name of ['lessons','profiles','user_info','quizzes','quiz_questions','quiz_results','shared_materials','base_materials','bot_links'])for(const row of rows(app,name,c.uid))app.delete(row);
@@ -83,7 +81,7 @@ exports.handle=e=>u().identityTools.send(e,()=>{
       for(const row of app.findRecordsByFilter('uchu_login_state','key = {:key}','',10,0,{key:'delete:'+c.uid}))app.delete(row);
       put(app,'deletions',c.uid,'',{deleted_at:new Date().toISOString()});
       app.delete(app.findRecordById('uchu_users',c.uid));
-    });if(error)fail(400,error);let backupQueued=true;try{$os.writeFile(e.app.dataDir()+'/.privacy-backup-needed',String(Date.now())+':'+c.uid,0o600);}catch(_){backupQueued=false;}return e.json(200,{deleted:true,backup_queued:backupQueued,retained:['minimal_payment_and_acceptance_evidence','trial_hmac_up_to_3_years','restricted_rotating_backups']});
+    });if(error)fail(400,error);let backupQueued=true;try{$os.writeFile(e.app.dataDir()+'/.privacy-backup-needed',String(Date.now())+':'+c.uid,0o600);}catch(_){backupQueued=false;}return e.json(200,{deleted:true,backup_queued:backupQueued,retained:['minimal_payment_and_acceptance_evidence','restricted_rotating_backups']});
   }
   fail(404,'Неизвестное действие.');
 });

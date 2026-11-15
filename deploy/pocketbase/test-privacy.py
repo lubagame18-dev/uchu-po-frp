@@ -3,7 +3,7 @@ import importlib.util,json,secrets,socketserver,threading,re,email,html,time,uni
 from pathlib import Path
 from urllib.parse import urlsplit,parse_qs
 spec=importlib.util.spec_from_file_location('integration',Path(__file__).with_name('test-integration.py'));integration=importlib.util.module_from_spec(spec);spec.loader.exec_module(integration)
-LEGAL={'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','consent_version':'2026-11-13','profile_consent':False}
+LEGAL={'offer':True,'offer_version':'2026-11-15','policy_version':'2026-11-15','consent_version':'2026-11-15','profile_consent':False}
 class Privacy(unittest.TestCase):
     api=classmethod(integration.Accounts.api.__func__)
     start=classmethod(integration.Accounts.start.__func__)
@@ -28,17 +28,17 @@ class Privacy(unittest.TestCase):
         row={'id':uid,'name':'Private fixture name'}
         self.assertEqual(self.api('/rest/v1/user_info',body=row,token=token)[0],403)
         self.assertEqual(self.api('/privacy/v1/profile-consent',body={'accepted':True,'version':'old'},token=token)[0],400)
-        self.assertEqual(self.api('/privacy/v1/profile-consent',body={'accepted':True,'version':'2026-11-13'},token=token)[0],200)
+        self.assertEqual(self.api('/privacy/v1/profile-consent',body={'accepted':True,'version':'2026-11-15'},token=token)[0],200)
         self.assertEqual(self.api('/rest/v1/user_info',body=row,token=token)[0],201)
         status,export=self.api('/privacy/v1/export',token=token);self.assertEqual(status,200);self.assertEqual(export['account']['id'],uid)
         self.assertEqual(export['tables']['user_info'][0]['name'],row['name']);self.assertNotIn('password',json.dumps(export));self.assertNotIn('access_token',json.dumps(export))
         self.assertEqual(self.api('/privacy/v1/export')[0],401)
-        self.assertEqual(self.api('/privacy/v1/profile-consent',body={'accepted':False,'version':'2026-11-13'},token=token)[0],200)
+        self.assertEqual(self.api('/privacy/v1/profile-consent',body={'accepted':False,'version':'2026-11-15'},token=token)[0],200)
         self.assertEqual(self.api('/rest/v1/user_info',token=token)[1],[])
         self.assertFalse(self.api('/privacy/v1/status',token=token)[1]['profile_consent'])
     def test_02_delete_code_ownership_export_and_trial_replay(self):
         session=self.create_user('Trial.Fixture+first@gmail.com');uid=session['user']['id'];token=session['access_token'];other=self.users[0][1]
-        self.assertEqual(self.api('/rest/v1/profiles',token=token)[1][0]['ai_left'],2)
+        self.assertEqual(self.api('/rest/v1/profiles',token=token)[1][0]['ai_left'],0)
         self.api('/rest/v1/lessons',body={'id':'privacy-delete-own','data':{'lesson':'DELETE-ME'}},token=token)
         self.api('/rest/v1/lessons',body={'id':'privacy-delete-other','data':{'lesson':'KEEP-ME'}},token=other)
         self.assertEqual(self.api('/privacy/v1/delete-start',token=token,body={})[0],200)
@@ -50,7 +50,7 @@ class Privacy(unittest.TestCase):
         self.assertEqual(self.api('/rest/v1/lessons?id=eq.privacy-delete-own',service=True)[1],[])
         self.assertEqual(len(self.api('/rest/v1/lessons?id=eq.privacy-delete-other',token=other)[1]),1)
         recreated=self.create_user('trialfixture+second@googlemail.com');newtoken=recreated['access_token']
-        profile=self.api('/rest/v1/profiles',token=newtoken)[1][0];self.assertEqual(profile['ai_left'],0);self.assertEqual(profile['tokens_limit'],0);self.assertTrue(profile['trial_blocked']);self.assertEqual(self.api('/rest/v1/rpc/free_use_bump',body={'keys':['u:'+recreated['user']['id']],'lims':[2],'mon':'2026-11','dry':False},service=True)[1]['left'],0)
+        profile=self.api('/rest/v1/profiles',token=newtoken)[1][0];self.assertEqual(profile['ai_left'],0);self.assertEqual(profile['tokens_limit'],0);self.assertEqual(profile['plan'],'none')
         self.assertEqual(self.api('/rest/v1/lessons',token=newtoken)[1],[])
         result=subprocess.run(['node',str(Path(__file__).with_name('test-trial-quota.cjs'))],input=json.dumps({'base':self.base,'service':self.service,'token':newtoken,'allowed':False}),text=True,capture_output=True,timeout=20)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)

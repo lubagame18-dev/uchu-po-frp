@@ -6,7 +6,7 @@ class Legal(unittest.TestCase):
   hashes=json.loads((ROOT/'deploy/pocketbase/pb_hooks/privacy-documents.js').read_text().removeprefix('module.exports=').strip().removesuffix(';'))
   for name,expected in hashes.items():
    current=(ROOT/'legal'/name).read_text().replace('<head>','<head><base href="/legal/">',1);current=re.sub(r'<script[\s\S]*?</script>','',current)
-   archived=(ROOT/'legal/archive/2026-11-13'/name).read_bytes();self.assertEqual(current.encode(),archived);self.assertEqual(hashlib.sha256(archived).hexdigest(),expected)
+   archived=(ROOT/'legal/archive/2026-11-15'/name).read_bytes();self.assertEqual(current.encode(),archived);self.assertEqual(hashlib.sha256(archived).hexdigest(),expected)
   meta=(ROOT/'data/legal.js').read_text();self.assertIn('gladyshevalu14@mail.ru',meta);self.assertIn('Крылова',meta);self.assertNotIn('address: ""',meta)
   policy=(ROOT/'legal/privacy.html').read_text();self.assertIn('PocketBase',policy);self.assertIn('HMAC',policy);self.assertIn('необязатель',policy);self.assertNotIn('пароль (в зашифрованном виде)',policy)
  def test_no_initial_profile_consent_or_google_font_request(self):

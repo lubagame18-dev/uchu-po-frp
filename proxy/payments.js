@@ -107,7 +107,7 @@ async function create(body, userToken, request, readAll) {
       const n = Math.max(1, Math.min(50, Math.round(+body.n || 1)));
       kind = "single_" + n;
       price = n * 30;
-      name = `${n} урок(ов) разово`;
+      name = `Покупка уроков: ${n} × 30 ₽`;
       sub = "";
     } else {
       const per = (PLANS[item].days || 30) >= 365 ? "1 год" : "1 месяц";

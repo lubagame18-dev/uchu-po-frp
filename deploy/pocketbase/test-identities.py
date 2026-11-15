@@ -91,7 +91,7 @@ exports.googleIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         status,s=self.api('/auth/v1/token?grant_type=password',body={'email':u['email'],'password':self.password});self.assertEqual(status,200,s);return s
     def oauth(self,token=None,link=False,kind="yandex",registration=True):
         verifier=secrets.token_urlsafe(32);state=secrets.token_urlsafe(32);challenge=base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).decode().rstrip('=')
-        body={'state':state,'code_challenge':challenge,'link':link,'legal':{'offer':True,'offer_version':'2026-11-13','policy_version':'2026-11-13','profile_consent':False,'consent_version':'2026-11-13'} if registration else None};status,j=self.api('/auth/v1/'+kind+'_start',body=body,token=token);self.assertEqual(status,200,j)
+        body={'state':state,'code_challenge':challenge,'link':link,'legal':{'offer':True,'offer_version':'2026-11-15','policy_version':'2026-11-15','profile_consent':False,'consent_version':'2026-11-15'} if registration else None};status,j=self.api('/auth/v1/'+kind+'_start',body=body,token=token);self.assertEqual(status,200,j)
         q=parse_qs(urlsplit(j['url']).query);self.assertEqual(q['state'],[state]);self.assertEqual(q['code_challenge'],[challenge]);self.assertEqual(q['redirect_uri'],['https://uchu-po-frp.ru/'+kind+'.html'])
         return {'state':state,'code_verifier':verifier}
     def finish(self,b,identity,token=None,kind='yandex'):return self.api('/auth/v1/'+kind+'_finish',body=dict(b,code=json.dumps(identity) if isinstance(identity,dict) else identity),token=token)
@@ -101,7 +101,7 @@ exports.googleIdentity=(code,verifier,callback)=>{const r=$http.send({url:FIXTUR
         self.assertEqual(self.verify(p,code)[0],400)
         self.assertEqual(self.api('/rest/v1/lessons',body={'id':'sms-lesson','data':{'text':'private'}},token=s['access_token'])[0],201)
         other=self.email_user('sms-other');self.assertEqual(self.api('/rest/v1/lessons?id=eq.sms-lesson',token=other['access_token'])[1],[])
-        profiles=self.api('/rest/v1/profiles?id=eq.'+uid,token=s['access_token'])[1];self.assertEqual(len(profiles),1);self.assertEqual(profiles[0]['ai_left'],2)
+        profiles=self.api('/rest/v1/profiles?id=eq.'+uid,token=s['access_token'])[1];self.assertEqual(len(profiles),1);self.assertEqual(profiles[0]['ai_left'],0)
         self.assertEqual(self.api('/api/collections/uchu_login_state/records',token=s['access_token'],raw=True)[0],403)
     def test_02_sms_attempts_expiry_and_resend(self):
         p='+79000000002';code=self.sms(p);bad='000000' if code!='000000' else '111111'
