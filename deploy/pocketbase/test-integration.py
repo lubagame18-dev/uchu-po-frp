@@ -151,7 +151,7 @@ class Accounts(unittest.TestCase):
         self.assertTrue(all(status==200 for status,_ in results),results)
         self.assertEqual(sum(1 for _,r in results if r['applied']),1)
         status,rows=self.api('/rest/v1/profiles?id=eq.'+uid,token=token)
-        self.assertEqual(status,200);self.assertEqual(rows[0]['ai_left'],10);self.assertEqual(rows[0]['tokens_limit'],400000)
+        self.assertEqual(status,200);self.assertEqual(rows[0]['ai_left'],10);self.assertEqual(rows[0]['tokens_limit'],200000)
         # Rollback when the transaction discovers an unknown stored product.
         self.api('/rest/v1/payments',body={'order_id':'bad-product','user_id':uid,'kind':'unknown','amount':100,'status':'created'},service=True)
         self.assertEqual(self.api(path,body={'order_id':'bad-product','amount':100},service=True)[0],409)
@@ -183,12 +183,14 @@ class Accounts(unittest.TestCase):
 
     def test_07_proxy_webhook(self):
         uid,_=self.users[0]
-        self.api('/rest/v1/profiles',body={'id':uid,'plan':'ai','ai_left':0,'tokens_limit':0,'tokens_used':0},service=True)
-        self.api('/rest/v1/payments',body={'order_id':'proxy-fixture','user_id':uid,'kind':'pack_ai10','amount':100,'status':'created'},service=True)
-        scenario={'payment':{'status':'succeeded','paid':True,'amount':{'value':'100.00','currency':'RUB'},'metadata':{'uid':uid,'order':'proxy-fixture','kind':'pack_ai10'}},'expectedLessons':10,'expectedTokens':400000}
-        result=subprocess.run(['node',str(KIT/'test-proxy.cjs')],input=json.dumps(scenario),text=True,capture_output=True,
-          env=dict(os.environ,ACCOUNTS_BACKEND='pocketbase',POCKETBASE_URL=self.base,POCKETBASE_SERVICE_TOKEN=self.service,YOOKASSA_SHOP_ID='fixture',YOOKASSA_KEY='fixture'))
-        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        for kind,amount,lessons,tokens in [('pack_ai10',100,10,200000),('plan_single',30,1,20000),('single_1',30,1,20000)]:
+          self.api('/rest/v1/profiles',body={'id':uid,'plan':'single','ai_left':0,'ai_limit':0,'tokens_limit':0,'tokens_used':0},service=True)
+          order='proxy-fixture-'+kind
+          self.api('/rest/v1/payments',body={'order_id':order,'user_id':uid,'kind':kind,'amount':amount,'status':'created','provider_id':'fixture-provider'},service=True)
+          scenario={'token':self.users[0][1],'otherToken':self.users[1][1],'payment':{'id':'fixture-provider','status':'succeeded','paid':True,'amount':{'value':str(amount)+'.00','currency':'RUB'},'metadata':{'uid':uid,'order':order,'kind':kind}},'expectedLessons':lessons,'expectedTokens':tokens}
+          result=subprocess.run(['node',str(KIT/'test-proxy.cjs')],input=json.dumps(scenario),text=True,capture_output=True,
+            env=dict(os.environ,ACCOUNTS_BACKEND='pocketbase',POCKETBASE_URL=self.base,POCKETBASE_SERVICE_TOKEN=self.service,YOOKASSA_SHOP_ID='fixture',YOOKASSA_KEY='fixture'))
+          self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
     def test_08_restart_and_offline_restore(self):
         uid,token=self.users[0]

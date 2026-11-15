@@ -34,7 +34,7 @@ def apply(database,envelope,secret):
             if 'uchu_login_state' in existing:c.execute("delete from uchu_login_state where key=? or json_extract(data,'$.owner')=?",('delete:'+uid,uid))
             if 'uchu_free_usage' in existing:c.execute("delete from uchu_free_usage where json_extract(payload,'$.key')=?",('u:'+uid,))
             if not isinstance(uid,str) or not uid.isalnum() or len(uid)>64:raise ValueError('Invalid deletion ID')
-            for name in ['lessons','profiles','user_info','quizzes','quiz_questions','quiz_results','shared_materials','base_materials','bot_links']:
+            for name in ['lessons','profiles','user_info','quizzes','quiz_questions','quiz_results','shared_materials','base_materials','bot_links','usage_reservations']:
                 if 'uchu_'+name in existing:c.execute('delete from uchu_'+name+' where owner=?',(uid,))
             c.execute('delete from uchu_users where id=?',(uid,))
         # Forward-migrate with matching hooks before starting the restored service. Never recreate native schemas here.

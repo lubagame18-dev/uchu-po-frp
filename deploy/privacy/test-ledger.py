@@ -7,9 +7,10 @@ class Ledger(unittest.TestCase):
    root=Path(d);db=root/'data.db'
    with sqlite3.connect(db) as c:
     c.execute('create table uchu_users(id text,email text)');c.executemany('insert into uchu_users values(?,?)',[('deleted123','old@example.invalid'),('other456','other@example.invalid')])
-    for name in ['lessons','trial_claims','deletions']:
+    for name in ['lessons','trial_claims','deletions','usage_reservations']:
      c.execute('create table uchu_'+name+'(id text,key text unique,owner text,payload text)')
     c.executemany('insert into uchu_lessons values(?,?,?,?)',[('one','one','deleted123','{}'),('two','two','other456','{}')])
+   with sqlite3.connect(db) as c:c.executemany('insert into uchu_usage_reservations values(?,?,?,?)',[('one','one','deleted123','{}'),('two','two','other456','{}')])
    (root/'.privacy-review-required').touch();body={'version':1,'deletions':[{'key':'deleted123','owner':'','payload':{'deleted_at':'2026-11-13'}}],'trial_claims':[{'key':'opaque-hmac','owner':'','payload':{'expires':2000000000000}}]};secret=b'fixture-private-key'*3
    envelope={'ledger':body,'hmac':hmac.new(secret,m.canonical(body),hashlib.sha256).hexdigest()}
    invalid=dict(envelope,hmac='0'*64)
@@ -19,6 +20,7 @@ class Ledger(unittest.TestCase):
    with sqlite3.connect(db) as c:
     self.assertEqual(c.execute('select id from uchu_users').fetchall(),[('other456',)])
     self.assertEqual(c.execute('select owner from uchu_lessons').fetchall(),[('other456',)])
+    self.assertEqual(c.execute('select owner from uchu_usage_reservations').fetchall(),[('other456',)])
     self.assertEqual(c.execute('select key from uchu_trial_claims').fetchall(),[('opaque-hmac',)])
    self.assertFalse((root/'.privacy-review-required').exists())
 if __name__=='__main__':unittest.main(verbosity=2)

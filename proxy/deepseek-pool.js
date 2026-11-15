@@ -85,7 +85,7 @@ function providerOf(a) {
   const p = (a.url && PROVIDERS.find(x => x.url.test(a.url))) || (a.url ? { id: "custom", name: "Свой сервис", base: a.url, model: "" } : PROVIDERS[0]);
   return { ...p, base: a.url || p.base, model: a.model || p.model };
 }
-async function chat(body, request, readAll, onlySlot) {
+async function chat(body, request, readAll, onlySlot, fixedModel) {
   let accounts = await queue(request, readAll);
   if (onlySlot) accounts = (await pool(request, readAll)).filter(a => a.slot === +onlySlot && !isPlaceholder(a.key));
   if (!accounts.length) { const e = new Error("на сервере не настроен ни один общий ключ нейросети"); e.status = 503; e.reason = "no_key"; throw e; }
@@ -94,7 +94,7 @@ async function chat(body, request, readAll, onlySlot) {
     try {
       const P = providerOf(a);
       // модель — из ячейки (или по умолчанию для сервиса); у DeepSeek — то, что просит сайт
-      const model = a.model || (P.id === "deepseek" && body.model && !/^deepseek-(chat|reasoner)$/.test(body.model) ? body.model : P.model);
+      const model = fixedModel || a.model || (P.id === "deepseek" && body.model && !/^deepseek-(chat|reasoner)$/.test(body.model) ? body.model : P.model);
       let res, text;
       if (ruBlocked(a)) continue; // сервис не работает из России — не обращаемся вовсе
       res = await request(P.base + "/chat/completions", { headers: { Authorization: "Bearer " + a.key, "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ ...body, model, stream: false }), timeout: 280000 }); text = await readAll(res);

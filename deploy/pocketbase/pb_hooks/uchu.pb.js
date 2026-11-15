@@ -1,5 +1,5 @@
 // Route callbacks run in isolated JS contexts. Load shared code inside each callback.
-routerAdd('GET', '/api/uchu/auth/v1/health', (e) => e.json(200, {ok: true, provider: 'pocketbase'}));
+routerAdd('GET', '/api/uchu/auth/v1/health', (e) => e.json(200, {ok: true, provider: 'pocketbase', billing_revision:2}));
 routerAdd('POST', '/api/uchu/auth/v1/admin/users', (e) => require(__hooks + '/uchu.js').adminUser(e));
 routerAdd('POST', '/api/uchu/auth/v1/otp', (e) => require(__hooks + '/identities.js').otp(e));
 routerAdd('POST', '/api/uchu/auth/v1/verify', (e) => require(__hooks + '/identities.js').verify(e));
@@ -23,3 +23,6 @@ routerAdd('GET','/api/uchu/privacy/v1/{action}',e=>require(__hooks+'/privacy.js'
 routerAdd('POST','/api/uchu/privacy/v1/{action}',e=>require(__hooks+'/privacy.js').handle(e));
 
 cronAdd('uchu_privacy_retention','37 2 * * *',()=>require(__hooks+'/privacy.js').cleanup($app));
+cronAdd('uchu_usage_retention','47 2 * * *',()=>{
+  for(const r of $app.findRecordsByFilter('uchu_usage_reservations','settled = true && expires < {:now}','',10000,0,{now:Date.now()}))$app.delete(r);
+});
