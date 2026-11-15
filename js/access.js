@@ -274,14 +274,14 @@ const Access = (() => {
     else toast("Оплата не завершена. Можно попробовать ещё раз в «Тарифах».", 6000);
   }
   document.addEventListener("uchu:ready", afterPay);
-  /* ---------- шапка: кнопка «⚙ ИИ» только в свободной зоне; метка тарифа ---------- */
+  /* ---------- навигация и остатки в закреплённой области первого экрана ---------- */
   function paint() {
     const ai = document.getElementById("btnAi"); if (ai) ai.hidden = !isDev(); /* ключи ИИ — только у разработчика */
     let b = document.getElementById("btnPlan");
     if (!b && commercial()) { b = document.createElement("button"); b.type = "button"; b.id = "btnPlan"; b.className = "btn sm ghost"; b.onclick = () => open(); document.querySelector(".nav")?.prepend(b); }
     // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
     let counters=document.getElementById("quotaCounters");
-    if(!counters){counters=document.createElement("div");counters.id="quotaCounters";counters.className="quota-counters";document.querySelector(".account")?.prepend(counters);}
+    if(!counters){counters=document.createElement("div");counters.id="quotaCounters";counters.className="quota-counters";document.querySelector(".hero .wrap")?.append(counters);}
     counters.hidden=!commercial()||isDev()||promoFree();
     if(!counters.hidden){
       const S=window.Account?.session,ready=S?.profileState==="ready",loading=!!S&&(!S.profileState||S.profileState==="loading");
@@ -290,14 +290,13 @@ const Access = (() => {
         const known=typeof left==="number"&&Number.isFinite(left)&&typeof limit==="number"&&Number.isFinite(limit)&&limit>=0;
         const ratio=known&&limit>0?Math.max(0,Math.min(1,left/limit)):0,color=ratio<.1?"low":ratio<.3?"medium":"high";
         const value=known?(tokens?`${fmt(left)} / ${fmt(limit)}`:fmt(left)):unknown;
-        return `<div class="quota-counter" id="${id}"><span class="quota-label" role="tooltip" id="${id}Label">${label}</span><span class="quota-battery ${known?color:"unknown"}" tabindex="0" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?`${fmt(left)} из ${fmt(limit)}`:unknown}"><span class="quota-fill" style="width:${ratio*100}%"></span><b class="quota-value">${value}</b></span>${!tokens&&known&&left===0?'<button class="quota-buy" type="button">Докупите уроки</button>':""}</div>`;
+        return `<div class="quota-counter" id="${id}"><span class="quota-label" role="tooltip" id="${id}Label">${label}</span><span class="quota-meter ${known?color:"unknown"}" tabindex="0" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?`${fmt(left)} из ${fmt(limit)}`:unknown}"><span class="quota-fill" style="width:${ratio*100}%"></span><b class="quota-value">${value}</b></span></div>`;
       };
       const left=ready?S.aiLeft:null,limit=ready?(S.plan==="single"?S.aiLimit:S.plan==="none"?0:["ai","aiYear"].includes(S.plan)?50:null):null,T=ready?S.tokens:null;
       counters.innerHTML=render("lessonBadge","Уроков доступно",left,limit,false)+render("tokBadge","Токены на доработки",T?Math.max(0,T.limit-T.used):null,T?.limit,true);
-      counters.querySelector(".quota-buy")?.addEventListener("click",()=>open());
     }
     document.dispatchEvent(new Event("uchu:access"));
-    if (b) { const L = level(); b.textContent = promoFree() ? "✨ Тариф «С ИИ» · всё открыто" : `Тарифы${window.Account?.session?.profileState==="ready"?" · "+(planOf(L)?.name||""):""}`; b.title = promoFree() ? "Бесплатный доступ по промокоду: все возможности сайта" : "Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
+    if (b) { const L = level(); b.textContent = "Тарифы"; b.title = promoFree() ? "Доступ по промокоду: все возможности сайта" : window.Account?.session?.profileState==="ready"?`Тарифы и промокод · ${planOf(L)?.name||""}`:"Тарифы и промокод"; b.hidden = !commercial() || L === "dev"; }
   }
   document.addEventListener("DOMContentLoaded", () => setTimeout(paint, 0));
   document.addEventListener("uchu:ready", paint);
