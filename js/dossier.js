@@ -35,6 +35,20 @@ window.Dossier = (() => {
       if (RK?.algo?.steps?.length) add(`Алгоритм «${RK.algo.name}»`, RK.algo.steps.map((x, i) => `${i + 1}) ${x}`), "база сайта");
       if (S === "ru" && !RK?.algo && window.RuSec) { const b = RuSec.BANKS.find(b => b.re.test(low(p.topic))); if (b) { add(`Правило «${b.name}»`, b.theory, "база сайта"); add("Алгоритм", b.steps.map((x, i) => `${i + 1}) ${x}`), "база сайта"); } }
       const sc = window.Schemes?.find(S, p.topic); if (sc) add(`Схема-опора «${sc.t}»`, [...(sc.s || []), sc.l || ""], "схемы учебника");
+      if (S === "hist" && window.HistKit?.find) {
+        try {
+          const H = window.HistKit.find(p.topic, p.grade);
+          if (H) {
+            const src = H.src || "база по истории";
+            if (H.plan?.length) add("План и содержание темы", H.plan.slice(0, 8).map(x => `${x[0]}: ${x[2] || ""}`.trim()), src);
+            if (H.d?.length) add("Хронология темы", H.d.slice(0, 10).map(x => `${x[0]} — ${x[1]}`), src);
+            if (H.k?.length) add("Понятия темы", H.k.slice(0, 10).map(x => `${x[0]} — ${x[1]}`), src);
+            if (H.c?.length) add("Причины события/процесса", H.c, src);
+            if (H.r?.length) add("Итоги и последствия", H.r, src);
+            if (H.p?.length) add("Исторические деятели", H.p.slice(0, 8).map(x => `${x[0]} — ${x[1]}`), src);
+          }
+        } catch (e) { console.warn("history dossier", e); }
+      }
       const mn = window.Mnemo?.find(p.topic, RK?.algo?.name || "", S); if (mn?.tips?.length) add("Запоминалка (мнемотехника)", mn.tips, "методические пособия");
       if (typeof Base !== "undefined" && Base.rules && /^ru/.test(S)) for (const r of Base.rules(p.topic, p.grade, 2) || []) add("Правило из пособия", r.text, r.source);
       if (typeof Base !== "undefined" && Base.exercises && /^ru/.test(S)) {
@@ -54,7 +68,7 @@ window.Dossier = (() => {
     const meth = window.Methodology ? Methodology.block(p) + "\n\n" : "";
     if (!body && !place && !meth) return "";
     return `${meth}## Досье урока (опора)
-Методические объяснения, правила, определения, схемы и запоминалки бери ИЗ ДОСЬЕ и ставь номер источника в скобках, например [И2]. Если нужного в досье нет – опирайся на школьный учебник${/^ru/.test(S) ? " (Ладыженская, Баранов)" : ""} и пиши «по учебнику»; не выдумывай правила, даты, цитаты и номера упражнений. Свои примеры придумывать можно, но они должны точно подчиняться правилу, соответствовать классу и не быть спорными.${place}
+Методические объяснения, правила, определения, схемы и запоминалки бери ИЗ ДОСЬЕ и ставь номер источника в скобках, например [И2]. Если нужного в досье нет — используй проверенные предметные знания и открытые образовательные источники; не выдумывай страницы, номера упражнений, даты, цитаты и ссылки. Не пиши «откройте учебник» или «работа с учебником», если конкретный текст, страница или упражнение не были переданы в материалах. Свои примеры придумывать можно, но они должны точно подчиняться правилу, соответствовать классу и не быть спорными.${place}
 
 ${body || "(в базе по теме ничего не найдено – опирайся на учебник)"}`;
   }
