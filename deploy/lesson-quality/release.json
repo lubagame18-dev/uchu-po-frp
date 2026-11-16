@@ -15,9 +15,9 @@
   "version": "2026-11-16",
   "public_files": {
     "index.html": "db987fc58a652ed5167cad1414acf8b0514ece45064cc08f339b5e19dc127c00",
-    "sw.js": "adfa316a72c779ce0d819fa8f235de6ebf566709e4d4f9543e3b9c0e69436441",
+    "sw.js": "4134ded366ca7519be65c27a564a80b2b2c70f2381a6d702e79e3c50ca363708",
     "js/lesson-quality.js": "22daf9d2d1c64399732da25a86a29f2eae647db4a48ad743735873ae6695a018",
-    "js/app-part2.js": "72a1d3d9efb38f8237827750a2b09eeb55ca10d0a10c2179f315297bc1edbf7c",
+    "js/app-part2.js": "b7f3b0c57d260f8f6cd83b901d9060cfe10dd832befc189f94a040c53571c6b8",
     "js/teacherrules.js": "50527dae3f7c540d31a078460b7bb9af2204c93fd925a01fd7c5ce97eb18d2cd",
     "js/notes.js": "8e1a6674225e35ce1dbec0af9dd4d4499837d6cd929e59c9be34d0d86614f154",
     "js/ocr.js": "8faf98851411d9ddb2d8f903c2de1a98ae288543fa67cecf229bc14eff70af9f",
