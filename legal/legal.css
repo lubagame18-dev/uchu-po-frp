@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
+@import url("../vendor/fonts/fonts.css");
 :root{--ink:#1B1330;--paper:#FFFCF3;--card:#fff;--flame:#FF5A36;--sun:#FFC93C;--teal:#1F7A70;--muted:#5b5470;--f-display:"Unbounded","Arial Black",system-ui,sans-serif;--f-body:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 var(--f-body)}

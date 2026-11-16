@@ -3,7 +3,7 @@ const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:a
 const source = fs.readFileSync(require('node:path').join(__dirname, '../../js/account.js'), 'utf8');
 function load(session, accounts, cloud = {url:'https://old.example', anonKey:'fake'}) {
   const data = new Map([['uchu:account', JSON.stringify(session)], ['uchu:lessons', 'retained']]);
-  const context = {window:{UCHU_SITE:{accounts,cloud}}, localStorage:{getItem:k=>data.get(k)||null, setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)},
+  const context = {window:{UCHU_SITE:{accounts,cloud},addEventListener(){}}, localStorage:{getItem:k=>data.get(k)||null, setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)},
     document:{createElement:()=>({setAttribute(){}}),addEventListener(){},getElementById(){return null;}},
     setInterval(){},setTimeout(){},clearTimeout(){},URLSearchParams, console,
     esc:x=>x};

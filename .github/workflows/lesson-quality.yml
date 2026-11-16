@@ -1,0 +1,37 @@
+name: Lesson content and source checks
+on:
+  pull_request:
+    paths:
+      - 'js/lesson-quality.js'
+      - 'js/app-part2.js'
+      - 'js/lessonnotes.js'
+      - 'js/notes.js'
+      - 'js/ocr.js'
+      - 'js/teacherrules.js'
+      - 'js/mathkit.js'
+      - 'js/litprimary.js'
+      - 'deploy/lesson-quality/**'
+      - '.github/workflows/lesson-quality.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'js/lesson-quality.js'
+      - 'js/app-part2.js'
+      - 'deploy/lesson-quality/**'
+      - '.github/workflows/lesson-quality.yml'
+permissions:
+  contents: read
+jobs:
+  lesson-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node deploy/lesson-quality/test-prompts.cjs
+      - run: |
+          for f in js/lesson-quality.js js/app-part2.js js/lessonnotes.js js/notes.js js/ocr.js js/teacherrules.js js/dossier.js js/mathkit.js js/litprimary.js proxy/proxy.js; do
+            node --check "$f"
+          done
+      - run: python -m py_compile deploy/lesson-quality/check-model.py deploy/payment-fix/deploy-function.py

@@ -356,6 +356,36 @@ const Deck = (() => {
     return out;
   }
   /* Картинки-акценты: почти на каждом слайде, кроме дословных цитат/стихов/упражнений, доски и карточки-картины. */
+  /* Своя база иллюстраций (data/lesson-images.js, собрано из Википедии/Викисклада, только свободные лицензии):
+     картинки урока подставляются вместо поиска «commons:…»; если в уроке нет ни одной картинки — добавляется слайд с ней. */
+  const LIMG_NORM = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/g, " ").trim();
+  let limgIdx = null;
+  function lessonImages(p) {
+    const B = window.UCHU_LESSON_IMAGES; if (!B || !B.lessons || !p) return [];
+    if (!limgIdx) { limgIdx = new Map(); for (const [id, e] of Object.entries(B.lessons)) if (e) { const k = e.subject + "|" + e.grade + "|" + LIMG_NORM(e.topic); if (!limgIdx.has(k)) limgIdx.set(k, e); } }
+    const t = LIMG_NORM(p.topic), pre = p.subject + "|" + p.grade + "|";
+    let e = limgIdx.get(pre + t);
+    if (!e && t.length >= 8) for (const [k, v] of limgIdx) if (k.startsWith(pre) && (k.slice(pre.length).startsWith(t) || t.startsWith(k.slice(pre.length)))) { e = v; break; }
+    if (!e) return [];
+    return (e.keys || []).map((k, i) => B.images?.[k] ? { ...B.images[k], caption: (e.caps || [])[i] || B.images[k].caption, title: String((e.caps || [])[i] || B.images[k].title).split(" — ")[0] } : null).filter(Boolean);
+  }
+  function localImages(cards, p, o) {
+    if (!Array.isArray(cards) || (o && o.images === "none")) return cards;
+    const L = lessonImages(p); if (!L.length) return cards;
+    const credit = im => /собственн/.test(im.license || "") ? `Схема: собственный чертёж «Учу по ФРП».` : `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
+    let k = 0;
+    const out = cards.map(c => {
+      if (!c || k >= L.length || !/^commons:/.test(String(c.img || "")) || /портрет|(?:^|[\s:])карт[аыу]?(?:\s|$)|\bmap\b/i.test(c.img)) return c;
+      const im = L[k++];
+      return { ...c, img: im.img, cap: im.title, notes: [c.notes, im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
+    });
+    if (k === 0 && !out.some(c => c && c.img && c.on !== false && c.kind !== "title")) {
+      const im = L[0], end = out.findIndex(c => c && (["concl", "hw"].includes(c.kind) || /рефлекс|подвед|итог урока|домашн/i.test(String(c.title || ""))));
+      const card = { id: "li1", on: true, kind: "image", title: im.title, img: im.img, cap: im.title, notes: [im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
+      if (end >= 0) out.splice(end, 0, card); else out.push(card);
+    }
+    return out;
+  }
   function fillImages(cards, p, o) {
     /* Картинки — только там, где они действительно уместны (литература, история, МХК, ИЗО, музыка, карты).
        Для остальных предметов слайды идут без изображений: лучше чисто, чем случайное фото. */
@@ -648,7 +678,7 @@ const Deck = (() => {
         if (pts.length) out.push({ id: (c.id || "k" + i) + "-ans", on: c.on !== false, kind: "list", title: `${/задач/i.test(String(c.title)) ? "Решение" : "Ответы"}: ${String(c.title).replace(/^ответы:\s*/i, "")}`, points: pts, notes: "Показываем после того, как класс выполнил это задание." });
         return;
       }
-      if (c.kind === "check" && (c.answers || []).some(Boolean)) {
+      if (c.kind === "check" && (c.answers || []).some(Boolean) && false) { // ответы теперь за кнопкой «Ответ» на самом слайде (qa)
         const nx = cards[i + 1]; if (nx && /^ответ/i.test(String(nx.title || ""))) return;
         out.push({ id: (c.id || "chk" + i) + "-ans", on: c.on !== false, kind: "list", title: `Ответы: ${String(c.title || "Проверь себя").replace(/^ответы:\s*/i, "")}`, points: (c.points || []).map((q, k) => c.answers[k] ? `${k + 1}) ${c.answers[k]}` : "").filter(Boolean), notes: "Показываем после того, как класс ответил на это задание." });
       }
@@ -689,7 +719,7 @@ const Deck = (() => {
     if (lvl === "high" && cfg.amount !== "detailed") cfg.amount = "detailed";
     if (lvl === "weak" && cfg.amount === "detailed") cfg.amount = "medium";
     const cards = expandCards(enrich(outline0(md, p, type, cfg), p, cfg, md), p, cfg);
-    return prune(fillImages(cards, p, cfg));
+    return prune(localImages(fillImages(cards, p, cfg), p, cfg));
   }
   function outline0(md, p, type, o = opts()) {
     curTopic = p.topic; curKit = p.plan?.kit || null;
@@ -839,7 +869,7 @@ const Deck = (() => {
   function cardMd(card) {
     const set = {};
     let title = card.title || "", level = 2, body = "";
-    const isrc = card.img ? (/^commons:/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
+    const isrc = card.img ? (/^(commons:|img\/|https?:)/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
     const img = card.img ? `![${md1(card.cap || card.title).replace(/[\[\]()]/g, "")}](${isrc})` : "";
     switch (card.kind) {
       case "title": level = 1; set.layout = "title"; body = (card.points || []).join("\n\n"); break;
@@ -876,7 +906,11 @@ const Deck = (() => {
         break;
       }
       /* «Проверь себя»: 2–4 вопроса; ответы — в заметках учителя (комментарий <!-- … -->) */
-      case "check": set.layout = "list"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n") + (card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""); break;
+      case "check": set.layout = "list";
+        // есть ответы – вопрос с кнопкой «Ответ»: в показе и в PowerPoint ответ открывается на своём слайде, оттуда – назад к вопросу
+        if ((card.answers || []).filter(Boolean).length >= Math.max(1, (card.points || []).length - 1)) { set.qa = 1; body = (card.points || []).map((x, i) => `- ${md1(x).replace(/\|\|/g, "|")} || ${md1(card.answers[i] || "—").replace(/\|\|/g, "|")}`).join("\n"); }
+        else body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n");
+        body += card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""; break;
       /* «Алгоритм»: нумерованные шаги + опора */
       case "algo": set.layout = "steps"; body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n") + (card.tip ? `\n\n> **Опора:** ${md1(card.tip)}` : ""); break;
       /* «Картина»: репродукция + вопросы к ней (для ИЗО, МХК, музыки, литературы) */
@@ -1228,6 +1262,6 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
   }
 
-  return { prune, childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { prune, localImages, lessonImages, childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
 })();
 window.Deck = Deck;

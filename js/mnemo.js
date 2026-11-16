@@ -120,9 +120,10 @@ const Mnemo = (() => {
   function cards(MN, plainMd = x => x) {
     if (!MN) return [];
     const out = [{ kind: "mnemo", title: "Запомни", lead: MN.phrase || "", points: MN.tips.map(plainMd), notes: "Приёмы запоминания: проговорите с классом, попросите придумать свой пример." + (MN.phrase ? " Опорная фраза — «" + String(MN.phrase).replace(/\*\*/g, "") + "»." : "") }];
-    if (MN.scheme && MN.scheme.length) out.push({ kind: "scheme", title: "Схема: как этим пользоваться", points: MN.scheme.map(plainMd), notes: "Пройдите по схеме на примере любого слова из задания: так ученик видит порядок действий." });
+    const rule = !(MN.subj || []).length || (MN.subj || []).some(x => /^(ru|ru1|math|alg|geom|phys|chem|eng|inf)$/.test(x));
+    if (MN.scheme && MN.scheme.length) out.push({ kind: "scheme", title: rule ? "Схема: как этим пользоваться" : "Схема-опора", points: MN.scheme.map(plainMd), notes: "Пройдите по схеме на примере любого слова из задания: так ученик видит порядок действий." });
     const T = MN.tbl || ((MN.quiz || []).length >= 2 ? { head: ["Пример", "Что делаем и почему"], rows: MN.quiz.slice(0, 5).map(([g, a]) => [g, a]) } : null);
-    if (T) out.push({ kind: "table", full: true, title: "Примеры: как применяем правило", head: T.head, rows: T.rows, notes: "Разберите по строкам вслух: назовите шаг схемы, затем запишите слово." });
+    if (T) out.push({ kind: "table", full: true, title: rule ? "Примеры: как применяем правило" : "Примеры", head: T.head, rows: T.rows, notes: "Разберите по строкам вслух: назовите шаг схемы, затем запишите слово." });
     if ((MN.quiz || []).length) out.push({ kind: "check", title: "Проверь себя", points: MN.quiz.slice(0, 4).map(([g]) => g), answers: MN.quiz.slice(0, 4).map(([, a]) => a), notes: "Ответы: " + MN.quiz.slice(0, 4).map(([, a]) => a).join("; ") + ". Сначала ученики отвечают сами, потом открываем ответ." });
     return out;
   }

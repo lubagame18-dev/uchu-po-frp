@@ -1,0 +1,37 @@
+# английский: собственные грамматические схемы (draw_eng.py); для этих тем схема важнее фото
+^Present Simple и Present Continuous | own:e_ps_vs_pc
+^Present Simple | own:e_present_simple
+^Present Continuous | own:e_present_cont
+^Past Simple: правильные | own:e_past_reg
+^Past Simple: неправильные | own:e_past_irreg
+^Past Simple: was | own:e_was_were
+^Past Continuous | own:e_past_cont
+^Present Perfect | own:e_present_perfect
+^Future Simple | own:e_future_simple
+^Going to|^Конструкция to be going to | own:e_going_to
+^Глагол can|^Модальный глагол can | own:e_can
+^Модальные глаголы must | own:e_must
+^Конструкция have got | own:e_have_got
+^There is | own:e_there_is
+^Some и any | own:e_some_any
+^Much и many | own:e_much_many
+^Исчисляемые и неисчисляемые | own:e_countable
+^Множественное число | own:e_plural
+^My, your, his, her | own:e_possessive
+^This и that | own:e_this_that
+^Степени сравнения прилагательных|^Сравнение людей|^Сравнение животных | own:e_comparative
+^Превосходная степень | own:e_superlative
+^Страдательный залог | own:e_passive
+^Косвенная речь | own:e_reported
+^Условные предложения первого | own:e_cond1
+^Условные предложения второго | own:e_cond2
+^Время и предлоги времени | own:e_prep_time
+^Предлоги места | own:e_prep_place
+^I like / I don't like|^Do you like | own:e_like
+^Like doing | own:e_like_doing
+^I am wearing | own:e_wearing
+^Числительные 1 | own:e_numbers
+^Алфавит: буквы A | own:e_abc_am
+^Алфавит: буквы N | own:e_abc_nz
+^Приветствие и прощание | own:e_greetings
+^Как тебя зовут | own:e_name_age

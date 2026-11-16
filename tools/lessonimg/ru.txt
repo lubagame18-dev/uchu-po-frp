@@ -1,0 +1,209 @@
+# русский язык: у каждой темы своя схема (own:r_…, tools/lessonimg/draw_ru.py и draw_ru_more.py), затем реальные изображения
+# правила проверяются по порядку, срабатывает первое совпавшее
+^Что такое речь | own:r_speech_what
+^Устная и письменная речь | own:r_oral_written
+^Слушаем и говорим | own:r_listen_speak
+^Вежливые слова | own:r_polite
+Рассказ по картинке|Сочинение по картине | Государственная Третьяковская галерея
+^Гласные звуки | own:r_vowels
+^Согласные звуки | own:r_consonants
+^Твёрдые и мягкие | own:r_hard_soft
+^Звонкие и глухие | own:r_voiced
+^Алфавит | own:r_alphabet
+^Слог и ударение | own:r_syll_stress
+^Слог$ | own:r_syllables
+^Ударение | own:r_stress
+^Перенос | own:r_hyphen
+^Слово и его значение|Словарик | Толковый словарь живого великорусского языка; Владимир Иванович Даль
+^Предложение$ | own:r_sentence_what
+^Заглавная буква | own:r_capital
+^Знаки в конце | own:r_end_marks
+^Письмо строчных|^Письмо заглавных|^Соединения букв | Каллиграфия; Пропись
+^Жи-ши, ча-ща | own:r_zhi_shi
+^Жи-ши | own:r_zhi_only
+^Ча-ща | own:r_cha_chu
+^Списывание | own:r_copy
+^Исправляем ошибки|^Работа над ошибками | own:r_proofread
+^Звуки и буквы | own:r_sounds
+^Мягкий знак | own:r_soft_mark
+^Разделительный мягкий | own:r_soft_sep
+^Безударные гласные в корне | own:r_vowels_check
+^Безударные гласные | own:r_vowels_check2
+^Парные согласные | own:r_paired
+^Чк-чн | own:r_chk_chn
+^Однокоренные | own:r_cognates
+^Корень слова | own:r_root
+^Приставка и суффикс | own:r_pref_suf
+^Приставка$ | own:r_prefix
+^Суффикс$ | own:r_suffix
+^Окончание$ | own:r_ending
+^Разбор слова по составу | own:r_morphemes
+^Имя существительное: род | own:r_noun_gender
+^Имя существительное | own:r_noun
+^Имя прилагательное | own:r_adj
+^Глагол: время | own:r_verb_tense
+^Глагол$ | own:r_verb
+^Местоимение и предлог | own:r_pron_prep
+^Местоимение | own:r_pronoun
+^Виды предложений | own:r_sent_types
+^Главные члены | own:r_main_members
+^Связь слов | own:r_links
+^Текст и его части | own:r_text
+^Изложение по вопросам | own:r_retell_q
+^Изложение$ | own:r_retell
+^Описание предмета | own:r_describe
+^Письмо и поздравление | own:r_letter
+^Падежи \(ознакомление\) | own:r_cases
+^Падежи и вопросы | own:r_cases_q
+^Непроизносимые | own:r_silent
+^Удвоенные | own:r_double
+^Сложные слова | own:r_compound
+^Члены предложения | own:r_sentence
+^Распространённые | own:r_extended
+^Однородные члены | own:r_homog
+^Сложное предложение \(ознакомление\) | own:r_complex_intro
+^Типы текста | own:r_text_types
+^План текста | own:r_plan
+^Самостоятельные части речи | own:r_pos_indep
+^Служебные части речи | own:r_pos_service
+^Наречие | own:r_adverb
+^Морфологический разбор | own:r_morph_parse
+^Три склонения | own:r_declension
+^Склонение прилагательных | own:r_adj_decl
+^Спряжение глаголов | own:r_conjugation
+^Время и лицо | own:r_verb_person
+^Безударные окончания существительных | own:r_noun_endings
+^Личные окончания | own:r_verb_endings
+^Ь после шипящих | own:r_sign_sibilant
+^Не с глаголами | own:r_not_verbs
+^Простое и сложное предложение | own:r_simple_complex
+^Обращение | own:r_address
+^Прямая речь \(ознакомление\) | own:r_direct_speech
+^Прямая речь$ | own:r_direct_speech2
+^Стили речи | own:r_styles
+^Сочинение$ | own:r_essay
+^Редактирование | own:r_edit
+# 5–11 классы
+^Богатство и выразительность | own:r_linguistics
+^Язык и речь\. Монолог | own:r_mono_dia
+^Виды речи\. Монолог и диалог | own:r_mono_dia_kinds
+^Монолог и его виды | own:r_monolog_kinds
+^Диалог и его виды | own:r_dialog_kinds
+^Диалог$ | own:r_dialog_punct
+^Речь устная и письменная | own:r_speech_forms
+^Текст и его основные признаки | own:r_text_signs
+^Основные признаки текста | own:r_text_struct
+^Текст и его признаки\. Функционально | own:r_text_links
+^Текст и его признаки \(обобщение | own:r_text_analysis
+^Текст, его основные признаки | own:r_text_signs; own:r_text_struct
+^Информационная переработка текста\. Смысловой | own:r_semantic
+^Информационная переработка | own:r_info_proc
+^Функционально-смысловые типы речи\. Рассуждение | own:r_reasoning
+^Функционально-смысловые типы | own:r_fst
+^Виды описания | own:r_descr_kinds
+^Логико-смысловые | own:r_logic_rel
+^Информативность | own:r_info_kinds
+^Информационно-смысловая | own:r_secondary
+^Функциональные разновидности языка \(общее | own:r_func_var
+^Функциональные разновидности языка\. Язык художественной | own:r_artlang
+^Язык художественной литературы | own:r_art_means
+^Фонетика\. Графика | own:r_phon_sections
+^Фонетика и орфоэпия | own:r_phon_means
+^Орфоэпические | own:r_orthoepy
+^Морфемика\. Орфография | own:r_morph5
+^Морфемика и словообразование как разделы лингвистики \(повтор | own:r_morph10
+^Морфемика и словообразование | own:r_wordform
+^Виды морфем | own:r_word_ways
+^Морфемный и словообразовательный | own:r_morph_analysis
+^Словообразовательные нормы | own:r_wordform_norms
+^Лексикология и фразеология | own:r_tropes
+^Лексикология$ | own:r_lexicology
+^Группы лексики по происхождению | own:r_lex_origin
+^Лексика с точки зрения | own:r_lex_sphere
+^Лексический анализ слова\. Фразеологизмы | own:r_phraseol
+^Основные лексические нормы | own:r_paronyms
+^Функционально-стилистическая окраска | own:r_style_color
+^Экспрессивно-стилистическая | own:r_expressive
+^Фразеология русского языка | own:r_winged
+^Синтаксис и пунктуация как разделы | own:r_phrase
+^Словосочетание и его признаки | own:r_phrase_kinds
+^Основные нормы управления | own:r_govern
+^Простое двусоставное | own:r_two_part
+^Двусоставное предложение | own:r_predicate
+^Простое осложненное предложение\. Предложения с однородными | own:r_homog2
+^Простое осложненное | own:r_complicated
+^Сложное предложение$ | own:r_complex
+^Сложносочиненное | own:r_ssp
+^Сложноподчиненное | own:r_spp
+^Бессоюзное | own:r_bsp
+^Сложные предложения с разными | own:r_mixed
+^Прямая и косвенная речь | own:r_indirect
+^Знаки препинания при передаче чужой речи | own:r_quote
+^Система частей речи | own:r_parts_of_speech
+^Части речи в русском | own:r_pos_table
+^Морфология как раздел науки | own:r_morphology
+^Морфология как раздел лингвистики | own:r_morph_parse; own:r_morphology
+^Морфологические нормы | own:r_morph_norms
+^Имя числительное | own:r_numeral
+^Причастие | own:r_participle
+^Деепричастие | own:r_gerund
+^Слова категории состояния | own:r_state
+^Предлог$ | own:r_prep
+^Союз$ | own:r_conj
+^Частица$ | own:r_particle
+^Междометия | own:r_interj
+^Омонимия слов разных частей | own:r_homonymy_pos
+^Основные функции русского | own:r_lang_functions
+^Язык как знаковая система | own:r_sign_system
+^Система языка | own:r_lang_system
+^Формы существования | own:r_lang_forms
+^Русский язык в кругу других славянских | own:r_slavic; Славянские языки
+^Языковая норма | own:r_norm_kinds
+^Культура речи как раздел | own:r_speech_culture
+^Качества хорошей речи | own:r_good_speech
+^Основные виды словарей | Толковый словарь живого великорусского языка; Словарь русского языка (Ожегов)
+^Синтаксис как раздел лингвистики \(повтор | own:r_syntax_parse
+^Синтаксис как раздел | own:r_syntax_units
+^Изобразительно-выразительные средства синтаксиса | own:r_syntax_figures
+^Пунктуация\. Функции | own:r_punct_functions
+^Пунктуация как раздел | own:r_punctuation
+^Предложение и его основные признаки | own:r_sent_types2
+^Второстепенные члены | own:r_secondary_members
+^Односоставные | own:r_one_part
+^Предложения с обособленными | own:r_isolated
+^Предложения с обращениями, вводными | own:r_intro
+^Знаки препинания между подлежащим | own:r_dash
+^Знаки препинания в предложениях с однородными | own:r_homog_punct
+^Знаки препинания при обособлении | own:r_isolated_punct
+^Знаки препинания в предложениях с вводными | own:r_intro_punct
+^Знаки препинания в сложном предложении с разными | own:r_punct_mixed
+^Знаки препинания в сложном предложении | own:r_punct_complex
+^Синтаксические нормы | own:r_agreement
+^Основные нормы употребления однородных | own:r_homog_norms
+^Основные нормы употребления причастных | own:r_gerund_norms
+^Основные нормы построения сложных | own:r_mixed; own:r_spp
+^Орфография как раздел | own:r_ortho_principles
+^Орфографический анализ | own:r_ortho_analysis
+^Понятие об этимологии | own:r_etymology
+^Правописание гласных и согласных в корне | own:r_root_alt
+^Употребление разделительных | own:r_prefix_spell
+^Правописание суффиксов | own:r_suffix_spell
+^Правописание н и нн | own:r_n_nn
+^Правописание не и ни | own:r_ne_ni
+^Правописание окончаний | own:r_endings_spell
+^Слитное, дефисное | own:r_hyphen_spell
+^Официально-деловой стиль\. Жанры официально-делового стиля\. Научный | own:r_off_sci
+^Официально-деловой стиль\. Основные жанры | own:r_official_genres
+^Официально-деловой стиль | own:r_official
+^Научный стиль | own:r_science
+^Основные жанры научного | own:r_sci_genres
+^Публицистический стиль | own:r_publicist
+^Основные жанры публицистического | own:r_pub_genres
+^Функциональная стилистика | own:r_stylistics
+^Разговорная речь | own:r_colloquial
+^Основные жанры разговорной | own:r_coll_genres
+^Речь как деятельность | own:r_speech_acts
+^Речевое общение | own:r_communication
+^Речевой этикет | own:r_etiquette
+^Публичное выступление | own:r_public_speech
+^Литературный язык|^Язык как развивающееся|^Роль русского языка|^Русский язык в современном мире|^Язык и культура|^Русский язык – государственный | Михаил Васильевич Ломоносов; Александр Сергеевич Пушкин; Владимир Иванович Даль; Русский язык

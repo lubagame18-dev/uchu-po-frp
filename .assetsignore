@@ -32,3 +32,5 @@ work
 .env*
 
 *.before-accounts
+
+pb_data

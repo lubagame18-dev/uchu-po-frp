@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#15202b">
 <title>Проверка знаний</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<link href="/vendor/fonts/fonts.css" rel="stylesheet">
 <style>
 :root{
   --bg1:#eefaff;--bg2:#c8ecf7;--accent:#0e7490;--accent2:#22b8cf;
@@ -76,6 +74,8 @@ a{color:color-mix(in srgb,var(--accent) 75%,#000)}
 .review .r:last-child{border:0}.review .ok{color:#0f766e;font-weight:800}.review .no{color:#b42318;font-weight:800}
 @media (max-width:520px){h1{font-size:24px}.card{padding:18px;border-radius:20px}.hero{padding:20px}.score{font-size:44px}}
 </style>
+<script src="../js/accounts-config.js"></script>
+<script src="../js/accounts-backend.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -85,11 +85,11 @@ a{color:color-mix(in srgb,var(--accent) 75%,#000)}
 </div>
 <script>
 "use strict";
-const CLOUD = { url: "https://omnqygnlibkcybwryrrh.supabase.co", anonKey: "sb_publishable__TQ0PihqCpQldAKJhdzSRA_UVjUoqFj" };
+const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : {"url": "https://accounts.uchu-po-frp.ru/api/uchu", "anonKey": "", "key": "", "lesson": "taras-bulba-2"};
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const qid = new URLSearchParams(location.search).get("q") || "";
-const S = { q: null, picked: {}, student: "", klass: "" };
+const S = { q: null, picked: {}, student: "", fullName: "", klass: "" };
 
 /* 8 палитр; выбор зависит от предмета и темы */
 const THEMES = {
@@ -142,20 +142,25 @@ function intro() {
   $("app").innerHTML = `<div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(d.title || "Проверка знаний")}</h1>
     <div class="meta">${esc(d.subject || "")}${d.grade ? " · " + esc(d.grade) + " класс" : ""}</div>
     <div class="chip">${d.questions.length} вопросов · проверка знаний</div>
-    <label for="name">Фамилия и имя</label><input id="name" autocomplete="name" placeholder="Иванов Иван">
+    <label for="surname">Фамилия</label><input id="surname" autocomplete="family-name" placeholder="Иванов" maxlength="40">
+    <label for="given">Имя</label><input id="given" autocomplete="given-name" placeholder="Иван" maxlength="40">
+    <p class="small">Имя и фамилия нужны только учителю. В открытом доступе они не показываются. <a href="/legal/privacy.html" target="_blank" rel="noopener">Как обрабатываются результаты</a>.</p>
     <label for="klass">Класс</label><input id="klass" autocomplete="off" placeholder="${esc(d.grade || "")}">
     <button class="btn accent" id="start">Начать тест →</button><p class="err" id="err"></p>
     <p class="small" style="margin-top:12px">Результат увидит учитель в личном кабинете.</p></div>`;
   $("start").onclick = () => {
-    const name = $("name").value.trim();
-    if (name.length < 3) { $("err").textContent = "Впишите фамилию и имя."; return; }
-    S.student = name; S.klass = $("klass").value.trim(); quiz();
+    const surname = $("surname").value.trim(), given = $("given").value.trim();
+    if (surname.length < 2 || given.length < 2) { $("err").textContent = "Впишите фамилию и имя полностью."; return; }
+    if (surname.length > 40 || given.length > 40) { $("err").textContent = "Слишком длинное имя или фамилия."; return; }
+    S.fullName = (surname + " " + given).replace(/\s+/g, " ").trim();
+    S.student = "student_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    S.klass = $("klass").value.trim(); quiz();
   };
 }
 function quiz() {
   const Q = S.q.questions, t = S.theme;
   $("app").innerHTML = `<div class="prog"><span id="pc">0 / ${Q.length}</span><div class="bar"><i id="pb"></i></div></div>
-    <div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(S.q.title || "Тест")}</h1><div class="meta">${esc(S.student)}${S.klass ? " · " + esc(S.klass) : ""}</div></div>
+    <div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(S.q.title || "Тест")}</h1><div class="meta">${S.klass ? esc(S.klass) + " класс" : "Ученик"}</div></div>
     <div id="qs"></div>
     <div class="card"><button class="btn accent" id="finish">Проверить результат</button><p class="small" id="progNote">Выберите ответ в каждом вопросе.</p></div>`;
   $("qs").innerHTML = Q.map((x, i) => `<div class="q" data-i="${i}"><b><span class="qn">${i + 1}</span><span>${esc(x.q)}</span></b>${x.options.map((o, k) => `<label class="opt"><input type="radio" name="q${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("");
@@ -180,9 +185,9 @@ async function finish() {
   const score = rows.filter(r => r.ok).length, pct = Math.round(score / rows.length * 100);
   const emoji = pct === 100 ? "🏆" : pct >= 80 ? "🌟" : pct >= 50 ? "💪" : "📚";
   const title = pct === 100 ? "Блестяще!" : pct >= 80 ? "Отличный результат!" : pct >= 50 ? "Неплохо, есть что повторить" : "Нужно повторить тему";
-  const details = { answers: rows, wrong: rows.map((r, i) => r.ok ? null : i + 1).filter(Boolean), own: "", sections: { "Тест": score + " / " + rows.length } };
+  const details = { answers: rows, wrong: rows.map((r, i) => r.ok ? null : i + 1).filter(Boolean), own: "", sections: { "Тест": score + " / " + rows.length }, full_name: S.fullName };
   $("app").innerHTML = `<div class="card hero"><span class="res-emoji">${emoji}</span><div class="score">${score} / ${rows.length}</div><h1>${title}</h1>
-    <div class="meta">${esc(S.student)}${S.klass ? " · " + esc(S.klass) : ""}</div>
+    <div class="meta">${S.klass ? esc(S.klass) + " класс" : "Ученик"}</div>
     <div class="chip">${pct}% верных ответов</div>
     <div class="review">${rows.map((r, i) => `<div class="r"><b>${i + 1}. ${esc(r.q)}</b><br><span class="${r.ok ? "ok" : "no"}">${r.ok ? "Верно" : "Ошибка"}</span> · правильный ответ: <b>${esc(r.answer)}</b>${r.explain && !r.ok ? "<br><span class='small'>" + esc(r.explain) + "</span>" : ""}</div>`).join("")}</div>
     <p class="small" id="send">Отправляю результат учителю…</p>

@@ -2175,12 +2175,48 @@ const Media = (() => {
     try { const r = await fetch(u); if (r.ok) { const b = await r.blob(); if (/^image\//.test(b.type)) return b; } } catch { }
     return null;
   }
+  /* Своя база портретов (data/people.js: Викиданные + Викисклад, свободные лицензии): авторы и исторические деятели.
+     Если в запросе есть человек из базы – его портрет идёт первым, без поиска в интернете. */
+  const pnorm = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[«»"'.,:;!?()]/g, " ").replace(/\s+/g, " ").trim();
+  const isName = f => String(f).split(/\s+/).every(w => /^([А-ЯЁA-Z]|[IVX]+$|де$|фон$|да$|ди$)/.test(w));
+  function localPeople(query) {
+    const P = window.UCHU_PEOPLE?.people; if (!P) return [];
+    const t = " " + pnorm(query) + " ", ask = /портрет|фото|писател|поэт|автор|деятел|императ|цар|княз|полковод|учен|биограф/i.test(query), out = [];
+    for (const x of Object.values(P)) {
+      const nw = String(x.name || "").split(/\s+/);
+      const forms = [x.name, nw.length === 3 ? nw[0] + " " + nw[2] : "", ...(x.forms || [])].filter(f => f && isName(f) && f.replace(/[^А-ЯЁа-яёA-Za-z]/g, "").length >= 4);
+      const hit = forms.some(f => {
+        const nf = pnorm(f);
+        if (nf.includes(" ")) return t.includes(" " + nf + " ") || t.includes(" " + nf.replace(/ /g, "") + " ");
+        if (!ask) return false;
+        const stem = nf.length > 5 ? nf.slice(0, nf.length - 1) : nf;
+        return new RegExp("[ -]" + stem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[а-я]{0,3} ").test(t);
+      });
+      if (hit) out.push({ url: x.img, thumb: x.img, title: `${x.name}${x.years ? `, ${x.years}` : ""}${x.role ? ` – ${x.role}` : ""}`, src: "База сайта", domain: "uchu-po-frp.ru", credit: [x.author, x.license].filter(Boolean).join(", "), local: true });
+    }
+    return out.slice(0, 3);
+  }
+  /* Своя база иллюстраций к урокам (data/lesson-images.js): картинки, чьё название или подпись совпадают с запросом по смыслу, идут первыми. */
+  function localLessons(query) {
+    const B = window.UCHU_LESSON_IMAGES?.images; if (!B) return [];
+    const ws = q => new Set((pnorm(q).match(/[a-zа-я0-9]{3,}/g) || []).map(w => w.slice(0, 5)));
+    const qw = ws(query); if (!qw.size) return [];
+    const out = [];
+    for (const im of Object.values(B)) {
+      const tw = ws(im.title + " " + (im.caption || ""));
+      let hit = 0; qw.forEach(w => { if (tw.has(w)) hit++; });
+      if (hit && hit >= Math.min(2, qw.size)) out.push({ score: hit, url: im.img, thumb: im.img, title: im.caption || im.title, local: true, src: /собственн/.test(im.license || "") ? "Схема сайта" : "База сайта", credit: im.author ? `${im.author}; ${im.license}` : im.license });
+    }
+    return out.sort((a, b) => b.score - a.score).slice(0, 6);
+  }
   async function search(query, limit = 12, opts = {}) {
     const yq = String(query || "").trim(), useYa = opts.yandex !== false;
+    const mine = [...localPeople(yq), ...(/портрет/i.test(yq) ? [] : localLessons(yq))];
+    if (mine.length && /портрет/i.test(yq) && mine[0].local) return mine;
     // картины и иллюстрации с автором и названием (Викисклад) — первыми, если запрос про иллюстрацию, картину или портрет
     const art = /иллюстрац|картин|портрет|художник|живопис/i.test(yq) ? await commons(yq.replace(/иллюстрация|картина/gi, "").trim() + " иллюстрация", 6).catch(() => []) : [];
     const ya = useYa ? await yandexSearch(yq, Math.max(limit, 16)) : [];
-    if (ya.length >= 4) return [...art, ...ya].slice(0, Math.max(limit, 16));
+    if (ya.length >= 4) return [...mine, ...art, ...ya].slice(0, Math.max(limit, 16));
     const q = String(query || "").replace(/(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))(портрет|картина|фото|изображение)(?:(?<=[A-Za-z0-9_А-Яа-яЁё])(?![A-Za-z0-9_А-Яа-яЁё])|(?<![A-Za-z0-9_А-Яа-яЁё])(?=[A-Za-z0-9_А-Яа-яЁё]))/gi, "").replace(/\s+/g, " ").trim() || query;
     const results = [];
     try {
@@ -2191,7 +2227,7 @@ const Media = (() => {
       const j = await getJson(`${C}?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(query)}&gsrlimit=${limit}&prop=imageinfo&iiprop=url|mime&iiurlwidth=1200`);
       Object.values(j.query?.pages || {}).sort((a, b) => a.index - b.index).forEach(p => { const ii = p.imageinfo?.[0]; if (ii && /jpe?g|png|webp/.test(ii.mime || "")) results.push({ url: ii.thumburl || ii.url, thumb: (ii.thumburl || ii.url).replace(/\/\d+px-/, "/320px-"), title: p.title.replace(/^Файл:|^File:/, "").replace(/\.[A-Za-z0-9_А-Яа-яЁё]+$/, ""), src: "Викисклад" }); });
     } catch { }
-    const seen = new Set(); return [...art, ...ya, ...results].filter(r => !seen.has(r.url) && seen.add(r.url)).slice(0, Math.max(limit, ya.length));
+    const seen = new Set(); return [...mine, ...art, ...ya, ...results].filter(r => !seen.has(r.url) && seen.add(r.url)).slice(0, Math.max(limit, ya.length));
   }
   /* ---------- достоверность картинок: art- и map-интент ----------
      Картины и репродукции ищем только с проверкой подписи: в названии файла должна быть фамилия
@@ -2469,6 +2505,7 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
     try {
       if (src.startsWith("idb:")) blob = await Store.get("images", src.slice(4));
       else if (/^https?:/.test(src)) blob = await toBlob(src);
+      else if (/^(data:image|img\/|\.\/img\/|\/img\/)/.test(src)) { const r = await fetch(new URL(src, location.href).href); if (r.ok) blob = await r.blob(); }
     } catch { return null; }
     if (!blob) return null;
     const bmp = await createImageBitmap(blob).catch(() => null); if (!bmp) return null;

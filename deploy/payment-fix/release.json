@@ -1,0 +1,53 @@
+{
+  "version": "2026-11-15",
+  "files": {
+    "deploy/pocketbase/pb_hooks/identities.js": "0cea68217f25f2d90ecb12bccaa8667eac8565f773e46548bdb9f8d155afef41",
+    "deploy/pocketbase/pb_hooks/identity-providers.js": "f0836d6455d7a6c04470188b4e4929da15bb1e3f3c533eeb268c72b5ea57e826",
+    "deploy/pocketbase/pb_hooks/postbox.pb.js": "fdcb8b53f446867a670fdf59c2c6cd80968d72d11c7a11610e667f13b7d1e18e",
+    "deploy/pocketbase/pb_hooks/privacy-documents.js": "59c24c85099c708214ae9a456fb7875c56ef235ee774dd3085cb2771a5fd5df6",
+    "deploy/pocketbase/pb_hooks/privacy.js": "eae2c4cf79c49c83c8b4a01f269ba92bd887bab9552c9046237dd9b6ae287500",
+    "deploy/pocketbase/pb_hooks/registration.pb.js": "32939e1aad8e9183f0bb255137a429ea6d1fd1f4d3cb05d96fe0fb379e9a4c59",
+    "deploy/pocketbase/pb_hooks/uchu.js": "703904029fb48bdaf7b3ae83d2063d34f6bc7b60b5cf8d1b8ca8c6c331dfa098",
+    "deploy/pocketbase/pb_hooks/uchu.pb.js": "bf128fbc3d95d65107fe0b2f3e2a69a52973e005a4b58cd25e84d82f02301cc6",
+    "deploy/pocketbase/pb_migrations/1794069018_uchu_accounts.js": "0650d259a3fd2c6f3f7085f21b9bb069a975bdf732a1284dc9b0eafd6842e18f",
+    "deploy/pocketbase/pb_migrations/1794072092_account_identities.js": "b77ce52b11046e3c077206a9e45152a416d5045c6022d9d2727441d939c17dee",
+    "deploy/pocketbase/pb_migrations/1794084615_google_identity.js": "cf00215f8cc8cb4cc64e83781b40bd8113b6ce633f5fd2ae363ec5f0ca2647bd",
+    "deploy/pocketbase/pb_migrations/1794327600_mail_budget.js": "e610d18b2b454b7696211f0499bb3c9bf636000aed7ee979d380576204144db8",
+    "deploy/pocketbase/pb_migrations/1794571200_privacy.js": "cdd93ce34c369afa310fc1be2e9d55bb2f7ebee7e8a6c63490a4f3624844ebe7",
+    "deploy/pocketbase/pb_migrations/1794758400_account_balances.js": "e64539f0cbc6849333cf1b9a8215e3d0270ddc72e82b30a02546ad7f332e83e7",
+    "deploy/pocketbase/pb_migrations/1794762000_payment_confirmations.js": "45ea585c585d03cdb39d1bb242aa9407337f3e8df77abe29d848994dd7de3f96"
+  },
+  "public_files": {
+    "index.html": "9cbf9f8d279906acf91452c7c6046a36e17467f8a22dcd653bf9bf99996445e4",
+    "js/access.js": "f2c56aef4ebc482935c0f28c485738440342dbc78ba2f9506a9657069b955c71",
+    "js/account.js": "355cbb93a851afef16449dc6a653251551edf13daef20a9bda3b81d62f83accd",
+    "js/app-part2.js": "92271afde132ffd6084af645640136c74f5009ba776fedf5492ff3d9413d776b",
+    "js/privacy.js": "f4ab8e98abf8fda3d015cb632c2c580f70bf5d63ba7e8b371df7ea48105aa17a",
+    "data/legal.js": "6496c141222aab9c0b960d4865388d02c68b6e6e53c5d91bce86d277e2553d94",
+    "sw.js": "b23f27d01adcf6d12c149aaeac6d7d3a4a95435e70f9336a042bdfe7908e9f8e",
+    "legal/oferta.html": "6d3e9c5fc405de92eb392d89c3ed14cfd0a5ecb940670d5bd9093bdab227e5dd",
+    "legal/privacy.html": "66caffb98207e0717a659f9347d4378fd3b02c6cf18a705e970ab46c1ba31cc2",
+    "legal/consent.html": "1b7ad69cf33f657997789fbc48bec28ba8548217b3aecf3dac655d74fc7cb157",
+    "legal/tarify.html": "26a6cadb840c79c89ab82cf9963554cd40813c23d22ca6afd9ae60aacccbb3df",
+    "legal/archive/2026-11-15/consent.html": "65c23f4ccd8d2c7c1489432e802521c5be7892147f7bb3a473fd272886b844b0",
+    "legal/archive/2026-11-15/oferta.html": "12ff345bd014fffdd99ccb7cbcc91f6abf2dbf81047098570f3b3fb61584a66f",
+    "legal/archive/2026-11-15/privacy.html": "ebec391e62c36d5fdca1ee363caa531650800289fa9312cd7982345ce4b7ed36",
+    "js/usage.js": "9f6520063db60c662739cbf6a8d3aa8cdd2d37516c65676c1dac05110c32a9fa",
+    "js/ai.js": "0788f45d74b03858dc6e89819e1561718e7f906731e17a1bc05cfa874adccdca"
+  },
+  "proxy_files": {
+    "accounts-backend.js": "e6241b71b8a9e7fb76f2e29937fa20a1270c57aa05f17e571f39bfcd4784ccf6",
+    "botbrain.js": "e390a29595e9f522698f1c55eda8f6358d1d77dc3a37377585a6c4292baf1d6a",
+    "deepseek-pool.js": "7f20afab27eeda427ac8c3c5e88a37713a04e0946483bf9fc383aca9a16710e2",
+    "image-pool.js": "3f43aca9643fcf2f1a3cd224ce8b90c8e84dadffe12acbfe646ae93ee59f1214",
+    "maxbot.js": "2eae9e779ec9b8a7bb553fb77910f37a1128e7ac93649b04edff8f9fbed641b8",
+    "payments.js": "5b1ed31ddd0ca2d6f86a628d904a888d19d02d621af4b94435f551d11100552f",
+    "proxy.js": "dd753896c6977c42e63fe5706716666cf02baecb8e99e020e1d81957efdb5184",
+    "quota.js": "0e25b9fc11c1529cb563ef20ddade9dce05a535e3105574acb232d7dfbe98aa6",
+    "sms-hook.js": "76a8ceb4872fbf61c376aaa8257159fcb9e540f1a34ab7726516b51071cb19e7",
+    "yandex-function.js": "172670eac1f31700be81377ed213c8cf2f3d19380565c8ffb70fe1cc6125ed54"
+  },
+  "function_stored_zip_sha256": "54fd5e6d9f288bfaf5364ffc0deade8f6fe08933cf673f9a9e9692ec44a8c921",
+  "cloud_helper_sha256": "7a6d8b5fd75f9aa48b6718d1652a162691d90f936aa1ddf5cb01e0a6a59ca68f",
+  "privacy_ledger_sha256": "3775493706742427e22b9f93c45be144d7a6b97e2281d009ab90073b98575733"
+}

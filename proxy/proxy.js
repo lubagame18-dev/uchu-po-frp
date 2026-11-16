@@ -357,7 +357,9 @@ function readBody(req) {
     req.on("error", reject);
   });
 }
-function request(url, { method = "POST", headers = {}, body, timeout = 120000 }) {
+const accountRequest = require("./accounts-backend.js").wrapRequest(rawRequest);
+function request(url, options) { return accountRequest(url, options); }
+function rawRequest(url, { method = "POST", headers = {}, body, timeout = 120000 }) {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
     const lib = u.protocol === "http:" ? http : https;
@@ -462,8 +464,8 @@ async function handler(req, res) {
     const password = String(br.password || "");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, { error: "нужна корректная почта" });
     if (password.length < 6) return send(res, 400, { error: "пароль короче 6 символов" });
-    const sbUrl = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-    const sbKey = process.env.SUPABASE_SERVICE_KEY || "";
+    const sbUrl = require("./accounts-backend.js").config().url;
+    const sbKey = require("./accounts-backend.js").config().key;
     if (!sbUrl || !sbKey) return send(res, 503, { error: "регистрация временно недоступна" });
     const headers = { apikey: sbKey, Authorization: "Bearer " + sbKey, "Content-Type": "application/json" };
     const rr = await request(sbUrl + "/auth/v1/admin/users", {
@@ -548,8 +550,8 @@ async function handler(req, res) {
     const chatId = String(bl.chat_id || "").trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return send(res, 400, { error: "нужна корректная почта" });
     if (!chatId) return send(res, 400, { error: "нет chat_id" });
-    const sbUrl2 = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-    const sbKey2 = process.env.SUPABASE_SERVICE_KEY || "";
+    const sbUrl2 = require("./accounts-backend.js").config().url;
+    const sbKey2 = require("./accounts-backend.js").config().key;
     if (!sbUrl2 || !sbKey2) return send(res, 503, { error: "привязка временно недоступна" });
     const headers2 = { apikey: sbKey2, Authorization: "Bearer " + sbKey2, "Content-Type": "application/json" };
     const prof = await request(sbUrl2 + "/rest/v1/profiles?email=eq." + encodeURIComponent(email) + "&select=id", { headers: headers2, timeout: 15000 });
@@ -572,7 +574,7 @@ async function handler(req, res) {
   if (route === "/export/lessons") {
     const adm = process.env.ADMIN_TOKEN || "";
     if (!adm || req.headers["x-admin-token"] !== adm) return send(res, 403, { error: "только для разработчика" });
-    const sbU = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), sbK = process.env.SUPABASE_SERVICE_KEY || "";
+    const sbU = require("./accounts-backend.js").config().url, sbK = require("./accounts-backend.js").config().key;
     if (!sbU || !sbK) return send(res, 503, { error: "облако недоступно" });
     const rr = await request(sbU + "/rest/v1/lessons?select=id,user_id,data,updated_at&order=updated_at.desc&limit=5000", { headers: { apikey: sbK, Authorization: "Bearer " + sbK }, timeout: 30000 });
     const txt = await readAll(rr);
@@ -596,6 +598,7 @@ async function handler(req, res) {
 
   /* ---------- вход через Яндекс (свой OAuth) ---------- */
   if (route === "/auth/yandex") {
+    if (require("./accounts-backend.js").pocketbase()) return send(res,409,{error:"Обновите страницу сайта и войдите через Яндекс ID заново."});
     const yid = process.env.YANDEX_CLIENT_ID || "", ysec = process.env.YANDEX_CLIENT_SECRET || "";
     if (!yid || !ysec) return send(res, 503, { error: "вход через Яндекс не настроен" });
     const fnUrl = "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24?path=/auth/yandex";
@@ -620,7 +623,7 @@ async function handler(req, res) {
       const ij = JSON.parse(await readAll(ir));
       const email = String(ij.default_email || (ij.emails && ij.emails[0]) || "").toLowerCase();
       if (!email) return redirect(site + "#error_description=yandex_email");
-      const sbUrl = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), sbKey = process.env.SUPABASE_SERVICE_KEY || "";
+      const sbUrl = require("./accounts-backend.js").config().url, sbKey = require("./accounts-backend.js").config().key;
       const headers = { apikey: sbKey, Authorization: "Bearer " + sbKey, "Content-Type": "application/json" };
       let prof = null;
       try { const pr = await request(sbUrl + "/rest/v1/profiles?email=eq." + encodeURIComponent(email) + "&select=id", { headers, timeout: 15000 }); prof = (JSON.parse(await readAll(pr)) || [])[0] || null; } catch { }
@@ -646,13 +649,13 @@ async function handler(req, res) {
 
   /* ---------- серверный учёт бесплатного доступа: 3 в день, 2 дня ---------- */
   async function trialUser(tok) {
-    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const sb = require("./accounts-backend.js").config().url, key = require("./accounts-backend.js").config().key;
     if (!sb || !key || !tok) return null;
     const r = await request(sb + "/auth/v1/user", { headers: { apikey: key, Authorization: "Bearer " + tok }, timeout: 15000 });
     const u = JSON.parse(await readAll(r)); return u && u.id ? u : null;
   }
   async function trialProfile(uid) {
-    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const sb = require("./accounts-backend.js").config().url, key = require("./accounts-backend.js").config().key;
     const r = await request(sb + "/rest/v1/profiles?id=eq." + uid + "&select=trial_start,trial_day,trial_used", { headers: { apikey: key, Authorization: "Bearer " + key }, timeout: 15000 });
     const j = JSON.parse(await readAll(r)); return (Array.isArray(j) ? j[0] : null) || null;
   }
@@ -673,7 +676,7 @@ async function handler(req, res) {
   if (route === "/trial/use" && req.method === "POST") {
     const u = await trialUser(req.headers["x-user-token"]);
     if (!u) return send(res, 401, { error: "войдите в кабинет" });
-    const sb = (process.env.SUPABASE_URL || "").replace(/\/+$/, ""), key = process.env.SUPABASE_SERVICE_KEY || "";
+    const sb = require("./accounts-backend.js").config().url, key = require("./accounts-backend.js").config().key;
     const p0 = await trialProfile(u.id);
     const c = trialCalc(p0);
     if (c.expired || c.left <= 0) return send(res, 403, { error: "trial_expired", ...c });
@@ -754,6 +757,11 @@ async function handler(req, res) {
     try { const r = await fetchImage(String(u.searchParams.get("url") || "")); res.writeHead(200, { "Content-Type": r.type, "Cache-Control": "public, max-age=86400" }); return res.end(r.buf); }
     catch (e) { return send(res, e.status || 502, { error: e.message }); }
   }
+  if (req.method === "GET" && route === "/admin/accounts-check") {
+    if (!process.env.ADMIN_TOKEN || req.headers["x-admin-token"] !== process.env.ADMIN_TOKEN) return send(res, 403, { error: "нужен токен владельца" });
+    try { return send(res, 200, await require('./accounts-backend.js').probePocketbase(request, readAll)); }
+    catch (_) { return send(res, 502, {ok:false,error:"PocketBase connection check failed"}); }
+  }
   if (req.method === "GET" && route === "/deepseek/balance") {
     // баланс аккаунтов — только владельцу (заголовок X-Admin-Token = переменная ADMIN_TOKEN)
     if (!process.env.ADMIN_TOKEN || req.headers["x-admin-token"] !== process.env.ADMIN_TOKEN) return send(res, 403, { error: "нужен токен владельца" });
@@ -785,7 +793,7 @@ async function handler(req, res) {
       const up = await request(target.href, { headers: pass, body: raw });
       return pipeUpstream(res, up);
     }
-    if (route === "/pay/yk") { await PAY.ykNotify(raw, request, readAll).catch(e => console.warn("yk notify", e.message)); return send(res, 200, { ok: true }); } // уведомления ЮKassa
+    if (route === "/pay/yk") { try { const r=await PAY.ykNotify(raw,request,readAll);return send(res,r.status,r.json||{ok:r.status<300}); } catch { return send(res,503,{error:"Начисление временно недоступно; повторите уведомление."}); } }
     if (route === "/pay/notify") { const r = await PAY.notify(raw, req.headers, request, readAll); res.writeHead(r.status, { "Content-Type": "text/plain; charset=utf-8" }); return res.end(r.text); }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
     if (route === "/admin/join") { const devCode = process.env.ADMIN_TOKEN || process.env.DEV_CODE || "Pedagogural"; const codeIn = String(body.code || ""); if (devCode && codeIn && codeIn === devCode) return send(res, 200, { ok: true, dev: true, token: devCode }); const r = await Q.join(req.headers["x-user-token"], body.code, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? { ok: true, already: !!r.already } : { error: r.message }); }
@@ -816,6 +824,7 @@ async function handler(req, res) {
       const r = await PAY.test(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json);
     }
     if (route === "/pay/create") { const r = await PAY.create(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json); }
+    if (route === "/pay/status") { const r=await PAY.status(body,req.headers["x-user-token"],request,readAll);return send(res,r.status,r.json); }
     if (!Array.isArray(body.messages)) return send(res, 400, { error: "нужен массив messages" });
     if (route === "/promo") {
       const r = await Q.promo(req.headers["x-user-token"], body.code, request, readAll);
@@ -827,14 +836,19 @@ async function handler(req, res) {
       // разработчик может выбрать конкретный общий ключ (заголовок X-Uchu-Slot) — без списания с тарифа
       const slot = +req.headers["x-uchu-slot"] || 0, admin = slot ? await Q.isAdmin(req.headers["x-user-token"], request, readAll) : false;
       if (slot && !admin) return send(res, 403, { error: "выбор общего ключа — только для разработчиков" });
-      const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll);
+      if(!admin&&require("./accounts-backend.js").pocketbase()&&!['creation','refine'].includes(body.usage_phase))return send(res,409,{error:"Обновите страницу сайта: создание и доработки теперь учитываются отдельно. Материалы сохранены."});
+      const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll,{creation:body.usage_phase==='creation',lesson_id:body.lesson_id});
       if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
+      if(!quota.admin)body={messages:body.messages,model:"deepseek-flash",thinking:{type:"disabled"},max_tokens:body.max_tokens,temperature:0.25,stream:false}; // No client-selected costly model, multiple completions or paid search tools.
       // не дать потратить больше, чем осталось по тарифу: ответ ограничивается остатком токенов
       if (quota.tok) body.max_tokens = Math.max(256, Math.min(+body.max_tokens || 8192, quota.left));
-      const r = await DS.chat(body, request, readAll, slot || 0);
-      let used = 0; try { const u = JSON.parse(r.text).usage; used = u?.total_tokens || ((u?.prompt_tokens || 0) + (u?.completion_tokens || 0)); } catch { }
+      const hold=await Q.reserve(quota,body,request,readAll);let r;
+      try{r=await DS.chat(body,request,readAll,slot||0,quota.admin?undefined:"deepseek-flash");}
+      catch(e){if(hold)await Q.finish(quota,hold,e.status>=400&&e.status<500?0:hold.tokens,request,readAll);throw e;}
+      let used = 0; try { const u = JSON.parse(r.text).usage; used = hold?Math.ceil((u?.prompt_tokens||0)*.25+(u?.completion_tokens||0)):(u?.total_tokens || ((u?.prompt_tokens || 0) + (u?.completion_tokens || 0)));if(hold&&u?.total_tokens&&!used)used=u.total_tokens; } catch { }
       if (!used) used = Math.round((JSON.stringify(body.messages || "").length + r.text.length) / 3); // оценка, если сервис не прислал расход
-      if (!quota.admin) await Q.spend(quota, request, readAll, used).catch(e => console.warn("quota", e.message));
+      if(hold)await Q.finish(quota,hold,used>0?used:hold.tokens,request,readAll);
+      else if (!quota.admin) await Q.spend(quota, request, readAll, used);
       if (quota.tok) res.setHeader("X-Uchu-Tokens", `${quota.used + used}/${quota.limit}`);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "X-Uchu-Account": r.account });
       return res.end(r.text);
@@ -851,7 +865,7 @@ async function handler(req, res) {
         if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
         body.model = clampModel(body.model, LIMITS.gigaModels, LIMITS.gigaDefault);
         body.max_tokens = clampOut(body.max_tokens);
-        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body)).catch(e => console.warn("quota", e.message));
+        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body));
       }
       const token = await gigaToken(key);
       const out = JSON.stringify({ model: body.model || "GigaChat-2-Pro", messages: body.messages, stream: body.stream !== false, ...(body.max_tokens ? { max_tokens: body.max_tokens } : {}), ...(body.temperature != null ? { temperature: body.temperature } : {}) });
@@ -873,7 +887,7 @@ async function handler(req, res) {
         body.model = clampModel(body.model, LIMITS.yaModels, LIMITS.yaDefault);
         if (body.completionOptions && typeof body.completionOptions === "object") body.completionOptions.maxTokens = clampOut(body.completionOptions.maxTokens);
         if (body.max_tokens != null) body.max_tokens = clampOut(body.max_tokens);
-        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body)).catch(e => console.warn("quota", e.message));
+        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body));
       }
       const model = String(body.model || "yandexgpt/latest");
       const out = JSON.stringify({ ...body, model: model.startsWith("gpt://") ? model : `gpt://${folder}/${model}`, stream: body.stream !== false });

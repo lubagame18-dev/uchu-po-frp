@@ -1,0 +1,196 @@
+{
+  "retrieved": "2026-11-13",
+  "css_source": "https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap",
+  "files": [
+    {
+      "file": "font-01.woff2",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2",
+      "sha256": "62213be8a78b42f1e29d1452d91e2f8b3e745572a9dd98d3941e39fa00b37d76"
+    },
+    {
+      "file": "font-02.woff2",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxTcwhsk.woff2",
+      "sha256": "e17cfd15fb96909d64095015f958207063a0c07191da3512df7d560a781aebdf"
+    },
+    {
+      "file": "font-03.woff2",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2",
+      "sha256": "0a557721b1f8b36d3f3f84442689a71ca4a744300abcb46a1953f51bfc663b66"
+    },
+    {
+      "file": "font-04.woff2",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2",
+      "sha256": "c89b9cc0bc6262bd4f8d8494b6961601f3aefa829d08c2e3635f4d501d3a47c2"
+    },
+    {
+      "file": "font-05.woff2",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwhsk.woff2",
+      "sha256": "db5ff4db83e580426280e9337a58dc57d3a83784a1b03ad80914651594441d52"
+    },
+    {
+      "file": "font-06.woff2",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2",
+      "sha256": "83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be"
+    },
+    {
+      "file": "font-07.woff2",
+      "source": "https://fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggqxSuXd.woff2",
+      "sha256": "3c09135e88bbfcd848e99be137710afbb615a8d9a73c5c48e6cb0245a162af1d"
+    },
+    {
+      "file": "font-08.woff2",
+      "source": "https://fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggOxSuXd.woff2",
+      "sha256": "447c49583b1b735cc6f566151db1d24354cec41076c55dd98455cfbde9e806c1"
+    },
+    {
+      "file": "font-09.woff2",
+      "source": "https://fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggSxSuXd.woff2",
+      "sha256": "e507c109c31789b33994646b457ee288639324516357250607c9b1398186e069"
+    },
+    {
+      "file": "font-10.woff2",
+      "source": "https://fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggixSuXd.woff2",
+      "sha256": "dbf64d973b3987844df30992c93f47d24ac8935ee8c9b1e320942aeb1b367703"
+    },
+    {
+      "file": "font-11.woff2",
+      "source": "https://fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggmxSuXd.woff2",
+      "sha256": "2f7335119075b2079f1d882530bbc18728461612bf90743203d73a74a48f4d9b"
+    },
+    {
+      "file": "font-12.woff2",
+      "source": "https://fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggexSg.woff2",
+      "sha256": "8c2def024c1bf31aacf3624ae3c4d701269b4ec3dc765c04830839f0d36b2d9e"
+    },
+    {
+      "file": "font-13.woff2",
+      "source": "https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2",
+      "sha256": "f25c38d28da3d57b68419590e7165c382e99bab3548baf4a498af93f87d3e518"
+    },
+    {
+      "file": "font-14.woff2",
+      "source": "https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwv8ZfrxE.woff2",
+      "sha256": "e30bf6a6063b6a47232bbd657e24c7cf4fdaf76fc2c50d92d9ee63e2ad2087cf"
+    },
+    {
+      "file": "font-15.woff2",
+      "source": "https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2",
+      "sha256": "aa6b9cba3768a781df88a462a85ca40c6644662bb7d59ab4375ad1ff64f51251"
+    },
+    {
+      "file": "font-16.woff2",
+      "source": "https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2",
+      "sha256": "845e1c9fe2e9a7bfbedfeb447fbeba4bc1b5ecd6246277910ccdaad35a7a532c"
+    },
+    {
+      "file": "font-17.woff2",
+      "source": "https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwu8Zf.woff2",
+      "sha256": "22f9b928aa3928a896340422b54d690fbb5875c30eae4c106f029c61f2289fd6"
+    },
+    {
+      "file": "font-18.woff2",
+      "source": "https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zt5E3Hdg.woff2",
+      "sha256": "14ab52c9ee95c839efe7c5d2286a32d582e6a2ed3b7e0b729f65c02f28c58487"
+    },
+    {
+      "file": "font-19.woff2",
+      "source": "https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zk5E3Hdg.woff2",
+      "sha256": "bdba325ea4fb2dcfafe71c44712557ae2859df3ac640eadc46bf7cd6321b199f"
+    },
+    {
+      "file": "font-20.woff2",
+      "source": "https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zu5E3Hdg.woff2",
+      "sha256": "bebbe8641024cbbc818c94d9fbecf4f412aa75326c7c7055cd9b8dfb6af5c31a"
+    },
+    {
+      "file": "font-21.woff2",
+      "source": "https://fonts.gstatic.com/s/oranienbaum/v16/OZpHg_txtzZKMuXLIVrx-0zg5E0.woff2",
+      "sha256": "8ab24c8b63edb5f7307d7eb83a0613bbfcec267700d781324d4462ce4ea897f6"
+    },
+    {
+      "file": "font-22.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRTQgYoZZY2vCFuvAFT_rC1chb-.woff2",
+      "sha256": "a444868f597250ae183007b06e11ef40001e7cbedbc5c2a01068589e436315f1"
+    },
+    {
+      "file": "font-23.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRTQgYoZZY2vCFuvAFT_rm1chb-.woff2",
+      "sha256": "9d1c80c9a947548f5da15b917f693b2b1df148e807c212cce877793d326149c4"
+    },
+    {
+      "file": "font-24.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRTQgYoZZY2vCFuvAFT_rO1chb-.woff2",
+      "sha256": "e03d9090077c76165d69af4d266eccb7bad28091d03244a31def2a711d597062"
+    },
+    {
+      "file": "font-25.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRTQgYoZZY2vCFuvAFT_r21cg.woff2",
+      "sha256": "cb373bde18855c82a0ebf2946ea661ebd0be58a7fbabdf20f7744ecd9c0a9cfd"
+    },
+    {
+      "file": "font-26.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRVQgYoZZY2vCFuvAFbzr-tdg.woff2",
+      "sha256": "61b7a27696c0eedae50935a733460588e59e220a8154e681d59b80fed8a42420"
+    },
+    {
+      "file": "font-27.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRVQgYoZZY2vCFuvAFSzr-tdg.woff2",
+      "sha256": "050aee25e3462f72c4d357ee964b8df1801e701bae8af275b697581a87c04a48"
+    },
+    {
+      "file": "font-28.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRVQgYoZZY2vCFuvAFYzr-tdg.woff2",
+      "sha256": "2d7cdb9a975f016db59cb42a61df1b21889842b3ed4e2226f270f4b1349cf704"
+    },
+    {
+      "file": "font-29.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRVQgYoZZY2vCFuvAFWzr8.woff2",
+      "sha256": "4271064a37f3ffc0aac5f3806db8a72acc23e19447d1804e4e80d8796cbf6330"
+    },
+    {
+      "file": "font-30.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRSQgYoZZY2vCFuvAnt66qfVyvHpA.woff2",
+      "sha256": "7efb01f9207ed4e39f36438e601867e81e1bf863312bf04a31ed4687a3c73012"
+    },
+    {
+      "file": "font-31.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRSQgYoZZY2vCFuvAnt66qWVyvHpA.woff2",
+      "sha256": "bec4e724c49bde6d6b3f15038c8015f5dc7c810bdaadd3aee537ab72afc50e4a"
+    },
+    {
+      "file": "font-32.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRSQgYoZZY2vCFuvAnt66qcVyvHpA.woff2",
+      "sha256": "94cdabe31b8195f0691d18eda86ea1fed049be7cd21eea22c858ad6dd6cc306b"
+    },
+    {
+      "file": "font-33.woff2",
+      "source": "https://fonts.gstatic.com/s/ptserif/v19/EJRSQgYoZZY2vCFuvAnt66qSVys.woff2",
+      "sha256": "bf23a7a4eebedbb87d4084a69496b29815914a18e339a00f5dc73a03c9c9328f"
+    },
+    {
+      "file": "font-34.woff2",
+      "source": "https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3Upfdwxon921vg.woff2",
+      "sha256": "70d5c7cbe04ffacfaa5215edbf04620ecfbdbfb0c4c8dc63ba9e8e63591e745c"
+    },
+    {
+      "file": "font-35.woff2",
+      "source": "https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3UpfdwwQn921vg.woff2",
+      "sha256": "efe20e89ed917b3507da383abe279156b324ab371ebc5830d170fabba83353e7"
+    },
+    {
+      "file": "font-36.woff2",
+      "source": "https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3UpfdwwCn921vg.woff2",
+      "sha256": "88b03183342f82bd7122bb48fe9111e0f2cc5510e9c614f8e1a6e8c3c6cbb9c3"
+    },
+    {
+      "file": "font-37.woff2",
+      "source": "https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3Upfdwxin921vg.woff2",
+      "sha256": "3d07c6d7948cf9ff821b9b07231f16bac8d6e987185329767a5b9af67e1e05a0"
+    },
+    {
+      "file": "font-38.woff2",
+      "source": "https://fonts.gstatic.com/s/ruslandisplay/v27/Gw6jwczl81XcIZuckK_e3Upfdwxsn90.woff2",
+      "sha256": "7d8dc742e753a0680ee4aa8834e6ad4f93c027df2b27edfa71e2f98d1b9ee353"
+    }
+  ]
+}

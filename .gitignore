@@ -6,3 +6,7 @@ __pycache__/
 .env.*
 *.dump
 /deploy/supabase-rf/backups/
+
+/pb_data/
+/deploy/pocketbase/pb_data/
+/deploy/pocketbase/backups/

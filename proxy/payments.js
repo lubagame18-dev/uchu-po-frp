@@ -8,25 +8,26 @@
      SUPABASE_URL, SUPABASE_SERVICE_KEY — облако кабинета (тариф записывается туда)
    Маршруты: POST /pay/create (сайт просит ссылку на оплату), POST /pay/notify (Продамус сообщает об оплате).
    Тарифы: единственный платный — «С ИИ» (400 ₽/мес) и «С ИИ, год» (3900 ₽/год): всё доступно, 50 уроков с ИИ в месяц.
-   Докупка уроков: пакеты 10/30/50 (70/190/300 ₽) и «своё количество» от 1 до 200 (7 ₽ за урок, не меньше 70 ₽).
+   Докупка уроков в подписке: пакеты 10/30/50 (100/300/500 ₽) и «своё количество» от 1 до 200 (10 ₽ за урок).
    Цены — только здесь, на сервере: подменить цену со стороны браузера нельзя.
    =================================================================== */
 const crypto = require("crypto");
 /* tokens — запас токенов ИИ сайта (DeepSeek) на 50 уроков (≈ 40 тыс. токенов на урок) плюс правки и пересборки */
 const PLANS = {
-  ai: { name: "С ИИ", price: 400, ai: 50, tokens: 2700000, days: 30 },
-  aiYear: { name: "С ИИ, год", price: 3900, ai: 50, tokens: 2700000, days: 365 }
+  single: { name: "Один урок", price: 30, ai: 1, tokens: 90000, days: 365 },
+  ai: { name: "С ИИ", price: 400, ai: 50, tokens: 1000000, days: 30 },
+  aiYear: { name: "С ИИ, год", price: 3900, ai: 50, tokens: 1000000, days: 365 }
 };
 const PROMO_K = 0.5; // скидка по промокоду, если у кода не задан свой процент
 const kOf = p => (!!p.promo || p.plan === "promo") ? (p.promo_pct ? 1 - Math.max(1, Math.min(99, +p.promo_pct)) / 100 : PROMO_K) : 1;
 const PACKS = {
-  ai10: { name: "10 уроков с ИИ", price: 70, ai: 10, tokens: 400000 },
-  ai30: { name: "30 уроков с ИИ", price: 190, ai: 30, tokens: 1200000 },
-  ai50: { name: "50 уроков с ИИ", price: 300, ai: 50, tokens: 2000000 }
+  ai10: { name: "10 уроков с ИИ", price: 100, ai: 10, tokens: 200000 },
+  ai30: { name: "30 уроков с ИИ", price: 300, ai: 30, tokens: 600000 },
+  ai50: { name: "50 уроков с ИИ", price: 500, ai: 50, tokens: 200000 }
 };
-const PER_LESSON = 40000; // ≈ токенов на один урок с ИИ
-/* «Своё количество» уроков: 1–200, цена max(70, ceil(n×7)) ₽ — считается только на сервере */
-const CUSTOM = { min: 1, max: 200, per: 7, minPrice: 70 };
+const PER_LESSON = 20000; // ≈ токенов на один урок с ИИ
+/* «Своё количество» уроков: 1–200, 10 ₽ за урок — считается только на сервере */
+const CUSTOM = { min: 1, max: 200, per: 10, minPrice: 10 };
 const customPrice = n => Math.max(CUSTOM.minPrice, Math.ceil(n * CUSTOM.per));
 const customN = v => { const n = Number(v); return Number.isInteger(n) && n >= CUSTOM.min && n <= CUSTOM.max ? n : 0; };
 const DAY = 864e5;
@@ -53,7 +54,7 @@ function parseForm(raw) {
 }
 /* ---------- облако ---------- */
 async function sb(request, readAll, path, { method = "GET", body, token } = {}) {
-  const res = await request(env("SUPABASE_URL").replace(/\/+$/, "") + path, { method, headers: { apikey: env("SUPABASE_SERVICE_KEY"), Authorization: "Bearer " + (token || env("SUPABASE_SERVICE_KEY")), "Content-Type": "application/json", Prefer: "return=representation" }, body: body ? JSON.stringify(body) : undefined, timeout: 15000 });
+  const res = await request(require("./accounts-backend.js").config().url + path, { method, headers: { apikey: require("./accounts-backend.js").config().key, Authorization: "Bearer " + (token || require("./accounts-backend.js").config().key), "Content-Type": "application/json", Prefer: "return=representation" }, body: body ? JSON.stringify(body) : undefined, timeout: 15000 });
   const t = await readAll(res); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
   return { status: res.statusCode, json: j };
 }
@@ -61,12 +62,20 @@ async function userOf(token, request, readAll) { if (!token) return null; const 
 async function profile(id, request, readAll) { return (await sb(request, readAll, `/rest/v1/profiles?id=eq.${id}&select=*`)).json?.[0] || null; }
 /* Сколько должен стоить платёж: сумму сверяем с ценой сервера, а не с тем, что прислал браузер */
 function expectOf(type, item, p) {
+  if (type === "single") return /^\d{1,2}$/.test(String(item)) ? Number(item) * 30 : undefined;
   if (type === "pack") return PACKS[item]?.price;
   if (type === "custom") return customN(item) ? customPrice(+item) : undefined;
   if (type === "plan") return Math.round((PLANS[item]?.price || 0) * kOf(p)) || undefined;
   return 10; // повышение тарифа
 }
 
+// PocketBase commits the stored order and the balance together. No client-supplied plan patches.
+const pocketbaseAccounts = () => require("./accounts-backend.js").pocketbase();
+async function settlePocketBase(order, amount, request, readAll, uid, kind) {
+  const r = await sb(request, readAll, "/rest/v1/rpc/apply_payment", {method:"POST", body:{order_id:order,amount,user_id:uid,kind}});
+  if (r.status >= 300) return {status:503, json:{error:"начисление не выполнено; уведомление нужно повторить"}};
+  return {status:200, text:"success"};
+}
 /* ---------- 1. Ссылка на оплату ---------- */
 async function create(body, userToken, request, readAll) {
   if (!on()) return { status: 503, json: { error: "оплата ещё не подключена" } };
@@ -94,13 +103,24 @@ async function create(body, userToken, request, readAll) {
     if (cur && left > 0 && PLANS[item].price > cur.price) {
       // повышение тарифа: доплата разницы только за оставшиеся дни
       kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / ((PLANS[item]?.days || 30) * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
+    } else if (item === "single") {
+      const n = Math.max(1, Math.min(50, Math.round(+body.n || 1)));
+      kind = "single_" + n;
+      price = n * 30;
+      name = `Покупка уроков: ${n} × 30 ₽`;
+      sub = "";
     } else {
       const per = (PLANS[item].days || 30) >= 365 ? "1 год" : "1 месяц";
-      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», ${per}${promo ? ` (промокод −${pct}%)` : ""}`;
+      kind = "plan_" + item; price = Math.round(PLANS[item].price * k); name = `Тариф «${PLANS[item].name}», ${per}${promo ? ` (промокод −${pct()}%)` : ""}`;
       if (body.autopay && !promo) sub = env("PRODAMUS_SUB_" + item.toUpperCase());
     }
   } else return { status: 400, json: { error: "нет такого тарифа" } };
-  const order = `${user.id}.${kind}.${Date.now()}`;
+  const order = `${user.id}.${kind}.${Date.now()}` + (pocketbaseAccounts() ? "." + crypto.randomBytes(8).toString("hex") : "");
+  if (pocketbaseAccounts()) {
+    if (body.autopay) return {status:503,json:{error:"автоплатёж требует отдельной проверки PocketBase"}};
+    const saved = await sb(request, readAll, "/rest/v1/payments", {method:"POST",body:{order_id:order,user_id:user.id,kind,amount:price,status:"created"}});
+    if (saved.status >= 300) return {status:503,json:{error:"не удалось сохранить заказ; платёж не создан"}};
+  }
   const site = env("SITE_URL") || "https://uchu-po-frp.ru/";
   if (yk()) return ykCreate({ order, user, kind, price, name, site, method: body.method === "any" ? "" : "sbp" }, request, readAll);
   const data = { do: "pay", order_id: order, ...(user.email ? { customer_email: user.email } : { customer_phone: "+" + String(user.phone || "").replace(/\D/g, "") }), urlReturn: site + "?pay=cancel", urlSuccess: site + "?pay=ok", sys: "", npd_income_type: "FROM_INDIVIDUAL" };
@@ -109,7 +129,7 @@ async function create(body, userToken, request, readAll) {
   const q = new URLSearchParams();
   const add = (o, pre) => { for (const [k, v] of Object.entries(o)) { const key = pre ? `${pre}[${k}]` : k; if (v && typeof v === "object") add(v, key); else q.append(key, v); } };
   add(data, "");
-  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: price, status: "created" } }).catch(() => null);
+  if (!pocketbaseAccounts()) await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: price, status: "created" } }).catch(() => null);
   return { status: 200, json: { url: env("PRODAMUS_URL").replace(/\/+$/, "") + "/?" + q.toString(), price, name } };
 }
 
@@ -121,7 +141,7 @@ async function ykApi(method, path, body, idem, request, readAll) {
 }
 async function ykCreate({ order, user, kind, price, name, site, method }, request, readAll) {
   const amount = { value: Number(price).toFixed(2), currency: "RUB" };
-  const base = { amount, capture: true, confirmation: { type: "redirect", return_url: site + "?pay=ok" }, description: String(name).slice(0, 128), metadata: { order, uid: user.id, kind } };
+  const base = { amount, capture: true, confirmation: { type: "redirect", return_url: site + "?pay=ok&order=" + encodeURIComponent(order) }, description: String(name).slice(0, 128), metadata: { order, uid: user.id, kind } };
   const receipt = { customer: user.email ? { email: user.email } : { phone: "+" + String(user.phone || "").replace(/\D/g, "") }, items: [{ description: String(name).slice(0, 128), quantity: "1.00", amount, vat_code: 1, payment_subject: "service", payment_mode: "full_payment" }] };
   // по порядку: СБП с чеком → СБП без чека → все способы с чеком → все способы без чека
   const tries = [];
@@ -134,16 +154,62 @@ async function ykCreate({ order, user, kind, price, name, site, method }, reques
     if (r.status === 401 || r.status === 403) return { status: 503, json: { error: "ЮKassa не приняла ключи магазина — проверьте YOOKASSA_SHOP_ID и YOOKASSA_KEY" } };
   }
   if (!used) return { status: 502, json: { error: "ЮKassa не создала платёж: " + (r?.json?.description || r?.status || "нет ответа") } };
-  await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: Number(price), status: "created" } }).catch(() => null);
-  return { status: 200, json: { url: r.json.confirmation.confirmation_url, price, name, method: used } };
+  if(pocketbaseAccounts()){
+    const saved=await sb(request,readAll,`/rest/v1/payments?order_id=eq.${encodeURIComponent(order)}`,{method:"PATCH",body:{provider:"yookassa",provider_id:r.json.id}});
+    if(saved.status>=300)return {status:503,json:{error:"Не удалось сохранить ссылку платежа. Повторно оплачивать не нужно — обратитесь в поддержку."}};
+  }
+  if (!pocketbaseAccounts()) await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: order, user_id: user.id, kind, amount: Number(price), status: "created" } }).catch(() => null);
+  return { status: 200, json: { url: r.json.confirmation.confirmation_url, price, name, method: used, order_id:order } };
+}
+// An authenticated return/focus check reconciles directly with the provider, without waiting for a webhook.
+async function status(body,userToken,request,readAll){
+  if(!yk()||!pocketbaseAccounts())return {status:503,json:{error:"Проверка оплаты сейчас недоступна."}};
+  const user=await userOf(userToken,request,readAll);if(!user)return {status:401,json:{error:"Войдите в кабинет для проверки оплаты."}};
+  const id=String(body.order_id||"");if(id&&!/^[A-Za-z0-9_.-]{1,250}$/.test(id))return {status:400,json:{error:"Некорректный номер заказа."}};
+  const query=`/rest/v1/payments?user_id=eq.${encodeURIComponent(user.id)}`+(id?`&order_id=eq.${encodeURIComponent(id)}`:"&status=eq.created&order=created_at.desc&limit=5");
+  const found=await sb(request,readAll,query);if(found.status>=300||!Array.isArray(found.json))return {status:503,json:{error:"Не удалось прочитать заказ. Повторно оплачивать не нужно."}};
+  if(id&&!found.json.length)return {status:404,json:{error:"Заказ не найден в этом кабинете."}};
+  const states=[];
+  for(const row of found.json.slice(0,5)){
+    if(row.user_id!==user.id)return {status:403,json:{error:"Заказ принадлежит другому кабинету."}};
+    if(row.status==="paid"){states.push("paid");continue;}
+    if(row.status==="canceled"){states.push("canceled");continue;}
+    let pay;
+    if(row.provider_id){const r=await ykApi("GET","/payments/"+encodeURIComponent(row.provider_id),null,"",request,readAll);if(r.status!==200)return {status:503,json:{error:"ЮKassa пока не ответила. Повторно оплачивать не нужно."}};pay=r.json;}
+    else{
+      // Compatibility with orders created before provider IDs were stored. Bounded, owner-matched search.
+      let cursor="",matches=[];
+      const created=Date.parse(row.created_at||"")||Number(String(row.order_id).split(".")[2])||Date.now()-7*DAY;
+      for(let page=0;page<3;page++){
+        const q=new URLSearchParams({limit:"100","created_at.gte":new Date(created-60000).toISOString(),...(cursor?{cursor}:{})});
+        const r=await ykApi("GET","/payments?"+q,null,"",request,readAll);if(r.status!==200)return {status:503,json:{error:"Проверка прежнего платежа временно недоступна."}};
+        matches.push(...(r.json.items||[]).filter(p=>p.metadata?.order===row.order_id));cursor=r.json.next_cursor||"";if(!cursor)break;
+      }
+      if(matches.length!==1){states.push("pending");continue;}pay=matches[0];
+    }
+    const m=pay?.metadata||{};
+    if(m.order!==row.order_id||m.uid!==user.id||m.kind!==row.kind||pay.amount?.currency!=="RUB"||Math.abs(Number(pay.amount.value)-row.amount)>.001||!Number.isFinite(Number(pay.amount.value)))return {status:409,json:{error:"Данные платежа требуют сверки. Повторно оплачивать не нужно."}};
+    if(pay.status==="succeeded"&&pay.paid===true){
+      if(Number(pay.refunded_amount?.value||0)>0)return {status:409,json:{error:"Для платежа оформлен возврат. Начисление требует сверки."}};
+      const settled=await settlePocketBase(row.order_id,Number(pay.amount.value),request,readAll,user.id,row.kind);if(settled.status>=300)return settled;states.push("paid");
+    }else if(pay.status==="canceled"){
+      const saved=await sb(request,readAll,`/rest/v1/payments?order_id=eq.${encodeURIComponent(row.order_id)}`,{method:"PATCH",body:{status:"canceled",provider_id:pay.id}});if(saved.status>=300)return {status:503,json:{error:"Проверка оплаты временно недоступна."}};states.push("canceled");
+    }else{states.push("pending");}
+  }
+  return {status:200,json:{state:states.includes("pending")?"pending":states.includes("paid")?"paid":states.length?"canceled":"none",checked:states.length}};
 }
 // уведомлению не верим на слово: статус платежа запрашиваем у ЮKassa по его номеру
 async function ykNotify(raw, request, readAll) {
   let id = ""; try { id = String(JSON.parse(raw)?.object?.id || ""); } catch { }
   if (!id || !yk()) return { status: 200 };
   const r = await ykApi("GET", "/payments/" + encodeURIComponent(id), null, "", request, readAll);
-  const pay = r.json; if (r.status !== 200 || pay?.status !== "succeeded" || !pay.paid) return { status: 200 };
-  const { order, uid, kind } = pay.metadata || {}; if (!uid || !/^(plan|up|pack|custom)_/.test(kind || "")) return { status: 200 };
+  if(r.status!==200)return {status:503,json:{error:"Проверка платежа временно недоступна; повторите уведомление."}};
+  const pay = r.json; if (pay?.status !== "succeeded" || !pay.paid) return { status: 200 };
+  const { order, uid, kind } = pay.metadata || {}; if (!uid || !/^(plan|single|up|pack|custom)_/.test(kind || "")) return { status: 200 };
+  if (pocketbaseAccounts()) {
+    if (pay.amount?.currency !== "RUB") return {status:400,json:{error:"invalid currency"}};
+    return settlePocketBase(order, Number(pay.amount?.value), request, readAll, uid, kind);
+  }
   const row = (await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(order || "")}&select=status`)).json?.[0];
   if (row?.status === "paid") return { status: 200 }; // уже начислено (ЮKassa может прислать уведомление повторно)
   const p = (await profile(uid, request, readAll)) || { id: uid, plan: "free", ai_left: 0 };
@@ -163,6 +229,10 @@ async function notify(raw, headers, request, readAll) {
   if (!verify(data, env("PRODAMUS_KEY"), headers["sign"])) return { status: 400, text: "bad sign" };
   if (!/success/i.test(String(data.payment_status || "success"))) return { status: 200, text: "success" };
   const sum = parseFloat(String(data.sum || "0").replace(",", "."));
+  if (pocketbaseAccounts()) {
+    if (String(data.payment_status || "").toLowerCase() !== "success") return {status:200,text:"success"};
+    return settlePocketBase(String(data.order_id || ""), sum, request, readAll);
+  }
   let [uid, kind] = String(data.order_id || "").split(".");
   // автосписание по подписке: ищем учителя по почте, тариф — по номеру подписки
   if (!kind || !/^(plan|up|pack|custom)_/.test(kind)) {
@@ -178,8 +248,19 @@ async function notify(raw, headers, request, readAll) {
   const promo = !!p.promo || p.plan === "promo";
   const expect = expectOf(type, item, p);
   if (!expect || sum + 0.01 < expect) return { status: 200, text: "success" }; // сумма меньше цены — тариф не выдаём
+  // Продамус повторяет уведомление, пока не получит ответ: один платёж начисляем ровно один раз.
+  // Ключ платежа – order_id (для автосписаний по подписке к нему добавляем номер списания).
+  const oid = String(data.order_id || ""), key = /^(plan|up|pack|custom)_/.test(String(oid.split(".")[1] || "")) ? oid : `sub.${uid}.${String(data.order_num || data.payment_num || data.date || data.order_id || Date.now())}`;
+  const row = (await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(key)}&select=status`)).json?.[0];
+  if (row?.status === "paid") return { status: 200, text: "success" }; // уже начислено
+  if (row) {
+    const claim = await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(key)}&status=neq.paid`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
+    if (!claim || claim.status >= 300 || !Array.isArray(claim.json) || !claim.json.length) return { status: 200, text: "success" }; // параллельное уведомление уже заняло платёж
+  } else {
+    const ins = await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: key, user_id: uid, kind, amount: sum, status: "paid" } }).catch(() => null);
+    if (!ins || ins.status >= 300) return { status: 200, text: "success" }; // такой платёж уже записан (первичный ключ) – второй раз не начисляем
+  }
   await apply(uid, p, type, item, promo, request, readAll);
-  await sb(request, readAll, `/rest/v1/payments?order_id=eq.${encodeURIComponent(String(data.order_id || ""))}`, { method: "PATCH", body: { status: "paid", amount: sum } }).catch(() => null);
   return { status: 200, text: "success" };
 }
 /* Начисление тарифа (после оплаты или тестовой оплаты): срок, уроки с ИИ и лимит токенов.
@@ -190,6 +271,7 @@ function patchFor(p, type, item, promo) {
   const now = Date.now(), until = p.paid_until && new Date(p.paid_until) > now ? new Date(p.paid_until).getTime() : now;
   const leftTok = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0));
   if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + (PLANS[item]?.days || 30) * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
+  if (type === "single") { const n = Math.max(1, Math.min(50, +item || 1)); return { plan: "single", ai_left: (p.ai_left || 0) + n, paid_until: new Date(now + 365 * DAY).toISOString(), tokens_limit: (p.tokens_limit || 0) + n * 90000 }; }
   if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: (p.tokens_limit || 0) + Math.max(0, tokOf(item) - tokOf(p.plan)) };
   // докупка: пакет (pack) или своё количество (custom) — уроки и токены добавляются к текущим.
   // По промокоду докупка не нужна (ИИ — своя нейросеть), поэтому ничего не начисляем.
@@ -227,4 +309,4 @@ async function test(body, userToken, request, readAll) {
   await sb(request, readAll, "/rest/v1/payments", { method: "POST", body: { order_id: `test.${uid}.${type}_${key}.${Date.now()}`, user_id: uid, kind: `${type}_${key}`, amount: 0, status: "test" } }).catch(() => null);
   return { status: 200, json: { ok: true, patch } };
 }
-module.exports = { provider: () => yk() ? "yookassa" : on() ? "prodamus" : "", create, notify, ykNotify, test, patchFor, sign, verify, parseForm, PLANS, PACKS, CUSTOM, customPrice, expectOf, on };
+module.exports = { provider: () => yk() ? "yookassa" : on() ? "prodamus" : "", create, status, notify, ykNotify, test, patchFor, sign, verify, parseForm, PLANS, PACKS, CUSTOM, customPrice, expectOf, on };
