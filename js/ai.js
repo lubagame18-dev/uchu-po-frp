@@ -205,7 +205,7 @@ const AI = (() => {
   }
   async function openaiCompat(id, url, headers, model, prompt, opts, emit) {
     const c = cfg();
-    const [u, init] = viaRelay(c, id, url, { method: "POST", signal: opts.signal, headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ model, stream: true, ...(id === "deepseek" ? { stream_options: { include_usage: true } } : {}), ...(id==='site'&&creationLesson?{usage_phase:'creation',lesson_id:creationLesson}:{}), messages: [{ role: "user", content: prompt }] }) });
+    const [u, init] = viaRelay(c, id, url, { method: "POST", signal: opts.signal, headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ model, stream: true, ...(id === "deepseek" ? { stream_options: { include_usage: true } } : {}), ...(id==='site'?{usage_phase:creationLesson?'creation':'refine',...(creationLesson?{lesson_id:creationLesson}:{})}:{}), messages: [{ role: "user", content: prompt }] }) });
     const res = await fetch(u, init);
     if (!res.ok) throw httpErr(res.status, await res.text());
     let stop = null, usage = null;

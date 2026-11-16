@@ -4,7 +4,7 @@ import argparse,hashlib,json,os,re,shutil,sqlite3,subprocess,time,traceback
 from pathlib import Path
 from urllib.request import urlopen
 
-ROOT=Path('/root/uchu-payment-fix-release');KIT=Path('/opt/pocketbase');DATA=Path('/var/lib/pocketbase');ENV=Path('/etc/pocketbase/pocketbase.env')
+ROOT=Path('/root/uchu-payment-fix-final-release');KIT=Path('/opt/pocketbase');DATA=Path('/var/lib/pocketbase');ENV=Path('/etc/pocketbase/pocketbase.env')
 BASE='https://raw.githubusercontent.com/lubagame18-dev/uchu-po-frp/'
 def run(*args):
     r=subprocess.run(args,capture_output=True,timeout=240)

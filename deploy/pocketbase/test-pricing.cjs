@@ -16,7 +16,7 @@ const free = { plan: "free", ai_left: 0, tokens_limit: 0, tokens_used: 0 };
 const single = PAY.patchFor(free, "plan", "single", false);
 assert.equal(single.plan, "single");
 assert.equal(single.ai_left, 1);
-assert.equal(single.tokens_limit, 20000);
+assert.equal(single.tokens_limit, 90000);
 assert.ok(new Date(single.paid_until).getTime() > Date.now());
 
 const pack = PAY.patchFor(free, "pack", "ai10", false);
