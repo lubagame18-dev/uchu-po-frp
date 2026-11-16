@@ -839,7 +839,7 @@ async function handler(req, res) {
       if(!admin&&require("./accounts-backend.js").pocketbase()&&!['creation','refine'].includes(body.usage_phase))return send(res,409,{error:"Обновите страницу сайта: создание и доработки теперь учитываются отдельно. Материалы сохранены."});
       const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll,{creation:body.usage_phase==='creation',lesson_id:body.lesson_id});
       if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
-      if(!quota.admin)body={messages:body.messages,model:"deepseek-flash",max_tokens:body.max_tokens,temperature:body.temperature,stream:false}; // No client-selected costly model, multiple completions or paid search tools.
+      if(!quota.admin)body={messages:body.messages,model:"deepseek-flash",thinking:{type:"disabled"},max_tokens:body.max_tokens,temperature:0.25,stream:false}; // No client-selected costly model, multiple completions or paid search tools.
       // не дать потратить больше, чем осталось по тарифу: ответ ограничивается остатком токенов
       if (quota.tok) body.max_tokens = Math.max(256, Math.min(+body.max_tokens || 8192, quota.left));
       const hold=await Q.reserve(quota,body,request,readAll);let r;

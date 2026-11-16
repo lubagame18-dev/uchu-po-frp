@@ -1,0 +1,30 @@
+{
+  "proxy_files": {
+    "accounts-backend.js": "e6241b71b8a9e7fb76f2e29937fa20a1270c57aa05f17e571f39bfcd4784ccf6",
+    "botbrain.js": "e390a29595e9f522698f1c55eda8f6358d1d77dc3a37377585a6c4292baf1d6a",
+    "deepseek-pool.js": "7f20afab27eeda427ac8c3c5e88a37713a04e0946483bf9fc383aca9a16710e2",
+    "image-pool.js": "3f43aca9643fcf2f1a3cd224ce8b90c8e84dadffe12acbfe646ae93ee59f1214",
+    "maxbot.js": "2eae9e779ec9b8a7bb553fb77910f37a1128e7ac93649b04edff8f9fbed641b8",
+    "payments.js": "5b1ed31ddd0ca2d6f86a628d904a888d19d02d621af4b94435f551d11100552f",
+    "proxy.js": "a2ec6119330a485be68a6d05b7c73edc66ce550d13bcb1d5154139923bde40a9",
+    "quota.js": "0e25b9fc11c1529cb563ef20ddade9dce05a535e3105574acb232d7dfbe98aa6",
+    "sms-hook.js": "76a8ceb4872fbf61c376aaa8257159fcb9e540f1a34ab7726516b51071cb19e7",
+    "yandex-function.js": "172670eac1f31700be81377ed213c8cf2f3d19380565c8ffb70fe1cc6125ed54"
+  },
+  "cloud_helper_sha256": "7a6d8b5fd75f9aa48b6718d1652a162691d90f936aa1ddf5cb01e0a6a59ca68f",
+  "version": "2026-11-16",
+  "public_files": {
+    "index.html": "db987fc58a652ed5167cad1414acf8b0514ece45064cc08f339b5e19dc127c00",
+    "sw.js": "adfa316a72c779ce0d819fa8f235de6ebf566709e4d4f9543e3b9c0e69436441",
+    "js/lesson-quality.js": "22daf9d2d1c64399732da25a86a29f2eae647db4a48ad743735873ae6695a018",
+    "js/app-part2.js": "72a1d3d9efb38f8237827750a2b09eeb55ca10d0a10c2179f315297bc1edbf7c",
+    "js/teacherrules.js": "50527dae3f7c540d31a078460b7bb9af2204c93fd925a01fd7c5ce97eb18d2cd",
+    "js/notes.js": "8e1a6674225e35ce1dbec0af9dd4d4499837d6cd929e59c9be34d0d86614f154",
+    "js/ocr.js": "8faf98851411d9ddb2d8f903c2de1a98ae288543fa67cecf229bc14eff70af9f",
+    "js/dossier.js": "9f1c258f1594a6da6d63f6d590d2950b44de01dbdae7dbc13b097354c22960c7",
+    "js/lessonnotes.js": "ef50e506d5f7f985a422396f6d5e812b98e76b236616327e30f10ec14324a8df",
+    "js/mathkit.js": "b5411384f251eb876b102e6d52034154a2737672dfc0317a38e0062f1f77f733",
+    "js/litprimary.js": "e53be319e889c0a62f2d82c3daafeca5171d03b4793ce48de49389bf1fe29bc2"
+  },
+  "function_stored_zip_sha256": "7b95047cdc25a73e2253b85013c2a37b389de68021aed84a95ba74c6ac4dddd0"
+}

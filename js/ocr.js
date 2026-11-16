@@ -115,8 +115,8 @@ const OCR = (() => {
     const r = await w.recognize(file);
     const raw = String(r?.data?.text || "").trim();
     if (!raw) return "";
-    const cl = window.Cleaner ? Cleaner.clean(raw, {}) : { text: raw };
-    return String(cl.text || raw).trim();
+    if (Number.isFinite(r?.data?.confidence) && r.data.confidence < 35) throw new Error("текст распознан неуверенно — нужно более чёткое фото");
+    return raw.replace(/\r/g, "").replace(/[ \t]+\n/g, "\n").replace(/\n{4,}/g, "\n\n").trim();
   }
   return { enqueue, run, keepFile, hasFile, label, text, onChange: fn => listeners.add(fn), off: fn => listeners.delete(fn) };
 })();
