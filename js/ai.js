@@ -168,7 +168,7 @@ const AI = (() => {
   const ST = "uchu:ai-status";
   const status = () => { try { return JSON.parse(localStorage.getItem(ST)) || {}; } catch { return {}; } };
   function setStatus(id, s) { const all = status(); all[id] = { ...s, at: Date.now() }; try { localStorage.setItem(ST, JSON.stringify(all)); } catch { } }
-  let active = null;
+  let active = null,creationLesson="";
 
   /* ---------- сеть ---------- */
   function viaRelay(c, id, url, init) {
@@ -205,7 +205,7 @@ const AI = (() => {
   }
   async function openaiCompat(id, url, headers, model, prompt, opts, emit) {
     const c = cfg();
-    const [u, init] = viaRelay(c, id, url, { method: "POST", signal: opts.signal, headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ model, stream: true, ...(id === "deepseek" ? { stream_options: { include_usage: true } } : {}), messages: [{ role: "user", content: prompt }] }) });
+    const [u, init] = viaRelay(c, id, url, { method: "POST", signal: opts.signal, headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ model, stream: true, ...(id === "deepseek" ? { stream_options: { include_usage: true } } : {}), ...(id==='site'&&creationLesson?{usage_phase:'creation',lesson_id:creationLesson}:{}), messages: [{ role: "user", content: prompt }] }) });
     const res = await fetch(u, init);
     if (!res.ok) throw httpErr(res.status, await res.text());
     let stop = null, usage = null;
@@ -498,6 +498,6 @@ const AI = (() => {
   window.openAiSettingsImpl = open;
   document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.append(btn); paint(); });
   document.addEventListener("uchu:ready", () => { finishOpenrouter(); finishPollinations(); offerTransfer(); paint(); });
-  return { sample, cfg, save, chain, configured, ownConfigured, openLite, label, open, test, probeYandex, connectKey, listModels, P, ORDER, status };
+  return { setCreationLesson:id=>{creationLesson=String(id||"");}, sample, cfg, save, chain, configured, ownConfigured, openLite, label, open, test, probeYandex, connectKey, listModels, P, ORDER, status };
 })();
 window.AI = AI;

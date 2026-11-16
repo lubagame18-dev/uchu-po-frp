@@ -793,7 +793,7 @@ async function handler(req, res) {
       const up = await request(target.href, { headers: pass, body: raw });
       return pipeUpstream(res, up);
     }
-    if (route === "/pay/yk") { await PAY.ykNotify(raw, request, readAll).catch(e => console.warn("yk notify", e.message)); return send(res, 200, { ok: true }); } // уведомления ЮKassa
+    if (route === "/pay/yk") { try { const r=await PAY.ykNotify(raw,request,readAll);return send(res,r.status,r.json||{ok:r.status<300}); } catch { return send(res,503,{error:"Начисление временно недоступно; повторите уведомление."}); } }
     if (route === "/pay/notify") { const r = await PAY.notify(raw, req.headers, request, readAll); res.writeHead(r.status, { "Content-Type": "text/plain; charset=utf-8" }); return res.end(r.text); }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
     if (route === "/admin/join") { const devCode = process.env.ADMIN_TOKEN || process.env.DEV_CODE || "Pedagogural"; const codeIn = String(body.code || ""); if (devCode && codeIn && codeIn === devCode) return send(res, 200, { ok: true, dev: true, token: devCode }); const r = await Q.join(req.headers["x-user-token"], body.code, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? { ok: true, already: !!r.already } : { error: r.message }); }
@@ -824,6 +824,7 @@ async function handler(req, res) {
       const r = await PAY.test(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json);
     }
     if (route === "/pay/create") { const r = await PAY.create(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json); }
+    if (route === "/pay/status") { const r=await PAY.status(body,req.headers["x-user-token"],request,readAll);return send(res,r.status,r.json); }
     if (!Array.isArray(body.messages)) return send(res, 400, { error: "нужен массив messages" });
     if (route === "/promo") {
       const r = await Q.promo(req.headers["x-user-token"], body.code, request, readAll);
@@ -835,14 +836,18 @@ async function handler(req, res) {
       // разработчик может выбрать конкретный общий ключ (заголовок X-Uchu-Slot) — без списания с тарифа
       const slot = +req.headers["x-uchu-slot"] || 0, admin = slot ? await Q.isAdmin(req.headers["x-user-token"], request, readAll) : false;
       if (slot && !admin) return send(res, 403, { error: "выбор общего ключа — только для разработчиков" });
-      const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll);
+      const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll,{creation:body.usage_phase==='creation',lesson_id:body.lesson_id});
       if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
+      if(!quota.admin)body={messages:body.messages,model:"deepseek-flash",max_tokens:body.max_tokens,temperature:body.temperature,stream:false}; // No client-selected costly model, multiple completions or paid search tools.
       // не дать потратить больше, чем осталось по тарифу: ответ ограничивается остатком токенов
       if (quota.tok) body.max_tokens = Math.max(256, Math.min(+body.max_tokens || 8192, quota.left));
-      const r = await DS.chat(body, request, readAll, slot || 0);
-      let used = 0; try { const u = JSON.parse(r.text).usage; used = u?.total_tokens || ((u?.prompt_tokens || 0) + (u?.completion_tokens || 0)); } catch { }
+      const hold=await Q.reserve(quota,body,request,readAll);let r;
+      try{r=await DS.chat(body,request,readAll,slot||0,quota.admin?undefined:"deepseek-flash");}
+      catch(e){if(hold)await Q.finish(quota,hold,e.status>=400&&e.status<500?0:hold.tokens,request,readAll);throw e;}
+      let used = 0; try { const u = JSON.parse(r.text).usage; used = hold?Math.ceil((u?.prompt_tokens||0)*.25+(u?.completion_tokens||0)):(u?.total_tokens || ((u?.prompt_tokens || 0) + (u?.completion_tokens || 0)));if(hold&&u?.total_tokens&&!used)used=u.total_tokens; } catch { }
       if (!used) used = Math.round((JSON.stringify(body.messages || "").length + r.text.length) / 3); // оценка, если сервис не прислал расход
-      if (!quota.admin) await Q.spend(quota, request, readAll, used).catch(e => console.warn("quota", e.message));
+      if(hold)await Q.finish(quota,hold,used>0?used:hold.tokens,request,readAll);
+      else if (!quota.admin) await Q.spend(quota, request, readAll, used);
       if (quota.tok) res.setHeader("X-Uchu-Tokens", `${quota.used + used}/${quota.limit}`);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "X-Uchu-Account": r.account });
       return res.end(r.text);
@@ -859,7 +864,7 @@ async function handler(req, res) {
         if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
         body.model = clampModel(body.model, LIMITS.gigaModels, LIMITS.gigaDefault);
         body.max_tokens = clampOut(body.max_tokens);
-        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body)).catch(e => console.warn("quota", e.message));
+        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body));
       }
       const token = await gigaToken(key);
       const out = JSON.stringify({ model: body.model || "GigaChat-2-Pro", messages: body.messages, stream: body.stream !== false, ...(body.max_tokens ? { max_tokens: body.max_tokens } : {}), ...(body.temperature != null ? { temperature: body.temperature } : {}) });
@@ -881,7 +886,7 @@ async function handler(req, res) {
         body.model = clampModel(body.model, LIMITS.yaModels, LIMITS.yaDefault);
         if (body.completionOptions && typeof body.completionOptions === "object") body.completionOptions.maxTokens = clampOut(body.completionOptions.maxTokens);
         if (body.max_tokens != null) body.max_tokens = clampOut(body.max_tokens);
-        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body)).catch(e => console.warn("quota", e.message));
+        if (!quota.admin) await Q.spend(quota, request, readAll, estTokens(body));
       }
       const model = String(body.model || "yandexgpt/latest");
       const out = JSON.stringify({ ...body, model: model.startsWith("gpt://") ? model : `gpt://${folder}/${model}`, stream: body.stream !== false });

@@ -27,7 +27,7 @@ function profileAllowed(app,owner){const row=profileEvent(app,owner);return !!ro
 exports.validateProfile=(app,owner,row)=>{if(['name','school','city','avatar'].some(k=>!!row[k])&&!profileAllowed(app,owner))fail(403,'Для необязательных данных профиля сначала включите отдельное согласие в настройках кабинета.');};
 function auth(e){const c=u().identityTools.context(e);if(!c.user)fail(401,'Войдите в личный кабинет.');return c;}
 function exportData(app,user){
-  const tables={};for(const name of ['profiles','user_info','lessons','quizzes','quiz_questions','quiz_results','shared_materials','base_materials','bot_links','payments']){
+  const tables={};for(const name of ['profiles','user_info','lessons','quizzes','quiz_questions','quiz_results','shared_materials','base_materials','bot_links','payments','usage_reservations']){
     const all=rows(app,name,user.id);if(all.length>10000)fail(503,'Для большой выгрузки обратитесь к оператору.');tables[name]=all.map(data);
   }
   const events=rows(app,'privacy_events',user.id);if(events.length>10000)fail(503,'Для большой выгрузки истории обратитесь к оператору.');tables.privacy_events=events.map(data);
@@ -76,7 +76,7 @@ exports.handle=e=>u().identityTools.send(e,()=>{
       if(rows(app,'payments',c.uid).some(r=>data(r).status==='created'))fail(409,'Есть незавершённый платёж. Для сверки и удаления напишите оператору: gladyshevalu14@mail.ru. Рабочие данные пока не удалялись.');
       // Keep minimal payment/acceptance evidence for accounting and claims; never expose it to a new account.
       for(const r of rows(app,'free_usage'))if(data(r).key==='u:'+c.uid)app.delete(r);
-      for(const name of ['lessons','profiles','user_info','quizzes','quiz_questions','quiz_results','shared_materials','base_materials','bot_links'])for(const row of rows(app,name,c.uid))app.delete(row);
+      for(const name of ['lessons','profiles','user_info','quizzes','quiz_questions','quiz_results','shared_materials','base_materials','bot_links','usage_reservations'])for(const row of rows(app,name,c.uid))app.delete(row);
       for(const row of app.findRecordsByFilter('uchu_site_admins','key = {:email}','',100,0,{email:c.user.getString('email').toLowerCase()}))app.delete(row);
       for(const row of app.findRecordsByFilter('uchu_login_state','key = {:key}','',10,0,{key:'delete:'+c.uid}))app.delete(row);
       put(app,'deletions',c.uid,'',{deleted_at:new Date().toISOString()});

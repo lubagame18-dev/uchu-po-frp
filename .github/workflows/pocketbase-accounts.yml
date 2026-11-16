@@ -4,6 +4,7 @@ on:
     paths:
       - 'deploy/pocketbase/**'
       - 'deploy/balances/**'
+      - 'deploy/payment-fix/**'
       - 'js/account*.js'
       - 'js/privacy.js'
       - 'js/access.js'
@@ -23,6 +24,7 @@ on:
     paths:
       - 'deploy/pocketbase/**'
       - 'deploy/balances/**'
+      - 'deploy/payment-fix/**'
       - 'js/account*.js'
       - 'js/privacy.js'
       - 'js/access.js'
@@ -53,7 +55,7 @@ jobs:
       - run: python deploy/privacy/test-ledger.py
       - run: python deploy/privacy/test-legal.py
       - run: python deploy/pocketbase/test-balances.py
-      - run: python -m py_compile deploy/balances/update-server.py deploy/balances/deploy-function.py
+      - run: python -m py_compile deploy/balances/update-server.py deploy/balances/deploy-function.py deploy/payment-fix/update-server.py deploy/payment-fix/deploy-function.py
       - run: python deploy/pocketbase/test-privacy.py
       - run: python deploy/pocketbase/test-integration.py
       - run: python deploy/pocketbase/test-identities.py

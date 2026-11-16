@@ -3,7 +3,7 @@ const TABLES = {
   lessons: 'id', profiles: 'id', user_info: 'id', payments: 'order_id', quizzes: 'id',
   quiz_questions: 'quiz_id', quiz_results: 'id', shared_materials: 'id', site_admins: 'email',
   bot_links: 'chat_id', base_materials: 'id', site_rules: 'id', promo_codes: 'code',
-  ai_keys: 'slot', img_keys: 'slot', free_usage: 'key'
+  ai_keys: 'slot', img_keys: 'slot', free_usage: 'key', usage_reservations:'key'
 };
 const PUBLIC = ['base_materials','site_rules'];
 const ADMIN = ['promo_codes','base_materials','site_rules'];
@@ -88,8 +88,9 @@ function write(app, table, row, c, method) {
   if (old && !canRead(app, table, old, c)) fail(403, 'Record belongs to another user');
   const next = Object.assign({}, old || {}, row);
   validateWrite(app, table, next, old, c, method);
-  if (!r) { r = new Record(app.findCollectionByNameOrId('uchu_' + table)); next.created_at = next.created_at || new Date().toISOString(); }
+  if (!r) { r = new Record(app.findCollectionByNameOrId('uchu_' + table)); next.created_at = next.created_at || new Date().toISOString();if(table==='lessons'&&!Object.values(next.data?.docs||{}).some(x=>typeof x==='string'&&x.trim()))r.set('creation_eligible',true); }
   r.set('key', key); r.set('owner', table==='base_materials' ? (r.getString('owner')||c.uid||'') : ownerOf(app, table, next)); r.set('payload', next); app.save(r);
+  if(table==='usage_reservations'){if(!r.getInt('expires'))r.set('expires',Date.now()+30*86400000);r.set('settled',next.state==='settled');app.save(r);}
   return next;
 }
 function query(e) {
@@ -255,6 +256,7 @@ exports.rpc = function(e) { return send(e, () => {
         if(p.plan==='single'&&!Number.isFinite(p.ai_limit))p.ai_limit=p.ai_left;
         p.ai_left--;write(app,'profiles',p,{service:true},'PATCH');lesson.set('quota_counted',true);app.save(lesson);
       }
+      if(!lesson.getBool('creation_closed')){lesson.set('creation_closed',true);app.save(lesson);}
       result={ai_left:p.ai_left,ai_limit:p.ai_limit,tokens_limit:p.tokens_limit,tokens_used:p.tokens_used};
     });return e.json(200,result);
   }
@@ -284,6 +286,34 @@ exports.rpc = function(e) { return send(e, () => {
       const bad = data.find(x => x.row.n >= x.limit);
       result = {over: bad ? bad.row.key : null, left: data.length ? Math.max(0,data[0].limit-data[0].row.n-(body.dry ? 0 : 1)) : 0};
       if (!bad && !body.dry) for (const x of data) { x.row.n += 1; write(tx, 'free_usage', x.row, c, 'PATCH'); }
+    } else if(name==='reserve_ai'){
+      if(!/^[a-f0-9]{32}$/.test(String(body.p_request||''))||!Number.isInteger(body.p_tokens)||body.p_tokens<=0)fail(400,'Invalid usage reservation');
+      const held=lookup(tx,'usage_reservations',body.p_request);if(held){if(payload(held).user_id!==body.p_id)fail(409,'Reservation owner mismatch');result=true;return;}
+      const r=lookup(tx,'profiles',String(body.p_id));if(!r)fail(404,'Profile not found');const p=payload(r);
+      const creation=body.p_phase==='creation';let lesson;
+      if(creation){
+        lesson=lookup(tx,'lessons',String(body.p_lesson));
+        if(!lesson||lesson.getString('owner')!==body.p_id||!lesson.getBool('creation_eligible')||lesson.getBool('creation_closed'))fail(403,'Creation is not available for this lesson');
+        if(lesson.getInt('creation_used')+body.p_tokens>120000||(p.creation_used||0)+body.p_tokens>(p.creation_limit||0)){result=false;return;}
+        if(!lesson.getBool('quota_counted')){if(!(p.ai_left>0)){result=false;return;}p.ai_left--;write(tx,'profiles',p,c,'PATCH');lesson.set('quota_counted',true);}
+        p.creation_used=(p.creation_used||0)+body.p_tokens;write(tx,'profiles',p,c,'PATCH');lesson.set('creation_used',lesson.getInt('creation_used')+body.p_tokens);tx.save(lesson);
+      }else{
+        if((p.tokens_used||0)+body.p_tokens>(p.tokens_limit||0)){result=false;return;}
+        p.tokens_used=(p.tokens_used||0)+body.p_tokens;write(tx,'profiles',p,c,'PATCH');
+      }
+      write(tx,'usage_reservations',{key:body.p_request,user_id:body.p_id,reserved:body.p_tokens,state:'reserved',bucket:creation?'creation':'refine',lesson_id:creation?body.p_lesson:''},c,'POST');result=true;
+    } else if(name==='settle_ai'){
+      const r=lookup(tx,'usage_reservations',String(body.p_request)),pRow=lookup(tx,'profiles',String(body.p_id));if(!r||!pRow)fail(409,'Reservation not found');const held=payload(r);
+      if(held.user_id!==body.p_id||!Number.isInteger(body.p_tokens)||body.p_tokens<0||body.p_tokens>held.reserved)fail(409,'Invalid reservation settlement');
+      if(held.state==='settled'){result=false;return;}
+      const p=payload(pRow);
+      if(held.bucket==='creation'){
+        const lesson=lookup(tx,'lessons',held.lesson_id);if(!lesson)fail(409,'Lesson not found');
+        p.creation_used=Math.max(0,(p.creation_used||0)-(held.reserved-body.p_tokens));write(tx,'profiles',p,c,'PATCH');lesson.set('creation_used',Math.max(0,lesson.getInt('creation_used')-(held.reserved-body.p_tokens)));
+        if(lesson.getInt('creation_used')===0&&!lesson.getBool('creation_closed')&&lesson.getBool('quota_counted')){p.ai_left=(p.ai_left||0)+1;lesson.set('quota_counted',false);write(tx,'profiles',p,c,'PATCH');}
+        tx.save(lesson);
+      }else{p.tokens_used=Math.max(0,(p.tokens_used||0)-(held.reserved-body.p_tokens));write(tx,'profiles',p,c,'PATCH');}
+      held.state='settled';held.used=body.p_tokens;write(tx,'usage_reservations',held,c,'PATCH');result=true;
     } else if (name === 'apply_payment') {
       result = applyPayment(tx, body, c);
     } else fail(501, 'Unsupported RPC');
@@ -299,31 +329,31 @@ function applyPayment(app, body, c) {
   if (!Number.isFinite(body.amount) || Math.abs(body.amount - order.amount) > 0.01) fail(409, 'Payment amount mismatch');
   const profile = lookup(app, 'profiles', order.user_id); if (!profile) fail(409, 'Missing profile');
   const p = payload(profile), parts = String(order.kind).split('_'), type = parts[0], item = parts[1];
-  const plans = {single:{ai:1,tokens:80000,days:365},ai:{ai:50,tokens:2700000,days:30},aiYear:{ai:50,tokens:2700000,days:365}}, packs={ai10:10,ai30:30,ai50:50};
+  const plans = {single:{ai:1,tokens:20000,days:365},ai:{ai:50,tokens:1000000,days:30},aiYear:{ai:50,tokens:1000000,days:365}}, packs={ai10:10,ai30:30,ai50:50};
   const plan = plans[item], promo = !!p.promo || p.plan === 'promo';
-  if (type === 'single') {
-    const n = Math.max(1, Math.min(50, Number(item) || 1));
+  if (type === 'single'||(type==='plan'&&item==='single')) {
+    const n = type==='single'?Math.max(1, Math.min(50, Number(item) || 1)):1;
     p.ai_limit=Math.max(0,p.ai_limit??p.ai_left??0)+n;
     p.plan = 'single'; p.ai_left = (p.ai_left || 0) + n;
-    p.tokens_limit = (p.tokens_limit || 0) + n * 80000;
-    p.tokens_used = 0;
+    p.tokens_limit = (p.tokens_limit || 0) + n * 20000;
+    order.credit_budget_version=2;order.tokens_allocated=n*20000;p.creation_limit=(p.creation_limit||0)+n*120000;order.creation_budget_version=1;
     p.paid_until = new Date(Date.now() + 365*86400000).toISOString();
   } else if (type === 'plan' && plan) {
     const same = p.plan === item, until = Math.max(Date.now(), Date.parse(p.paid_until || '') || 0);
-    p.ai_limit=plan.ai;
+    p.ai_limit=plan.ai;p.creation_limit=(p.creation_limit||0)+plan.ai*30000;
     p.ai_left = (promo ? 0 : plan.ai) + (same ? Math.max(0,p.ai_left || 0) : 0);
     p.tokens_limit = (promo ? 0 : plan.tokens) + (same ? Math.max(0,(p.tokens_limit || 0)-(p.tokens_used || 0)) : 0);
     p.tokens_used = 0; p.paid_until = new Date((same ? until : Date.now())+plan.days*86400000).toISOString(); p.plan = item;
   } else if (type === 'up' && plan) {
     p.ai_limit=plan.ai;
-    const old = plans[p.plan] || {ai:0,tokens:0}; p.plan=item;
+    const old = plans[p.plan] || {ai:0,tokens:0};p.creation_limit=(p.creation_limit||0)+Math.max(0,plan.ai-old.ai)*30000;p.plan=item;
     p.ai_left = Math.max(0,(p.ai_left || 0)+(promo ? 0 : plan.ai-old.ai));
     p.tokens_limit = (p.tokens_limit || 0)+(promo ? 0 : Math.max(0,plan.tokens-old.tokens));
   } else if ((type === 'pack' && packs[item]) || (type === 'custom' && /^\d+$/.test(item) && Number(item)>=1 && Number(item)<=200)) {
     const n = promo ? 0 : (type === 'pack' ? packs[item] : Number(item));
     if(['none','free'].includes(p.plan))p.plan='single';
     if(p.plan==='single')p.ai_limit=(p.ai_limit??p.ai_left??0)+n;
-    p.ai_left=(p.ai_left || 0)+n; p.tokens_limit=(p.tokens_limit || 0)+n*40000;
+    p.creation_limit=(p.creation_limit||0)+n*30000;p.ai_left=(p.ai_left || 0)+n; p.tokens_limit=(p.tokens_limit || 0)+n*20000;
   } else fail(409, 'Invalid stored product');
   write(app, 'profiles', p, c, 'PATCH'); order.status='paid'; write(app, 'payments', order, c, 'PATCH');
   return {applied: true};

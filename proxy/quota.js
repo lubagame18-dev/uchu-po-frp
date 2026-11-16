@@ -26,7 +26,7 @@ async function sb(request, readAll, path, { method = "GET", body, token, prefer 
   const t = await readAll(res); let j = null; try { j = t ? JSON.parse(t) : null; } catch { }
   return { status: res.statusCode, json: j };
 }
-async function check(userToken, request, readAll) {
+async function check(userToken, request, readAll, usage = {}) {
   if (!on()) return { ok: true, free: true };
   if (!userToken) return { ok: false, status: 401, reason: "login", message: "Войдите в личный кабинет, чтобы пользоваться ИИ сайта." };
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
@@ -50,6 +50,7 @@ async function check(userToken, request, readAll) {
   const NO = { ok: false, status: 402, reason: "quota", message: "Лимит уроков с ИИ закончился. Докупите уроки в разделе «Тарифы»: в подписке — 10 ₽ за урок, без подписки — 30 ₽ за один урок." };
   if(p.trial_blocked)NO.message="Пробный доступ для этой почты или входа уже предоставлялся. Подключите тариф или пакет в кабинете.";
   else if(p.plan==="free")NO.message="Пробный лимит закончился. Подключите тариф или пакет в кабинете.";
+  if(tok&&usage.creation&&require('./accounts-backend.js').pocketbase())return {ok:true,id,tok:true,left:120000,used:0,limit:120000,creation:true,lesson_id:usage.lesson_id};
   if (tok) { const left = (p.tokens_limit || 0) - (p.tokens_used || 0); if (left <= 0) return NO; return { ok: true, id, tok: true, left, used: p.tokens_used || 0, limit: p.tokens_limit || 0 }; }
   if (!(p.ai_left > 0)) return NO;
   return { ok: true, id, left: p.ai_left };
@@ -60,7 +61,7 @@ async function spend(q, request, readAll, tokens = 0) {
   const n = Math.max(1, Math.round(tokens));
   // атомарно одним запросом в БД (функция spend_ai из supabase.sql) — не ломается при параллельных вызовах
   const r = await sb(request, readAll, "/rest/v1/rpc/spend_ai", { method: "POST", body: { p_id: q.id, p_tokens: n, p_tok: !!q.tok } }).catch(() => null);
-  if (r && r.status < 300) return;
+  if (r && r.status < 300 && r.json!==false) return;
   if (require("./accounts-backend.js").pocketbase()) throw new Error("Atomic PocketBase quota operation failed");
   // запас, если функции ещё нет в облаке (с гонкой, но лучше, чем не списать)
   if (q.tok) {
@@ -183,4 +184,20 @@ async function validUser(userToken, request, readAll) {
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
   return u.status === 200 && u.json?.id ? u.json : null;
 }
-module.exports = { check, spend, on, promo, isAdmin, join, freeUse, devCodeOk, freeOk, validUser, LIMITS, LIMIT_TOKENS, PER_LESSON };
+async function reserve(q,body,request,readAll){
+  if(q.admin||!q.tok||!require('./accounts-backend.js').pocketbase())return null;
+  // UTF-8 bytes plus message overhead bound input tokens conservatively; output is capped before billing.
+  const input=Math.ceil((Buffer.byteLength(JSON.stringify(body.messages||[]),'utf8')+256*((body.messages||[]).length+1))*.25);
+  const output=Math.min(Math.max(256,Math.floor(Number(body.max_tokens)||8192)),q.left-input);
+  if(output<256)throw Object.assign(new Error('Недостаточно баллов для этого объёма текста. Купите уроки в «Тарифах».'),{status:402,reason:'quota'});
+  body.max_tokens=output;const hold={id:require('crypto').randomBytes(16).toString('hex'),tokens:input+output};
+  const r=await sb(request,readAll,'/rest/v1/rpc/reserve_ai',{method:'POST',body:{p_id:q.id,p_request:hold.id,p_tokens:hold.tokens,p_phase:q.creation?'creation':'refine',p_lesson:q.lesson_id}});
+  if(r.status>=300||r.json!==true)throw Object.assign(new Error('Не удалось зарезервировать баллы. Запрос к ИИ не отправлен.'),{status:r.status>=300?503:402,reason:'quota'});
+  return hold;
+}
+async function finish(q,hold,tokens,request,readAll){
+  const used=Math.max(0,Math.ceil(tokens));
+  const r=await sb(request,readAll,'/rest/v1/rpc/settle_ai',{method:'POST',body:{p_id:q.id,p_request:hold.id,p_tokens:used}});
+  if(r.status>=300)throw Object.assign(new Error('Не удалось уточнить расход баллов. Повторный запрос не отправлен.'),{status:503});
+}
+module.exports = { check, spend, reserve, finish, on, promo, isAdmin, join, freeUse, devCodeOk, freeOk, validUser, LIMITS, LIMIT_TOKENS, PER_LESSON };
