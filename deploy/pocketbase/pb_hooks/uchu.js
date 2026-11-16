@@ -329,14 +329,14 @@ function applyPayment(app, body, c) {
   if (!Number.isFinite(body.amount) || Math.abs(body.amount - order.amount) > 0.01) fail(409, 'Payment amount mismatch');
   const profile = lookup(app, 'profiles', order.user_id); if (!profile) fail(409, 'Missing profile');
   const p = payload(profile), parts = String(order.kind).split('_'), type = parts[0], item = parts[1];
-  const plans = {single:{ai:1,tokens:20000,days:365},ai:{ai:50,tokens:1000000,days:30},aiYear:{ai:50,tokens:1000000,days:365}}, packs={ai10:10,ai30:30,ai50:50};
+  const plans = {single:{ai:1,tokens:90000,days:365},ai:{ai:50,tokens:1000000,days:30},aiYear:{ai:50,tokens:1000000,days:365}}, packs={ai10:10,ai30:30,ai50:50};
   const plan = plans[item], promo = !!p.promo || p.plan === 'promo';
   if (type === 'single'||(type==='plan'&&item==='single')) {
     const n = type==='single'?Math.max(1, Math.min(50, Number(item) || 1)):1;
     p.ai_limit=Math.max(0,p.ai_limit??p.ai_left??0)+n;
     p.plan = 'single'; p.ai_left = (p.ai_left || 0) + n;
-    p.tokens_limit = (p.tokens_limit || 0) + n * 20000;
-    order.credit_budget_version=2;order.tokens_allocated=n*20000;p.creation_limit=(p.creation_limit||0)+n*120000;order.creation_budget_version=1;
+    p.tokens_limit = (p.tokens_limit || 0) + n * 90000;
+    order.credit_budget_version=2;order.tokens_allocated=n*90000;p.creation_limit=(p.creation_limit||0)+n*90000;order.creation_budget_version=1;
     p.paid_until = new Date(Date.now() + 365*86400000).toISOString();
   } else if (type === 'plan' && plan) {
     const same = p.plan === item, until = Math.max(Date.now(), Date.parse(p.paid_until || '') || 0);

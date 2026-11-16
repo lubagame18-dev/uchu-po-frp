@@ -356,7 +356,7 @@ const Account = (() => {
     if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");
     else if (!lim && !dev) h += row("ИИ сайта", "не входит в тариф");
     // расход в баллах ИИ: по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера
-    const points=n=>window.Usage?.balance?Usage.balance(n):(Math.floor(n/200)/10).toLocaleString("ru-RU");
+    const points=n=>window.Usage?.balance?Usage.balance(n):(Math.floor(n/900)/10).toLocaleString("ru-RU");
     h+=row("Баллы ИИ",hasTok&&typeof p.tokens_used==="number"?`${points(Math.max(0,p.tokens_limit-p.tokens_used))} / ${points(p.tokens_limit)}`:"—");
     h+='<p class="small">Баллы расходуются только на доработки. Создание списывает один урок и не уменьшает этот запас. Расход правок зависит от длины текста.</p>';
     if(window.Usage&&(dev||S.promo))h+=Usage.html({dev,planTok:0,usedTok:null});
@@ -364,7 +364,7 @@ const Account = (() => {
     return h;
   }
   /* Расход ИИ по тарифу: полоска «потрачено из доступного» */
-  const kTok = n => (Math.floor(n/200)/10).toLocaleString("ru-RU")+" бал.";
+  const kTok = n => (Math.floor(n/900)/10).toLocaleString("ru-RU")+" бал.";
   function tokLine(p) {
     const lim = p.tokens_limit || 0, used = Math.min(p.tokens_used || 0, lim || p.tokens_used || 0), left = Math.max(0, lim - used);
     if (!lim) return "<br><b>ИИ сайта:</b> не входит в тариф";

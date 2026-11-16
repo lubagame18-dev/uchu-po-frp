@@ -322,7 +322,7 @@ const Access = (() => {
     if(!counters.hidden){
       const S=window.Account?.session,ready=S?.profileState==="ready",loading=!!S&&(!S.profileState||S.profileState==="loading");
       const fmt=n=>new Intl.NumberFormat("ru-RU").format(n),unknown=loading?"Загрузка…":S?"—":"Войдите";
-      const points=n=>window.Usage?.balance?Usage.balance(n):(n>0&&n<200?"<0,1":fmt(Math.floor(n/200)/10));
+      const points=n=>window.Usage?.balance?Usage.balance(n):(n>0&&n<900?"<0,1":fmt(Math.floor(n/900)/10));
       const render=(id,label,left,limit,tokens)=>{
         const known=typeof left==="number"&&Number.isFinite(left)&&typeof limit==="number"&&Number.isFinite(limit)&&limit>=0;
         const ratio=known&&limit>0?Math.max(0,Math.min(1,left/limit)):0,color=ratio<.1?"low":ratio<.3?"medium":"high";

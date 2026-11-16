@@ -14,7 +14,7 @@
 const crypto = require("crypto");
 /* tokens — запас токенов ИИ сайта (DeepSeek) на 50 уроков (≈ 40 тыс. токенов на урок) плюс правки и пересборки */
 const PLANS = {
-  single: { name: "Один урок", price: 30, ai: 1, tokens: 20000, days: 365 },
+  single: { name: "Один урок", price: 30, ai: 1, tokens: 90000, days: 365 },
   ai: { name: "С ИИ", price: 400, ai: 50, tokens: 1000000, days: 30 },
   aiYear: { name: "С ИИ, год", price: 3900, ai: 50, tokens: 1000000, days: 365 }
 };
@@ -271,7 +271,7 @@ function patchFor(p, type, item, promo) {
   const now = Date.now(), until = p.paid_until && new Date(p.paid_until) > now ? new Date(p.paid_until).getTime() : now;
   const leftTok = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0));
   if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + (PLANS[item]?.days || 30) * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
-  if (type === "single") { const n = Math.max(1, Math.min(50, +item || 1)); return { plan: "single", ai_left: (p.ai_left || 0) + n, paid_until: new Date(now + 365 * DAY).toISOString(), tokens_limit: (p.tokens_limit || 0) + n * 20000 }; }
+  if (type === "single") { const n = Math.max(1, Math.min(50, +item || 1)); return { plan: "single", ai_left: (p.ai_left || 0) + n, paid_until: new Date(now + 365 * DAY).toISOString(), tokens_limit: (p.tokens_limit || 0) + n * 90000 }; }
   if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: (p.tokens_limit || 0) + Math.max(0, tokOf(item) - tokOf(p.plan)) };
   // докупка: пакет (pack) или своё количество (custom) — уроки и токены добавляются к текущим.
   // По промокоду докупка не нужна (ИИ — своя нейросеть), поэтому ничего не начисляем.

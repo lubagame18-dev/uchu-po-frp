@@ -183,7 +183,7 @@ class Accounts(unittest.TestCase):
 
     def test_07_proxy_webhook(self):
         uid,_=self.users[0]
-        for kind,amount,lessons,tokens in [('pack_ai10',100,10,200000),('plan_single',30,1,20000),('single_1',30,1,20000)]:
+        for kind,amount,lessons,tokens in [('pack_ai10',100,10,200000),('plan_single',30,1,90000),('single_1',30,1,90000)]:
           self.api('/rest/v1/profiles',body={'id':uid,'plan':'single','ai_left':0,'ai_limit':0,'tokens_limit':0,'tokens_used':0},service=True)
           order='proxy-fixture-'+kind
           self.api('/rest/v1/payments',body={'order_id':order,'user_id':uid,'kind':kind,'amount':amount,'status':'created','provider_id':'fixture-provider'},service=True)

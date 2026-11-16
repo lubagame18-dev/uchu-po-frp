@@ -836,6 +836,7 @@ async function handler(req, res) {
       // разработчик может выбрать конкретный общий ключ (заголовок X-Uchu-Slot) — без списания с тарифа
       const slot = +req.headers["x-uchu-slot"] || 0, admin = slot ? await Q.isAdmin(req.headers["x-user-token"], request, readAll) : false;
       if (slot && !admin) return send(res, 403, { error: "выбор общего ключа — только для разработчиков" });
+      if(!admin&&require("./accounts-backend.js").pocketbase()&&!['creation','refine'].includes(body.usage_phase))return send(res,409,{error:"Обновите страницу сайта: создание и доработки теперь учитываются отдельно. Материалы сохранены."});
       const quota = admin ? { ok: true, admin: true } : await Q.check(req.headers["x-user-token"], request, readAll,{creation:body.usage_phase==='creation',lesson_id:body.lesson_id});
       if (!quota.ok) return send(res, quota.status, { error: quota.message, reason: quota.reason });
       if(!quota.admin)body={messages:body.messages,model:"deepseek-flash",max_tokens:body.max_tokens,temperature:body.temperature,stream:false}; // No client-selected costly model, multiple completions or paid search tools.

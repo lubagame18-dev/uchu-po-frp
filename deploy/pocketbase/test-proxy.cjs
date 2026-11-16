@@ -35,7 +35,8 @@ const request=backend.wrapRequest(raw),readAll=async r=>r.body;
  await request(base+'/rest/v1/profiles?id=eq.'+scenario.payment.metadata.uid,{method:'PATCH',headers:{apikey:process.env.POCKETBASE_SERVICE_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({tokens_used:0,tokens_limit:20000})});
  DS.chat=async(body,request,readAll,slot,model)=>{assert.equal(model,'deepseek-flash');assert.equal(body.n,undefined);assert.equal(body.tools,undefined);assert.equal(body.model,'deepseek-flash');return {text:JSON.stringify({usage:{total_tokens:300},choices:[{message:{content:'fixture'}}]}),account:'fixture'};};
  try{
-  const r=await runBuffered({method:'POST',url:'/deepseek/v1/chat/completions',headers:{'x-user-token':scenario.token},body:JSON.stringify({model:'deepseek-v4-pro',messages:[{role:'user',content:'fixture'}],n:100,tools:[{type:'web_search'}]})});assert.equal(r.statusCode,200,r.body);
+  const stale=await runBuffered({method:'POST',url:'/deepseek/v1/chat/completions',headers:{'x-user-token':scenario.token},body:JSON.stringify({messages:[{role:'user',content:'fixture'}]})});assert.equal(stale.statusCode,409);
+  const r=await runBuffered({method:'POST',url:'/deepseek/v1/chat/completions',headers:{'x-user-token':scenario.token},body:JSON.stringify({usage_phase:'refine',model:'deepseek-v4-pro',messages:[{role:'user',content:'fixture'}],n:100,tools:[{type:'web_search'}]})});assert.equal(r.statusCode,200,r.body);
   const result=await fetch(base+'/rest/v1/profiles?id=eq.'+scenario.payment.metadata.uid,{headers:{apikey:process.env.POCKETBASE_SERVICE_TOKEN}});assert.equal((await result.json())[0].tokens_used,300);
   await request(base+'/rest/v1/profiles?id=eq.'+scenario.payment.metadata.uid,{method:'PATCH',headers:{apikey:process.env.POCKETBASE_SERVICE_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({ai_left:1,tokens_limit:300,creation_limit:120000,creation_used:0})});
   const lesson='creation-'+scenario.payment.metadata.kind;
