@@ -55,6 +55,16 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
   assert(results.every(x=>x.finish_reason==='stop'&&x.characters>=2500),'Model returned an incomplete document');
   assert.deepEqual(results.filter(x=>x.issues.length).map(x=>({case:x.case,issues:x.issues})),[]);
  }
+ const retained=await page.evaluate(async()=>{
+  const old={state:{...state},read:readForm,type:updateType,allow:Access.canBuildAsync,configured:AI.configured,notes:{...Notes.draft,files:[...Notes.draft.files]}};
+  try{
+   state.subject='math';state.topic='Сложение дробей с одинаковыми знаменателями';state.grade=5;state.control='school';state.formats={lesson:true};state.extra={};state.gen=null;
+   readForm=()=>{};updateType=()=>{state.type={id:'onz',name:'Изучение нового',reason:''}};Access.canBuildAsync=async()=>false;AI.configured=()=>true;
+   Notes.draft.prompt='Сохранить мои страницы';Notes.draft.files=[{name:'page.jpg',fromPhoto:true,text:'Страница 42. Упражнение 127. Вычислите 2 + 3.'}];
+   await createLesson();return Notes.draft.files.length===1&&Notes.draft.prompt==='Сохранить мои страницы';
+  }finally{Object.assign(state,old.state);readForm=old.read;updateType=old.type;Access.canBuildAsync=old.allow;AI.configured=old.configured;Object.assign(Notes.draft,old.notes);}
+ });assert(retained,'Denied access must preserve the teacher photo draft');
+ await page.evaluate(()=>paintCosts());assert.equal(await page.locator('#btnCreate .btn-cost').count(),0,'Creation must not advertise refinement-point spending');
  const accounting=await page.evaluate(async()=>{
   const old={run:runJobContent,save:saveLesson,config:AccountsBackend.config,session:Object.getOwnPropertyDescriptor(Account,"session"),db:Account.db,refresh:Account.refreshPlan,count:Access.countLesson,commercial:Access.commercial,dev:Access.isDev,promo:Access.promoFree,set:AI.setCreationLesson};
   let context=[],count=0;

@@ -596,7 +596,7 @@ function syncControls() {
 /* Сколько ⚡ уйдёт — прямо на кнопках: «Создать урок · ≈ 10 ⚡», «Доработать · ≈ 1 ⚡» */
 function paintCosts() {
   const U = window.Usage, ai = state.build === "ai";
-  $("#btnCreate").innerHTML = "Создать урок" + (U && ai ? ` <small class="btn-cost">${U.cost("lesson")}</small>` : "");
+  $("#btnCreate").innerHTML = "Создать урок" + (U && ai && (!window.Access?.commercial() || Access.ownAi()) ? ` <small class="btn-cost">${U.cost("lesson")}</small>` : "");
   const r = $("#btnRefine");
   if (r) {
     let c = U ? U.cost("edit") : "";
@@ -1623,7 +1623,6 @@ async function createLesson() {
   if ($("#prevHw")) { $("#prevHw").value = ""; $("#prevHwHint").textContent = ""; }
   p.find = ""; // что найти — только для этого урока
   p.notes = window.Notes ? Notes.snapshot() : null;
-  if (window.Notes?.reset) Notes.reset();
   // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
   p.extra = { ...state.extra };
   try { const tk = String(p.topic || "").trim().toLowerCase() + "|" + p.subject; for (const m of state.materials) if (m.pinned) { m.pinned = false; m.pinTopic = tk; Store.put("materials", m.id, m); } paintPinned(); } catch (e) { console.warn("pin", e); }
@@ -1660,6 +1659,7 @@ async function createLesson() {
   // сборка переживает обновление страницы: задание запоминается, после перезагрузки сайт продолжит с того листа, где остановился
   saveJob({ id: L.id, at: Date.now(), useAi, gen, formats, hideTech, p: { ...pParams, extra: p.extra, textOverride: p.textOverride || null }, notes: p.notes });
   await saveLesson(L);
+  if (window.Notes?.reset) Notes.reset(); // Вложения очищаем только после сохранения: отказ входа/оплаты не должен терять фото.
   formats.forEach(f => (L.status[f] = "wait"));
   // картинки — этап той же сборки: вкладка листа остаётся «в работе», пока нейросеть рисует
   const wantDeck = formats.includes("slides") && deckPick === "ai", wantWs = formats.includes("worksheet") && wsPick === "ai";
