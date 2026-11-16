@@ -1,0 +1,18 @@
+{
+  "proxy_files": {
+    "accounts-backend.js": "e6241b71b8a9e7fb76f2e29937fa20a1270c57aa05f17e571f39bfcd4784ccf6",
+    "botbrain.js": "e390a29595e9f522698f1c55eda8f6358d1d77dc3a37377585a6c4292baf1d6a",
+    "deepseek-pool.js": "7f20afab27eeda427ac8c3c5e88a37713a04e0946483bf9fc383aca9a16710e2",
+    "image-pool.js": "3f43aca9643fcf2f1a3cd224ce8b90c8e84dadffe12acbfe646ae93ee59f1214",
+    "maxbot.js": "2eae9e779ec9b8a7bb553fb77910f37a1128e7ac93649b04edff8f9fbed641b8",
+    "payments.js": "5b1ed31ddd0ca2d6f86a628d904a888d19d02d621af4b94435f551d11100552f",
+    "proxy.js": "7e6dc0518a3e04486993936a2426c3ed3b3de260420b94ee80a784ca55004f8b",
+    "quota.js": "0e25b9fc11c1529cb563ef20ddade9dce05a535e3105574acb232d7dfbe98aa6",
+    "sms-hook.js": "76a8ceb4872fbf61c376aaa8257159fcb9e540f1a34ab7726516b51071cb19e7",
+    "yandex-function.js": "172670eac1f31700be81377ed213c8cf2f3d19380565c8ffb70fe1cc6125ed54"
+  },
+  "cloud_helper_sha256": "7a6d8b5fd75f9aa48b6718d1652a162691d90f936aa1ddf5cb01e0a6a59ca68f",
+  "version": "2026-11-16",
+  "public_files": {},
+  "function_stored_zip_sha256": "9c8152fb759190bd15c7773a93751bcc042f73d0d7c10b3b3b23ce8bac291a02"
+}
