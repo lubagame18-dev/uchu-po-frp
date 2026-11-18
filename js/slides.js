@@ -493,6 +493,7 @@ const SlideEditor = (() => {
         <button class="btn sm ${sl.set.full ? "flame" : "ghost"}" id="sxFull" title="Картинка на весь слайд, текст — на полупрозрачной плашке">${sl.set.full ? "Полный кадр: вкл" : "Полный кадр"}</button>
         ${sl.set.full ? `<label class="sx-tl">Плашка <select id="sxFullPos">${[["right", "справа"], ["left", "слева"], ["bottom", "снизу"], ["center", "по центру"]].map(([k, n]) => `<option value="${k}" ${k === (typeof sl.set.full === "string" ? sl.set.full : (sl.set.fullPos || "right")) ? "selected" : ""}>${n}</option>`).join("")}</select></label><label class="sx-tl">Вид <select id="sxFullStyle">${[["frosted", "стекло"], ["paper", "плотная бумага"], ["dark", "тёмная"], ["clear", "прозрачная"]].map(([k, n]) => `<option value="${k}" ${k === (sl.set.fullStyle || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label>` : ""}
         <button class="btn sm ghost" id="sxAutoFull" title="Автоматически поставить полные кадры на слайды с одной картинкой и коротким текстом">✨ Полные кадры</button>
+        <button class="btn sm ghost" id="sxPickPics" title="Подобрать картинки в пустые места и к шаблонам правила, сравнения, проверки, задания">🖼 Подобрать картинки</button>
         <label class="sx-tl">Картинка <select id="sxAcc">${Object.entries(ACC).map(([k, n]) => `<option value="${k}" ${k === (sl.set.acc || "") ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         ${sl.set.acc === "bg" ? `<label class="sx-tl">Наложение <select id="sxOv">${Object.entries(OV).map(([k, n]) => `<option value="${k}" ${k === (sl.set.ov || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label><input type="range" id="sxOvi" min="0" max="100" step="5" value="${sl.set.ovi ?? 70}" title="Сила наложения" aria-label="Сила наложения">` : ""}
         <span class="sx-ha" role="group" aria-label="Выравнивание текста">${[["left", "⯇", "По левому краю"], ["center", "≡", "По центру"], ["right", "⯈", "По правому краю"]].map(([k, ic, t]) => `<button type="button" class="btn sm ${sl.set.ha === k ? "flame" : "ghost"}" data-ha="${k}" title="${t}" aria-pressed="${sl.set.ha === k}">${ic}</button>`).join("")}<label class="check small"><input type="checkbox" id="sxHaAll"> на всех</label></span>
@@ -606,6 +607,7 @@ const SlideEditor = (() => {
     const fp = $s("#sxFullPos"); if (fp) fp.onchange = e => { const a = slides(); a[cur].set.full = e.target.value; write(a); rerender(); };
     const fst = $s("#sxFullStyle"); if (fst) fst.onchange = e => { const a = slides(); a[cur].set.fullStyle = e.target.value; write(a); rerender(); };
     $s("#sxAutoFull").onclick = applyAutoFullFrames;
+    $s("#sxPickPics").onclick = autoPickImages;
     $s("#sxPic").onclick = () => addPicture(cur);
     if (window.UCHU_SITE?.imageGenUi === false) $s("#sxAiPic").hidden = true; else $s("#sxAiPic").onclick = () => aiPicture();
     $s("#sxAcc").onchange = e => { const v = e.target.value; const a = slides(); const has = new RegExp(Media.RE.source).test(a[cur].body); a[cur].set.acc = v || undefined; a[cur].set.afs = undefined; write(a); if (v && !has) { toast("Выберите картинку ниже, в «Картинках Яндекса», — она встанет на это место."); } rerender(); };
@@ -1188,7 +1190,7 @@ const SlideEditor = (() => {
     const fontLinks = [...document.querySelectorAll('link[href^="https://fonts.googleapis.com"]')].map(l => `<link rel="stylesheet" href="${l.href}">`).join("");
     const toData = async src => { try { const b = src.startsWith("idb:") ? await Store.get("images", src.slice(4)) : await (await fetch(src, { mode: "cors" })).blob(); return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); }); } catch { return src.startsWith("idb:") ? "" : src; } };
     const box = document.createElement("div");
-    box.innerHTML = arr.map((s, i) => `<section class="deck-s">${slideHtml(s, i)}</section>`).join("");
+    box.innerHTML = arr.map((s, i) => `<section class="deck-s" data-notes="${esc(s.notes || "").replace(/"/g, "&quot;")}">${slideHtml(s, i)}</section>`).join("");
     // на слайдах-приложениях — кнопка «Назад» к тому месту, откуда пришли
     box.querySelectorAll(".deck-s .sx.appendix").forEach(sx => { const b = document.createElement("button"); b.type = "button"; b.className = "sx-back"; b.textContent = "← Назад"; sx.appendChild(b); });
     // видеослайд без ссылки в показ не попадает; пустой плеер на обычном слайде убирается
@@ -1208,6 +1210,8 @@ html,body{margin:0;height:100%;background:#222}body{font-family:Arial,"Segoe UI"
 ${anCss(anim())}
 ${ixCss(anim())}
 .nav{position:fixed;bottom:12px;right:16px;color:#fff;font:14px Arial;opacity:.7}
+.presenter-notes{position:fixed;left:18px;bottom:18px;z-index:35;width:min(520px,calc(100vw - 36px));max-height:42vh;overflow:auto;background:rgba(18,16,14,.9);color:#FFF8EC;border:1px solid rgba(255,255,255,.28);border-radius:14px;padding:12px 15px;box-shadow:0 12px 35px rgba(0,0,0,.4);font:15px/1.45 "Times New Roman",Georgia,serif}
+.presenter-notes[hidden]{display:none}.presenter-notes b{display:block;font:700 12px/1.3 Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#D8C9AA;margin-bottom:6px}.presenter-notes .pn-empty{opacity:.65}
 .sx-back{position:fixed;right:18px;bottom:16px;z-index:30;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:8px 16px;font:600 15px/1 Arial,sans-serif;cursor:pointer;backdrop-filter:blur(4px)}
 .sx-back:hover{background:rgba(0,0,0,.75)}
 .sx .rv{margin:.5em 0;border:2px dashed currentColor;border-radius:.55em;padding:.35em .55em}
@@ -1263,9 +1267,13 @@ ${ixCss(anim())}
 .sx .ix-card{cursor:pointer}
 .sx-tip{position:fixed;z-index:9;max-width:340px;background:#fffdf7;color:#1a1a1a;border:2px solid #7a0f1c;border-radius:10px;padding:10px 14px;font:17px/1.4 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35)}.sx-tip b{display:block;color:#7a0f1c;margin-bottom:4px}
 ${trCss()}
-</style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку, викторина: 1-й щелчок — задание, 2-й — ответ" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
+</style></head><body class="theme-${theme()} tr-${TRANS[theme()] || "mix"} an-${anim().mode}${anim().cut ? " an-cut" : ""}${anim().deco ? " an-deco" : ""}${anim().ix ? " ix-on" : ""}"><div class="deck theme-${theme()}">${box.innerHTML}</div><div class="nav">← → листать · F — во весь экран · N — заметки · подчёркнутые слова — щёлкните для пояснения${anim().ix ? " · карточки переворачиваются по щелчку, викторина: 1-й щелчок — задание, 2-й — ответ" : ""}</div>${anim().ix ? '<div class="ix-prog"><i></i></div><div class="ix-spot"></div>' : ""}
+<div class="presenter-notes" id="sxNotes" hidden><b>Заметки для учителя</b><div id="sxNotesBody"></div></div>
 <script>${window.VideoKit ? VideoKit.SHOW_JS : ""}
 const s=[...document.querySelectorAll('.deck-s')];let i=0;s.forEach((x,j)=>x.classList.add('t'+(j%4)));
+const NOTES=s.map(x=>x.getAttribute('data-notes')||'');const PN=document.getElementById('sxNotes'),PNB=document.getElementById('sxNotesBody');
+const paintNotes=()=>{if(!PN||!PNB)return;PNB.textContent=NOTES[i]||'Для этого слайда заметок нет.';PNB.className=NOTES[i]?'':'pn-empty';};
+const toggleNotes=()=>{if(!PN)return;PN.hidden=!PN.hidden;paintNotes();};
 document.querySelectorAll('.lay-title').forEach(t=>{const im=t.closest('.deck-s').querySelector('figure.pic img,img.sx-bgimg');if(im&&im.src){t.classList.add('has-cut');t.style.setProperty('--cut','url("'+im.src+'")');}});
 const IX=${anim().ix ? 1 : 0},STEP=${anim().step ? 1 : 0};
 const isTerm=li=>{if(li.querySelector('img,table,a'))return null;const t=li.textContent.trim(),k=t.indexOf(' — ');if(k<2||k>44||t.length-k<3)return null;const a=t.slice(0,k);if(a.split(' ').length>6||a!==a.replace(/[.!?:;]/g,''))return null;return [a,t.slice(k+3)];};
@@ -1274,9 +1282,9 @@ if(IX){document.querySelectorAll('.deck-s .sx-body ul:not(.ix-quiz-list)').forEa
 document.querySelectorAll('.deck-s .sx-body li:not(.ix-flip),.deck-s figure.pic,.deck-s .sx-body blockquote').forEach(el=>{el.classList.add('ix-tilt');el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--ry',((e.clientX-r.left)/r.width-.5)*10+'deg');el.style.setProperty('--rx',(.5-(e.clientY-r.top)/r.height)*10+'deg');});el.addEventListener('pointerleave',()=>{el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');});});
 const sp=document.querySelector('.ix-spot');addEventListener('pointermove',e=>{if(sp){sp.style.setProperty('--mx',e.clientX+'px');sp.style.setProperty('--my',e.clientY+'px');}});}
 const prep=x=>{if(!STEP)return;x.querySelectorAll('.sx-body li,.sx-body>p,.sx-body>blockquote').forEach((b,j)=>{if(j>0||b.tagName==='LI')b.classList.add('ix-hide');b.classList.remove('ix-show');});};
-const fitshow=x=>{try{var inn=x.querySelector('.sx-inner');if(!inn)return;var cur=parseFloat(getComputedStyle(x).getPropertyValue('--fs'))||1,fs=cur;for(var k=0;k<14;k++){if(inn.scrollHeight<=inn.clientHeight+2&&inn.scrollWidth<=inn.clientWidth+2)break;fs-=0.05;if(fs<0.6)break;x.style.setProperty('--fs',Math.round(fs*100)/100);}}catch(e){}};const BACK=[];const go0=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});try{fitshow(s[i]);}catch(e){}const pg=document.querySelector('.ix-prog i');if(pg)pg.style.width=((i+1)/s.length*100)+'%';prep(s[i]);};
+const fitshow=x=>{try{var inn=x.querySelector('.sx-inner');if(!inn)return;var cur=parseFloat(getComputedStyle(x).getPropertyValue('--fs'))||1,fs=cur;for(var k=0;k<14;k++){if(inn.scrollHeight<=inn.clientHeight+2&&inn.scrollWidth<=inn.clientWidth+2)break;fs-=0.05;if(fs<0.6)break;x.style.setProperty('--fs',Math.round(fs*100)/100);}}catch(e){}};const BACK=[];const go0=k=>{i=Math.max(0,Math.min(s.length-1,k));s.forEach((x,j)=>{x.classList.remove('on');if(j===i){void x.offsetWidth;x.classList.add('on');}});try{fitshow(s[i]);}catch(e){}const pg=document.querySelector('.ix-prog i');if(pg)pg.style.width=((i+1)/s.length*100)+'%';prep(s[i]);paintNotes();};
 const go=k=>{if(STEP&&k===i+1){const h=s[i].querySelector('.ix-hide');if(h){h.classList.remove('ix-hide');h.classList.add('ix-show');return;}}go0(k);};go0(${opts.open ? cur : 0});
-addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();});let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const bk=e.target.closest('.sx-back');if(bk){e.preventDefault();e.stopPropagation();const t=BACK.pop();go0(t==null?0:t);return;}const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();if(m[1].startsWith('slide-'))BACK.push(i);go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});;(function(){function A(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&tp){hideTip();return;}if(tp)hideTip();if(['ArrowRight','PageDown',' '].includes(e.key))go(i+1);if(['ArrowLeft','PageUp'].includes(e.key))go(i-1);if(e.key==='f'||e.key==='F')document.documentElement.requestFullscreen?.();if(e.key==='n'||e.key==='N')toggleNotes();}); let tp=null;const hideTip=()=>{if(tp){tp.remove();tp=null;}};addEventListener('click',e=>{const bk=e.target.closest('.sx-back');if(bk){e.preventDefault();e.stopPropagation();const t=BACK.pop();go0(t==null?0:t);return;}const g=e.target.closest('a.sx-gl');if(g){e.preventDefault();const was=tp&&tp._g===g;hideTip();if(was)return;tp=document.createElement('div');tp.className='sx-tip';tp._g=g;tp.innerHTML='<b></b><span></span>';tp.firstChild.textContent=g.textContent;tp.lastChild.textContent=g.dataset.tip||g.title||'';document.body.appendChild(tp);const r=g.getBoundingClientRect();tp.style.left=Math.min(innerWidth-tp.offsetWidth-8,Math.max(8,r.left))+'px';tp.style.top=(r.bottom+tp.offsetHeight+12>innerHeight?r.top-tp.offsetHeight-8:r.bottom+8)+'px';return;}if(tp&&e.target.closest('.sx-tip'))return;if(tp){hideTip();return;}const a=e.target.closest('a');if(a){const h=a.getAttribute('href')||'';const m=h.match(/^#(next|prev|first|last|slide-(\\d+))$/);if(m){e.preventDefault();if(m[1].startsWith('slide-'))BACK.push(i);go(m[1]==='next'?i+1:m[1]==='prev'?i-1:m[1]==='first'?0:m[1]==='last'?s.length-1:+m[2]-1);}return;}go(e.clientX>innerWidth/2?i+1:i-1);});;(function(){function A(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
 A('.rv').forEach(function(rv){var b=rv.querySelector('.rv-t');if(!b)return;b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();rv.classList.toggle('on');var k=rv.getAttribute('data-k')==='hint'?'Подсказка':'Ответ';b.textContent=k+(rv.classList.contains('on')?' — скрыть':' — показать');});});
 A('.chq').forEach(function(q){A('.ch',q).forEach(function(btn){btn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var go=btn.getAttribute('data-go');if(go){var _t=+go,_sec=A('.deck-s')[_t];if(_sec&&!_sec.querySelector('.sx-back')){var _b=document.createElement('button');_b.type='button';_b.className='sx-back';_b.textContent='← К вопросу';_sec.appendChild(_b);}BACK.push(i);go0(_t);return;}var ok=btn.getAttribute('data-ok')==='1';btn.classList.add(ok?'ok':'no');var ex=q.querySelector('.ch-ex');if(!ex){ex=document.createElement('div');ex.className='ch-ex';q.appendChild(ex);}ex.textContent=(ok?'Верно! ':'Неверно. ')+(btn.getAttribute('data-exp')||'');if(!ok){A('.ch',q).forEach(function(x){if(x.getAttribute('data-ok')==='1')x.classList.add('ok');});document._scwrong=document._scwrong||[];document._scwrong.push((btn.getAttribute('data-exp')||btn.textContent||''));}var o=+(document._scok||0),n2=+(document._sctot||0);n2++;if(ok)o++;document._scok=o;document._sctot=n2;A('.sc-v').forEach(function(v){v.textContent=o+' из '+n2;});A('.sc-err').forEach(function(v){v.innerHTML='';(document._scwrong||[]).forEach(function(x){var d=document.createElement('div');d.textContent='• '+x;v.appendChild(d);});});});});});
 A('.qa-i').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var q=b.getAttribute('data-q')||'',a=b.getAttribute('data-a')||'';var sec=document.createElement('section');sec.className='deck-s';var sx=document.createElement('div');sx.className='sx appendix';sx.innerHTML='<div class="sx-inner"><h2 class="sx-title">Ответ</h2><div class="sx-body"><p>'+String(a).replace(/</g,'&lt;')+'</p><p style="opacity:.65;font-size:.85em">'+String(q).replace(/</g,'&lt;')+'</p></div></div>';sec.appendChild(sx);var bk=document.createElement('button');bk.type='button';bk.className='sx-back';bk.textContent='← К вопросу';sec.appendChild(bk);(document.querySelector('.deck')||document.body).appendChild(sec);s.push(sec);BACK.push(i);go0(s.length-1);});});
@@ -1880,6 +1888,31 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const arr = splitSlides(autoFullFrame(md, L()?.params)).map(parse);
     write(arr); rerender();
     toast("Полные кадры расставлены на подходящих слайдах.", 5000);
+  }
+  /* Подобрать картинки в уже готовой презентации: заполняем пустые шаблоны
+     и повторяем поиск для всех оставшихся search:/commons:-заготовок. */
+  async function autoPickImages() {
+    const Ls = L(); if (!Ls) return;
+    const btn = $("#sxPickPics"); if (btn?.disabled) return;
+    const before = Ls.docs.slides || "";
+    if (!window.Media?.autoFill) { toast("Модуль подбора картинок не загружен.", 5000); return; }
+    const seeded = seedTemplateImages(before, Ls.params || {});
+    const count = (seeded.match(/\]\((?:search|commons):/g) || []).length;
+    if (!count) { toast("Пустых мест для картинок не осталось.", 5000); return; }
+    if (btn) { btn.disabled = true; btn.textContent = "🖼 Подбираю…"; }
+    toast(`Ищу картинки: ${count}. Это может занять немного времени.`, 8000);
+    try {
+      const filled = await Media.autoFill(seeded, (d, n) => { if (btn) btn.textContent = `🖼 ${d}/${n}`; }, {
+        subject: Ls.params?.subject, topic: Ls.params?.topic || Ls.title, grade: Ls.params?.grade, goal: Ls.params?.goal || ""
+      });
+      const out = autoFullFrame(filled, Ls.params || {});
+      write(splitSlides(out).map(parse)); rerender();
+      toast("Картинки подобраны. Если что-то не нашлось — осталось место с подсказкой.", 6000);
+    } catch (e) {
+      toast("Не удалось подобрать картинки: " + (e.message || e), 7000);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "🖼 Подобрать картинки"; }
+    }
   }
   /* Заменить всю презентацию (сборка по плану «как в Gamma»): с отменой через ↶ */
   function replaceAll(md) {
