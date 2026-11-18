@@ -1,4 +1,4 @@
-﻿/* ===================================================================
+/* ===================================================================
    «Учу по ФРП» v5 — стили новых модулей. Подключается после основных
    стилей index.html и опирается на те же переменные (--ink, --sun…).
    =================================================================== */
@@ -1178,3 +1178,45 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 
 /* собственные чертежи и схемы (img/lessons/own) – целиком, без обрезки */
 figure.pic[data-src*="lessons/own/"] img { object-fit: contain !important; background: #fff; }
+
+/* ---------- режим «полный кадр»: картинка на весь слайд + плашка ---------- */
+.sx.full-frame .sx-inner {
+  position: absolute !important;
+  inset: auto !important;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: auto;
+  width: min(46%, 620px);
+  max-height: 82%;
+  padding: 3.2cqw 3.4cqw !important;
+  border-radius: 1.7cqw !important;
+  border: .14cqw solid color-mix(in srgb, var(--sx-line) 32%, transparent) !important;
+  background: color-mix(in srgb, var(--sx-bg) 94%, transparent) !important;
+  box-shadow: 0 1.4cqw 3.4cqw rgba(0, 0, 0, .30) !important;
+  backdrop-filter: blur(14px) saturate(1.08);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  align-items: stretch !important;
+  text-align: left !important;
+}
+.sx.full-frame .sx-paper,
+.sx.full-frame .sx-deco { display: none !important; }
+.sx.full-frame .sx-title { font-size: calc(3.6cqw * var(--fs)) !important; margin-bottom: 1.2cqw; text-align: left !important; }
+.sx.full-frame.lay-title .sx-title::after { margin-left: 0; }
+.sx.full-frame .sx-body { font-size: calc(2.4cqw * var(--fs)); line-height: 1.45; flex: 0 1 auto; }
+
+.sx.full-frame.full-right .sx-inner { right: 5% !important; top: 50% !important; left: auto !important; bottom: auto !important; transform: translateY(-50%) !important; }
+.sx.full-frame.full-left .sx-inner { left: 5% !important; top: 50% !important; right: auto !important; bottom: auto !important; transform: translateY(-50%) !important; }
+.sx.full-frame.full-bottom .sx-inner { left: 6% !important; right: 6% !important; bottom: 6% !important; top: auto !important; width: auto !important; max-height: 44%; transform: none !important; }
+.sx.full-frame.full-center .sx-inner { left: 50% !important; top: 50% !important; right: auto !important; bottom: auto !important; transform: translate(-50%, -50%) !important; width: min(66%, 860px) !important; max-height: 80%; }
+.sx.full-frame .sx-title { margin-bottom: 1.2cqw; }
+.sx.full-frame .sx-body { flex: 0 1 auto; }
+.sx.full-frame .sx-bgimg { z-index: 0; }
+.sx.full-frame .sx-body figure.pic { display: none; }
+.sx.full-frame .sx-body > p:first-child { margin-top: 0; }
+@media (max-width: 700px) {
+  .sx.full-frame.full-right .sx-inner,
+  .sx.full-frame.full-left .sx-inner { left: 5% !important; right: 5% !important; top: auto !important; bottom: 5% !important; width: auto !important; max-height: 52%; transform: none !important; }
+}
+
