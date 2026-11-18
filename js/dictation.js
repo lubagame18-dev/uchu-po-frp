@@ -18,6 +18,7 @@
       return { supported: false, start() { }, stop() { } };
     }
     let rec = null, active = false, restartTimer = null;
+    let seen = new Set(), lastFinal = "", lastFinalAt = 0;
     const setStatus = (t, cls = "") => { if (status) { status.textContent = t; status.className = "small " + cls; } };
     const setActive = on => {
       active = on;
@@ -51,14 +52,23 @@
       rec.lang = "ru-RU";
       rec.continuous = true;
       rec.interimResults = true;
+      seen = new Set(); lastFinal = ""; lastFinalAt = 0;
       setActive(true);
       setStatus("Слушаю… говорите, текст появится в поле.");
+      rec.onstart = () => { seen = new Set(); };
       rec.onresult = e => {
         let interim = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const r = e.results[i];
-          if (r.isFinal) insert(r[0].transcript);
-          else interim += r[0].transcript;
+          if (!r.isFinal) { interim += r[0].transcript; continue; }
+          if (seen.has(i)) continue; // Chrome иногда присылает уже финальные результаты повторно
+          seen.add(i);
+          const text = String(r[0].transcript || "").replace(/\s+/g, " ").trim();
+          if (!text) continue;
+          const norm = text.toLowerCase().replace(/[.,!?;:«»()\s]+/g, " ").trim();
+          if (norm && norm === lastFinal && Date.now() - lastFinalAt < 4000) continue; // страховка от повторов после перезапуска
+          insert(text);
+          lastFinal = norm; lastFinalAt = Date.now();
         }
         if (interim) setStatus("Слушаю: " + interim);
         else setStatus("Слушаю… говорите, текст появится в поле.");

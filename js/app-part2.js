@@ -935,6 +935,7 @@ ${window.TeacherRules ? TeacherRules.checklist(p, f).map(x => "– " + x).join("
    – к заданию оставлено место для ответа, а ответ не раскрыт в ученической части.
    Если данных не хватает — добавь их или переформулируй задание. Не оставляй «решите», «составьте», «заполните» без самого материала.
 9. Проверь, что ответы и ключи соответствуют условиям: нет ответов к другому заданию, нет двух правильных вариантов, нет противоречия между условием, образцом и ключом. В рабочем листе/контрольной для ученика ключ не должен быть виден.
+10. Повторы: один и тот же абзац, отрывок, правило или пример не должны встречаться в документе дважды без учебной необходимости. Если повтор случайный — оставь первое вхождение и убери второе.
 ${window.LessonQuality ? LessonQuality.sourcePrompt(p) : ""}
 ${window.LessonQuality?.issues(md,p).length ? "Обнаруженные нарушения: " + LessonQuality.issues(md,p).join("; ") : ""}
 Не сокращай содержательное объяснение, полные условия и верные решения ради стиля. Не объявляй корректную обратную проверку или нужную опору «другой темой» без основания; не подменяй доказательство приблизительным признаком (например, «сумма больше слагаемых» не доказывает верность вычисления). Не выдумывай, что класс точно изучал или не изучал прежде. Исправляй только подтверждаемую ошибку, нарушение источника или явно пустой этап. Не переписывай документ целиком и не придирайся к стилю. Если всё в порядке, верни пустой список.
@@ -959,6 +960,18 @@ async function reviewConspect(md, p, signal, f = "conspect") {
     }
     return { md: out, n, done };
   } catch (e) { if (e?.code === "cancelled") throw e; return { md, n: 0, done: [] }; }
+}
+/* Страховка от буквальных повторов длинных абзацев — не трогаем стихи, таблицы и списки. */
+function dedupeLongParagraphs(md) {
+  const parts = String(md || "").split(/\n{2,}/);
+  const seen = new Set();
+  return parts.filter(p => {
+    const t = p.trim();
+    if (t.length < 120 || /^(>|#{1,6}\s|\||`|---|\d+[.)]\s|[-*]\s)/.test(t)) return true;
+    const n = t.replace(/\s+/g, " ").toLowerCase();
+    if (seen.has(n)) return false;
+    seen.add(n); return true;
+  }).join("\n\n");
 }
 /* Ограниченный «методист-движок»: правила отбора материала и оформления.
    Действуют в каждом промпте конспекта, презентации и рабочего листа. */
@@ -1782,7 +1795,12 @@ async function checkWorkText(p, type) {
   const work = (p.topic.match(/«([^»]+)»/) || [])[1], author = Engine.authorOf(p.topic);
   if (!work && !author) return true; // обзорная тема — тексту произведения взяться неоткуда
   const own = window.Notes?.snapshot?.()?.text; if (own && own.trim().length > 80) return true;
-  if (state.textChoice && state.textChoice.key === planKey(p)) return true; // выбор уже сделан под темой: текст добавлен или «без текста»
+  if (state.textChoice && state.textChoice.key === planKey(p)) {
+    const ch = state.textChoice;
+    if (ch.mode === "text" && String(state.textOverride?.text || "").trim().length > 80) return true;
+    if (ch.mode === "skip" && (!window.Access || !Access.commercial() || Access.isDev())) return true;
+    // «без текста» от обычного пользователя не принимаем: текст обязателен
+  }
   if (pendingPlan && pendingPlan.key === planKey(p) && String(pendingPlan.plan?.text || "").trim().length > 80) return true;
   $("#createHint").textContent = "Ищу текст произведения…";
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, type); } catch { }
@@ -1791,8 +1809,47 @@ async function checkWorkText(p, type) {
   const ans = await askWorkText(p, work || p.topic, author || "");
   if (ans === null) return null; // учитель закрыл окно — урок не собираем
   if (ans.text) state.textOverride = { text: ans.text, source: "текст, добавленный учителем" };
-  else if (plan) pendingPlan = { key: planKey(p), plan };
+  else if (ans.skip) { if (window.Access && Access.commercial() && !Access.isDev()) { toast("Без текста произведения урок по литературе не собирается.", 7000); return null; } if (plan) pendingPlan = { key: planKey(p), plan }; }
   return true;
+}
+/* Большие произведения: делим текст на части и даём выбрать фрагменты до генерации. */
+function splitTextFragments(text, target = 18000) {
+  const t = String(text || "").replace(/\r\n/g, "\n").trim();
+  if (t.length <= 50000) return [];
+  const lines = t.split("\n");
+  const headRe = /^\s*(ЧАСТЬ|ГЛАВА|КНИГА|ТОМ|Часть|Глава|Книга|Том|ПРОЛОГ|ЭПИЛОГ|Пролог|Эпилог)\b.{0,120}$/i;
+  const idx = [];
+  lines.forEach((l, i) => { if (headRe.test(l) && l.trim().length < 140) idx.push(i); });
+  const chunks = [];
+  if (idx.length >= 2) {
+    for (let k = 0; k < idx.length; k++) {
+      const a = idx[k], b = idx[k + 1] ?? lines.length;
+      chunks.push({ title: lines[a].trim().slice(0, 90), text: lines.slice(a, b).join("\n").trim() });
+    }
+  } else {
+    const paras = t.split(/\n{2,}/).filter(Boolean);
+    let buf = "";
+    const flush = () => { if (buf.trim()) { chunks.push({ title: `Фрагмент ${chunks.length + 1}`, text: buf.trim() }); buf = ""; } };
+    for (const p of paras) {
+      if (p.length > target * 1.6) {
+        flush();
+        let rest = p;
+        while (rest.length > target) {
+          let cut = rest.lastIndexOf(". ", target);
+          if (cut < target * 0.5) cut = rest.lastIndexOf(" ", target);
+          if (cut < target * 0.5) cut = target;
+          chunks.push({ title: `Фрагмент ${chunks.length + 1}`, text: rest.slice(0, cut + 1).trim() });
+          rest = rest.slice(cut + 1);
+        }
+        buf = rest;
+      } else {
+        if (buf && buf.length + p.length > target) flush();
+        buf += (buf ? "\n\n" : "") + p;
+      }
+    }
+    flush();
+  }
+  return chunks.filter(c => c.text.length > 200).map((c, i) => ({ ...c, title: c.title || `Фрагмент ${i + 1}`, chars: c.text.length }));
 }
 function askWorkText(p, work, author, opts = {}) {
   const manual = !!opts.manual;
@@ -1805,15 +1862,42 @@ function askWorkText(p, work, author, opts = {}) {
       <ol class="at-steps"><li><b>Найдите текст</b>:<div class="mat-row">${L.map(([t, u]) => `<a class="btn sm ghost" target="_blank" rel="noopener" href="${u}">${t}</a>`).join("")}</div></li>
         <li><b>Вставьте текст</b> (или нужный фрагмент) — либо загрузите файл (.txt, .docx, .pdf):
         <textarea id="awText" rows="9" placeholder="Вставьте текст произведения или фрагмента…"></textarea>
-        <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div></li></ol>
+        <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div>
+        <div id="awFrags"></div></li></ol>
       <div class="pk-foot"><button class="btn flame" id="awGo">${manual ? "📖 Встроить текст" : "Собрать урок с этим текстом"}</button></div>
       <label class="check" style="margin-top:12px" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><input type="checkbox" id="awSkip"> Продолжить без добавления текста (только для разработчика)</label>
       <div class="pk-foot" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
+    const fragBox = m.querySelector("#awFrags"); let frags = [];
+    const renderFrags = () => {
+      const text = ta.value.trim();
+      frags = splitTextFragments(text);
+      if (!frags.length) { fragBox.innerHTML = ""; return; }
+      const shown = frags.slice(0, 40);
+      fragBox.innerHTML = `<div style="margin:10px 0;padding:10px 12px;border:1.5px solid #b08a44;border-radius:12px;background:#fffaf0">
+        <b>Текст большой: ${text.length.toLocaleString("ru-RU")} знаков.</b>
+        <p class="small" style="margin:4px 0 8px">Выберите фрагменты, с которыми будет работать урок. Так ИИ не будет перерабатывать всё произведение целиком.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:5px 10px;max-height:220px;overflow:auto">${shown.map((f, i) => `<label class="check" style="display:flex;gap:6px;align-items:flex-start;font-size:13px;max-width:100%"><input type="checkbox" data-fi="${i}"> <span>${esc(f.title)} <span class="small">(${Math.round(f.chars / 1000)} тыс. знаков)</span></span></label>`).join("")}</div>
+        ${frags.length > shown.length ? `<p class="small">Показаны первые ${shown.length} фрагментов. Можно вставить нужный отрывок целиком ниже.</p>` : ""}
+        <div class="mat-row" style="margin-top:6px"><button type="button" class="btn sm ghost" id="awFragAll">Выбрать все</button><button type="button" class="btn sm ghost" id="awFragNone">Снять</button></div>
+      </div>`;
+      fragBox.querySelector("#awFragAll").onclick = () => fragBox.querySelectorAll("[data-fi]").forEach(x => x.checked = true);
+      fragBox.querySelector("#awFragNone").onclick = () => fragBox.querySelectorAll("[data-fi]").forEach(x => x.checked = false);
+    };
+    ta.addEventListener("input", () => setTimeout(renderFrags, 350));
     const obs = new MutationObserver(() => { if (!$("#modalRoot").firstElementChild) fin(null); }); obs.observe($("#modalRoot"), { childList: true });
-    m.querySelector("#awFile").onchange = async ev => { const f = ev.target.files[0]; if (!f) return; msg.textContent = "Читаю файл…"; try { const r = await readFile(f); ta.value = String(r.text || "").trim(); msg.textContent = ta.value ? `Готово: ${ta.value.length} знаков.` : "В файле не нашлось текста — вставьте вручную."; } catch (er) { msg.textContent = "Не получилось прочитать: " + (er.message || er); } };
+    m.querySelector("#awFile").onchange = async ev => { const f = ev.target.files[0]; if (!f) return; msg.textContent = "Читаю файл…"; try { const r = await readFile(f); ta.value = String(r.text || "").trim(); msg.textContent = ta.value ? `Готово: ${ta.value.length} знаков.` : "В файле не нашлось текста — вставьте вручную."; renderFrags(); } catch (er) { msg.textContent = "Не получилось прочитать: " + (er.message || er); } };
     sk.onchange = () => { skGo.disabled = !sk.checked; };
-    m.querySelector("#awGo").onclick = () => { const t = ta.value.trim(); if (t.length < 80) { msg.textContent = "Нужен текст подлиннее (хотя бы одна строфа или абзац) — или отметьте «Продолжить без добавления текста»."; return; } done || (fin({ text: t }), closeModal()); };
+    m.querySelector("#awGo").onclick = () => {
+      const raw = ta.value.trim();
+      if (raw.length > 50000 && !frags.length) renderFrags();
+      if (raw.length > 50000 && !frags.length) { msg.textContent = "Текст очень большой, но разбить его на фрагменты не удалось. Вставьте нужный отрывок целиком."; return; }
+      const selected = [...fragBox.querySelectorAll("[data-fi]:checked")].map(x => frags[+x.dataset.fi]?.text).filter(Boolean);
+      const t = selected.length ? selected.join("\n\n") : raw;
+      if (frags.length && !selected.length) { msg.textContent = "Текст большой: выберите хотя бы один фрагмент — урок не должен собираться по всему произведению сразу."; return; }
+      if (t.length < 80) { msg.textContent = "Нужен текст подлиннее (хотя бы одна строфа или абзац) — или отметьте «Продолжить без добавления текста»."; return; }
+      done || (fin({ text: t }), closeModal());
+    };
     skGo.onclick = () => { if (!sk.checked) return; fin({ skip: true }); closeModal(); };
   });
 }
@@ -2068,7 +2152,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
           const res = await caps.sample(request, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (!(res.text && res.text.length > 400)) throw Object.assign(new Error("Модель не вернула содержательный документ"),{code:"empty_completion"});
           md = cleanMd(res.text);
-          if (["conspect", "lesson", "worksheet", "control", "memo", "homework"].includes(f) && md.length > 800) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
+          if (["conspect", "lesson", "worksheet", "control", "memo", "homework"].includes(f) && md.length > 800) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = dedupeLongParagraphs(rv.md); L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e);L.generationWarnings={...(L.generationWarnings||{}),[f]:"Нейросеть не завершила документ; сохранён черновик."}; }
       }
       /* MaterialResolver в урок не добавляем: справки, типовые задания и темы года не должны попадать в конспект */
@@ -2161,7 +2245,7 @@ async function buildWithAi(L, p, type, formats) {
       let md = cleanMd(raw);
       if (f === "conspect" && md.length > 1500) { // вторая проверка со стороны: лишние темы и странные формулировки
         state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress();
-        const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
+        const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = dedupeLongParagraphs(rv.md); L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
       }
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
       else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md, null, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => md); }
@@ -2454,11 +2538,12 @@ async function fixCurrentDoc() {
   renderLesson();
   try {
     const rv = await reviewConspect(before, L.params, state.gen.ctl.signal, f);
-    if (!rv.n) { toast("Ошибок в формулировках и условиях не найдено.", 5000); return; }
-    EditHistory.record(before, rv.md);
-    L.docs[f] = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
-    $("#md").value = rv.md; await saveLesson(L); renderLesson();
-    toast(`Исправлено фрагментов: ${rv.n}. Проверьте изменения — отменить можно стрелкой ↶.`, 8000);
+    const fixed = dedupeLongParagraphs(rv.md);
+    if (!rv.n && fixed === before) { toast("Ошибок в формулировках и условиях не найдено.", 5000); return; }
+    EditHistory.record(before, fixed);
+    L.docs[f] = fixed; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
+    $("#md").value = fixed; await saveLesson(L); renderLesson();
+    toast(`Исправлено фрагментов: ${rv.n}${fixed !== rv.md ? " и повторяющиеся абзацы" : ""}. Проверьте изменения — отменить можно стрелкой ↶.`, 8000);
   } catch (e) {
     if (e?.code !== "cancelled") toast("Не удалось проверить документ: " + (e.message || e), 8000);
   } finally {
