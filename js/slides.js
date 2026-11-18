@@ -1346,6 +1346,8 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
   }
   function runsOf(el, base) {
     const out = [];
+    const baseFs = parseFloat(getComputedStyle(el).fontSize) || 18;
+    const scale = PX / (el.closest(".sx")?.getBoundingClientRect().width || PX);
     const walk = (n, f) => {
       if (n.nodeType === 3) { let t = n.textContent.replace(/\s+/g, " "); if (f.upper) t = t.toUpperCase(); if (t) out.push({ text: t, options: { ...f, upper: undefined } }); return; }
       if (n.nodeType !== 1) return;
@@ -1356,6 +1358,9 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       if (n.matches(".blank")) { out.push({ text: "________", options: { ...f } }); return; }
       if (n.matches(".uline")) { out.push({ text: "_".repeat(Math.min(40, +n.dataset.n || 8)), options: { ...f } }); return; }
       const cs = getComputedStyle(n), g = { ...f };
+      /* размер шрифта сохраняем и у вложенных фрагментов: <small>, <sup>, <span style="font-size…"> */
+      const fsz = parseFloat(cs.fontSize) || baseFs;
+      if (f.fontSize || Math.abs(fsz - baseFs) > 0.1) g.fontSize = Math.round(fsz * scale * 0.75 * 10) / 10;
       // школьные подчёркивания членов предложения – и в PowerPoint
       const ul = n.classList?.contains("s-pod") || n.classList?.contains("s-orf") ? "sng" : n.classList?.contains("s-skaz") ? "dbl" : n.classList?.contains("s-dop") ? "dash" : n.classList?.contains("s-opr") ? "wavy" : n.classList?.contains("s-obst") ? "dotDash" : "";
       if (ul) g.underline = { style: ul }; else if (/underline/.test(cs.textDecorationLine || "") && !g.underline) g.underline = { style: "sng" };
@@ -1456,22 +1461,10 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     return total + paraSpace;
   }
   function shrinkFit(runs, o) {
-    const fs0 = +o.fontSize, w = +o.w, h = +o.h; if (!fs0 || !w || !h || o.shape) return o;
-    const arr = Array.isArray(runs) ? runs : [{ text: String(runs || ""), options: {} }];
-    if (arr.some(r => r.options?.fontSize)) return o;
-    let fs = fs0;
-    const min = Math.max(12, fs0 * 0.6);
-    let m = pptxMeasureHeight(arr, { ...o, fontSize: fs });
-    while (m > h * 1.02 && fs > min) {
-      fs = Math.max(min, fs - 0.5);
-      m = pptxMeasureHeight(arr, { ...o, fontSize: fs });
-    }
-    const out = { ...o, fit: o.fit || "shrink" };
-    if (fs < fs0) {
-      out.fontSize = Math.round(fs * 10) / 10;
-      if (o.lineSpacing) out.lineSpacing = Math.round(o.lineSpacing * fs / fs0 * 10) / 10;
-    }
-    return out;
+    /* Размер шрифта, цвет и межстрочный интервал не пересчитываем: это оформление
+       учителя. Если текст всё же не помещается, сборщик делит слайд/блок,
+       а не подменяет кегль. */
+    return o;
   }
   async function pptxSlide(pptx, sl, i, host, total, ext = {}) {
     const look = {};
@@ -1530,7 +1523,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const text = (el, extra = {}) => {
       const runs = runsOf(el, {}); if (!runs.some(r => r.text.trim())) return;
       const b = box(el), st = textStyle(el);
-      s.addText(runs, { x: b.x, y: b.y, w: b.w * 1.04 + 0.05, h: b.h + 0.08, margin: 0, valign: "top", fit: "shrink", wrap: true, ...st, ...extra });
+      s.addText(runs, { x: b.x, y: b.y, w: b.w * 1.04 + 0.05, h: b.h + 0.08, margin: 0, valign: "top", fit: "none", wrap: true, ...st, ...extra });
     };
     const shape = (el, opts) => { const b = box(el); s.addShape(pptx.ShapeType.roundRect, { x: b.x, y: b.y, w: b.w, h: b.h, rectRadius: 0.1, line: { type: "none" }, ...opts }); };
     { const t0 = sx.querySelector(".sx-title"), b0 = sx.querySelector(".sx-body p, .sx-body li, .sx-body") || sx, ts = t0 ? textStyle(t0) : {}, bs = textStyle(b0);
@@ -1621,7 +1614,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
             const range = document.createRange(); range.selectNodeContents(li); const rr = range.getBoundingClientRect();
             const runs = runsOf(li, {}); if (!runs.length) continue;
             const st = textStyle(li), xx = (rr.left - B.left) * k / IN, yy = (rr.top - B.top) * k / IN + dyBody;
-            s.addText(runs, { x: xx, y: yy, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", fit: "shrink", wrap: true, ...st });
+            s.addText(runs, { x: xx, y: yy, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", fit: "none", wrap: true, ...st });
           }
           continue;
         }
@@ -1632,7 +1625,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
         items.forEach((li, n) => { const r = runsOf(li, {}); if (!r.length) return; const bu = blk.tagName === "OL" ? { type: "number", startAt: startNo + n } : { code: "25CF" }; r.forEach(x => { x.options = { ...x.options, bullet: bu, indentLevel: 0 }; }); r[r.length - 1].options = { ...r[r.length - 1].options, breakLine: true, paraSpaceAfter: Math.round(parseFloat(getComputedStyle(li).marginBottom) * 0.75) }; runs.push(...r); });
         // текст списка начинается там, где на экране первая строка (без внешних отступов списка), иначе он «заезжает» на заголовок
         const fi = items[0] ? box(items[0]) : b, la = items.length ? box(items[items.length - 1]) : b, ly = Math.max(b.y, fi.y), lh = Math.max(0.3, la.y + la.h - ly);
-        if (runs.length) s.addText(runs, { x: b.x - 0.05, y: ly, w: b.w * 1.04 + 0.1, h: lh + 0.1, margin: 0, valign: "top", fit: "shrink", wrap: true, ...st });
+        if (runs.length) s.addText(runs, { x: b.x - 0.05, y: ly, w: b.w * 1.04 + 0.1, h: lh + 0.1, margin: 0, valign: "top", fit: "none", wrap: true, ...st, align: "left" });
         continue;
       }
       if (blk.matches("blockquote")) {
@@ -1642,7 +1635,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
         const ps = [...blk.children]; const runs = [];
         ps.forEach((pp, n) => { const r = runsOf(pp, {}); if (r.length) { r[r.length - 1].options.breakLine = n < ps.length - 1; runs.push(...r); } });
         const range = document.createRange(); range.selectNodeContents(blk); const rr = range.getBoundingClientRect();
-        if (runs.length) s.addText(runs, { x: (rr.left - B.left) * k / IN, y: (rr.top - B.top) * k / IN + dyBody, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", fit: "shrink", wrap: true, ...textStyle(ps[0] || blk) });
+        if (runs.length) s.addText(runs, { x: (rr.left - B.left) * k / IN, y: (rr.top - B.top) * k / IN + dyBody, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", fit: "none", wrap: true, ...textStyle(ps[0] || blk) });
         continue;
       }
       text(blk);
