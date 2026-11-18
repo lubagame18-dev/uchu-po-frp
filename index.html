@@ -810,7 +810,42 @@ window.UCHU_SITE = {
 <main id="view-help" class="wrap page help" hidden><div class="sheet" id="helpBody"></div></main>
 
 
-<p class="small" style="padding:8px 20px;text-align:center"><a href="legal/privacy.html">Политика обработки данных</a> · <a href="legal/consent.html">Отдельное согласие</a> · <a href="legal/data-rights.html">Выгрузка и удаление</a> · <a href="legal/contacts.html">Реквизиты</a></p>
+<style>
+/* Нижний блок — по-гостовски сдержанно: один тонкий разделитель, Times New Roman,
+   две строки, без «частокола» подчёркиваний и лишних рамок. */
+.site-foot{border-top:1px solid #d9d2c4;margin-top:38px;padding:18px 0 24px;font-family:"Times New Roman",Georgia,serif;font-size:12px;line-height:1.45;color:#6f6a63;text-align:center}
+.site-foot .wrap{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:980px;margin:0 auto;padding:0 16px}
+.site-foot .foot-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:4px 9px}
+.site-foot .foot-copy{font-weight:700;color:#4a453f;letter-spacing:.01em}
+.site-foot .foot-q{font-size:12px;color:#6f6a63}
+.site-foot .foot-sep{color:#b8b1a5;font-size:11px}
+.site-foot .foot-link{appearance:none;border:0;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;text-decoration:none;border-bottom:1px dotted rgba(111,106,99,.55);text-underline-offset:2px}
+.site-foot .foot-link:hover,.site-foot .foot-link:focus-visible{color:#1f1b16;border-bottom-color:#1f1b16}
+.site-foot .foot-legal{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:3px 8px;font-size:11.5px;color:#8a847b}
+.site-foot .foot-legal a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(138,132,123,.45)}
+.site-foot .foot-legal a:hover,.site-foot .foot-legal a:focus-visible{color:#1f1b16;border-bottom-color:#1f1b16}
+.site-foot .foot-docs-in{display:flex;flex-wrap:wrap;justify-content:center;gap:3px 10px;font-size:11.5px;color:#8a847b}
+.site-foot .foot-docs-in[hidden]{display:none}
+.site-foot .foot-docs-in a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(138,132,123,.45)}
+.site-foot .foot-docs-in a:hover{color:#1f1b16;border-bottom-color:#1f1b16}
+@media(max-width:600px){.site-foot{font-size:11.5px;padding:16px 0 22px}.site-foot .foot-legal{font-size:11px;gap:2px 7px}}
+</style>
+<!-- ===================== ПОДВАЛ ===================== -->
+<footer class="site-foot" aria-label="Сведения о сайте">
+  <div class="wrap">
+    <div class="foot-row">
+      <span class="foot-copy" id="devEntry">© 2026 «Учу по ФРП»</span>
+      <span class="foot-sep" aria-hidden="true">·</span>
+      <span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button><span class="foot-sep" aria-hidden="true">·</span><button type="button" class="foot-link" id="docsLink">Документы</button></span>
+    </div>
+    <nav class="foot-legal" aria-label="Правовая информация">
+      <a href="legal/privacy.html">Политика обработки данных</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/consent.html">Отдельное согласие</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/data-rights.html">Выгрузка и удаление</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/contacts.html">Реквизиты</a>
+    </nav>
+    <div class="foot-docs-in" id="docsBox" hidden>
+      <a href="legal/tarify.html">Тарифы и услуги</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/oferta.html">Договор-оферта</a>
+    </div>
+  </div>
+</footer>
 <script src="data/legal.js"></script>
 <script>(function(){var L=window.UCHU_LEGAL||{},el=document.getElementById("footLegal");if(el&&L.name)el.textContent="© «Учу по ФРП» · "+L.name+", "+(L.status||"").split(" (")[0]+(L.inn&&!/_/.test(L.inn)?", ИНН "+L.inn:"")+(L.email?" · "+L.email:"");})();</script>
 <div id="pdfstage" aria-hidden="true"></div>

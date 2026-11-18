@@ -622,13 +622,19 @@ const Dev = (() => {
 
   /* ---------- кнопка входа (внизу страницы) ---------- */
   function mountEntry() {
-    if (document.getElementById("devEntry")) return;
+    const wire = f => {
+      const docs = f.querySelector("#docsLink"), box = f.querySelector("#docsBox");
+      if (docs && box) docs.onclick = () => { box.hidden = !box.hidden; };
+      const help = f.querySelector("#helpLink");
+      if (help) help.onclick = () => { if (typeof go === "function") go("help"); window.scrollTo(0, 0); };
+    };
+    const existing = document.getElementById("devEntry");
+    if (existing) { const f = existing.closest(".site-foot"); if (f) wire(f); return; }
     const f = document.createElement("footer"); f.className = "site-foot";
     // внизу — только неприметные серые ссылки: инструкция, источники, вход разработчика
-    f.innerHTML = `<div class="wrap foot-links foot-center"><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button> · <button type="button" class="foot-link" id="docsLink">Документы</button></span><span class="foot-docs-in" id="docsBox" hidden><a href="legal/tarify.html">Тарифы и услуги</a><a href="legal/oferta.html">Договор-оферта</a><a href="legal/privacy.html">Политика конфиденциальности</a><a href="legal/contacts.html">Контакты и реквизиты</a></span><span class="foot-dev" id="devEntry">© 2026</span></div>`;
+    f.innerHTML = `<div class="wrap"><div class="foot-row"><span class="foot-copy" id="devEntry">© 2026 «Учу по ФРП»</span><span class="foot-sep" aria-hidden="true">·</span><span class="foot-q">Есть вопрос? <button type="button" class="foot-link" id="helpLink">Инструкция</button><span class="foot-sep" aria-hidden="true">·</span><button type="button" class="foot-link" id="docsLink">Документы</button></span></div><nav class="foot-legal" aria-label="Правовая информация"><a href="legal/privacy.html">Политика обработки данных</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/consent.html">Отдельное согласие</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/data-rights.html">Выгрузка и удаление</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/contacts.html">Реквизиты</a></nav><div class="foot-docs-in" id="docsBox" hidden><a href="legal/tarify.html">Тарифы и услуги</a><span class="foot-sep" aria-hidden="true">·</span><a href="legal/oferta.html">Договор-оферта</a></div></div>`;
     document.body.appendChild(f);
-    f.querySelector("#docsLink").onclick = () => { const b = f.querySelector("#docsBox"); b.hidden = !b.hidden; };
-    f.querySelector("#helpLink").onclick = () => { if (typeof go === "function") go("help"); window.scrollTo(0, 0); };
+    wire(f);
   }
   document.addEventListener("DOMContentLoaded", mountEntry);
   // запомненный вход действует только вместе с кабинетом той же почты (если облако подключено)
