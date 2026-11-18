@@ -1710,7 +1710,7 @@ async function aiDeckPics(L) {
     } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
   }
   if (!n) imgFail("Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : "."));
-  if (n) { L.docs.slides = parts.join(""); window.Access?.countImage(1); await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000); }
+  if (n) { L.docs.slides = parts.join(""); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); window.Access?.countImage(1); await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000); }
 }
 /* рабочий лист «фотографией»: страницы рисует нейросеть, текст берётся из готового листа */
 async function aiSheetPhotos(L, setPct) {
@@ -2130,9 +2130,10 @@ async function buildWithAi(L, p, type, formats) {
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
         L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => r.md);
         if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
+        if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params);
         /* тест создаётся отдельно от презентации — см. ниже */
         L.status.slides = "ok";
-      } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); L.status.slides = "ok"; }
+      } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); L.status.slides = "ok"; }
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
       continue;
     }

@@ -484,6 +484,7 @@ const SlideEditor = (() => {
         <label class="sx-tl">Фон <input type="color" id="sxBg" value="${esc(sl.set.bg || "#ffffff")}"></label><button class="btn sm ghost" id="sxBgImg">Картинка-фон</button>${sl.set.bg || sl.set.bgimg ? `<button class="btn sm ghost" id="sxBgClr">Убрать фон</button>` : ""}
         <button class="btn sm ${sl.set.full ? "flame" : "ghost"}" id="sxFull" title="Картинка на весь слайд, текст — на полупрозрачной плашке">${sl.set.full ? "Полный кадр: вкл" : "Полный кадр"}</button>
         ${sl.set.full ? `<label class="sx-tl">Плашка <select id="sxFullPos">${[["right", "справа"], ["left", "слева"], ["bottom", "снизу"], ["center", "по центру"]].map(([k, n]) => `<option value="${k}" ${k === (typeof sl.set.full === "string" ? sl.set.full : (sl.set.fullPos || "right")) ? "selected" : ""}>${n}</option>`).join("")}</select></label>` : ""}
+        <button class="btn sm ghost" id="sxAutoFull" title="Автоматически поставить полные кадры на слайды с одной картинкой и коротким текстом">✨ Полные кадры</button>
         <label class="sx-tl">Картинка <select id="sxAcc">${Object.entries(ACC).map(([k, n]) => `<option value="${k}" ${k === (sl.set.acc || "") ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         ${sl.set.acc === "bg" ? `<label class="sx-tl">Наложение <select id="sxOv">${Object.entries(OV).map(([k, n]) => `<option value="${k}" ${k === (sl.set.ov || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label><input type="range" id="sxOvi" min="0" max="100" step="5" value="${sl.set.ovi ?? 70}" title="Сила наложения" aria-label="Сила наложения">` : ""}
         <span class="sx-ha" role="group" aria-label="Выравнивание текста">${[["left", "⯇", "По левому краю"], ["center", "≡", "По центру"], ["right", "⯈", "По правому краю"]].map(([k, ic, t]) => `<button type="button" class="btn sm ${sl.set.ha === k ? "flame" : "ghost"}" data-ha="${k}" title="${t}" aria-pressed="${sl.set.ha === k}">${ic}</button>`).join("")}<label class="check small"><input type="checkbox" id="sxHaAll"> на всех</label></span>
@@ -595,6 +596,7 @@ const SlideEditor = (() => {
       write(a); rerender();
     };
     const fp = $s("#sxFullPos"); if (fp) fp.onchange = e => { const a = slides(); a[cur].set.full = e.target.value; write(a); rerender(); };
+    $s("#sxAutoFull").onclick = applyAutoFullFrames;
     $s("#sxPic").onclick = () => addPicture(cur);
     if (window.UCHU_SITE?.imageGenUi === false) $s("#sxAiPic").hidden = true; else $s("#sxAiPic").onclick = () => aiPicture();
     $s("#sxAcc").onchange = e => { const v = e.target.value; const a = slides(); const has = new RegExp(Media.RE.source).test(a[cur].body); a[cur].set.acc = v || undefined; a[cur].set.afs = undefined; write(a); if (v && !has) { toast("Выберите картинку ниже, в «Картинках Яндекса», — она встанет на это место."); } rerender(); };
@@ -1818,6 +1820,33 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" });
   }
 
+  /* Автоматически расставить «полный кадр» на подходящих слайдах:
+     одна картинка + короткий текст, не титул/раздел/интерактив. */
+  function autoFullFrame(md, p) {
+    let used = 0;
+    const parts = splitSlides(String(md || ""));
+    const out = parts.map((raw, idx) => {
+      if (used >= 5 || idx < 2) return raw;
+      const sl = parse(raw); if (!sl || sl.set?.full) return raw;
+      const lay = autoLayout(sl, idx);
+      if (["title", "section", "image", "gallery", "quiz"].includes(lay)) return raw;
+      const body = String(sl.body || "");
+      const one = m => { const re = new RegExp(Media.RE.source); return re.test(m); };
+      if (!one(body)) return raw;
+      if (/<!--@\s*\{[^}]*"(qa|quiz|bank|spots|tl|cmap|table|selfcheck|choice|odd)"/.test(body)) return raw;
+      const plain = body.replace(new RegExp(Media.RE.source, "g"), "").replace(/<!--[\s\S]*?-->/g, "").replace(/[#>*_`|]/g, " ").replace(/\s+/g, " ").trim();
+      if (plain.length > 560 || plain.split(/\n{2,}/).length > 6) return raw;
+      const pos = used % 2 ? "left" : "right"; used++;
+      return build({ ...sl, set: { ...sl.set, full: pos, acc: undefined } });
+    });
+    return out.join("\n\n---\n\n") + "\n";
+  }
+  function applyAutoFullFrames() {
+    const md = slides().map(build).join("\n\n---\n\n");
+    const arr = splitSlides(autoFullFrame(md, L()?.params)).map(parse);
+    write(arr); rerender();
+    toast("Полные кадры расставлены на подходящих слайдах.", 5000);
+  }
   /* Заменить всю презентацию (сборка по плану «как в Gamma»): с отменой через ↶ */
   function replaceAll(md) {
     const Ls = L(); undo.push(Ls.docs.slides || ""); redo.length = 0;
@@ -1833,7 +1862,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     a[i] = { ...n, set: { ...old.set, ...(n.set || {}) } };
     write(a); rerender(); return true;
   }
-  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, autoFullFrame, applyAutoFullFrames, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;
 
