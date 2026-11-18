@@ -12,6 +12,28 @@ window.UCHU_CULTURE = {
       license: "CC BY-SA 3.0",
       source: "Wikimedia Commons",
       attribution: "Beeswaxcandle, Londonjackbooks (Wikimedia Commons), CC BY-SA 3.0"
+    },
+    {
+      id: "beethoven-symphony-5",
+      title: "Л. ван Бетховен. Симфония № 5, I часть",
+      composer: "Людвиг ван Бетховен",
+      work: "Симфония № 5 до минор, соч. 67, I часть",
+      excerpt: "0:00–0:35",
+      file: "audio/beethoven-symphony-5-35s.wav",
+      license: "Public domain",
+      source: "Wikimedia Commons",
+      attribution: "user:OldakQuill (Wikimedia Commons), public domain"
+    },
+    {
+      id: "tchaikovsky-swan-lake",
+      title: "П. И. Чайковский. «Лебединое озеро», II акт",
+      composer: "Пётр Ильич Чайковский",
+      work: "Балет «Лебединое озеро», фрагмент из II акта",
+      excerpt: "0:00–0:35",
+      file: "audio/tchaikovsky-swan-lake-35s.wav",
+      license: "Public domain",
+      source: "Wikimedia Commons",
+      attribution: "Ballet Francaise Symphony Orchestra (Wikimedia Commons), public domain"
     }
   ],
   paintings: [
