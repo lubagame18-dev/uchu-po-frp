@@ -339,6 +339,12 @@ const SlideEditor = (() => {
     const ib = inner.getBoundingClientRect(), cs = getComputedStyle(inner), limit = ib.bottom - parseFloat(cs.paddingBottom) + 1;
     const body = el.querySelector(".sx-body");
     if (body && body.scrollHeight > body.clientHeight + 2) return false;
+    /* карточки и списки не должны уходить под нижний край плашки */
+    if (body) {
+      const br = body.getBoundingClientRect();
+      if (br.bottom > limit + 2) return false;
+      if ([...body.querySelectorAll("li")].some(x => x.getBoundingClientRect().bottom > limit + 2)) return false;
+    }
     /* заголовок и текст не должны наезжать друг на друга */
     if (ttl) {
       const tr = ttl.getBoundingClientRect();
@@ -436,21 +442,21 @@ const SlideEditor = (() => {
   function fitAll({ allowSplit = true } = {}) {
     const arr = slides(); let changed = false, splits = 0;
     const out = [];
-    const noSplitOf = sl => ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, 0)) || ["goal", "video", "hw"].includes(sl.set.kind);
+    const noSplitOf = (sl, i) => ["title", "section", "big", "image", "gallery"].includes(autoLayout(sl, i)) || ["goal", "video", "hw"].includes(sl.set.kind);
     // делим на части и подбираем шрифт каждой; если часть всё ещё не влезает — делим ещё раз (не мельчая текст)
-    const emitFit = (sl, depth = 0) => {
-      const r = autoScale(sl, 0);
+    const emitFit = (sl, depth = 0, index = 0) => {
+      const r = autoScale(sl, index);
       if (r.ok) { if (sl.set.afs !== r.fs) changed = true; out.push({ ...sl, set: { ...sl.set, afs: r.fs } }); return; }
-      if (allowSplit && depth < 2 && !noSplitOf(sl) && sl.set.fit !== "off") {
-        const parts = splitSlide(sl, 0);
-        if (parts) { changed = true; splits++; parts.forEach(p => emitFit(p, depth + 1)); return; }
+      if (allowSplit && depth < 2 && !noSplitOf(sl, index) && sl.set.fit !== "off") {
+        const parts = splitSlide(sl, index);
+        if (parts) { changed = true; splits++; parts.forEach(p => emitFit(p, depth + 1, index)); return; }
       }
       if (sl.set.afs !== r.fs) changed = true;
       out.push({ ...sl, set: { ...sl.set, afs: r.fs } });
     };
-    arr.forEach(sl => {
+    arr.forEach((sl, i) => {
       if (sl.set.fs || sl.set.free) { out.push(sl); return; } // шрифт или вёрстка заданы вручную — не трогаем
-      emitFit(sl);
+      emitFit(sl, 0, i);
     });
     if (changed) write(out, { record: splits > 0 });
     if (splits) toast(`Длинные слайды разделены, чтобы весь текст был виден (${splits}).`, 5000);
@@ -1883,6 +1889,37 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       return build(sl);
     }).join("\n\n---\n\n") + "\n";
   }
+  /* Биология и другие предметы: если иллюстраций меньше нормы, добавляем
+     заготовки в короткие содержательные слайды; Media.autoFill их заполнит. */
+  function ensureSubjectImages(md, p = {}) {
+    const target = { bio: 5, geo: 3, chem: 3, phys: 3, hist: 3, mhk: 3, izo: 2, mus: 2 }[p.subject] || 0;
+    if (!target) return md;
+    const parts = splitSlides(String(md || ""));
+    const re = new RegExp(Media.RE.source, "g");
+    const have = parts.reduce((n, raw) => n + (raw.match(re) || []).length, 0);
+    let need = Math.max(0, target - have);
+    if (!need) return md;
+    const candidates = parts.map((raw, i) => {
+      if (i === 0) return null;
+      const sl = parse(raw); if (!sl) return null;
+      const body = String(sl.body || "");
+      if (new RegExp(Media.RE.source).test(body)) return null;
+      if (["title", "section", "image", "gallery", "quiz"].includes(autoLayout(sl, i))) return null;
+      if (/<!--@\s*\{[^}]*"(qa|quiz|bank|spots|tl|cmap|table|selfcheck|choice|odd)"/.test(body)) return null;
+      const title = String(sl.title || "").replace(/[#*_`]/g, " ").replace(/\s+/g, " ").trim();
+      if (!title) return null;
+      return { i, len: body.length, title };
+    }).filter(Boolean).sort((a, b) => a.len - b.len);
+    const out = parts.slice();
+    for (const c of candidates) {
+      if (need <= 0) break;
+      const sl = parse(out[c.i]);
+      const q = `${p.topic || ""} ${c.title}`.replace(/\s+/g, " ").trim().slice(0, 140) || c.title;
+      sl.body = `${sl.body || ""}\n\n![Иллюстрация: ${c.title}](search:${encodeURIComponent(q)})`.trim();
+      out[c.i] = build(sl); need--;
+    }
+    return out.join("\n\n---\n\n") + "\n";
+  }
   function applyAutoFullFrames() {
     const md = slides().map(build).join("\n\n---\n\n");
     const arr = splitSlides(autoFullFrame(md, L()?.params)).map(parse);
@@ -1929,7 +1966,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     a[i] = { ...n, set: { ...old.set, ...(n.set || {}) } };
     write(a); rerender(); return true;
   }
-  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, autoFullFrame, seedTemplateImages, applyAutoFullFrames, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, autoFullFrame, seedTemplateImages, ensureSubjectImages, applyAutoFullFrames, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;
 

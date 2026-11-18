@@ -1244,7 +1244,7 @@ ${window.Conv ? Conv.prompt(p) : ""}
 - **Интерактив в разметке:** «[!answer] текст» — ответ под кнопкой; выбор — «<!--@ {"choice":1} -->» и пункты «- [+] верный | пояснение», «- [-] неверный | пояснение»; таймер — «<!--@ {"timer":300} -->»; «светофор» — «<!--@ {"selfcheck":1} -->».
 - **Ещё интерактив:** лента времени (история) — «<!--@ {"tl":1} -->» и строки «- дата | событие | подробности»; карта персонажей — «<!--@ {"cmap":1} -->» и «- имя | характеристика | цитата»; итог тренажёра — «<!--@ {"score":1} -->»; ветка квеста — в тексте варианта допиши «-> #slide-N».
 - **Собери сам** — «<!--@ {"bank":"правильный ответ"} -->» и в теле только слова-фишки списком «- слово»; **горячие точки на картине** — «<!--@ {"spots":1} -->» и строки «- x,y | вопрос | пояснение» (x,y — проценты по картинке, 0–100).
-- Картинки: ${lit ? "обязательно слайд с портретом писателя; если урок о картине или сочинение по картине — слайд с картиной; при анализе стихотворения можно иллюстрацию." : "4–6 слайдов с иллюстрацией к теме, примеру или заданию."} Формат картинки строго: ![Подпись: художник, название, год](search:поисковый запрос) — система сама найдёт картинку. Слайд с картиной может быть без текста: только заголовок, картинка и подпись. Если подходящей иллюстрации или картины нет — не вставляй случайное фото, оставь слайд без картинки.
+- Картинки: ${lit ? "обязательно слайд с портретом писателя; если урок о картине или сочинение по картине — слайд с картиной; при анализе стихотворения можно иллюстрацию." : p.subject === "bio" ? "не меньше 5–6 слайдов с изображением: организм, орган, клетка, экосистема, схема опыта или микрофотография. Для биологии визуальная опора обязательна на каждом ключевом этапе." : "4–6 слайдов с иллюстрацией к теме, примеру или заданию."} Формат картинки строго: ![Подпись: художник, название, год](search:поисковый запрос) — система сама найдёт картинку. Слайд с картиной может быть без текста: только заголовок, картинка и подпись. Если подходящей иллюстрации или картины нет — не вставляй случайное фото, оставь слайд без картинки.
 - **Полный кадр:** на 4–6 ключевых слайдах поставь в начало \`<!--@ {"full":"right"} -->\` (или \`"left"\`, \`"bottom"\`, \`"center"\`), затем заголовок, 2–4 короткие строки и **одну** картинку. Эта картинка станет фоном на весь слайд, а текст — на полупрозрачной плашке. Не дублируй её отдельной картинкой в теле.
 - **Подписи к изображениям.** Если используется живопись, репродукция или гравюра — внизу под изображением мелким шрифтом обязательна подпись: **фамилия художника, название работы, год** (если известны). Для обычных (неавторских) фотографий подпись не нужна. Подпись — отдельной строкой под картинкой, не в тексте слайда.
 - **Гуманитарные предметы (история, литература, МХК, общество, география):** основа визуального ряда — **реальная живопись и исторические фотографии**, а не случайные картинки. Ставь 2–4 таких изображения: историческая картина/портрет/гравюра — с подписью, историческая фотография — можно без подписи, если автор неизвестен.
@@ -2321,13 +2321,15 @@ async function buildWithAi(L, p, type, formats) {
         autoTheme(L, p);
         const r = await Deck.build(cmd, p, type, { ai: true, signal: state.gen.ctl.signal });
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
-        const seed2 = window.SlideEditor?.seedTemplateImages ? SlideEditor.seedTemplateImages(r.md, p) : r.md;
+        const seed2 = window.SlideEditor?.ensureSubjectImages
+          ? SlideEditor.ensureSubjectImages(window.SlideEditor?.seedTemplateImages ? SlideEditor.seedTemplateImages(r.md, p) : r.md, p)
+          : (window.SlideEditor?.seedTemplateImages ? SlideEditor.seedTemplateImages(r.md, p) : r.md);
         L.docs.slides = await Media.autoFill(seed2, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => r.md);
         if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
         if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params);
         /* тест создаётся отдельно от презентации — см. ниже */
         L.status.slides = "ok";
-      } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); if (window.SlideEditor?.seedTemplateImages) L.docs.slides = SlideEditor.seedTemplateImages(L.docs.slides, p); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); L.status.slides = "ok"; }
+      } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); if (window.SlideEditor?.seedTemplateImages) L.docs.slides = SlideEditor.seedTemplateImages(L.docs.slides, p); if (window.SlideEditor?.ensureSubjectImages) L.docs.slides = SlideEditor.ensureSubjectImages(L.docs.slides, p); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); L.status.slides = "ok"; }
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
       continue;
     }
