@@ -1813,6 +1813,7 @@ async function checkWorkText(p, type) {
   return true;
 }
 /* Большие произведения: делим текст на части и даём выбрать фрагменты до генерации. */
+function textHash(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 function splitTextFragments(text, target = 18000) {
   const t = String(text || "").replace(/\r\n/g, "\n").trim();
   if (t.length <= 50000) return [];
@@ -1862,29 +1863,59 @@ function askWorkText(p, work, author, opts = {}) {
       <ol class="at-steps"><li><b>Найдите текст</b>:<div class="mat-row">${L.map(([t, u]) => `<a class="btn sm ghost" target="_blank" rel="noopener" href="${u}">${t}</a>`).join("")}</div></li>
         <li><b>Вставьте текст</b> (или нужный фрагмент) — либо загрузите файл (.txt, .docx, .pdf):
         <textarea id="awText" rows="9" placeholder="Вставьте текст произведения или фрагмента…"></textarea>
+        <div class="mat-row"><button type="button" class="btn sm flame" id="awAiFrags">✨ Подобрать фрагменты по теме</button><span class="small" id="awAiMsg">ИИ сам выберет 3–5 ключевых эпизодов — не нужно листать главы.</span></div>
         <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div>
         <div id="awFrags"></div></li></ol>
       <div class="pk-foot"><button class="btn flame" id="awGo">${manual ? "📖 Встроить текст" : "Собрать урок с этим текстом"}</button></div>
       <label class="check" style="margin-top:12px" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><input type="checkbox" id="awSkip"> Продолжить без добавления текста (только для разработчика)</label>
       <div class="pk-foot" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
-    const fragBox = m.querySelector("#awFrags"); let frags = [];
-    const renderFrags = () => {
-      const text = ta.value.trim();
-      frags = splitTextFragments(text);
+    const fragBox = m.querySelector("#awFrags"), aiBtn = m.querySelector("#awAiFrags"), aiMsg = m.querySelector("#awAiMsg");
+    let frags = [], aiPick = null;
+    const drawFrags = (items, note) => {
+      frags = items || [];
       if (!frags.length) { fragBox.innerHTML = ""; return; }
       const shown = frags.slice(0, 40);
       fragBox.innerHTML = `<div style="margin:10px 0;padding:10px 12px;border:1.5px solid #b08a44;border-radius:12px;background:#fffaf0">
-        <b>Текст большой: ${text.length.toLocaleString("ru-RU")} знаков.</b>
-        <p class="small" style="margin:4px 0 8px">Выберите фрагменты, с которыми будет работать урок. Так ИИ не будет перерабатывать всё произведение целиком.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:5px 10px;max-height:220px;overflow:auto">${shown.map((f, i) => `<label class="check" style="display:flex;gap:6px;align-items:flex-start;font-size:13px;max-width:100%"><input type="checkbox" data-fi="${i}"> <span>${esc(f.title)} <span class="small">(${Math.round(f.chars / 1000)} тыс. знаков)</span></span></label>`).join("")}</div>
-        ${frags.length > shown.length ? `<p class="small">Показаны первые ${shown.length} фрагментов. Можно вставить нужный отрывок целиком ниже.</p>` : ""}
+        <b>${note}</b>
+        <p class="small" style="margin:4px 0 8px">Отметьте фрагменты, с которыми будет работать урок. Так ИИ не будет перерабатывать всё произведение целиком.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:5px 10px;max-height:220px;overflow:auto">${shown.map((f, i) => `<label class="check" style="display:flex;gap:6px;align-items:flex-start;font-size:13px;max-width:100%"><input type="checkbox" data-fi="${i}" ${f.select ? "checked" : ""}> <span>${esc(f.title)} <span class="small">(${Math.round(f.chars / 1000)} тыс. знаков)${f.why ? ` · ${esc(f.why)}` : ""}</span></span></label>`).join("")}</div>
         <div class="mat-row" style="margin-top:6px"><button type="button" class="btn sm ghost" id="awFragAll">Выбрать все</button><button type="button" class="btn sm ghost" id="awFragNone">Снять</button></div>
       </div>`;
       fragBox.querySelector("#awFragAll").onclick = () => fragBox.querySelectorAll("[data-fi]").forEach(x => x.checked = true);
       fragBox.querySelector("#awFragNone").onclick = () => fragBox.querySelectorAll("[data-fi]").forEach(x => x.checked = false);
     };
-    ta.addEventListener("input", () => setTimeout(renderFrags, 350));
+    const renderFrags = () => {
+      const text = ta.value.trim();
+      if (aiPick && aiPick.raw === text) { drawFrags(aiPick.frags, "ИИ выбрал ключевые эпизоды"); return; }
+      aiPick = null;
+      drawFrags(splitTextFragments(text).map(f => ({ ...f, select: false })), `Текст большой: ${text.length.toLocaleString("ru-RU")} знаков.`);
+    };
+    ta.addEventListener("input", () => { aiPick = null; setTimeout(renderFrags, 350); });
+    aiBtn.onclick = async () => {
+      const raw = ta.value.trim();
+      if (raw.length < 1500) { aiMsg.textContent = "Сначала вставьте текст или загрузите файл."; return; }
+      if (!(window.AI?.configured?.() || window.UCHU?.configured?.())) { aiMsg.textContent = "Для подбора фрагментов нужно подключить ИИ в «⚙ ИИ»."; return; }
+      const key = `lf:${textHash(raw)}:${String(work || p.topic || "").toLowerCase()}:${String(p.topic || "").toLowerCase()}`;
+      let picked = null;
+      try { picked = JSON.parse(localStorage.getItem(key) || "null"); } catch { }
+      if (!Array.isArray(picked) || !picked.length) {
+        aiBtn.disabled = true; aiBtn.textContent = "✨ Подбираю…"; aiMsg.textContent = "ИИ читает произведение и выбирает эпизоды под тему урока…";
+        window.Usage?.begin("Подбор фрагментов", work || p.topic || "");
+        try {
+          picked = await aiFragments({ ...p, subject: "lit", topic: p.topic || [author, work].filter(Boolean).join(" "), plan: { text: raw, analysis: {}, kit: {} }, wishes: "" });
+          if (Array.isArray(picked) && picked.length) { try { localStorage.setItem(key, JSON.stringify(picked)); } catch { } }
+        } catch (e) { aiMsg.textContent = "Не удалось подобрать: " + (e.message || e); picked = null; }
+        finally { aiBtn.disabled = false; aiBtn.textContent = "✨ Подобрать фрагменты по теме"; }
+      }
+      if (!Array.isArray(picked) || !picked.length) {
+        aiMsg.textContent = "ИИ не нашёл эпизодов — можно выбрать главы вручную ниже или вставить нужный отрывок.";
+        renderFrags(); return;
+      }
+      aiPick = { raw, frags: picked.map(f => ({ title: f.label || "Эпизод", why: f.why || "", text: f.text || "", chars: (f.text || "").length, select: true })) };
+      drawFrags(aiPick.frags, "ИИ выбрал ключевые эпизоды под тему урока");
+      aiMsg.textContent = "Готово. Можно снять лишние эпизоды и нажать «Собрать урок».";
+    };
     const obs = new MutationObserver(() => { if (!$("#modalRoot").firstElementChild) fin(null); }); obs.observe($("#modalRoot"), { childList: true });
     m.querySelector("#awFile").onchange = async ev => { const f = ev.target.files[0]; if (!f) return; msg.textContent = "Читаю файл…"; try { const r = await readFile(f); ta.value = String(r.text || "").trim(); msg.textContent = ta.value ? `Готово: ${ta.value.length} знаков.` : "В файле не нашлось текста — вставьте вручную."; renderFrags(); } catch (er) { msg.textContent = "Не получилось прочитать: " + (er.message || er); } };
     sk.onchange = () => { skGo.disabled = !sk.checked; };
