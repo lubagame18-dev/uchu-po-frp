@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -306,7 +306,6 @@ textarea.inp{resize:vertical;min-height:64px}
 .ctrl-mock.test .ln{background:#d9d2c2}
 .ctrl-card.off{opacity:.45;cursor:not-allowed}
 /* мини-превью стилей рабочего листа */
-.wd-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
 .wd-thumb{aspect-ratio:4/3;border-radius:8px;overflow:hidden;position:relative;background:#fff}
 .wd-thumb .m-ac{position:absolute;inset:7px;border:1.5px solid #111;border-radius:1px;background:#fff}
 .wd-thumb .m-ac:before{content:"Класс · ФИО · Вариант";position:absolute;left:5px;top:4px;right:5px;font-size:5px;color:#111;border-bottom:1px solid #111;padding-bottom:3px}
@@ -717,10 +716,6 @@ window.UCHU_SITE = {
         <div class="field" id="examFocusBox" hidden><span class="lbl">Что тренируем</span>
           <div class="seg" id="segExamFocus"><button data-v="full" aria-pressed="true" title="Полный вариант-срез: все части и типы заданий по кодификатору">Весь вариант</button><button data-v="topic" aria-pressed="false" title="Только введённая тема урока, но в формате экзамена">Только тему урока</button></div>
           <p class="hint" id="examFocusHint">«Весь вариант» — случайный срез по кодификатору; «Только тему» — отработка темы в формате экзамена.</p>
-        </div>
-        <div class="field" id="wsDesignBox"><span class="lbl">Оформление рабочего листа</span>
-          <div class="pv-grid wd-grid" id="wsDesignGrid" role="radiogroup" aria-label="Оформление рабочего листа"></div>
-          <p class="hint" id="wsDesignHint">Визуальный стиль листа: строгий экзаменационный бланк, интерактивный с подсказками или с арт-поддержкой.</p>
         </div>
         <details class="field prevhw" id="prevHwBox"><summary>Д/з прошлого урока — для проверки</summary>
           <textarea class="inp" id="prevHw" placeholder="Что задавали: упр. 245 или № 312, 315 (можно с ответами)"></textarea>

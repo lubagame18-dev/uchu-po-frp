@@ -1,4 +1,4 @@
-﻿
+
 /* ===================================================================
    «Учу по ФРП» — ядро (бесплатное приложение, без тарифов)
    =================================================================== */
@@ -616,7 +616,7 @@ function readForm() {
   state.deep = !!$("#deep")?.checked;
   $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
   if (window.updateLessonSeg) updateLessonSeg();
-  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, examFocus: state.examFocus, wsDesign: state.wsDesign, anyName: state.anyName });
+  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, examFocus: state.examFocus, wsDesign: "interactive", anyName: state.anyName });
   try { syncFieldVisibility(); } catch { }
 }
 /* «Оформление презентации» показываем только при отмеченной презентации,
@@ -631,19 +631,17 @@ function syncFieldVisibility() {
   };
   show(document.getElementById("thField"), on("slides"));
   show(document.getElementById("ctrlField"), wsLike);
-  show(document.getElementById("wsDesignBox"), on("worksheet"));
   show(document.getElementById("examFocusBox"), wsLike && state.control !== "school");
   const ch = document.getElementById("controlHint"); if (ch) ch.hidden = !wsLike || !ch.textContent;
 }
 function restoreForm() {
   const f = local.get("form", null);
-  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium", examFocus: f.examFocus || "full", wsDesign: f.wsDesign || "interactive" });
+  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium", examFocus: f.examFocus || "full", wsDesign: "interactive" });
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; if ($("#wishes")) $("#wishes").value = ""; state.wishes = "";
   $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
   setSeg("segLevel", state.level); syncLevelHint();
   setSeg("segExamFocus", state.examFocus);
-  try { window.syncWsDesign?.(); } catch { }
   syncPack(false);
   syncControls(); updateType();
 }
@@ -1598,7 +1596,7 @@ async function createLesson() {
   $("#createHint").textContent = "";
   updateType();
   const type = state.type;
-  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type, level: state.level, examFocus: state.examFocus, wsDesign: state.wsDesign };
+  const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type, level: state.level, examFocus: state.examFocus, wsDesign: "interactive" };
   /* Вариант в формате экзамена: метка с датой/временем + seed, чтобы каждый новый запрос давал уникальные задания */
   if (state.control !== "school") {
     const now = new Date();
@@ -1650,7 +1648,7 @@ async function createLesson() {
     }
   }
   const { notes: _n, ...pParams } = p;
-  const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason }, control: p.control, examFocus: p.examFocus, wsDesign: p.wsDesign }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
+  const L = { id: uid(), title: p.topic, params: { ...pParams, type: { id: type.id, name: type.name, reason: type.reason }, control: p.control, examFocus: p.examFocus, wsDesign: "interactive" }, docs: {}, createdAt: new Date().toISOString(), built: useAi ? "ai" : "noai", status: {}, notes: p.notes };
   if (p.variantLabel) L.variant = { label: p.variantLabel, control: p.control, focus: p.examFocus, seed: p.variantSeed };
   // техкарта нужна для сборки конспекта, презентации и листа; если её не выбрали — собираем «за кадром»
   // Все предметы используют общую содержательную основу; скрытая техкарта остаётся в L.tech.
@@ -2712,7 +2710,7 @@ async function renderPreview() {
   } else {
     // пока документ дописывается, перерисовка не сбрасывает то, куда учитель прокрутил (таблицы вбок, лист вниз)
     const wrap = $("#sheetwrap"), keep = { l: wrap.scrollLeft, t: wrap.scrollTop, y: window.scrollY, tb: $$(".tblwrap", sheet).map(x => x.scrollLeft) };
-    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "") + (state.active === "worksheet" ? " ws-doc-" + (L.params?.wsDesign || state.wsDesign || "interactive") : ""); if (state.active === "worksheet" && (L.params?.wsDesign === "design")) { sheet.classList.add("ws-doc-design", wsThemeClass(L.params)); sheet.style.cssText += wsThemeVars(L.params); } sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
+    sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "") + (state.active === "worksheet" ? " ws-doc-interactive" : ""); sheet.innerHTML = mdToHtml(state.active === "worksheet" && window.marked ? wsMainMd(md) : md); decorate(sheet);
     if (state.active === "lesson" && window.Layout) Layout.decorate(sheet);
     if (state.active === "memo") { sheet.classList.add("memo-sheet"); memoDecorate(sheet); } else if (WS_DOCS.includes(state.active)) wsDecorate(sheet, L);
     if (state.lastDoc === state.active + ":" + L.id) { $$(".tblwrap", sheet).forEach((x, i) => { if (keep.tb[i]) x.scrollLeft = keep.tb[i]; }); wrap.scrollLeft = keep.l; wrap.scrollTop = keep.t; if (Math.abs(window.scrollY - keep.y) > 2) window.scrollTo(window.scrollX, keep.y); }
@@ -3352,7 +3350,7 @@ function wsPdfBreak(el, pageH) {
 /* Лист в PDF/PNG: те же две страницы, что и в Word (раскладка wsFit), каждая – ровно один лист A4, без разрыва посреди блока */
 async function wsBuildPages(L, stage) {
   const PH = 1112, toks = window.marked.lexer(wsKeysToH1(String(L.docs.worksheet || ""))), R = wsFit(toks, L.art?.banner?.url ? 90 : 0);
-  stage.innerHTML = `<div class="ws-pages"><div class="sheet ws-sheet ws-fit${L.params?.wsDesign === "design" ? " ws-doc-design " + wsThemeClass(L.params) : ""}"${L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(R.toks.map(t => t.raw.replace(/\n+$/, "")).join("\n\n"))}</div></div>`;
+  stage.innerHTML = `<div class="ws-pages"><div class="sheet ws-sheet ws-fit ws-doc-interactive">${mdToHtml(R.toks.map(t => t.raw.replace(/\n+$/, "")).join("\n\n"))}</div></div>`;
   decorate(stage); wsDecorate(stage, L);
   await new Promise(r => setTimeout(r, 300)); await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
   const wrap = stage.firstElementChild, s1 = wrap.firstElementChild, s2 = s1.cloneNode(false), norm = x => String(x || "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").replace(/\s+/g, " ").trim();
@@ -3411,7 +3409,7 @@ async function docToPdfBlob(L, doc) {
   const stage = $("#pdfstage"), md = doc === "worksheet" ? wsMainMd(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;
-  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}${doc === "worksheet" && L.params?.wsDesign === "design" ? " ws-doc-design " + wsThemeClass(L.params) : ""}"${doc === "worksheet" && L.params?.wsDesign === "design" ? ` style="${wsThemeVars(L.params)}"` : ""}>${mdToHtml(md)}</div>`;
+  else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}${doc === "worksheet" ? " ws-doc-interactive" : ""}>${mdToHtml(md)}</div>`;
   decorate(stage);
   if (doc === "lesson" && window.Layout) Layout.decorate(stage.firstElementChild);
   if (doc === "memo") { stage.firstElementChild?.classList.add("memo-sheet"); memoDecorate(stage); } else if (WS_DOCS.includes(doc)) wsDecorate(stage, L);
@@ -3535,16 +3533,8 @@ function bind() {
   setSeg("segLevel", state.level); syncLevelHint();
   $$("#segExamFocus button").forEach(b => b.onclick = () => { state.examFocus = b.dataset.v; setSeg("segExamFocus", state.examFocus); syncControls(); readForm(); });
   setSeg("segExamFocus", state.examFocus);
-  /* Оформление рабочего листа: карточки с мини-превью стилей */
-  { const grid = document.getElementById("wsDesignGrid"); if (grid) {
-    const MOCK = { academic: `<div class="m-ac"></div>`, interactive: `<div class="m-int"><span class="i1"></span><span class="i2"></span><span class="i3"></span><span class="i4"></span></div>`, art: `<div class="m-art"></div>`, design: `<div class="m-design"></div>` };
-    const NAMES = { academic: "Строгий", interactive: "Интерактивный", art: "Арт-поддержка", design: "Дизайн по теме" };
-    const sync = () => {
-      grid.innerHTML = Object.entries(NAMES).map(([k, n]) => `<button type="button" class="pv-card ${state.wsDesign === k ? "on" : ""}" data-wd="${k}" title="${n}"><div class="wd-thumb">${MOCK[k]}</div><small>${n}</small></button>`).join("");
-      grid.querySelectorAll("[data-wd]").forEach(b => b.onclick = () => { state.wsDesign = b.dataset.wd; readForm(); sync(); });
-    };
-    window.syncWsDesign = sync; sync();
-  } }
+  /* Оформление рабочего листа не выбирается: всегда интерактивный */
+  state.wsDesign = "interactive";
   try { syncFieldVisibility(); } catch { }
   /* Оформление презентации: живые превью тем вместо текстового списка */
   { const sel = $("#slTheme"), grid = $("#slThemeGrid"); if (sel && grid && window.ThemeKit && window.SlideEditor) {

@@ -1,11 +1,11 @@
-﻿/* «Учу по ФРП» — работа без интернета (service worker).
+/* «Учу по ФРП» — работа без интернета (service worker).
    • Файлы сайта (страница, стили, модули, встроенная база и ФРП) хранятся в кэше браузера:
      сайт открывается и собирает уроки по локальным алгоритмам даже без сети.
    • Свои файлы сайта: сначала сеть (чтобы обновления с GitHub приходили сразу), без сети — кэш.
    • Библиотеки (Word, PowerPoint, PDF, шрифты): из кэша, если уже были загружены.
    • Ответы Википедии и Викитеки запоминаются: урок по той же теме без сети соберётся с ними.
    • Ключи нейросетей, запросы к нейросетям и к GitHub в кэш не попадают. */
-const VERSION = "uchu-v5.475-subject-content";
+const VERSION = "uchu-v5.475-no-wsdesign";
 const SHELL = ["./", "index.html", "css/v5.css", "data/base.js", "data/own.js", "data/extra.js", "data/frp.js", "data/promo.js", "data/legal.js", "manifest.json",
   "vendor/marked.umd.js", "vendor/purify.min.js", "vendor/turndown.js", "vendor/turndown-plugin-gfm.js", "vendor/pptxgen.bundle.js", "vendor/jszip.min.js", "vendor/docx.umd.js",
   ...["log", "cleaner", "learn", "learn2", "variety", "methodbase", "plans-loader", "kits-loader", "imagegen", "frpkit", "subjects", "lesson-quality", "usage", "heur", "litkit", "notes", "verify", "ocr", "materials", "collect", "devmode", "devcover", "accounts-config", "accounts-backend", "privacy", "account", "cloudbase", "rules", "schemes", "tablekit", "layout", "lessonnotes", "tutor", "mnemo", "themes", "themes2", "video", "photostk", "access", "rukit", "deck", "slides", "publish", "sync", "worksearch", "ai", "blobs", "qr", "quizlink"].map(n => `js/${n}.js`)];
