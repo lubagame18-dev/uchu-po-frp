@@ -99,6 +99,18 @@ const SlideEditor = (() => {
 
   /* ---------- разбор и сборка Markdown ---------- */
   function headOf(md) { return (md.match(/^\s*---\s*\n[\s\S]*?\n---\s*\n/) || [""])[0]; }
+  function softenInlinePipes(md) {
+    return String(md || "").split("\n").map(line => {
+      const t = line.trim();
+      if (!t.includes("|") || /^\s*\|/.test(t) || /^(?:!\[|>|#{1,6}\s)/.test(t) || /^\s*\|?[-: ]+\|/.test(t)) return line;
+      const double = line.split(/\s*\|\|\s*/).map(x => x.trim()).filter(Boolean);
+      if (double.length > 1) {
+        const first = double.shift().replace(/\s*\|\s*/g, " — ");
+        return [first, ...double.map(x => `\n\n${x}`)].join("");
+      }
+      return (line.match(/\|/g) || []).length >= 2 ? line.replace(/\s*\|\s*/g, " — ") : line;
+    }).join("\n");
+  }
   function parse(raw) {
     let set = {};
     const s = raw.replace(/<!--@\s*([\s\S]*?)\s*-->/g, (m, j) => { try { set = { ...set, ...JSON.parse(j) }; } catch { } return ""; });
@@ -212,7 +224,7 @@ const SlideEditor = (() => {
     const fullStyle = st.fullStyle || "frosted";
     const fm = fullMode ? new RegExp(Media.RE.source).exec(sl.body || "") : null;
     const bgSrc = st.bgimg || (fm ? fm[2] : "");
-    const bodySource = fullMode && fm ? sl.body.replace(fm[0], "") : (sl.body || "");
+    const bodySource = softenInlinePipes(fullMode && fm ? sl.body.replace(fm[0], "") : (sl.body || ""));
     const accPos = !fullMode && st.acc && lay !== "image" && lay !== "gallery" ? st.acc : "";
     const parts = accPos ? splitAcc(bodySource) : { acc: "", rest: bodySource };
     const acc = accPos && parts.acc ? accPos : "";
