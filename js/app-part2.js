@@ -1723,25 +1723,40 @@ async function textLookup() {
   if (state.subject !== "lit" || !window.Variety || topic.length < 4 || (!work && !author)) { box.hidden = true; box.innerHTML = ""; return; }
   const key = textBoxKey(); dropStaleTextChoice(key); const ch = state.textChoice;
   if (ch && ch.key === key) { paintTextBox(box, ch.mode === "skip" ? "skip" : "text", work, author, key); return; }
-  if (pendingPlan && pendingPlan.key === key) { box.hidden = true; box.innerHTML = ""; return; }
+  if (pendingPlan && pendingPlan.key === key) { paintTextBox(box, "found", work, author, key, pendingPlan.plan); return; }
   box.hidden = false; box.innerHTML = `<div class="small" style="margin-top:8px">Ищу текст произведения…</div>`;
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic, wishes: "", formats: [], type: state.type };
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, state.type); } catch { }
   if (seq !== textSeq) return; // тема уже изменилась
-  if (plan && (plan.kit || plan.textSource)) { pendingPlan = { key, plan }; box.innerHTML = `<div class="small" style="margin-top:8px;padding:10px 12px;border:1.5px solid #2a7a3b;border-radius:12px;background:#eaf7ee;color:#1d5e2d;font-weight:700">✓ Текст произведения найден, добавлять не нужно.</div>`; return; }
+  if (plan && String(plan.text || "").trim().length > 80) { pendingPlan = { key, plan }; paintTextBox(box, "found", work, author, key, plan); return; }
   paintTextBox(box, "need", work, author, key, plan);
 }
 function paintTextBox(box, mode, work, author, key, plan) {
   box.hidden = false;
-  if (mode === "text") { box.innerHTML = `<div class="small" style="margin-top:8px;padding:10px 12px;border:1.5px solid #2a7a3b;border-radius:12px;background:#eaf7ee;color:#1d5e2d;font-weight:700">✓ Текст произведения добавлен. Урок пойдёт по нему.</div>`; return; }
-  if (mode === "skip") { box.innerHTML = `<div class="small" style="margin-top:8px">Урок соберётся без текста произведения (без цитат). <button type="button" class="btn sm ghost" id="tbBack">Добавить текст</button></div>`; $("#tbBack").onclick = () => { state.textChoice = null; textLookupSoon(); }; return; }
-  box.innerHTML = `<div style="margin-top:8px;padding:10px 12px;border:1.5px solid #c0392b;border-radius:12px;background:#fff1f0"><div class="small" style="color:#c0392b;font-weight:700">Текста «${esc(work || state.topic)}» на сайте нет.</div><div style="height:8px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm flame" id="tbAdd">Добавить текст</button><button type="button" class="btn sm ghost" id="tbSkip">Продолжить без текста</button></div></div>`;
-  $("#tbAdd").onclick = async () => {
+  const addManual = async () => {
     const p = { subject: state.subject, grade: state.grade, topic: state.topic || $("#topic").value.trim() };
-    const ans = await askWorkText(p, work || p.topic, author || "");
+    const ans = await askWorkText(p, work || p.topic, author || "", { manual: true });
     if (ans?.text) { state.textOverride = { text: ans.text, source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; paintTextBox(box, "text", work, author, key); }
     else if (ans?.skip) { state.textChoice = { key, mode: "skip" }; paintTextBox(box, "skip", work, author, key); }
   };
+  const src = plan?.textSource ? ` · ${esc(plan.textSource)}` : "";
+  if (mode === "text") {
+    box.innerHTML = `<div class="small" style="margin-top:8px;padding:10px 12px;border:1.5px solid #2a7a3b;border-radius:12px;background:#eaf7ee;color:#1d5e2d;font-weight:700">✓ Текст произведения встроен в урок. <button type="button" class="btn sm ghost" id="tbReplace" style="margin-left:6px">📖 Заменить текст</button></div>`;
+    $("#tbReplace").onclick = addManual;
+    return;
+  }
+  if (mode === "found") {
+    box.innerHTML = `<div class="small" style="margin-top:8px;padding:10px 12px;border:1.5px solid #2a7a3b;border-radius:12px;background:#eaf7ee;color:#1d5e2d;font-weight:700">✓ Текст произведения найден${src}. <button type="button" class="btn sm ghost" id="tbAdd" style="margin-left:6px">📖 Встроить текст</button></div>`;
+    $("#tbAdd").onclick = addManual;
+    return;
+  }
+  if (mode === "skip") {
+    box.innerHTML = `<div class="small" style="margin-top:8px">Урок соберётся без текста произведения (без цитат). <button type="button" class="btn sm ghost" id="tbBack">📖 Встроить текст</button></div>`;
+    $("#tbBack").onclick = addManual;
+    return;
+  }
+  box.innerHTML = `<div style="margin-top:8px;padding:10px 12px;border:1.5px solid #c0392b;border-radius:12px;background:#fff1f0"><div class="small" style="color:#c0392b;font-weight:700">Текста «${esc(work || state.topic)}» на сайте нет. Вставьте текст до генерации — тогда ИИ не потратит токены на поиск и не соберёт урок без цитат.</div><div style="height:8px"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm flame" id="tbAdd">📖 Встроить текст</button><button type="button" class="btn sm ghost" id="tbSkip">Продолжить без текста</button></div></div>`;
+  $("#tbAdd").onclick = addManual;
   $("#tbSkip").onclick = () => { state.textChoice = { key, mode: "skip" }; if (plan) pendingPlan = { key, plan }; paintTextBox(box, "skip", work, author, key); };
 }
 let pendingPlan = null; // план урока, найденный при проверке текста, — чтобы не искать второй раз
@@ -1751,29 +1766,30 @@ async function checkWorkText(p, type) {
   if (!work && !author) return true; // обзорная тема — тексту произведения взяться неоткуда
   const own = window.Notes?.snapshot?.()?.text; if (own && own.trim().length > 80) return true;
   if (state.textChoice && state.textChoice.key === planKey(p)) return true; // выбор уже сделан под темой: текст добавлен или «без текста»
-  if (pendingPlan && pendingPlan.key === planKey(p)) return true;
+  if (pendingPlan && pendingPlan.key === planKey(p) && String(pendingPlan.plan?.text || "").trim().length > 80) return true;
   $("#createHint").textContent = "Ищу текст произведения…";
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, type); } catch { }
   $("#createHint").textContent = "";
-  if (plan && (plan.kit || plan.textSource)) { pendingPlan = { key: planKey(p), plan }; return true; }
+  if (plan && String(plan.text || "").trim().length > 80) { pendingPlan = { key: planKey(p), plan }; return true; }
   const ans = await askWorkText(p, work || p.topic, author || "");
   if (ans === null) return null; // учитель закрыл окно — урок не собираем
   if (ans.text) state.textOverride = { text: ans.text, source: "текст, добавленный учителем" };
   else if (plan) pendingPlan = { key: planKey(p), plan };
   return true;
 }
-function askWorkText(p, work, author) {
+function askWorkText(p, work, author, opts = {}) {
+  const manual = !!opts.manual;
   const q = `${work} ${author}`.trim(), e = encodeURIComponent;
   const L = [["🔎 Яндекс", `https://yandex.ru/search/?text=${e(q + " текст читать полностью")}`], ["📚 Викитека", `https://ru.wikisource.org/w/index.php?search=${e(q)}`], ["🏛 НЭБ", `https://rusneb.ru/search/?q=${e(q)}`], ["📖 ФЭБ «Русская литература и фольклор»", `https://feb-web.ru/feb/search.htm?query=${e(q)}`], ["📗 Русская виртуальная библиотека", `https://rvb.ru/`], ["📘 Ilibrary", `https://ilibrary.ru/`]];
   return new Promise(resolve => {
     let done = false; const fin = v => { if (done) return; done = true; obs.disconnect(); resolve(v); };
-    const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Нужен текст произведения</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-      <p>Сайт не нашёл текст «${esc(work)}»${author ? ` (${esc(author)})` : ""}. Прикрепите текст «${esc(work)}» (вставьте его или загрузите файл): с ним вопросы и задания пойдут по строфам и эпизодам именно этого произведения. Пока текст не добавлен, материалы не создаются и расход по тарифу не списывается.</p>
+    const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>${manual ? "Встроить текст произведения" : "Нужен текст произведения"}</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+      <p>${manual ? `Вставьте текст «${esc(work)}»${author ? ` (${esc(author)})` : ""} — он заменит автоматически найденный фрагмент и будет использоваться во всех материалах урока.` : `Сайт не нашёл полный текст «${esc(work)}»${author ? ` (${esc(author)})` : ""}. Прикрепите его до генерации: с ним вопросы и задания пойдут по строфам и эпизодам именно этого произведения. Пока текст не добавлен, материалы не создаются и расход по тарифу не списывается.`}</p>
       <ol class="at-steps"><li><b>Найдите текст</b>:<div class="mat-row">${L.map(([t, u]) => `<a class="btn sm ghost" target="_blank" rel="noopener" href="${u}">${t}</a>`).join("")}</div></li>
         <li><b>Вставьте текст</b> (или нужный фрагмент) — либо загрузите файл (.txt, .docx, .pdf):
         <textarea id="awText" rows="9" placeholder="Вставьте текст произведения или фрагмента…"></textarea>
         <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div></li></ol>
-      <div class="pk-foot"><button class="btn flame" id="awGo">Собрать урок с этим текстом</button></div>
+      <div class="pk-foot"><button class="btn flame" id="awGo">${manual ? "📖 Встроить текст" : "Собрать урок с этим текстом"}</button></div>
       <label class="check" style="margin-top:12px" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><input type="checkbox" id="awSkip"> Продолжить без добавления текста (только для разработчика)</label>
       <div class="pk-foot" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
