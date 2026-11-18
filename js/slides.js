@@ -32,7 +32,7 @@ const SlideEditor = (() => {
      Так панель не пугает учителя 22 кнопками; все возможности сохранены. */
   const INSERT = {
     main: [["text", "Т", "Текст"], ["list", "•", "Список"], ["quote", "❝", "Цитата"], ["yandex", "🔍", "Картинка"], ["photo", "🖼", "Фото"], ["video", "▶", "Видео"]],
-    more: [["head", "H", "Подзаголовок"], ["num", "1.", "Нумерация"], ["callout", "💡", "Выноска"], ["table", "▦", "Таблица"], ["button", "➜", "Кнопка-переход"], ["sticker", "★", "Стикер"], ["hr", "—", "Разделитель"]]
+    more: [["head", "H", "Подзаголовок"], ["num", "1.", "Нумерация"], ["callout", "💡", "Выноска"], ["table", "▦", "Таблица"], ["audio", "🎧", "Аудио"], ["painting", "🖼", "Живопись"], ["button", "➜", "Кнопка-переход"], ["sticker", "★", "Стикер"], ["hr", "—", "Разделитель"]]
   };
   const NEWSLIDE = {
     main: [["title", "★", "Титул"], ["cards", "▤", "Карточки"], ["big", "?", "Вопрос"], ["two", "◫", "Две колонки"], ["image", "▣", "Фото на весь слайд"]],
@@ -306,11 +306,12 @@ const SlideEditor = (() => {
     return b;
   }
   function slideExtras(st) {
+    const au = st.audio ? `<div class="sx-audio" style="display:flex;flex-direction:column;gap:6px;margin:10px 0;padding:10px 12px;border:1.5px solid #2F5D8A;border-radius:12px;background:#fff"><div style="font:700 16px/1.3 'Times New Roman',serif;color:#1a1a1a">🎧 ${esc(st.audio.title || "Слушаем музыку")}</div><audio controls preload="metadata" src="${esc(st.audio.file || "")}" style="width:100%;max-width:520px"></audio><div style="font:11px/1.3 Arial,sans-serif;color:#777">${esc(st.audio.license || "")}${st.audio.source ? " · " + esc(st.audio.source) : ""}</div></div>` : "";
     const t = st.timer ? `<div class="tm" data-sec="${Math.max(30, +st.timer || 180)}"><button type="button" class="tm-go">▶ Таймер</button><span class="tm-v">00:00</span></div>` : "";
     const s = st.selfcheck ? `<div class="sf"><b>Как поняли тему?</b><button type="button" class="sf-b" data-v="ok">Понял</button><button type="button" class="sf-b" data-v="mid">Почти</button><button type="button" class="sf-b" data-v="bad">Не понял</button><span class="sf-n">0 · 0 · 0</span></div>` : "";
     const sc = st.score ? `<div class="sc"><b>Итог:</b> <span class="sc-v">0 из 0</span><div class="sc-err"></div></div>` : "";
     const bk = st.bank ? `<div class="bk" data-a="${String(st.bank).replace(/"/g, "&quot;")}"><div class="bk-out"></div><button type="button" class="bk-go">Проверить</button><button type="button" class="bk-rs">Сброс</button></div>` : "";
-    return t + s + sc + bk;
+    return au + t + s + sc + bk;
   }
   function fits(el) {
     const inner = el.querySelector(".sx-inner");
@@ -850,6 +851,8 @@ const SlideEditor = (() => {
       if (k === "yandex") { const q = $("#sxQ"); if (q) { q.scrollIntoView({ block: "center", behavior: "smooth" }); q.focus(); q.select(); toast("Введите запрос и щёлкните по картинке — она встанет на слайд."); } return; }
       if (k === "button") { linkDialog(null, md => insertMd(md)); return; }
       if (k === "video") { openVideo(cur); return; }
+      if (k === "audio") { window.Culture?.openAudio?.(); return; }
+      if (k === "painting") { window.Culture?.openPaintings?.(); return; }
       if (k === "sticker") { stickerPicker(b); return; }
       insertMd(SNIP[k]);
     });
@@ -1556,6 +1559,20 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
         s.addText([{ text: "▶  Смотреть фрагмент", options: { bold: true, fontSize: 28, color: "FFFFFF", hyperlink: { url: VideoKit.watchUrl(v), tooltip: "Открыть видео" }, breakLine: true } }, { text: `${v.c || ""}${VideoKit.span(v) ? " · " + VideoKit.span(v) : ""}`, options: { fontSize: 16, color: "DDDDDD" } }], { x: b.x, y: b.y, w: b.w, h: b.h, align: "center", valign: "middle", fontFace: "Arial" });
         continue;
       }
+      if (blk.matches(".sx-audio")) {
+        const b = box(blk), a = sl.set.audio || {};
+        if (a.file) {
+          try {
+            const ab = await (await fetch(a.file)).arrayBuffer();
+            let bin = "", bytes = new Uint8Array(ab);
+            for (let q = 0; q < bytes.length; q += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(q, q + 0x8000));
+            s.addMedia({ type: "audio", data: "data:audio/wav;base64," + btoa(bin), x: b.x + 0.08, y: b.y + 0.5, w: 0.55, h: 0.55 });
+            s.addText("▶  " + (a.title || "Слушаем музыку"), { x: b.x + 0.75, y: b.y + 0.45, w: Math.max(1, b.w - 1.0), h: 0.5, margin: 0, fontFace: look.bf, fontSize: 14, bold: true, color: "1A1A1A", valign: "middle" });
+            s.addText(`${a.license || ""}${a.source ? " · " + a.source : ""}`, { x: b.x + 0.08, y: b.y + 1.02, w: Math.max(1, b.w - 0.16), h: 0.3, margin: 0, fontFace: look.bf, fontSize: 9, color: "777777" });
+          } catch { }
+        }
+        continue;
+      }
       if (blk.matches("figure.pic")) { const img = blk.querySelector("img"); if (img) await addImg(img, blk); const cap = blk.querySelector("figcaption"); if (cap && cap.textContent.trim() && getComputedStyle(cap).display !== "none") text(cap); continue; }
       if (blk.matches(".tblwrap")) {
         const t = blk.querySelector("table"), b = box(t), st = textStyle(t.querySelector("td,th") || t);
@@ -1802,7 +1819,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     a[i] = { ...n, set: { ...old.set, ...(n.set || {}) } };
     write(a); rerender(); return true;
   }
-  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;
 
