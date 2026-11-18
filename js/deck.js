@@ -1,4 +1,4 @@
-﻿/* ===================================================================
+/* ===================================================================
    «Учу по ФРП» — презентация по конспекту «как в Gamma».
    Как это устроено у Gamma и что взято:
    1) Сначала ПЛАН (outline): список карточек-слайдов с заголовками и
@@ -1218,17 +1218,19 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
     draw();
     // оформление: «Авто» подбирает по произведению/разделу; можно выбрать до сборки
-    let thPick = L.slideTheme && window.ThemeKit?.has?.(L.slideTheme) ? L.slideTheme : "modern";
+    let thPick = L.slideTheme && window.ThemeKit?.has?.(L.slideTheme) ? L.slideTheme : "auto";
+    const autoK = () => window.ArtDirection?.forLesson?.(p)?.theme || ThemeKit.auto(p);
     const drawTh = () => {
       const box = $("#dkTh", m); if (!box || !window.SlideEditor) return;
-      const autoK = ThemeKit.auto(p);
+      const kAuto = autoK();
       const sample = { title: (p.topic.match(/«[^»]+»/) || [p.topic])[0].slice(0, 60), level: 1, body: `${p.grade} класс`, notes: "", set: { layout: "title", afs: .8 } };
-      const opt = (k, label, sub) => `<button type="button" data-th="${k}" class="${thPick === k ? "on" : ""}">${SlideEditor.slideHtml(sample, 0, { th: k === "auto" ? autoK : k })}<span>${label}</span><small>${sub}</small></button>`;
-      box.innerHTML = opt("auto", "✨ Авто: " + ThemeKit.META[autoK].name, "по теме урока") + Object.entries(ThemeKit.META).map(([k, v]) => opt(k, v.name, v.desc)).join("") + Object.entries(SlideEditor.THEMES).filter(([k]) => !ThemeKit.has(k)).map(([k, v]) => opt(k, v, "строгая")).join("");
-      $("#dkThName", m).textContent = thPick === "auto" ? `авто: ${ThemeKit.why(p)}` : (ThemeKit.META[thPick]?.name || SlideEditor.THEMES[thPick] || "");
+      const opt = (k, label, sub) => `<button type="button" data-th="${k}" class="${thPick === k ? "on" : ""}">${SlideEditor.slideHtml(sample, 0, { th: k === "auto" ? kAuto : k })}<span>${label}</span><small>${sub}</small></button>`;
+      box.innerHTML = opt("auto", "✨ Авто: " + ThemeKit.META[kAuto].name, "по теме урока") + Object.entries(ThemeKit.META).map(([k, v]) => opt(k, v.name, v.desc)).join("") + Object.entries(SlideEditor.THEMES).filter(([k]) => !ThemeKit.has(k)).map(([k, v]) => opt(k, v, "строгая")).join("");
+      const ad = window.ArtDirection?.forLesson?.(p);
+      $("#dkThName", m).textContent = thPick === "auto" ? `авто: ${ad ? ad.name + " · " + (ThemeKit.META[kAuto]?.name || kAuto) : ThemeKit.why(p)}` : (ThemeKit.META[thPick]?.name || SlideEditor.THEMES[thPick] || "");
       box.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { thPick = b.dataset.th; drawTh(); });
       // лента: первые слайды ЭТОЙ презентации в выбранном оформлении — видно, что весь урок в одном стиле
-      const strip = $("#dkThPrev", m), k = thPick === "auto" ? autoK : thPick;
+      const strip = $("#dkThPrev", m), k = thPick === "auto" ? kAuto : thPick;
       const sl = splitSlides(toMarkdown(cards.filter(c => c.on !== false).slice(0, 8))).map(SlideEditor.parse);
       strip.innerHTML = sl.map((x, i) => `<div class="th-s">${SlideEditor.slideHtml({ ...x, set: { ...x.set, afs: .62 } }, i, { th: k })}</div>`).join("");
       strip.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
@@ -1243,7 +1245,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       const btn = $("#dkBuild", m); btn.disabled = true; $("#dkMsg", m).textContent = "Собираю слайды и подбираю картинки в Яндексе…";
       saveOpts(cur());
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Нейросеть сжимает формулировки…"; cards = await condenseAi(cards, p, cur().amount); }
-      if (window.ThemeKit && window.SlideEditor) { const k = thPick === "auto" ? ThemeKit.auto(p) : thPick; SlideEditor.applyTheme(k, { auto: thPick === "auto" }); }
+      if (window.ThemeKit && window.SlideEditor) { const k = thPick === "auto" ? autoK() : thPick; SlideEditor.applyTheme(k, { auto: thPick === "auto" }); }
       if ($("#dkAi", m)?.checked) cards = await aiMnemo(cards, p).catch(() => cards);      if ($("#dkAi", m)?.checked) cards = await aiScheme(cards, p).catch(() => cards);
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Пояснения к словам и выводы…"; cards = await aiLit(cards, p).catch(() => cards); }
       $("#dkMsg", m).textContent = "Ищу чтение артистов и фрагменты фильмов…"; cards = await mediaFill(cards).catch(() => cards);

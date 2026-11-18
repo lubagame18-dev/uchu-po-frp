@@ -1183,6 +1183,8 @@ ${p.wishes ? `— ${p.wishes}\nВыполни буквально: это важ�
 
 ${levelBlock(p)}
 
+${window.ArtDirection ? ArtDirection.guide(p) : ""}
+
 ${syncRules(p)}
 
 ${examBlock(p)}
@@ -1688,7 +1690,8 @@ async function aiDeckPics(L) {
   for (const i of pick) {
     const title = (parts[i].match(/^#{1,3}\s+(.+)$/m) || [, L.title])[1].replace(/[*_`]/g, "");
     try {
-      const im = await ImageGen.image(`Illustration for a presentation slide. School subject: ${L.params?.subject}, grade ${L.params?.grade}, lesson topic «${L.title}», slide «${title}». Soft atmospheric flat illustration, calm light background, a few clear objects directly related to the topic, no dark fills. ${"No text, no letters, no numbers, no logos, no watermark."}`, { aspect: "4:3", maxW: 1100, kind: n ? "part" : "sheet" });
+      const adStyle = window.ArtDirection?.imagePrompt?.(L.params) || "Soft atmospheric flat illustration, calm light background, a few clear objects directly related to the topic, no dark fills.";
+      const im = await ImageGen.image(`Illustration for a school presentation slide. Subject: ${L.params?.subject}, grade ${L.params?.grade}, lesson topic «${L.title}», slide «${title}». ${adStyle} The same recurring character/motif must look consistent across the whole deck. No text, no letters, no numbers, no logos, no watermark.`, { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
       const blob = await (await fetch(im.url)).blob(), id = "img-" + uid(); await Store.put("images", id, blob);
       parts[i] = parts[i].replace(/\s*$/, "") + `\n\n${Media.mdImage(title, "idb:" + id, {})}\n`; n++;
     } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
@@ -2677,9 +2680,12 @@ let markedReady = null;
 function ensureMarked() { return markedReady || (markedReady = Promise.all([loadScript("marked"), loadScript("purify")]).then(() => window.marked.setOptions({ gfm: true, breaks: true }))); }
 /* Оформление презентации: выбранное в конструкторе или «Авто» по теме урока (ручной выбор в редакторе не трогаем) */
 function autoTheme(L, p) {
+  const ad = window.ArtDirection?.forLesson?.(p) || null;
+  if (ad) L.artDirection = { id: ad.id, name: ad.name, theme: ad.theme, transition: ad.transition, character: ad.character };
   if (!window.ThemeKit || (L.slideTheme && L.slideThemeAuto === false)) return;
   let want = "auto"; try { want = localStorage.getItem("uchu:theme") || "auto"; } catch { }
-  L.slideTheme = want !== "auto" ? want : ThemeKit.auto(p); L.slideThemeAuto = want === "auto"; L.slideFonts = null;
+  L.slideTheme = want !== "auto" ? want : (ad?.theme || ThemeKit.auto(p)); L.slideThemeAuto = want === "auto"; L.slideFonts = null;
+  if (ad && !L.slideAnim) L.slideAnim = { mode: ad.transition || "soft", cut: false, deco: true, ix: true, step: false };
 }
 /* Текст не найден: попросить помощи — поиск в Яндексе и Викитеке, вставка или файл, пересборка одной кнопкой */
 function openAddText(L) {
@@ -2893,7 +2899,7 @@ function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.do
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);
-  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null, quiz: L.quiz || null, quizAt: L.quizAt || null, lastRefine: L.lastRefine || null };
+  const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, artDirection: L.artDirection || null, slideAnim: L.slideAnim || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null, quiz: L.quiz || null, quizAt: L.quizAt || null, lastRefine: L.lastRefine || null };
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }
@@ -3618,7 +3624,7 @@ function bind() {
   /* Оформление презентации: живые превью тем вместо текстового списка */
   { const sel = $("#slTheme"), grid = $("#slThemeGrid"); if (sel && grid && window.ThemeKit && window.SlideEditor) {
     const sampleSl = { title: "Тема урока", level: 2, body: "## Ключевое понятие\n\n- Первый пункт плана\n- Второй важный пункт", set: {}, notes: "" };
-    const preview = k => { const th = k === "auto" ? ThemeKit.auto({ topic: $("#topic")?.value || "", subject: state.subject, grade: state.grade }) : k;
+    const preview = k => { const ap = { topic: $("#topic")?.value || "", subject: state.subject, grade: state.grade }; const th = k === "auto" ? (window.ArtDirection?.forLesson?.(ap)?.theme || ThemeKit.auto(ap)) : k;
       try { return SlideEditor.slideHtml(sampleSl, 0, { th }); } catch (e) { return `<div style="position:absolute;inset:0;background:#fff;color:#333;font:10px/1.2 system-ui;padding:6px">${esc(ThemeKit.META[th]?.name || "Слайд")}</div>`; } };
     const buildThemeOptions = () => {
       const pack = ThemeKit.packFor ? ThemeKit.packFor(state.subject) : null;
@@ -3633,12 +3639,12 @@ function bind() {
       sel.value = [...sel.options].some(o => o.value === wanted) ? wanted : "auto";
       const cur = sel.value || "auto";
       const card = (k, name) => `<button type="button" class="pv-card ${cur === k ? "on" : ""}" data-th="${k}" title="${esc(name)}" role="radio" aria-checked="${cur === k}"><div class="pv-thumb">${preview(k)}</div><small>${esc(name)}</small></button>`;
-      grid.innerHTML = keys.map(k => card(k, ThemeKit.META[k]?.name || k)).join("") + extra.map(([k, v]) => card(k, v)).join("");
+      grid.innerHTML = card("auto", "✨ Авто — подберём по теме") + keys.map(k => card(k, ThemeKit.META[k]?.name || k)).join("") + extra.map(([k, v]) => card(k, v)).join("");
       grid.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { sel.value = b.dataset.th; sel.dispatchEvent(new Event("change")); });
     };
     window.syncThemeOptions = buildThemeOptions;
     try { sel.value = localStorage.getItem("uchu:theme") || "auto"; } catch { }
-    const why = () => { const t = $("#topic")?.value || ""; $("#slThemeWhy").textContent = sel.value === "auto" && t.trim() ? "сейчас: " + ThemeKit.why({ topic: t, subject: state.subject }) : ""; };
+    const why = () => { const t = $("#topic")?.value || ""; if (sel.value === "auto" && t.trim()) { const ad = window.ArtDirection?.forLesson?.({ topic: t, subject: state.subject, grade: state.grade }); $("#slThemeWhy").textContent = ad ? `Авто: ${ad.name} · ${ThemeKit.META[ad.theme]?.name || ad.theme}` : "сейчас: " + ThemeKit.why({ topic: t, subject: state.subject }); } else $("#slThemeWhy").textContent = ""; };
     sel.onchange = () => { try { localStorage.setItem("uchu:theme", sel.value); } catch { } buildThemeOptions(); why(); };
     buildThemeOptions();
     // миниатюры рисуются через Markdown-конвертер: перерисуем, когда он загрузится
