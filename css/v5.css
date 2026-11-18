@@ -299,6 +299,35 @@ h1.sx-title { font-size: min(calc(6cqw * var(--fs)), 9cqw); }
 .lay-task .sx-body { font-size: calc(3.0cqw * var(--fs)); }
 .lay-task .sx-body > :first-child { font-weight: 700; }
 .lay-task .sx-body ol, .lay-task .sx-body ul { padding-left: 1.6em; }
+
+/* правило / алгоритм: плашка-опора, а не стена текста */
+.lay-rule .sx-inner { justify-content: center; }
+.lay-rule .sx-body {
+  flex: 0 0 auto;
+  max-width: 92%;
+  padding: 1.1em 1.3em;
+  border-left: .6cqw solid var(--sx-accent);
+  border-radius: 0 1.1cqw 1.1cqw 0;
+  background: color-mix(in srgb, var(--sx-soft) 86%, transparent);
+}
+.lay-rule .sx-body > p:first-child { margin-top: 0; font-weight: 700; }
+.lay-rule .sx-body > :last-child { margin-bottom: 0; }
+.lay-rule .sx-body ol, .lay-rule .sx-body ul { padding-left: 1.5em; }
+
+/* проверка: крупный вопрос и отдельная плашка для ответа */
+.lay-check .sx-inner { justify-content: center; align-items: center; text-align: center; }
+.lay-check .sx-title { font-size: calc(5.0cqw * var(--fs)); max-width: 88%; line-height: 1.12; }
+.lay-check .sx-body {
+  flex: 0 0 auto;
+  max-width: 82%;
+  padding: 1em 1.35em;
+  border-radius: 1.3cqw;
+  border: .16cqw solid color-mix(in srgb, var(--sx-line) 26%, transparent);
+  background: color-mix(in srgb, var(--sx-soft) 88%, transparent);
+  font-size: calc(3.2cqw * var(--fs));
+}
+.lay-check .sx-body > :first-child { margin-top: 0; }
+.lay-check .sx-body > :last-child { margin-bottom: 0; }
 /* стихотворение (дословно) */
 .lay-poem .sx-body { font-family: var(--sx-fh, Georgia, "Times New Roman", serif); }
 .lay-poem .sx-body p { margin: 0 0 .7em; }
@@ -1202,6 +1231,30 @@ figure.pic[data-src*="lessons/own/"] img { object-fit: contain !important; backg
 }
 .sx.full-frame .sx-paper,
 .sx.full-frame .sx-deco { display: none !important; }
+.sx.full-frame.full-style-paper .sx-inner {
+  background: var(--sx-bg) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 .5cqw 1.8cqw rgba(0,0,0,.26) !important;
+}
+.sx.full-frame.full-style-dark .sx-inner {
+  background: rgba(18,16,14,.90) !important;
+  color: #FFF8EC !important;
+  box-shadow: 0 1.4cqw 3.4cqw rgba(0,0,0,.42) !important;
+}
+.sx.full-frame.full-style-dark .sx-title,
+.sx.full-frame.full-style-dark .sx-body,
+.sx.full-frame.full-style-dark .sx-body strong { color: #FFF8EC !important; }
+.sx.full-frame.full-style-clear .sx-inner {
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.sx.full-frame.full-style-clear .sx-title,
+.sx.full-frame.full-style-clear .sx-body {
+  text-shadow: 0 .12cqw .5cqw rgba(0,0,0,.55), 0 0 1.2cqw rgba(0,0,0,.35);
+}
 .sx.full-frame .sx-title { font-size: calc(3.6cqw * var(--fs)) !important; margin-bottom: 1.2cqw; text-align: left !important; }
 .sx.full-frame.lay-title .sx-title::after { margin-left: 0; }
 .sx.full-frame .sx-body { font-size: calc(2.4cqw * var(--fs)); line-height: 1.45; flex: 0 1 auto; }

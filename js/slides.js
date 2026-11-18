@@ -22,7 +22,8 @@ const SlideEditor = (() => {
   const LAYOUTS = {
     title: "Титульный", section: "Разделитель", one: "Одна колонка", titleText: "Заголовок + текст", two: "Две колонки",
     list: "Список", quote: "Цитата", compare: "Сравнение", gallery: "Галерея", image: "Изображение на весь слайд",
-    cards: "Карточки с тезисами", steps: "Шаги", big: "Крупный вопрос", task: "Упражнение (дословно)", poem: "Стихотворение (дословно)", video: "Видеофрагмент"
+    cards: "Карточки с тезисами", steps: "Шаги", big: "Крупный вопрос", task: "Упражнение (дословно)", poem: "Стихотворение (дословно)", video: "Видеофрагмент",
+    rule: "Правило / алгоритм", check: "Проверка"
   };
   const ACC = { "": "Без картинки-акцента", left: "Картинка слева", right: "Картинка справа", top: "Картинка сверху", bg: "Картинка фоном" };
   const OV = { frosted: "Матовое стекло", faded: "Затемнение к тексту", clear: "Без наложения" };
@@ -144,6 +145,12 @@ const SlideEditor = (() => {
     if (i === 0 || sl.level === 1) return "title";
     if (!text && !pics) return "section";
     if (/классная работа/i.test(text)) return "title";
+    /* этапные шаблоны: подсказка в заголовке, а не случайная догадка по телу */
+    const tt = String(sl.title || "").toLowerCase();
+    if (/проверь себя|проверочн|проверка|итог|рефлекс/.test(tt) && !pics) return "check";
+    if (/правило|алгоритм|порядок|шаг|план|инструкц/.test(tt) && !pics) return "rule";
+    if (/сравн|отличи|сходств|сопостав/.test(tt) && (/\|/.test(text) || text.split(/\n{2,}/).length >= 2)) return "compare";
+    if (/задани|упражн|практик|трениров/.test(tt)) return "task";
     if (pics >= 2) return "gallery";
     if (pics === 1 && !text) return "image";
     if (/^>\s/m.test(text) && text.split("\n").filter(l => l.trim()).every(l => /^>/.test(l) || l.length < 70)) return "quote";
@@ -202,6 +209,7 @@ const SlideEditor = (() => {
     /* «Полный кадр»: картинка на весь слайд, текст — на полупрозрачной плашке.
        Картинкой становится st.bgimg или первая картинка тела слайда. */
     const fullMode = st.full ? (typeof st.full === "string" ? st.full : (st.fullPos || "right")) : "";
+    const fullStyle = st.fullStyle || "frosted";
     const fm = fullMode ? new RegExp(Media.RE.source).exec(sl.body || "") : null;
     const bgSrc = st.bgimg || (fm ? fm[2] : "");
     const bodySource = fullMode && fm ? sl.body.replace(fm[0], "") : (sl.body || "");
@@ -216,7 +224,7 @@ const SlideEditor = (() => {
   const body = vid + continueNumbering(linkify(mdToHtml(interactiveMd(st, srcBody))), sl, i) + slideExtras(st);
   const bodyHtml = st.note ? `<div class="sx-note"><div class="sx-note-i">!</div><div class="sx-note-b">${body}</div></div>` : body;
     const lines = lay === "poem" ? (sl.body.match(/ {2}\n|\n\n/g) || []).length + 1 : 0;
-    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", fullMode ? `full-frame full-${fullMode}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.quiz ? "quiz" : "", st.choice || st.odd ? "choice" : "", st.odd ? "odd" : "", st.cmp ? "cmp" : "", st.selfcheck ? "selfcheck" : "", st.timer ? "timer" : "", st.tl ? "tl" : "", st.cmap ? "cmap" : "", st.score ? "score" : "", st.bank ? "bank" : "", st.spots ? "spots" : "", st.note ? "note" : "", st.cut ? "cut" : "", st.appendix ? `appendix ap-${st.appendix}` : "", bgSrc ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
+    const cls = [`sx lay-${lay}`, TK ? `tk tk-${T}` : "", fullMode ? `full-frame full-${fullMode} full-style-${fullStyle}` : "", st.photo ? "has-photo" : "", st.kind ? `k-${st.kind}` : "", st.quiz ? "quiz" : "", st.choice || st.odd ? "choice" : "", st.odd ? "odd" : "", st.cmp ? "cmp" : "", st.selfcheck ? "selfcheck" : "", st.timer ? "timer" : "", st.tl ? "tl" : "", st.cmap ? "cmap" : "", st.score ? "score" : "", st.bank ? "bank" : "", st.spots ? "spots" : "", st.note ? "note" : "", st.cut ? "cut" : "", st.appendix ? `appendix ap-${st.appendix}` : "", bgSrc ? "has-bgimg" : "", st.free ? "free" : "", acc ? `acc acc-${acc} ov-${st.ov || "frosted"}` : "", st.va ? `va-${st.va}` : "", st.ha ? `ha-${st.ha}` : "", st.vb ? "vb" : "", lines > 16 ? "cols2" : "", acc && st.aw && acc !== "bg" ? "aw" : "", !st.free && (st.ix || st.iy) ? "ixy" : ""].filter(Boolean).join(" ");
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const ttlText = shortTitle(tieQuotes(sl.title)); const ttlCls = ttlText.length > 62 ? "sx-title xlong" : ttlText.length > 38 ? "sx-title long" : "sx-title";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
@@ -483,7 +491,7 @@ const SlideEditor = (() => {
         <span class="sx-grp" aria-label="Интервал"><button class="btn sm ghost" id="sxLhM" title="Интервал меньше">≡−</button><span class="small">интервал</span><button class="btn sm ghost" id="sxLhP" title="Интервал больше">≡+</button></span>
         <label class="sx-tl">Фон <input type="color" id="sxBg" value="${esc(sl.set.bg || "#ffffff")}"></label><button class="btn sm ghost" id="sxBgImg">Картинка-фон</button>${sl.set.bg || sl.set.bgimg ? `<button class="btn sm ghost" id="sxBgClr">Убрать фон</button>` : ""}
         <button class="btn sm ${sl.set.full ? "flame" : "ghost"}" id="sxFull" title="Картинка на весь слайд, текст — на полупрозрачной плашке">${sl.set.full ? "Полный кадр: вкл" : "Полный кадр"}</button>
-        ${sl.set.full ? `<label class="sx-tl">Плашка <select id="sxFullPos">${[["right", "справа"], ["left", "слева"], ["bottom", "снизу"], ["center", "по центру"]].map(([k, n]) => `<option value="${k}" ${k === (typeof sl.set.full === "string" ? sl.set.full : (sl.set.fullPos || "right")) ? "selected" : ""}>${n}</option>`).join("")}</select></label>` : ""}
+        ${sl.set.full ? `<label class="sx-tl">Плашка <select id="sxFullPos">${[["right", "справа"], ["left", "слева"], ["bottom", "снизу"], ["center", "по центру"]].map(([k, n]) => `<option value="${k}" ${k === (typeof sl.set.full === "string" ? sl.set.full : (sl.set.fullPos || "right")) ? "selected" : ""}>${n}</option>`).join("")}</select></label><label class="sx-tl">Вид <select id="sxFullStyle">${[["frosted", "стекло"], ["paper", "плотная бумага"], ["dark", "тёмная"], ["clear", "прозрачная"]].map(([k, n]) => `<option value="${k}" ${k === (sl.set.fullStyle || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label>` : ""}
         <button class="btn sm ghost" id="sxAutoFull" title="Автоматически поставить полные кадры на слайды с одной картинкой и коротким текстом">✨ Полные кадры</button>
         <label class="sx-tl">Картинка <select id="sxAcc">${Object.entries(ACC).map(([k, n]) => `<option value="${k}" ${k === (sl.set.acc || "") ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         ${sl.set.acc === "bg" ? `<label class="sx-tl">Наложение <select id="sxOv">${Object.entries(OV).map(([k, n]) => `<option value="${k}" ${k === (sl.set.ov || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label><input type="range" id="sxOvi" min="0" max="100" step="5" value="${sl.set.ovi ?? 70}" title="Сила наложения" aria-label="Сила наложения">` : ""}
@@ -596,6 +604,7 @@ const SlideEditor = (() => {
       write(a); rerender();
     };
     const fp = $s("#sxFullPos"); if (fp) fp.onchange = e => { const a = slides(); a[cur].set.full = e.target.value; write(a); rerender(); };
+    const fst = $s("#sxFullStyle"); if (fst) fst.onchange = e => { const a = slides(); a[cur].set.fullStyle = e.target.value; write(a); rerender(); };
     $s("#sxAutoFull").onclick = applyAutoFullFrames;
     $s("#sxPic").onclick = () => addPicture(cur);
     if (window.UCHU_SITE?.imageGenUi === false) $s("#sxAiPic").hidden = true; else $s("#sxAiPic").onclick = () => aiPicture();
@@ -1534,10 +1543,11 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     // подложка текста (наложение на фоновую картинку)
     const inner = sx.querySelector(".sx-inner"), ib = getComputedStyle(inner).backgroundColor;
     const fullFrame = sx.matches(".full-frame");
+    const fullPaper = sx.matches(".full-style-paper"), fullDark = sx.matches(".full-style-dark"), fullClear = sx.matches(".full-style-clear");
     const ibColor = hex(ib) || (fullFrame ? hex(getComputedStyle(sx).getPropertyValue("--sx-bg")) || "FFFFFF" : "");
-    if (ibColor) {
+    if (ibColor && !fullClear) {
       const b = box(inner), ics = getComputedStyle(inner), rad = Math.min(0.5, parseFloat(ics.borderTopLeftRadius) * k / IN / Math.min(b.w, b.h));
-      s.addShape(rad > 0.005 ? pptx.ShapeType.roundRect : pptx.ShapeType.rect, { x: b.x, y: b.y, w: b.w, h: b.h, rectRadius: rad, fill: { color: ibColor, transparency: fullFrame ? 12 : Math.round((1 - alpha(ib)) * 100) }, line: { type: "none" }, shadow: ics.boxShadow !== "none" ? { type: "outer", blur: 6, offset: 2, angle: 90, color: "000000", opacity: 0.3 } : undefined });
+      s.addShape(rad > 0.005 ? pptx.ShapeType.roundRect : pptx.ShapeType.rect, { x: b.x, y: b.y, w: b.w, h: b.h, rectRadius: rad, fill: { color: fullDark ? "171411" : ibColor, transparency: fullDark || fullPaper ? 0 : (fullFrame ? 12 : Math.round((1 - alpha(ib)) * 100)) }, line: fullPaper || fullDark ? { color: fullPaper ? "D9D2C2" : "4A423A", width: 1 } : { type: "none" }, shadow: ics.boxShadow !== "none" ? { type: "outer", blur: 6, offset: 2, angle: 90, color: "000000", opacity: 0.3 } : undefined });
       // тонкая внутренняя рамка плашки (премиальная деталь)
       if (ics.outlineStyle !== "none" && parseFloat(ics.outlineWidth) > 0) { const off = -parseFloat(ics.outlineOffset) * k / IN; s.addShape(pptx.ShapeType.roundRect, { x: b.x + off, y: b.y + off, w: b.w - 2 * off, h: b.h - 2 * off, rectRadius: rad, fill: { type: "none" }, line: { color: hex(ics.outlineColor) || "B9A07A", width: Math.max(0.5, parseFloat(ics.outlineWidth) * k * 0.75) } }); }
     }
@@ -1837,7 +1847,8 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       const plain = body.replace(new RegExp(Media.RE.source, "g"), "").replace(/<!--[\s\S]*?-->/g, "").replace(/[#>*_`|]/g, " ").replace(/\s+/g, " ").trim();
       if (plain.length > 560 || plain.split(/\n{2,}/).length > 6) return raw;
       const pos = used % 2 ? "left" : "right"; used++;
-      return build({ ...sl, set: { ...sl.set, full: pos, acc: undefined } });
+      const style = ["lit", "hist", "mhk", "mus", "izo"].includes(p?.subject) ? "paper" : "frosted";
+      return build({ ...sl, set: { ...sl.set, full: pos, fullStyle: style, acc: undefined } });
     });
     return out.join("\n\n---\n\n") + "\n";
   }
