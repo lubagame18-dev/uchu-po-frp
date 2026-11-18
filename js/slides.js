@@ -1,4 +1,4 @@
-﻿/* ===================================================================
+/* ===================================================================
    «Учу по ФРП» — редактор презентаций (v5), по гибкости близкий к Gamma.
    • Читаемость с последних парт: крупный шрифт, автоподбор размера
      (много текста — немного меньше, мало — крупнее), обрезки нет: если
@@ -1407,23 +1407,67 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const L1 = x.a.length; s.addText(x.a, { x: 1.0, y: 2.75, w: 11.3, h: 3.2, margin: 0.2, valign: "middle", wrap: true, fontFace: look.bf, fontSize: L1 > 320 ? 20 : L1 > 160 ? 24 : L1 > 70 ? 30 : 36, bold: true, color: "1A1A1A", shape: pptx.ShapeType.roundRect, rectRadius: 0.1, fill: { color: look.soft }, line: { type: "none" } });
     s.addText([{ text: "↩  Вернуться к вопросу", options: { hyperlink: { slide: back + 1, tooltip: "Назад к вопросу" } } }], { x: 8.6, y: 6.15, w: 3.95, h: 0.62, margin: 0, align: "center", valign: "middle", shape: pptx.ShapeType.roundRect, rectRadius: 0.2, fill: { color: look.acc }, line: { type: "none" }, color: "FFFFFF", bold: true, fontFace: look.bf, fontSize: 18 });
   }
+  /* ---------- точное измерение текста для PPTX (Canvas) ---------- */
+  const _pptxMeasureCtx = document.createElement("canvas").getContext("2d");
+  function _pptxFont(st, fs) {
+    const fam = String(st.fontFace || "").replace(/^['"]+|['"]+$/g, "") || "Arial";
+    const px = Math.max(1, (+fs || 18) * 96 / 72);
+    _pptxMeasureCtx.font = `${st.italic ? "italic " : ""}${st.bold ? "bold " : ""}${px}px "${fam}", Arial, sans-serif`;
+  }
+  function _pptxWordWidth(word, st, fs) {
+    _pptxFont(st, fs);
+    return _pptxMeasureCtx.measureText(word).width / 96;
+  }
+  function pptxMeasureHeight(runs, o) {
+    const base = +o.fontSize || 18;
+    const width = Math.max(0.35, (+o.w || 1) - (o.bullet || (runs || []).some(r => r.options?.bullet) ? 0.35 : 0) - 0.04);
+    const paras = [[]];
+    for (const r of (runs || [])) {
+      const st = r.options || {};
+      const parts = String(r.text ?? "").split("\n");
+      parts.forEach((part, pi) => {
+        if (pi > 0) paras.push([]);
+        for (const word of part.split(/\s+/).filter(Boolean)) paras[paras.length - 1].push({ word, st });
+        if (st.breakLine) paras.push([]);
+      });
+    }
+    const lines = [];
+    for (const para of paras) {
+      if (!para.length) { if (paras.length > 1) lines.push({ h: base * 1.18 / 72 }); continue; }
+      let line = [], lineW = 0, lineMax = base;
+      const flush = () => { lines.push({ h: lineMax * 1.18 / 72 }); line = []; lineW = 0; lineMax = base; };
+      for (const item of para) {
+        const fs = +item.st.fontSize || base;
+        const w = _pptxWordWidth(item.word, item.st, fs);
+        const space = line.length ? _pptxWordWidth(" ", item.st, fs) : 0;
+        if (line.length && lineW + space + w > width) flush();
+        lineW += (line.length ? space : 0) + w;
+        lineMax = Math.max(lineMax, fs);
+        line.push(item);
+      }
+      if (line.length) flush();
+    }
+    const total = lines.reduce((a, l) => a + (o.lineSpacing ? o.lineSpacing / 72 : l.h), 0);
+    const paraSpace = Math.max(0, (+o.paraSpaceAfter || 0)) * Math.max(1, paras.length - 1) / 72;
+    return total + paraSpace;
+  }
   function shrinkFit(runs, o) {
     const fs0 = +o.fontSize, w = +o.w, h = +o.h; if (!fs0 || !w || !h || o.shape) return o;
     const arr = Array.isArray(runs) ? runs : [{ text: String(runs || ""), options: {} }];
     if (arr.some(r => r.options?.fontSize)) return o;
-    const paras = [""]; arr.forEach(r => { paras[paras.length - 1] += String(r.text || ""); if (r.options?.breakLine) paras.push(""); });
-    const serif = /Georgia|Times|Serif|Playfair|Lora|Cormorant/i.test(o.fontFace || ""), cw = (serif ? 0.6 : 0.53) + (o.bold ? 0.06 : 0);
-    const usableW = Math.max(0.3, w - (o.bullet || arr.some(r => r.options?.bullet) ? 0.35 : 0.02));
-    const lh = r => (o.lineSpacing ? o.lineSpacing * r : fs0 * 1.18 * r) / 72;
-    let r = 1;
-    for (let k = 0; k < 14; k++) {
-      const fs = fs0 * r, perLine = Math.max(1, Math.floor(usableW * 72 / (fs * cw)));
-      let lines = 0;
-      for (const pText of paras) { const words = pText.split(/\s+/).filter(Boolean); let cur = 0, n = 1; for (const wd of words) { const L = wd.length + (cur ? 1 : 0); if (cur + L > perLine && cur) { n++; cur = wd.length; } else cur += L; } lines += words.length ? n : (pText ? 1 : 0); }
-      if (lines * lh(r) <= h * 1.03 || r < 0.62) break;
-      r *= 0.93;
+    let fs = fs0;
+    const min = Math.max(12, fs0 * 0.6);
+    let m = pptxMeasureHeight(arr, { ...o, fontSize: fs });
+    while (m > h * 1.02 && fs > min) {
+      fs = Math.max(min, fs - 0.5);
+      m = pptxMeasureHeight(arr, { ...o, fontSize: fs });
     }
-    return r >= 0.999 ? o : { ...o, fontSize: Math.round(fs0 * r * 10) / 10, lineSpacing: o.lineSpacing ? Math.round(o.lineSpacing * r * 10) / 10 : o.lineSpacing };
+    const out = { ...o, fit: o.fit || "shrink" };
+    if (fs < fs0) {
+      out.fontSize = Math.round(fs * 10) / 10;
+      if (o.lineSpacing) out.lineSpacing = Math.round(o.lineSpacing * fs / fs0 * 10) / 10;
+    }
+    return out;
   }
   async function pptxSlide(pptx, sl, i, host, total, ext = {}) {
     const look = {};
@@ -1482,7 +1526,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const text = (el, extra = {}) => {
       const runs = runsOf(el, {}); if (!runs.some(r => r.text.trim())) return;
       const b = box(el), st = textStyle(el);
-      s.addText(runs, { x: b.x, y: b.y, w: b.w * 1.04 + 0.05, h: b.h + 0.08, margin: 0, valign: "top", fit: "none", wrap: true, ...st, ...extra });
+      s.addText(runs, { x: b.x, y: b.y, w: b.w * 1.04 + 0.05, h: b.h + 0.08, margin: 0, valign: "top", fit: "shrink", wrap: true, ...st, ...extra });
     };
     const shape = (el, opts) => { const b = box(el); s.addShape(pptx.ShapeType.roundRect, { x: b.x, y: b.y, w: b.w, h: b.h, rectRadius: 0.1, line: { type: "none" }, ...opts }); };
     { const t0 = sx.querySelector(".sx-title"), b0 = sx.querySelector(".sx-body p, .sx-body li, .sx-body") || sx, ts = t0 ? textStyle(t0) : {}, bs = textStyle(b0);
@@ -1515,9 +1559,23 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       if (blk.matches("figure.pic")) { const img = blk.querySelector("img"); if (img) await addImg(img, blk); const cap = blk.querySelector("figcaption"); if (cap && cap.textContent.trim() && getComputedStyle(cap).display !== "none") text(cap); continue; }
       if (blk.matches(".tblwrap")) {
         const t = blk.querySelector("table"), b = box(t), st = textStyle(t.querySelector("td,th") || t);
-        const rows = [...t.rows].map(r => [...r.cells].map(c => ({ text: c.textContent.trim(), options: { bold: c.tagName === "TH", fill: c.tagName === "TH" ? { color: hex(getComputedStyle(c).backgroundColor) || "F3F6FA" } : undefined } })));
         const colW = [...(t.rows[0]?.cells || [])].map(c => box(c).w);
-        s.addTable(rows, { x: b.x, y: b.y, w: b.w, colW, fontFace: st.fontFace, fontSize: st.fontSize, color: st.color, border: { type: "solid", color: "999999", pt: 1 }, valign: "top", margin: 3 });
+        const rows = [...t.rows].map(r => [...r.cells].map((c, ci) => {
+          const rs = runsOf(c, {}), txt = c.textContent.trim();
+          const bold = c.tagName === "TH" || rs.some(x => x.options?.bold);
+          const underline = rs.some(x => x.options?.underline);
+          const color = (rs.find(x => x.options?.color)?.options?.color || st.color || "1A1A1A");
+          return { text: txt, options: { bold, underline, color, fontSize: st.fontSize, fill: c.tagName === "TH" ? { color: hex(getComputedStyle(c).backgroundColor) || "F3F6FA" } : undefined } };
+        }));
+        const rowH = [...t.rows].map(r => {
+          let h = 0.35;
+          [...r.cells].forEach((c, ci) => {
+            const m = pptxMeasureHeight(runsOf(c, {}), { w: Math.max(0.4, (colW[ci] || 1) - 0.12), fontSize: st.fontSize, fontFace: st.fontFace });
+            h = Math.max(h, m + 0.12);
+          });
+          return Math.min(1.4, h);
+        });
+        s.addTable(rows, { x: b.x, y: b.y, w: b.w, colW, rowH, fontFace: st.fontFace, fontSize: st.fontSize, color: st.color, border: { type: "solid", color: "000000", pt: 0.75 }, valign: "top", margin: 4 });
         continue;
       }
       // вопросы: карточка вопроса + кнопка «Ответ ▸» на скрытый слайд ответа
@@ -1545,17 +1603,18 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
             const range = document.createRange(); range.selectNodeContents(li); const rr = range.getBoundingClientRect();
             const runs = runsOf(li, {}); if (!runs.length) continue;
             const st = textStyle(li), xx = (rr.left - B.left) * k / IN, yy = (rr.top - B.top) * k / IN + dyBody;
-            s.addText(runs, { x: xx, y: yy, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", wrap: true, ...st });
+            s.addText(runs, { x: xx, y: yy, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", fit: "shrink", wrap: true, ...st });
           }
           continue;
         }
         // обычный список: одна надпись с маркерами или номерами
         const b = box(blk), st = textStyle(items[0] || blk);
+        const startNo = +blk.getAttribute("start") || 1;
         const runs = [];
-        items.forEach((li, n) => { const r = runsOf(li, {}); if (!r.length) return; const bu = blk.tagName === "OL" ? { type: "number", startAt: +blk.getAttribute("start") || 1 } : { code: "25CF" }; r.forEach(x => { x.options = { ...x.options, bullet: bu, indentLevel: 0 }; }); r[r.length - 1].options = { ...r[r.length - 1].options, breakLine: true, paraSpaceAfter: Math.round(parseFloat(getComputedStyle(li).marginBottom) * 0.75) }; runs.push(...r); });
+        items.forEach((li, n) => { const r = runsOf(li, {}); if (!r.length) return; const bu = blk.tagName === "OL" ? { type: "number", startAt: startNo + n } : { code: "25CF" }; r.forEach(x => { x.options = { ...x.options, bullet: bu, indentLevel: 0 }; }); r[r.length - 1].options = { ...r[r.length - 1].options, breakLine: true, paraSpaceAfter: Math.round(parseFloat(getComputedStyle(li).marginBottom) * 0.75) }; runs.push(...r); });
         // текст списка начинается там, где на экране первая строка (без внешних отступов списка), иначе он «заезжает» на заголовок
         const fi = items[0] ? box(items[0]) : b, la = items.length ? box(items[items.length - 1]) : b, ly = Math.max(b.y, fi.y), lh = Math.max(0.3, la.y + la.h - ly);
-        if (runs.length) s.addText(runs, { x: b.x - 0.05, y: ly, w: b.w * 1.04 + 0.1, h: lh + 0.1, margin: 0, valign: "top", wrap: true, ...st });
+        if (runs.length) s.addText(runs, { x: b.x - 0.05, y: ly, w: b.w * 1.04 + 0.1, h: lh + 0.1, margin: 0, valign: "top", fit: "shrink", wrap: true, ...st });
         continue;
       }
       if (blk.matches("blockquote")) {
@@ -1565,7 +1624,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
         const ps = [...blk.children]; const runs = [];
         ps.forEach((pp, n) => { const r = runsOf(pp, {}); if (r.length) { r[r.length - 1].options.breakLine = n < ps.length - 1; runs.push(...r); } });
         const range = document.createRange(); range.selectNodeContents(blk); const rr = range.getBoundingClientRect();
-        if (runs.length) s.addText(runs, { x: (rr.left - B.left) * k / IN, y: (rr.top - B.top) * k / IN + dyBody, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", wrap: true, ...textStyle(ps[0] || blk) });
+        if (runs.length) s.addText(runs, { x: (rr.left - B.left) * k / IN, y: (rr.top - B.top) * k / IN + dyBody, w: rr.width * k / IN * 1.04 + 0.05, h: rr.height * k / IN + 0.08, margin: 0, valign: "top", fit: "shrink", wrap: true, ...textStyle(ps[0] || blk) });
         continue;
       }
       text(blk);
@@ -1585,15 +1644,101 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
       const d = await ThemeKit.rasterSvg(xml, 400, 400);
       if (d) s.addImage({ data: d, x: b.x, y: b.y, w: b.w, h: b.h, rotate: parseFloat((st0.match(/-?[\d.]+/) || [0])[0]) || 0 });
     }
+    // нижняя линия: спокойный футер без перегруза
+    if (!sx.matches(".lay-title, .lay-section")) {
+      s.addShape(pptx.ShapeType.rect, { x: 0.55, y: 7.1, w: 12.23, h: 0.012, fill: { color: "D9D2C2" }, line: { type: "none" } });
+      s.addText("Учу по ФРП", { x: 0.55, y: 7.14, w: 5.2, h: 0.22, margin: 0, fontFace: look.bf, fontSize: 8, color: "8A857E" });
+      s.addText(String(i + 1), { x: 12.35, y: 7.14, w: 0.45, h: 0.22, margin: 0, align: "right", fontFace: look.bf, fontSize: 8, color: "8A857E" });
+    }
     if (sl.notes || sl.set.video?.u) s.addNotes([sl.notes, sl.set.video?.u ? `Видео: ${window.VideoKit ? VideoKit.watchUrl(sl.set.video) : sl.set.video.u} ${window.VideoKit ? VideoKit.span(sl.set.video) : ""}` : ""].filter(Boolean).join("\n"));
     return look;
+  }
+  /* ---------- авто-разбиение перегруженных слайдов для PPTX ---------- */
+  function pptxMdBlocks(md) {
+    return String(md || "").split(/\n{2,}/).map(s => s.trim()).filter(Boolean);
+  }
+  function pptxEstimateBlock(blk, B, k) {
+    const r = blk.getBoundingClientRect();
+    const st = textStyle(blk);
+    if (blk.matches("ul,ol")) {
+      const items = [...blk.children].filter(li => li.tagName === "LI");
+      let h = 0;
+      for (const li of items) {
+        const runs = runsOf(li, {}); if (!runs.length) continue;
+        const lst = textStyle(li);
+        h += Math.max(0.3, pptxMeasureHeight(runs, { w: r.width * k / IN, fontSize: lst.fontSize, fontFace: lst.fontFace, lineSpacing: lst.lineSpacing })) + 0.08;
+      }
+      return Math.max(r.height * k / IN, h);
+    }
+    if (blk.matches(".tblwrap")) {
+      const t = blk.querySelector("table"); if (!t) return r.height * k / IN;
+      const cells = [...(t.rows[0]?.cells || [])], colW = cells.map(c => c.getBoundingClientRect().width * k / IN);
+      let h = 0.1;
+      [...t.rows].forEach(row => {
+        let rh = 0.3;
+        [...row.cells].forEach((c, ci) => {
+          const runs = runsOf(c, {}); if (!runs.length) return;
+          rh = Math.max(rh, pptxMeasureHeight(runs, { w: Math.max(0.4, (colW[ci] || 1) - 0.12), fontSize: textStyle(c).fontSize, fontFace: textStyle(c).fontFace }) + 0.12);
+        });
+        h += Math.min(1.4, rh);
+      });
+      return h;
+    }
+    if (blk.matches("figure.pic, .sx-video")) return r.height * k / IN;
+    if (blk.matches("ol.qa-x")) {
+      let h = 0;
+      for (const li of blk.children) { const runs = runsOf(li, {}); if (runs.length) h += pptxMeasureHeight(runs, { w: r.width * k / IN - 0.6, fontSize: textStyle(li).fontSize, fontFace: textStyle(li).fontFace }) + 0.18; }
+      return Math.max(r.height * k / IN, h);
+    }
+    const runs = runsOf(blk, {});
+    if (!runs.length) return r.height * k / IN;
+    const measured = pptxMeasureHeight(runs, { w: Math.max(0.4, r.width * k / IN), fontSize: st.fontSize, fontFace: st.fontFace, lineSpacing: st.lineSpacing });
+    return Math.max(r.height * k / IN, measured + 0.08);
+  }
+  function pptxEstimateSlide(sl, host) {
+    host.innerHTML = slideHtml(sl, 0);
+    const sx = host.firstElementChild; if (!sx) return { top: 0, height: 0 };
+    const body = sx.querySelector(".sx-body"); if (!body) return { top: 0, height: 0 };
+    const B = sx.getBoundingClientRect(), k = PX / B.width;
+    const blocks = [...body.children].flatMap(c => c.matches(".sx-note") ? [...(c.querySelector(".sx-note-b")?.children || [])] : [c]);
+    let top = null, height = 0;
+    for (const blk of blocks) {
+      const r = blk.getBoundingClientRect(); if (!r.height) continue;
+      if (top === null) top = (r.top - B.top) * k / IN;
+      height += pptxEstimateBlock(blk, B, k) + 0.07;
+    }
+    return { top: top == null ? 0 : top, height };
+  }
+  function pptxSplitOversized(arr, host) {
+    const out = [];
+    for (const sl of arr) {
+      let parts = [sl];
+      if (qaOf(sl).length || sl.set?.kind === "video") { out.push(sl); continue; }
+      for (let depth = 0; depth < 3; depth++) {
+        let changed = false; const next = [];
+        for (const p of parts) {
+          const blocks = pptxMdBlocks(p.body);
+          const est = pptxEstimateSlide(p, host);
+          if (est.top + est.height <= 6.95 || blocks.length < 2) { next.push(p); continue; }
+          let total = blocks.reduce((a, b) => a + b.length, 0), acc = 0, n = 1;
+          for (let i = 0; i < blocks.length; i++) { acc += blocks[i].length; if (acc >= total * 0.75) { n = i + 1; break; } }
+          n = Math.max(1, Math.min(blocks.length - 1, n));
+          const a = { ...p, body: blocks.slice(0, n).join("\n\n") };
+          const b = { ...p, title: "Продолжение", body: blocks.slice(n).join("\n\n"), notes: "" };
+          next.push(a, b); changed = true;
+        }
+        parts = next; if (!changed) break;
+      }
+      out.push(...parts);
+    }
+    return out;
   }
   async function toPptxBlob(md, title) {
     const pptx = new window.PptxGenJS(); pptx.layout = "LAYOUT_WIDE"; pptx.title = title || "";
     const host = document.createElement("div"); host.className = "sx-export theme-" + theme(); document.body.appendChild(host);
     pxSafe = true;
     try {
-      const arr = splitSlides(md).map(parse);
+      const arr = pptxSplitOversized(splitSlides(md).map(parse), host);
       // слайды ответов встают сразу за своим вопросом (скрытыми): заранее считаем номера всех слайдов
       const qas = arr.map(qaOf), at = []; let pos = 0;
       arr.forEach((x, i) => { at[i] = pos; pos += 1 + qas[i].length; });
