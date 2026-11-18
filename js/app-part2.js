@@ -2519,6 +2519,63 @@ function startQuizGen(L) {
   }, 700);
   return () => { clearInterval(iv); state.quizGen = null; if (state.lesson?.id === L.id) renderLesson(); };
 }
+/* ---------- история правок документа: ↶ / ↷ и Ctrl+Z / Ctrl+Y ---------- */
+const EditHistory = (() => {
+  let key = "", states = [], index = -1, redo = [], dirty = false, suppressUntil = 0;
+  const suppressed = () => Date.now() < suppressUntil;
+  const sync = () => {
+    const u = $("#btnUndo"), r = $("#btnRedo");
+    if (u) u.disabled = !state.lesson || (index <= 0 && !dirty);
+    if (r) r.disabled = !redo.length;
+  };
+  const ensure = (L, doc, md) => {
+    const k = (L?.id || "") + "|" + (doc || "");
+    if (k === key) return;
+    key = k; states = [String(md || "")]; index = 0; redo = []; dirty = false; sync();
+  };
+  const live = async () => {
+    try { await ensureTurndown(); } catch { return $("#md").value; }
+    if (document.activeElement === $("#md") || !$("#mdPane").hidden) return $("#md").value;
+    try { return sheetToMd(); } catch { return $("#md").value; }
+  };
+  const apply = md => {
+    if (!state.lesson) return;
+    suppressUntil = Date.now() + 700; // гасим отложенный input от отменённой правки
+    state.lesson.docs[state.active] = md;
+    $("#md").value = md;
+    renderPreview();
+    saveLesson(state.lesson);
+    sync();
+  };
+  function record(before, after) {
+    if (!state.lesson) return;
+    ensure(state.lesson, state.active, before);
+    after = String(after ?? "");
+    if (after === (states[index] ?? "")) { dirty = false; sync(); return; }
+    states = states.slice(0, index + 1);
+    states.push(after); index++;
+    if (states.length > 120) { states = states.slice(-120); index = states.length - 1; }
+    redo = []; dirty = false; sync();
+  }
+  async function undo() {
+    if (!state.lesson || isGenerating()) return;
+    ensure(state.lesson, state.active, state.lesson.docs[state.active] || $("#md").value);
+    const md = await live();
+    if (md !== states[index]) {
+      redo.push(md); apply(states[index]); dirty = false; sync(); return;
+    }
+    if (index <= 0) { toast("Отменять пока нечего.", 3500); return; }
+    redo.push(md); index--; apply(states[index]); dirty = false; sync();
+  }
+  async function redoLast() {
+    if (!redo.length || isGenerating()) { if (!isGenerating()) toast("Возвращать пока нечего.", 3500); return; }
+    const md = redo.pop();
+    states = states.slice(0, index + 1); states.push(md); index++;
+    apply(md); dirty = false; sync();
+  }
+  function markDirty() { dirty = true; sync(); }
+  return { ensure, record, undo, redo: redoLast, dirty: markDirty, sync, suppressed };
+})();
 function renderLesson() {
   const L = state.lesson, tabs = $("#docTabs");
   $(".ws-head").hidden = !L;
@@ -2559,6 +2616,7 @@ function renderLesson() {
   const md = L.docs[state.active] || "";
   if (document.activeElement !== $("#md") || busy) $("#md").value = md;
   $("#md").readOnly = busy;
+  EditHistory.ensure(L, state.active, md); EditHistory.sync();
   renderPreview(); syncTools(); updateProgress(); renderDownloads();
 }
 /* Панель «Скачать»: появляется, когда листы готовы */
@@ -2603,6 +2661,7 @@ function syncTools() {
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
   $("#btnStop").hidden = !state.gen;
+  try { EditHistory.sync(); } catch { }
 }
 function renderEmpty() {
   $("#md").value = "";
@@ -2793,10 +2852,13 @@ function sheetToMd() {
 }
 function forkSample() { const L = state.lesson; state.lesson = { ...L, id: uid(), sample: false, createdAt: new Date().toISOString() }; toast("Образец скопирован в «Мои уроки»: правки сохраняются в копии."); }
 const onSheetEdit = debounce(async () => {
-  if (!state.lesson || isGenerating()) return;
+  if (!state.lesson || isGenerating() || EditHistory.suppressed()) return;
   if (state.active === "slides" && window.SlideEditor) return; // слайды сохраняет редактор слайдов
   try { await ensureTurndown(); } catch { toast("Не загрузился модуль правки. Проверьте интернет."); return; }
-  const md = sheetToMd(); state.lesson.docs[state.active] = md; $("#md").value = md;
+  const before = state.lesson.docs[state.active] || "";
+  const md = sheetToMd(); if (md === before) return;
+  EditHistory.record(before, md);
+  state.lesson.docs[state.active] = md; $("#md").value = md;
   if (state.lesson.sample) { forkSample(); renderLesson(); }
   saveLesson(state.lesson);
 }, 600);
@@ -2808,7 +2870,7 @@ function moveSlide(i, d) {
   if (L.sample) forkSample();
   saveLesson(state.lesson); renderLesson();
 }
-const onMdEdit = debounce(() => { if (!state.lesson || isGenerating()) return; const before = state.lesson.docs[state.active] || ""; const after = $("#md").value; if (window.Learn2 && after !== before) Learn2.learnNote({ subject: state.subject, grade: state.grade, topic: state.topic || state.lesson.title, kind: state.active, before, after }); state.lesson.docs[state.active] = after; if (state.lesson.sample) forkSample(); renderPreview(); saveLesson(state.lesson); }, 400);
+const onMdEdit = debounce(() => { if (!state.lesson || isGenerating() || EditHistory.suppressed()) return; const before = state.lesson.docs[state.active] || ""; const after = $("#md").value; if (window.Learn2 && after !== before) Learn2.learnNote({ subject: state.subject, grade: state.grade, topic: state.topic || state.lesson.title, kind: state.active, before, after }); EditHistory.record(before, after); state.lesson.docs[state.active] = after; if (state.lesson.sample) forkSample(); renderPreview(); saveLesson(state.lesson); }, 400);
 
 /* ===================================================================
    БИБЛИОТЕКА (уроки хранятся в браузере)
@@ -3625,6 +3687,17 @@ function bind() {
   $("#btnStop").onclick = () => state.gen?.ctl?.abort();
   $("#md").addEventListener("input", onMdEdit);
   $("#sheet").addEventListener("input", onSheetEdit);
+  $("#md").addEventListener("input", () => EditHistory.dirty());
+  $("#sheet").addEventListener("input", () => EditHistory.dirty());
+  $("#btnUndo").onclick = () => EditHistory.undo();
+  $("#btnRedo").onclick = () => EditHistory.redo();
+  document.addEventListener("keydown", e => {
+    if (!state.lesson || !(e.ctrlKey || e.metaKey)) return;
+    if (!e.target.closest || !e.target.closest("#sheet,#md,#mdPane,#workspace")) return;
+    const k = String(e.key || "").toLowerCase();
+    if (k === "z" && !e.shiftKey) { e.preventDefault(); EditHistory.undo(); }
+    else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); EditHistory.redo(); }
+  });
   $("#sheet").addEventListener("paste", e => { if (!e.target.closest || !e.target.closest("[contenteditable=true]") || e.target.closest(".sxed")) return; e.preventDefault(); document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain")); });
   $("#btnMdToggle").onclick = () => { const p = $("#mdPane"); p.hidden = !p.hidden; $("#split").classList.toggle("with-md", !p.hidden); syncTools(); };
   $("#btnRefine").onclick = refineDoc;
