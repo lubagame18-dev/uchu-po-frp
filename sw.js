@@ -5,10 +5,10 @@
    • Библиотеки (Word, PowerPoint, PDF, шрифты): из кэша, если уже были загружены.
    • Ответы Википедии и Викитеки запоминаются: урок по той же теме без сети соберётся с ними.
    • Ключи нейросетей, запросы к нейросетям и к GitHub в кэш не попадают. */
-const VERSION = "uchu-v5.475-theme-audio";
+const VERSION = "uchu-v5.475-dictation";
 const SHELL = ["./", "index.html", "css/v5.css", "data/base.js", "data/own.js", "data/extra.js", "data/frp.js", "data/promo.js", "data/legal.js", "data/culture.js", "manifest.json",
   "vendor/marked.umd.js", "vendor/purify.min.js", "vendor/turndown.js", "vendor/turndown-plugin-gfm.js", "vendor/pptxgen.bundle.js", "vendor/jszip.min.js", "vendor/docx.umd.js",
-  ...["log", "cleaner", "learn", "learn2", "variety", "methodbase", "plans-loader", "kits-loader", "imagegen", "frpkit", "subjects", "lesson-quality", "usage", "heur", "litkit", "notes", "verify", "ocr", "materials", "collect", "devmode", "devcover", "accounts-config", "accounts-backend", "privacy", "account", "cloudbase", "rules", "schemes", "tablekit", "layout", "lessonnotes", "tutor", "mnemo", "themes", "themes2", "video", "photostk", "access", "rukit", "deck", "slides", "culture", "publish", "sync", "worksearch", "ai", "blobs", "qr", "quizlink"].map(n => `js/${n}.js`)];
+  ...["log", "cleaner", "learn", "learn2", "variety", "methodbase", "plans-loader", "kits-loader", "imagegen", "frpkit", "subjects", "lesson-quality", "usage", "heur", "litkit", "notes", "dictation", "verify", "ocr", "materials", "collect", "devmode", "devcover", "accounts-config", "accounts-backend", "privacy", "account", "cloudbase", "rules", "schemes", "tablekit", "layout", "lessonnotes", "tutor", "mnemo", "themes", "themes2", "video", "photostk", "access", "rukit", "deck", "slides", "culture", "publish", "sync", "worksearch", "ai", "blobs", "qr", "quizlink"].map(n => `js/${n}.js`)];
 const CDN = /^https:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|unpkg\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 const NOCACHE = /\/js\/(?:accounts-config|yandex-auth)\.js(?:\?|$)|\/(?:yandex|google|accounts-confirm)\.html(?:\?|$)|supabase\.co\/|\/api\/uchu(?:\/|$)|\/api\/collections(?:\/|$)/; // облако кабинета и OAuth callback — всегда напрямую
 const WIKI = /^https:\/\/ru\.(wikipedia|wikisource)\.org\/w\/api\.php/;

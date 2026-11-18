@@ -20,7 +20,8 @@ const Notes = (() => {
     const box = document.createElement("div");
     box.className = "notes-panel"; box.id = "notesBox";
     box.innerHTML = `<div class="np-h"><h3>🧩 Пожелания к уроку</h3><span class="small" id="nbCount"></span></div>
-      <textarea class="inp" id="nbPrompt" rows="3" placeholder="Например: класс слабый — больше объяснений; нужна групповая работа; сравнить с Тютчевым; больше схем и картинок"></textarea>
+      <textarea class="inp" id="nbPrompt" rows="3" placeholder="Например: класс слабый — больше объяснений; нужна групповая работа; сравнить с Тютчевым; больше схем и картинок. Можно надиктовать голосом."></textarea>
+      <div class="np-dict"><button type="button" class="btn sm ghost" id="nbDictate" aria-pressed="false" title="Надиктовать пожелания голосом (Chrome/Edge)">🎤 Надиктовать</button><span class="small" id="nbDictateMsg" role="status"></span></div>
       <div class="np-drop" id="nbDrop">
         <span class="np-dt">Перетащите сюда файлы (Word, PDF, фото, txt) — они попадут в урок. Можно нажать кнопку.</span>
         <span class="np-actions"><label class="btn sm ghost file-btn">📎 Прикрепить файлы<input type="file" id="nbFileIn" multiple hidden></label><label class="btn sm flame file-btn" title="Сфотографируйте страницу учебника — сайт распознает задания и учтёт их в уроке">📷 Фото учебника<input type="file" id="nbPhotoIn" accept="image/*" capture="environment" multiple hidden></label><button type="button" class="btn plain" id="nbClear">Очистить</button></span>
@@ -34,6 +35,8 @@ const Notes = (() => {
     const $n = id => document.getElementById(id);
     $n("nbPrompt").value = draft.prompt; $n("nbObserve").value = draft.observe; $n("nbLinks").value = draft.links; $n("nbText").value = draft.text;
     [["nbPrompt", "prompt"], ["nbObserve", "observe"], ["nbLinks", "links"], ["nbText", "text"]].forEach(([id, k]) => $n(id).addEventListener("input", e => { draft[k] = e.target.value; save(); }));
+    /* Голосовой ввод в пожелания: распознаёт речь в браузере, без сторонних ключей. */
+    window.Dictation?.attach({ textarea: $n("nbPrompt"), button: $n("nbDictate"), status: $n("nbDictateMsg") });
     box.querySelectorAll("[data-nb]").forEach(b => b.onclick = () => {
       box.querySelectorAll("[data-nb]").forEach(x => x.setAttribute("aria-selected", String(x === b)));
       box.querySelectorAll(".nb-pane").forEach(p => p.hidden = p.dataset.pane !== b.dataset.nb);

@@ -332,6 +332,10 @@ textarea.inp{resize:vertical;min-height:64px}
 .notes-panel .np-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:2px}
 .notes-panel .np-h h3{margin:0;font-size:16px}
 .notes-panel .np-lead{margin:0 0 8px;font-size:12.5px;color:var(--muted);line-height:1.35}
+.np-dict{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 2px}
+.np-dict .btn.rec{background:var(--flame);color:#fff;border-color:var(--ink);animation:pulseMic 1.4s ease-in-out infinite}
+.np-dict .small.err{color:#b3261e}
+@keyframes pulseMic{0%,100%{box-shadow:0 0 0 0 rgba(240,90,60,.45)}50%{box-shadow:0 0 0 6px rgba(240,90,60,0)}}
 .np-drop{border:2px dashed #c9bfa6;border-radius:12px;padding:10px 12px;margin-top:8px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;transition:border-color .15s,background .15s}
 .np-drop.over{border-color:var(--flame);background:#fff3ef}
 .np-drop .np-dt{font-size:12.5px;color:var(--muted);max-width:60%}
@@ -1028,6 +1032,7 @@ window.UCHU_SITE = {
 <script src="js/litsec.js"></script>
 <script src="js/rukit.js"></script>
 <script src="js/rusec.js"></script>
+<script src="js/dictation.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/teacherrules.js"></script>
 <script src="js/methodology.js"></script>
