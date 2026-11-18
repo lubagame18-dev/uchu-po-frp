@@ -197,6 +197,7 @@ h1.sx-title { font-size: min(calc(6cqw * var(--fs)), 9cqw); }
 .sx-frame.big .sx.drop { outline: 4px dashed var(--teal); }
 .sx-frame.big .sx-body > * { position: relative; }
 .sx-grip { position: absolute; left: -1.25em; top: .05em; font-size: .8em; color: var(--sx-muted); cursor: grab; opacity: 0; user-select: none; }
+@media (hover: none), (max-width: 900px) { .sx-grip { display: none !important; } }
 .sx-frame.big .sx-body > *:hover > .sx-grip { opacity: .8; }
 .sx-frame.big .sx-body > .over { outline: 2px dashed var(--sx-accent); }
 .sx-resize { position: absolute; right: -6px; bottom: -6px; width: 14px; height: 14px; background: var(--sx-accent); border: 2px solid #fff; border-radius: 3px; cursor: nwse-resize; opacity: 0; }
