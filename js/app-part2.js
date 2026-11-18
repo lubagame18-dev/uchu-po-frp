@@ -1121,6 +1121,8 @@ ${examBlock(p)}
 
 ${materialsBlock(p)}
 
+${techmapFrpPrompt(p, p.type)}
+
 ${window.MethodBase ? MethodBase.promptBlock(p, p.plan?.analysis) : ""}
 
 ${window.Variety ? Variety.promptBlock(p, p.plan) : ""}
@@ -1150,42 +1152,46 @@ ${schemeBrief(p, "conspect")}
 
 **«${p.topic}»**
 
-**Таблица 1. Общая информация**
+**${teacherLine()}**
+
+**1. Общая информация по уроку**
 
 |  |  |
 |---|---|
-| Предмет | ${subjName(p.subject)} |
 | Класс | ${p.grade} |
-${window.LessonQuality?.pages(p).length ? "| Источник практики | Приложенные читаемые страницы; только видимые номера |" : ""}
+| Место в программе | … |
 | Тема урока | ${p.topic} |
 | Тип урока | ${p.type.name} |
 | Продолжительность | ${p.duration} минут |
-| Цель | … |
-| Задачи | образовательная: …; развивающая: …; воспитательная: … |
-| Планируемые результаты | предметные: …; метапредметные: …; личностные: … |
-| Основные понятия | … |
-| Ресурсы | … |
-| Формы работы | … |
-| Условные обозначения | (П) — познавательные, (Р) — регулятивные, (К) — коммуникативные, (Пр) — предметные; Д.н./Д.п./С.н./С.п. — причастия настоящего/прошедшего времени |
+| Материалы | … |
+| Планируемые результаты |  |
+| Личностные | … |
+| Метапредметные | … |
+| Предметные | … |
 
-**Таблица 2. Блочно-модульное описание**
+**2. Блочно-модульное описание урока**
 
-| Блок 1. Название этапа (N мин) |
+|  |
 |---|
+| Блок 1. Название этапа (N мин) |
 | **Цель этапа:** … |
 | **Учитель:** что говорит и делает; каждый вопрос — с новой строки через <br> и с тире «—», после вопроса — *(Верный ответ ученика: …)*; задания — полностью |
 | **Ученики:** что делают и отвечают; полные ответы учеников |
-| **Планируемые результаты:** … |
+| **Материалы / рабочий лист:** что используется на этом этапе |
+| **Планируемые результаты:** только формулировки из блока ФРП ниже, относящиеся к этапу |
+| **Связь с заданиями:** какие задания/упражнения подтверждают результат |
 | Блок 2. Название этапа (N мин) |
 | **Цель этапа:** … |
-| **Учитель:** что говорит и делает; каждый вопрос — с новой строки через <br> и с тире «—», после вопроса — *(Верный ответ ученика: …)*; задания — полностью |
-| **Ученики:** что делают и отвечают; полные ответы учеников |
+| **Учитель:** … |
+| **Ученики:** … |
+| **Материалы / рабочий лист:** … |
 | **Планируемые результаты:** … |
+| **Связь с заданиями:** … |
 | … (все этапы: от организационного до итога и домашнего задания) |
 | **Схема-опора:** 3–5 шагов/признаков и мнемоника только по теме урока |
 | **Домашнее задание:** … |
 
-Только две таблицы, как в образце. Не добавляй разделы «План урока» или «Технологическая карта урока» отдельно, не используй пятиколоночную таблицу. В каждом блоке — цель этапа, что говорит и делает учитель, что делают ученики, планируемые результаты; задания и фрагменты текста — полностью, не ссылкой. **Вопросы учителя начинай с тире «—», отделяй через <br>, после каждого вопроса обязательно пиши *(Верный ответ ученика: …)*; в строке «Ученики» дай полные ответы/действия.** **Все упражнения и задания выводи внутри блоков таблицы 2 с полным текстом; не заменяй их ссылками «упр. №», не выноси в отдельный раздел и не сокращай.**
+Только две таблицы, как в образце. В таблице 1 ровно строки: Класс, Место в программе, Тема урока, Тип урока, Продолжительность, Материалы, Планируемые результаты (строка-разделитель), Личностные, Метапредметные, Предметные. Не добавляй строки «Цель», «Задачи», «Формы работы», «Условные обозначения». В таблице 2 — один столбец, как в образце; никакой пятиколоночной таблицы. В каждом блоке — цель этапа, что говорит и делает учитель, что делают ученики, материалы, планируемые результаты и связь с заданиями; задания и фрагменты текста — полностью, не ссылкой. **Результаты в таблице 1 и в блоках бери дословно из ФРП, не придумывай свои формулировки.** **Вопросы учителя начинай с тире «—», отделяй через <br>, после каждого вопроса обязательно пиши *(Верный ответ ученика: …)*; в строке «Ученики» дай полные ответы/действия.** **Все упражнения и задания выводи внутри блоков таблицы 2 с полным текстом; не заменяй их ссылками «упр. №», не выноси в отдельный раздел и не сокращай.**
 `);
 }
 
@@ -1454,8 +1460,80 @@ function wsTheory(p) {
 function stripConspectExtras(md) {
   return String(md || "").replace(/\n#{1,3}\s*(?:[^\n]{0,60}?)(Опорные положения|Справочная опора|Темы года по ФРП|Виды деятельности по ФРП)[\s\S]*$/i, "");
 }
-function techmapSchemeRow(p) {
+function teacherLine() {
+  const n = window.Account?.session?.info?.name || window.Account?.session?.info?.full_name || "";
+  return n ? `Выполнил(а): ${n}` : "Выполнил(а): ____________________";
+}
+function frpTechResults(p, type) {
   try {
+    const F = window.FRP || (typeof FRP !== "undefined" ? FRP : null);
+    const r = F?.results?.(p.subject, p.grade, p.topic, type?.id);
+    if (!r?.loaded) return null;
+    const clean = x => String(x || "").replace(/\s+/g, " ").replace(/\|/g, "/").trim();
+    const shorten = (t, n = 190) => { t = clean(t); if (t.length <= n) return t; const c = t.slice(0, n), i = Math.max(c.lastIndexOf(","), c.lastIndexOf(";")); return (i > 80 ? c.slice(0, i) : c.replace(/\s\S*$/, "")) + " …"; };
+    const st = F.stems(String(p.topic || "").replace(/практикум|повторени[ея]|обобщени[ея]|систематизаци[яи]|закреплени[ея]|\([^)]*\)/gi, " "));
+    const need = Math.min(2, st.size || 1);
+    const segs = t => String(t || "").split(/;\s+|(?<=[.!?])\s+(?=[А-ЯЁ])/).map(x => x.trim()).filter(Boolean);
+    const pick = (t, max = 2) => st.size ? segs(t).filter(x => F.score(x, st) >= need).slice(0, max).join("; ") : "";
+    const personalArr = [...(r.personal || [])].sort((a, b) => (F.score(b.text, st) + (/научного познания/i.test(b.group) ? .5 : 0)) - (F.score(a.text, st) + (/научного познания/i.test(a.group) ? .5 : 0))).slice(0, 1);
+    const metaArr = (r.meta || []).filter(x => F.score(x.text, st) > 0).slice(0, 2);
+    const subjectArr = (r.subject || []).map(x => ({ ...x, text: pick(x.text) || "" })).filter(x => x.text).slice(0, 2);
+    const personal = personalArr.map(x => shorten(x.text, 190)).filter(Boolean).join(" ");
+    const meta = (metaArr.length ? metaArr : (r.meta || []).slice(0, 2)).map(x => shorten(x.text, 170)).filter(Boolean).join(" ");
+    const subject = (subjectArr.length ? subjectArr : (r.subject || []).slice(0, 2)).map(x => shorten(x.text, 190)).filter(Boolean).join(" ");
+    return { personal, meta, subject, source: r.source || "ФРП" };
+  } catch { return null; }
+}
+function techmapFrpPrompt(p, type) {
+  const r = frpTechResults(p, type); if (!r) return "";
+  return `## Планируемые результаты по ФРП (дословно, не перефразируй)\n- Личностные: ${r.personal || "—"}\n- Метапредметные: ${r.meta || "—"}\n- Предметные: ${r.subject || "—"}\nИсточник: ${r.source}. В каждом блоке урока указывай только те результаты из этого списка, которые действительно формируются на этом этапе.`;
+}
+function techmapMetaMarkdown(p, type, src = "") {
+  const row = (k, v) => `| ${k} | ${String(v || "…").replace(/\|/g, "/").replace(/\n+/g, " ")} |`;
+  const grabMeta = key => {
+    const re = new RegExp(`^\\|\\s*\\**${key}\\**\\s*\\|\\s*([^|]*?)\\s*\\|`, "im");
+    const m = String(src || "").match(re); return m ? m[1].replace(/\*/g, "").trim() : "";
+  };
+  let place = "";
+  try {
+    const F = window.FRP || (typeof FRP !== "undefined" ? FRP : null);
+    const pl = F?.planFor?.(p.subject, p.grade, p.topic);
+    place = [pl?.section, pl?.title].filter(Boolean).join(". ");
+  } catch { }
+  const r = frpTechResults(p, type);
+  const materials = grabMeta("Материалы") || grabMeta("Ресурсы") || grabMeta("Оборудование") || grabMeta("Учебник") || "учебник, рабочий лист, презентация";
+  const personal = r?.personal || grabMeta("Личностные") || "…";
+  const meta = r?.meta || grabMeta("Метапредметные") || "…";
+  const subject = r?.subject || grabMeta("Предметные") || "…";
+  return [
+    "|  |  |",
+    "|---|---|",
+    row("Класс", p.grade),
+    row("Место в программе", place || p.topic),
+    row("Тема урока", p.topic),
+    row("Тип урока", p.type?.name || "…"),
+    row("Продолжительность", `${p.duration || 45} минут`),
+    row("Материалы", materials),
+    "| Планируемые результаты |  |",
+    row("Личностные", personal),
+    row("Метапредметные", meta),
+    row("Предметные", subject)
+  ].join("\n");
+}
+function replaceTechmapMeta(src, p, type) {
+  try {
+    const meta = techmapMetaMarkdown(p, type, src);
+    let out = String(src || "");
+    const tableRe = /\|.*\|\s*\n\|[\s:|-]+\|\s*\n(?:\|.*\|\s*\n?)+/;
+    if (tableRe.test(out)) out = out.replace(tableRe, meta + "\n");
+    else out = out.replace(/(\*\*«[^»]+»\*\*)/, `$1\n\n**${teacherLine()}**\n\n${meta}`);
+    if (!/Выполнил/.test(out)) out = out.replace(/(\*\*«[^»]+»\*\*)/, `$1\n\n**${teacherLine()}**`);
+    out = out.replace(/\*\*Таблица 1\. Общая информация\*\*/i, "**1. Общая информация по уроку**")
+      .replace(/\*\*Таблица 2\. Блочно-модульное описание\*\*/i, "**2. Блочно-модульное описание урока**");
+    return out;
+  } catch { return src; }
+}
+function techmapSchemeRow(p) {  try {
     const sc = window.Schemes?.find?.(p.subject, p.topic);
     const steps = (sc?.s || []).map(x => window.Schemes?.plain ? Schemes.plain(x) : String(x)).filter(Boolean);
     if (!steps.length) return "";
@@ -1473,7 +1551,7 @@ function normalizeTechmap(md, p) {
   try {
     const src = stripConspectExtras(String(md || "")).replace(/\n##\s*Рабочий лист[\s\S]*?(?=\n## |\n# |$)/gi, "\n");
     if (!/Технологическая карта/i.test(src) && !/деятельность учителя|деятельность учеников|этапы урока|этап \(время\)/i.test(src)) return src;
-    if (/Таблица 1\. Общая информация/.test(src) && /Блочно-модульное/.test(src)) return ensureTechmapScheme(src, p);
+    if (/(?:Таблица 1\. Общая информация|1\.\s*Общая информация по уроку)/.test(src) && /Блочно-модульное/.test(src)) return ensureTechmapScheme(replaceTechmapMeta(src, p, p.type), p);
     const toks = window.marked.lexer(src);
     let tab = null;
     for (const t of toks) {
@@ -1542,7 +1620,7 @@ function normalizeTechmap(md, p) {
     const after = tableAt >= 0 ? src.slice(tableAt+tab.raw.length) : "";
     const explanation = (before.match(/\n##\s*(?:Теори|Объяснен|Содержан|Предметн|Справ|Пример|Материал|Задани|Упражнен)[\s\S]*/i)||[""])[0];
     const extraTasks = [explanation, after].filter(Boolean).join("\n\n");
-    return `# Технологическая карта урока\n\n**«${p.topic}»**\n\n**Таблица 1. Общая информация**\n\n|  |  |\n|---|---|\n${t1.map(([k, v]) => `| ${k} | ${clean(v)} |`).join("\n")}\n\n**Таблица 2. Блочно-модульное описание**\n\n${table2}\n${extraTasks}`;
+    return `# Технологическая карта урока\n\n**«${p.topic}»**\n\n**${teacherLine()}**\n\n**1. Общая информация по уроку**\n\n${techmapMetaMarkdown(p, p.type, src)}\n\n**2. Блочно-модульное описание урока**\n\n${table2}\n${extraTasks}`;
   } catch (e) { console.warn("normalizeTechmap", e); return md; }
 }
 
@@ -3352,10 +3430,49 @@ async function mdToDocxBlob(md, title, opts = {}) {
   let children = [];
   const border = { style: D.BorderStyle.SINGLE, size: 4, color: memo ? "555555" : "9AA3B2" };
   const P = (runs, opt = {}) => new D.Paragraph({ children: runs, spacing: memo ? { after: 40, line: 252 } : two ? { after: 50, line: 250 } : { after: 120, line: 300 }, ...opt });
-  let wide = tm;
+  /* Техкарта: две таблицы как в образце — общая информация (2 колонки, объединённая шапка результатов)
+     и блочно-модульное описание (1 колонка). */
+  const tmBorder = { style: D.BorderStyle.SINGLE, size: 4, color: "111111" };
+  const tmCell = (text, opt = {}) => new D.TableCell({
+    columnSpan: opt.span || 1,
+    width: { size: opt.w || 100, type: D.WidthType.PERCENTAGE },
+    verticalAlign: D.VerticalAlign.CENTER,
+    margins: { top: 80, bottom: 80, left: 110, right: 110 },
+    children: [new D.Paragraph({
+      children: [new D.TextRun({ text: String(text ?? ""), font: "Times New Roman", size: opt.size || 24, bold: !!opt.bold })],
+      spacing: { after: 20, line: 240 }
+    })]
+  });
+  const tmTable = t => {
+    const all = [t.header, ...t.rows].map(r => r.map(c => String(c.text || "").replace(/\s+$/g, "")));
+    if (t.header.length === 1) {
+      const cells = [t.header[0], ...t.rows.map(r => r[0])].filter(c => c && String(c.text || "").trim());
+      const rows = cells.map((c, idx) => new D.TableRow({
+        cantSplit: false,
+        children: [new D.TableCell({
+          width: { size: 100, type: D.WidthType.PERCENTAGE },
+          margins: { top: 90, bottom: 90, left: 120, right: 120 },
+          children: [new D.Paragraph({
+            children: inlineRuns(c.tokens || [{ type: "text", text: String(c.text || "") }], D, { font: "Times New Roman", size: 24, bold: idx === 0 || /^Блок\s+\d/i.test(String(c.text || "")) }),
+            spacing: { after: 40, line: 260 }
+          })]
+        })]
+      }));
+      return new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: tmBorder, bottom: tmBorder, left: tmBorder, right: tmBorder, insideHorizontal: tmBorder, insideVertical: tmBorder }, rows });
+    }
+    const rows = all.filter(r => r.some(x => String(x).trim())).map(r => {
+      const [k, v] = r;
+      if (/^Планируемые результаты$/i.test(String(k || "").trim()) || (!String(v || "").trim() && /Планируемые результаты/i.test(String(k || "")))) {
+        return new D.TableRow({ cantSplit: true, children: [tmCell(String(k || "").trim(), { span: 2, bold: true })] });
+      }
+      return new D.TableRow({ cantSplit: true, children: [tmCell(String(k || "").trim(), { w: 24, bold: true }), tmCell(String(v || "").trim(), { w: 76 })] });
+    });
+    return new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, columnWidths: [Math.round(10205 * .24), Math.round(10205 * .76)], layout: D.TableLayoutType.FIXED, borders: { top: tmBorder, bottom: tmBorder, left: tmBorder, right: tmBorder, insideHorizontal: tmBorder, insideVertical: tmBorder }, rows });
+  };
+  let wide = false;
   const emit = (t, ctx = {}) => {
     switch (t.type) {
-      case "heading": if (t.depth === 1 && ws) { const first = !h1n++; const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 4 }; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag.toUpperCase() + " ", bold: true, size: sc(18), color: "111111" })], border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 0, after: two ? 60 : 100 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "111111", size: sc(40) }), border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: "111111", space: 4 } }, spacing: { before: 0, after: two ? 100 : 200 } })); break; }
+      case "heading": if (tm && t.depth === 1) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text: String(t.text || "").replace(/\*/g, ""), font: "Times New Roman", size: 28, bold: true })], spacing: { before: 0, after: 100 } })); break; } if (t.depth === 1 && ws) { const first = !h1n++; const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 4 }; children.push(new D.Paragraph({ pageBreakBefore: !first, children: [new D.TextRun({ text: " " + wsTag.toUpperCase() + " ", bold: true, size: sc(18), color: "111111" })], border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: 0, after: two ? 60 : 100 } })); children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, color: "111111", size: sc(40) }), border: { bottom: { style: D.BorderStyle.SINGLE, size: 12, color: "111111", space: 4 } }, spacing: { before: 0, after: two ? 100 : 200 } })); break; }
         if (t.depth === 3 && ws) { const bk = { style: D.BorderStyle.SINGLE, size: 8, color: "111111", space: 3 }; const noEmo = tk => (tk || []).map(x => ({ ...x, text: String(x.text || "").replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, "").replace(/^\s+/, ""), tokens: x.tokens ? noEmo(x.tokens) : x.tokens })); const brk = pb; pb = false; children.push(new D.Paragraph({ pageBreakBefore: brk, children: inlineRuns(noEmo(t.tokens), D, { bold: true, size: sc(26) }), border: { top: bk, bottom: bk, left: bk, right: bk }, spacing: { before: two ? (brk ? 0 : Math.round(130 + 20 * fill[page2 ? 1 : 0].head)) : 240, after: two ? 60 : 120 } }));
           { const nt = String(t.text || "").replace(/[*_`]/g, "").replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").trim(); const sl = two && !usedSl.has(nt) && (opts.slots || []).find(x => x.at === nt); if (sl) { usedSl.add(nt); try { const bin = atob(sl.url.split(",")[1]), u8 = Uint8Array.from(bin, c => c.charCodeAt(0)), Wp = sl.size === "m" ? 125 : 100, Wx = Math.round(Wp * 96 / 72), Hx = Math.round(Wx * sl.h / sl.w), E = 12700; children.push(new D.Paragraph({ spacing: { before: 0, after: 0, line: 20, lineRule: D.LineRuleType.EXACT }, children: [new D.ImageRun({ data: u8, type: "jpg", transformation: { width: Wx, height: Hx }, floating: { horizontalPosition: { relative: D.HorizontalPositionRelativeFrom.MARGIN, align: sl.side === "left" ? D.HorizontalPositionAlign.LEFT : D.HorizontalPositionAlign.RIGHT }, verticalPosition: { relative: D.VerticalPositionRelativeFrom.PARAGRAPH, offset: 0 }, allowOverlap: false, wrap: { type: D.TextWrappingType.SQUARE, side: D.TextWrappingSide.BOTH_SIDES, margins: { distT: 2 * E, distB: 4 * E, distL: 6 * E, distR: 6 * E } } } })] })); } catch (e) { console.warn("slot", e); } } }
           break; }
@@ -3363,7 +3480,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
         if (memo && t.depth >= 2) { children.push(new D.Paragraph({ children: inlineRuns(t.tokens, D, { bold: true, size: 19, font: "Arial" }), spacing: { before: 80, after: 40 }, keepNext: true })); break; }
         if (t.depth === 1 && lx) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { bold: true, size: 30 }), spacing: { before: 0, after: 200 } })); break; }
         children.push(new D.Paragraph({ heading: [D.HeadingLevel.HEADING_1, D.HeadingLevel.HEADING_2, D.HeadingLevel.HEADING_3, D.HeadingLevel.HEADING_4][Math.min(t.depth, 4) - 1], children: inlineRuns(t.tokens, D), spacing: { before: 240, after: 120 } })); break;
-      case "paragraph": if (lx && !ctx.quote) { const tx = t.text || ""; const mk = tx.match(/^\*\*▸\s*(ПОИСК|СЛОВО УЧИТЕЛЯ|САМОСТОЯТЕЛЬНАЯ РАБОТА|РАБОТА В ПАРАХ|РАБОТА В ГРУППАХ)\*\*$/); if (mk) { children.push(new D.Paragraph({ children: [new D.TextRun({ text: "▸ " + mk[1], bold: true, size: 18, font: "Arial" })], spacing: { before: 120, after: 40 }, keepNext: true })); break; } if (/^\*(Как читать конспект|Результат (блока|этапа))/.test(tx)) { children.push(P(inlineRuns(t.tokens, D, { size: 19, color: "444444" }))); break; } if (/^\*Конспект урока/.test(tx)) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { color: "333333" }), spacing: { after: 40 } })); break; } }
+      case "paragraph": if (tm) { const raw = String(t.text || "").replace(/\*\*/g, "").trim(); if (/^«.*»$/.test(raw)) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text: raw, font: "Times New Roman", size: 24, bold: true })], spacing: { after: 60 } })); break; } if (/^Выполнил/.test(raw)) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text: raw, font: "Times New Roman", size: 24 })], spacing: { after: 80 } })); break; } if (/^[12]\.\s/.test(raw)) { children.push(new D.Paragraph({ children: [new D.TextRun({ text: raw, font: "Times New Roman", size: 28, bold: true })], spacing: { before: 160, after: 100 } })); break; } } if (lx && !ctx.quote) { const tx = t.text || ""; const mk = tx.match(/^\*\*▸\s*(ПОИСК|СЛОВО УЧИТЕЛЯ|САМОСТОЯТЕЛЬНАЯ РАБОТА|РАБОТА В ПАРАХ|РАБОТА В ГРУППАХ)\*\*$/); if (mk) { children.push(new D.Paragraph({ children: [new D.TextRun({ text: "▸ " + mk[1], bold: true, size: 18, font: "Arial" })], spacing: { before: 120, after: 40 }, keepNext: true })); break; } if (/^\*(Как читать конспект|Результат (блока|этапа))/.test(tx)) { children.push(P(inlineRuns(t.tokens, D, { size: 19, color: "444444" }))); break; } if (/^\*Конспект урока/.test(tx)) { children.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: inlineRuns(t.tokens, D, { color: "333333" }), spacing: { after: 40 } })); break; } }
         children.push(P(inlineRuns(t.tokens, D, ctx.quote ? { italics: false } : {}), ctx.quote ? { indent: { left: 360 }, shading: { type: D.ShadingType.CLEAR, fill: ctx.fill || "EEF1F7" }, border: { left: { style: D.BorderStyle.SINGLE, size: 18, color: ctx.color || "2448C4", space: 6 } } } : {})); break;
       case "text": children.push(P(inlineRuns(t.tokens || [t], D))); break;
       case "list": t.items.forEach((it, i) => { const inl = it.tokens.flatMap(x => x.type === "text" || x.type === "paragraph" ? (x.tokens || [x]) : []); children.push(new D.Paragraph({ children: [new D.TextRun({ text: t.ordered ? `${(t.start || 1) + i}. ` : "• " }), ...inlineRuns(inl, D)], indent: { left: 360, hanging: 260 }, spacing: { after: 60 } })); }); break;
@@ -3371,8 +3488,9 @@ async function mdToDocxBlob(md, title, opts = {}) {
       case "hr": children.push(new D.Paragraph({ border: { bottom: { style: D.BorderStyle.SINGLE, size: 6, color: "C9D1DE", space: 1 } }, spacing: { after: 160 } })); break;
       case "code": children.push(P([new D.TextRun({ text: t.text, font: "Consolas", size: 20 })])); break;
       case "table": {
+        if (tm) { children.push(tmTable(t)); children.push(new D.Paragraph({ text: "", spacing: { after: 120 } })); break; }
         if (lx) { children.push(lxDocxTable(t, D)); children.push(new D.Paragraph({ text: "", spacing: { after: 80 } })); break; }
-        if (t.header.length >= 3 && !lx && !two) wide = true;
+        if (t.header.length >= 3 && !lx && !two && !tm) wide = true;
         const mk = (cell, head) => new D.TableCell({ children: [new D.Paragraph({ children: inlineRuns(cell.tokens, D, head ? { bold: true } : {}), spacing: { after: two ? 10 : 40 } })], shading: head ? { type: D.ShadingType.CLEAR, fill: memo ? "D9D9D9" : "EEF1F7" } : undefined, margins: memo ? { top: 30, bottom: 30, left: 60, right: 60 } : two ? { top: 30, bottom: 30, left: 70, right: 70 } : { top: 60, bottom: 60, left: 90, right: 90 } });
         children.push(new D.Table({ width: { size: 100, type: D.WidthType.PERCENTAGE }, borders: { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border }, rows: [...(t.header.every(c => !plain(c.tokens || []).replace(/\\s+/g, "")) ? [] : [new D.TableRow({ tableHeader: true, children: t.header.map(c => mk(c, true)) })]), ...t.rows.map(r => new D.TableRow({ ...(two && fill[page2 ? 1 : 0].row > 0 && r.every(c => !plain(c.tokens || []).replace(/[\s_–—-]/g, "")) ? { height: { value: Math.round((18 + fill[page2 ? 1 : 0].row) * 20), rule: D.HeightRule.ATLEAST } } : {}), children: r.map(c => mk(c, false)) }))] }));
         children.push(two ? new D.Paragraph({ text: "", spacing: { after: 0, line: 140 }, run: { size: 8 } }) : new D.Paragraph({ text: "" })); break;
@@ -3394,10 +3512,11 @@ async function mdToDocxBlob(md, title, opts = {}) {
     const text = "© Учу по ФРП · uchu-po-frp.ru" + (email ? " · для: " + email : "") + " · " + dt;
     return new D.Footer({ children: [new D.Paragraph({ alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ text, font: "Times New Roman", size: 14, color: "888888" })] })] });
   };
+  const mkBlank = () => new D.Footer({ children: [] });
   const doc = new D.Document({
     creator: "Учу по ФРП", title,
     styles: { default: { document: { run: { font: "Times New Roman", size: memo ? 19 : two ? sc(22) : 24 } }, heading1: { run: { font: "Times New Roman", size: 32, bold: true } }, heading2: { run: { font: "Times New Roman", size: 28, bold: true } }, heading3: { run: { font: "Times New Roman", size: 26, bold: true } } } },
-    sections: [{ footers: { default: two ? mkFoot() : mkMark(), ...(two && pgs ? { first: mkFoot() } : {}) }, ...(two && pgs ? { headers: { first: mkHead(pgs[0]), default: mkHead(pgs[1] || pgs[0]) } } : {}), properties: { ...(pgs ? { titlePage: true } : {}), page: { ...(two ? { margin: pgs ? { top: 1000, bottom: 900, left: 1250, right: 1000, footer: 300 } : { top: 680, bottom: 760, left: 1100, right: 850, footer: 300 } } : {}), size: wide ? { orientation: D.PageOrientation.LANDSCAPE, width: D.convertMillimetersToTwip(210), height: D.convertMillimetersToTwip(297) } : {}, ...(two ? {} : { margin: tm ? { top: 850, bottom: 850, left: 850, right: 850 } : { top: 1000, bottom: 1000, left: 1100, right: 900 } }) } }, children }]
+    sections: [{ footers: { default: tm ? mkBlank() : two ? mkFoot() : mkMark(), ...(two && pgs ? { first: mkFoot() } : {}) }, ...(two && pgs ? { headers: { first: mkHead(pgs[0]), default: mkHead(pgs[1] || pgs[0]) } } : {}), properties: { ...(pgs ? { titlePage: true } : {}), page: { ...(two ? { margin: pgs ? { top: 1000, bottom: 900, left: 1250, right: 1000, footer: 300 } : { top: 680, bottom: 760, left: 1100, right: 850, footer: 300 } } : {}), size: wide ? { orientation: D.PageOrientation.LANDSCAPE, width: D.convertMillimetersToTwip(210), height: D.convertMillimetersToTwip(297) } : {}, ...(two ? {} : { margin: tm ? { top: 850, bottom: 850, left: 850, right: 850 } : { top: 1000, bottom: 1000, left: 1100, right: 900 } }) } }, children }]
   });
   let blob = await D.Packer.toBlob(doc); Object.assign(WS_PAGE, _wp);
   if (two) blob = await wsMirror(blob);
