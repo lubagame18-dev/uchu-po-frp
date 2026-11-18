@@ -318,10 +318,13 @@ const Access = (() => {
     // у разработчика и по промокоду кнопки тарифа в шапке нет (тарифы и промокод — в личном кабинете)
     let counters=document.getElementById("quotaCounters");
     if(!counters){counters=document.createElement("div");counters.id="quotaCounters";counters.className="quota-counters";document.querySelector(".hero .wrap")?.append(counters);}
-    counters.hidden=!commercial()||isDev()||promoFree();
+    const S=window.Account?.session;
+    /* Без входа остатки неизвестны. Не показываем две плашки «Войдите» —
+       в шапке уже есть одна кнопка входа, а пустые плашки только путают. */
+    counters.hidden=!commercial()||isDev()||promoFree()||!S;
     if(!counters.hidden){
-      const S=window.Account?.session,ready=S?.profileState==="ready",loading=!!S&&(!S.profileState||S.profileState==="loading");
-      const fmt=n=>new Intl.NumberFormat("ru-RU").format(n),unknown=loading?"Загрузка…":S?"—":"Войдите";
+      const ready=S?.profileState==="ready",loading=!!S&&(!S.profileState||S.profileState==="loading");
+      const fmt=n=>new Intl.NumberFormat("ru-RU").format(n),unknown=loading?"Загрузка…":"—";
       const points=n=>window.Usage?.balance?Usage.balance(n):(n>0&&n<900?"<0,1":fmt(Math.floor(n/900)/10));
       const render=(id,label,left,limit,tokens)=>{
         const known=typeof left==="number"&&Number.isFinite(left)&&typeof limit==="number"&&Number.isFinite(limit)&&limit>=0;
