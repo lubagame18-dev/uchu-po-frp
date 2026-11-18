@@ -2128,12 +2128,13 @@ async function buildWithAi(L, p, type, formats) {
         autoTheme(L, p);
         const r = await Deck.build(cmd, p, type, { ai: true, signal: state.gen.ctl.signal });
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
-        L.docs.slides = await Media.autoFill(r.md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => r.md);
+        const seed2 = window.SlideEditor?.seedTemplateImages ? SlideEditor.seedTemplateImages(r.md, p) : r.md;
+        L.docs.slides = await Media.autoFill(seed2, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => r.md);
         if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
         if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params);
         /* тест создаётся отдельно от презентации — см. ниже */
         L.status.slides = "ok";
-      } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); L.status.slides = "ok"; }
+      } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); if (window.SlideEditor?.seedTemplateImages) L.docs.slides = SlideEditor.seedTemplateImages(L.docs.slides, p); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); L.status.slides = "ok"; }
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
       continue;
     }

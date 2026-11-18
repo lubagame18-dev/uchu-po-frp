@@ -1852,6 +1852,29 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     });
     return out.join("\n\n---\n\n") + "\n";
   }
+  /* Картинка под шаблон: если слайд правила/сравнения/проверки/задания остался
+     без иллюстрации — ставим поисковую заготовку, её заполнит Media.autoFill. */
+  function seedTemplateImages(md, p = {}) {
+    let n = 0;
+    return splitSlides(String(md || "")).map((raw, i) => {
+      if (n >= 4 || i === 0) return raw;
+      const sl = parse(raw); if (!sl || /!\[[^\]]*\]\([^)]*\)/.test(sl.body || "")) return raw;
+      const tt = String(sl.title || "").toLowerCase();
+      const byTitle = /проверь себя|проверочн|проверка|итог|рефлекс/.test(tt) ? "check"
+        : /правило|алгоритм|порядок|шаг|план|инструкц/.test(tt) ? "rule"
+        : /сравн|отличи|сходств|сопостав/.test(tt) ? "compare"
+        : /задани|упражн|практик|трениров/.test(tt) ? "task" : "";
+      const lay = byTitle || autoLayout(sl, i);
+      if (!["rule", "compare", "check", "task"].includes(lay)) return raw;
+      const title = String(sl.title || "").replace(/[#*_`]/g, " ").replace(/\s+/g, " ").trim();
+      const generic = /^(проверь себя|проверка|сравнение|сопоставление|задание|упражнение|практика|правило|алгоритм|итог|рефлексия)\b/i.test(title);
+      const q = generic ? [String(p.topic || "").trim(), title].filter(Boolean).join(" ") : (title || String(p.topic || "").trim());
+      if (!q) return raw;
+      n++;
+      sl.body = `${sl.body}\n\n![Иллюстрация: ${q}](search:${encodeURIComponent(q)})`.trim();
+      return build(sl);
+    }).join("\n\n---\n\n") + "\n";
+  }
   function applyAutoFullFrames() {
     const md = slides().map(build).join("\n\n---\n\n");
     const arr = splitSlides(autoFullFrame(md, L()?.params)).map(parse);
@@ -1873,7 +1896,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     a[i] = { ...n, set: { ...old.set, ...(n.set || {}) } };
     write(a); rerender(); return true;
   }
-  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, autoFullFrame, applyAutoFullFrames, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, autoFullFrame, seedTemplateImages, applyAutoFullFrames, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;
 
