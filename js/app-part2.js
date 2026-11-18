@@ -912,33 +912,45 @@ const BALANCE = d => `## Распределение времени (обязат
 Урок длится ${d} мин. На открытие нового (наблюдение, гипотеза, формулировка правила) уходит не больше 30 % времени. На практику (упражнения, самостоятельная работа с самопроверкой, применение) отводится не меньше 45 %: для 45 минут это не меньше 5–6 заданий разной сложности, из них минимум два с проверкой по эталону. Главное действие темы (например, выделить оборот запятыми, решить задачу, составить предложение) ученики выполняют на многих примерах: сначала с комментированием, потом самостоятельно. Проставь минуты по этапам, сумма равна ${d}. Перед выдачей проверь: если практики меньше 45 %, перераспредели время и добавь упражнения.`;
 /* Вторая, независимая проверка готового конспекта: «взгляд со стороны», без методических запоминалок. Возвращает точечные замены, а не весь документ (дёшево по токенам). */
 function promptReview(p, md, f = "conspect") {
-  return `Ты — независимый проверяющий конспектов уроков. Ты не писал этот конспект и не знаешь методических шаблонов: оцени только то, что написано. Предмет: ${p.subject === "ru" ? "русский язык" : p.subject === "lit" ? "литература" : (window.Subjects?.name?.(p.subject) || p.subject)}, ${p.grade} класс. Тема урока: «${p.topic}».
+  return `Ты — независимый проверяющий документов урока. Ты не писал этот документ и не знаешь методических шаблонов: оцени только то, что написано. Предмет: ${p.subject === "ru" ? "русский язык" : p.subject === "lit" ? "литература" : (window.Subjects?.name?.(p.subject) || p.subject)}, ${p.grade} класс. Тема урока: «${p.topic}». Документ: ${DOCS[f]?.label || f}.
 
-Найди содержательные ошибки:
+Найди содержательные ошибки и нарушения условий:
 1. Лишнее по теме: правила, термины, примеры и задания из другой темы (например, приставки пре-/при- в уроке про причастие) или вообще не относящиеся к уроку. Такое нужно убрать или заменить на материал по теме.
 2. Странные, жёсткие, неестественные или пафосные формулировки в мотивации, проблемном вопросе и цели: жестокость, насилие, смерть и казни в вопросе, морализаторство («разве не должен…»), эмоциональные ловушки («обидно ли вам?»), оценочные вопросы без опоры на материал, высокопарное начало. Замени на спокойную, понятную детям формулировку по теме. Нормально, если проблемная ситуация — два примера, где в одном запятая есть, в другом нет.
-3. Явные ошибки: неверное правило, неверный пример, имя или термин не на своём месте. Проверяй также предметную точность: ${window.LessonQuality?.SUBJECTS[p.subject] || ""}
+3. Явные ошибки: неверное правило, неверный пример, имя или термин не на своём месте, неверные даты/единицы/формулы. Проверяй также предметную точность: ${window.LessonQuality?.SUBJECTS[p.subject] || ""}
 4. Вопросы учителя без верного ответа ученика: после вопроса должен стоять *(Верный ответ ученика: …)*. Если его нет, дополни: в «new» повтори фрагмент вопроса и добавь конкретный верный ответ.
 5. Нарушения требований учителя (это его методические заметки, они главнее общих шаблонов):
 ${window.TeacherRules ? TeacherRules.checklist(p, f).map(x => "– " + x).join("\n") : ""}
 6. Отсылки к отсутствующему учебнику, странице, упражнению, аудио или исходным данным. Вместо них дай конкретное самостоятельное задание с исходными данными и ответом; при наличии страниц сохрани подходящие теме подтверждённые номера.
 7. Пустые этапы: только название действия вместо объяснения, примеров, условий и решения. Дополняй содержанием по теме; проверяй ответы и вычисления. В ученической части листа не раскрывай ключ.
+8. Условия заданий — обязательная проверка для ВСЕХ предметов. У каждого задания должны быть все данные для выполнения:
+   – «вставьте пропущенные буквы/слова» — в тексте действительно есть пропуски;
+   – «составьте план/рассказ/описание» — дан исходный текст, ситуация или опора;
+   – «решите задачу/уравнение» — даны числа, формулы, единицы и вопрос;
+   – «сравните» — даны два объекта или два признака;
+   – «заполните таблицу/схему» — есть таблица, колонки и что заполнять;
+   – «распределите/выберите» — есть полный набор элементов;
+   – «докажите/объясните» — есть утверждение и материал для аргумента;
+   – «найдите ошибку» — есть ошибочный пример и понятно, что именно искать;
+   – к заданию оставлено место для ответа, а ответ не раскрыт в ученической части.
+   Если данных не хватает — добавь их или переформулируй задание. Не оставляй «решите», «составьте», «заполните» без самого материала.
+9. Проверь, что ответы и ключи соответствуют условиям: нет ответов к другому заданию, нет двух правильных вариантов, нет противоречия между условием, образцом и ключом. В рабочем листе/контрольной для ученика ключ не должен быть виден.
 ${window.LessonQuality ? LessonQuality.sourcePrompt(p) : ""}
 ${window.LessonQuality?.issues(md,p).length ? "Обнаруженные нарушения: " + LessonQuality.issues(md,p).join("; ") : ""}
 Не сокращай содержательное объяснение, полные условия и верные решения ради стиля. Не объявляй корректную обратную проверку или нужную опору «другой темой» без основания; не подменяй доказательство приблизительным признаком (например, «сумма больше слагаемых» не доказывает верность вычисления). Не выдумывай, что класс точно изучал или не изучал прежде. Исправляй только подтверждаемую ошибку, нарушение источника или явно пустой этап. Не переписывай документ целиком и не придирайся к стилю. Если всё в порядке, верни пустой список.
 
-Верни только JSON: {"fixes":[{"old":"ТОЧНЫЙ фрагмент из конспекта, 20–300 знаков, встречается один раз","new":"чем заменить (пустая строка — убрать)","why":"коротко"}]}. Не больше 14 замен.
+Верни только JSON: {"fixes":[{"old":"ТОЧНЫЙ фрагмент из документа, 20–300 знаков, встречается один раз","new":"чем заменить (пустая строка — убрать)","why":"коротко"}]}. Не больше 20 замен.
 
-<conspect>
+<document>
 ${String(md).slice(0, 26000)}
-</conspect>`;
+</document>`;
 }
 async function reviewConspect(md, p, signal, f = "conspect") {
   try {
     const res = await caps.sample(promptReview(p, md, f), { modelTier: "default", cache: false, signal });
     const j = JSON.parse((String(res.text).match(/\{[\s\S]*\}/) || ["{}"])[0]);
     let out = md, n = 0; const done = [];
-    for (const x of (j.fixes || []).slice(0, 14)) {
+    for (const x of (j.fixes || []).slice(0, 20)) {
       const o = String(x?.old || ""), nw = String(x?.new ?? "");
       if (o.length < 20 || o.length > 400 || nw.length > o.length * 2 + 80) continue;
       if (out.split(o).length !== 2) continue; // фрагмент должен найтись ровно один раз
@@ -2055,7 +2067,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
           const res = await caps.sample(request, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: ({ text }) => { L.docs[f] = cleanMd(text); if (!state.gen.fake) state.gen.pct = Math.min(95, Math.round(text.length / 120)); updateProgress(); if (state.lesson?.id === L.id && state.active === f) { $("#md").value = L.docs[f]; renderPreview(); } } });
           if (!(res.text && res.text.length > 400)) throw Object.assign(new Error("Модель не вернула содержательный документ"),{code:"empty_completion"});
           md = cleanMd(res.text);
-          if (["conspect", "lesson", "worksheet"].includes(f) && md.length > 1500) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
+          if (["conspect", "lesson", "worksheet", "control", "memo", "homework"].includes(f) && md.length > 800) { state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress(); const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done }; }
         } catch (e) { if (e?.code === "cancelled") throw e; console.warn("plugin AI", e);L.generationWarnings={...(L.generationWarnings||{}),[f]:"Нейросеть не завершила документ; сохранён черновик."}; }
       }
       /* MaterialResolver в урок не добавляем: справки, типовые задания и темы года не должны попадать в конспект */
@@ -2428,6 +2440,29 @@ async function refineDoc() {
   }
   await refineDocs(list, instr);
 }
+/* Проверка формулировок и условий текущего документа: все предметы и типы листов.
+   Исправляет только подтверждённые ошибки; изменения можно отменить ↶. */
+async function fixCurrentDoc() {
+  const L = state.lesson, f = state.active;
+  if (!L?.docs?.[f] || state.gen) return;
+  if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) { openAiSettings(); return; }
+  const before = L.docs[f];
+  state.gen = { lessonId: L.id, doc: f, pct: 5, label: "проверяю формулировки", ctl: new AbortController() };
+  renderLesson();
+  try {
+    const rv = await reviewConspect(before, L.params, state.gen.ctl.signal, f);
+    if (!rv.n) { toast("Ошибок в формулировках и условиях не найдено.", 5000); return; }
+    EditHistory.record(before, rv.md);
+    L.docs[f] = rv.md; L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
+    $("#md").value = rv.md; await saveLesson(L); renderLesson();
+    toast(`Исправлено фрагментов: ${rv.n}. Проверьте изменения — отменить можно стрелкой ↶.`, 8000);
+  } catch (e) {
+    if (e?.code !== "cancelled") toast("Не удалось проверить документ: " + (e.message || e), 8000);
+  } finally {
+    state.gen = null;
+    await saveLesson(L); renderLesson();
+  }
+}
 /* ---------- ИИ-правка одного слайда и всей презентации (кнопки в редакторе слайдов) ---------- */
 async function refineSlide(index, instruction) {
   const L = state.lesson; if (!L?.docs?.slides || !window.SlideEditor) { toast("Слайдов пока нет."); return; }
@@ -2662,6 +2697,7 @@ function syncTools() {
   { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = true;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
   $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; { const dev = !window.Access || !Access.commercial() || Access.isDev(), isWs = state.active === "worksheet" && has; $("#btnPng").hidden = !(isWs && (state.lesson.art?.banner || state.lesson.art?.slots?.length)); $("#btnMdToggle").hidden = !dev; } $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
+  { const fx = $("#btnFixDoc"); if (fx) { fx.hidden = !has; fx.disabled = !has || busy; } }
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
   $("#btnStop").hidden = !state.gen;
   try { EditHistory.sync(); } catch { }
@@ -3707,6 +3743,7 @@ function bind() {
   $("#sheet").addEventListener("paste", e => { if (!e.target.closest || !e.target.closest("[contenteditable=true]") || e.target.closest(".sxed")) return; e.preventDefault(); document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain")); });
   $("#btnMdToggle").onclick = () => { const p = $("#mdPane"); p.hidden = !p.hidden; $("#split").classList.toggle("with-md", !p.hidden); syncTools(); };
   $("#btnRefine").onclick = refineDoc;
+  $("#btnFixDoc").onclick = () => fixCurrentDoc();
   $("#refineInput").addEventListener("keydown", e => { if (e.key === "Enter") refineDoc(); });
   $("#refineScope")?.addEventListener("change", () => { syncRefineScope(); paintCosts(); });
   window.addEventListener("uchu:access", () => { try { syncRefineScope(); } catch { } });
