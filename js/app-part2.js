@@ -2534,6 +2534,7 @@ async function fixCurrentDoc() {
   if (!L?.docs?.[f] || state.gen) return;
   if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) { openAiSettings(); return; }
   const before = L.docs[f];
+  window.Usage?.begin("Проверка формулировок", L.title);
   state.gen = { lessonId: L.id, doc: f, pct: 5, label: "проверяю формулировки", ctl: new AbortController() };
   renderLesson();
   try {
@@ -2785,7 +2786,7 @@ function syncTools() {
   { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = true;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
   $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; { const dev = !window.Access || !Access.commercial() || Access.isDev(), isWs = state.active === "worksheet" && has; $("#btnPng").hidden = !(isWs && (state.lesson.art?.banner || state.lesson.art?.slots?.length)); $("#btnMdToggle").hidden = !dev; } $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
   ["#btnDocx", "#btnPptx", "#btnPdf", "#btnMdToggle"].forEach(id => $(id).disabled = !has || busy);
-  { const fx = $("#btnFixDoc"); if (fx) { fx.hidden = !has; fx.disabled = !has || busy; } }
+  { const fx = $("#btnFixDoc"); if (fx) { fx.hidden = !has; fx.disabled = !has || busy; fx.textContent = `🔎 Проверить формулировки · ${window.Usage?.cost?.("edit") || "ИИ"}`; fx.title = `Проверить формулировки, условия и ответы (расход ИИ ${window.Usage?.cost?.("edit") || "учитывается"})`; } }
   $("#btnMdToggle").textContent = $("#mdPane").hidden ? "Markdown" : "Скрыть Markdown";
   $("#btnStop").hidden = !state.gen;
   try { EditHistory.sync(); } catch { }
