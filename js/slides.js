@@ -1171,6 +1171,7 @@ const SlideEditor = (() => {
     box.querySelectorAll("figure.pic").forEach(f => { if (/^(search|commons):/.test(f.dataset.src || "") || !f.querySelector("img")) { const acc = f.closest(".sx-acc"); (acc || f).remove(); } });
     for (const fig of box.querySelectorAll("figure.pic")) { const img = fig.querySelector("img"); if (img) img.src = await toData(fig.dataset.src); }
     for (const img of box.querySelectorAll("img.sx-bgimg, img.stk-img")) img.src = await toData(img.dataset.src);
+    for (const au of box.querySelectorAll("audio[src]")) au.src = await toData(au.getAttribute("src"));
     box.querySelectorAll("[contenteditable]").forEach(e => e.removeAttribute("contenteditable"));
     const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(L().title)}</title>${fontLinks}<style>
 ${css}
