@@ -712,10 +712,9 @@ window.UCHU_SITE = {
         <div class="row2">
           <div class="field" hidden><span class="lbl">Режим</span><div class="seg" id="segMode"><button data-v="school" aria-pressed="true">Школа</button><button data-v="tutor" aria-pressed="false">Репетитор</button></div></div>
         </div>
-        <div class="field" id="ctrlField" hidden><label for="control">Формат заданий</label>
-          <select id="control" aria-label="Формат заданий"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select>
-        </div>
-        <p class="hint" id="controlHint"></p>
+        <!-- «Формат заданий» убран из интерфейса: всегда текущий школьный контроль.
+             Скрытый select оставлен для внутренней логики и старых сохранённых уроков. -->
+        <select id="control" hidden aria-hidden="true" tabindex="-1"><option value="school">Текущий школьный контроль</option><option value="vpr">ВПР</option><option value="oge">ОГЭ</option><option value="ege">ЕГЭ</option></select>
         <div class="field" id="examFocusBox" hidden><span class="lbl">Что тренируем</span>
           <div class="seg" id="segExamFocus"><button data-v="full" aria-pressed="true" title="Полный вариант-срез: все части и типы заданий по кодификатору">Весь вариант</button><button data-v="topic" aria-pressed="false" title="Только введённая тема урока, но в формате экзамена">Только тему урока</button></div>
           <p class="hint" id="examFocusHint">«Весь вариант» — случайный срез по кодификатору; «Только тему» — отработка темы в формате экзамена.</p>

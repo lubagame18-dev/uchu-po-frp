@@ -585,7 +585,8 @@ function syncControls() {
   if (!controlAllowed(state.control, state.grade)) state.control = "school";
   $("#control").value = state.control;
   const ex = KB.exams[state.control];
-  $("#controlHint").textContent = ex ? ex.verify : ""; $("#controlHint").hidden = !ex;
+  const chHint = document.getElementById("controlHint");
+  if (chHint) { chHint.textContent = ex ? ex.verify : ""; chHint.hidden = !ex; }
   const ef = document.getElementById("examFocusBox"); if (ef) ef.hidden = state.control === "school";
   const efh = document.getElementById("examFocusHint");
   if (efh) efh.textContent = state.examFocus === "topic" ? `Точечная отработка темы «${state.topic || "…"}» в формате ${ex ? ex.label : "экзамена"}.` : `Комплексный вариант-срез: все части и типы заданий ${ex ? ex.label : "экзамена"} по кодификатору.`;
@@ -636,7 +637,7 @@ function syncFieldVisibility() {
 }
 function restoreForm() {
   const f = local.get("form", null);
-  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: f.control || "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium", examFocus: f.examFocus || "full", wsDesign: "interactive" });
+  if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium", examFocus: "full", wsDesign: "interactive" });
   setSeg("segSubject", state.subject); setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; if ($("#wishes")) $("#wishes").value = ""; state.wishes = "";
   $$("#formats > .check > input:not([id])").forEach(i => (i.checked = !!state.formats[i.value]));
