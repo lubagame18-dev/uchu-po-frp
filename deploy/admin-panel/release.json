@@ -1,0 +1,7 @@
+{
+  "version": "2026-11-19-admin-panel",
+  "files": {
+    "deploy/pocketbase/pb_hooks/uchu.js": "3de52bb4085003b8f22ebd3806cda44100865e373cd074f4e643322bdd3d2a25",
+    "deploy/pocketbase/pb_hooks/uchu.pb.js": "0ab6d182732119d97dc14a3acdc08885033261e49a3cd67442ae816ca7002a54"
+  }
+}
