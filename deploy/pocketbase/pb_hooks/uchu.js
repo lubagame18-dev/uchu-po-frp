@@ -395,7 +395,8 @@ exports.adminUsers = function(e) { return send(e, () => {
   for (const r of e.app.findRecordsByFilter('uchu_profiles', '', '', 10000, 0)) profiles[r.getString('key')] = payload(r);
   const presence = {};
   try {
-    for (const r of e.app.findRecordsByFilter('uchu_login_state', 'key ~ {:p}', '', 10000, 0, { p: 'presence:' })) {
+    for (const r of e.app.findRecordsByFilter('uchu_login_state', '', '', 10000, 0)) {
+      if (!r.getString('key').startsWith('presence:')) continue;
       if (r.getInt('expires') <= Date.now()) continue;
       let d = {}; try { d = JSON.parse(r.getString('data') || '{}'); } catch (_) { }
       if (d.user_id) presence[d.user_id] = Number(d.last_seen) || 0;

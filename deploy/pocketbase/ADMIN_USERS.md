@@ -9,11 +9,15 @@
 
 В `pb_hooks/` должны лежать обновлённые файлы:
 
-- `uchu.js` — функции `adminUsers`, `adminAdjust` и `adminDeleteUser`;
+- `uchu.js` — функции `adminUsers`, `adminAdjust`, `adminDeleteUser` и `presencePing`;
 - `uchu.pb.js` — маршруты:
   - `GET /api/uchu/admin/v1/users`
   - `POST /api/uchu/admin/v1/adjust`
   - `POST /api/uchu/admin/v1/delete-user`
+  - `POST /api/uchu/presence/v1/ping`
+
+Онлайн-статус: сайт раз в минуту отправляет heartbeat; сервер хранит его 3 минуты
+в закрытой `uchu_login_state`. Панель обновляет список раз в 30 секунд.
 
 После копирования файлов перезапустите PocketBase:
 
