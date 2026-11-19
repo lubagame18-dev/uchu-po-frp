@@ -31,6 +31,7 @@
   const credits = n => { const v = Math.floor(Math.max(0, Number(n) || 0) / 9000 * 10) / 10; return v > 0 && v < 0.1 ? "<0,1 ⚡" : v.toLocaleString("ru-RU") + " ⚡"; };
   const planName = p => ({ ai: "С ИИ", aiYear: "С ИИ, год", single: "1 урок", free: "Бесплатный", promo: "Промокод", none: "Без тарифа" }[p] || p || "—");
   const date = s => { if (!s) return "—"; const d = new Date(s); return Number.isFinite(d.getTime()) ? d.toLocaleDateString("ru-RU") : "—"; };
+  const seen = s => { if (!s) return "не был(а)"; const d = new Date(Number(s)); const min = Math.round((Date.now() - d.getTime()) / 60000); return min < 1 ? "только что" : min < 60 ? `${min} мин назад` : d.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); };
   const api = async (path, opt = {}, retry = true) => {
     const s = session();
     if (!s?.access) { gate.hidden = false; app.hidden = true; throw new Error("Нужно войти на сайте"); }
@@ -49,11 +50,12 @@
     const q = ($("#q")?.value || "").trim().toLowerCase();
     const rows = users.filter(u => !q || String(u.email || "").toLowerCase().includes(q));
     const byPlan = users.reduce((a, u) => { const k = u.plan || "none"; a[k] = (a[k] || 0) + 1; return a; }, {});
-    if (summary) summary.innerHTML = `Всего пользователей: <b>${num(users.length)}</b> · ${Object.entries(byPlan).map(([k, n]) => `${esc(planName(k))}: ${num(n)}`).join(" · ")}`;
+    const online = users.filter(u => u.online).length;
+    if (summary) summary.innerHTML = `Всего: <b>${num(users.length)}</b> · онлайн сейчас: <b>${num(online)}</b> · ${Object.entries(byPlan).map(([k, n]) => `${esc(planName(k))}: ${num(n)}`).join(" · ")}`;
     list.innerHTML = rows.length ? `<div class="card">${rows.map(u => {
       const left = Math.max(0, (+u.tokens_limit || 0) - (+u.tokens_used || 0));
       return `<div class="user" data-id="${esc(u.id)}">
-        <div><div class="email">${esc(u.email || "без почты")}</div><div class="muted">${u.verified ? '<span class="pill ok">подтверждён</span>' : '<span class="pill bad">не подтверждён</span>'} ${u.created ? `<span class="muted">с ${date(u.created)}</span>` : ""}</div><div class="muted">уроков в аккаунте: ${num(u.lessons)}</div></div>
+        <div><div class="email">${esc(u.email || "без почты")} ${u.online ? '<span class="pill ok">онлайн</span>' : ""}</div><div class="muted">${u.verified ? '<span class="pill ok">подтверждён</span>' : '<span class="pill bad">не подтверждён</span>'} ${u.created ? `<span class="muted">с ${date(u.created)}</span>` : ""}</div><div class="muted">${u.online ? "сейчас на сайте" : "был(а): " + seen(u.last_seen)} · уроков: ${num(u.lessons)}</div></div>
         <div><span class="pill">${esc(planName(u.plan))}</span><div class="muted">до ${date(u.paid_until)}</div></div>
         <div><b>${num(u.ai_left)}</b> <span class="muted">из ${num(u.ai_limit)}</span><div class="muted">уроков осталось</div></div>
         <div><b>${credits(left)}</b><div class="muted">токенов: ${num(u.tokens_used)} / ${num(u.tokens_limit)}</div></div>
@@ -113,5 +115,6 @@
   $("#q")?.addEventListener("input", render);
   $("#reload")?.addEventListener("click", load);
   $("#loginForm")?.addEventListener("submit", login);
+  setInterval(() => { if (!app.hidden && document.visibilityState === "visible") load(); }, 30000);
   load();
 })();

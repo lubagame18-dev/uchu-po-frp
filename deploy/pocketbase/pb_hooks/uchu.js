@@ -366,6 +366,17 @@ function adminContext(e) {
   if (!admin(e.app, c)) fail(403, 'Owner access required');
   return c;
 }
+/* Лёгкая отметка «онлайн»: только для вошедшего пользователя, без истории в браузере. */
+exports.presencePing = function(e) { return send(e, () => {
+  const c = context(e);
+  if (!c.user) fail(401, 'Authentication required');
+  const key = 'presence:' + c.user.id, now = Date.now();
+  const found = e.app.findRecordsByFilter('uchu_login_state', 'key = {:key}', '', 1, 0, { key });
+  const r = found.length ? found[0] : new Record(e.app.findCollectionByNameOrId('uchu_login_state'));
+  r.set('key', key); r.set('expires', now + 3 * 60 * 1000); r.set('data', { user_id: c.user.id, last_seen: now });
+  e.app.save(r);
+  return e.json(200, { ok: true, last_seen: now });
+}); };
 function profileView(p, id, email) {
   return {
     id, email, plan: p.plan || 'none',
@@ -382,11 +393,19 @@ exports.adminUsers = function(e) { return send(e, () => {
   adminContext(e);
   const profiles = {};
   for (const r of e.app.findRecordsByFilter('uchu_profiles', '', '', 10000, 0)) profiles[r.getString('key')] = payload(r);
+  const presence = {};
+  try {
+    for (const r of e.app.findRecordsByFilter('uchu_login_state', 'key ~ {:p}', '', 10000, 0, { p: 'presence:' })) {
+      if (r.getInt('expires') <= Date.now()) continue;
+      let d = {}; try { d = JSON.parse(r.getString('data') || '{}'); } catch (_) { }
+      if (d.user_id) presence[d.user_id] = Number(d.last_seen) || 0;
+    }
+  } catch (_) { }
   const users = e.app.findRecordsByFilter('uchu_users', '', '-created', 10000, 0).map(u => {
     const id = u.id, email = u.getString('email');
     let lessons = 0;
     try { lessons = e.app.countRecords('uchu_lessons', 'owner = {:owner}', { owner: id }); } catch (_) { }
-    return { ...profileView(profiles[id] || {}, id, email), verified: u.getBool('verified'), created: u.getString('created') || '', lessons };
+    return { ...profileView(profiles[id] || {}, id, email), verified: u.getBool('verified'), created: u.getString('created') || '', lessons, online: !!presence[id], last_seen: presence[id] || 0 };
   });
   return e.json(200, { users });
 }); };
