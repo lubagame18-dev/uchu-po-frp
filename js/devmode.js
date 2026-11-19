@@ -107,7 +107,7 @@ const Dev = (() => {
     on = true;
     document.body.classList.add("dev-on");
     const root = document.createElement("div"); root.id = "devRoot";
-    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button><button class="btn sm ghost" id="devTeacher" title="Посмотреть сайт так, как его видит учитель на своём тарифе">👁 Как учитель</button><button class="btn sm ghost" id="devSettings" title="Цены, промпты, материалы, AI">⚙ Настройки</button><button class="btn sm ghost" id="devForget" title="Выйти и больше не входить автоматически на этом устройстве">Выйти и забыть</button></div>
+    root.innerHTML = `<div class="dev-bar" role="region" aria-label="Режим разработчика"><b>Режим разработчика</b><button class="btn sm" id="devOpen">Разделы разработчика</button><button class="btn sm flame" id="devExit">Выйти</button><button class="btn sm ghost" id="devTeacher" title="Посмотреть сайт так, как его видит учитель на своём тарифе">👁 Как учитель</button><button class="btn sm ghost" id="devSettings" title="Цены, промпты, материалы, AI">⚙ Настройки</button><a class="btn sm ghost" href="/admin.html" target="_blank" rel="noopener" title="Пользователи, тарифы и начисления">👥 Пользователи</a><button class="btn sm ghost" id="devForget" title="Выйти и больше не входить автоматически на этом устройстве">Выйти и забыть</button></div>
       <main id="view-dev" class="wrap page" hidden></main>`;
     document.body.prepend(root);
     root.querySelector("#devExit").onclick = exit;

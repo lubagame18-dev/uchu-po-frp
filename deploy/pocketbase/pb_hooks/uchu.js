@@ -359,8 +359,61 @@ function applyPayment(app, body, c) {
   return {applied: true};
 }
 
-exports.adminUser = function(e) { return send(e, () => {
-  const c = context(e), body = e.requestInfo().body;
+/* Владельцу: список аккаунтов и ручные компенсации.
+   Доступ только для подтверждённой почты из site_admins; service-ключ в браузер не попадает. */
+function adminContext(e) {
+  const c = context(e);
+  if (!admin(e.app, c)) fail(403, 'Owner access required');
+  return c;
+}
+function profileView(p, id, email) {
+  return {
+    id, email, plan: p.plan || 'none',
+    ai_left: Number.isFinite(p.ai_left) ? p.ai_left : 0,
+    ai_limit: Number.isFinite(p.ai_limit) ? p.ai_limit : 0,
+    tokens_used: Number.isFinite(p.tokens_used) ? p.tokens_used : 0,
+    tokens_limit: Number.isFinite(p.tokens_limit) ? p.tokens_limit : 0,
+    paid_until: p.paid_until || '',
+    creation_limit: p.creation_limit || 0,
+    creation_used: p.creation_used || 0
+  };
+}
+exports.adminUsers = function(e) { return send(e, () => {
+  adminContext(e);
+  const profiles = {};
+  for (const r of e.app.findRecordsByFilter('uchu_profiles', '', '', 10000, 0)) profiles[r.getString('key')] = payload(r);
+  const users = e.app.findRecordsByFilter('uchu_users', '', '-created', 10000, 0).map(u => {
+    const id = u.id, email = u.getString('email');
+    let lessons = 0;
+    try { lessons = e.app.countRecords('uchu_lessons', 'owner = {:owner}', { owner: id }); } catch (_) { }
+    return { ...profileView(profiles[id] || {}, id, email), verified: u.getBool('verified'), created: u.getString('created') || '', lessons };
+  });
+  return e.json(200, { users });
+}); };
+exports.adminAdjust = function(e) { return send(e, () => {
+  adminContext(e);
+  const body = e.requestInfo().body || {};
+  const id = String(body.id || '').trim();
+  if (!id) fail(400, 'Укажите пользователя');
+  const lessons = Math.min(500, Math.max(0, Math.trunc(Number(body.lessons) || 0)));
+  const tokens = Math.min(50000000, Math.max(0, Math.trunc(Number(body.tokens) || 0)));
+  const plan = body.plan == null ? '' : String(body.plan);
+  const plans = ['none', 'single', 'free', 'promo', 'ai', 'aiYear'];
+  if (plan && plans.indexOf(plan) < 0) fail(400, 'Неизвестный тариф');
+  if (!lessons && !tokens && !plan) fail(400, 'Нечего начислять');
+  const r = lookup(e.app, 'profiles', id);
+  if (!r) fail(404, 'Профиль не найден');
+  const p = payload(r);
+  if (lessons) {
+    p.ai_left = Math.max(0, (p.ai_left || 0) + lessons);
+    p.ai_limit = Math.max(0, p.ai_limit || 0, p.ai_left);
+  }
+  if (tokens) p.tokens_limit = Math.max(0, (p.tokens_limit || 0) + tokens);
+  if (plan) p.plan = plan;
+  write(e.app, 'profiles', p, { service: true }, 'PATCH');
+  return e.json(200, { ok: true, profile: profileView(p, id) });
+}); };
+exports.adminUser = function(e) { return send(e, () => {  const c = context(e), body = e.requestInfo().body;
   if (!c.service) fail(403, 'Server credential required');
   const email=String(body.email||'').trim().toLowerCase(),phone=String(body.phone||'');
   if ((!email&&!phone) || (email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || (phone&&(!/^\+79[0-9]{9}$/.test(phone)||phone.startsWith('+7940')))) fail(400,'Invalid imported identity');

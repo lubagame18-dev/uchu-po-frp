@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Пользователи · Учу по ФРП</title>
+<style>
+  :root{--ink:#1b1a22;--paper:#fbf7ef;--soft:#f0eadc;--line:#d8cdb8;--accent:#7a0f1c;--ok:#2f7a4d;--bad:#b33a2b}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 Arial,"Segoe UI",sans-serif}
+  .wrap{max-width:1280px;margin:0 auto;padding:20px 16px 50px}
+  h1{font-size:26px;margin:0 0 4px}
+  .sub{color:#6b6257;margin:0 0 16px}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+  .inp{min-width:280px;flex:1;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;background:#fff;font:inherit}
+  .btn{border:1.5px solid var(--ink);background:#fff;border-radius:9px;padding:8px 12px;font:600 14px/1 Arial;cursor:pointer}
+  .btn:hover{background:#fff4c2}
+  .btn.fire{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.small{padding:6px 8px;font-size:12px}
+  .card{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px;margin:10px 0}
+  .user{display:grid;grid-template-columns:1.35fr .8fr .8fr .9fr 1.2fr;gap:12px;align-items:start;border-bottom:1px solid #eee;padding:12px 0}
+  .user:last-child{border-bottom:0}
+  .email{font-weight:700;overflow-wrap:anywhere}
+  .muted{color:#6b6257;font-size:13px}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:12px;background:var(--soft)}
+  .pill.ok{background:#e7f4ec;border-color:#9bc7ad;color:#245c3b}
+  .pill.bad{background:#fdecea;border-color:#e6b0a8;color:#8d2a1d}
+  .acts{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+  .full{grid-column:1/-1}
+  .empty{padding:24px;text-align:center;color:#6b6257}
+  .hint{font-size:13px;color:#6b6257}
+  .err{color:var(--bad);background:#fdecea;border:1px solid #e6b0a8;border-radius:10px;padding:10px 12px}
+  .good{color:var(--ok);background:#e7f4ec;border:1px solid #9bc7ad;border-radius:10px;padding:10px 12px}
+  @media(max-width:850px){.user{grid-template-columns:1fr 1fr}.acts{grid-column:1/-1;justify-content:flex-start}.user .email{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Пользователи и балансы</h1>
+  <p class="sub">Владельческий экран. Здесь видны аккаунты, тариф, остаток уроков и токенов. Ручные начисления — только для компенсаций и исправлений.</p>
+  <div id="gate" class="card" hidden>
+    <p>Чтобы открыть список, войдите на основном сайте под почтой владельца.</p>
+    <p><a class="btn fire" href="/">Перейти к входу</a></p>
+  </div>
+  <div id="app" hidden>
+    <div class="bar">
+      <input id="q" class="inp" type="search" placeholder="Поиск по почте">
+      <button id="reload" class="btn">Обновить</button>
+      <a class="btn" href="https://accounts.uchu-po-frp.ru/_/" target="_blank" rel="noopener">PocketBase ↗</a>
+    </div>
+    <div id="msg"></div>
+    <div id="list"></div>
+  </div>
+</main>
+<script src="js/accounts-config.js"></script>
+<script src="js/accounts-backend.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

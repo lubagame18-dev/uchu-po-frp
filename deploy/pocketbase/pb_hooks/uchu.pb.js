@@ -1,5 +1,7 @@
 // Route callbacks run in isolated JS contexts. Load shared code inside each callback.
 routerAdd('GET', '/api/uchu/auth/v1/health', (e) => e.json(200, {ok: true, provider: 'pocketbase', billing_revision:2}));
+routerAdd('GET', '/api/uchu/admin/v1/users', (e) => require(__hooks + '/uchu.js').adminUsers(e));
+routerAdd('POST', '/api/uchu/admin/v1/adjust', (e) => require(__hooks + '/uchu.js').adminAdjust(e));
 routerAdd('POST', '/api/uchu/auth/v1/admin/users', (e) => require(__hooks + '/uchu.js').adminUser(e));
 routerAdd('POST', '/api/uchu/auth/v1/otp', (e) => require(__hooks + '/identities.js').otp(e));
 routerAdd('POST', '/api/uchu/auth/v1/verify', (e) => require(__hooks + '/identities.js').verify(e));
