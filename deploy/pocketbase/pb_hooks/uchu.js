@@ -413,6 +413,27 @@ exports.adminAdjust = function(e) { return send(e, () => {
   write(e.app, 'profiles', p, { service: true }, 'PATCH');
   return e.json(200, { ok: true, profile: profileView(p, id) });
 }); };
+exports.adminDeleteUser = function(e) { return send(e, () => {
+  const c = adminContext(e);
+  const body = e.requestInfo().body || {};
+  const id = String(body.id || '').trim();
+  if (!id) fail(400, 'Укажите пользователя');
+  let u; try { u = e.app.findRecordById('uchu_users', id); } catch (_) { fail(404, 'Пользователь не найден'); }
+  const email = u.getString('email').toLowerCase();
+  if (body.email != null && String(body.email).trim().toLowerCase() !== email) fail(400, 'Подтверждение почты не совпало');
+  if (c.user && c.user.id === id) fail(403, 'Нельзя удалить собственный аккаунт');
+  if (lookup(e.app, 'site_admins', email)) fail(403, 'Нельзя удалить аккаунт владельца');
+  e.app.runInTransaction(tx => {
+    // Удаляем пользовательские данные; платёжные документы сохраняем для бухгалтерии.
+    for (const table of ['lessons', 'quizzes', 'profiles', 'user_info', 'shared_materials']) {
+      let rows = [];
+      try { rows = tx.findRecordsByFilter('uchu_' + table, 'owner = {:owner}', '', 10000, 0, { owner: id }); } catch (_) { }
+      for (const r of rows) try { tx.delete(r); } catch (_) { }
+    }
+    tx.delete(u);
+  });
+  return e.json(200, { ok: true, email });
+}); };
 exports.adminUser = function(e) { return send(e, () => {  const c = context(e), body = e.requestInfo().body;
   if (!c.service) fail(403, 'Server credential required');
   const email=String(body.email||'').trim().toLowerCase(),phone=String(body.phone||'');

@@ -40,15 +40,26 @@
   <h1>Пользователи и балансы</h1>
   <p class="sub">Владельческий экран. Здесь видны аккаунты, тариф, остаток уроков и токенов. Ручные начисления — только для компенсаций и исправлений.</p>
   <div id="gate" class="card" hidden>
-    <p>Чтобы открыть список, войдите на основном сайте под почтой владельца.</p>
-    <p><a class="btn fire" href="/">Перейти к входу</a></p>
+    <p><b>Вход для разработчика.</b> Войдите почтой владельца — это та же учётная запись, что на сайте.</p>
+    <form id="loginForm" class="bar" autocomplete="on">
+      <input id="loginEmail" class="inp" type="email" autocomplete="username" placeholder="Почта владельца" required>
+      <input id="loginPass" class="inp" type="password" autocomplete="current-password" placeholder="Пароль" required>
+      <button class="btn fire" type="submit">Войти</button>
+    </form>
+    <div id="loginMsg" class="muted"></div>
+    <p class="hint">Если входите через Яндекс ID или Google — сначала войдите на сайте, потом обновите эту страницу.</p>
+    <p><a class="btn" href="/">Открыть сайт</a> <a class="btn" href="/dev.html">Кабинет разработчика</a></p>
   </div>
   <div id="app" hidden>
     <div class="bar">
       <input id="q" class="inp" type="search" placeholder="Поиск по почте">
       <button id="reload" class="btn">Обновить</button>
+      <a class="btn" href="/">🏠 Приложение</a>
+      <a class="btn" href="/dev.html">🔑 Ключи и настройки</a>
+      <a class="btn" href="/legal/tarify.html">💳 Тарифы</a>
       <a class="btn" href="https://accounts.uchu-po-frp.ru/_/" target="_blank" rel="noopener">PocketBase ↗</a>
     </div>
+    <div id="summary" class="muted"></div>
     <div id="msg"></div>
     <div id="list"></div>
   </div>

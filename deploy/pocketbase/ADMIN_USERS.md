@@ -9,10 +9,11 @@
 
 В `pb_hooks/` должны лежать обновлённые файлы:
 
-- `uchu.js` — функции `adminUsers` и `adminAdjust`;
+- `uchu.js` — функции `adminUsers`, `adminAdjust` и `adminDeleteUser`;
 - `uchu.pb.js` — маршруты:
   - `GET /api/uchu/admin/v1/users`
   - `POST /api/uchu/admin/v1/adjust`
+  - `POST /api/uchu/admin/v1/delete-user`
 
 После копирования файлов перезапустите PocketBase:
 
