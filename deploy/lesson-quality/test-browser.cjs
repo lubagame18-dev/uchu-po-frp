@@ -37,6 +37,38 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
   return {normalized,lesson};
  });
  for(const text of [conversion.normalized,conversion.lesson]){assert(text.includes('ПРИЗНАК ПРЕДМЕТА ПО ДЕЙСТВИЮ'));assert(text.includes('ПРОВЕРЕННЫЙ РАЗБОР'));assert(!text.includes('Учебник'));}
+ const regressions=await page.evaluate(async()=>{
+  await Plans.ensure('okr');
+  await Kits.ensure('okr');
+  const kit=Subjects.plugin('okr');
+  const civics=['Конституция России','Права и обязанности гражданина'].map(topic=>{
+   const p={subject:'okr',grade:4,topic,duration:45};
+   return [kit.lesson(p),kit.worksheet(p)];
+  });
+  const p={subject:'ru',grade:7,topic:'Причастие',duration:40,type:{name:'Изучение нового'}};
+  await Plans.ensure('mhk');
+  await Kits.ensure('mhk');
+  await Plans.ensure('astr');
+  await Kits.ensure('astr');
+  const art={subject:'mhk',grade:7,topic:'Барокко',duration:45};
+  const astronomy={subject:'astr',grade:11,topic:'Экзопланеты',duration:45};
+  const artPlan=Subjects.frp('mhk',art);
+  const artLesson=Subjects.plugin('mhk').lesson(art);
+  const astronomySheet=Subjects.plugin('astr').worksheet(astronomy);
+  const legacy='**Таблица 2. Блочно-модульное описание урока**\n\n| Блок 1. Практика |\n|---|\n| **Учитель:** Прочитайте пример. |\n\n## Примеры\n\n| Блок 2. Текст примера |\n|---|\n| **Учитель:** Название колонки примера |';
+  return {civics, artPlan, artLesson, astronomySheet, nature:kit.worksheet({subject:'okr',grade:4,topic:'Природные зоны России'}), stages:LessonNotes.rows(legacy).length, legacy:LessonNotes.build(legacy,p)};
+ });
+ for(const documents of regressions.civics)for(const text of documents){
+  assert.match(text,/\b43\b/);
+  assert.match(text,/\b58\b/);
+  assert.doesNotMatch(text,/Перечисли времена года|Имитируем движения животных|Нарисуй знак безопасного поведения/);
+ }
+ assert.match(regressions.nature,/Перечисли времена года/);
+ assert.equal(regressions.artPlan.theme,'Барокко');
+ assert.match(regressions.artLesson,/Караваджо/);
+ assert.match(regressions.astronomySheet,/провал/);
+ assert.equal(regressions.stages,1);
+ assert.match(regressions.legacy,/Название колонки примера/);
  const modelDir=process.env.LESSON_MODEL_DIR,reviewDir=process.env.LESSON_REVIEW_DIR;
  if(modelDir){
   const results=[];

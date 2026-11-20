@@ -51,7 +51,17 @@ const FrpKit = (() => {
     const SPECIAL = { izo: 1, mus: 1, tech: 1, pe: 1, orkse: 1, obzh: 1, astr: 1, vis: 1, mhk: 1 };
     if (SPECIAL[id] && window.SpecialPrimary) {
       const S = window.SpecialPrimary;
-      return { ...baseKit, conspect: p => S.conspect(p), lesson: p => S.lesson(p), worksheet: p => S.worksheet(p) };
+      const usePlan = p => {
+        if (id !== "astr" && id !== "mhk") return false;
+        const plan = window.FRPPlans?.[id]?.[p.grade];
+        const topic = String(p.topic || "").trim().toLowerCase();
+        const row = plan?.l.find(([title]) => title.trim().toLowerCase() === topic);
+        return Boolean(row && plan.th[row[2]] && (id === "astr" || plan.th[row[2]][0].trim().toLowerCase() === topic));
+      };
+      return { ...baseKit,
+        conspect: (p, t) => usePlan(p) ? baseKit.conspect(p, t || detectType(p)) : S.conspect(p),
+        lesson: (p, t) => usePlan(p) ? baseKit.lesson(p, t || detectType(p)) : S.lesson(p),
+        worksheet: (p, t) => usePlan(p) ? baseKit.worksheet(p, t || detectType(p)) : S.worksheet(p) };
     }
     if (id === "okr" && window.OkrPrimary) {
       const K = window.OkrPrimary;

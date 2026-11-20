@@ -34,8 +34,16 @@ const LessonNotes = (() => {
     const j = rest.search(/^##\s|^---\s*$/m);
     return (j < 0 ? rest : rest.slice(0, j)).trim();
   }
+  function blockTable(md) {
+    const heading = md.match(/^\s*\*{0,2}(?:Таблица\s*)?2\.\s*Блочно-модульное[^\n]*$/im);
+    if (!heading) return null;
+    const body = md.slice(heading.index + heading[0].length).trimStart();
+    const table = body.match(/^(?:[ \t]*\|[^\n]*(?:\n|$))+/);
+    return table ? { lines: table[0].trimEnd().split("\n"), supplement: body.slice(table[0].length).trim() } : null;
+  }
   function rows(md) {
-    if (/Таблица\s*2\.\s*Блочно-модульное/i.test(md)) return blockRows(md);
+    const blocks = blockTable(md);
+    if (blocks) return blockRows(blocks.lines);
     let i = md.search(/^##\s+Технологическая карта/m);
     if (i < 0) { const t = md.search(/^\|\s*(Этап|№)[^\n]*\|[^\n]*(Учител|учител|Деятельность)/m); if (t < 0) return []; i = md.lastIndexOf("\n", Math.max(0, t - 2)); if (i < 0) i = 0; } // нейросеть могла не поставить заголовок
     const out = [];
@@ -115,9 +123,8 @@ const LessonNotes = (() => {
     return `| 📝 Упражнение ${n}${t.src ? ` · ${cell(t.src)}` : ""} | 🧭 Алгоритм решения${algo ? ` «${cell(algo.name)}»` : ""} |\n|---|---|\n| <span class="nw">${text}</span> | ${steps} |\n| **🔑 Ключи:** ${keys || "проверить по правилу; ответы — на листе «Ответы» рабочего листа"} |  |\n\n`;
   }
 
-  function blockRows(md) {
-    const part = String(md).split(/Таблица\s*2\./i)[1] || "";
-    const lines = part.split("\n").map(x => x.trim()).filter(x => /^\|/.test(x) && !/^\|\s*:?-{2,}/.test(x));
+  function blockRows(lines) {
+    lines = lines.map(x => x.trim()).filter(x => !/^\|\s*:?-{2,}/.test(x));
     const out = []; let cur = null;
     const cells = l => l.replace(/^\|/, "").replace(/\|$/, "").split("|").map(x => x.replace(/\*\*/g, "").trim());
     for (const l of lines) {
@@ -257,13 +264,8 @@ const LessonNotes = (() => {
     if (!ru && K?.glossary?.length && !K?.fragments?.length) out += X.box("Словарная работа", K.glossary.map(g => `**${g.word}** — ${g.def}`));
     if (ru && rk?.theory?.length) out += X.box("Тетрадь · запись на уроке", rk.theory);
     if (!ru && K?.conclusions?.length) out += X.box("Тетрадь · выводы урока", K.conclusions);
-    const start = md.search(/\*\*Таблица 2\. Блочно-модульное/);
-    const lines = start >= 0 ? md.slice(start).split("\n") : [];
-    const tableStart = lines.findIndex(line=>/^\|/.test(line));
-    let tableEnd = tableStart;
-    while(tableEnd >= 0 && tableEnd < lines.length && /^\|/.test(lines[tableEnd])) tableEnd++;
-    const supplement = tableStart >= 0 ? lines.slice(tableEnd).join("\n").trim() : "";
-    if(supplement) out += "\n\n"+supplement+"\n";
+    const supplement = blockTable(md)?.supplement;
+    if (supplement) out += "\n\n" + supplement + "\n";
     else {
       const hw = section(md, "Домашнее задание");
       if (hw) out += X.box("Домашнее задание", hw.split("\n").map(x => x.replace(/^[-*]\s*/, "").trim()).filter(Boolean));

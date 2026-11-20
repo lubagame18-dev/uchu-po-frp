@@ -123,8 +123,12 @@ window.FRP_EXTRAS.push(function () {
       let si = plan.s.indexOf(section);
       if (si < 0) { si = plan.s.push(section) - 1; }
       themes.forEach(([title, content, acts]) => {
-        if (plan.th.some(t => t[0] === title)) return;
+        const existing = plan.th.findIndex(t => t[0] === title);
+        if (existing >= 0) return;
         const thi = plan.th.push([title, content, acts]) - 1;
+        for (const row of plan.l) {
+          if (row[0] === title) row[2] = thi;
+        }
         plan.l.push([title, si, thi]);
         plan.l.push([title, si, thi]);
       });
