@@ -9,6 +9,17 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
  const rulesFile=process.env.LESSON_RULES_JSON;if(rulesFile)await page.addInitScript(data=>localStorage.setItem('uchu:rules',JSON.stringify({data})),JSON.parse(fs.readFileSync(rulesFile)));
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin!=='https://lesson.test')return route.abort();const file=path.resolve(root,decodeURIComponent(u.pathname).slice(1)||'index.html');if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile())return route.abort();return route.fulfill({contentType:{'.js':'application/javascript','.html':'text/html','.css':'text/css','.json':'application/json'}[path.extname(file)],body:fs.readFileSync(file)});});
  await page.goto('https://lesson.test/',{waitUntil:'load'});await page.waitForFunction(()=>window.LessonQuality&&window.Notes&&window.Kits&&window.Subjects);
+ const loadOrder=await page.evaluate(async()=>{
+  await Plans.ensure('mhk');
+  await Plans.ensure('astr');
+  await Plans.ensure('okr');
+  const before=Subjects.planTopics('okr',4).length;
+  await Plans.ensure('math');
+  return {before, after:Subjects.planTopics('okr',4)?.length, primaryMath:Subjects.planTopics('math',1)?.length, mhk:Subjects.planTopics('mhk',7)?.length, astr:Subjects.planTopics('astr',11)?.length};
+ });
+ assert.ok(loadOrder.before>0);
+ assert.equal(loadOrder.after,loadOrder.before);
+ assert.ok(loadOrder.primaryMath>0 && loadOrder.mhk>0 && loadOrder.astr>0);
  const generated=[];
  for(const item of cases){
   const r=await page.evaluate(async c=>{
