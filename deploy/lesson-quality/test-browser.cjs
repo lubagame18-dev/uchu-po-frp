@@ -39,15 +39,67 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
   assert(r.lesson.includes(r.strategy),item.subject);assert(r.lesson.includes('НЕ ПРИЛОЖЕНО'),item.subject);assert(r.hasPhotoContext,item.subject);assert(r.hasAnchor,item.subject);assert(r.ref.includes('127'),item.subject);assert(r.ref.includes('только выбранную правку'),item.subject);assert(r.design.includes('НЕ ПРИЛОЖЕНО'),item.subject);
   generated.push(r);
  }
+ const planning=await page.evaluate(async()=>{
+  await Base.ready();
+  await FRP.load();
+  const topic='Л. Н. Толстой. Роман-эпопея «Война и мир»';
+  const count=topicLessonCount(topic,'lit',10);
+  const previous={subject:state.subject,grade:state.grade,lessonNo:state.lessonNo,lessonTotal:state.lessonTotal,topic:document.querySelector('#topic').value};
+  Object.assign(state,{subject:'lit',grade:10,lessonNo:15});
+  document.querySelector('#topic').value=topic;
+  updateLessonSeg();
+  const selected=document.querySelector('#segLesson button[aria-pressed="true"]')?.dataset.v;
+  const numberOfButtons=document.querySelectorAll('#segLesson button').length;
+  document.querySelector('#topic').value=previous.topic;
+  const {topic:oldTopic,...oldState}=previous;
+  Object.assign(state,oldState);
+  updateLessonSeg();
+  const p={subject:'lit',grade:10,topic,duration:45,lessonNo:15,lessonTotal:count};
+  const prompt=lessonPrompt(p,'design','Составьте замысел урока.');
+  const astro={subject:'astr',grade:11,topic:'Экзопланеты',duration:40,lessonNo:1,lessonTotal:2};
+  const kit=Subjects.plugin('astr');
+  const first=kit.worksheet(astro);
+  const second=kit.worksheet({...astro,lessonNo:2});
+  const durations=[40,45,60,90].map(duration=>{
+   const text=kit.lesson({...astro,duration});
+   return [...text.matchAll(/^### .* · (\d+) мин$/gm)].reduce((sum,m)=>sum+Number(m[1]),0);
+  });
+  return {count,selected,numberOfButtons,prompt,firstTask:first.split('### 🔓 Задание 1')[1]?.split('###')[0],secondTask:second.split('### 🔓 Задание 1')[1]?.split('###')[0],durations};
+ });
+ assert.equal(planning.count,15);
+ assert.equal(planning.selected,'15');
+ assert.equal(planning.numberOfButtons,15);
+ assert.match(planning.prompt,/Урок 15 из 15/);
+ assert.match(planning.firstTask,/провал/);
+ assert.ok(planning.secondTask && planning.firstTask!==planning.secondTask);
+ assert.deepEqual(planning.durations,[40,45,60,90]);
+ const fragments=await page.evaluate(async()=>{
+  const first='Первый эпизод. ' + 'Ученик читает авторский текст и сравнивает детали. '.repeat(12);
+  const second='Второй эпизод. ' + 'Ученик отмечает слова и отвечает на вопрос по тексту. '.repeat(12);
+  const full=first+'\n\nГлава II\n\n'+second+'\n\n'+(second+'\n\n').repeat(44);
+  const saved=caps.sample;
+  let instruction='';
+  try {
+   caps.sample=async prompt=>{
+    instruction=prompt;
+    return {text:JSON.stringify([{from:1,to:2},{from:2,to:2},{from:3,to:3},null,{from:9999,to:9999}])};
+   };
+   const result=await aiFragments({subject:'lit',grade:7,topic:'Анализ эпизодов',lessonNo:2,lessonTotal:3,plan:{text:full}});
+   return {instruction,fragments:result?.length,keptHeading:result?.[0].text.includes('Глава II'),verbatim:result?.every(f=>full.includes(f.text))};
+  } finally {caps.sample=saved;}
+ });
+ assert.match(fragments.instruction,/Урок 2 из 3/);
+ assert.equal(fragments.fragments,2);
+ assert.ok(fragments.keptHeading && fragments.verbatim);
  // Conversion must keep all substantive content, not just the legacy table.
  assert.equal(await page.evaluate(()=>cleanMd('Приведите пример из жизни (не из учебника).')),'Приведите пример из жизни.');
  const conversion=await page.evaluate(()=>{
   const p={subject:'ru',grade:7,topic:'Причастие',duration:40,type:{name:'Изучение нового'}};
-  const raw='# Технологическая карта\n\n**Цель:** Понять правило.\n\n## Объяснение\n\nПРИЗНАК ПРЕДМЕТА ПО ДЕЙСТВИЮ: читающий человек.\n\n| Этап | Учитель | Ученики | Задания |\n|---|---|---|---|\n| Практика (20 мин) | Разбираем образец. | Объясняют значение. | Запишите вывод. |\n| Итог (20 мин) | Проверяем правило. | Называют признаки. | Проверка. |\n\n## Примеры и решения\n\nПРОВЕРЕННЫЙ РАЗБОР: читающий — признак по действию.\n\n## Домашнее задание\n\nСоставьте два примера и объясните признаки.\n';
+  const raw='# Технологическая карта\n\n**Цель:** Понять правило.\n\n## Объяснение\n\nПРИЗНАК ПРЕДМЕТА ПО ДЕЙСТВИЮ: читающий человек.\n\n| Этап | Учитель | Ученики | Задания |\n|---|---|---|---|\n| Практика (20 мин) | Разбираем образец. | Объясняют значение. | Запишите вывод. |\n| Итог (20 мин) | Проверяем правило. | Называют признаки. | Проверка. |\n\n## Примеры и решения\n\nПРОВЕРЕННЫЙ РАЗБОР: читающий — признак по действию.\n\n## Справочная опора\n\nЧЕРНОВОЙ СЛУЖЕБНЫЙ БЛОК.\n\n## Домашнее задание\n\nСоставьте два примера и объясните признаки.\n';
   const normalized=normalizeTechmap(raw,p),lesson=LessonNotes.build(normalized,p);
   return {normalized,lesson};
  });
- for(const text of [conversion.normalized,conversion.lesson]){assert(text.includes('ПРИЗНАК ПРЕДМЕТА ПО ДЕЙСТВИЮ'));assert(text.includes('ПРОВЕРЕННЫЙ РАЗБОР'));assert(!text.includes('Учебник'));}
+ for(const text of [conversion.normalized,conversion.lesson]){assert(text.includes('ПРИЗНАК ПРЕДМЕТА ПО ДЕЙСТВИЮ'));assert(text.includes('ПРОВЕРЕННЫЙ РАЗБОР'));assert(!text.includes('Учебник'));assert.match(text,/Составьте два примера/);assert.doesNotMatch(text,/ЧЕРНОВОЙ СЛУЖЕБНЫЙ БЛОК/);}
  const regressions=await page.evaluate(async()=>{
   await Plans.ensure('okr');
   await Kits.ensure('okr');

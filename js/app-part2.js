@@ -431,12 +431,11 @@ function renderTopicPanel() {
 }
 function pickTopic(it) {
   $("#topic").value = cleanTopic(it.title);
-  if (it.lesson) { state.lessonNo = it.lesson === "закрепление" ? 2 : it.lesson; }
-  else {
-    const { items } = topicList(), same = items.filter(x => x.title === it.title && x.n < it.n).length;
-    state.lessonNo = same ? same + 1 : 1;
-  }
-  setSeg("segLesson", typeof state.lessonNo === "number" && state.lessonNo > 3 ? 3 : state.lessonNo);
+  const { items } = topicList();
+  const key = topicLessonKey(it.title);
+  const earlier = items.filter(x => x.n < it.n && topicLessonKey(x.title) === key);
+  const offset = earlier.reduce((total, row) => total + topicHours(row), 0);
+  state.lessonNo = Math.max(topicLessonMark(it), offset + 1);
   $("#topicPanel").hidden = true; $("#topicBtn").setAttribute("aria-expanded", "false");
   readForm(); updateType();
 }
@@ -504,16 +503,19 @@ function fillSubjects(stageId) {
   setSeg("segSubject", state.subject);
 }
 
-/* сколько уроков программа отводит на тему: в ФРП одна тема может занимать 2–3 урока */
+const topicLessonKey = title => cleanTopic(title).toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ");
+const topicHours = row => Math.max(1, Math.floor(Number(row.hours) || 1));
+const topicLessonMark = row => Number(row.lesson) || (row.lesson === "закрепление" || row.lesson === "продолжение" ? 2 : 1);
+
 function topicLessonCount(title, subject = state.subject, grade = state.grade) {
-  const plan = window.FRPPlans?.[subject]?.[grade];
-  const key = String(title || "").toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim();
-  if (!plan || !key) return 1;
-  let n = 0;
-  for (const row of plan.l || []) {
-    if (String(row[0]).toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim() === key) n++;
-  }
-  return Math.max(1, n);
+  const key = topicLessonKey(title);
+  if (!key) return 1;
+  const items = subject === "ru" || subject === "lit"
+    ? FRP.topicsFor(subject, grade)
+    : window.Subjects?.planTopics(subject, grade);
+  const rows = (items || []).filter(row => topicLessonKey(row.title) === key);
+  return Math.max(1, rows.reduce((total, row) => total + topicHours(row), 0),
+    ...rows.map(row => topicLessonMark(row) + topicHours(row) - 1));
 }
 /* кнопки «1-й / 2-й …» показываем только для реального числа уроков темы */
 function updateLessonSeg() {
@@ -521,8 +523,9 @@ function updateLessonSeg() {
   const title = ($("#topic")?.value || state.topic || "").trim();
   const total = topicLessonCount(title);
   state.lessonTotal = total;
-  const maxN = Math.min(total, 8);
+  const maxN = total;
   box.innerHTML = "";
+  box.style.flexWrap = maxN > 8 ? "wrap" : "";
   for (let n = 1; n <= maxN; n++) {
     const b = document.createElement("button");
     b.dataset.v = String(n);
@@ -533,7 +536,8 @@ function updateLessonSeg() {
   }
   const lbl = box.parentElement?.querySelector(".lbl");
   if (lbl) lbl.textContent = total > 1 ? ("Урок по этой теме — в программе " + total + " урока") : "Урок по этой теме (в программе 1 урок)";
-  if (+state.lessonNo > maxN) { state.lessonNo = maxN; }
+  const lessonNo = state.lessonNo === "продолжение" ? 2 : Number(state.lessonNo) || 1;
+  state.lessonNo = Math.min(maxN, Math.max(1, lessonNo));
   setSeg("segLesson", state.lessonNo);
 }
 function fillGrades() {
@@ -653,13 +657,16 @@ function restoreForm() {
 function gradeIn(range, g) { const [a, b] = String(range).split("-").map(Number); return g >= a && g <= (b || a); }
 const subjName = s => (window.Subjects && Subjects.name ? Subjects.name(s) : (s === "ru" ? "Русский язык" : s === "lit" ? "Литература" : s));
 function paramsBlock(p) {
+  const no = Number(p.lessonNo) || (p.lessonNo === "продолжение" ? 2 : 1);
+  const total = Number(p.lessonTotal) || 1;
+  const scope = total > 1 ? ` · ${no} из ${total}` : "";
   return `## Параметры урока
 - Предмет: ${subjName(p.subject)}
 - Класс: ${p.grade}
 - Длительность: ${p.duration} мин
 - Режим: ${p.mode === "tutor" ? "Репетиторство (подготовка к экзамену, интенсив)" : "Школьный курс по ФРП"}
 - Тема: ${p.topic}
-- Урок по теме: ${lessonLabel(p.lessonNo)}${p.lessonNo !== 1 ? " (правило уже введено на прошлом уроке: не открывать его заново, а отрабатывать и углублять)" : ""}
+- Урок по теме: ${lessonLabel(p.lessonNo || 1)}${scope}
 - Уровень: ${(LEVELS[p.level] || LEVELS.medium).name}
 - Тип урока (определён автоматически): ${p.type.name} — ${p.type.reason}
 - Формат контроля: ${p.control === "school" ? "Текущий школьный контроль" : KB.exams[p.control].label}${p.wishes ? `\n- Пожелания учителя: ${p.wishes}` : ""}`;
@@ -858,7 +865,24 @@ function exemplarRows(ru) {
     : H + "\n| Установка (2 мин) | — ‹вопрос, на что обратить внимание при чтении отрывка именно этого произведения›| Слушают. *(‹предполагаемый ответ›)* | Познавательные: ориентация в тексте. |\n| Чтение и работа с отрывком (6 мин) | — ‹простой вопрос к отрывку из разбираемого текста›<br>— ‹вопрос, подводящий к приёму› | Отвечают: *(‹ответ с опорой на текст›)*. | Коммуникативные: аргументация ответа цитатой. |";
 }
 /* v5.44: нейросеть сначала продумывает методический замысел урока, потом пишет конспект по нему */
-function lessonPrompt(p, doc, text, anchor = "") { return window.LessonQuality ? LessonQuality.compose(text, p, doc, anchor) : text; }
+function lessonSeries(p) {
+  const no = Number(p.lessonNo) || (p.lessonNo === "продолжение" ? 2 : 1);
+  const total = Number(p.lessonTotal) || 1;
+  if (total < 2) return "";
+  const focus = no === 1 ? "Выдели первый шаг темы и задай направление для следующего урока."
+    : "Кратко свяжи урок с предыдущим. Дай новый фрагмент, материал или способ применения и самостоятельное задание именно на этот шаг.";
+  return `Урок ${no} из ${total} по теме «${p.topic}». Спланируй только этот урок. ${focus}`;
+}
+function lessonPrompt(p, doc, text, anchor = "") {
+  const series = lessonSeries(p);
+  const no = Number(p.lessonNo) || (p.lessonNo === "продолжение" ? 2 : 1);
+  if (series) {
+    text = `## Место урока в серии\n${series}\n\n` + text;
+  } else if (no > 1 && p.subject === "ru") {
+    text = "Опирайся на уже изученное правило и предложи его применение.\n\n" + text;
+  }
+  return window.LessonQuality ? LessonQuality.compose(text, p, doc, anchor) : text;
+}
 function promptDesign(p) {
   const ru = p.subject === "ru";
   return lessonPrompt(p,"design", (window.TeacherRules ? TeacherRules.brief(p, "techmap") + "\n\n" : "") + (window.Dossier ? Dossier.build(p) + "\n\n" : "") + `Ты — методист-словесник с большим опытом. Прежде чем писать конспект, продумай МЕТОДИЧЕСКИЙ ЗАМЫСЕЛ урока — осознанно, для этой темы и этого класса, без шаблонов.
@@ -1457,9 +1481,9 @@ function wsTheory(p) {
 /* ---------- результаты ФРП: подставляет система, не ИИ ---------- */
 /* Приводит конспект к формату техкарты из образцов учителя: две таблицы.
    Работает и для ИИ-конспектов, и для предметных наборов со старой пятиколоночной таблицей. */
-/* Убирает хвосты «Опорные положения / Типовые задания / …», которые раньше дописывались после конспекта */
+/* Убираем только служебный раздел. Последующие разделы остаются в документе. */
 function stripConspectExtras(md) {
-  return String(md || "").replace(/\n#{1,3}\s*(?:[^\n]{0,60}?)(Опорные положения|Справочная опора|Темы года по ФРП|Виды деятельности по ФРП)[\s\S]*$/i, "");
+  return String(md || "").replace(/^(#{1,3})[ \t]+[^\n]*?(?:Опорные положения|Справочная опора|Темы года по ФРП|Виды деятельности по ФРП)[^\n]*(?:\n(?!#{1,3}[ \t])[^\n]*)*/gim, "");
 }
 function teacherLine() {
   const n = window.Account?.session?.info?.name || window.Account?.session?.info?.full_name || "";
@@ -2486,9 +2510,21 @@ async function aiFragments(p) {
   // длинный текст (повесть, роман): нейросети – оглавление ВСЕГО произведения по абзацам [§N], а не только начало
   let text = full, paras = null;
   if (full.length > 24000) {
-    const P0 = []; let pos0 = 0; for (const chunk of full.split(/\n\s*\n|\n(?=\s*[—–-]\s)|\n(?=[А-ЯЁ])/)) { const at = full.indexOf(chunk, pos0); if (chunk.trim().length > 20) P0.push({ a: at, t: chunk.trim() }); pos0 = at + chunk.length; }
-    const merged = []; for (const x of P0) { const last = merged[merged.length - 1]; if (last && last.t.length < 400) { last.t += "\n" + x.t; } else merged.push({ ...x }); }
-    paras = merged;
+    paras = [];
+    let offset = 0;
+    for (const chunk of full.split(/\n\s*\n|\n(?=\s*[—–-]\s)|\n(?=[А-ЯЁ])/)) {
+      const start = full.indexOf(chunk, offset);
+      offset = start + chunk.length;
+      if (chunk.trim().length <= 20) continue;
+      const last = paras[paras.length - 1];
+      if (last && last.t.length < 400) {
+        last.end = offset;
+        last.t = full.slice(last.a, last.end);
+      } else {
+        paras.push({ a: start, end: offset, t: chunk });
+      }
+    }
+    if (!paras.length) return null;
     const words = [...new Set((nrm(p.topic).match(/[а-я]{5,}/g) || []).filter(w => !/^(произвед|рассказ|повест|роман|глава|урока|анализ|литерат)/.test(w)).map(w => w.slice(0, 6)))].concat((p.plan.analysis?.heroes || []).map(h => nrm(h).split(" ")[0].slice(0, 6)).filter(w => w.length > 2));
     const per = Math.max(70, Math.floor(22000 / paras.length));
     let keep = paras.map((x, i) => i);
@@ -2496,6 +2532,7 @@ async function aiFragments(p) {
     text = keep.map(i => `[§${i + 1}] ${paras[i].t.replace(/\s+/g, " ").slice(0, per)}${paras[i].t.length > per ? "…" : ""}`).join("\n");
   }
   const prompt = `Ты – учитель литературы. Урок: «${p.topic}», ${p.grade} класс.${p.plan.kit?.problem ? ` Вопрос урока: «${p.plan.kit.problem}».` : ""}${p.wishes ? ` Пожелания учителя: ${p.wishes}.` : ""}
+${lessonSeries(p)}
 Ниже текст произведения (возможно, с остатками разметки сайта – их не бери). Выбери 3–5 отрывков, с которыми класс будет работать на уроке: ключевые для смысла эпизоды (завязка, характеристика героя через поступок, перелом, кульминация, финал – то, что нужно для этой темы), а не случайные места. Каждый отрывок – 4–15 предложений, начинается с начала предложения и заканчивается концом предложения; отрывки идут в порядке текста.
 ${paras ? `Текст длинный, поэтому ниже он дан по абзацам [§N] – начало каждого абзаца, по всему произведению от начала до конца. Выбирай эпизоды из ВСЕГО текста, а не только из начала. Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","from":номер первого абзаца,"to":номер последнего абзаца}] (отрывок – 1–6 абзацев подряд).` : `Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","start":"первые 6–10 слов отрывка ДОСЛОВНО","end":"последние 6–10 слов отрывка ДОСЛОВНО"}]`}
 ТЕКСТ:
@@ -2506,18 +2543,36 @@ ${text}`;
   // поиск дословной границы: по нормализованному тексту, с картой позиций в исходный
   const map = [], chars = []; for (let i = 0; i < full.length; i++) { const c = full[i].toLowerCase().replace("ё", "е"); if (/[а-яa-z0-9]/.test(c)) { chars.push(c); map.push(i); } else if (chars.length && chars[chars.length - 1] !== " ") { chars.push(" "); map.push(i); } }
   const flat = chars.join("");
-  const find = (q, from) => { const k = flat.indexOf(nrm(q), from); return k < 0 ? -1 : k; };
-  const out = []; let pos = 0;
+  const find = (q, from) => {
+    if (!q) return -1;
+    let i = flat.indexOf(q, from);
+    while (i >= 0 && ((i > 0 && flat[i - 1] !== " ") || /[а-яa-z0-9]/.test(flat[i + q.length] || ""))) {
+      i = flat.indexOf(q, i + 1);
+    }
+    return i;
+  };
+  const out = [];
   for (const x of arr.slice(0, 6)) {
-    if (paras && +x.from >= 1) { const f0 = Math.min(paras.length, +x.from), t0 = Math.max(f0, Math.min(paras.length, +x.to || f0, f0 + 5)); let t = paras.slice(f0 - 1, t0).map(q => q.t).join("\n"); if (t.length > 6000) t = t.slice(0, 6000).replace(/[^.!?…]*$/, ""); if (t.length >= 120 && !out.some(o => o.a === paras[f0 - 1].a)) out.push({ label: String(x.label || "Эпизод").slice(0, 60), why: String(x.why || ""), text: t, a: paras[f0 - 1].a }); continue; }
-    if (!x.start) continue;
-    const a = find(x.start, 0); if (a < 0) continue;
-    const eq = nrm(x.end), b0 = flat.indexOf(eq, a); if (b0 < 0) continue;
-    let s0 = map[a], e0 = map[Math.min(map.length - 1, b0 + eq.length - 1)] + 1;
-    while (e0 < full.length && /[.!?…»"”)\s]/.test(full[e0]) && !/\n/.test(full[e0])) e0++;
-    const t = full.slice(s0, e0).trim(); if (t.length < 120 || t.length > 6000) continue;
-    out.push({ label: String(x.label || "Эпизод").slice(0, 60), why: String(x.why || ""), text: t, a: s0 });
-    pos = e0;
+    if (!x || typeof x !== "object") continue;
+    let start, end;
+    if (paras) {
+      const first = Number(x.from), last = Number(x.to ?? x.from);
+      if (!Number.isInteger(first) || !Number.isInteger(last) || first < 1 || last < first || last > paras.length || last - first >= 6) continue;
+      start = paras[first - 1].a;
+      end = paras[last - 1].end;
+    } else {
+      const first = nrm(x.start), last = nrm(x.end);
+      const begin = find(first, 0);
+      if (begin < 0) continue;
+      const finish = find(last, begin + first.length);
+      if (finish < 0) continue;
+      start = map[begin];
+      end = map[finish + last.length - 1] + 1;
+      while (/[.!?…»"”)]/.test(full[end] || "")) end++;
+    }
+    const quote = full.slice(start, end).trim();
+    if (quote.length < 120 || quote.length > 6000 || out.some(item => start < item.end && item.a < end)) continue;
+    out.push({ label: String(x.label || "Эпизод").slice(0, 60), why: String(x.why || ""), text: quote, a: start, end });
   }
   if (out.length < 2) return null;
   out.sort((x, y) => x.a - y.a);
@@ -2534,6 +2589,7 @@ async function preparePlan(L, p, type) {
     try {
       const K = p.plan.kit, full0 = String(p.plan.text || ""), txt = full0.length <= 4500 ? full0 : (K.fragments || []).map(f => `[${f.label}]\n${String(f.text).slice(0, 1400)}`).join("\n\n").slice(0, 6000) || full0.slice(0, 3500); // длинный текст: не начало, а ключевые эпизоды по всему произведению
       const prompt = `Ты — методист-словесник. Найди в произведении «${p.topic}» (${p.grade} класс) СМЫСЛОВОЙ КОНФЛИКТ — несостыковку, которая удивит ученика (герой хочет одного, а делает другое; картина спокойна, а герой ищет бури; слово противоречит ситуации). На нём построй проблемный вопрос урока: простой, живой, понятный ребёнку, без канцелярита, с опорой на конкретную строку.
+${lessonSeries(p)}
 ${txt ? `Текст:\n${txt}\n` : ""}Кандидаты, найденные сайтом: «${K.problem}»${p.plan.sample?.src ? ` (из материалов: ${p.plan.sample.src})` : ""}.${p.plan.workWiki ? `\nИз открытых источников: ${p.plan.workWiki.slice(0, 1200)}` : ""}${p.plan.edu?.length ? `\nИз разработок учителей: ${p.plan.edu.flatMap(r => [...(r.problem || []), ...(r.questions || []).slice(0, 2)]).slice(0, 10).map(x => `«${x}»`).join("; ")}` : ""}
 Верни JSON: {"problem":"вопрос","conflict":"в чём несостыковка (1 предложение, для учителя)","quotes":["строка 1","строка 2"]}. Цитаты — только дословно из текста.`;
       const r = await caps.sample(prompt, { modelTier: "default", cache: true });
@@ -4071,6 +4127,7 @@ async function start() {
   if (window.Plans) await Plans.ensure(state.subject);
   if (window.Kits) await Kits.ensure(state.subject);
   await FRP.load();
+  updateLessonSeg();
   Store.persist();
   syncBuild(); updateType(); refreshTopics();
   resumeJob().catch(e => console.warn("resumeJob", e)); // сборка, прерванная обновлением страницы, продолжается

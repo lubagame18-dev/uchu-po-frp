@@ -56,7 +56,8 @@ const Subjects = (() => {
     const HEADS = /^(Коммуникативные умения|Языковые знания и умения|Диалогическая речь|Монологическая речь|Аудирование|Смысловое чтение|Письменная речь|Фонетическая сторона речи|Графика, орфография и пунктуация|Лексическая сторона речи|Грамматическая сторона речи|Социокультурные знания и умения|Компенсаторные умения)\s*:?\s*/;
     const sents = t => String(t || "").split(id === "eng" ? /(?<=[.;])\s+|(?<=:)\s+(?=[а-яё])/ : id === "geo" ? /(?<=[.;])\s+/ : /(?<=[.;])\s+(?=[А-ЯЁ])/).map(x => { let y = x.trim(); for (let k = 0; k < 3; k++) y = y.replace(HEADS, ""); return y.replace(/[;.:]$/, "").replace(/^./, c => c.toUpperCase()); }).filter(x => x.length > 12);
     const top = (arr, k) => { const r = rank(arr), hit = r.filter(x => x.n > 0).sort((a, b) => b.n - a.n || a.i - b.i); return (hit.length ? hit : r).slice(0, k).sort((a, b) => a.i - b.i).map(x => x.x); };
-    let acts = sents(th[2]); if (acts.length < 2) acts = sents(th[1]).filter(x => /(ать|ять|еть|ить|ти)\b/.test(x.split(" ")[0]) || /^[А-Я][а-я]+ние|^Диалог|^Описание|^Повествование|^Написание|^Заполнение|^Понимание|^Чтение/.test(x));
+    const activity = String(th[2] || "").replace(/;\s+([а-яё]+)/g, (part, word) => IMP[word] ? "; " + word[0].toUpperCase() + word.slice(1) : part);
+    let acts = sents(activity); if (!acts.length) acts = sents(th[1]).filter(x => /(ать|ять|еть|ить|ти)\b/.test(x.split(" ")[0]) || /^[А-Я][а-я]+ние|^Диалог|^Описание|^Повествование|^Написание|^Заполнение|^Понимание|^Чтение/.test(x));
     const terms = []; for (const m of String(th[2] + " " + th[1]).matchAll(/(?:понятий|терминов)(?: и терминов)?\s*:\s*([^.]+)/g)) for (const t of m[1].split(/[,;]\s*/)) { const v = t.trim().replace(/^и\s+/, ""); if (v.length > 2 && v.length < 60 && !terms.includes(v)) terms.push(v); }
     const rt = rank(terms).filter(x => x.n > 0).map(x => x.x);
     const sel = top(acts, 5);
@@ -73,7 +74,11 @@ const Subjects = (() => {
     const T0 = (F.tasks || []).filter(x => IMPV.test(String(x).trim()));
     const REV = /^(?:Резервн|Повторение|Итогов|Обобщ|Подготовка к)/i.test(String(p.topic)) || /^Резервное время/.test(String(p.topic));
     const KRAY = /^Наш край/i.test(String(p.topic));
-    const T = KRAY && !T0.length ? [`Найдите в краеведческих источниках (музей, библиотека, сайт архива) три факта о событиях темы «${p.topic}» в вашем крае.`, "Составьте ленту времени этих событий и отметьте на ней общероссийские события тех лет.", "Выберите одного человека вашего края этого периода и подготовьте о нём рассказ на 1–2 минуты.", "Сравните события в крае с общероссийскими: что совпало, что отличалось?"] : REV && !T0.length ? ["Выпишите из тетради три темы курса, которые вызвали затруднения, и для каждой составьте вопрос.", "Ответьте письменно на свои вопросы, пользуясь параграфами учебника.", "Составьте опорную схему или таблицу по одной из этих тем.", "Проверьте работу соседа по парте и отметьте, что осталось непонятным."] : [...T0, ...tTerm].slice(0, 5).length ? [...T0, ...tTerm].slice(0, 5) : [`Изучите материал параграфа по теме «${p.topic}» и составьте план ответа`];
+    const availableTasks = KRAY && !T0.length ? [`Найдите в краеведческих источниках (музей, библиотека, сайт архива) три факта о событиях темы «${p.topic}» в вашем крае.`, "Составьте ленту времени этих событий и отметьте на ней общероссийские события тех лет.", "Выберите одного человека вашего края этого периода и подготовьте о нём рассказ на 1–2 минуты.", "Сравните события в крае с общероссийскими: что совпало, что отличалось?"] : REV && !T0.length ? ["Выпишите из тетради три темы курса, которые вызвали затруднения, и для каждой составьте вопрос.", "Ответьте письменно на свои вопросы, пользуясь параграфами учебника.", "Составьте опорную схему или таблицу по одной из этих тем.", "Проверьте работу соседа по парте и отметьте, что осталось непонятным."] : [...T0, ...tTerm].slice(0, 5).length ? [...T0, ...tTerm].slice(0, 5) : [`Изучите материал параграфа по теме «${p.topic}» и составьте план ответа`];
+    const lessonTotal = Number(p.lessonTotal) || 1;
+    const lessonNo = Math.min(lessonTotal, Math.max(1, Number(p.lessonNo) || 1));
+    const focus = Math.floor((lessonNo - 1) * availableTasks.length / lessonTotal);
+    const T = [...availableTasks.slice(focus), ...availableTasks.slice(0, focus)];
     const Wb = p.web?.items || [], wDef = Wb.filter(x => x.kind === "def").map(x => x.text), wDate = Wb.filter(x => x.kind === "date").map(x => x.text), wFact = Wb.filter(x => x.kind === "fact").map(x => x.text);
     const terms = F.terms, cont = [...F.content, ...wFact.slice(0, 4)], H = hwCheck(p);
     const lst = (a, br = "<br>") => a.map((x, i) => `${i + 1}) ${x}`).join(br);
@@ -87,20 +92,30 @@ const Subjects = (() => {
       if (/Первичное закрепление|Тренировочные|Практикум|Причины и последствия|Речевые упражнения|изменённых условиях|Работа с текстом|Фонетическая/.test(st)) return { t: `Закрепление: ${T[T.length - 1]}.<br>Упражнения учебника к теме урока (№ ____).<br>— Вернёмся к вопросам, которые мы поставили в начале урока. На какие уже можем ответить?`, s: "Выполняют задания, отвечают на поставленные вопросы с опорой на факты.", u: "Познавательные: применение знаний; коммуникативные: аргументация." };
       if (/Речевая практика|группах|Обобщение:/.test(st)) return { t: `Работа в парах (группах): ${T.slice(0, 2).join("; ")}.<br>Представление результатов, взаимооценка.`, s: "Работают в парах (группах), представляют результат.", u: "Коммуникативные: сотрудничество." };
       if (/Самостоятельная|Проверочная|Контрольная работа/.test(st)) return { t: `Задания:<br>${lst([terms.length ? `Объясните значение понятий: ${terms.slice(0, 4).join(", ")}` : "", ...T.slice(0, 2)].filter(Boolean))}<br>Проверка: взаимопроверка по образцу, который учитель записывает на доске заранее.`, s: "Выполняют задания, проверяют друг друга по образцу.", u: "Регулятивные: самоконтроль." };
+      if (/Обсуждение результатов/.test(st)) return { t: "Сопоставьте результаты работы с исходным вопросом. Назовите, какое наблюдение или действие подтверждает вывод.", s: "Объясняют вывод с опорой на результат работы.", u: "Познавательные: обоснование вывода." };
       if (/Инструктаж/.test(st)) return { t: "Объясняет порядок работы, критерии оценивания, время.", s: "Задают вопросы.", u: "Регулятивные: планирование." };
       if (/Итог|Рефлексия/.test(st)) return { t: "— Вернёмся к вопросам начала урока: на какие мы ответили? Что осталось непонятным?<br>— Оцените себя: «могу объяснить сам», «понял с подсказкой», «остались вопросы».", s: "Отвечают на вопросы урока, оценивают свою работу.", u: "Регулятивные: рефлексия." };
       if (/Домашнее/.test(st)) return { t: `**Базовый уровень:** параграф учебника по теме «${p.topic}»${terms.length ? `; понятия: ${terms.slice(0, 4).join(", ")}` : ""}.<br>**Повышенный уровень:** ${T[Math.min(1, T.length - 1)]}.`, s: "Записывают задание.", u: "Регулятивные: планирование." };
       return { t: "", s: "", u: "" };
     };
-    const head = `**Класс:** ${p.grade} · **Предмет:** ${subj} · **Тип урока:** ${type.name} · **Длительность:** ${p.duration} мин`;
+    const series = lessonTotal > 1 ? ` · **Урок по теме:** ${lessonNo} из ${lessonTotal}` : "";
+    const head = `**Класс:** ${p.grade} · **Предмет:** ${subj} · **Тип урока:** ${type.name} · **Длительность:** ${p.duration} мин${series}`;
+    const weights = type.stages.map((_, i) => Math.max(1, Number(type.mins?.[i]) || 1));
+    const weightSum = weights.reduce((sum, value) => sum + value, 0);
+    const duration = Math.max(weights.length, Math.round(Number(p.duration) || weightSum));
+    const shares = weights.map(value => value * (duration - weights.length) / weightSum);
+    const mins = shares.map(share => 1 + Math.floor(share));
+    const remainder = duration - mins.reduce((sum, value) => sum + value, 0);
+    const order = shares.map((share, i) => [i, share - Math.floor(share)]).sort((a, b) => b[1] - a[1]);
+    for (const [i] of order.slice(0, remainder)) mins[i]++;
     if (kind === "conspect") {
-      let md = `# ${p.topic}\n\n${head}\n\n**Тема по ФРП:** ${F.theme}\n\n**Цель:** ${F.goal ? `формирование умения ${F.goal}` : `освоение темы «${p.topic}»`}.\n\n**Оборудование:** учебник, презентация, рабочий лист${isHist ? ", историческая карта" : ""}.\n\n---\n\n## План урока\n\n${type.stages.map((x, i) => `${i + 1}. ${x} (${type.mins[i]} мин)`).join("\n")}\n\n---\n\n## Технологическая карта урока\n\n| Этап урока | Деятельность учителя | Деятельность учащихся | Задания / УУД |\n|---|---|---|---|\n`;
-      type.stages.forEach((st, i) => { const r = parts(st); md += `| ${st} (${type.mins[i]} мин) | ${cell(r.t)} | ${cell(r.s)} | ${cell(r.u)} |\n`; });
+      let md = `# ${p.topic}\n\n${head}\n\n**Тема по ФРП:** ${F.theme}\n\n**Цель:** ${F.goal ? `формирование умения ${F.goal}` : `освоение темы «${p.topic}»`}.\n\n**Оборудование:** учебник, презентация, рабочий лист${isHist ? ", историческая карта" : ""}.\n\n---\n\n## План урока\n\n${type.stages.map((x, i) => `${i + 1}. ${x} (${mins[i]} мин)`).join("\n")}\n\n---\n\n## Технологическая карта урока\n\n| Этап урока | Деятельность учителя | Деятельность учащихся | Задания / УУД |\n|---|---|---|---|\n`;
+      type.stages.forEach((st, i) => { const r = parts(st); md += `| ${st} (${mins[i]} мин) | ${cell(r.t)} | ${cell(r.s)} | ${cell(r.u)} |\n`; });
       return md + "\n" + webBlock(p);
     }
     if (kind === "lesson") {
       let md = `# ${p.topic}\n\n${head}\n\n---\n\n## Ход урока\n\n`;
-      type.stages.forEach((st, i) => { const r = parts(st); if (!r.t) return; md += `### ${i + 1}. ${st} · ${type.mins[i]} мин\n\n| ${st.split(":")[0]} |\n|---|\n| ${cell(r.t)} |\n| **💬 Ученики:** ${cell(r.s)} |\n\n`; });
+      type.stages.forEach((st, i) => { const r = parts(st); md += `### ${i + 1}. ${st} · ${mins[i]} мин\n\n| ${st.split(":")[0]} |\n|---|\n| ${cell(r.t)} |\n| **💬 Ученики:** ${cell(r.s)} |\n\n`; });
       return md + webBlock(p);
     }
     if (kind === "worksheet") {
