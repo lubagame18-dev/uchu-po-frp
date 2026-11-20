@@ -1,25 +1,9 @@
-name: Выкладка сайта в Яндекс Облако
-
-# Ручной деплой; автоматическая выгрузка на каждый push остаётся отключённой.
+name: Выкладка материалов уроков в Яндекс Облако
 on:
   workflow_dispatch:
-    inputs:
-      assets_ref:
-        description: 'Коммит файлов для выкладки (пусто — текущая ветка)'
-        type: string
-        default: ''
-      accounts_only:
-        description: 'Выгрузить только файлы кабинета'
-        type: boolean
-        default: false
-      check_only:
-        description: 'Только проверить доступ к бакету, без загрузки'
-        type: boolean
-        default: false
-
 concurrency:
   group: deploy-yandex
-  cancel-in-progress: true
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -32,62 +16,58 @@ jobs:
       AWS_DEFAULT_REGION: ru-central1
       BUCKET: uchu-po-frp.ru
       ENDPOINT: https://storage.yandexcloud.net
-      ACCOUNT_FILES: js/litprimary.js js/mathkit.js js/lessonnotes.js js/lesson-quality.js js/teacherrules.js js/notes.js js/ocr.js js/dossier.js js/ai.js js/usage.js js/app-part2.js legal/archive/2026-11-15/privacy.html legal/archive/2026-11-15/consent.html legal/archive/2026-11-15/oferta.html vendor/jszip.min.js vendor/docx.umd.js data/legal.js js/privacy.js js/access.js js/quizlink.js legal/legal.css legal/privacy.html legal/consent.html legal/data-rights.html legal/oferta.html legal/contacts.html legal/tarify.html legal/archive/2026-11-13/privacy.html legal/archive/2026-11-13/consent.html legal/archive/2026-11-13/oferta.html vendor/fonts/fonts.css vendor/fonts/*.woff2 vendor/fonts/*LICENSE.txt js/accounts-backend.js js/account.js js/cloudbase.js js/rules.js js/yandex-auth.js accounts-confirm.html google.html yandex.html test/index.html taras-bulba/index.html taras-bulba/results.html sw.js js/accounts-config.js index.html
     steps:
-      - name: Проверка ключей
-        run: |
-          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo '::error::Не заданы ключи деплоя'; exit 1; }
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.assets_ref || github.ref }}
-      - name: Проверка доступа к бакету
-        run: aws s3api head-bucket --bucket "$BUCKET" --endpoint-url "$ENDPOINT"
-      - name: Сохранить текущие файлы кабинета
-        if: ${{ !inputs.check_only && inputs.accounts_only }}
+          ref: 9e5510a6264c4872a82078e94c579243ccf6fb44
+          fetch-depth: 2
+      - name: Проверка списка обновлений
         run: |
-          mkdir -p "$RUNNER_TEMP/account-before"
-          for f in $ACCOUNT_FILES; do
-            mkdir -p "$RUNNER_TEMP/account-before/$(dirname "$f")"
-            if ! aws s3 cp "s3://$BUCKET/$f" "$RUNNER_TEMP/account-before/$f" --endpoint-url "$ENDPOINT" --no-progress 2>"$RUNNER_TEMP/backup-error"; then
-              if grep -Eq 'NoSuchKey|\(404\)|Not Found' "$RUNNER_TEMP/backup-error"; then
-                rm -f "$RUNNER_TEMP/account-before/$f"
-                echo "$f" >> "$RUNNER_TEMP/account-before/missing.txt"
-              else
-                echo "::error::Не удалось сохранить $f перед выкладкой"; exit 1
-              fi
-            fi
-          done
+          git diff --diff-filter=M --name-only HEAD^ HEAD -- js knowledge/frp/lit/5 > "$RUNNER_TEMP/lesson-files"
+          test "$(wc -l < "$RUNNER_TEMP/lesson-files")" -eq 57
+          while IFS= read -r file; do
+            case "$file" in
+              js/*.js|knowledge/frp/lit/5/[0-9][0-9][0-9]/lesson.json) test -f "$file" ;;
+              *) exit 1 ;;
+            esac
+          done < "$RUNNER_TEMP/lesson-files"
+      - name: Сохранить текущие файлы и метаданные
+        run: |
+          while IFS= read -r file; do
+            target="$RUNNER_TEMP/previous/$file"
+            mkdir -p "$(dirname "$target")"
+            aws s3api get-object --bucket "$BUCKET" --key "$file" --endpoint-url "$ENDPOINT" "$target" > "$target.metadata"
+          done < "$RUNNER_TEMP/lesson-files"
       - uses: actions/upload-artifact@v4
-        if: ${{ !inputs.check_only && inputs.accounts_only }}
         with:
-          name: account-before-${{ github.run_id }}
-          path: ${{ runner.temp }}/account-before
-          retention-days: 30
-      - name: Файлы кабинета
-        id: account_upload
-        if: ${{ !inputs.check_only && inputs.accounts_only }}
+          name: lesson-assets-before
+          path: ${{ runner.temp }}/previous
+          retention-days: 14
+      - name: Обновить и сверить предметные файлы
         run: |
-          for f in $ACCOUNT_FILES; do
-            [ -f "$f" ] || continue
-            aws s3 cp "$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress
-          done
-      - name: Вернуть файлы после неудачной выкладки
-        if: ${{ failure() && steps.account_upload.outcome == 'failure' }}
-        run: |
-          for f in $ACCOUNT_FILES; do
-            [ -f "$RUNNER_TEMP/account-before/$f" ] || continue
-            aws s3 cp "$RUNNER_TEMP/account-before/$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress
-          done
-      - name: Все файлы сайта
-        if: ${{ !inputs.check_only && !inputs.accounts_only }}
-        run: |
-          exclusions=()
-          while IFS= read -r pattern || [ -n "$pattern" ]; do
-            [ -z "$pattern" ] || exclusions+=(--exclude "$pattern")
-          done < deploy/site-excludes.txt
-          aws s3 sync . "s3://$BUCKET" --endpoint-url "$ENDPOINT" --delete --size-only --no-progress "${exclusions[@]}" --cache-control "public, max-age=300"
-          # Same-size JS/version changes must not be skipped by the bulk asset sync.
-          for f in $ACCOUNT_FILES; do
-            [ -f "$f" ] || continue
-            aws s3 cp "$f" "s3://$BUCKET/$f" --endpoint-url "$ENDPOINT" --cache-control "no-cache" --no-progress
-          done
+          restore() {
+            original_status=$?
+            trap - ERR
+            set +e
+            while IFS= read -r file; do
+              source="$RUNNER_TEMP/previous/$file"
+              type=$(jq -r '.ContentType // "application/octet-stream"' "$source.metadata")
+              cache=$(jq -r '.CacheControl // "no-cache"' "$source.metadata")
+              aws s3 cp "$source" "s3://$BUCKET/$file" --endpoint-url "$ENDPOINT" --no-progress --content-type "$type" --cache-control "$cache" || echo "::error::Не удалось восстановить $file"
+            done < "$RUNNER_TEMP/attempted"
+            exit "$original_status"
+          }
+          touch "$RUNNER_TEMP/attempted"
+          trap restore ERR
+          while IFS= read -r file; do
+            case "$file" in
+              *.js) type=application/javascript ;;
+              *.json) type=application/json ;;
+            esac
+            printf '%s\n' "$file" >> "$RUNNER_TEMP/attempted"
+            aws s3 cp "$file" "s3://$BUCKET/$file" --endpoint-url "$ENDPOINT" --no-progress --content-type "$type" --cache-control "no-cache"
+          done < "$RUNNER_TEMP/lesson-files"
+          while IFS= read -r file; do
+            aws s3api get-object --bucket "$BUCKET" --key "$file" --endpoint-url "$ENDPOINT" "$RUNNER_TEMP/lesson-verify" >/dev/null
+            cmp "$file" "$RUNNER_TEMP/lesson-verify"
+          done < "$RUNNER_TEMP/lesson-files"
