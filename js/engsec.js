@@ -22,9 +22,9 @@ window.EngSec = (() => {
     {
       re: /future|will|going to|будущ/,
       name: "Future forms",
-      theory: ["will — решение сейчас, обещание, прогноз (I will help you).", "be going to — план или намерение (I am going to travel).", "Present Continuous — договорённость (I am meeting him tomorrow).", "В придаточных времени после when/if будущее заменяется на Present Simple."],
+      theory: ["will — решение сейчас, обещание, прогноз (I will help you).", "be going to — план или намерение (I am going to travel).", "Present Continuous — договорённость (I am meeting him tomorrow).", "В придаточном времени с when и в реальном условии с if о будущем обычно говорят в Present Simple: I’ll phone when I arrive. I’ll walk if it stays dry."],
       steps: ["Определи: спонтанное решение, план или договорённость.", "Выбери форму.", "Составь предложение.", "Проверь придаточные времени."],
-      tasks: [["Раскрой: I (help) you tomorrow.", "I will help you tomorrow."], ["Раскрой: They (travel) next summer. (план)", "They are going to travel next summer."], ["Раскрой: We (meet) at 5 tomorrow. (договорённость)", "We are meeting at 5 tomorrow."], ["Раскрой: When he (come), I will call you.", "When he comes, I will call you."]]
+      tasks: [["Ты только что решил помочь другу. Дай обещание: I (help) you tomorrow.", "I will help you tomorrow."], ["Раскрой: They (travel) next summer. (план)", "They are going to travel next summer."], ["Раскрой: We (meet) at 5 tomorrow. (договорённость)", "We are meeting at 5 tomorrow."], ["Раскрой: When he (come), I will call you.", "When he comes, I will call you."]]
     },
     {
       re: /passive|пассив|страдательн/,
@@ -36,23 +36,23 @@ window.EngSec = (() => {
     {
       re: /conditional|если|условн/,
       name: "Conditionals",
-      theory: ["1st: If + Present Simple, will + V (реальное будущее).", "2nd: If + Past Simple, would + V (нереальное настоящее).", "3rd: If + Past Perfect, would have + V3 (нереальное прошлое).", "В условных придаточных после If будущее не используется."],
+      theory: ["1st: If + Present Simple, will + V (реальное будущее).", "2nd: If + Past Simple, would + V (нереальное настоящее).", "3rd: If + Past Perfect, would have + V3 (нереальное прошлое).", "В первом типе обычное условие о будущем выражается Present Simple. Для общей закономерности обе части могут стоять в Present Simple: If you heat ice, it melts."],
       steps: ["Определи тип условия.", "Поставь глаголы по формуле.", "Проверь порядок частей.", "Переведи для проверки смысла."],
       tasks: [["Раскрой: If it (rain), we will stay home.", "If it rains, we will stay home."], ["Раскрой: If I (be) you, I would go.", "If I were you, I would go."], ["Раскрой: If he (know), he would have helped.", "If he had known, he would have helped."], ["Раскрой: If you heat ice, it (melt).", "If you heat ice, it melts."]]
     },
     {
       re: /reported|косвенн/,
       name: "Reported Speech",
-      theory: ["При переводе в косвенную речь время сдвигается назад (Present → Past).", "Местоимения и указатели времени меняются (now → then, today → that day).", "Вопросы в косвенной речи — прямой порядок слов, без do/does.", "Приказания передаются через told/asked + to + V."],
-      steps: ["Определи тип предложения.", "Сдвинь время на шаг назад.", "Замени местоимения и указатели.", "Убери инверсию в вопросах."],
-      tasks: [["Передай: He said, «I am busy».", "He said he was busy."], ["Передай: She asked, «Where do you live?»", "She asked where I lived."], ["Передай: He said, «I will come».", "He said he would come."], ["Передай: «Open the door», he said.", "He told me to open the door."]]
+      theory: ["После said о прошлом часто используют согласование времён: “I am tired,” he said → He said he was tired. Если сообщение по-прежнему верно, настоящее время также возможно.", "Выбери местоимения по тому, кто говорил и кто передаёт речь. Если время отсчёта изменилось, now может стать then, а today — that day.", "Вопросы в косвенной речи — прямой порядок слов, без do/does.", "Приказания передаются через told/asked + to + V."],
+      steps: ["Определи тип предложения.", "Сравни момент исходной реплики с моментом пересказа. Реши, уместен ли сдвиг времени.", "Замени местоимения и указатели.", "Убери инверсию в вопросах."],
+      tasks: [["Передай: He said, «I am busy».", "He said he was busy."], ["Вчера она спросила тебя: “Where do you live?” Передай вопрос в прошедшем времени.", "She asked where I lived."], ["Передай: He said, «I will come».", "He said he would come."], ["Передай: «Open the door», he said.", "He told me to open the door."]]
     },
     {
       re: /article|артикл|a\/an\/the/,
       name: "Articles",
       theory: ["a/an — неопределённый: предмет впервые упоминается, один из многих.", "the — определённый: предмет известен или единственный.", "Без артикля: множественное число в общем смысле, имена, города, страны (кроме исключений).", "a/an зависит от звука: a book, an hour."],
       steps: ["Определи: исчисляемое/неисчисляемое.", "Впервые или известно.", "Единственный предмет или нет.", "Поставь артикль."],
-      tasks: [["Вставь: I saw _ dog.", "a dog"], ["Вставь: _ sun rises in the east.", "The sun"], ["Вставь: She is _ doctor.", "a doctor"], ["Вставь: _ books are interesting.", "— (без артикля)"]]
+      tasks: [["Вставь: I saw _ dog.", "a dog"], ["Вставь: _ sun rises in the east.", "The sun"], ["Вставь: She is _ doctor.", "a doctor"], ["Скажи о книгах вообще: _ books are interesting.", "— (без артикля)"]]
     },
     {
       re: /comparative|superlative|степен|сравнит/,

@@ -9,7 +9,7 @@ window.EngPrimary = (() => {
   const pick = (r, a) => a[Math.floor(r() * a.length)];
 
   const VOC = {
-    alphabet: [["A", "эй"], ["B", "би"], ["C", "си"], ["D", "ди"], ["E", "и"], ["F", "эф"]],
+    alphabet: [["A", "[eɪ]"], ["B", "[biː]"], ["C", "[siː]"], ["D", "[diː]"], ["E", "[iː]"], ["F", "[ef]"]],
     numbers: [["one", "один"], ["two", "два"], ["three", "три"], ["four", "четыре"], ["five", "пять"], ["ten", "десять"]],
     colours: [["red", "красный"], ["blue", "синий"], ["green", "зелёный"], ["yellow", "жёлтый"], ["black", "чёрный"], ["white", "белый"]],
     animals: [["cat", "кошка"], ["dog", "собака"], ["fox", "лиса"], ["bear", "медведь"], ["mouse", "мышь"], ["bird", "птица"]],
@@ -51,10 +51,10 @@ window.EngPrimary = (() => {
     const r = rnd(seed), key = topicKey(topic), g = +grade, out = [];
     const add = (q, a) => out.push({ q, a });
     const bank = VOC[key];
-    const word = () => pick(r, bank);
+    const [englishWord, russianMeaning] = pick(r, bank);
     // лексика
-    bank.slice(0, 3).forEach(([en, ru]) => add(`Переведи на русский: ${en}`, ru));
-    add(`Переведи на английский: ${word()[1]}`, word()[0]);
+    bank.slice(0, 3).forEach(([en, ru]) => add(key === "alphabet" ? `Назови английскую букву: ${en}` : `Переведи на русский: ${en}`, ru));
+    add(key === "alphabet" ? `Запиши английскую букву по её названию: ${russianMeaning}` : `Переведи на английский: ${russianMeaning}`, englishWord);
     // грамматика
     const gr = grammar(topic);
     if (gr === "tobe" || gr === "mixed") {
@@ -91,7 +91,7 @@ window.EngPrimary = (() => {
       ["4", "Grammar / Грамматика", "8–10", `${key === "actions" ? "Can + глагол." : "Глагол to be: am/is/are."} Объясняем на примерах, составляем предложения.`],
       ["5", "Физминутка", "2", "Stand up! Clap your hands! Движения по командам на английском."],
       ["6", "Practice / Практика", "9–10", `Задания: ${ts.slice(0, 3).map(x => x.q).join("; ")}. Работа у доски и в парах.`],
-      ["7", "Reading / Reading dialogue", "5–6", "Читаем мини-диалог по ролям, отвечаем на вопросы."],
+      ["7", "Reading / Reading dialogue", "5–6", "Разыгрываем диалог с карточками урока: «What is on your card?» — «Look!» Назови слово. Партнёр находит такую же карточку и повторяет слово. Поменяйтесь ролями."],
       ["8", "Game / Игра", "3–4", "Игра «Найди пару», «Что пропало?» со словами урока."],
       ["9", "Итог и рефлексия", "2–3", "Что запомнили? What new words do you know?"],
       ["10", "Homework", "1–2", "Выучить 5 слов, составить 3 предложения, повторить грамматику."]
@@ -139,7 +139,7 @@ window.EngPrimary = (() => {
       "",
       `**Класс:** ${g} · **Имя:** ______________________`,
       "",
-      "## 1. Соедини слово и перевод",
+      key === "alphabet" ? "## 1. Соедини букву и запись её названия" : "## 1. Соедини слово и перевод",
       bank.slice(0, 4).map(([en, ru]) => `${en} — _____`).join("   ") + "   |   " + bank.slice(0, 4).map(([, ru]) => ru).sort().join(", "),
       "",
       "## 2. Впиши пропущенное",
