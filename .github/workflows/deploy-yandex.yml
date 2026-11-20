@@ -19,12 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 9e5510a6264c4872a82078e94c579243ccf6fb44
+          ref: 27691ba3b7d725027effa88d32f16e08a3e94887
           fetch-depth: 2
       - name: Проверка списка обновлений
         run: |
-          git diff --diff-filter=M --name-only HEAD^ HEAD -- js knowledge/frp/lit/5 > "$RUNNER_TEMP/lesson-files"
-          test "$(wc -l < "$RUNNER_TEMP/lesson-files")" -eq 57
+          git diff --diff-filter=M --name-only HEAD^ HEAD -- js > "$RUNNER_TEMP/lesson-files"
+          test "$(wc -l < "$RUNNER_TEMP/lesson-files")" -eq 5
           while IFS= read -r file; do
             case "$file" in
               js/*.js|knowledge/frp/lit/5/[0-9][0-9][0-9]/lesson.json) test -f "$file" ;;
