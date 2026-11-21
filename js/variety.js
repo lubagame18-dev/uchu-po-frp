@@ -362,14 +362,14 @@ const Variety = (() => {
     }
     if (!note) {
       // б) по классу
-      if (p.grade <= 6 && /lyric|epic|commented/.test(type.id)) { const i = stages.findIndex(s => /восприят|чтени эпизод|история создан/i.test(s)); if (i >= 0) stages.splice(i + 1, 0, "Словарная работа: непонятные слова и реалии текста"); }
       if (p.grade >= 10 && /epic|problem|bio|lyricTheme/.test(type.id)) { const i = stages.findIndex(s => /синтез|итог|вывод/i.test(s)); if (i >= 0) stages.splice(i, 0, "Работа с критикой: тезисы статьи и спор с ней"); }
       // в) по тексту
       if (A?.pairs?.length >= 2 && /lyric/.test(type.id)) { const i = stages.findIndex(s => /анализ|аналит/i.test(s)); if (i >= 0) stages.splice(i + 1, 0, "Бинарные оппозиции: пары образов текста"); }
       if (A?.dialog && /epic|commented/.test(type.id)) { const i = stages.findIndex(s => /чтени|эпизод/i.test(s)); if (i >= 0) stages.splice(i + 1, 0, "Чтение по ролям: диалог героев"); }
-      const parts = [p.grade <= 6 ? "для младших — словарная работа" : p.grade >= 10 ? "для старших — работа с критикой" : "", A?.pairs?.length >= 2 && /lyric/.test(type.id) ? "в тексте есть антитеза — бинарные оппозиции" : "", A?.dialog && /epic|commented/.test(type.id) ? "в эпизоде диалог — чтение по ролям" : ""].filter(Boolean);
+      const parts = [p.grade >= 10 ? "для старших — работа с критикой" : "", A?.pairs?.length >= 2 && /lyric/.test(type.id) ? "в тексте есть антитеза — бинарные оппозиции" : "", A?.dialog && /epic|commented/.test(type.id) ? "в эпизоде диалог — чтение по ролям" : ""].filter(Boolean);
       if (parts.length) note = "подстроена под класс и текст: " + parts.join("; ");
     }
+    stages = stages.filter(stage => !/(?:^|:\s*)словарная работа(?=\s|[.:]|$)/i.test(stage));
     // г) необычный формат урока — отдельным этапом перед рефлексией
     if (fmt) { const i = stages.findIndex(s => /рефлекс/i.test(s)); stages.splice(i >= 0 ? i : stages.length, 0, `Творческое задание: ${fmt.name.toLowerCase()}`); }
     return { stages, note };
@@ -468,7 +468,6 @@ const Variety = (() => {
     const kit = plan.kit;
     if (kit && !/^Творческое задание|^домашн/i.test(stage)) {
       if (/мотивац|постановк|проблем|целеполаг/i.test(stage) && !plan.problemShown) { teacher += `<br>— Проблемный вопрос урока: ${kit.problem} *(записывают в тетрадь; ответ — в конце урока, в выводах)*`; plan.problemShown = true; }
-      if (/словар/i.test(stage) && kit.glossary.length) teacher = `Словарная работа (слайд «Словарь»; слова кликабельны во фрагментах): ${kit.glossary.map(g => `**${g.word}** — ${g.def}`).join("; ")}.<br>` + teacher;
       if (/итог|вывод|обобщ|рефлекс/i.test(stage) && !plan.answerShown) { teacher += `<br>— Вернёмся к проблемному вопросу: ${kit.problem} Сформулируйте ответ, опираясь на фрагменты, с которыми работали. *(Ожидаемый ответ: ${kit.answer || "ученики формулируют главную мысль с опорой на 2–3 цитаты из разных фрагментов"})*<br>— Запишите выводы в тетрадь (слайд «Выводы»).`; plan.answerShown = true; }
       if (/восприят|первичн|чтени/i.test(stage)) teacher += `<br>Читаем ${kit.fragments[0]?.whole ? "текст целиком" : `фрагменты 1–${kit.fragments.length}`} — на слайдах, дословно.`;
       if (/анализ|аналит|комментар|эпизод|композиц|конфликт|персонаж|образ|синтез|беседа|работа над|наблюд/i.test(stage) && kit.fragments.length) {
@@ -481,7 +480,12 @@ const Variety = (() => {
         if (take.length) teacher = take.map(fr => {
           const qa = (kit.qa.find(x => x.n === fr.n) || { items: [] }).items;
           const firstLine = String(fr.text).split("\n").find(l => l.trim()) || "";
-          return `**Работа ${fr.part ? `с частью ${fr.n} («${fr.label}»)` : `с фрагментом ${fr.n}. ${fr.label}`}** («${firstLine.trim().replace(/[.,;:—–-]+$/, "")}…»${fr.whole ? "" : `, строки ${fr.from}–${fr.to}`}; текст на слайде):<br>` + qa.map(x => `— ${x.q} *(Ожидаемый ответ: ${x.a})*`).join("<br>");
+          const context = LitKit.contextFor(kit, fr);
+          return `**Работа ${fr.part ? `с частью ${fr.n} («${fr.label}»)` : `с фрагментом ${fr.n}. ${fr.label}`}** («${firstLine.trim().replace(/[.,;:—–-]+$/, "")}…»${fr.whole ? "" : `, строки ${fr.from}–${fr.to}`}; текст на слайде):<br>` + [
+            ...context.filter(item => !item.term).map(item => item.note),
+            ...qa.map(x => `— ${x.q} *(Ожидаемый ответ: ${x.a})*`),
+            ...context.filter(item => item.term).map(item => item.note)
+          ].join("<br>");
         }).join("<br>");
         else teacher = teacher.split("<br>").slice(0, 2).join("<br>");
       }
@@ -510,7 +514,7 @@ const Variety = (() => {
       const G = (K.glossary || []).slice(0, 6);
       if (G.length >= 3) {
         const L = "АБВГДЕЖЗ", order = G.map((g, i) => (i + Math.ceil(G.length / 2)) % G.length);
-        tasks.push({ lvl: 1, name: "Словарная работа", text: `Соедините устаревшее слово с его значением (на слайде «Словарная работа» — подсказка: щёлкните по слову во фрагменте). Ответ запишите парами: 1 — Б, …
+        tasks.push({ lvl: 1, name: "Словарная работа", text: `Вернитесь к строкам с устаревшими словами и соотнесите каждое слово с его значением в тексте. Ответ запишите парами: 1 — Б, …
 
 | № | Слово | Буква | Значение |
 |---|---|---|---|

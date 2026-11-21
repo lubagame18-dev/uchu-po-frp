@@ -80,9 +80,9 @@ const QuizLink = (() => {
     }
     if (!id) { if (warn) window.toast?.(warn, 6000); return null; }
     const img = await qrImage(url, id);
-    const set = { kind: "qr", acc: "right" };
+    const set = { kind: "qr", acc: "right", subject: p.subject };
     const parts = a ? `${a.data.questions.length} вопросов по теме` : (t ? t.parts : "");
-    const md = [`## 🧪 Проверка знаний: тест по теме`, img, [
+    const md = [`## ${Subjects.iconOf(p.subject)} Проверка знаний: тест по теме`, img, [
       "- Наведите камеру телефона на QR-код",
       "- Впишите фамилию, имя и класс",
       `- ${parts}`,
@@ -104,8 +104,8 @@ const QuizLink = (() => {
   async function slideFor(p, qt) {
     if (!qt || !qt.url) return "";
     const img = await qrImage(qt.url, qt.id);
-    const set = { kind: "qr", acc: "right" };
-    return [`## 🧪 Проверка знаний: тест по теме`, img, [
+    const set = { kind: "qr", acc: "right", subject: p.subject };
+    return [`## ${Subjects.iconOf(p.subject)} Проверка знаний: тест по теме`, img, [
       "- Наведите камеру телефона на QR-код",
       "- Впишите фамилию, имя и класс",
       `- ${qt.title || p.topic || "тест"}`,

@@ -46,7 +46,7 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
     const result = await page.evaluate(async pdfSmoke => {
       await Base.ready();
       await FRP.load();
-      await Promise.all(['eng', 'inf', 'chem', 'orkse'].map(subject => Plans.ensure(subject)));
+      await Promise.all(['eng', 'inf', 'chem', 'orkse', 'lit'].map(subject => Plans.ensure(subject)));
       const topics = [
         ['eng', 9, 'Монологическая речь'], ['bio', 9, 'Кровообращение'],
         ['hist', 5, 'Работа с исторической картой'], ['math', 10, 'График функции'], ['vis', 9, 'Вероятность случайного события'],

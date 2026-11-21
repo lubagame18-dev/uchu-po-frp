@@ -258,6 +258,57 @@ async function testDictationAndLiterature(page) {
   assert.deepEqual(blocked, [true, true, true, true]);
 }
 
+async function testReadingContext(page) {
+  const result = await page.evaluate(async () => {
+    const p = { subject: 'lit', grade: 6, lessonNo: 2, duration: 45, topic: 'Анализ стихотворения «Зимний вечер»', control: 'school' };
+    p.type = Engine.detectType(p);
+    const first = { n: 1, label: 'Герой', text: 'Ветхий армяк укрыл его плечи.\nЗа окном расстилалась безмолвная ночь.', from: 1, to: 2 };
+    const second = { n: 2, label: 'Утро', text: 'Назавтра ямщик подал лошадей.\nУтро уже наступило.', from: 3, to: 4 };
+    const kit = { verse: true, fragments: [first, second], qa: [{ n: 1, items: [{ term: 'эпитет', ex: 'безмолвная ночь', q: 'Какой представляется ночь?', a: 'В тексте подчеркнута тишина.' }] }], terms: [], conclusions: ['Образ ночи помогает передать настроение.'], problem: 'Что меняется к утру?' };
+    p.plan = { kit, analysis: { verse: true }, textSource: 'Проверочный фрагмент' };
+    const previous = state.lesson;
+    state.lesson = { ...previous, params: p };
+    try {
+      const cards = Deck.outline('', p, p.type, { amount: 'medium', images: 'none' });
+      const deck = splitSlides(Deck.toMarkdown(cards)).map(SlideEditor.parse);
+      const fragments = deck.filter(x => x.set.kind === 'fragment');
+      const notes = LessonNotes.build('| Этап | Учитель | Ученики |\n|---|---|---|\n| Чтение | Читаем | Слушают |\n| Анализ | Что в тексте? | Отвечают |', p);
+      const context = LitKit.contextFor(kit, first);
+      const fragmentPage = new DOMParser().parseFromString(SlideEditor.slideHtml(fragments[0], 0), 'text/html');
+      const legacy = SlideEditor.parse('## и цель урока\n\n**Сегодня на уроке мы:**\n\n- Сравним образы.\n\n<!--@ {"kind":"goal"} -->');
+      const headings = ['Тема и идея произведения', 'Уроки истории', 'Тема: Разбор фрагмента'].map(title =>
+        new DOMParser().parseFromString(SlideEditor.slideHtml({ ...legacy, title }, 0), 'text/html').querySelector('.sx-title').textContent);
+      const timing = splitSlides('## Повторение предыдущего урока (2–3 минуты, обязательно)\n\n- **Время выполнения:** 2 минуты\n- Сколько секунд длилось движение?\n\n<!-- Время для учителя: 2 минуты. -->').map(SlideEditor.parse)[0];
+      const legacyQuiz = SlideEditor.parse('## 🧪 Проверка знаний: тест по теме\n\n<!--@ {"kind":"qr"} -->');
+      const quiz = await QuizLink.slideFor(p, { id: 'context-qr', url: `${location.origin}/test/index.html?q=context` });
+      const parsedQuiz = splitSlides('## Предыдущий слайд\n\n' + quiz).map(SlideEditor.parse);
+      await Plans.ensure('lit');
+      const current = FRP.topicsFor('lit', 6);
+      const prev = previousTopicFor({ ...p, topic: current[1].title, lessonNo: 1 });
+      return { goal: deck.find(s => s.set.kind === 'goal').title, legacy: [legacy.title, legacy.body], headings,
+        fragmentCount: fragments.length, word: fragmentPage.querySelector('.sx-gl')?.textContent,
+        notesAgree: context.length > 1 && context.every(item => fragments[0].notes.includes(item.note) && notes.includes(item.note)),
+        otherFragment: fragments[1].notes.includes('ямщик') && !fragments[1].notes.includes('безмолвная ночь'),
+        detached: deck.some(s => /^(Словарная работа|Словарь терминов|Работа с понятиями|Проверь себя: что за приём|Разминка: незнакомые слова)/i.test(s.title)),
+        icons: new Set([...Subjects.list.map(x => x.id), 'any'].map(Subjects.iconOf)).size,
+        quiz: [legacyQuiz.title, parsedQuiz.length, parsedQuiz.at(-1).title, parsedQuiz.at(-1).set.subject],
+        timing: [timing.title, timing.body, timing.notes], planned: current.length >= 68 && prev === current[0].title,
+        stages: !subjectsOfStage('middle').includes('lit1') };
+    } finally { state.lesson = previous; }
+  });
+  assert.equal(result.goal, 'Сегодня на уроке мы');
+  assert.deepEqual(result.legacy, ['Сегодня на уроке мы', '- Сравним образы.']);
+  assert.deepEqual(result.headings, ['Тема и идея произведения', 'Уроки истории', 'Разбор фрагмента']);
+  assert.equal(result.fragmentCount, 2);
+  assert.equal(result.word, 'армяк');
+  assert.ok(result.notesAgree && result.otherFragment, JSON.stringify(result));
+  assert.equal(result.detached, false);
+  assert.equal(result.icons, 24);
+  assert.deepEqual(result.quiz, ['📖 Проверка знаний: тест по теме', 2, '📖 Проверка знаний: тест по теме', 'lit']);
+  assert.deepEqual(result.timing, ['Повторение предыдущего урока', '- Сколько секунд длилось движение?', 'Время для учителя: 2 минуты.']);
+  assert.ok(result.planned && result.stages);
+}
+
 async function editorGeometry(page) {
   return page.evaluate(() => {
     const slide = document.querySelector('#sxFrame .sx');
@@ -431,6 +482,7 @@ async function exportsFrom(page, fixture, browser) {
     const fixture = await loadDeck(desktop.page);
     await testFlows(desktop.page, fixture);
     await testDictationAndLiterature(desktop.page);
+    await testReadingContext(desktop.page);
     await loadDeck(desktop.page);
     const count = await exportsFrom(desktop.page, fixture, browser);
     const pages = [];

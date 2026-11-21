@@ -172,6 +172,14 @@ const LessonNotes = (() => {
     const analysisStage = st.findIndex(s => /аналит|анализ|комментар|беседа/i.test(s.name));
     const readingStage = st.findIndex(s => /восприят|чтени|знакомств/i.test(s.name));
     const fragmentStage = analysisStage >= 0 ? analysisStage : Math.max(0, readingStage);
+    const contexts = new Map((K?.fragments || []).map(f => [f.n, LitKit.contextFor(K, f)]));
+    const fragmentNotes = new Set([...contexts.values()].flatMap(items => items.map(item => item.note)));
+    const explained = new Set();
+    const wordNotes = context => context.filter(item => {
+      if (item.term || explained.has(item.label)) return false;
+      explained.add(item.label);
+      return true;
+    }).map(item => item.note);
     let ex = 0, fragDone = false;
     st.forEach((S, i) => {
       const { c, name, min, t, side } = S, T = talk(c[1] || ""), students = ru ? strip(c[2]) : "";
@@ -183,6 +191,7 @@ const LessonNotes = (() => {
       const word = [], frBlocks = [];
       const hasEx = ru && t && t.text && !/⟦/.test(t.text);
       for (const n of T.notes) {
+        if (fragmentNotes.has(n)) continue;
         if (hasEx && /^Форма работы:/i.test(n)) continue;
         if (/^Алгоритм «.*на слайде/.test(n) || /если затрудня|если не (ответ|справ)|наводящ/i.test(n)) continue;
         if (/^(Медленное чтение|Итог анализа|Прогноз|Как автор этого добивается|Предварительный комментарий|Нравственный выбор)[^<]*:$/.test(n.trim())) continue;
@@ -228,31 +237,28 @@ const LessonNotes = (() => {
           const firstQ = qa[0] ? (qa[0].steps ? qa[0].steps[0] : qa[0].q) : "";
           out += X.box("Установка на чтение", [`Прочитаем ${f.part ? "эту часть" : "фрагмент"}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}.${firstQ ? ` Обратите внимание, чтобы потом ответить: ${clean(firstQ)}` : ""}`]);
           out += X.box(`Отрывок ${f.n}. ${f.label}`, excerpt(f.text));
-          const gl = (K.glossary || []).filter(g => low(f.text).includes(low(g.word).slice(0, Math.max(4, g.word.length - 2))));
-          if (gl.length) out += X.box("Словарная работа", gl.map(g => `**${g.word}** — ${g.def}`));
+          const context = contexts.get(f.n);
+          const words = wordNotes(context);
+          if (words.length) out += X.row("Пояснения при чтении", words);
           const pairs = qa.flatMap(x => x.steps ? x.steps.map((q, k) => [q, x.as?.[k] || (k === x.steps.length - 1 ? x.a : "")]) : [[x.q, x.a]]);
           out += X.qa(pairs, ["Вопрос, задание учителя", "Ответ учеников"]);
+          const terms = context.filter(item => item.term);
+          if (terms.length) out += X.row("Разбор выражений", terms.map(item => item.note));
           if (K.conclusions?.[j]) out += X.box("Вывод", [`Учитель: «${clean(K.conclusions[j])}»`]);
         });
-        // понятия — после наблюдения над текстом, с проговариванием вслух
         if (afterQs.length) { out += X.sub(`${i + 1}.${K.fragments.length + 1}`, "Весь текст: перелом и финал"); out += X.qa(afterQs.map(x => [x.q, x.a || ""])); }
-        (K.terms || []).filter(tm => p.plan?.analysis?.verse !== false || !/эпитет|метафор|анафор|антитез|олицетвор|аллитерац|ассонанс|инверси/i.test(tm.term)).slice(0, 4).forEach(tm => { out += X.box(`Понятие «${tm.term}»`, [`Учитель: «${tm.def.replace(/[.\s]+$/, "").replace(/^./, ch => ch.toUpperCase())}${tm.ex ? `. Вспомним строки: «${tm.ex.replace(/[«»]/g, "")}»` : ""}»`]); out += X.box("Проговариваем вслух", [`Учитель: «Как называется ${/герой|композиц|тема|иде[яи]|жанр|конфликт|образ|сюжет|размер|рифм|строф|автор|рассказчик|пейзаж|портрет|деталь/i.test(tm.term) ? "это понятие" : "этот приём"}?» — Класс: «${tm.term}».`]); });
       }
       // работа с текстом на остальных этапах: сам текст (дословно) должен быть перед глазами учителя там, где о нём говорят
       if (!ru && K?.fragments?.length) {
-        const fr = K.fragments, allLines = fr.flatMap(f => f.text.split("\n").filter(l => l.trim()));
+        const fr = K.fragments;
         if (/восприят|чтени|знакомств/.test(low(name)) && !ctx.readDone && !fragStageNow) {
           ctx.readDone = 1;
           const whole = fr[0].whole || fr[0].part;
           const body = whole ? fr.map(f => f.text).join("\n\n") : fr[0].text;
           out += X.box(whole ? "Текст для чтения (дословно)" : `Отрывок для первого чтения: ${fr[0].label} (дословно)`, excerpt(body));
+          const words = (whole ? fr : fr.slice(0, 1)).flatMap(f => wordNotes(contexts.get(f.n)));
+          if (words.length) out += X.row("Пояснения при чтении", words);
           if (!whole && fr.length > 1) out += X.box("Остальные отрывки", [`Читаем по ходу анализа (этап «Аналитический блок»): ${fr.slice(1).map(f => f.label).join("; ")}.`]);
-        }
-        if (/словарн/.test(low(name)) && !ctx.vocDone) {
-          ctx.vocDone = 1;
-          const gl0 = (K.glossary || []).length ? K.glossary : [...String(c[1] || "").matchAll(/«([а-яёА-ЯЁ-]{4,})»/g)].map(m => ({ word: m[1] })).slice(0, 6);
-          const rows = gl0.slice(0, 8).map(g => { const key = low(g.word).slice(0, Math.max(4, g.word.length - 2)); const ln = allLines.find(l => low(l).includes(key)); return ln ? `**${g.word}** – «${clean(ln)}»` : ""; }).filter(Boolean);
-          if (rows.length) out += X.box("Слова в строках текста (читаем строку целиком, потом объясняем слово)", rows);
         }
         if (/синтез|обобщ|итог/.test(low(name)) && !/рефлекс|домашн/.test(low(name)) && !ctx.refDone) {
           ctx.refDone = 1;
@@ -266,9 +272,12 @@ const LessonNotes = (() => {
     });
     if (!R.length) {
       out += "*Этапы урока не найдены — откройте технологическую карту.*\n\n";
-      for (const f of K?.fragments || []) out += X.box(`Отрывок ${f.n}. ${f.label}`, excerpt(f.text));
+      for (const f of K?.fragments || []) {
+        out += X.box(`Отрывок ${f.n}. ${f.label}`, excerpt(f.text));
+        const notes = contexts.get(f.n).map(item => item.note);
+        if (notes.length) out += X.row("Комментарий к отрывку", notes);
+      }
     }
-    if (!ru && K?.glossary?.length && !K?.fragments?.length) out += X.box("Словарная работа", K.glossary.map(g => `**${g.word}** — ${g.def}`));
     if (ru && rk?.theory?.length) out += X.box("Тетрадь · запись на уроке", rk.theory);
     if (!ru && K?.conclusions?.length) out += X.box("Тетрадь · выводы урока", K.conclusions);
     const table = blockTable(md);

@@ -448,21 +448,44 @@ const LitKit = (() => {
     return { verse: A.verse !== false, fragments: frs.map(({ qa, ...f }) => f), qa, terms, glossary: gloss, problem: W?.problem || problemOf(p, A, plan), problemSrc: W?.problem ? "база произведения" : problemOf.src, problemNote: problemOf.note || "", answer: W?.answer || null, idea: W?.idea || null, heroes, rows: W?.rows || null, conclusions: conclusions(p, A, frs, terms, W) };
   }
 
-  /* ---------- 8. Разметка фрагмента для слайда: слова с подсказками ---------- */
-  // В Markdown слово становится ссылкой [слово](#g "пояснение"); на слайде по щелчку появляется подсказка
-  function markup(md, kit) {
-    if (!kit) return md;
-    const tips = [];
-    for (const g of kit.glossary || []) tips.push({ w: g.form, tip: `${g.word} — ${g.def}` });
-    for (const t of kit.extraTips || []) tips.push({ w: t.w, tip: t.tip });
-    const H = typeof Heur !== "undefined" ? Heur : window.Heur;
-    if (H?.archaic) for (const a of H.archaic(md.replace(/\[[^\]]*\]\(#g "[^"]*"\)/g, ""))) if (!/старое|старая/.test(a.def)) tips.push({ w: a.w, tip: `${a.w} — устар.: ${a.def}` });
-    for (const t of (kit.verse === false ? [] : kit.terms || [])) if (t.ex && t.ex.split(/\s+/).length <= 3 && !/…$/.test(t.ex)) tips.push({ w: t.ex.replace(/[«»]/g, ""), tip: `${t.term.charAt(0).toUpperCase() + t.term.slice(1)}: ${t.def}` });
+  // Одна привязка к цитате для конспекта, заметок докладчика и подсказок на слайде.
+  const anchorPattern = word => new RegExp(`(^|[^\\p{L}\\p{N}\\[-])(${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/[её]/gi, "[её]").replace(/\s+/g, "\\s+")})(?=[^\\p{L}\\p{N}\\]-]|$)`, "iu");
+  function contextFor(kit, fragment, text = fragment.text) {
+    const rows = String(text).split(/\n/).flatMap(line => kit.verse ? [line] : line.split(/(?<=[.!?…])\s+/));
+    const words = glossaryFor([fragment.text]).map(({ word, form, def }) => ({ label: word, form, def }));
+    for (const { w, def } of window.Heur?.archaic(fragment.text) || []) {
+      if (!words.some(word => lowe(word.form) === lowe(w))) words.push({ label: w, form: w, def });
+    }
+    const qa = kit.qa?.find(part => part.n === fragment.n)?.items || [];
+    const globalTerms = (kit.terms || []).filter(t => !kit.qa?.some(part => part.items?.some(q => q.term === t.term && q.ex)));
+    const terms = [...qa, ...globalTerms].filter(t => t.term && t.ex && (TERMS[t.term] || t.def)).map(t => ({
+      label: t.term, form: t.ex.replace(/[«»]/g, "").replace(/[.…]+$/, "").trim(), def: TERMS[t.term] || t.def, term: true
+    }));
+    const seen = new Set();
+    return [...words, ...terms].flatMap(item => {
+      if (!item.form || seen.has(item.label)) return [];
+      const pattern = anchorPattern(item.form);
+      const line = rows.find(row => pattern.test(row));
+      if (!line) return [];
+      const w = line.match(pattern)[2];
+      seen.add(item.label);
+      const quote = shortLine(line.length <= 180 ? line : w).replace(/[«»]/g, "");
+      const def = item.def.trim().replace(/[.]+$/, "");
+      const tip = `${item.label} — ${def}`;
+      const note = item.term
+        ? `В цитате «${quote}» обратите внимание на «${w}» и обсудите, что выражение добавляет к смыслу. ${/эпитет/.test(item.label) ? "Сопоставьте его с нейтральным описанием и назовите приём, если определение создаёт образ. " : "Назовите приём после наблюдения. "}${tip}.`
+        : `При чтении «${quote}» кратко поясните: «${w}» — ${def}. Затем продолжите чтение.`;
+      return [{ ...item, w, tip, note }];
+    });
+  }
+
+  // В Markdown слово становится ссылкой [слово](#g "пояснение"). Название приёма остаётся в заметках.
+  function markup(md, context) {
+    if (!Array.isArray(context)) context = context ? contextFor(context, { text: md }) : [];
     let out = md; const done = new Set();
-    for (const { w, tip } of tips) {
+    for (const { w, tip } of context.filter(item => !item.term)) {
       const key = lowe(w); if (!w || done.has(key) || w.length < 3) continue;
-      const esc = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const re = new RegExp(`(^|[^А-Яа-яЁёA-Za-z\\[])(${esc})(?=[^А-Яа-яЁёA-Za-z\\]]|$)`, "i");
+      const re = anchorPattern(w);
       // заменяем только вне уже поставленных подсказок
       const parts = out.split(/(\[[^\]]*\]\(#g "[^"]*"\))/);
       let hit = false;
@@ -471,6 +494,6 @@ const LitKit = (() => {
     }
     return out;
   }
-  return { cleanWork, focusWork, build, workOf, WORKS, fragments, fragmentQA, glossaryFor, termsFor, problemOf, conclusions, markup, TERMS, GLOSS };
+  return { cleanWork, focusWork, build, workOf, WORKS, fragments, fragmentQA, glossaryFor, termsFor, problemOf, conclusions, contextFor, markup, TERMS, GLOSS };
 })();
 window.LitKit = LitKit;

@@ -81,19 +81,11 @@ window.Plans = (() => {
     const cfg = window.UCHU_FRP2025 || {};
     const file = (cfg.files || {})[subject];
     if (!file || !(cfg.subjects || {})[subject]) return false;
-    const loaded = await loadScript(file);
-    if (!loaded) return false;
-    if (subject === "lit" || subject === "ru") return true; // rich-данные читает движок FRP
-    const D = window.FRPPlans2025 && window.FRPPlans2025[subject];
-    if (!D) return false;
-    window.FRPPlans[subject] = window.FRPPlans[subject] || {};
-    for (const grade of Object.keys(D)) window.FRPPlans[subject][grade] = D[grade];
-    return true;
+    return loadScript(file);
   }
 
   const hasPlan = subject => {
-    const P = window.FRPPlans;
-    return !!(P && P[subject] && Object.keys(P[subject]).length);
+    return !!Object.keys(window.FRPPlans2025?.[subject] || window.FRPPlans?.[subject] || {}).length;
   };
 
   /* модули-«доработки» (frpplans12/13) дописывают разделы в базовые планы.

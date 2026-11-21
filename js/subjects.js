@@ -7,6 +7,13 @@
 const Subjects = (() => {
   const list = [{ id: "ru", name: "Русский язык" }, { id: "lit", name: "Литература" }, { id: "math", name: "Математика", kit: () => window.MathKit }, { id: "hist", name: "История", kit: () => window.HistKit }, { id: "eng", name: "Английский язык", kit: () => window.EngKit }, { id: "bio", name: "Биология", kit: () => window.BioKit }, { id: "geo", name: "География", kit: () => window.FrpKit?.geo() }, { id: "phys", name: "Физика", kit: () => window.FrpKit?.phys() }, { id: "chem", name: "Химия", kit: () => window.FrpKit?.chem() }, { id: "soc", name: "Обществознание", kit: () => window.FrpKit?.soc() }, { id: "inf", name: "Информатика", kit: () => window.FrpKit?.inf() }, { id: "okr", name: "Окружающий мир", kit: () => window.FrpKit?.okr() }, { id: "izo", name: "Изобразительное искусство", kit: () => window.FrpKit?.izo() }, { id: "mus", name: "Музыка", kit: () => window.FrpKit?.mus() }, { id: "tech", name: "Технология", kit: () => window.FrpKit?.tech() }, { id: "pe", name: "Физическая культура", kit: () => window.FrpKit?.pe() }, { id: "orkse", name: "ОРКСЭ", kit: () => window.FrpKit?.orkse() }, { id: "obzh", name: "ОБЖ / ОБЗР", kit: () => window.FrpKit?.obzh() }, { id: "vis", name: "Вероятность и статистика", kit: () => window.FrpKit?.vis() }, { id: "mhk", name: "Искусство (МХК)", kit: () => window.FrpKit?.mhk() }, { id: "ru1", name: "Русский язык", kit: () => window.FrpKit?.ru1() }, { id: "lit1", name: "Литературное чтение", kit: () => window.FrpKit?.lit1() }, { id: "astr", name: "Астрономия", kit: () => window.FrpKit?.astr() }];
   const ANY = { id: "any", name: "Другой предмет", kit: () => window.FrpKit?.any?.(window.state?.anyName) };
+  const icons = {
+    ru: "✒️", ru1: "✏️", lit: "📖", lit1: "📚", math: "📐", hist: "🏛️", eng: "💬",
+    bio: "🌿", geo: "🌍", phys: "⚙️", chem: "🧪", soc: "🤝", inf: "💻", okr: "🧭",
+    izo: "🎨", mus: "🎵", tech: "🛠️", pe: "🏃", orkse: "🕊️", obzh: "🛡️", vis: "📊",
+    mhk: "🖼️", astr: "🔭", any: "💡"
+  };
+  const iconOf = id => Object.hasOwn(icons, id) ? icons[id] : icons.any;
   list.push(ANY);
   const plugin = id => { const s = list.find(x => x.id === id); return s?.kit ? s.kit() || null : null; };
   const name = id => id === "any" ? (window.state?.anyName || "Другой предмет") : (list.find(x => x.id === id)?.name || id);
@@ -30,8 +37,9 @@ const Subjects = (() => {
       box: [what, `**❓ Учитель:** ${how}`, H.key ? `**🔑 Ключ:** ${nl(H.key)}` : "", "**❓ Учитель:** Какое задание вызвало трудность? Разберём у доски."].filter(Boolean) };
   }
   // полный поурочный список тем по ФРП (js/frpplans.js): одинаковые темы подряд — 1-й, 2-й… урок по теме
+  const planData = (id, grade) => window.FRPPlans2025?.[id]?.[grade] || window.FRPPlans?.[id]?.[grade];
   function planTopics(id, grade) {
-    const P = window.FRPPlans?.[id]?.[grade]; if (!P) return null;
+    const P = planData(id, grade); if (!P) return null;
     return P.l.map(([title, si], i) => ({ n: i + 1, title, section: P.s[si] || "" }));
   }
   /* Урок без готового материала — по ФРП: тема тематического планирования, виды деятельности (→ задания ученикам),
@@ -40,16 +48,19 @@ const Subjects = (() => {
   const stems = s => new Set(String(s).toLowerCase().replace(/ё/g, "е").split(/[^а-яa-z0-9]+/).filter(w => w.length > 3).map(w => w.slice(0, 5)));
   const imper = s => String(s).replace(/(^|[,;:]\s*|\sи\s|\sили\s)([А-ЯЁа-яё]+)/g, (m, pre, w) => { const k = IMP[w.toLowerCase()]; return k ? pre + (pre === "" ? k[0].toUpperCase() + k.slice(1) : k) : m; });
   function frp(id, p, { strict = false } = {}) {
-    const P = window.FRPPlans?.[id]?.[p.grade]; if (!P) return null;
+    const P = planData(id, p.grade); if (!P) return null;
+    const legacy = window.FRPPlans?.[id]?.[p.grade];
     const low = x => String(strict && typeof cleanTopic === "function" ? cleanTopic(x) : x).toLowerCase().replace(/ё/g, "е").trim();
-    const title = low(p.topic), row = P.l.find(r => low(r[0]) === title);
-    let th = row && row[2] >= 0 ? P.th[row[2]] : null;
+    const title = low(p.topic);
+    const exactTheme = plan => plan?.th[plan.l.find(r => low(r[0]) === title)?.[2]];
+    const exact = exactTheme(P) || (legacy !== P && exactTheme(legacy));
+    let th = exact;
     if (!th) {
       // тема урока должна по-настоящему совпасть с темой программы: достаточно доли общих корней, а не одного общего слова («географические»)
       const q = stems(p.topic), need = Math.max(1, Math.ceil(q.size * 0.6));
       const find = PP => { let best = 0, hit = null; for (const r of PP.l) { const a = stems(r[0] + " " + (PP.th[r[2]]?.[0] || "")); let n = 0; for (const w of q) if (a.has(w)) n++; if (n > best && r[2] >= 0) { best = n; hit = PP.th[r[2]]; } } return best >= need ? hit : null; };
       if (!strict || q.size >= 2) th = find(P);
-      if (!th && !strict) for (const g of Object.keys(window.FRPPlans[id])) { if (g === String(p.grade)) continue; th = find(window.FRPPlans[id][g]); if (th) break; }
+      if (!th && !strict) for (const g of Object.keys({ ...window.FRPPlans?.[id], ...window.FRPPlans2025?.[id] })) { if (g === String(p.grade)) continue; th = find(planData(id, g)); if (th) break; }
     }
     if (!th) return null;
     const q = stems(String(p.topic).replace(/«|»/g, " "));
@@ -64,8 +75,8 @@ const Subjects = (() => {
     const sel = top(acts, 5);
     const best = rank(acts).sort((a, b) => b.n - a.n || a.i - b.i)[0]?.x || "";
     const officialActivity = rank(String(th[2] || "").split(/;\s+|(?<=[.!?])\s+(?=[А-ЯЁ])/).map(x => x.trim()).filter(x => x.length > 15))
-      .sort((a, b) => b.n - a.n || a.i - b.i).find(x => x.n > 0 || row)?.x || "";
-    return { theme: th[0], exact: !!row && row[2] >= 0 && P.th[row[2]] === th, activity: th[2], officialActivity, goal: best.replace(/^./, c => c.toLowerCase()), tasks: sel.map(x => imper(x).replace(/\s*\((?:в том числе|в т\. ?ч\.)[^)]*\)/gi, "").replace(/\s+и\s*\(или\)\s+(?:[а-яё]+ть)\b/gi, m => { const w = m.trim().split(/\s+/).pop(); const k = IMP[w.toLowerCase()]; return " и " + (k || w); }).replace(/\s+/g, " ").trim()), terms: [...rt, ...terms.filter(x => !rt.includes(x))].slice(0, 8), content: top(sents(th[1]), 6) };
+      .sort((a, b) => b.n - a.n || a.i - b.i).find(x => x.n > 0 || exact)?.x || "";
+    return { theme: th[0], exact: Boolean(exact), activity: th[2], officialActivity, goal: best.replace(/^./, c => c.toLowerCase()), tasks: sel.map(x => imper(x).replace(/\s*\((?:в том числе|в т\. ?ч\.)[^)]*\)/gi, "").replace(/\s+и\s*\(или\)\s+(?:[а-яё]+ть)\b/gi, m => { const w = m.trim().split(/\s+/).pop(); const k = IMP[w.toLowerCase()]; return " и " + (k || w); }).replace(/\s+/g, " ").trim()), terms: [...rt, ...terms.filter(x => !rt.includes(x))].slice(0, 8), content: top(sents(th[1]), 6) };
   }
   /* Документы урока по ФРП (когда у сайта нет готового набора задач и фактов по этой теме):
      задания ученикам — из видов деятельности ФРП, понятия и содержание — из программы. Ответы не выдумываются. */
@@ -73,7 +84,8 @@ const Subjects = (() => {
     const cell = x => String(x || "").replace(/\|/g, "∣").replace(/\n/g, "<br>");
     // задания ученикам: только настоящие задания (глагол в повелительном наклонении); заголовки видов деятельности («Применение терминов…») не годятся
     const IMPV = /^[А-ЯЁ][а-яё]+(?:ите|ьте|йте)(?=[\s,]|$)/;
-    const tTerm = (F.terms || []).slice(0, 3).map(t => `Дайте определение понятия «${t}» и приведите пример.`);
+    const isPrimaryReading = p.subject === "lit1";
+    const tTerm = isPrimaryReading ? [] : (F.terms || []).slice(0, 3).map(t => `Дайте определение понятия «${t}» и приведите пример.`);
     const T0 = (F.tasks || []).filter(x => IMPV.test(String(x).trim()));
     const REV = /^(?:Резервн|Повторение|Итогов|Обобщ|Подготовка к)/i.test(String(p.topic)) || /^Резервное время/.test(String(p.topic));
     const KRAY = /^Наш край/i.test(String(p.topic));
@@ -86,15 +98,16 @@ const Subjects = (() => {
     const terms = F.terms, cont = [...F.content, ...wFact.slice(0, 4)], H = hwCheck(p);
     const lst = (a, br = "<br>") => a.map((x, i) => `${i + 1}) ${x}`).join(br);
     const isHist = subj === "История", isEng = subj === "Английский язык";
+    const readingNote = isPrimaryReading ? "<br>По ходу чтения остановитесь на строке с незнакомым словом. Прочитайте её целиком, кратко поясните значение слова в этой строке и продолжите. При разборе выразительного слова сначала спросите, какой образ оно создаёт, затем назовите приём." : "";
     const parts = st => {
       if (/^Организационный/.test(st)) return { t: isEng ? "Приветствие на английском языке, речевая разминка: — Good morning! How are you? What's the date today?" : "Приветствует учащихся, проверяет готовность к уроку.", s: "Настраиваются на работу.", u: "Регулятивные: самоорганизация." };
       if (/Проверка домашнего/.test(st)) return { t: H.teacher, s: H.students, u: "Регулятивные: контроль и коррекция." };
       if (/Актуализация|устный счёт|разминка|Повторение лексики/.test(st)) return { t: `Повторение опорных знаний по теме «${F.theme}»: — Что мы уже знаем об этом? Что изучали на прошлых уроках?${isHist ? "<br>— Найдите на ленте времени место темы урока." : ""}`, s: "Отвечают, вспоминают изученное.", u: "Познавательные: актуализация." };
       if (/Мотивация/.test(st)) return { t: `Тема урока на доске: «${p.topic}».<br>— Что вы уже знаете об этом? Какие вопросы у вас возникают?<br>— Сформулируйте вопрос (цель) урока. *(Вопросы учеников записываются на доске — к ним вернёмся в конце урока.)*`, s: "Высказывают предположения, задают вопросы, формулируют цель урока.", u: "Регулятивные: целеполагание; познавательные: постановка проблемы." };
-      if (/Открытие|Изучение нового|Введение новой лексики|грамматического правила|Чтение текста/.test(st)) return { t: `Работа по плану (задания по ФРП):<br>${lst(T.slice(0, 4))}${terms.length ? `<br>Понятия урока (учитель называет понятие, когда ученики описали явление): ${terms.join(", ")}.` : ""}${F.content.length ? `<br>**Содержание по ФРП:** ${F.content.join("; ")}.` : ""}${wDate.length ? `<br>**Лента времени (по источникам):**<br>${wDate.slice(0, 5).join("<br>")}` : ""}${wDef.length ? `<br>**Понятия (по источникам):**<br>${wDef.slice(0, 4).join("<br>")}` : ""}${wFact.length ? `<br>**Факты (по источникам):**<br>${wFact.slice(0, 4).join("<br>")}` : ""}<br>Источник фактов и заданий — учебник${Wb.length ? " и образовательные сайты (список в конце)" : ""}.`, s: "Работают с учебником, картой, источником; выполняют задания, формулируют выводы, записывают понятия.", u: "Познавательные: смысловое чтение, анализ, вывод." };
+      if (/Открытие|Изучение нового|Введение новой лексики|грамматического правила|Чтение текста/.test(st)) return { t: `Работа по плану (задания по ФРП):<br>${lst(T.slice(0, 4))}${readingNote || (terms.length ? `<br>Понятия урока (учитель называет понятие, когда ученики описали явление): ${terms.join(", ")}.` : "")}${F.content.length ? `<br>**Содержание по ФРП:** ${F.content.join("; ")}.` : ""}${wDate.length ? `<br>**Лента времени (по источникам):**<br>${wDate.slice(0, 5).join("<br>")}` : ""}${wDef.length ? `<br>**Понятия (по источникам):**<br>${wDef.slice(0, 4).join("<br>")}` : ""}${wFact.length ? `<br>**Факты (по источникам):**<br>${wFact.slice(0, 4).join("<br>")}` : ""}<br>Источник фактов и заданий — учебник${Wb.length ? " и образовательные сайты (список в конце)" : ""}.`, s: "Работают с учебником, картой, источником; выполняют задания, формулируют выводы, записывают понятия.", u: "Познавательные: смысловое чтение, анализ, вывод." };
       if (/Первичное закрепление|Тренировочные|Практикум|Причины и последствия|Речевые упражнения|изменённых условиях|Работа с текстом|Фонетическая/.test(st)) return { t: `Закрепление: ${T[T.length - 1]}.<br>Упражнения учебника к теме урока (№ ____).<br>— Вернёмся к вопросам, которые мы поставили в начале урока. На какие уже можем ответить?`, s: "Выполняют задания, отвечают на поставленные вопросы с опорой на факты.", u: "Познавательные: применение знаний; коммуникативные: аргументация." };
       if (/Речевая практика|группах|Обобщение:/.test(st)) return { t: `Работа в парах (группах): ${T.slice(0, 2).join("; ")}.<br>Представление результатов, взаимооценка.`, s: "Работают в парах (группах), представляют результат.", u: "Коммуникативные: сотрудничество." };
-      if (/Самостоятельная|Проверочная|Контрольная работа/.test(st)) return { t: `Задания:<br>${lst([terms.length ? `Объясните значение понятий: ${terms.slice(0, 4).join(", ")}` : "", ...T.slice(0, 2)].filter(Boolean))}<br>Проверка: взаимопроверка по образцу, который учитель записывает на доске заранее.`, s: "Выполняют задания, проверяют друг друга по образцу.", u: "Регулятивные: самоконтроль." };
+      if (/Самостоятельная|Проверочная|Контрольная работа/.test(st)) return { t: `Задания:<br>${lst([terms.length && !isPrimaryReading ? `Объясните значение понятий: ${terms.slice(0, 4).join(", ")}` : "", ...T.slice(0, 2)].filter(Boolean))}<br>Проверка: взаимопроверка по образцу, который учитель записывает на доске заранее.`, s: "Выполняют задания, проверяют друг друга по образцу.", u: "Регулятивные: самоконтроль." };
       if (/Обсуждение результатов/.test(st)) return { t: "Сопоставьте результаты работы с исходным вопросом. Назовите, какое наблюдение или действие подтверждает вывод.", s: "Объясняют вывод с опорой на результат работы.", u: "Познавательные: обоснование вывода." };
       if (/Инструктаж/.test(st)) return { t: "Объясняет порядок работы, критерии оценивания, время.", s: "Задают вопросы.", u: "Регулятивные: планирование." };
       if (/Итог|Рефлексия/.test(st)) return { t: "— Вернёмся к вопросам начала урока: на какие мы ответили? Что осталось непонятным?<br>— Оцените себя: «могу объяснить сам», «понял с подсказкой», «остались вопросы».", s: "Отвечают на вопросы урока, оценивают свою работу.", u: "Регулятивные: рефлексия." };
@@ -136,7 +149,7 @@ const Subjects = (() => {
       if (H.has && H.key) add({ kind: "cards", title: "Проверим домашнее задание", points: H.key.split(/\n|;\s*/).filter(Boolean).slice(0, 8) });
       add({ kind: "big", title: "Какие вопросы у вас возникают?", lead: p.topic, notes: "Вопросы учеников записываются на доске; к ним возвращаемся в конце урока." });
       add({ kind: "steps", title: "План работы", points: T.slice(0, 4).map(x => x.length > 120 ? x.slice(0, 118).replace(/\s+\S*$/, "") + "…" : x) });
-      if (terms.length) add({ kind: "list", title: "Понятия урока", points: terms });
+      if (terms.length && !isPrimaryReading) add({ kind: "list", title: "Понятия урока", points: terms });
       if (cont.length) add({ kind: "list", title: "Главное по теме", points: cont });
       if (wDate.length) add({ kind: "list", title: "Лента времени", points: wDate.slice(0, 6) });
       // материал темы из базы сайта (теория, алгоритм, задания с ответами) – чтобы презентация была содержательной, а не из 3–4 общих слайдов
@@ -190,6 +203,6 @@ const Subjects = (() => {
     const names = [...new Set(W.sources.map(x => String(x.domain || x.title || "").replace(/^www\./, "")).filter(Boolean))];
     return `## 📚 Материал по теме${br}${br}${body}${names.length ? `*Источники: ${names.join(", ")}.*${br}` : ""}`;
   }
-  return { list, plugin, name, hw, hwCheck, planTopics, frp, frpDoc, webFacts, webBlock };
+  return { list, plugin, name, iconOf, hw, hwCheck, planData, planTopics, frp, frpDoc, webFacts, webBlock };
 })();
 window.Subjects = Subjects;

@@ -206,7 +206,7 @@ const GeoMethod = (() => {
   const words = x => new Set(String(x).toLowerCase().replace(/ё/g, "е").split(/[^а-я0-9]+/).filter(w => w.length > 4).map(stem));
   // раздел ФРП: точное совпадение названия урока, иначе самое похожее по словам
   const secOf = p => {
-    const P = window.FRPPlans?.geo?.[p.grade]; if (!P) return "";
+    const P = Subjects.planData("geo", p.grade); if (!P) return "";
     const low = x => String(x).toLowerCase().trim(), r = P.l.find(x => low(x[0]) === low(p.topic)); if (r) return P.s[r[1]] || "";
     const q = words(p.topic); let best = 0, bs = "";
     for (const x of P.l) { const a = words(x[0]); let n = 0; for (const w of q) if (a.has(w)) n++; if (n > best) { best = n; bs = P.s[x[1]] || ""; } }

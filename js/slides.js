@@ -120,9 +120,21 @@ const SlideEditor = (() => {
     const notes = [...s.matchAll(/<!--([\s\S]*?)-->/g)].map(m => m[1].trim()).filter(Boolean).join(" ");
     const content = s.replace(/<!--[\s\S]*?-->/g, "").trim();
     const lines = content.split("\n"), ti = lines.findIndex(l => /^#{1,2}\s/.test(l));
-    const title = ti >= 0 ? lines[ti].replace(/^#{1,2}\s+/, "") : "";
+    let title = ti >= 0 ? lines[ti].replace(/^#{1,2}\s+/, "") : "";
     const level = ti >= 0 ? (lines[ti].startsWith("## ") ? 2 : 1) : 2;
-    const body = lines.filter((_, i) => i !== ti).join("\n").trim();
+    let body = lines.filter((_, i) => i !== ti).join("\n").trim();
+    const legacyGoal = /^(?:(?:тема\s+)?и\s+)?цель урока[.:]?$/i.test(title);
+    if (legacyGoal || set.kind === "goal") {
+      const lead = body.match(/^\*\*(Сегодня на уроке мы|Цель урока)[.:]?\*\*(?:\n+|$)/i);
+      if (lead && (legacyGoal || lead[1].toLowerCase() === title.toLowerCase())) {
+        title = lead[1];
+        body = body.slice(lead[0].length).trimStart();
+      } else if (legacyGoal) title = "Цель урока";
+    }
+    if (set.kind === "qr" && /^🧪\s*Проверка знаний: тест по теме$/i.test(title)) {
+      const subject = set.subject || state.lesson?.params?.subject || state.lesson?.subject;
+      title = `${window.Subjects?.iconOf?.(subject) || "📝"} Проверка знаний: тест по теме`;
+    }
     return { title, level, body, notes, set };
   }
   function build(sl) {
@@ -301,7 +313,7 @@ const SlideEditor = (() => {
   /* Заголовок слайда: убираем служебное «Урок №2», «Практическая работа №2» — учитель это знает;
      если заголовок всё равно длинный, оставляем главное название до двоеточия/тире */
   const shortTitle = s => {
-    let t = String(s || "").replace(/^(слайд\s*№?\s*\d+\s*[.:—–-]?\s*|урок|тема|занятие)\s*(№\s*)?\d*\s*[.:—–-]?\s*/i, "");
+    let t = String(s || "").replace(/^(?:(?:слайд|урок|занятие)\s+№?\s*\d+(?=\s|[.:—–-]|$)\s*[.:—–-]?\s*|(?:тема|урок|занятие)(?:\s*[.:]\s*|\s+[—–-]\s+))/i, "");
     t = t.replace(/\s*[—–-]\s*(практическ|лабораторн|контрольн|самостоятельн|проверочн)\w*.*$/i, "");
     t = t.replace(/\s*\([^)]*(практическ|лабораторн|контрольн|самостоятельн)[^)]*\)\s*$/i, "");
     if (t.length > 84) { const cut = t.search(/[:—–]\s/); if (cut > 20) t = t.slice(0, cut); }

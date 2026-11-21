@@ -82,7 +82,7 @@ const HistKit = (() => {
     return out.sort((a, b) => b.sc - a.sc).slice(0, n);
   }
   const REVIEW = /^(урок|уроки|повторительно|итогов|контрольная работа$)/i;
-  function planOf(p) { const P = window.FRPPlans?.hist?.[p.grade]; if (!P) return null; const low = x => String(x).toLowerCase().trim(); const i = P.l.findIndex(r => low(r[0]) === low(p.topic)); return i < 0 ? null : { P, i }; }
+  function planOf(p) { const P = Subjects.planData("hist", p.grade); if (!P) return null; const low = x => String(x).toLowerCase().trim(); const i = P.l.findIndex(r => low(r[0]) === low(p.topic)); return i < 0 ? null : { P, i }; }
   function review(p) {
     if (!REVIEW.test(String(p.topic).trim())) return null;
     const pl = planOf(p); if (!pl) return null;

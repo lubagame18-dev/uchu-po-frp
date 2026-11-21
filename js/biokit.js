@@ -66,7 +66,7 @@ const BioKit = (() => {
 
   /* ---------- повторение: уроки той же темы ФРП ---------- */
   const REVIEW = /^(обобщ|повтор|резервный|обобщающий|итоговая контрольная|контрольная работа|всероссийская|годовая|итоговый урок)/i;
-  function planOf(p) { const P = window.FRPPlans?.bio?.[p.grade]; if (!P) return null; const i = P.l.findIndex(r => norm(r[0]) === norm(p.topic)); return i < 0 ? null : { P, i }; }
+  function planOf(p) { const P = Subjects.planData("bio", p.grade); if (!P) return null; const i = P.l.findIndex(r => norm(r[0]) === norm(p.topic)); return i < 0 ? null : { P, i }; }
   function review(p) {
     if (!REVIEW.test(String(p.topic).trim())) return null;
     const pl = planOf(p); if (!pl) return null;
