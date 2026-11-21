@@ -24,6 +24,14 @@
    "lessons": 170,
    "src": "2025_ooo_frp_matematika-5-9_baza.pdf"
   },
+  "7": {
+   "lessons": 204,
+   "src": "2025_ooo_frp_matematika-5-9_baza.pdf"
+  },
+  "8": {
+   "lessons": 204,
+   "src": "2025_ooo_frp_matematika-5-9_baza.pdf"
+  },
   "10": {
    "lessons": 68,
    "src": "2025_soo_frp_matematika_10_11_baz.pdf"
@@ -112,6 +120,10 @@
    "lessons": 68,
    "src": "2025_ooo_frp_biologiya_5-9_baza.pdf"
   },
+  "10": {
+   "lessons": 34,
+   "src": "2025_soo_frp_biologiya_10_11_baz.pdf"
+  },
   "11": {
    "lessons": 34,
    "src": "2025_soo_frp_biologiya_10_11_baz.pdf"
@@ -178,6 +190,10 @@
   }
  },
  "soc": {
+  "8": {
+   "lessons": 34,
+   "src": "_soc_6-9.pdf"
+  },
   "9": {
    "lessons": 34,
    "src": "frp-_obshhestvoznanie_ooo_baza_itog-1.pdf"
@@ -362,6 +378,14 @@
    "lessons": 68,
    "src": "2025_noo_frp_anglijskij-yazyk_2-4.pdf"
   },
+  "4": {
+   "lessons": 68,
+   "src": "2025_noo_frp_anglijskij-yazyk_2-4.pdf"
+  },
+  "5": {
+   "lessons": 102,
+   "src": "2025_ooo_frp_angl_5-9.pdf"
+  },
   "6": {
    "lessons": 102,
    "src": "2025_ooo_frp_angl_5-9.pdf"
@@ -374,7 +398,15 @@
    "lessons": 102,
    "src": "2025_ooo_frp_angl_5-9.pdf"
   },
+  "9": {
+   "lessons": 102,
+   "src": "2025_ooo_frp_angl_5-9.pdf"
+  },
   "10": {
+   "lessons": 102,
+   "src": "2025_soo_frp_angl-yaz_10-11_baz.pdf"
+  },
+  "11": {
    "lessons": 102,
    "src": "2025_soo_frp_angl-yaz_10-11_baz.pdf"
   }
@@ -398,7 +430,19 @@
   }
  },
  "lit1": {
+  "1": {
+   "lessons": 132,
+   "src": "2025_noo_frp_literaturnoe-chtenie_1-4.pdf"
+  },
   "2": {
+   "lessons": 136,
+   "src": "2025_noo_frp_literaturnoe-chtenie_1-4.pdf"
+  },
+  "3": {
+   "lessons": 136,
+   "src": "2025_noo_frp_literaturnoe-chtenie_1-4.pdf"
+  },
+  "4": {
    "lessons": 136,
    "src": "2025_noo_frp_literaturnoe-chtenie_1-4.pdf"
   }

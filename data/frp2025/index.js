@@ -1,6 +1,6 @@
 /* Сгенерировано 21.11.2026 из официальных ФРП 2025. Не редактировать вручную. */
 window.FRPPlans2025 = window.FRPPlans2025 || {};
-window.UCHU_FRP2025 = {version:"2025.2", files:{}, subjects:{}};
+window.UCHU_FRP2025 = {version:"2025.3", files:{}, subjects:{}};
 window.UCHU_FRP2025.files["math"] = "data/frp2025/math.js";
 window.UCHU_FRP2025.subjects["math"] = true;
 window.UCHU_FRP2025.files["inf"] = "data/frp2025/inf.js";
