@@ -65,7 +65,7 @@ const Variety = (() => {
     const allLines = text.split("\n").map(l => l.trim());
     const lines = allLines.filter(Boolean);
     const lens = lines.map(l => l.length).sort((a, b) => a - b), median = lens[Math.floor(lens.length / 2)] || 0;
-    const verse = lines.length >= 4 && median < 62 && lines.filter(l => l.length > 95).length < lines.length * 0.15;
+    const verse = meta.verse === true || (meta.verse !== false && lines.length >= 4 && median < 62 && lines.filter(l => l.length > 95).length < lines.length * 0.15);
     const stanzas = text.split(/\n\s*\n/).map(s => s.split("\n").map(l => l.trim()).filter(Boolean)).filter(s => s.length);
     const units = verse ? lines : (typeof Learn !== "undefined" ? Learn.sentences(text) : text.split(/(?<=[.!?…])\s+/)).filter(s => s.length > 3);
     const words = (text.match(WORD) || []);
@@ -396,56 +396,25 @@ const Variety = (() => {
     const r = await fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined }); if (!r.ok) return null;
     const j = await r.json(); return j?.ok ? j : null;
   }
-  async function libText(work, author) {
-    const fn = (window.AI?.cfg?.().yandexFn || (window.UCHU_SITE || {}).yandexFunction || window.UCHU_AI_CFG?.yandexFn || "").replace(/\/+$/, ""); if (!fn || !work) return null;
-    const qs = `w=${encodeURIComponent(work)}&a=${encodeURIComponent(author || "")}`;
-    const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/worktext")}&${qs}` : `${fn}/worktext?${qs}`;
-    const r = await fetch(u, { signal: AbortSignal.timeout ? AbortSignal.timeout(40000) : undefined }); if (!r.ok) return null;
-    const j = await r.json(); if (!j?.ok || String(j.text || "").length < 400) return null;
-    return { text: j.text, source: `${j.domain || "электронная библиотека"}: «${String(j.title || work).slice(0, 80)}»`, url: j.url };
-  }
-  async function findText(p, L) {
-    if (p.textOverride?.text) return { text: p.textOverride.text, source: p.textOverride.source || "текст учителя" };
-    // 1) текст, который учитель вставил в заметки
-    const own = p.notes?.text && p.notes.text.trim().length > 80 ? p.notes.text : null;
-    if (own) return { text: own, source: "текст из заметок учителя" };
-    if (p.subject !== "lit") return null;
-    // 2) встроенная база: стихотворный фрагмент из разработки урока именно по этому произведению
-    const work = (p.topic.match(/«([^»]+)»/) || [])[1];
-    const wl = work ? work.toLowerCase().replace(/ё/g, "е") : null;
-    for (const l of L) {
-      if (!wl || !String(l.topic).toLowerCase().replace(/ё/g, "е").includes(wl.slice(0, 18))) continue;
-      const blocks = String(l.text).match(/(?:^|\n)((?:[^\n|]{8,70}\n){8,80})/g) || [];
-      const verse = blocks.map(b => b.trim()).filter(b => {
-        const ls = b.split("\n");
-        const caps = ls.filter(x => /^[«"—–(]?\s*[А-ЯЁ]/.test(x)).length / ls.length;
-        const ends = ls.filter(x => /[.:]$/.test(x)).length / ls.length;
-        const numbered = ls.filter(x => /^(\d+[.)]|[а-е]\)|[IVX]+\.|•|-)\s/.test(x)).length;
-        return caps > 0.7 && ends < 0.45 && numbered === 0;
-      }).sort((a, b) => b.length - a.length)[0];
-      if (verse) return { text: verse, source: `встроенная база: ${l.src}${l.num ? `, урок № ${l.num}` : ""}` };
+  async function findText(p) {
+    const own = p.textOverride?.text ? p.textOverride : { text: p.notes?.text, source: "текст из заметок учителя" };
+    if (String(own.text || "").trim().length >= 80 && (p.subject !== "lit" || Base.russianWorkText(own.text))) {
+      return { ...own, text: String(own.text).trim(), source: own.source || "текст учителя" };
     }
-    // 3) внешние источники: Викитека
-    if (work && typeof Base !== "undefined" && Base.wikisourceText) {
-      const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : null;
-      const w = await Base.wikisourceText(`${work} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""}`.trim(), 400000).catch(() => null);
-      if (w && (w.text.length > 6000 || !/рассказ|повест|роман|поэм|глав/i.test(p.topic))) return { text: w.text, source: `${w.source}: «${w.title}»`, url: w.url };
-      // 4) электронные библиотеки (ilibrary.ru, rvb.ru, lib.ru, ФЭБ…) через функцию сайта: полный текст, все страницы
-      const lib = await libText(work, author).catch(() => null);
-      if (lib && (!w || lib.text.length > w.text.length)) return lib;
-      if (w) return { text: w.text, source: `${w.source}: «${w.title}»`, url: w.url };
-    } else if (work) { const lib = await libText(work, typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : "").catch(() => null); if (lib) return lib; }
-    return null;
+    const title = (p.topic.match(/«([^»]+)»/) || [])[1];
+    if (p.subject !== "lit" || !title) return null;
+    const author = Engine.authorOf(p.topic) || "";
+    const surname = author.split(/[.\s]+/).at(-1);
+    const found = await Base.wikisourceText([title, surname].filter(Boolean).join(" "), 400000, { title, author });
+    return found ? { ...found, source: `${found.source}: «${found.title}»` } : null;
   }
   async function prepare(p, type) {
     reseed(p.topic + p.grade + p.lessonNo);
     const samples = p.subject === "lit" && typeof Learn !== "undefined" ? Learn.lessonsFor(p.topic, p.grade, 3) : [];
-    const found = await findText(p, samples).catch(() => null);
-    if (found?.text && p.subject === "lit" && typeof LitKit !== "undefined" && LitKit.cleanWork) found.text = LitKit.cleanWork(found.text); // без рекламы, адресов и шапок сайтов
-    if (found?.text && p.subject === "lit" && typeof LitKit !== "undefined" && LitKit.focusWork) { const wt = (p.topic.match(/«([^»]+)»/) || [])[1]; if (wt) found.text = LitKit.focusWork(found.text, wt); } // из сборника – нужное произведение
+    const found = await findText(p).catch(() => null);
     const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : null;
     const title = (p.topic.match(/«([^»]+)»/) || [])[1] || null;
-    const A = found ? analyze(found.text, { title, author, source: found.source, url: found.url, epic: /epic|commented/.test(type.id) }) : null;
+    const A = found ? analyze(found.text, { title, author, source: found.source, url: found.url, verse: found.verse ?? (/стихотворени|поэма|баллада|сонет/i.test(p.topic) ? true : undefined), epic: /epic|commented/.test(type.id) }) : null;
     const fmt = p.subject === "lit" ? chooseFormat(A, p, type) : chooseRuFormat(p);
     const sample = samples[0] || null;
     const st = p.subject === "lit" ? adaptStages(type, p, A, sample, fmt) : { stages: type.stages.slice(), note: "" };

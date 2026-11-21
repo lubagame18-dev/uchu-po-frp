@@ -12,6 +12,7 @@ const LessonNotes = (() => {
   "use strict";
   const clean = s => String(s || "").replace(/\s+/g, " ").trim();
   const cell = s => clean(s).replace(/\|/g, "∣");
+  const excerpt = text => String(text || "").split("\n").map(line => line.trim() ? `<em>${esc(line).replace(/\|/g, "&#124;")}</em>` : "").join("<br>");
   const low = s => String(s || "").toLowerCase();
 
   /* ---------- разбор техкарты ---------- */
@@ -163,11 +164,14 @@ const LessonNotes = (() => {
     if (st.length) out += X.plan(st.map(s => ({ name: s.name.split(/[(:]/)[0].trim(), min: s.min, mat: s.mat })));
     out += X.legend();
     // литература без загруженного текста: отрывки не выдумываем (искажение недопустимо), а указываем, где искать, — начало и конец цитаты с многоточием
-    if (!ru && !K) {
+    if (p.subject === "lit" && !p.plan?.textSource && !p.plan?.text && /«[^»]+»/.test(p.topic)) {
       const Wk = window.LitKit?.workOf?.(p.topic);
       out += X.box("⚠ Текст произведения", ["Сайт не получил дословный текст (Викитека недоступна или произведение не найдено). Отрывки здесь намеренно не пересказаны и не переписаны по памяти, чтобы не исказить авторский текст.", "**Что сделать:** на странице создания урока вставьте текст в поле «Вставьте текст» (или загрузите файл) и соберите урок заново, тогда отрывки появятся здесь дословно. Точный текст нужен для дословного цитирования; достоверный пересказ и объяснение в комплекте не выдавайте за авторскую цитату."]);
       if (Wk?.anchors?.length) out += X.qa(Wk.anchors.map((a, j) => [`**Отрывок ${j + 1}. ${a.label}.** Найдите в тексте место, которое начинается словами «${String(a.find).replace(/[.,;:!?…]+$/, "")}…» и дочитайте до конца абзаца (строфы).${a.qa?.[0] ? " " + a.qa[0][0] : ""}`, a.qa?.[0]?.[1] || ""]), ["Найдите в тексте и прочитайте", "Ответ учеников"]);
     }
+    const analysisStage = st.findIndex(s => /аналит|анализ|комментар|беседа/i.test(s.name));
+    const readingStage = st.findIndex(s => /восприят|чтени|знакомств/i.test(s.name));
+    const fragmentStage = analysisStage >= 0 ? analysisStage : Math.max(0, readingStage);
     let ex = 0, fragDone = false;
     st.forEach((S, i) => {
       const { c, name, min, t, side } = S, T = talk(c[1] || ""), students = ru ? strip(c[2]) : "";
@@ -191,11 +195,11 @@ const LessonNotes = (() => {
       if (word.length) out += X.row("Учитель", word);
       // этап анализа с разбором по отрывкам: отрывки и вопросы к ним идут ниже подпунктами – здесь не повторяем;
       // вопросы ко всему тексту (прогноз, перелом, финал, чтение вслух) – после разбора отрывков
-      const fragStageNow = !ru && K?.fragments?.length && !fragDone && /аналит|анализ|комментар|беседа/.test(low(name));
+      const fragStageNow = !ru && K?.fragments?.length && !fragDone && i === fragmentStage;
       const PER_PART = /^\d+-я (строфа|часть)|^(Начало|Середина|Финал фрагмента) \(|Какое слово здесь рисует|Почему автору в этом месте важен|Попробуем убрать это слово/;
       let afterQs = [];
       if (fragStageNow) { frBlocks.length = 0; afterQs = T.qs.filter(x => !PER_PART.test(clean(x.q)) && !/^Представьте, что вы прочитали/.test(clean(x.q))); T.qs = []; }
-      for (const ff of frBlocks) out += X.box(`Отрывок ${ff.n}. ${ff.label}${ff.whole ? "" : ` (строки ${ff.from}–${ff.to})`}`, ff.text.split("\n").filter(l => l.trim()).map(l => `*${clean(l)}*`));
+      for (const ff of frBlocks) out += X.box(`Отрывок ${ff.n}. ${ff.label}${ff.whole ? "" : ` (строки ${ff.from}–${ff.to})`}`, excerpt(ff.text));
       // вопрос учителя — рядом ответ учеников
       if (T.qs.length) out += X.qa(T.qs.map((x, k) => [x.q, x.a || (k === 0 && students ? students : "")]));
       // схема на доске — на этапе открытия нового знания (по учебнику: принятые обозначения)
@@ -216,14 +220,14 @@ const LessonNotes = (() => {
         out += X.row("Ответы", students || key || [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""].filter(Boolean).join("; "));
       }
       // литература: работа с фрагментами текста — по блокам: установка на чтение → отрывок → словарная работа → вопросы → вывод
-      if (!ru && K?.fragments?.length && !fragDone && /аналит|анализ|комментар|беседа/.test(low(name))) {
+      if (fragStageNow) {
         fragDone = true;
         K.fragments.forEach((f, j) => {
           const qa = (K.qa.find(x => x.n === f.n) || { items: [] }).items;
           out += X.sub(`${i + 1}.${j + 1}`, `${f.part ? "Часть" : "Фрагмент"} ${f.n}. ${f.label}`);
           const firstQ = qa[0] ? (qa[0].steps ? qa[0].steps[0] : qa[0].q) : "";
           out += X.box("Установка на чтение", [`Прочитаем ${f.part ? "эту часть" : "фрагмент"}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}.${firstQ ? ` Обратите внимание, чтобы потом ответить: ${clean(firstQ)}` : ""}`]);
-          out += X.box(`Отрывок ${f.n}. ${f.label}`, f.text.split("\n").filter(l => l.trim()).map(l => `*${clean(l)}*`));
+          out += X.box(`Отрывок ${f.n}. ${f.label}`, excerpt(f.text));
           const gl = (K.glossary || []).filter(g => low(f.text).includes(low(g.word).slice(0, Math.max(4, g.word.length - 2))));
           if (gl.length) out += X.box("Словарная работа", gl.map(g => `**${g.word}** — ${g.def}`));
           const pairs = qa.flatMap(x => x.steps ? x.steps.map((q, k) => [q, x.as?.[k] || (k === x.steps.length - 1 ? x.a : "")]) : [[x.q, x.a]]);
@@ -237,11 +241,11 @@ const LessonNotes = (() => {
       // работа с текстом на остальных этапах: сам текст (дословно) должен быть перед глазами учителя там, где о нём говорят
       if (!ru && K?.fragments?.length) {
         const fr = K.fragments, allLines = fr.flatMap(f => f.text.split("\n").filter(l => l.trim()));
-        if (/восприят|чтени|знакомств/.test(low(name)) && !ctx.readDone) {
+        if (/восприят|чтени|знакомств/.test(low(name)) && !ctx.readDone && !fragStageNow) {
           ctx.readDone = 1;
           const whole = fr[0].whole || fr[0].part;
           const body = whole ? fr.map(f => f.text).join("\n\n") : fr[0].text;
-          out += X.box(whole ? "Текст для чтения (дословно)" : `Отрывок для первого чтения: ${fr[0].label} (дословно)`, body.split(/\n/).map(l => l.trim() ? `*${clean(l)}*` : ""));
+          out += X.box(whole ? "Текст для чтения (дословно)" : `Отрывок для первого чтения: ${fr[0].label} (дословно)`, excerpt(body));
           if (!whole && fr.length > 1) out += X.box("Остальные отрывки", [`Читаем по ходу анализа (этап «Аналитический блок»): ${fr.slice(1).map(f => f.label).join("; ")}.`]);
         }
         if (/словарн/.test(low(name)) && !ctx.vocDone) {
@@ -260,12 +264,15 @@ const LessonNotes = (() => {
       const concl = conclusion(name, p, ctx);
       if (concl && !(fragDone && /аналит|анализ|комментар|беседа/.test(low(name)))) out += X.box("Вывод", [concl]);
     });
-    if (!R.length) out += "*Этапы урока не найдены — откройте технологическую карту.*\n\n";
+    if (!R.length) {
+      out += "*Этапы урока не найдены — откройте технологическую карту.*\n\n";
+      for (const f of K?.fragments || []) out += X.box(`Отрывок ${f.n}. ${f.label}`, excerpt(f.text));
+    }
     if (!ru && K?.glossary?.length && !K?.fragments?.length) out += X.box("Словарная работа", K.glossary.map(g => `**${g.word}** — ${g.def}`));
     if (ru && rk?.theory?.length) out += X.box("Тетрадь · запись на уроке", rk.theory);
     if (!ru && K?.conclusions?.length) out += X.box("Тетрадь · выводы урока", K.conclusions);
     const table = blockTable(md);
-    const embedded = (table?.lines || []).filter(line => line.includes("<!--techmap-content-->"))
+    const embedded = (table?.lines || []).filter(line => line.includes("<!--techmap-content-->") && !line.includes("<!--work-excerpt-->"))
       .map(line => techmapContentSource(line.replace(/^\s*\|\s*|\s*\|\s*$/g, "")));
     const supplement = [...embedded, table?.supplement].filter(Boolean).join("\n\n");
     if (supplement) out += "\n\n" + supplement + "\n";

@@ -54,7 +54,12 @@ const WorkSearch = (() => {
     if (local && typeof Engine !== "undefined") for (const e of Engine.exercisesFrom(state.materials.filter(m => m.builtin && (!m.subject || m.subject === subject)), query, grade, 30)) out.push({ kind: "ex", text: e.text, source: e.source, from: "встроенные материалы", r: e.s });
     if (online && navigator.onLine !== false) {
       try {
-        if (subject === "lit") { const w = (query.match(/«([^»]+)»/) || [])[1]; const t = await Base.wikisourceText(w ? `${w} ${(Engine.authorOf(query) || "").split(/\s|\./).filter(Boolean).pop() || ""}` : query, 3000); if (t?.text) out.push({ kind: "text", text: t.text, source: `${t.source}: «${t.title}»`, url: t.url, from: "Викитека", r: 6 }); }
+        if (subject === "lit") {
+          const title = (query.match(/«([^»]+)»/) || [])[1] || query;
+          const author = Engine.authorOf(query) || "";
+          const t = await Base.wikisourceText([title, author].filter(Boolean).join(" "), 3000, { title, author });
+          if (t?.text) out.push({ kind: "text", text: t.text, source: `${t.source}: «${t.title}»`, url: t.url, from: "Викитека", r: 6 });
+        }
         const wk = await Base.wikiSummary(typeof Engine !== "undefined" ? Engine.core(query) : query); if (wk?.text) out.push({ kind: "info", text: wk.text, source: `${wk.source}: «${wk.title}»`, url: wk.url, from: "Википедия", r: 3 });
       } catch { }
     }

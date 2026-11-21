@@ -89,12 +89,12 @@ const Deck = (() => {
      склеиваем только строки, разорванные вёрсткой посреди фразы; строки стиха сохраняем */
   function verbatimMd(text, { verse = false } = {}) {
     let lines = String(text || "").replace(/\r/g, "").split("\n").map(l => l.replace(/\s+$/, ""));
-    while (lines.length && (/^\s*\d{1,3}\s*$/.test(lines[lines.length - 1]) || !lines[lines.length - 1].trim())) lines.pop(); // номер страницы в конце
+    while (lines.length && (!lines.at(-1).trim() || (!verse && /^\s*\d{1,3}\s*$/.test(lines.at(-1))))) lines.pop(); // номер страницы в конце
     const out = [];
     for (const raw of lines) {
       const l = raw.trim();
       if (!l) { out.push(""); continue; }
-      if (/^\d{1,3}$/.test(l)) continue; // номер страницы пособия посреди упражнения — не текст задания
+      if (!verse && /^\d{1,3}$/.test(l)) continue; // номер страницы пособия посреди упражнения — не текст задания
       const prev = out.length ? out[out.length - 1] : "";
       // строка, разорванная вёрсткой посреди фразы: следующая начинается со строчной буквы или скобки
       const joinable = !verse && prev && !/^\d{1,3}[.)]\s/.test(l) && /^[а-яё(,;:]/.test(l);

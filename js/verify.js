@@ -108,15 +108,10 @@ const Verify = (() => {
   async function run(L, p) {
     const author = typeof Engine !== "undefined" ? Engine.authorOf(p.topic) : null;
     const ctx = {
-      workText: p.plan?.analysis ? norm(p.notes?.text || "") + " " + norm(L.web?.text?.text || "") : norm(p.notes?.text || ""),
+      workText: norm(p.plan?.text || ""),
       workSrc: p.plan?.textSource,
       article: p.subject === "lit" && author ? await wikiArticle(author).catch(() => null) : null
     };
-    // текст произведения, по которому строились вопросы (Викитека или база)
-    if (p.plan?.analysis && typeof Variety !== "undefined") {
-      const src = await (async () => { try { const w = await Base.wikisourceText(`${(p.topic.match(/«([^»]+)»/) || [])[1] || ""} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""}`.trim(), 20000); return w?.text || ""; } catch { return ""; } })();
-      ctx.workText += " " + norm(src);
-    }
     const report = { at: new Date().toISOString(), checked: 0, ok: 0, flagged: [], sources: [], frp: null, mode: L.built };
     const srcSet = new Map();
     for (const d of Object.keys(L.docs)) {

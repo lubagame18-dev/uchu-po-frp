@@ -909,10 +909,10 @@ const FRP = (() => {
   function clean(t) {
     return String(t || "")
       .replace(/­/g, "")
-      .replace(/^.*(?:\.\s*){5,}\s*\d*\s*$/gm, "") // строки оглавления «Личностные результаты ........ 12»
-      .replace(/^\s*Федеральная рабочая программа\s*\|.*$/gm, "") // колонтитул
-      .replace(/^\s*\d{1,3}\s*$/gm, "") // номера страниц
       .replace(/\f/g, "\n")
+      .replace(/^.*(?:\.\s*){5,}\s*\d*\s*$/gm, "") // строки оглавления «Личностные результаты ........ 12»
+      .replace(/^[ \t]*Федеральная рабочая программа\s*\|[^\n]*(?:\n[ \t]*\d{1,2}[–—-]\d{1,2} классы[^\n]*)?$/gm, "") // колонтитул
+      .replace(/^\s*\d{1,3}\s*$/gm, "") // номера страниц
       .replace(/([а-яё])-\s*\n\s*([а-яё])/gi, "$1-$2") // в ФРП нет переносов по слогам: «духовно-\nнравственный» — это дефис
       .replace(/[ \t ]+/g, " ")
       .replace(/\r/g, "");
@@ -947,7 +947,8 @@ const FRP = (() => {
      Слова «личностные результаты» внутри пояснительной записки заголовком не считаются. */
   function headRe(words) {
     const w = words.split(" ").join("\\s+");
-    return [new RegExp("(?:^|\\n)[ \\t]*" + w.toUpperCase() + "[ \\t]*(?=\\n)"), new RegExp("(?:^|\\n)[ \\t]*" + w + "[ \\t]*(?=\\n)", "i")];
+    const end = "(?:[ \\t]+\\([^\\n]+\\))?[ \\t]*(?=\\n|$)";
+    return [new RegExp("(?:^|\\n)[ \\t]*" + w.toUpperCase() + end), new RegExp("(?:^|\\n)[ \\t]*" + w + end, "i")];
   }
   function section(text, start, ends) {
     for (const re of headRe(start)) {
@@ -963,9 +964,14 @@ const FRP = (() => {
   function parsePersonal(text) {
     const body = section(text, "личностные результаты", ["метапредметные результаты", "предметные результаты"]);
     if (!body) return [];
-    const out = [], re = /(\d{1,2})\)\s*([а-яё ,\-\n]{6,200}?)\s*:/gi;
+    const out = [], re = /(?:^|\n) *(?:\d{1,2}\)\s*([а-яё ,\-\n]{6,200}?)|((?:в сфере|в понимании)\s+[а-яё ,\-\n]{6,150}?))\s*:/gi;
     const marks = []; let m;
-    while ((m = re.exec(body))) marks.push({ i: m.index, end: m.index + m[0].length, name: oneLine(m[2]) });
+    while ((m = re.exec(body))) marks.push({ i: m.index, end: m.index + m[0].length, name: oneLine(m[1] || m[2]) });
+    if (!marks.length) {
+      const head = body.match(/^[\s\S]*?результат[ыам]*\s*(?:изучения[^:\n]*)?:\s*\n/i);
+      const its = head ? items(body.slice(head[0].length)) : [];
+      if (its.length) return [{ group: "Личностные результаты", items: its }];
+    }
     marks.forEach((mk, k) => {
       const chunk = body.slice(mk.end, k + 1 < marks.length ? marks[k + 1].i : body.length);
       const its = items(chunk);
@@ -985,7 +991,7 @@ const FRP = (() => {
     const flush = () => { if (cur && buf.length) { const its = items(buf.join("\n")); if (its.length) out.push({ ...cur, items: its }); } buf = []; };
     for (const raw of lines) {
       const line = raw.trim();
-      const g = line.match(/^(Познавательные|Коммуникативные|Регулятивные)\s+универсальные\s+учебные\s+действия\.?$/i);
+      const g = line.match(/^(Познавательные|Коммуникативные|Регулятивные)\s+универсальные\s+учебные\s+действия[.:]?$/i);
       if (g) { flush(); group = Object.keys(UUD).find(k => UUD[k].test(g[1])); cur = { group, sub: g[1] === "Коммуникативные" ? "Общение" : "" }; continue; }
       const sub = group && line.match(/^([А-ЯЁ][а-яё ,()\-]{3,90}):\s*(.*)$/);
       if (sub && !/[;.]$/.test(sub[1])) {
@@ -1013,32 +1019,66 @@ const FRP = (() => {
   }
 
   /* ---------- предметные по классам ---------- */
-  function parseSubject(text) {
-    const body = section(text, "предметные результаты", ["тематическое планирование", "поурочное планирование", "тематическое планирование 1"]) || between(text, /\n\s*ПРЕДМЕТНЫЕ\s+РЕЗУЛЬТАТЫ/, [/ТЕМАТИЧЕСКОЕ\s+ПЛАНИРОВАНИЕ/i, /ПОУРОЧНОЕ\s+ПЛАНИРОВАНИЕ/i]);
-    const out = {};
-    if (!body) return out;
-    const re = /К\s+концу\s+обучения\s+в\s+(\d{1,2})\s+классе[^:]*:/gi;
-    const marks = []; let m;
-    while ((m = re.exec(body))) marks.push({ g: +m[1], i: m.index, end: m.index + m[0].length });
-    marks.forEach((mk, k) => {
-      const chunk = body.slice(mk.end, k + 1 < marks.length ? marks[k + 1].i : body.length);
-      const sections = []; let cur = { section: "Общее", items: [] }, para = "";
-      const flush = () => { const p = oneLine(para).replace(/^\d{1,2}\)\s*/, ""); if (p.length > 12) cur.items.push(p.replace(/[.;]\s*$/, "")); para = ""; };
-      const ls = chunk.split("\n").map(x => x.trim());
-      for (let i = 0; i < ls.length; i++) {
-        const line = ls[i]; if (!line) { if (/[.;:]$/.test(para.trim())) flush(); continue; }
-        let j = i + 1; while (j < ls.length && !ls[j]) j++;
-        const next = ls[j] || "";
-        // заголовок: короткая строка без знака в конце, а следующая строка начинается с прописной (новый пункт), а не продолжает фразу
-        const isHead = line.length < 90 && !/[.;:,]$/.test(line) && /^[А-ЯЁ]/.test(line) && !para.trim() && !/^\d+\s/.test(line) && (/^[А-ЯЁ0-9«]/.test(next) || !next);
-        if (isHead) { flush(); if (cur.items.length) sections.push(cur); cur = { section: line.replace(/\.$/, ""), items: [] }; continue; }
+  function parseSubject(text, key, name) {
+    const ends = ["тематическое планирование", "поурочное планирование", "примерное распределение часов по годам обучения"];
+    const read = source => section(source, "предметные результаты", ends).split(/^ *МОДУЛЬ\s+«/m)[0];
+    const splitCourses = key === "math" ? [...text.matchAll(/^ *ФЕДЕРАЛЬНАЯ РАБОЧАЯ ПРОГРАММА УЧЕБНОГО КУРСА\s+«([^»]+)»[^\n]*\n(?= *ПОЯСНИТЕЛЬНАЯ ЗАПИСКА)/gm)] : [];
+    const chunks = splitCourses.length ? splitCourses.map((m, i) => ({ label: oneLine(m[1]), body: read(text.slice(m.index + m[0].length, splitCourses[i + 1]?.index)) })) : [{ label: "", body: read(text) }];
+    const range = (name + " " + text.slice(0, 700)).match(/(\d{1,2})\s*[–—-]\s*(\d{1,2})\s*класс/i);
+    const out = {}, courses = {};
+    const heading = /^(?:К (?:концу|окончанию) |Предметные результаты |в \d{1,2}|обучения в \d{1,2}|\d{1,2}(?:-й)?\s+класс)/i;
+    for (const { label, body } of chunks) {
+      if (!body) continue;
+      const subject = /вероятность и статистика/i.test(label) ? (courses.vis ||= {}) : out;
+      const level = ["mus", "obzh"].includes(key) && range ? Array.from({ length: +range[2] - +range[1] + 1 }, (_, i) => i + +range[1]) : [];
+      const lines = body.split("\n").map(x => x.trim()).filter(Boolean);
+      let grades = [], module = label, cur = label || "Общее", para = "";
+      const flush = () => {
+        const item = oneLine(para).replace(/^(?:[–—•■-]\s*|\d{1,2}[.)]\s+)/, "").replace(/[.;]\s*$/, "");
+        para = "";
+        if (item.length < 14 || !grades.length) return;
+        for (const grade of grades) {
+          const sections = subject[grade] ||= [];
+          let section = sections.at(-1);
+          if (!section || section.section !== cur) sections.push(section = { section: cur, items: [] });
+          section.items.push(item);
+        }
+      };
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i], next = lines[i + 1] || "";
+        const ahead = lines.slice(i, i + 3).join(" ");
+        const mod = ahead.match(/^(?:К концу изучения модуля|Предметные результаты (?:по модулю|освоения содержания (?:вариативного )?модуля))\s*(?:№\s*\d+\s*)?«([^»]+)»/i);
+        if (mod) {
+          flush(); grades = level; cur = module = mod[1];
+          while (!lines[i].includes("»") && i + 1 < lines.length) i++;
+          if (/^(?:обучающийся\s+)?научится:$/i.test(lines[i + 1] || "")) i++;
+          continue;
+        }
+        const cleanHead = heading.test(line) && ahead.match(/^(?:\S+\s+){0,22}?(\d{1,2})(?:\s*[–—-]\s*(\d{1,2}))?\s*(?:-й\s*)?класс(?:е|а|ах)?(?:[.:]|\s+(?:выпускник|обучающийся|должн)|$)/i);
+        if (cleanHead) {
+          flush();
+          const from = +cleanHead[1], to = +(cleanHead[2] || from);
+          grades = from >= 1 && to <= 11 && to >= from ? Array.from({ length: to - from + 1 }, (_, k) => from + k) : [];
+          cur = module || "Общее";
+          const indicator = new RegExp(`\\b${from}(?:\\s*[–—-]\\s*${to})?\\s*(?:-й\\s*)?класс`, "i");
+          while (!indicator.test(lines[i]) && i + 1 < lines.length) i++;
+          if (/^(?:результаты|должны отражать|обучения)\s*[^:]{0,90}:$/i.test(lines[i + 1] || "")) i++;
+          continue;
+        }
+        if (!grades.length) continue;
+        const sub = line.length < 105 && !para && (
+          (/^(?:Раздел|Знание |Работа с |Историческ|Применение |Оценка |Речевые умения|Языковые навыки|Социокультурные знания)/i.test(line) && /:$/.test(line)) ||
+          (/^Тема\s+«[^»]+»[.:]?$|^Введение\./i.test(line) && key === "dnkr") ||
+          (label && /^[А-ЯЁ]/.test(line) && /^[А-ЯЁ]/.test(next) && !/[.;:,]$/.test(line))
+        );
+        if (sub) { cur = [module, line.replace(/:$/, "")].filter(Boolean).join(". "); continue; }
+        if (/^[–—•■]\s/.test(line)) flush();
         para += " " + line;
-        if (/[.;]$/.test(line)) flush();
+        if (/[.;]$/.test(line) && !/(?:\d|\b[IVX]+)\s*(?:гг?|вв?)\.$/i.test(line)) flush();
       }
-      flush(); if (cur.items.length) sections.push(cur);
-      if (sections.length) out[mk.g] = sections;
-    });
-    return out;
+      flush();
+    }
+    return { subject: out, courses };
   }
 
   /* ---------- темы уроков (таблицы планирования) ---------- */
@@ -1093,30 +1133,61 @@ const FRP = (() => {
   }
 
   /* ---------- главный разбор ---------- */
+  const programNames = {
+    ru: /русск[а-яё]*\s+язык/, lit: /литератур[аые](?![а-яё])/,
+    lit1: /литературн[а-яё]*\s+чтени/, vis: /вероятност[а-яё]*\s+и\s+статистик/,
+    math: /математик|алгебр|геометри/, hist: /истори[яи](?![а-яё])/,
+    eng: /английск[а-яё]*\s+язык/, bio: /биологи/, geo: /географи/,
+    phys: /физик/, chem: /хими/, soc: /обществознани/, inf: /информатик/,
+    okr: /окружающ[а-яё]*\s+мир/, izo: /изобразительн[а-яё]*\s+искусств|(?<![а-яё])изо(?![а-яё])/,
+    mus: /музык/, tech: /технологи|труд\s*\(/, pe: /физическ[а-яё]*\s+культур/,
+    orkse: /религиозн[а-яё]*\s+культур|(?<![а-яё])орксэ(?![а-яё])/,
+    obzh: /основ[а-яё]*\s+безопасност|(?<![а-яё])(?:обж|обзр)(?![а-яё])/,
+    mhk: /миров[а-яё]*\s+художественн[а-яё]*\s+культур|(?<![а-яё])мхк(?![а-яё])/, astr: /астрономи/, dnkr: /духовно[-– ]нравственн[а-яе]*\s+культур[а-яе]*\s+россии|(?<![а-яе])днкр(?![а-яе])/
+  };
+  function programSubject(name, text) {
+    const normalize = value => String(value || "").toLowerCase().replace(/ё/g, "е").replace(/[_\s]+/g, " ");
+    const file = normalize(name), cover = normalize(String(text || "").slice(0, 1400));
+    const match = source => Object.keys(programNames).filter(key => programNames[key].test(source));
+    const names = match(file), headings = match(cover);
+    let key = names.length === 1 ? names[0] : headings.length === 1 ? headings[0] : null;
+    if (key === "ru" && /начальн[а-я]*\s+общ|\b1\s*[-–—]\s*4\b/.test(file + " " + cover)) key = "ru1";
+    return key;
+  }
   function parse({ text, html, name }) {
     const t = clean(text);
-    const subj = /литератур/i.test((name || "") + " " + t.slice(0, 3000)) && !/русск[A-Za-z0-9_А-Яа-яЁё]*\s+язык/i.test(t.slice(0, 800)) ? "lit" : "ru";
+    const subj = programSubject(name, t);
     let topics = html ? parseTopicsFromHtml(html) : {};
     if (!Object.keys(topics).length) topics = parseTopicsFromText(t);
-    return { subjectKey: subj, name: name || "ФРП", loadedAt: new Date().toISOString(), personal: parsePersonal(t), meta: parseMeta(t), subject: parseSubject(t), topics };
+    const { subject, courses } = parseSubject(t, subj, name || "");
+    return { subjectKey: subj, name: name || "ФРП", loadedAt: new Date().toISOString(), personal: parsePersonal(t), meta: parseMeta(t), subject, topics, ...(Object.keys(courses).length ? { courses } : {}) };
   }
   function summary(d) {
     if (!d) return null;
     const nTopics = Object.values(d.topics || {}).reduce((a, x) => a + x.length, 0);
-    const nSubj = Object.values(d.subject || {}).reduce((a, s) => a + s.reduce((b, x) => b + x.items.length, 0), 0);
-    return { topics: nTopics, grades: Object.keys(d.topics || {}).map(Number).sort((a, b) => a - b), personal: (d.personal || []).reduce((a, g) => a + g.items.length, 0), meta: (d.meta || []).reduce((a, g) => a + g.items.length, 0), subject: nSubj };
+    const sections = d.levelSubject || Object.values(d.subject || {}).flat();
+    return { topics: nTopics, grades: [...gradesOf(d)].sort((a, b) => a - b), personal: (d.personal || []).reduce((a, g) => a + g.items.length, 0), meta: (d.meta || []).reduce((a, g) => a + g.items.length, 0), subject: sections.reduce((n, section) => n + section.items.length, 0) };
   }
 
   /* ---------- подбор дословных формулировок ---------- */
   const stem = w => w.toLowerCase().replace(/ё/g, "е").slice(0, Math.max(4, Math.min(6, w.length - 2)));
   const stems = s => new Set(String(s).toLowerCase().split(/[^а-яёa-z]+/).filter(w => w.length >= 4 && !STOP.has(w)).map(stem));
   const STOP = new Set(["урок", "уроки", "тема", "темы", "класс", "часть", "речи", "работа", "продолжение", "изучения", "повторение", "употребление", "правописание", "теме", "контрольный", "контрольная", "контрольной", "диктант", "диктанта", "диктанту", "обобщение", "систематизация", "закрепление", "итоговый", "итоговая", "итоговое", "знаний", "изученного", "проверочная", "ошибок", "ошибками", "ошибки", "разделу", "раздел", "изложение", "сочинение"]);
+  const topicStems = topic => stems(String(topic || "").replace(/практикум|\([^)]*\)/gi, " ").replace(/\p{L}+/gu, word =>
+    /^(?:человек|систем|основ|представлени|особенност|развити|общие|речь$|речью$)/i.test(word) ? "" : word));
   function score(text, st) { let s = 0; for (const x of stems(text)) if (st.has(x)) s++; return s; }
-  function pickSubject(d, grade, topic, n = 4) {
-    const secs = d?.subject?.[grade]; if (!secs) return [];
-    const st = stems(topic);
-    const scored = secs.flatMap(sec => sec.items.map(it => ({ it, sec: sec.section, s: score(it, st) * 3 + score(sec.section, st) })));
-    const best = scored.filter(x => x.s > 0).sort((a, b) => b.s - a.s).slice(0, n);
+  function topicScore(text, query) {
+    const words = [...stems(text)];
+    return [...query].filter(x => words.some(y => x.startsWith(y) || y.startsWith(x))).length;
+  }
+  function pickSubject(d, grade, topic, n = 4, strict = false) {
+    const secs = d?.subject?.[grade] || d?.levelSubject; if (!secs) return [];
+    const st = strict ? topicStems(topic) : stems(topic);
+    const need = Math.max(1, Math.ceil(st.size * .6));
+    const rank = strict ? topicScore : score;
+    const scored = secs.flatMap(sec => sec.items.map(it => ({ it, sec: sec.section, hits: rank(it, st), heading: rank(sec.section, st) })));
+    const best = scored.filter(x => strict ? x.hits >= need : x.hits || x.heading)
+      .sort((a, b) => (b.hits - a.hits) * 3 + b.heading - a.heading).slice(0, n);
     return best.map(x => ({ section: x.sec, text: x.it }));
   }
   function pickPersonal(d, subjectKey, n = 3) {
@@ -1138,17 +1209,20 @@ const FRP = (() => {
   }
   /* data[k] — список программ (например, 5–9 и 10–11 классы); берём ту, где есть нужный класс */
   const list = k => [].concat(data[k] || []).filter(Boolean);
-  const gradesOf = d => new Set([...Object.keys(d.topics || {}), ...Object.keys(d.subject || {})].map(Number));
-  function pick(k, grade) { const l = list(k); return l.find(d => gradesOf(d).has(+grade)) || l.find(d => !gradesOf(d).size) || (grade ? null : l[0]) || null; }
-  function results(subjectKey, grade, topic, type) {
+  const gradesOf = d => new Set([...(d.grades || []), ...Object.keys(d.topics || {}), ...Object.keys(d.subject || {})].map(Number));
+  function pick(k, grade) { const l = list(k); return (grade ? l.find(d => gradesOf(d).has(+grade)) : l[0]) || null; }
+  function results(subjectKey, grade, topic, type, { strict = false } = {}) {
     const d = pick(subjectKey, grade);
-    return { loaded: !!d, builtin: !!d?.builtin, source: d?.name, personal: pickPersonal(d, subjectKey), meta: pickMeta(d, type), subject: pickSubject(d, grade, topic) };
+    const all = groups => (groups || []).flatMap(({ items, ...group }) => items.map(text => ({ ...group, text })));
+    return { loaded: !!d, builtin: !!d?.builtin, source: d?.name, personal: strict ? all(d?.personal) : pickPersonal(d, subjectKey), meta: strict ? all(d?.meta) : pickMeta(d, type), subject: pickSubject(d, grade, topic, 4, strict) };
   }
   function topicsFor(subjectKey, grade) { return pick(subjectKey, grade)?.topics?.[grade] || null; }
   /* Строка тематического планирования ФРП к теме урока: программное содержание и виды деятельности (дословно) */
-  function planFor(subjectKey, grade, topic) {
+  function planFor(subjectKey, grade, topic, { strict = false } = {}) {
     const d = pick(subjectKey, grade), rows = d?.plan?.[grade]; if (!rows?.length || !topic) return null;
-    const t = String(topic).toLowerCase().replace(/ё/g, "е");
+    const t = String(topic).toLowerCase().replace(/ё/g, "е").trim();
+    const direct = rows.find(x => String(x.title).toLowerCase().replace(/ё/g, "е").trim() === t);
+    if (direct) return { ...direct, source: d.name };
     // урок из поурочного планирования знает свою тему
     const les = (d.topics?.[grade] || []).find(x => x.theme && String(x.title).toLowerCase().replace(/ё/g, "е") === t);
     if (les) { const r = rows.find(x => x.num === les.theme); if (r) return { ...r, source: d.name }; }
@@ -1156,29 +1230,43 @@ const FRP = (() => {
     const q = (t.match(/«([^»]+)»/) || [])[1];
     if (q) { const r = rows.find(x => x.title.toLowerCase().replace(/ё/g, "е").includes(q) || x.content.toLowerCase().replace(/ё/g, "е").includes(q)); if (r) return { ...r, source: d.name }; }
     const st = stems(topic);
-    const best = rows.map(r => ({ r, s: score(r.title, st) * 3 + score(r.content, st) })).sort((a, b) => b.s - a.s)[0];
+    if (strict && st.size < 2) return null;
+    const best = rows.filter(r => !strict || score(r.title + " " + r.content, st) >= Math.ceil(st.size * .6))
+      .map(r => ({ r, s: score(r.title, st) * 3 + score(r.content, st) })).sort((a, b) => b.s - a.s)[0];
     return best && best.s >= 3 ? { ...best.r, source: d.name } : null;
   }
 
   /* Встроенная ФРП (data/frp.js) + программы, загруженные учителем (перекрывают встроенные по классам) */
   async function load() {
-    for (const k of ["ru", "lit"]) {
+    const keys = window.Subjects?.list?.map(x => x.id).filter(k => k !== "any") || ["ru", "lit"];
+    await Promise.all([...new Set([...keys, ...Object.keys(window.UCHU_FRP || {})])].map(async k => {
       const own = [];
-      try { const v = await Store.get("kv", "frp:" + k); if (v) own.push(...[].concat(v)); } catch { }
+      try {
+        const v = await Store.get("kv", "frp:" + k);
+        if (v) own.push(...[].concat(v).filter(d => {
+          const source = programSubject(d?.name, "");
+          return d?.subjectKey === k && (!source || source === k || (source === "math" && k === "vis"));
+        }));
+      } catch { }
       const builtin = [].concat((window.UCHU_FRP && window.UCHU_FRP[k]) || []).map(d => ({ ...d, builtin: true }));
-      const ownGrades = new Set(own.flatMap(d => [...gradesOf(d)]));
-      data[k] = [...own, ...builtin.filter(d => ![...gradesOf(d)].some(g => ownGrades.has(g)))];
-    }
+      data[k] = [...own, ...builtin];
+    }));
   }
   async function save(parsed) {
     const k = parsed.subjectKey;
+    if (!k || !gradesOf(parsed).size) return false;
     let own = []; try { own = [].concat((await Store.get("kv", "frp:" + k)) || []); } catch { }
-    const g = gradesOf(parsed);
-    own = own.filter(d => ![...gradesOf(d)].some(x => g.has(x))).concat(parsed);
-    await Store.put("kv", "frp:" + k, own); await load();
+    own = [parsed, ...own.filter(d => d?.name !== parsed.name)];
+    await Store.put("kv", "frp:" + k, own);
+    for (const [key, subject] of Object.entries(parsed.courses || {})) {
+      const saved = [].concat((await Store.get("kv", "frp:" + key)) || []);
+      await Store.put("kv", "frp:" + key, [{ ...parsed, subjectKey: key, subject, topics: {}, courses: undefined }, ...saved.filter(d => d?.name !== parsed.name)]);
+    }
+    await load();
+    return true;
   }
   async function remove(k) { await Store.del("kv", "frp:" + k); await load(); }
-  return { parse, summary, results, topicsFor, planFor, load, save, remove, data, list, pick, lessonMark, stems, score };
+  return { parse, summary, results, topicsFor, planFor, load, save, remove, data, list, pick, lessonMark, stems, topicStems, score, topicScore, programSubject };
 })();
 
 /* ===================================================================
@@ -1335,14 +1423,17 @@ const Base = (() => {
   }
   /* Текст произведения из Викитеки (стихотворения, небольшие тексты) */
   const wsCache = new Map();
-  async function wikisourceText(query, max = 4000) {
-    const ck = query + "|" + max; if (wsCache.has(ck)) return wsCache.get(ck);
-    const r = await wikisourceFetch(query, max); wsCache.set(ck, r); return r;
+  async function wikisourceText(query, max = 4000, work = null) {
+    const ck = JSON.stringify([query, max, work]);
+    if (wsCache.has(ck)) return wsCache.get(ck);
+    const r = await wikisourceFetch(query, max, work);
+    if (r) wsCache.set(ck, r);
+    return r;
   }
   /* Текст страницы Викитеки без искажений: все блоки стихов (.poem) и абзацы в порядке следования, <br> → перенос строки, строфы разделены пустой строкой */
   function wsExtract(html) {
     const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll("sup, .noprint, .mw-editsection, table, style, script, .reference, .ws-noexport, .ambox, #toc, .toc, .navbox, .header_notes, .pagenum, [id^=cite_]").forEach(n => n.remove());
+    doc.querySelectorAll("sup, .noprint, .mw-editsection, style, script, .reference, .references, .references-small, .ws-noexport, .ambox, #toc, .toc, .navbox, #headertemplate, .header_notes, .pagenum, .dablink, .hatnote, [id^=cite_]").forEach(n => n.remove());
     doc.querySelectorAll("br").forEach(b => b.replaceWith("\u0001"));
     const root = doc.querySelector(".mw-parser-output") || doc.body;
     const parts = [];
@@ -1353,34 +1444,82 @@ const Base = (() => {
         return;
       }
       if (el.tagName === "P") { const t = el.textContent.replace(/\u0001/g, "\n").replace(/[ \t]+/g, " ").replace(/ ?\n ?/g, "\n").trim(); if (t) parts.push(t); return; }
-      if (/^(DIV|BLOCKQUOTE|CENTER|SECTION|DL|DD|UL|OL|LI)$/.test(el.tagName)) for (const c of el.children) take(c);
+      if (/^(DIV|BLOCKQUOTE|CENTER|SECTION|DL|DD|TABLE|TBODY|TR|TD)$/.test(el.tagName)) for (const c of el.children) take(c);
     };
     for (const c of root.children) take(c);
     return parts.join("\n\n").replace(/\n{3,}/g, "\n\n").trim();
   }
   const wsNorm = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
-  async function wikisourceFetch(query, max) {
-    const s = await getJson(`${WS}/w/api.php?action=query&format=json&origin=*&list=search&srlimit=8&srsearch=${encodeURIComponent(query)}`);
-    const hits = s?.query?.search || [];
-    // страница должна быть про это произведение: в её названии есть значимые слова запроса (иначе можно подсунуть чужой текст)
-    const qw = wsNorm(query).split(" ").filter(w => w.length > 3).map(w => w.slice(0, 5));
-    const mine = hits.filter(h => { const t = wsNorm(h.title); const n = qw.filter(w => t.includes(w)).length; return n >= Math.max(1, Math.ceil(qw.length / 2)); });
-    for (const h of mine) {
-      const j = await getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text|links&disablelimitreport=1&page=${encodeURIComponent(h.title)}`);
-      const html = j?.parse?.text?.["*"]; if (!html) continue;
-      let text = wsExtract(html), title = h.title;
-      // оглавление книги: настоящий текст лежит в подстраницах «Название/Глава …» — берём подряд, пока не наберётся объём
-      // главы произведения на подстраницах: собираем ВСЕ по порядку (повесть, роман), а не только начало
-      const subs = (j.parse.links || []).map(l => l["*"]).filter(t => t.startsWith(h.title + "/") && !/\/(Примечания|Комментари|Приложени|Варианты)/i.test(t)).slice(0, 90);
-      if (subs.length && (text.length < 1500 || max > 8000)) {
-        if (text.length < 1500) text = "";
-        for (let i = 0; i < subs.length && text.length < max; i += 6) {
-          const got = await Promise.all(subs.slice(i, i + 6).map(t => getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text&disablelimitreport=1&page=${encodeURIComponent(t)}`).catch(() => null)));
-          for (const jj of got) { const h2 = jj?.parse?.text?.["*"]; if (!h2) continue; const t2 = wsExtract(h2); if (t2.length > 200) text += (text ? "\n\n" : "") + t2; }
+  const russianWorkText = value => {
+    const text = String(value || ""), all = text.match(/\p{L}/gu)?.length || 0;
+    return all > 0 && (text.match(/[а-яё]/gi)?.length || 0) / all >= .85;
+  };
+  async function wikisourceFetch(query, max, work) {
+    const target = work && wsNorm(work.title);
+    const surname = work && wsNorm(work.author).split(" ").at(-1);
+    const titleMatches = title => (wsNorm(title) === target || wsNorm(String(title || "").split(/[(/]/)[0]) === target) &&
+      !/(?:комментарии|статья|критика|о поэме|о романе|анализ|рецензия)/i.test(String(title || "").slice(work.title.length));
+    const fetchPage = title => getJson(`${WS}/w/api.php?action=parse&format=json&origin=*&prop=text|links&disablelimitreport=1&redirects=1&page=${encodeURIComponent(title)}`);
+    const childPages = page => (page.links || []).map(l => l["*"]).filter(t => typeof t === "string" && t.startsWith(page.title + "/") && !t.slice(page.title.length + 1).includes("/"));
+    const areChapters = (title, t) => /^(?:глава|часть|акт|действие|сцена|книга|том|песнь|эпилог|пролог)(?:\s|[.:])|^(?:\d+|[IVXLCDM]+)$/i.test(t.slice(title.length + 1));
+    async function chaptersText(chapters) {
+      const chunks = [];
+      let length = 0;
+      for (let i = 0; i < chapters.length && length < max; i += 6) {
+        const batch = await Promise.all(chapters.slice(i, i + 6).map(fetchPage));
+        for (const page of batch) {
+          const text = page?.parse?.text?.["*"] ? wsExtract(page.parse.text["*"]) : "";
+          if (text.length >= 80 && (!target || russianWorkText(text))) { chunks.push(text); length += text.length; }
         }
       }
-      if (text.length < 80) continue;
-      return { title, text: text.slice(0, max), url: `${WS}/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`, source: "Викитека" };
+      return chunks.join("\n\n");
+    }
+    let direct = [];
+    if (target) {
+      const names = surname ? [`${work.title} (${work.author.trim().split(/[.\s]+/).at(-1)})`, work.title] : [work.title];
+      const pages = await Promise.all(names.map(async title => ({ title, page: await fetchPage(title) })));
+      direct = pages.filter(x => x.page?.parse?.text?.["*"] && titleMatches(x.page.parse.title || x.title));
+    }
+    let searched = false;
+    const search = async () => {
+      const s = await getJson(`${WS}/w/api.php?action=query&format=json&origin=*&list=search&srlimit=10&srsearch=${encodeURIComponent(query)}`);
+      return (s?.query?.search || []).filter(h => target ? titleMatches(h.title) : qw.filter(w => wsNorm(h.title).includes(w)).length >= Math.max(1, Math.ceil(qw.length / 2)));
+    };
+    // страница должна быть про это произведение: в её названии есть значимые слова запроса (иначе можно подсунуть чужой текст)
+    const qw = wsNorm(query).split(" ").filter(w => w.length > 3).map(w => w.slice(0, 5));
+    const mine = direct.slice(), seen = new Set(direct.map(hit => hit.page.parse.title || hit.title));
+    for (let i = 0; ; i++) {
+      if (i === mine.length && !searched) { searched = true; mine.push(...(await search()).filter(hit => !seen.has(hit.title))); }
+      if (i >= mine.length) break;
+      const h = mine[i], j = h.page || await fetchPage(h.title);
+      const html = j?.parse?.text?.["*"]; if (!html) continue;
+      let title = j.parse.title || h.title;
+      let verse = false;
+      if (target) {
+        if (!titleMatches(title)) continue;
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const author = wsNorm(doc.querySelector("#ws-author, .ws-author")?.textContent);
+        if (!author || (surname && !author.split(" ").includes(surname))) continue;
+        const poemLength = [...doc.querySelectorAll(".poem")].reduce((n, el) => n + el.textContent.length, 0);
+        verse = poemLength > doc.body.textContent.length * .6;
+      }
+      let text = wsExtract(html);
+      const children = childPages(j.parse);
+      const chapters = children.filter(t => areChapters(title, t)).slice(0, 90);
+      if (chapters.length && !verse && (text.length < 1500 || max > 8000)) text = await chaptersText(chapters) || text;
+      if (target && !chapters.length && text.length < 80) {
+        // Страница перевода может быть указателем изданий. Выбираем одно издание в современной орфографии.
+        const editions = children.filter(t => /\b(?:18|19|20)\d{2}\b/.test(t.slice(title.length + 1)) && !/\(ДО\)|комментари|примечани/i.test(t.slice(title.length + 1)));
+        for (const edition of editions.slice(0, 3)) {
+          const page = (await fetchPage(edition))?.parse;
+          if (!page?.text?.["*"] || !titleMatches(page.title)) continue;
+          const acts = childPages(page).filter(t => areChapters(page.title, t)).slice(0, 90);
+          const content = acts.length ? await chaptersText(acts) : wsExtract(page.text["*"]);
+          if (content.length >= 80 && russianWorkText(content)) { text = content; title = page.title; break; }
+        }
+      }
+      if (text.length < 80 || (target && !russianWorkText(text))) continue;
+      return { title, text: text.slice(0, max), url: `${WS}/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`, source: "Викитека", verse };
     }
     return null;
   }
@@ -1405,7 +1544,7 @@ const Base = (() => {
   /* ФРП, встроенная в сайт (data/frp.js) */
   const frp = key => (window.UCHU_FRP && window.UCHU_FRP[key]) || null;
 
-  return { ready, loaded, exercises, ownTopic, keyFor, rules, texts, lit, lessonSamples, summary, wikiSummary, wikisourceText, eduLinks, frp, label };
+  return { ready, loaded, exercises, ownTopic, keyFor, rules, texts, lit, lessonSamples, summary, wikiSummary, wikisourceText, russianWorkText, eduLinks, frp, label };
 })();
 
 /* ===================================================================

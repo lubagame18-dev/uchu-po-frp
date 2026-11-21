@@ -390,6 +390,32 @@ async function exportsFrom(page, fixture, browser) {
     assert.equal(await qr.count(), 1);
     assert.match(await qr.getAttribute('src'), /^data:image\/png/);
     assert.equal(await end.locator('.k-qr a').count(), 0);
+    await show.keyboard.press('ArrowLeft');
+    await show.keyboard.press('ArrowLeft');
+    const question = show.locator('.deck-s.on .qa-i');
+    const dimensions = await question.boundingBox();
+    assert.ok(dimensions?.height >= 44);
+    await question.focus();
+    await show.keyboard.press('Space');
+    await show.locator('.deck-s.on .qa-answer').waitFor();
+    assert.match(await show.locator('.deck-s.on .qa-answer').textContent(), /Форму листовой пластинки/);
+    await show.locator('.deck-s.on .sx-back').click();
+    await question.waitFor();
+    const sizing = await show.locator('.deck-s.on').boundingBox();
+    assert.ok(Math.abs(sizing.width / sizing.height - 16 / 9) < 0.04);
+    const contrast = await show.evaluate(() => {
+      const color = s => (s.match(/[\d.]+/g) || []).map(Number);
+      const lum = rgb => rgb.slice(0, 3).map(v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4)
+        .reduce((s, x, i) => s + x * [.2126, .7152, .0722][i], 0);
+      return [...document.querySelectorAll('.deck-s .full-frame')].map(slide => {
+        const frame = slide.querySelector('.sx-inner');
+        const node = slide.querySelector('.sx-title');
+        const f = lum(color(getComputedStyle(node).color));
+        const bg = getComputedStyle(frame).getPropertyValue('--frame-ink').trim();
+        return { f, bg };
+      });
+    });
+    assert.ok(contrast.every(({ f, bg }, i) => bg && (i < 2 ? f < .07 : f > .8)));
     assert.deepEqual(errors, []);
   } finally { await show.close(); }
   return output.slides;

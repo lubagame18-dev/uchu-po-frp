@@ -220,13 +220,19 @@ const LitKit = (() => {
       const flush = () => { if (acc.length) parts.push(acc); acc = []; };
       for (const s1 of st) {
         if (s1.length > 12) { flush(); let c = []; for (const l of s1) { c.push(l); if (c.length >= 6 && /[.!?…;:]\s*$/.test(l) && s1.length - (parts.flat().length + c.length) >= 0) { parts.push(c); c = []; } } if (c.length) { if (c.length < 3 && parts.length) parts[parts.length - 1].push(...c); else parts.push(c); } continue; }
-        if (acc.length + s1.length > 12) flush();
+        if (acc.filter(Boolean).length + s1.length > 12) flush();
+        if (acc.length) acc.push("");
         acc.push(...s1);
       }
       flush();
       if (parts.length < 2) return [{ n: 1, label: "Текст", from: 1, to: nonEmpty, text: lines.join("\n").trim(), whole: true }];
       let from = 1;
-      return parts.map((pt, k) => { const f = { n: k + 1, label: `«${String(pt.find(l => l.trim()) || "").trim().replace(/[.,;:!?…—–-]+$/, "").split(/\s+/).slice(0, 5).join(" ")}…»`, from, to: from + pt.length - 1, text: pt.join("\n"), part: true }; from += pt.length; return f; });
+      return parts.map((pt, k) => {
+        const count = pt.filter(Boolean).length;
+        const f = { n: k + 1, label: `«${String(pt.find(l => l.trim()) || "").trim().replace(/[.,;:!?…—–-]+$/, "").split(/\s+/).slice(0, 5).join(" ")}…»`, from, to: from + count - 1, text: pt.join("\n"), part: true };
+        from += count;
+        return f;
+      });
     }
     if (!verse && text.length <= 1600) return [{ n: 1, label: "Текст", from: 1, to: nonEmpty, text: text.trim(), whole: true }];
     const size = verse ? 10 : 6;
@@ -253,7 +259,7 @@ const LitKit = (() => {
     const idxOf = s => { if (!s) return -1; const k = lowe(s).slice(0, 30); return lines.findIndex(l => lowe(l).includes(k)); };
     const picks = [];
     const add = (i, label) => { if (i < 0) return; const [a, b] = windowAround(lines, i, size); if (picks.some(p => !(b < p.a || a > p.b))) return; picks.push({ a, b, label }); };
-    add(lines.findIndex(l => l.trim()), "Начало");
+    add(lines.findIndex(l => l.trim() && (!verse || !/^\d{1,2}[.)]?$/.test(l.trim()))), "Начало");
     if (A?.heroes?.length) add(lines.findIndex((l, i) => i > (picks[0]?.b || 0) && l.includes(A.heroes[0].split(" ")[0])), `Герой: ${A.heroes[0]}`);
     if (A?.heroes?.length > 1) add(lines.findIndex((l, i) => i > (picks[0]?.b || 0) && l.includes(A.heroes[1].split(" ")[0])), `Герой: ${A.heroes[1]}`);
     if (A?.turn) add(idxOf(A.turn.line), "Поворот");

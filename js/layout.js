@@ -89,6 +89,57 @@ const Layout = (() => {
     return out.join("\n\n").replace(/\n{3,}/g, "\n\n");
   }
 
+  function repair(text) {
+    const source = String(text || "");
+    if (!window.marked?.lexer || !/\||ошибка\s*[:：]|исправление\s*[:：]/i.test(source)) return source;
+    const error = /^(?:[-*+]\s+|\d+[.)]\s+)?\**Ошибка\**\s*[:：]\s*\**\s*(.+)$/i;
+    const correction = /^(?:[-*+]\s+|\d+[.)]\s+)?\**Исправление\**\s*[:：]\s*\**\s*(.+)$/i;
+    const cleanCell = value => value.replace(/(?<!\\)\|/g, "&#124;");
+    const row = line => /^\|[ \t]+\S.*[ \t]+\|[ \t]*$/.test(line) ? line.trim().slice(1, -1).split(/(?<!\\)\|/).map(x => x.trim()) : [];
+    const isCorrectionTable = cells => cells.length === 2 && /^(?:текст с ошибкой|ошибка)$/i.test(cells[0].replace(/\*/g, "")) && /^исправлени[ея]$/i.test(cells[1].replace(/\*/g, ""));
+    const block = raw => {
+      const lines = raw.split("\n"), out = [];
+      for (let i = 0; i < lines.length;) {
+        const wrong = lines[i].trim().match(error);
+        const right = lines[i + 1]?.trim().match(correction);
+        if (wrong && right) {
+          const pairs = [];
+          while (i < lines.length) {
+            const a = lines[i].trim().match(error), b = lines[i + 1]?.trim().match(correction);
+            if (!a || !b) break;
+            pairs.push(`| ${cleanCell(a[1])} | ${cleanCell(b[1])} |`);
+            i += 2;
+            if (!lines[i]?.trim() && error.test(lines[i + 1]?.trim() || "")) i++;
+          }
+          out.push("", "| Текст с ошибкой | Исправление |", "|---|---|", ...pairs, "");
+          continue;
+        }
+        const first = row(lines[i]);
+        if (first.length >= 2) {
+          const group = [];
+          while (i < lines.length && row(lines[i]).length === first.length) group.push(lines[i++]);
+          const columns = `|${first.map(() => "---").join("|")}|`;
+          const hasHead = isCorrectionTable(first) || first.every(x => /^(?:учитель|ученики|обучающиеся|этап|материал|время|действия|задание|ответ|вывод|примечания)$/i.test(x.replace(/\*/g, "")));
+          out.push("", ...(hasHead ? [group.shift(), columns] : [`|${first.map(() => " ").join("|")}|`, columns]), ...group, "");
+          continue;
+        }
+        out.push(lines[i++]);
+      }
+      return out.join("\n");
+    };
+    const tokens = window.marked.lexer(source);
+    return tokens.map(t => {
+      if (t.type === "table" && isCorrectionTable(t.header.map(c => c.text))) {
+        const rows = t.raw.trimEnd().split("\n");
+        return ["| Текст с ошибкой | Исправление |", rows[1], ...rows.slice(2).map(line => {
+          const cells = row(line);
+          return cells.length === 2 ? `| ${cells[0].match(error)?.[1] || cells[0]} | ${cells[1].match(correction)?.[1] || cells[1]} |` : line;
+        })].join("\n") + t.raw.slice(t.raw.trimEnd().length);
+      }
+      return ["paragraph", "text", "list"].includes(t.type) ? block(t.raw) : t.raw;
+    }).join("");
+  }
+
   /* ---------- конспект предметных модулей (история, математика, английский, биология): пересборка в блоки ---------- */
   // строки рамки «**❓ Учитель:** …», «**💬 Ученики:** …», «**🔑 Ответы:** …», «**✅ Вывод:** …» → поиск, ответы, вывод
   const strip = s => String(s).replace(/^\*\*[^*]*\*\*\s*/, "").trim();
@@ -282,6 +333,6 @@ const Layout = (() => {
     const out = keep.join("\n").replace(/\s+$/, "");
     return `${out}\n\n## Приложения\n\n${apx.map((a, i) => `### Приложение ${i + 1}. ${a.title}\n\n${a.body}`).join("\n\n")}\n`;
   }
-  return { appendices, taskBlocks, md, merge, restyle, decorate, kindOf, docxKind, cell, clean, isLabel, KINDS, LEGEND };
+  return { appendices, taskBlocks, md, merge, repair, restyle, decorate, kindOf, docxKind, cell, clean, isLabel, KINDS, LEGEND };
 })();
 window.Layout = Layout;
