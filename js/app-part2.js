@@ -22,7 +22,7 @@ const LIBS = {
   pdfworker: "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js",
   docx: ["vendor/docx.umd.js", "https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"],
   pptx: ["vendor/pptxgen.bundle.js", "https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"],
-  html2pdf: "https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js",
+  html2pdf: ["vendor/html2pdf.bundle.min.js", "https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"],
   jspdf: "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
   jszip: ["vendor/jszip.min.js", "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"],
   qr: "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js",
@@ -2118,7 +2118,7 @@ async function runJobContent(L, p, type, gen, formats, useAi, hideTech) {
 /* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
 /* тема без готового материала: нейросеть собирает слайды по готовому конспекту (материал, задания, ответы – сразу после задания) */
 async function aiDeckFromLesson(md, p, signal) {
-  const prompt = lessonPrompt(p,"slides", `${window.TeacherRules ? TeacherRules.brief(p, "slides") + "\n\n" : ""}Сделай план презентации к уроку «${p.topic}» (${p.grade} класс) СТРОГО по конспекту ниже: на слайдах – то, с чем работает класс (факты и понятия темы, правило или формула, схема, задания, источники), а не вопросы учителя. 9–14 слайдов. Без пустых и переходных слайдов. Задание с ответами – kind "check" с полями points (задания) и answers (ответы по порядку); ответы покажутся отдельным слайдом сразу после задания.
+  const prompt = lessonPrompt(p,"slides", `${window.TeacherRules ? TeacherRules.brief(p, "slides") + "\n\n" : ""}Сделай план презентации к уроку «${p.topic}» (${p.grade} класс) СТРОГО по конспекту ниже: на слайдах – то, с чем работает класс (факты и понятия темы, правило или формула, схема, задания, источники), а не вопросы учителя. 9–14 слайдов. Один слайд — одна мысль. Для пояснения дай 2–4 пункта не длиннее 90 знаков каждый. Таблицу длиннее четырёх строк раздели, повторяя заголовки. Длинные условия задач вынеси на отдельные слайды без сокращения исходных данных. Не рисуй интерфейс, кнопки или таймер текстом. Задание с ответами – kind "check" с полями points (задания) и answers (ответы по порядку); ответы покажутся отдельным слайдом сразу после задания.
 Верни только JSON-массив: [{"kind":"list|steps|rule|check|task|cards|hw","title":"короткий заголовок","points":["…"],"answers":["…"]}] (поле answers – только для check). Первый слайд-тему не включай. Последним добавь kind "hw" с конкретным домашним заданием из конспекта.
 КОНСПЕКТ:
 ${String(md).slice(0, 16000)}`);
@@ -2129,7 +2129,7 @@ ${String(md).slice(0, 16000)}`);
   const cards = arr.filter(x => x && x.title && Array.isArray(x.points) && x.points.length).slice(0, 16).map((x, i) => {
     const kind = OK.has(x.kind) ? x.kind : "list", pts = x.points.map(String).slice(0, 8);
     const c = { id: "ai" + (i + 1), on: true, kind, title: String(x.title).slice(0, 70), points: pts };
-    if (kind === "check") c.answers = (x.answers || []).map(String).slice(0, pts.length);
+    if (kind === "check" && Array.isArray(x.answers)) c.answers = x.answers.map(String).slice(0, pts.length);
     if (kind === "task") { c.task = pts.join("\n"); }
     if (kind === "rule") { c.rule = pts.join("\n"); }
     return c;
@@ -2258,7 +2258,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     catch (e) { if (e?.code === "cancelled") throw e; } finally { state.gen = null; }
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? (window.Deck ? Deck.toMarkdown(Deck.localImages(deckCardsExtras(convCards(PL.cards(p, type), p), p), p)) : "") : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
+  const draft0 = f => f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? "" : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
@@ -2267,11 +2267,36 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       state.gen = { lessonId: L.id, doc: shown(f), pct: 20, fake: shown(f) !== f, ctl: new AbortController() }; L.status[f] = "run"; if (L.status[shown(f)] === "wait") L.status[shown(f)] = "run"; updateProgress();
       if (state.lesson?.id === L.id) renderLesson();
       let md = draft(f);
-      if (f === "slides") { autoTheme(L, p); L.deckOutline = window.Deck?.localImages ? Deck.localImages(deckCardsExtras(convCards(PL.cards(p, type), p), p), p) : deckCardsExtras(convCards(PL.cards(p, type), p), p);
-        // тема без готового материала в базе: презентация из 3–4 общих слайдов – строим её по ходу урока из конспекта
-        { const body = cs => (cs || []).filter(c => !["title", "hw", "goal", "board"].includes(c.kind)).length;
-          if (body(L.deckOutline) < 6 && window.Deck?.outline) { try { const src = L.docs.lesson || L.docs.conspect || PL.lesson(p, type); const alt = Deck.outline(src, p, type); if (body(alt) > body(L.deckOutline)) { L.deckOutline = alt; md = Deck.toMarkdown(alt); } } catch (e) { console.warn("thin deck", e); } }
-          if (useAi && (L.docs.lesson || L.docs.conspect || L.tech)) { try { const alt = await aiDeckFromLesson(L.docs.lesson || L.docs.conspect || L.tech, p, state.gen.ctl.signal); if (alt && body(alt) >= 4) { const oh = alt.find(c => c.kind === "hw"), ot = L.deckOutline.find(c => c.kind === "title"); L.deckOutline = Deck.prune(alt.map(c => c.kind === "hw" && oh ? oh : c.kind === "title" && ot ? ot : c)); md = Deck.toMarkdown(L.deckOutline); } } catch (e) { console.warn("ai deck", e); } } } if (useAi && window.Deck?.aiWishes) { L.deckOutline = await Deck.aiWishes(L.deckOutline, p, state.gen.ctl.signal).catch(() => L.deckOutline); L.deckOutline = Deck.prune(L.deckOutline); md = Deck.toMarkdown(L.deckOutline); } state.gen.pct = 50; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 50 + Math.round(d / n * 45); updateProgress(); }).catch(() => md); }
+      if (f === "slides" && window.Deck) {
+        autoTheme(L, p);
+        const originals = Deck.localImages(deckCardsExtras(convCards(PL.cards(p, type), p), p), p);
+        let cards = originals;
+        const count = list => list.filter(c => !["title", "hw", "goal", "board"].includes(c.kind)).length;
+        const source = L.docs.lesson || L.docs.conspect || L.tech;
+        if (count(cards) < 6) {
+          try {
+            const alt = Deck.outline(source || PL.lesson(p, type), p, type);
+            if (count(alt) > count(cards)) cards = Deck.preserveTools(alt, originals);
+          } catch (e) { console.warn("thin deck", e); }
+        }
+        if (useAi && source) {
+          try {
+            const alt = await aiDeckFromLesson(source, p, state.gen.ctl.signal);
+            if (alt && count(alt) >= 4) cards = Deck.preserveTools(alt, cards);
+          } catch (e) { if (e?.code === "cancelled") throw e; console.warn("ai deck", e); }
+        }
+        if (useAi && p.wishes && Deck.aiWishes) {
+          const refined = await Deck.aiWishes(cards, p, state.gen.ctl.signal).catch(() => cards);
+          cards = Deck.preserveTools(refined, cards);
+        }
+        L.deckOutline = await Deck.mediaFill(Deck.prune(cards)).catch(() => cards);
+        state.gen.pct = 50; updateProgress();
+        md = Deck.toMarkdown(L.deckOutline);
+        md = await Media.autoFill(md, (done, total) => {
+          state.gen.pct = 50 + Math.round(done / total * 45); updateProgress();
+        }, { subject: p.subject, grade: p.grade, topic: p.topic }).catch(() => md);
+        L.slidesFitted = false;
+      }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
           const request = pluginPrompt(f,p,type,md,PL,L.docs.lesson || L.docs.conspect || L.tech || "");
@@ -2915,7 +2940,7 @@ function renderDownloads() {
   const L = state.lesson, box = $("#dlPanel"); if (!box) return;
   const ready = L ? Object.keys(DOCS).filter(d => L.docs[d] && !isGenerating(L, d)) : [];
   if (!L || !ready.length || (state.gen && state.gen.lessonId === L.id)) { box.hidden = true; return; }
-  const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"]] : d === "pack" ? [["docx", "Word"], ["pdf", "PDF"], ["zip", "ZIP с файлами"]] : d === "worksheet" ? [["docx", "Word"], ["pdf", "PDF"], ["png", "PNG (как фото)"]] : [["docx", "Word"], ["pdf", "PDF"]];
+  const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"], ["html", "Интерактивный HTML"]] : d === "pack" ? [["html", "Инструкция ученика (HTML)"], ["docx", "Word"], ["pdf", "PDF"], ["zip", "ZIP с файлами"]] : d === "worksheet" ? [["docx", "Word"], ["pdf", "PDF"], ["png", "PNG (как фото)"]] : [["docx", "Word"], ["pdf", "PDF"]];
   box.innerHTML = `<div class="dl-h">⬇ ${Object.values(L.status || {}).includes("err") ? "Материалы и черновики" : "Урок готов"}. Скачайте нужное:</div><div class="dl-rows">${ready.map(d => `<div class="dl-row"><b>${DOCS[d].label}</b>${fmts(d).map(([f, n]) => `<button class="btn sm ${f === "pdf" ? "flame" : "teal"}" data-dl="${d}:${f}">${n}</button>`).join("")}</div>`).join("")}<div class="dl-row"><b>Весь урок</b><button class="btn sm" data-dl="all:zip">Всё одним архивом</button></div></div>`;
   box.hidden = false;
   $$("[data-dl]", box).forEach(b => b.onclick = async () => {
@@ -3093,7 +3118,23 @@ function dropAsterisks(root) {
   };
   root.childNodes.forEach(walk);
 }
-function splitSlides(md) { const s = md.replace(/^\s*---\s*\n[\s\S]*?\n---\s*\n/, m => /marp\s*:/.test(m) ? "" : m); return s.split(/\n-{3,}\s*\n/).map(x => x.trim()).filter(Boolean); }
+function splitSlides(md) {
+  const source = md.replace(/^\s*---\s*\n[\s\S]*?\n---\s*\n/, block => /marp\s*:/.test(block) ? "" : block);
+  const slides = []; let lines = [], fence = "";
+  for (const line of source.split(/\r?\n/)) {
+    const marker = line.match(/^ {0,3}(\x60{3,}|~{3,})/);
+    if (marker) {
+      if (!fence) fence = marker[1];
+      else if (marker[1][0] === fence[0] && marker[1].length >= fence.length && !line.slice(marker[0].length).trim()) fence = "";
+    }
+    if (!fence && /^-{3,}[ \t]*$/.test(line)) {
+      slides.push(lines.join("\n").trim());
+      lines = [];
+    } else lines.push(line);
+  }
+  slides.push(lines.join("\n").trim());
+  return slides.filter(Boolean);
+}
 async function renderPreview() {
   await ensureMarked();
   let md = $("#md").value;
@@ -3683,7 +3724,7 @@ async function exportPng() {
 function plain(tokens) { return (tokens || []).map(t => t.tokens ? plain(t.tokens) : decodeEnt(t.text || "")).join("").replace(/<br\s*\/?>/gi, " ").replace(/FIGTOKEN\d+END/g, "").trim(); }
 async function slidesToPptxBlob(md, title) {
   // v5.4: PowerPoint «как на экране» — из редактора слайдов (шаблоны, картинки-акценты, подобранный шрифт)
-  if (window.SlideEditor?.toPptxBlob && /<!--@/.test(md)) { await Promise.all([ensureMarked(), loadScript("pptx")]); return SlideEditor.toPptxBlob(md, title); }
+  if (window.SlideEditor?.toPptxBlob) { await Promise.all([ensureMarked(), loadScript("pptx")]); return SlideEditor.toPptxBlob(md, title); }
   // v5: тема, шаблон и размер шрифта слайда из редактора; заголовки Georgia, текст Arial; без служебных меток
   await Promise.all([ensureMarked(), loadScript("pptx")]);
   const pptx = new window.PptxGenJS(); pptx.layout = "LAYOUT_WIDE"; pptx.title = title;
@@ -3895,6 +3936,36 @@ async function wsPdfBlob(L, stage) {
   }
   return pdf.output("blob");
 }
+// html2canvas understands sRGB as rgba(), while Chromium serializes color-mix() as color(srgb …).
+function slidePdfColors(clone, frame) {
+  const view = clone.defaultView;
+  const properties = ["color", "background-color", "background-image", "border-top-color", "border-right-color",
+    "border-bottom-color", "border-left-color", "box-shadow", "text-shadow", "fill", "stroke"];
+  const css = [];
+  const convert = value => value.replace(/color\(srgb\s+([-+.\d]+)\s+([-+.\d]+)\s+([-+.\d]+)(?:\s*\/\s*([-+.\d]+))?\)/g,
+    (_, r, g, b, a) => `rgba(${[r, g, b].map(channel => Math.round(Math.min(1, Math.max(0, Number(channel))) * 255)).join(",")},${a ?? 1})`);
+  const elements = frame ? [frame, ...frame.querySelectorAll("*")] : [...clone.querySelectorAll(".sx-print, .sx-print *")];
+  elements.forEach((element, i) => {
+    for (const pseudo of ["", "::before", "::after"]) {
+      const style = view.getComputedStyle(element, pseudo || null);
+      if (pseudo && ["none", "normal"].includes(style.content)) continue;
+      const overrides = properties.flatMap(property => {
+        const value = style.getPropertyValue(property);
+        const converted = convert(value);
+        return converted === value ? [] : [[property, converted]];
+      });
+      if (!overrides.length) continue;
+      if (!pseudo) overrides.forEach(([property, value]) => element.style.setProperty(property, value, "important"));
+      else {
+        element.dataset.pdfColor = i;
+        css.push(`[data-pdf-color="${i}"]${pseudo}{${overrides.map(([property, value]) => property + ":" + value + "!important").join(";")}}`);
+      }
+    }
+  });
+  if (css.length) {
+    const style = clone.createElement("style");style.textContent = css.join("\n");clone.head.appendChild(style);
+  }
+}
 async function docToPdfBlob(L, doc) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
   const stage = $("#pdfstage"), md = doc === "conspect" ? normalizeTechmap(L.docs[doc], L.params) : doc === "worksheet" ? wsMainMd(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
@@ -3913,6 +3984,22 @@ async function docToPdfBlob(L, doc) {
     const b = await wsPdfBlob(L, stage).catch(() => null);
     if (b) blob = b;
     else { await wsPrintSheets(L, stage); blob = await window.html2pdf().set({ margin: 0, image: { type: "jpeg", quality: 0.96 }, html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: "landscape" }, pagebreak: { mode: ["css"] } }).from(stage.firstElementChild).outputPdf("blob"); }
+  } else if (doc === "slides" && window.SlideEditor) {
+    const size = { unit: "mm", format: [285.75, 160.734375], orientation: "landscape" };
+    const settings = { margin: 0, html2canvas: { scale: 1.5, useCORS: true, backgroundColor: "#ffffff", onclone: slidePdfColors },
+      jsPDF: size, pagebreak: { mode: [] } };
+    const seed = document.createElement("canvas");
+    seed.width = 16; seed.height = 9;
+    const pdf = await window.html2pdf().set(settings).from(seed, "canvas").toPdf().get("pdf");
+    while (pdf.getNumberOfPages() > 1) pdf.deletePage(pdf.getNumberOfPages());
+    pdf.setPage(1);
+    const frames = $$(".sx-frame", stage);
+    for (let i = 0; i < frames.length; i++) {
+      const canvas = await window.html2pdf().set(settings).from(frames[i]).toCanvas().get("canvas");
+      if (i) pdf.addPage(size.format, size.orientation);
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+    }
+    blob = pdf.output("blob");
   } else if (wsPrint) blob = await h2p().toPdf().get("pdf").then(pdfDuplex).outputPdf("blob");
   else blob = await h2p().outputPdf("blob");
   stage.innerHTML = ""; return blob;
@@ -3952,6 +4039,16 @@ async function exportOne(L, d, f) { try { window.Learn2?.learnExport?.({ subject
   // перед выгрузкой презентации — автоподбор шрифта и деление длинных слайдов (если редактор ещё не открывался)
   if (window.SlideEditor && (d === "slides" || d === "all") && L === state.lesson && L.docs.slides && !L.slidesFitted) { L.slidesFitted = true; SlideEditor.fitAll(); }
   if (d === "all") return exportZip(L);
+  if (f === "html" && d === "slides") {
+    if (!window.SlideEditor) throw new Error("редактор презентаций ещё не загрузился");
+    return SlideEditor.exportHtml({ md: L.docs.slides, title: L.title });
+  }
+  if (f === "html" && d === "pack") {
+    const p = L.params, kit = Subjects.plugin(p.subject);
+    if (p.subject !== "inf" || !kit || !window.InfMethod?.instructionHtml) throw new Error("инструкция доступна только для информатики");
+    const html = InfMethod.instructionHtml(p, Subjects.frp("inf", p), kit.detectType(p));
+    return saveFile(`${fileSafe(L.title, 70) || "Информатика"} — Инструкция ученика.html`, new Blob([html], { type: "text/html;charset=utf-8" }));
+  }
   if (f === "zip") { toast("Собираю файлы для урока…", 6000); return saveFile(`${fileSafe(L.title, 70) || "Урок"} — файлы для урока.zip`, await packZipBlob(L)); }
   if (f === "docx") { toast("Готовлю Word…", 6000); const files = (await docxBlobs(L, d)).filter(([n]) => !APPX_RE.test(n)); for (const [n, b] of files) await saveFile(n, b); return; }
   if (f === "pptx") { toast("Готовлю презентацию…", 8000); return saveFile(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title)); }

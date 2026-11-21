@@ -91,6 +91,91 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
  assert.match(fragments.instruction,/Урок 2 из 3/);
  assert.equal(fragments.fragments,2);
  assert.ok(fragments.keptHeading && fragments.verbatim);
+ const deckExport=await page.evaluate(async()=>{
+  const previous=state.lesson, downloads=caps.downloads;
+  const files={};
+  caps.downloads={save:async ({filename,data})=>{files[filename]=await data.text();}};
+  try{
+   const check={id:'check',on:true,kind:'check',title:'Проверьте результат',points:['Чему равна сумма?'],answers:['Ответ для проверки: пять.'],notes:'Попросите объяснить ход решения'};
+   const choice={id:'choice',on:true,kind:'choice',title:'Выберите формулу',q:'Как вычислить сумму?',options:[{text:'Сложить',ok:true,exp:'Сложение даёт сумму'},{text:'Вычесть',ok:false,exp:'Это другое действие'}]};
+   const selfcheck={id:'self',on:true,kind:'selfcheck',title:'Самооценка'};
+   const appendix={id:'app',on:true,kind:'appendix',appendix:'terms',title:'Словарь',points:['Сумма — результат сложения']};
+   const draft=[{id:'title',on:true,kind:'title',title:'Практикум'}, {id:'body',on:true,kind:'list',title:'Способ вычисления',points:['Сложение натуральных чисел']}];
+   const combined=Deck.preserveTools(draft,[draft[0],check,choice,selfcheck,appendix]);
+   const md=Deck.toMarkdown(combined);
+   const lead='## Начало\n\n[К словарю](#slide-3)';
+   const long=Array.from({length:30},(_,i)=>'Этап '+(i+1)+'. Объясните действие, сравните результат и запишите собственный пример решения задачи.').join(' ')+' Сохраните итоговую формулировку без точки';
+   const oversized=lead+'\n\n---\n\n## Длинное пояснение\n\n'+long+'\n\n---\n\n## Словарь\n\nТочное определение.';
+   state.lesson={id:'presentation-fixture',title:'Практикум',params:{subject:'math',grade:5},docs:{slides:md},slideFonts:'classic'};
+   const fitted=SlideEditor.fitAll({source:oversized});
+   const tailKept=fitted.some(slide=>slide.body.includes('Сохраните итоговую формулировку без точки'));
+   const remapped=fitted[0].body.includes('#slide-'+fitted.length);
+   const probe=document.createElement('div');
+   probe.style.cssText='position:fixed;left:-12000px;top:0;width:1080px';
+   probe.innerHTML=SlideEditor.stageHtml(oversized);
+   document.body.appendChild(probe);
+   const geometry=[...probe.querySelectorAll('.sx-inner')].every(inner=>{
+    const title=inner.querySelector('.sx-title'), body=inner.querySelector('.sx-body');
+    return inner.scrollHeight<=inner.clientHeight+2 && inner.scrollWidth<=inner.clientWidth+2 &&
+      (!title || !body || title.getBoundingClientRect().bottom<=body.getBoundingClientRect().top+2);
+   });
+   probe.remove();
+   await exportOne(state.lesson,'slides','html');
+   const ppt=await slidesToPptxBlob(md,'Практикум');
+   await loadScript('jszip');
+   const zip=await JSZip.loadAsync(await ppt.arrayBuffer());
+   const xml=await zip.file('ppt/presentation.xml').async('string');
+   const notes=await Promise.all(Object.values(zip.files).filter(f=>/^ppt\/notesSlides\/notesSlide\d+\.xml$/.test(f.name)).map(f=>f.async('string')));
+   const allPptSlides=await Promise.all(Object.values(zip.files).filter(f=>/^ppt\/slides\/slide\d+\.xml$/.test(f.name)).map(f=>f.async('string')));
+   const pdf=await docToPdfBlob({...state.lesson,docs:{slides:'## Первый\n\nСложение.\n\n---\n\n## Второй\n\nРезультат.'}},'slides');
+   const pdfText=await pdf.text();
+   await Plans.ensure('inf');await Kits.ensure('inf');
+   const inf={subject:'inf',grade:8,topic:'Алгоритмы и исполнители',lessonNo:1,duration:45};
+   const infL={id:'instruction-fixture',title:inf.topic,params:inf,docs:{pack:'Карточка учителя'}};
+   await exportOne(infL,'pack','html');
+   const pack=await JSZip.loadAsync(await (await packZipBlob(infL)).arrayBuffer());
+   const instruction=Object.values(pack.files).find(f=>/Instrukciya_uchenika.html$/.test(f.name));
+   const html=Object.entries(files).find(([name])=>/Презентация/.test(name))?.[1];
+   const infHtml=Object.entries(files).find(([name])=>/Инструкция/.test(name))?.[1];
+   const image=Media.pickBest('плодовое тело шампиньона',[{title:'Плодовое тело мухомора',url:'wrong1'},{title:'Мицелий шампиньона',url:'wrong2'},{title:'Плодовое тело шампиньона',url:'right'}],['плодовое тело','шампиньон']);
+   return {html,infHtml,fromZip:await instruction.async('string'),count:fitted.length,tailKept,remapped,geometry,kinds:combined.map(c=>c.kind),
+     wide:xml.includes('cx="12192000"')&&xml.includes('cy="6858000"'), pptCount:allPptSlides.length,
+     notes:notes.some(n=>n.includes('Попросите объяснить ход решения')), answers:allPptSlides.some(n=>n.includes('Ответ для проверки')),
+     pdf:pdfText.startsWith('%PDF-'), pdfPages:[...pdfText.matchAll(/\/Type\s*\/Page\b/g)].length, image:image?.url,
+     fenced:splitSlides('## Код\n\n~~~text\nдо\n---\nпосле\n~~~\n\n---\n\n## Вывод').length};
+  }finally{state.lesson=previous;caps.downloads=downloads;}
+ });
+ assert.ok(deckExport.count>3 && deckExport.tailKept && deckExport.remapped && deckExport.geometry);
+ assert.ok(deckExport.kinds.includes('check') && deckExport.kinds.includes('selfcheck') && deckExport.kinds.includes('choice'));
+ assert.equal(deckExport.fenced,2);
+ assert.equal(deckExport.image,'right');
+ assert.ok(deckExport.wide && deckExport.notes && deckExport.answers && deckExport.pptCount>=6);
+ assert.ok(deckExport.pdf);
+ assert.equal(deckExport.pdfPages,2);
+ assert.ok(deckExport.html.includes('sxNotes') && deckExport.html.includes('data-ok="1"'));
+ assert.equal(deckExport.infHtml,deckExport.fromZip);
+ assert.match(deckExport.infHtml,/#FFFCF3/);
+ const instructionPage=await browser.newPage({viewport:{width:390,height:800}});
+ try{
+  await instructionPage.route('**/*',route=>route.abort());
+  await instructionPage.setContent(deckExport.infHtml);
+  await instructionPage.locator('.st input').first().check();
+  assert.match(await instructionPage.locator('.progress').textContent(),/Выполнено 1 из/);
+ }finally{await instructionPage.close();}
+ const shows=await browser.newPage({viewport:{width:1100,height:650}});
+ try{
+  await shows.route('**/*',route=>route.abort());
+  await shows.setContent(deckExport.html);
+  await shows.keyboard.press('n');
+  assert.equal(await shows.locator('#sxNotes').getAttribute('hidden'),null);
+  const option=shows.locator('.deck-s').filter({has:shows.locator('.ch[data-ok="1"]')}).first();
+  const slideNo=(await shows.locator('.deck-s').all()).length;
+  for(let i=0;i<slideNo && !await option.evaluate(el=>el.classList.contains('on'));i++) await shows.keyboard.press('ArrowRight');
+  await option.locator('.ch[data-ok="1"]').click();
+  assert.match(await option.locator('.ch-ex').textContent(),/Верно/);
+  await option.locator('.ch[data-ok="1"]').click();
+  assert.equal(await shows.evaluate(()=>document._sctot),1);
+ }finally{await shows.close();}
  // Conversion must keep all substantive content, not just the legacy table.
  assert.equal(await page.evaluate(()=>cleanMd('Приведите пример из жизни (не из учебника).')),'Приведите пример из жизни.');
  const conversion=await page.evaluate(()=>{

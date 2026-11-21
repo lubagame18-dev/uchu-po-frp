@@ -373,13 +373,16 @@ const Deck = (() => {
     if (!Array.isArray(cards) || (o && o.images === "none")) return cards;
     const L = lessonImages(p); if (!L.length) return cards;
     const credit = im => /собственн/.test(im.license || "") ? `Схема: собственный чертёж «Учу по ФРП».` : `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
-    let k = 0;
+    const used = new Set();
     const out = cards.map(c => {
-      if (!c || k >= L.length || !/^commons:/.test(String(c.img || "")) || /портрет|(?:^|[\s:])карт[аыу]?(?:\s|$)|\bmap\b/i.test(c.img)) return c;
-      const im = L[k++];
+      if (!c || !/^commons:/.test(String(c.img || "")) || /портрет|(?:^|[\s:])карт[аыу]?(?:\s|$)|\bmap\b/i.test(c.img)) return c;
+      const available = L.filter(im => !used.has(im.img)).map(im => ({ ...im, url: im.img, cap: im.caption, artist: im.author }));
+      const im = window.Media?.pickBest?.(String(c.img).slice(8), available);
+      if (!im) return c;
+      used.add(im.img);
       return { ...c, img: im.img, cap: im.title, notes: [c.notes, im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
     });
-    if (k === 0 && !out.some(c => c && c.img && c.on !== false && c.kind !== "title")) {
+    if (!used.size && !out.some(c => c && c.img && c.on !== false && c.kind !== "title")) {
       const im = L[0], end = out.findIndex(c => c && (["concl", "hw"].includes(c.kind) || /рефлекс|подвед|итог урока|домашн/i.test(String(c.title || ""))));
       const card = { id: "li1", on: true, kind: "image", title: im.title, img: im.img, cap: im.title, notes: [im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
       if (end >= 0) out.splice(end, 0, card); else out.push(card);
@@ -1053,6 +1056,23 @@ ${JSON.stringify(payload)}`;
     cards.splice(pos, 0, ...add); return cards;
   }
   /* Аудио и видео: сайт ищет чтение артистов и экранизации; не нашёл — слайд остаётся в плане выключенным */
+  function preserveTools(draft, original) {
+    const kinds = new Set(["scheme", "algo", "mnemo", "check", "quiz", "choice", "odd", "selfcheck",
+      "flip", "board", "video", "glossary", "terms", "timeline", "compare", "appendix", "fragment", "poem", "art", "author"]);
+    const key = card => card.kind + "|" + LIMG_NORM(card.title);
+    const tools = original.filter(card => card.on !== false && kinds.has(card.kind));
+    const reserved = new Set(tools.map(key));
+    const title = original.find(card => card.kind === "title" && card.on !== false) || draft.find(card => card.kind === "title");
+    const main = draft.filter(card => card.kind !== "title" && !reserved.has(key(card)));
+    for (const card of tools) {
+      const previous = original[original.indexOf(card) - 1];
+      const found = previous ? main.findIndex(item => key(item) === key(previous)) : -1;
+      const end = main.findIndex(item => item.kind === "hw" || item.kind === "concl");
+      const index = found >= 0 ? found + 1 : card.kind === "appendix" ? main.length : end >= 0 ? end : main.length;
+      main.splice(index, 0, card);
+    }
+    return title ? [title, ...main] : main;
+  }
   async function mediaFill(cards) {
     for (const c of cards.filter(x => x.kind === "video" && x.auto && !x.video && x.on !== false)) {
       const r = window.VideoKit?.find ? await VideoKit.find(c.mq, c.mk, { author: c.author, work: c.work }).catch(() => []) : [];
@@ -1264,6 +1284,6 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
   }
 
-  return { prune, localImages, lessonImages, childGoal, outline, toMarkdown, build, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { prune, localImages, lessonImages, childGoal, outline, toMarkdown, build, preserveTools, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
 })();
 window.Deck = Deck;

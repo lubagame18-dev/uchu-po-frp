@@ -2245,7 +2245,7 @@ const Media = (() => {
   const BAD_PHOTO = /тетрад|notebook|блокнот|канцеляр|ручк|карандаш|офис|документ|бумаг|бланк|стол письмен|письменн.*стол|школьн.*принадлежн|печатн.*страниц/i;
   const badPhoto = (t, q) => BAD_PHOTO.test(nrm(t)) && !BAD_PHOTO.test(nrm(q));
   const SCHEME_INTENT = /схем[аыуе]|алгоритм|диаграмм|график|блок-?схем|инфографик|таблиц[аеуы]|\bплан\b|маршрут/i;
-  const artIntent = q => ART_INTENT.test(String(q)) ? "art" : MAP_INTENT.test(String(q)) ? "map" : SCHEME_INTENT.test(String(q)) ? "scheme" : "";
+  const artIntent = q => MAP_INTENT.test(String(q)) ? "map" : ART_INTENT.test(String(q)) ? "art" : SCHEME_INTENT.test(String(q)) ? "scheme" : "";
   const qNames = q => (String(q).match(/[А-ЯЁA-Z][а-яёa-z-]{2,}/g) || []).filter(w => !GENRE_STOP.test(w)).map(nrm).filter(w => w.length >= 4);
   function commonsOk(it, intent, q) {
     if (!it) return false;
@@ -2269,7 +2269,8 @@ const Media = (() => {
   async function commonsBest(q, intent) {
     for (const query of commonsQueries(q, intent)) {
       const hits = await commons(query, 10, { intent });
-      if (hits.length) return hits[0];
+      const hit = pickBest(query, hits, null, intent, q);
+      if (hit) return hit;
     }
     return null;
   }
@@ -2294,41 +2295,47 @@ const Media = (() => {
      картинки «с текстом» (презентации, плакаты с правилами, цитаты, схемы) и чужие люди отсеиваются.
      Если ничего подходящего нет — место остаётся пустым для ручного выбора (лучше пусто, чем не в тему). */
   const TEXTY = /презентац|слайд|плакат|правил|таблиц|схем|кроссворд|тест\b|ответ|цитат|надпис|текст|открытк|рамк|шаблон|фон для|обои|демотиватор|мем\b|конспект|урок\b|памятк|ребус|раскраск|скачать|pptx?|docx?|pdf/i;
-  function pickBest(q, items, must) {
-    if (!items?.length) return null;
-    // проверка по названию и описанию картинки: главное слово слайда обязано там быть
-    if (must?.length) {
-      const st = must.map(w => String(w).toLowerCase().replace(/ё/g, "е").slice(0, Math.max(4, Math.min(6, String(w).length - 1))));
-      items = items.filter(it => { const t = String((it.title || "") + " " + (it.cap || "") + " " + (it.artist || "")).toLowerCase().replace(/ё/g, "е"); return !it.noTitle && !TEXTY.test(t) && !badPhoto(t, q) && st.some(s => t.includes(s)); });
-      if (!items.length) return null;
-    }
-    const st = FRP.stems(q.replace(/иллюстрац\S*|картин\S*|портрет\S*|фото\S*/gi, ""));
-    // фамилии, имена и название произведения: в названии картинки должно быть хоть одно из них (статья «Мцыри» — подходит)
-    const names = (q.match(/(?:^|\s)[А-ЯЁ][а-яё]{3,}/g) || []).map(w => w.trim().toLowerCase().replace(/ё/g, "е").slice(0, 5));
-    const scored = items.map((it, i) => {
-      const t = String((it.title || "") + " " + (it.cap || "")).toLowerCase().replace(/ё/g, "е");
-      if (!t.trim()) return { it, s: 1 - i * 0.05 }; // без названия — только по месту в выдаче
-      if (TEXTY.test(t)) return { it, s: -1 };
-      if (names.length && !names.some(n => t.includes(n))) return { it, s: -1 }; // в запросе человек — в названии должен быть он
-      const hit = st.size ? FRP.score(t, st) / st.size : 0.5;
-      return { it, s: hit * 2 + (it.cap ? 0.5 : 0) + 1 - i * 0.06 };
-    }).filter(x => x.s > 0.4).sort((a, b) => b.s - a.s);
-    return scored[0]?.it || null;
+  const imageWords = value => nrm(value).match(/[\p{L}\p{N}]+/gu) || [];
+  const imageStem = word => word.length < 5 ? word : word.slice(0, Math.min(7, word.length - 1));
+  const imageTitle = item => [item.title, item.cap, item.artist].filter(Boolean).join(" ");
+  const hasImageTerm = (term, text) => {
+    const words = imageWords(text);
+    return imageWords(term).every(word => words.some(candidate => word.length < 5 ? candidate === word : candidate.startsWith(imageStem(word))));
+  };
+  function pickBest(q, items, must, intent = "", subjectQuery = q) {
+    if (!items?.length || must?.includes("\u0000")) return null;
+    const words = imageWords(q).filter(word => word.length > 2 && !GENRE_STOP.test(word) &&
+      !/^(схем[аыуе]?|график|диаграмм[аыу]?|россия|класса|образец)$/.test(word));
+    const required = (must || []).filter(term => imageWords(term).length);
+    const names = qNames(subjectQuery);
+    const leadNames = names.length ? names : [];
+    const entries = items.map((item, i) => {
+      const title = imageTitle(item);
+      if (!title || item.noTitle || (!intent && TEXTY.test(title)) || badPhoto(title, subjectQuery)) return null;
+      if (intent && !commonsOk(item, intent, subjectQuery)) return null;
+      if (required.some(term => !hasImageTerm(term, title))) return null;
+      if (leadNames.length && !leadNames.some(name => hasImageTerm(name, title))) return null;
+      const hits = words.filter(word => hasImageTerm(word, title)).length;
+      if (!required.length && hits < (words.length > 2 ? 2 : 1) && !leadNames.length) return null;
+      return { item, score: hits * 2 + (item.cap ? 0.4 : 0) - i * 0.05 };
+    }).filter(Boolean).sort((a, b) => b.score - a.score);
+    return entries[0]?.item || null;
   }
   async function autoFill(md, onProgress, ctx = {}) {
     // викторина, выбор ответа, самопроверка, справка и «Ответы» картинок не получают: вместо заглушки, вылезающей за рамку, токен просто убираем
-    for (const m of [...md.matchAll(RE)].filter(m => /^(search|commons):/.test(m[2]))) {
-      const sl0 = slideOf(md, md.indexOf(m[0]));
-      if (/"(quiz|choice|odd|selfcheck|appendix)"\s*:|"kind"\s*:\s*"(ref|check|choice|selfcheck|quiz)"/.test(sl0)) md = md.replace(m[0], "");
-    }
+    md = md.replace(RE, (match, _caption, src, _options, index, source) => {
+      if (!/^(search|commons):/.test(src)) return match;
+      const slide = slideOf(source, index);
+      return /"(quiz|choice|odd|selfcheck|appendix)"\s*:|"kind"\s*:\s*"(ref|check|choice|selfcheck|quiz)"/.test(slide) ? "" : match;
+    });
     // commons: — картина/иллюстрация с подписью (художник, название, год). Для art/map-интента —
     // строгая проверка подписи и второй запрос; если не подтвердилось, остаётся место «подберите репродукцию».
     for (const m of [...md.matchAll(RE)].filter(m => m[2].startsWith("commons:"))) {
       const q = decodeURIComponent(m[2].slice(8)).trim();
       const intent = artIntent(q);
-      const hit = intent ? await commonsBest(q, intent) : (await commons(q, 8))[0];
+      const hit = intent ? await commonsBest(q, intent) : pickBest(q, await commons(q, 8));
       let rep = null;
-      if (hit) { const b = await toBlob(hit.url); let src = hit.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } rep = mdImage(hit.cap, src, { q, from: "Викисклад" }); }
+      if (hit) { const b = await toBlob(hit.url); let src = hit.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } rep = mdImage(hit.cap, src, { ...parseOpts(m[3]), q, from: "Викисклад" }); }
       else if (intent) { // случайное фото вместо картины/карты/схемы не ставим: пустое место с подсказкой
         const isMap = intent === "map", isScheme = intent === "scheme";
         const cap = `${m[1] || (isMap ? "Карта" : isScheme ? "Схема" : "Репродукция")} — ${isMap ? "подберите карту" : isScheme ? "подберите схему" : "подберите репродукцию"}`;
@@ -2349,25 +2356,22 @@ const Media = (() => {
     for (const [k, m] of todo.entries()) {
       const P = plan[k] || {}, q0 = decodeURIComponent(m[2].slice(7)), q = P.query || q0;
       const intent0 = artIntent(q0); // art/map-интент: проверяем, что пришла картина/карта, а не случайное фото
-      let found = pickBest(q, fresh(await search(q, 12, { yandex: false })), P.must);
-      if (found && intent0 && !commonsOk(found, intent0, q0)) found = null;
-      if (!found && P.query && P.query !== q0 && !P.strict) found = pickBest(q0, fresh(await search(q0, 12, { yandex: false })), P.must);
-      if (!found && P.alt && P.alt !== q) found = pickBest(P.alt, fresh(await search(P.alt, 12, { yandex: false })), P.must);
-      // строгий подбор не нашёл — берём первую подходящую картинку из выдачи Яндекса (без плакатов, схем и текста)
-      // но только если в названии/подписи есть обязательное слово (must): иначе не ставим случайное фото
-      const nrm1 = s => String(s || "").toLowerCase().replace(/ё/g, "е");
-      const okMust = x => { if (!P.must || !P.must.length) return true; const t = nrm1((x.title || "") + " " + (x.cap || "")); return P.must.some(w => { const ww = nrm1(w).replace(/[^\p{L}\p{N} ]+/gu, " ").trim().split(/\s+/).filter(Boolean).slice(0, 2).join(" ").slice(0, 12); return ww.length > 2 && t.includes(ww); }); };
-      /* автоматический подбор — только бесплатные Википедия/Викисклад; Яндекс остаётся для ручного выбора в окне картинки */
-      if (found && intent0 && !commonsOk(found, intent0, q0)) found = null;
+      const queries = [...new Set([q, P.alt, !P.strict ? q0 : ""].filter(Boolean))];
+      let found = null;
+      for (const query of queries) {
+        if (P.must?.includes("\u0000")) break;
+        found = pickBest(query, fresh(await search(query, 12, { yandex: false })), P.must, intent0, q0);
+        if (found) break;
+      }
       if (found) usedUrl.add(found.url);
       else { // не нашлось: пустое место с подсказкой — о чём слайд и какую картинку подобрать
-        const sl = slideOf(out, out.indexOf(m[0])), title = ((sl.match(/^#{1,2}\s+(.+)$/m) || [])[1] || "").replace(/[🖼🎯💬📖🔍✍️🪞🏠🧩📝*_]/gu, "").trim();
+        const sl = slideOf(md, m.index), title = ((sl.match(/^#{1,2}\s+(.+)$/m) || [])[1] || "").replace(/[🖼🎯💬📖🔍✍️🪞🏠🧩📝*_]/gu, "").trim();
         const kw = P.must?.[0] && P.must[0] !== "\u0000" ? P.must[0] : "", lit = /«|портрет|иллюстрац/i.test(q0);
         const need = `На слайде — «${title || m[1] || q0}». Подходящую картинку сайт не нашёл, искал «${kw || q0}». Подберите сами: ${/портрет/i.test(q0) ? "портрет писателя с подписью — художник, год" : lit ? "иллюстрацию к этой сцене или герою — художник, название" : kw ? `фото или рисунок, где есть «${kw}» — как в примере на слайде` : "картинку к примеру или тексту на слайде"}.`;
         const cap = intent0 ? `${m[1] || (intent0 === "map" ? "Карта" : "Репродукция")} — ${intent0 === "map" ? "подберите карту" : "подберите репродукцию"}` : m[1];
         out = out.replace(m[0], mdImage(cap, m[2].split(" ")[0] === m[2] ? m[2] : m[2], { ...Media_parse(m[3]), q: q0, need }));
       }
-      if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(m[1], src, { q, from: found.src })); }
+      if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(found.cap || m[1] || found.title, src, { ...parseOpts(m[3]), q, from: found.src })); }
       onProgress && onProgress(++done, todo.length);
     }
     return out;
@@ -2377,11 +2381,11 @@ const Media = (() => {
   const STOPW = new Set("язык языка русский литература урок урока тема темы правило правила предложение предложения слово слова определение определения оборот оборота причастие причастный причастного деепричастие член члены члена задание задания упражнение текст текста пример примеры вопрос вопросы ответ ответы алгоритм схема таблица класс классе учебник работа ученики учитель иллюстрация картина портрет обособление обособленные обособленный знаки знак запятая запятые препинания сегодня рефлексия мотивация закрепление домашнее итог вывод выводы цель часть части автор стихотворение произведение герой героя".split(" "));
   const Media_parse = s => parseOpts(s);
   function slideOf(md, idx) { const a = md.lastIndexOf("\n---\n", idx), b = md.indexOf("\n---\n", idx); return md.slice(a < 0 ? 0 : a, b < 0 ? md.length : b); }
-  function guessKey(slide, q, all) {
+  function guessKey(slide, q) {
     if (/портрет|иллюстрац|картин|«/.test(q) || /^[А-ЯЁ]\.\s?[А-ЯЁ]?/.test(q)) return { query: q, must: null }; // портрет, произведение — как есть (там своя проверка по фамилии)
     const txt = slide.replace(/!\[[^\]]*\]\([^)]*\)|<!-{2}[\s\S]*?-{2}>|[#*_>`|\-]/g, " ");
     // главное слово — из примера на слайде (а если его нет — из первого примера урока), а не из термина
-    const quoted = (txt.match(/«[^»]{6,120}»/g) || []).join(" ") || ((all || "").replace(/<!-{2}[\s\S]*?-{2}>/g, "").match(/«[^»]{6,120}»/g) || []).slice(0, 2).join(" ");
+    const quoted = (txt.match(/«[^»]{6,120}»/g) || []).join(" ");
     if (!quoted) return { query: q, must: ["\u0000"], strict: true }; // нечего искать — место остаётся для ручного выбора
     const words = (quoted.toLowerCase().match(/[а-яё]{4,}/g) || []).filter(w => !STOPW.has(w) && !/(ть|ться|ешь|ет|ут|ют|ит|ат|ят|ал|ала|ли|ый|ий|ой|ая|ое|ее|ые|ие|ого|ему|ыми|ими|ом|ем|ся|ась|ось)$/.test(w));
     const freq = {}; words.forEach(w => freq[w] = (freq[w] || 0) + 1);
@@ -2391,7 +2395,7 @@ const Media = (() => {
   async function planImages(md, todo, ctx = {}) {
     if (!todo.length) return [];
     const slides = todo.map(m => slideOf(md, m.index).replace(/\s+/g, " ").trim().slice(0, 500));
-    const base = todo.map((m, i) => guessKey(slides[i], decodeURIComponent(m[2].slice(7)), md));
+    const base = todo.map((m, i) => guessKey(slides[i], decodeURIComponent(m[2].slice(7))));
     const aiOk = window.AI?.configured?.() && (!window.Access || Access.aiAllowed());
     const ctxLine = `Предмет: ${window.Subjects?.name?.(ctx.subject) || ctx.subject || ""}. Класс: ${ctx.grade || ""}. Тема урока: «${ctx.topic || ""}».${ctx.goal ? " Цель урока: " + String(ctx.goal).slice(0, 200) + "." : ""}`;
     if (!aiOk) return base;
@@ -2403,15 +2407,15 @@ const Media = (() => {
 - Химия/физика: вещество, прибор, опыт, явление; география: место, объект, карта; история: событие, личность, картина/фото эпохи.
 - Литература: НЕ «автор произведения», а полные имя и фамилия автора + «портрет»; для иллюстрации — фамилия автора + название произведения + «иллюстрация» + конкретный герой/сцена с слайда. Название не понимай буквально (Бульба — герой, а не картофель).
 - Русский язык: предмет/действие из примера на слайде, не термин.
-- must — 1–2 слова, которые ОБЯЗАНЫ быть в названии/подписи найденной картинки; если их нет, картинка не берётся.
+- must — 1–2 обязательных слова или коротких названия. Например, для «плодовое тело гриба шампиньона» верни ["шампиньон", "плодовое тело"]. Оба признака должны быть в подписи. Если подходящий объект найти невозможно, верни skip: true.
 - Картинка должна быть яркой, чёткой, по возможности горизонтальной, без текста, водяных знаков и коллажей. Не проси плакаты, мемы, скриншоты и обложки учебников.
 - alt — запасной запрос (другая формулировка того же объекта), если по основному ничего не найдётся.
 ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
-Ответ — ТОЛЬКО JSON-массив: [{"n":1,"stage":"этап","keyword":"объект","query":"запрос","alt":"запасной запрос","must":["обязательное слово"]}]`;
+Ответ — ТОЛЬКО JSON-массив: [{"n":1,"stage":"этап","keyword":"объект","query":"запрос","alt":"запасной запрос","must":["обязательное слово"],"skip":false}]`;
     try {
       const { text } = await window.AI.sample(prompt, { modelTier: "quick", noRules: true });
       const arr = JSON.parse((String(text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
-      return base.map((b, i) => { const a = arr.find(x => +x.n === i + 1); if (!a?.query) return b; const q0 = decodeURIComponent(todo[i][2].slice(7)); const keep = /портрет|«/.test(q0);
+      return base.map((b, i) => { const a = arr.find(x => +x?.n === i + 1); if (a?.skip) return { ...b, must: ["\u0000"], strict: true }; if (!a?.query) return b; const q0 = decodeURIComponent(todo[i][2].slice(7)); const keep = /портрет|«/.test(q0);
         // иллюстрация к произведению: автор и название из исходного запроса остаются в начале, нейросеть добавляет конкретику (герой, сцена)
         if (/иллюстрац/.test(q0)) { const head = q0.replace(/\s*(иллюстрац[а-яё]*|картин[а-яё]*|художник[а-яё]*).*$/i, "").trim(); let aq = String(a.query).replace(/[«»"]/g, ""); for (const w of head.split(/\s+/)) if (w.length > 2 && !aq.toLowerCase().includes(w.toLowerCase())) aq = w + " " + aq; if (!/иллюстрац|картин/i.test(aq)) aq += " иллюстрация"; return { query: aq.replace(/\s+/g, " ").trim().slice(0, 100), must: head.split(/\s+/).filter(w => w.length > 3).slice(0, 2), stage: a.stage }; }
         const must = [].concat(a.must || a.keyword || []).map(String).filter(Boolean).slice(0, 3);
@@ -2519,7 +2523,7 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
     g.drawImage(bmp, sx, sy, sw, sh, 0, 0, cw, ch);
     return { data: c.toDataURL("image/png"), w: cw, h: ch };
   }
-  return { commons, yandexSearch, toBlob, proxyBase, get yandexState() { return yandexState; }, RE, preprocess, postprocess, hydrate, figToMd, search, autoFill, openPicker, exportData, parseOpts, mdImage, yandexUrl, artIntent, commonsOk };
+  return { commons, yandexSearch, toBlob, proxyBase, get yandexState() { return yandexState; }, RE, preprocess, postprocess, hydrate, figToMd, search, autoFill, pickBest, openPicker, exportData, parseOpts, mdImage, yandexUrl, artIntent, commonsOk };
 })();
 
 const HELP_MD = "# Как работать с сайтом\n\n## Создать урок\n1. **Конструктор** → предмет, класс, тема (стрелка ▾ — темы из ФРП).\n2. Номер урока по теме: 1-й, 2-й… Тип урока сайт определит сам.\n3. Отметьте: техкарта, презентация, рабочий лист → **«Создать урок»**. Урок собирает нейросеть: она опирается на ваши пожелания, встроенную базу и ФРП.\n\n**Уровень** — базовый / средний / сильный: базовый — больше объяснений и образцов, сильный — больше заданий и олимпиадные задачи. **Формат заданий** — школьный, ВПР, ОГЭ или ЕГЭ: выбирается карточками с превью теста; для экзамена — «Весь вариант» или «Только тему урока», стиль листа — строгий бланк, интерактивный или арт-поддержка.\n\n**Пожелания к уроку** — открытое окно под параметрами: напишите, что важно (класс слабый, нужна групповая работа, больше схем и картинок). Нейросеть выполнит их в первую очередь.\n\n**Фото учебника**: в пожеланиях кнопка «📷 Фото учебника» — сфотографируйте страницу, сайт распознает текст и задания, и урок пойдёт по ним дословно.\n\n## Поправить и скачать\n- Конспект и рабочий лист правятся прямо на странице: щёлкните по тексту.\n- **Правка с ИИ**: строка «Что изменить?» под документом. Слева выберите область: этот документ, **рабочий лист**, **презентацию** или **весь материал урока** — правка затронет только выбранное.\n- **Презентация**: в редакторе слайдов «✎ Слайд с ИИ» переписывает только выбранный слайд, «✎ Вся презентация» — всю презентацию по одной просьбе. «🎨 Оформление» меняет цвета и шрифты, «▶ Показ» — на весь экран.\n- **«Скачать»**: Word, PDF, PowerPoint или всё архивом.\n\n## Где хранятся уроки\nВ **«Моих уроках»**. Войдите в личный кабинет (**«Войти»** вверху справа) — уроки сохранятся в облаке и откроются на любом устройстве.\n\n## Свои материалы\n**«Материалы»** → **«Прикрепить и встроить»**. Сайт будет брать из них задания для уроков.\n\n## Тариф\nОдин тариф — **«С ИИ»**: 400 ₽/мес или 3900 ₽/год (≈325 ₽/мес, скидка 19%). Входит всё: конспект, техкарта, презентация, рабочий лист, контроль и памятки, картинки, выгрузка, облако — 50 уроков с ИИ в месяц. Не хватило — докупите уроки пакетом или любым количеством от 1 до 200 (7 ₽ за урок, минимум 70 ₽). Пробный доступ — 2 дня: 2 урока с ИИ.\n\n## Промокод\nКнопка тарифа вверху → войдите → внизу окна «Промокод».\n";

@@ -342,12 +342,43 @@ InfGen.BUGS = [{"title": "Среднее арифметическое", "code": 
     return out;
   };
   /* страница-инструкция для ученика (открывается двойным щелчком, можно напечатать) */
-  InfGen.instrHtml = ({ title, grade, apps, steps, levels, done, links, tb }) => page("Инструкция: " + title, `<p class="note">${grade} класс · практическая работа за компьютером</p>
-<h2>Что понадобится</h2><ul>${apps.map(a => `<li><b>${esc(a[0])}</b> — ${esc(a[1])}</li>`).join("")}</ul>
-<h2>Порядок работы</h2><ol class="st">${steps.map(s => `<li><label><input type="checkbox"> <span>${esc(s)}</span></label></li>`).join("")}</ol>
-${levels && levels.length ? `<h2>Если успеваешь</h2><ul>${levels.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}
-<h2>Что должно получиться</h2><p>${esc(done)}</p>
-${links && links.length ? `<h2>Полезные ссылки</h2><ul>${links.map(l => `<li>${esc(l[0])}: <span class="mono">${esc(l[1])}</span></li>`).join("")}</ul>` : ""}
-<p class="note">${esc(tb || "Каждые 20–25 минут делай перерыв для глаз. Не открывай посторонние сайты и не вводи личные данные. Сохраняй работу в свою папку.")}</p>`, "", "ol.st{list-style:none;padding:0;counter-reset:s}ol.st li{counter-increment:s;margin:6px 0;padding:8px 12px;border:1px solid #c5ced8;border-radius:10px;background:#fff}ol.st li::before{content:counter(s) '.';font-weight:700;margin-right:8px;color:#1f6feb}ol.st input{width:20px;height:20px;vertical-align:middle}@media print{body{font-size:15px}}");
+  InfGen.instrHtml = ({ title, grade, apps, steps, levels, done, links, tb }) => {
+    const safeLinks = (links || []).filter(([, url]) => /^https?:\/\//i.test(url));
+    const body = `<main class="instruction">
+<p class="note">Информатика · ${esc(grade)} класс</p>
+<h2>Что понадобится</h2><ul>${apps.map(([name, how]) => `<li><b>${esc(name)}</b> — ${esc(how)}</li>`).join("")}</ul>
+<h2>Порядок работы</h2><p class="progress" role="status">Выполнено 0 из ${steps.length}</p>
+<ol class="st">${steps.map(step => `<li><label><input type="checkbox"> <span>${esc(step)}</span></label></li>`).join("")}</ol>
+${levels?.length ? `<h2>Если успеваешь</h2><ul>${levels.map(task => `<li>${esc(task)}</li>`).join("")}</ul>` : ""}
+<h2>Что должно получиться</h2><p class="result">${esc(done)}</p>
+${safeLinks.length ? `<h2>Полезные ссылки</h2><ul>${safeLinks.map(([label, url]) => `<li><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a></li>`).join("")}</ul>` : ""}
+<p class="note">${esc(tb || "Делай перерывы для глаз. Сохраняй работу в свою папку.")}</p>
+<button class="print" type="button">Распечатать</button>
+</main>`;
+    const script = `const steps = [...document.querySelectorAll('.st input')];
+function update() { document.querySelector('.progress').textContent = 'Выполнено ' + steps.filter(step => step.checked).length + ' из ' + steps.length; }
+for (const step of steps) step.addEventListener('change', update);
+document.querySelector('.print').addEventListener('click', () => window.print());
+update();`;
+    const css = `
+:root{color-scheme:light;--ink:#1B1330;--paper:#FFFCF3;--card:#FFFFFF;--muted:#4A4060;--rule:#E3D9C4;--flame:#FF5A36;--teal:#1F7A70;--sun:#FFC93C}
+*{box-sizing:border-box}
+body{font:16px/1.55 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;max-width:900px;margin:0 auto;padding:24px 16px;color:var(--ink);background:var(--paper)}
+h1,h2{font-family:Unbounded,system-ui,sans-serif;line-height:1.3;overflow-wrap:anywhere}
+h1{font-size:clamp(24px,5vw,36px);margin:0 0 20px}
+h2{font-size:18px;margin-top:24px}
+.instruction{padding:clamp(16px,4vw,32px);border:3px solid var(--ink);border-radius:18px;background:var(--card);box-shadow:5px 5px 0 var(--ink)}
+.note{color:var(--muted);font-size:14px}.progress{color:var(--teal);font-weight:800}
+ol.st{padding-left:1.6em}ol.st li{padding:8px 0;border-bottom:1px solid var(--rule)}
+.st label{display:flex;align-items:flex-start;gap:10px;cursor:pointer}.st input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--teal)}
+.st input:checked+span{color:var(--teal)}
+.result{padding:12px 16px;border-left:5px solid var(--teal);background:var(--paper)}
+a{color:var(--teal);overflow-wrap:anywhere}
+button.print{padding:8px 16px;border:2px solid var(--ink);border-radius:12px;background:var(--flame);color:var(--ink);font-weight:800}
+:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+@media print{body{max-width:none;padding:0;background:white}.instruction{box-shadow:none;border:0;padding:0}.print{display:none}.st li,.result{break-inside:avoid}}
+`;
+    return page("Инструкция: " + title, body, script, css);
+  };
 })();
 window.InfGen = InfGen;

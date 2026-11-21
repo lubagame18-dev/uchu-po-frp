@@ -204,16 +204,25 @@ ${c.links.length ? `<h2>Ссылки</h2><table><tr><th>Что это</th><th>С
     return g.page("Карточка учителя: " + short(p.topic), body, "");
   };
   const readme = (p, type) => `ПАКЕТ ДЛЯ КОМПЬЮТЕРНОГО КЛАССА\r\nТема: ${p.topic}\r\nКласс: ${p.grade}\r\n\r\nКак пользоваться\r\n1. Откройте 1_Uchitelyu/Kartochka_uchitelya.html — там подготовка, программы и ссылки.\r\n2. Папку 2_Uchenikam раздайте детям (общая сетевая папка, флешка или копирование на компьютеры). Инструкция для ученика — Instrukciya_uchenika.html: её можно вывести на проектор или распечатать.\r\n3. Ответы и ключи — в 1_Uchitelyu. Детям эту папку не давайте.\r\n4. Файлы с русскими буквами в названиях: если после распаковки они показываются «кракозябрами», распакуйте архив программой 7-Zip.\r\n\r\nВсе файлы созданы на сайте «Учу по ФРП»; в них нет данных из Интернета и личных сведений. Тренажёры (файлы .html) открываются двойным щелчком в любом браузере и работают без Интернета.\r\n`;
+  const instructionHtml = (p, F, type, P = pack(p, F, type)) => {
+    const { c } = P;
+    return G().instrHtml({
+      title: short(p.topic), grade: p.grade, steps: P.steps,
+      apps: c.apps.length ? c.apps.map(([name, how]) => [name, how]) : [["Компьютер", "включённый, с рабочим столом"]],
+      levels: c.W.adv || [], done: c.W.done || "Выполнено практическое задание.",
+      links: c.links.map(([label, url]) => [label, url]), tb: TB
+    });
+  };
   const zip = (p, F, type) => {
-    const g = G(), P = pack(p, F, type), c = P.c, base = folderOf(p), out = [];
+    const P = pack(p, F, type), base = folderOf(p), out = [];
     out.push({ n: `${base}/0_PROCHTI.txt`, c: readme(p, type) });
     out.push({ n: `${base}/1_Uchitelyu/Kartochka_uchitelya.html`, c: cardHtml(p, F, type) });
-    out.push({ n: `${base}/2_Uchenikam/Instrukciya_uchenika.html`, c: g.instrHtml({ title: short(p.topic), grade: p.grade, apps: c.apps.length ? c.apps.map(a => [a[0], a[1]]) : [["Компьютер", "включённый, с рабочим столом"]], steps: P.steps, levels: c.W.adv || [], done: c.W.done || "Выполнено практическое задание.", links: c.links.map(l => [l[0], l[1]]) }) });
+    out.push({ n: `${base}/2_Uchenikam/Instrukciya_uchenika.html`, c: instructionHtml(p, F, type, P) });
     P.sf.forEach(f => out.push({ n: `${base}/2_Uchenikam/${f.n}`, c: f.c }));
     P.tf.forEach(f => out.push({ n: `${base}/1_Uchitelyu/${f.n}`, c: f.c }));
     return out;
   };
-  return { ctx, spec, pack, packDoc, cardHtml, zip, folderOf, short, FORM, KEYS, stepsFull, fileWhy, slug };
+  return { ctx, spec, pack, packDoc, cardHtml, instructionHtml, zip, folderOf, short, FORM, KEYS, stepsFull, fileWhy, slug };
 })());
 /* ---------- ход урока и документы ---------- */
 Object.assign(InfMethod, (() => {
