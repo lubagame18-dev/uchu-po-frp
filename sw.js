@@ -1,17 +1,17 @@
-/* «Учу по ФРП» — работа без интернета (service worker).
+﻿/* «Учу по ФРП» — работа без интернета (service worker).
    • Файлы сайта (страница, стили, модули, встроенная база и ФРП) хранятся в кэше браузера:
      сайт открывается и собирает уроки по локальным алгоритмам даже без сети.
    • Свои файлы сайта: сначала сеть (чтобы обновления с GitHub приходили сразу), без сети — кэш.
    • Библиотеки (Word, PowerPoint, PDF, шрифты): из кэша, если уже были загружены.
    • Ответы Википедии и Викитеки запоминаются: урок по той же теме без сети соберётся с ними.
    • Ключи нейросетей, запросы к нейросетям и к GitHub в кэш не попадают. */
-const VERSION = "uchu-v5.480-frp2025-plans";
+const VERSION = "uchu-v5.481-frp2025-plans";
 const SHELL = ["./", "index.html", "css/v5.css", "data/base.js", "data/own.js", "data/extra.js", "data/frp.js", "data/promo.js", "data/legal.js", "data/culture.js", "manifest.json",
   "vendor/marked.umd.js", "vendor/purify.min.js", "vendor/turndown.js", "vendor/turndown-plugin-gfm.js", "vendor/pptxgen.bundle.js", "vendor/jszip.min.js", "vendor/docx.umd.js",
   ...["log", "cleaner", "learn", "learn2", "variety", "methodbase", "plans-loader", "kits-loader", "imagegen", "frpkit", "subjects", "lesson-quality", "usage", "heur", "litkit", "notes", "dictation", "verify", "ocr", "materials", "collect", "devmode", "devcover", "accounts-config", "accounts-backend", "privacy", "account", "presence", "cloudbase", "rules", "schemes", "tablekit", "layout", "lessonnotes", "tutor", "mnemo", "themes", "themes2", "artdirection", "video", "photostk", "access", "rukit", "deck", "slides", "culture", "publish", "sync", "worksearch", "ai", "blobs", "qr", "quizlink"].map(n => `js/${n}.js`)];
 /* официальные планы 2025 (лениво грузятся по предмету; кэшируем для офлайна) */
 SHELL.push("data/frp2025/index.js", "data/frp2025/lit.js",
-  ["math", "inf", "phys", "chem", "bio", "geo", "hist", "izo", "mus", "tech", "pe", "okr", "eng", "lit1"].map(s => `data/frp2025/${s}.js`));
+  ["math", "inf", "phys", "chem", "bio", "geo", "hist", "soc", "izo", "mus", "tech", "pe", "okr", "eng", "ru1", "lit1"].map(s => `data/frp2025/${s}.js`));
 const CDN = /^https:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|unpkg\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 const NOCACHE = /\/js\/(?:accounts-config|yandex-auth)\.js(?:\?|$)|\/(?:yandex|google|accounts-confirm)\.html(?:\?|$)|supabase\.co\/|\/api\/uchu(?:\/|$)|\/api\/collections(?:\/|$)/; // облако кабинета и OAuth callback — всегда напрямую
 const WIKI = /^https:\/\/ru\.(wikipedia|wikisource)\.org\/w\/api\.php/;
@@ -46,5 +46,6 @@ self.addEventListener("message", e => {
     e.waitUntil(caches.open("uchu-runtime").then(c => Promise.all(e.data.urls.map(u => c.match(u).then(h => h || fetch(u, { mode: "cors" }).then(r => (r.ok || r.type === "opaque") && c.put(u, r)).catch(() => null))))).then(() => e.source?.postMessage({ type: "precached" })));
   }
 });
+
 
 

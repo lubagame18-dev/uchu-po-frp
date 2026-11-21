@@ -1,288 +1,406 @@
 {
  "math": {
+  "1": {
+   "lessons": 132,
+   "src": "2025_noo_frp_matematika_1-4.pdf"
+  },
+  "2": {
+   "lessons": 136,
+   "src": "2025_noo_frp_matematika_1-4.pdf"
+  },
+  "3": {
+   "lessons": 136,
+   "src": "2025_noo_frp_matematika_1-4.pdf"
+  },
+  "4": {
+   "lessons": 115,
+   "src": "2025_noo_frp_matematika_1-4.pdf"
+  },
   "5": {
-   "hours": 170,
-   "lessons": 170
+   "lessons": 170,
+   "src": "2025_ooo_frp_matematika-5-9_baza.pdf"
   },
   "6": {
-   "hours": 170,
-   "lessons": 170
+   "lessons": 170,
+   "src": "2025_ooo_frp_matematika-5-9_baza.pdf"
   },
   "10": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_soo_frp_matematika_10_11_baz.pdf"
   }
  },
  "inf": {
+  "7": {
+   "lessons": 34,
+   "src": "2025_ooo_frp_informatika-7-9_baza.pdf"
+  },
   "8": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_informatika-7-9_baza.pdf"
   },
   "9": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_informatika-7-9_baza.pdf"
   },
   "10": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_soo_frp_informatika_10_11_baz.pdf"
   },
   "11": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_soo_frp_informatika_10_11_baz.pdf"
   }
  },
  "phys": {
+  "7": {
+   "lessons": 68,
+   "src": "2025_ooo_frp_fizika-7-9_baz.pdf"
+  },
   "8": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_ooo_frp_fizika-7-9_baz.pdf"
+  },
+  "9": {
+   "lessons": 102,
+   "src": "2025_ooo_frp_fizika-7-9_baz.pdf"
   },
   "10": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_soo_frp_fizika_10_11_baz.pdf"
   },
   "11": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_soo_frp_fizika_10_11_baz.pdf"
   }
  },
  "chem": {
   "8": {
-   "hours": 50,
-   "lessons": 50
+   "lessons": 50,
+   "src": "2025_ooo_frp_himiya_8-9_baza.pdf"
   },
   "9": {
-   "hours": 65,
-   "lessons": 65
+   "lessons": 65,
+   "src": "2025_ooo_frp_himiya_8-9_baza.pdf"
   },
   "10": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_soo_frp_himiya_10_11_baz.pdf"
+  },
+  "11": {
+   "lessons": 34,
+   "src": "2025_soo_frp_himiya_10_11_baz.pdf"
   }
  },
  "bio": {
   "5": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_biologiya_5-9_baza.pdf"
   },
   "6": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_biologiya_5-9_baza.pdf"
   },
   "7": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_biologiya_5-9_baza.pdf"
   },
   "8": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_ooo_frp_biologiya_5-9_baza.pdf"
   },
   "9": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_ooo_frp_biologiya_5-9_baza.pdf"
+  },
+  "11": {
+   "lessons": 34,
+   "src": "2025_soo_frp_biologiya_10_11_baz.pdf"
   }
  },
  "geo": {
+  "5": {
+   "lessons": 34,
+   "src": "2025_ooo_frp_geografiya-5-9.pdf"
+  },
+  "6": {
+   "lessons": 34,
+   "src": "2025_ooo_frp_geografiya-5-9.pdf"
+  },
+  "7": {
+   "lessons": 68,
+   "src": "2025_ooo_frp_geografiya-5-9.pdf"
+  },
+  "8": {
+   "lessons": 68,
+   "src": "2025_ooo_frp_geografiya-5-9.pdf"
+  },
+  "9": {
+   "lessons": 68,
+   "src": "2025_ooo_frp_geografiya-5-9.pdf"
+  },
+  "10": {
+   "lessons": 34,
+   "src": "2025_soo_frp_geografiya_10_11_baz.pdf"
+  },
   "11": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_soo_frp_geografiya_10_11_baz.pdf"
   }
  },
  "hist": {
+  "5": {
+   "lessons": 68,
+   "src": "2025_ooo_frp_istoriya_5-9.pdf"
+  },
+  "6": {
+   "lessons": 85,
+   "src": "2025_ooo_frp_istoriya_5-9.pdf"
+  },
+  "7": {
+   "lessons": 85,
+   "src": "2025_ooo_frp_istoriya_5-9.pdf"
+  },
   "8": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 99,
+   "src": "2025_ooo_frp_istoriya_5-9.pdf"
   },
   "9": {
-   "hours": 68,
-   "lessons": 68
-  }
- },
- "ru": {
-  "5": {
-   "hours": 170,
-   "lessons": 170
+   "lessons": 68,
+   "src": "2025_ooo_frp_istoriya_5-9.pdf"
   },
   "10": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_soo_frp_istoriya_10_11_baza.pdf"
   },
   "11": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_soo_frp_istoriya_10_11_baza.pdf"
+  }
+ },
+ "soc": {
+  "9": {
+   "lessons": 34,
+   "src": "frp-_obshhestvoznanie_ooo_baza_itog-1.pdf"
+  },
+  "10": {
+   "lessons": 68,
+   "src": "frp-_obshhestvoznanie_soo_itog.pdf"
+  },
+  "11": {
+   "lessons": 34,
+   "src": "frp-_obshhestvoznanie_soo_itog.pdf"
   }
  },
  "izo": {
   "1": {
-   "hours": 33,
-   "lessons": 33
+   "lessons": 33,
+   "src": "2025_noo_frp_izo_1-4.pdf"
   },
   "2": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_noo_frp_izo_1-4.pdf"
   },
   "3": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_noo_frp_izo_1-4.pdf"
   },
   "4": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_noo_frp_izo_1-4.pdf"
   },
   "5": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_izo-5-7.pdf"
   },
   "6": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_izo-5-7.pdf"
   },
   "7": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_izo-5-7.pdf"
   }
  },
  "mus": {
   "1": {
-   "hours": 33,
-   "lessons": 33
+   "lessons": 33,
+   "src": "2025_noo_frp_muzyka_1-4.pdf"
   },
   "2": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_noo_frp_muzyka_1-4.pdf"
   },
   "3": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_noo_frp_muzyka_1-4.pdf"
+  },
+  "4": {
+   "lessons": 34,
+   "src": "2025_noo_frp_muzyka_1-4.pdf"
   },
   "5": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_muzyka-5-8.pdf"
   },
   "6": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_muzyka-5-8.pdf"
   },
   "7": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_muzyka-5-8.pdf"
   },
   "8": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_ooo_frp_muzyka-5-8.pdf"
   }
  },
  "tech": {
   "1": {
-   "hours": 33,
-   "lessons": 33
+   "lessons": 33,
+   "src": "2025_noo_frp_trud_1-4.pdf"
+  },
+  "2": {
+   "lessons": 34,
+   "src": "2025_noo_frp_trud_1-4.pdf"
+  },
+  "3": {
+   "lessons": 34,
+   "src": "2025_noo_frp_trud_1-4.pdf"
   },
   "4": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "2025_noo_frp_trud_1-4.pdf"
   },
   "5": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "20_frp_trud_tehnologiya_5_9_klassy_itog_na_sajt.pdf"
   },
   "6": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "20_frp_trud_tehnologiya_5_9_klassy_itog_na_sajt.pdf"
   },
   "7": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "20_frp_trud_tehnologiya_5_9_klassy_itog_na_sajt.pdf"
   },
   "8": {
-   "hours": 34,
-   "lessons": 34
+   "lessons": 34,
+   "src": "20_frp_trud_tehnologiya_5_9_klassy_itog_na_sajt.pdf"
+  },
+  "9": {
+   "lessons": 34,
+   "src": "20_frp_trud_tehnologiya_5_9_klassy_itog_na_sajt.pdf"
   }
  },
  "pe": {
   "1": {
-   "hours": 99,
-   "lessons": 99
+   "lessons": 99,
+   "src": "2025_noo_frp_fizicheskaya-kultura_1-4.pdf"
   },
   "2": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_noo_frp_fizicheskaya-kultura_1-4.pdf"
   },
   "3": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_noo_frp_fizicheskaya-kultura_1-4.pdf"
   },
   "5": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_ooo_frp_fizkultura-5-9.pdf"
+  },
+  "6": {
+   "lessons": 102,
+   "src": "2025_ooo_frp_fizkultura-5-9.pdf"
   },
   "7": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_ooo_frp_fizkultura-5-9.pdf"
   },
   "8": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_ooo_frp_fizkultura-5-9.pdf"
   },
   "9": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_ooo_frp_fizkultura-5-9.pdf"
   },
   "10": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_soo_frp_fizkultura_10_11.pdf"
   },
   "11": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_soo_frp_fizkultura_10_11.pdf"
   }
  },
  "okr": {
   "1": {
-   "hours": 66,
-   "lessons": 66
+   "lessons": 66,
+   "src": "2025_noo_frp_okruzhayushhij-mir_1-4.pdf"
   },
   "2": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_noo_frp_okruzhayushhij-mir_1-4.pdf"
   },
   "3": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_noo_frp_okruzhayushhij-mir_1-4.pdf"
   },
   "4": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_noo_frp_okruzhayushhij-mir_1-4.pdf"
   }
  },
  "eng": {
   "2": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_noo_frp_anglijskij-yazyk_2-4.pdf"
   },
   "3": {
-   "hours": 68,
-   "lessons": 68
+   "lessons": 68,
+   "src": "2025_noo_frp_anglijskij-yazyk_2-4.pdf"
   },
   "6": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_ooo_frp_angl_5-9.pdf"
   },
   "7": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_ooo_frp_angl_5-9.pdf"
   },
   "8": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_ooo_frp_angl_5-9.pdf"
   },
   "10": {
-   "hours": 102,
-   "lessons": 102
+   "lessons": 102,
+   "src": "2025_soo_frp_angl-yaz_10-11_baz.pdf"
+  }
+ },
+ "ru1": {
+  "1": {
+   "lessons": 165,
+   "src": "2025_noo_frp_russkij-yazyk_1-4.pdf"
+  },
+  "2": {
+   "lessons": 170,
+   "src": "2025_noo_frp_russkij-yazyk_1-4.pdf"
+  },
+  "3": {
+   "lessons": 170,
+   "src": "2025_noo_frp_russkij-yazyk_1-4.pdf"
+  },
+  "4": {
+   "lessons": 170,
+   "src": "2025_noo_frp_russkij-yazyk_1-4.pdf"
   }
  },
  "lit1": {
   "2": {
-   "hours": 128,
-   "lessons": 128
+   "lessons": 136,
+   "src": "2025_noo_frp_literaturnoe-chtenie_1-4.pdf"
   }
  }
 }
