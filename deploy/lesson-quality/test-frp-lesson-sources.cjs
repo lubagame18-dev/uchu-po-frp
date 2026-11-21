@@ -52,6 +52,17 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
         ['tech', 5, 'Робототехника'], ['pe', 10, 'Баскетбол'], ['any', 5, 'Нравственные ценности']
       ];
       const programs = topics.map(([subject, grade, topic]) => frpTechResults({ subject, grade, topic, anyName: 'Духовно-нравственная культура России' }));
+      const literary = [[11, 'А. А. Блок. Поэма «Двенадцать». Анализ'], [10, 'Л. Н. Толстой. Роман-эпопея «Война и мир»'], [7, 'А. С. Пушкин. Поэма «Полтава»']];
+      const literatureResults = literary.map(([grade, topic]) => {
+        const picked = frpTechResults({ subject: 'lit', grade, topic });
+        const program = FRP.pick('lit', grade);
+        const official = key => (key === 'subject' ? program.subject[grade] : program[key]).flatMap(({ items }) => items);
+        const exact = key => official(key).some(text => picked[key] === text || official(key).some(next => picked[key] === `${text}; ${next}`));
+        return { picked, matchesProgram: ['personal', 'meta', 'subject'].every(exact) && picked.source === program.name };
+      });
+      const unknownWork = frpTechResults({ subject: 'lit', grade: 11, topic: 'Несуществующий автор. «Несуществующее произведение»' });
+      const misplacedWork = frpTechResults({ subject: 'lit', grade: 7, topic: literary[0][1] });
+      const byTitle = frpTechResults({ subject: 'lit', grade: 11, topic: 'Двенадцать' });
       const badGrade = frpTechResults({ subject: 'bio', grade: 8, topic: 'Кровеносная система человека' });
       const savedMaterials = state.materials;
       state.materials = [
@@ -79,6 +90,7 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
       const map = normalizeTechmap(draft, p);
       const notes = LessonNotes.build(map, p);
       const mapHtml = techmapHtml(map);
+      const savedMap = map.replace(/^\| (Личностные|Метапредметные|Предметные) \| .*$/gm, '| $1 | Формулировка для этой темы в доступной ФРП не найдена |');
       const deckMarkdown = Deck.toMarkdown(Deck.outline(map, p, type));
       const verseHtml = mdToHtml(cleanDeck(deckMarkdown));
       const strict = normalizeTechmap(technical, { subject: 'bio', grade: 9, topic: 'Кровообращение', duration: 45, type });
@@ -93,15 +105,22 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
       const pdf = pdfSmoke ? await docToPdfBlob({ params: p, docs: { conspect: strict } }, 'conspect') : null;
       const parsed = splitSlides('## Словарь терминов\n\n- Повтор.\n\n## 🧪 Проверка знаний: тест по теме\n\n![QR](idb:qr)\n\n- Наведите камеру.\n- Впишите имя.\n- Решите тест.\n\n<!--@ {"kind":"qr"} -->');
       return {
-        programs, badGrade, excerpts, headers, tables: body.querySelectorAll('table').length, code: body.querySelector('pre').textContent,
+        programs, literatureResults, unknownWork, misplacedWork, byTitle, repairedSavedMap: normalizeTechmap(savedMap, p) === map, badGrade, excerpts, headers, tables: body.querySelectorAll('table').length, code: body.querySelector('pre').textContent,
         idempotent: Layout.repair(repaired) === repaired, original, wrongAuthor, hamlet: hamlet?.title, translated: Base.russianWorkText(hamlet?.text),
         sameText: p.plan.text === original.text, found, plan: lesson.plan.textSource, mapHtml, notes, verseHtml: /Черн|Чёрн/.test(verseHtml) && /<br>Белый снег\./.test(verseHtml), strict,
         mapTables: (mapXml.match(/<w:tbl>/g) || []).length, mapBreaks: (mapXml.match(/<w:br\/>/g) || []).length,
         originalInExport: mapXml.includes('Белый снег') && notesXml.includes('Белый снег'), twoSlides: parsed.length,
+        literatureRowsInExport: ['personal', 'subject'].every(key => new DOMParser().parseFromString(mapXml, 'application/xml').documentElement.textContent.includes(literatureResults[0].picked[key])),
         pdfSignature: pdf ? await pdf.slice(0, 4).text() : null
       };
     }, !!process.env.PDF_SMOKE);
     for (const p of result.programs) assert.ok(p?.source?.includes('.pdf') && p.goal && p.subject, JSON.stringify(p));
+    assert.ok(result.literatureResults.every(x => x.matchesProgram), JSON.stringify(result.literatureResults));
+    assert.match(result.literatureResults[0].picked.meta, /развёрнуто и логично излагать.*анализа литературного произведения/i);
+    assert.doesNotMatch(result.literatureResults[0].picked.meta, /нематериальных ресурсов/i);
+    for (const p of [result.unknownWork, result.misplacedWork]) assert.ok(['goal', 'personal', 'meta', 'subject'].every(key => !p[key]), JSON.stringify(p));
+    assert.doesNotMatch(result.mapHtml, /Формулировка для этой темы в доступной ФРП не найдена/);
+    assert.ok(result.byTitle.goal && result.byTitle.subject && result.literatureRowsInExport && result.repairedSavedMap);
     assert.equal(result.badGrade.subject, '');
     assert.deepEqual(result.excerpts.map(x => [x.name, x.text]), [['Нужная глава', 'Кровообращение переносит вещества по организму.']]);
     assert.deepEqual(result.headers, ['Текст с ошибкой', 'Исправление']);

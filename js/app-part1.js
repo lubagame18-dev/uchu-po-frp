@@ -1180,15 +1180,17 @@ const FRP = (() => {
     const words = [...stems(text)];
     return [...query].filter(x => words.some(y => x.startsWith(y) || y.startsWith(x))).length;
   }
-  function pickSubject(d, grade, topic, n = 4, strict = false) {
+  function pickSubject(d, grade, topic, n = 4, strict = false, activity = "") {
     const secs = d?.subject?.[grade] || d?.levelSubject; if (!secs) return [];
     const st = strict ? topicStems(topic) : stems(topic);
     const need = Math.max(1, Math.ceil(st.size * .6));
     const rank = strict ? topicScore : score;
-    const scored = secs.flatMap(sec => sec.items.map(it => ({ it, sec: sec.section, hits: rank(it, st), heading: rank(sec.section, st) })));
-    const best = scored.filter(x => strict ? x.hits >= need : x.hits || x.heading)
-      .sort((a, b) => (b.hits - a.hits) * 3 + b.heading - a.heading).slice(0, n);
-    return best.map(x => ({ section: x.sec, text: x.it }));
+    const by = (words, minimum) => secs.flatMap(sec => sec.items.map(text => ({ text, section: sec.section, hits: rank(text, words), heading: rank(sec.section, words) })))
+      .filter(x => strict ? x.hits >= minimum : x.hits || x.heading)
+      .sort((a, b) => (b.hits - a.hits) * 3 + b.heading - a.heading).slice(0, n)
+      .map(({ section, text }) => ({ section, text }));
+    const best = by(st, need);
+    return best.length || !activity ? best : by(topicStems(activity), 2);
   }
   function pickPersonal(d, subjectKey, n = 3) {
     if (!d?.personal?.length) return [];
@@ -1211,10 +1213,10 @@ const FRP = (() => {
   const list = k => [].concat(data[k] || []).filter(Boolean);
   const gradesOf = d => new Set([...(d.grades || []), ...Object.keys(d.topics || {}), ...Object.keys(d.subject || {})].map(Number));
   function pick(k, grade) { const l = list(k); return (grade ? l.find(d => gradesOf(d).has(+grade)) : l[0]) || null; }
-  function results(subjectKey, grade, topic, type, { strict = false } = {}) {
+  function results(subjectKey, grade, topic, type, { strict = false, activity = "" } = {}) {
     const d = pick(subjectKey, grade);
     const all = groups => (groups || []).flatMap(({ items, ...group }) => items.map(text => ({ ...group, text })));
-    return { loaded: !!d, builtin: !!d?.builtin, source: d?.name, personal: strict ? all(d?.personal) : pickPersonal(d, subjectKey), meta: strict ? all(d?.meta) : pickMeta(d, type), subject: pickSubject(d, grade, topic, 4, strict) };
+    return { loaded: !!d, builtin: !!d?.builtin, source: d?.name, personal: strict ? all(d?.personal) : pickPersonal(d, subjectKey), meta: strict ? all(d?.meta) : pickMeta(d, type), subject: pickSubject(d, grade, topic, 4, strict, activity) };
   }
   function topicsFor(subjectKey, grade) { return pick(subjectKey, grade)?.topics?.[grade] || null; }
   /* Строка тематического планирования ФРП к теме урока: программное содержание и виды деятельности (дословно) */
@@ -1228,6 +1230,15 @@ const FRP = (() => {
     if (les) { const r = rows.find(x => x.num === les.theme); if (r) return { ...r, source: d.name }; }
     // произведение в «кавычках» или фамилия автора
     const q = (t.match(/«([^»]+)»/) || [])[1];
+    if (strict && ["lit", "lit1"].includes(subjectKey)) {
+      const titleKey = s => s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim().replace(/[.!?…]+$/, "");
+      const work = titleKey(q || t.replace(/^["„“]|["”]$/g, ""));
+      const words = topicStems(topic);
+      const row = rows.filter(x => [...`${x.title} ${x.content || ""}`.matchAll(/«([^»]+)»/g)].some(m => titleKey(m[1]) === work))
+        .sort((a, b) => topicScore(b.title, words) - topicScore(a.title, words))[0];
+      if (row) return { ...row, source: d.name };
+      if (q) return null;
+    }
     if (q) { const r = rows.find(x => x.title.toLowerCase().replace(/ё/g, "е").includes(q) || x.content.toLowerCase().replace(/ё/g, "е").includes(q)); if (r) return { ...r, source: d.name }; }
     const st = stems(topic);
     if (strict && st.size < 2) return null;

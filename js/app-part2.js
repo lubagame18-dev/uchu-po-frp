@@ -1519,22 +1519,33 @@ function teacherLine() {
 function frpTechResults(p, type) {
   try {
     const key = p.subject === "any" && FRP.programSubject(p.anyName, "") === "dnkr" ? "dnkr" : p.subject;
-    const r = FRP.results(key, p.grade, p.topic, type?.id, { strict: true });
     const plan = FRP.planFor(key, p.grade, p.topic, { strict: true });
     const thematic = window.Subjects?.frp?.(p.subject, p, { strict: true });
-    const words = FRP.topicStems(p.topic);
+    const literature = key === "lit" || key === "lit1";
+    const topic = literature && !plan ? (String(p.topic || "").match(/«([^»]+)»/)?.[1] || p.topic) : p.topic;
+    const words = FRP.topicStems(topic);
     const need = Math.max(1, Math.ceil(words.size * .6));
-    const matching = items => [...new Set(items.map(x => String(x.text || "").trim()))]
-      .map(text => ({ text, score: FRP.topicScore(text, words) })).filter(x => x.score >= need)
+    const matching = (items, terms = words, minimum = need) => [...new Set(items.map(x => String(x.text || "").trim()))]
+      .map(text => ({ text, score: FRP.topicScore(text, terms) })).filter(x => x.score >= minimum)
       .sort((a, b) => b.score - a.score || a.text.length - b.text.length).slice(0, 2).map(x => x.text);
-    const subject = matching(r.subject);
     const activity = (plan?.activity || "").split(/(?<=[.!?])\s+(?=[А-ЯЁ])/).map(text => ({ text }));
+    const officialActivity = matching(activity)[0] || activity[0].text;
+    const r = FRP.results(key, p.grade, topic, type?.id, { strict: true, activity: literature ? officialActivity : "" });
+    const directSubject = matching(r.subject);
+    const subject = directSubject.length ? directSubject : r.subject.slice(0, 2).map(x => x.text);
+    // Для подтверждённой темы общие результаты связываются с деятельностью из той же программы.
+    const context = FRP.topicStems(literature ? [officialActivity, ...activity.map(x => x.text).filter(text => /^(?:анализировать|интерпретировать|развёрнуто отвечать)/i.test(text))].join(" ") : "");
+    const personal = matching(r.personal)[0] || matching(r.personal.filter(x => /эстетическ|духовно-нравствен/i.test(x.group)), context, 2)[0] || "";
+    const meta = matching(r.meta);
+    const metaFromActivity = ["Базовые логические действия", "Общение"].map(sub => {
+      const items = r.meta.filter(x => x.sub === sub);
+      return matching(items.filter(x => /литератур|художеств|читательск|чтени|прочитан/i.test(x.text)), context, 2)[0] || matching(items, context, 2)[0];
+    }).filter(Boolean);
     const planGoal = !r.loaded || FRP.topicScore(thematic?.officialActivity, words) >= need ? thematic?.officialActivity : "";
-    const goal = subject[0] || matching(activity)[0] || activity[0].text || planGoal || "";
+    const goal = directSubject[0] || officialActivity || planGoal || "";
     return {
       goal, subject: subject.join("; "),
-      personal: matching(r.personal).slice(0, 1).join(""),
-      meta: matching(r.meta).join("; "),
+      personal, meta: (meta.length ? meta : metaFromActivity).join("; "),
       source: [...new Set([r.loaded && r.source, !subject.length && !plan?.activity && planGoal && `ФРП, ${subjName(p.subject)}, ${p.grade} класс`, plan?.source].filter(Boolean))].join("; "),
       place: [plan?.section, plan?.title].filter(Boolean).join(". ") || thematic?.theme || ""
     };
