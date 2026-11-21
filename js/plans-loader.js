@@ -36,6 +36,7 @@ window.Plans = (() => {
   const files = new Map();   // файл -> Promise<boolean>
   const done = new Set();    // предметы, чья программа уже загружена
   const listeners = [];      // кто хочет узнать о загрузке
+  let indexPromise = null;   // data/frp2025/index.js — один раз
 
   function load(name) {
     if (files.has(name)) return files.get(name);
@@ -49,6 +50,45 @@ window.Plans = (() => {
     });
     files.set(name, p);
     return p;
+  }
+
+  /* ---------- официальные планы 2025 (data/frp2025) ----------
+     Аддитивный слой: если для предмета/класса есть собранный план 2025,
+     он перекрывает старый модуль; нет — остаётся старый план (фолбэк). */
+  function loadScript(src) {
+    if (files.has(src)) return files.get(src);
+    const p = new Promise(resolve => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = () => resolve(true);
+      s.onerror = () => { files.delete(src); resolve(false); };
+      document.head.appendChild(s);
+    });
+    files.set(src, p);
+    return p;
+  }
+
+  function loadIndex() {
+    if (window.UCHU_FRP2025) return Promise.resolve(true);
+    if (!indexPromise) indexPromise = loadScript("data/frp2025/index.js");
+    return indexPromise;
+  }
+
+  async function load2025(subject) {
+    const ok = await loadIndex();
+    if (!ok) return false;
+    const cfg = window.UCHU_FRP2025 || {};
+    const file = (cfg.files || {})[subject];
+    if (!file || !(cfg.subjects || {})[subject]) return false;
+    const loaded = await loadScript(file);
+    if (!loaded) return false;
+    if (subject === "lit" || subject === "ru") return true; // rich-данные читает движок FRP
+    const D = window.FRPPlans2025 && window.FRPPlans2025[subject];
+    if (!D) return false;
+    window.FRPPlans[subject] = window.FRPPlans[subject] || {};
+    for (const grade of Object.keys(D)) window.FRPPlans[subject][grade] = D[grade];
+    return true;
   }
 
   const hasPlan = subject => {
@@ -65,7 +105,12 @@ window.Plans = (() => {
   async function ensure(subject) {
     if (done.has(subject)) return true;
     const list = MAP[subject];
-    if (!list) { done.add(subject); return true; } // русский и литература 5–11 — данные в data/frp.js
+    if (!list) {
+      // ru/lit: планы в data/frp.js; для литературы поверх — rich-данные 2025
+      try { await load2025(subject); } catch (e) { console.warn("frp2025:", e); }
+      done.add(subject);
+      return true;
+    }
     for (const name of list) {
       const ok = await load(name);
       if (!ok) return false;
@@ -73,6 +118,7 @@ window.Plans = (() => {
     /* модули-«доработки» дописывают разделы после базовых: убеждаемся,
        что данные действительно применились, прежде чем считать предмет готовым */
     applyExtras();
+    try { await load2025(subject); } catch (e) { console.warn("frp2025:", e); }
     if (!hasPlan(subject)) return false;
     done.add(subject);
     listeners.forEach(fn => { try { fn(subject); } catch (e) { } });

@@ -1229,16 +1229,25 @@ const FRP = (() => {
     const all = groups => (groups || []).flatMap(({ items, ...group }) => items.map(text => ({ ...group, text })));
     return { loaded: !!d, builtin: !!d?.builtin, source: d?.name, personal: strict ? all(d?.personal) : pickPersonal(d, subjectKey), meta: strict ? all(d?.meta) : pickMeta(d, type), subject: pickSubject(d, grade, topic, 4, strict, activity, module, skill) };
   }
-  function topicsFor(subjectKey, grade) { return pick(subjectKey, grade)?.topics?.[grade] || null; }
+  /* Планы 2025 (официальные ФРП): перекрывают встроенные по классам, если класс собран */
+  const plans2025 = (subjectKey, grade) => (window.UCHU_FRP_PLANS2025 && window.UCHU_FRP_PLANS2025[subjectKey] && window.UCHU_FRP_PLANS2025[subjectKey][String(grade)]) || null;
+  function topicsFor(subjectKey, grade) {
+    const o = plans2025(subjectKey, grade);
+    if (o && o.topics && o.topics.length) return o.topics;
+    return pick(subjectKey, grade)?.topics?.[grade] || null;
+  }
   /* Строка тематического планирования ФРП к теме урока: программное содержание и виды деятельности (дословно) */
   function planFor(subjectKey, grade, topic, { strict = false } = {}) {
-    const d = pick(subjectKey, grade), rows = d?.plan?.[grade]; if (!rows?.length || !topic) return null;
+    const d = pick(subjectKey, grade), o = plans2025(subjectKey, grade);
+    const rows = o?.plan?.length ? o.plan : d?.plan?.[grade];
+    if (!rows?.length || !topic) return null;
+    const src = o ? "ФРП 2025" : d?.name;
     const t = String(topic).toLowerCase().replace(/ё/g, "е").trim();
     const direct = rows.find(x => String(x.title).toLowerCase().replace(/ё/g, "е").trim() === t);
-    if (direct) return { ...direct, source: d.name };
+    if (direct) return { ...direct, source: src };
     // урок из поурочного планирования знает свою тему
-    const les = (d.topics?.[grade] || []).find(x => x.theme && String(x.title).toLowerCase().replace(/ё/g, "е") === t);
-    if (les) { const r = rows.find(x => x.num === les.theme); if (r) return { ...r, source: d.name }; }
+    const les = ((o?.topics || d?.topics?.[grade]) || []).find(x => x.theme && String(x.title).toLowerCase().replace(/ё/g, "е") === t);
+    if (les) { const r = rows.find(x => x.num === les.theme); if (r) return { ...r, source: src }; }
     // произведение в «кавычках» или фамилия автора
     const q = (t.match(/«([^»]+)»/) || [])[1];
     if (strict && ["lit", "lit1"].includes(subjectKey)) {
@@ -1247,15 +1256,15 @@ const FRP = (() => {
       const words = topicStems(topic);
       const row = rows.filter(x => [...`${x.title} ${x.content || ""}`.matchAll(/«([^»]+)»/g)].some(m => titleKey(m[1]) === work))
         .sort((a, b) => topicScore(b.title, words) - topicScore(a.title, words))[0];
-      if (row) return { ...row, source: d.name };
+      if (row) return { ...row, source: src };
       if (q) return null;
     }
-    if (q) { const r = rows.find(x => x.title.toLowerCase().replace(/ё/g, "е").includes(q) || x.content.toLowerCase().replace(/ё/g, "е").includes(q)); if (r) return { ...r, source: d.name }; }
+    if (q) { const r = rows.find(x => x.title.toLowerCase().replace(/ё/g, "е").includes(q) || x.content.toLowerCase().replace(/ё/g, "е").includes(q)); if (r) return { ...r, source: src }; }
     const st = stems(topic);
     if (strict && st.size < 2) return null;
     const best = rows.filter(r => !strict || score(r.title + " " + r.content, st) >= Math.ceil(st.size * .6))
       .map(r => ({ r, s: score(r.title, st) * 3 + score(r.content, st) })).sort((a, b) => b.s - a.s)[0];
-    return best && best.s >= 3 ? { ...best.r, source: d.name } : null;
+    return best && best.s >= 3 ? { ...best.r, source: src } : null;
   }
 
   /* Встроенная ФРП (data/frp.js) + программы, загруженные учителем (перекрывают встроенные по классам) */
@@ -2688,3 +2697,4 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
 })();
 
 const HELP_MD = "# Как работать с сайтом\n\n## Создать урок\n1. **Конструктор** → предмет, класс, тема (стрелка ▾ — темы из ФРП).\n2. Номер урока по теме: 1-й, 2-й… Тип урока сайт определит сам.\n3. Отметьте: техкарта, презентация, рабочий лист → **«Создать урок»**. Урок собирает нейросеть: она опирается на ваши пожелания, встроенную базу и ФРП.\n\n**Уровень** — базовый / средний / сильный: базовый — больше объяснений и образцов, сильный — больше заданий и олимпиадные задачи. **Формат заданий** — школьный, ВПР, ОГЭ или ЕГЭ: выбирается карточками с превью теста; для экзамена — «Весь вариант» или «Только тему урока», стиль листа — строгий бланк, интерактивный или арт-поддержка.\n\n**Пожелания к уроку** — открытое окно под параметрами: напишите, что важно (класс слабый, нужна групповая работа, больше схем и картинок). Нейросеть выполнит их в первую очередь.\n\n**Фото учебника**: в пожеланиях кнопка «📷 Фото учебника» — сфотографируйте страницу, сайт распознает текст и задания, и урок пойдёт по ним дословно.\n\n## Поправить и скачать\n- Конспект и рабочий лист правятся прямо на странице: щёлкните по тексту.\n- **Правка с ИИ**: строка «Что изменить?» под документом. Слева выберите область: этот документ, **рабочий лист**, **презентацию** или **весь материал урока** — правка затронет только выбранное.\n- **Презентация**: в редакторе слайдов «✎ Слайд с ИИ» переписывает только выбранный слайд, «✎ Вся презентация» — всю презентацию по одной просьбе. «🎨 Оформление» меняет цвета и шрифты, «▶ Показ» — на весь экран.\n- **«Скачать»**: Word, PDF, PowerPoint или всё архивом.\n\n## Где хранятся уроки\nВ **«Моих уроках»**. Войдите в личный кабинет (**«Войти»** вверху справа) — уроки сохранятся в облаке и откроются на любом устройстве.\n\n## Свои материалы\n**«Материалы»** → **«Прикрепить и встроить»**. Сайт будет брать из них задания для уроков.\n\n## Тариф\nОдин тариф — **«С ИИ»**: 400 ₽/мес или 3900 ₽/год (≈325 ₽/мес, скидка 19%). Входит всё: конспект, техкарта, презентация, рабочий лист, контроль и памятки, картинки, выгрузка, облако — 50 уроков с ИИ в месяц. Не хватило — докупите уроки пакетом или любым количеством от 1 до 200 (7 ₽ за урок, минимум 70 ₽). Пробный доступ — 2 дня: 2 урока с ИИ.\n\n## Промокод\nКнопка тарифа вверху → войдите → внизу окна «Промокод».\n";
+

@@ -1,0 +1,288 @@
+{
+ "math": {
+  "5": {
+   "hours": 170,
+   "lessons": 170
+  },
+  "6": {
+   "hours": 170,
+   "lessons": 170
+  },
+  "10": {
+   "hours": 68,
+   "lessons": 68
+  }
+ },
+ "inf": {
+  "8": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "9": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "10": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "11": {
+   "hours": 34,
+   "lessons": 34
+  }
+ },
+ "phys": {
+  "8": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "10": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "11": {
+   "hours": 68,
+   "lessons": 68
+  }
+ },
+ "chem": {
+  "8": {
+   "hours": 50,
+   "lessons": 50
+  },
+  "9": {
+   "hours": 65,
+   "lessons": 65
+  },
+  "10": {
+   "hours": 34,
+   "lessons": 34
+  }
+ },
+ "bio": {
+  "5": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "6": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "7": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "8": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "9": {
+   "hours": 68,
+   "lessons": 68
+  }
+ },
+ "geo": {
+  "11": {
+   "hours": 34,
+   "lessons": 34
+  }
+ },
+ "hist": {
+  "8": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "9": {
+   "hours": 68,
+   "lessons": 68
+  }
+ },
+ "ru": {
+  "5": {
+   "hours": 170,
+   "lessons": 170
+  },
+  "10": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "11": {
+   "hours": 68,
+   "lessons": 68
+  }
+ },
+ "izo": {
+  "1": {
+   "hours": 33,
+   "lessons": 33
+  },
+  "2": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "3": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "4": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "5": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "6": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "7": {
+   "hours": 34,
+   "lessons": 34
+  }
+ },
+ "mus": {
+  "1": {
+   "hours": 33,
+   "lessons": 33
+  },
+  "2": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "3": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "5": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "6": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "7": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "8": {
+   "hours": 34,
+   "lessons": 34
+  }
+ },
+ "tech": {
+  "1": {
+   "hours": 33,
+   "lessons": 33
+  },
+  "4": {
+   "hours": 34,
+   "lessons": 34
+  },
+  "5": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "6": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "7": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "8": {
+   "hours": 34,
+   "lessons": 34
+  }
+ },
+ "pe": {
+  "1": {
+   "hours": 99,
+   "lessons": 99
+  },
+  "2": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "3": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "5": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "7": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "8": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "9": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "10": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "11": {
+   "hours": 102,
+   "lessons": 102
+  }
+ },
+ "okr": {
+  "1": {
+   "hours": 66,
+   "lessons": 66
+  },
+  "2": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "3": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "4": {
+   "hours": 68,
+   "lessons": 68
+  }
+ },
+ "eng": {
+  "2": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "3": {
+   "hours": 68,
+   "lessons": 68
+  },
+  "6": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "7": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "8": {
+   "hours": 102,
+   "lessons": 102
+  },
+  "10": {
+   "hours": 102,
+   "lessons": 102
+  }
+ },
+ "lit1": {
+  "2": {
+   "hours": 128,
+   "lessons": 128
+  }
+ }
+}
