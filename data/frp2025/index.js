@@ -1,6 +1,6 @@
-/* Сгенерировано 21.11.2026 из официальных ФРП 2025. Не редактировать вручную. */
+/* Сгенерировано 21.11.2026 из официальных ФРП 2025 и типовых школьных РП. Не редактировать вручную. */
 window.FRPPlans2025 = window.FRPPlans2025 || {};
-window.UCHU_FRP2025 = {version:"2025.5", files:{}, subjects:{}};
+window.UCHU_FRP2025 = {version:"2025.6", files:{}, subjects:{}};
 window.UCHU_FRP2025.files["math"] = "data/frp2025/math.js";
 window.UCHU_FRP2025.subjects["math"] = true;
 window.UCHU_FRP2025.files["inf"] = "data/frp2025/inf.js";
@@ -25,6 +25,8 @@ window.UCHU_FRP2025.files["tech"] = "data/frp2025/tech.js";
 window.UCHU_FRP2025.subjects["tech"] = true;
 window.UCHU_FRP2025.files["pe"] = "data/frp2025/pe.js";
 window.UCHU_FRP2025.subjects["pe"] = true;
+window.UCHU_FRP2025.files["orkse"] = "data/frp2025/orkse.js";
+window.UCHU_FRP2025.subjects["orkse"] = true;
 window.UCHU_FRP2025.files["okr"] = "data/frp2025/okr.js";
 window.UCHU_FRP2025.subjects["okr"] = true;
 window.UCHU_FRP2025.files["eng"] = "data/frp2025/eng.js";
@@ -33,5 +35,7 @@ window.UCHU_FRP2025.files["ru1"] = "data/frp2025/ru1.js";
 window.UCHU_FRP2025.subjects["ru1"] = true;
 window.UCHU_FRP2025.files["lit1"] = "data/frp2025/lit1.js";
 window.UCHU_FRP2025.subjects["lit1"] = true;
+window.UCHU_FRP2025.files["obzh"] = "data/frp2025/obzh.js";
+window.UCHU_FRP2025.subjects["obzh"] = true;
 window.UCHU_FRP2025.files["lit"] = "data/frp2025/lit.js";
 window.UCHU_FRP2025.subjects["lit"] = true;

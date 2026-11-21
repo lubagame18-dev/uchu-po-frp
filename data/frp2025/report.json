@@ -363,6 +363,12 @@
    "src": "2025_soo_frp_fizkultura_10_11.pdf"
   }
  },
+ "orkse": {
+  "4": {
+   "lessons": 34,
+   "src": "school-rp: orkse_4"
+  }
+ },
  "okr": {
   "1": {
    "lessons": 66,
@@ -457,6 +463,24 @@
   "4": {
    "lessons": 136,
    "src": "2025_noo_frp_literaturnoe-chtenie_1-4.pdf"
+  }
+ },
+ "obzh": {
+  "8": {
+   "lessons": 34,
+   "src": "school-rp: obzh_8-9"
+  },
+  "9": {
+   "lessons": 34,
+   "src": "school-rp: obzh_8-9"
+  },
+  "10": {
+   "lessons": 34,
+   "src": "school-rp: obzh_10-11"
+  },
+  "11": {
+   "lessons": 34,
+   "src": "school-rp: obzh_10-11"
   }
  }
 }
