@@ -100,6 +100,41 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
   return {normalized,lesson};
  });
  for(const text of [conversion.normalized,conversion.lesson]){assert(text.includes('ПРИЗНАК ПРЕДМЕТА ПО ДЕЙСТВИЮ'));assert(text.includes('ПРОВЕРЕННЫЙ РАЗБОР'));assert(!text.includes('Учебник'));assert.match(text,/Составьте два примера/);assert.doesNotMatch(text,/ЧЕРНОВОЙ СЛУЖЕБНЫЙ БЛОК/);}
+ const word=await page.evaluate(async()=>{
+  const p={subject:'ru',grade:7,topic:'Действительные и страдательные причастия',duration:40,type:{name:'Урок изучения понятия'}};
+  const input='# Технологическая карта урока\n\n| № | Этап | Время | Что делает учитель и ученики |\n|---|---|---|---|\n| 1 | Актуализация | 5 мин | Сравните формы. |\n\n## Вопросы\n\n| Вопрос | Ответ |\n|---|---|\n| Кто действует? | Сам предмет. |\n\n## Домашнее задание\n\nВыпишите два причастия.\n';
+  const normalized=normalizeTechmap(input,p);
+  const preview=document.createElement('div');
+  preview.innerHTML=techmapHtml(normalized);
+  await ensureTurndown();
+  preview.querySelector('[data-techmap-content] table td').textContent='Кто выполняет действие?';
+  const edited=techmapEditedMd(preview,p);
+  const [[,blob]]=await docxBlobs({title:p.topic,params:p,docs:{conspect:normalized}},'conspect');
+  await loadScript('jszip');
+  const archive=await JSZip.loadAsync(await blob.arrayBuffer());
+  const xml=await archive.file('word/document.xml').async('string');
+  const body=new DOMParser().parseFromString(xml,'application/xml').getElementsByTagName('w:body')[0];
+  const tables=[...body.children].filter(el=>el.localName==='tbl');
+  const w='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const grid=table=>[...table.getElementsByTagName('w:tblGrid')[0].children].map(col=>col.getAttributeNS(w,'w'));
+  return {edited,previewLast:preview.firstElementChild.lastElementChild.tagName, hashes:normalized===normalizeTechmap(normalized,p),
+   totalTables:tables.length,nested:tables[1]?.getElementsByTagName('w:tbl').length,title:body.children[1]?.textContent,
+   tail:body.lastElementChild.previousElementSibling.localName,flow:tables[1]?.textContent,metaGrid:grid(tables[0]),flowGrid:grid(tables[1]),xml};
+ });
+ assert.equal(word.previewLast,'TABLE');
+ assert.ok(word.hashes);
+ assert.match(word.edited,/Кто выполняет действие/);
+ assert.match(word.edited,/Выпишите два причастия/);
+ assert.equal(word.totalTables,2);
+ assert.equal(word.nested,1);
+ assert.equal(word.tail,'tbl');
+ assert.equal(word.title,'Действительные и страдательные причастия');
+ assert.match(word.flow,/Актуализация \(5 мин\)/);
+ assert.match(word.flow,/Выпишите два причастия/);
+ assert.match(word.flow,/Кто действует/);
+ assert.deepEqual(word.metaGrid,['2438','7767']);
+ assert.deepEqual(word.flowGrid,['10205']);
+ for(const value of ['11906','16838','B8ADCF','E4DCFF','F7F3FF','Times New Roman'])assert.ok(word.xml.includes(value),value);
  const regressions=await page.evaluate(async()=>{
   await Plans.ensure('okr');
   await Kits.ensure('okr');

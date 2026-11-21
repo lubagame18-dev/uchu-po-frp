@@ -264,7 +264,10 @@ const LessonNotes = (() => {
     if (!ru && K?.glossary?.length && !K?.fragments?.length) out += X.box("Словарная работа", K.glossary.map(g => `**${g.word}** — ${g.def}`));
     if (ru && rk?.theory?.length) out += X.box("Тетрадь · запись на уроке", rk.theory);
     if (!ru && K?.conclusions?.length) out += X.box("Тетрадь · выводы урока", K.conclusions);
-    const supplement = blockTable(md)?.supplement;
+    const table = blockTable(md);
+    const embedded = (table?.lines || []).filter(line => line.includes("<!--techmap-content-->"))
+      .map(line => techmapContentSource(line.replace(/^\s*\|\s*|\s*\|\s*$/g, "")));
+    const supplement = [...embedded, table?.supplement].filter(Boolean).join("\n\n");
     if (supplement) out += "\n\n" + supplement + "\n";
     else {
       const hw = section(md, "Домашнее задание");
