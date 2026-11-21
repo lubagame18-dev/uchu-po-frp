@@ -1739,7 +1739,7 @@ async function createLesson() {
   rememberTopic(state.topic);
   // литература: текст произведения нужен до сборки — если сайт его не нашёл, спрашиваем учителя сейчас, а не после генерации
   dropStaleTextChoice(planKey(p));
-  if (p.subject === "lit" && window.Variety && !state.textOverride) {
+  if (p.subject === "lit" && window.Variety) {
     const r = await checkWorkText(p, type); if (r === null) return;
   }
   p.prevHw = await resolvePrevHw(p); // проверка д/з — только по тому, что действительно задавали
@@ -1750,7 +1750,8 @@ async function createLesson() {
   p.extra = { ...state.extra };
   try { const tk = String(p.topic || "").trim().toLowerCase() + "|" + p.subject; for (const m of state.materials) if (m.pinned) { m.pinned = false; m.pinTopic = tk; Store.put("materials", m.id, m); } paintPinned(); } catch (e) { console.warn("pin", e); }
   state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
-  if (state.textOverride) { p.textOverride = state.textOverride; state.textOverride = null; } state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
+  if (state.textChoice?.key === planKey(p) && validWorkText(state.textOverride?.text)) p.textOverride = state.textOverride;
+  state.textOverride = null; state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   let useAi = true; // только ИИ; локальная сборка без ИИ из интерфейса убрана
   if (window.UCHU && !window.UCHU.configured() && !(window.AI && AI.configured())) {
@@ -1786,40 +1787,62 @@ async function createLesson() {
   formats.forEach(f => (L.status[f] = "wait"));
   // картинки — этап той же сборки: вкладка листа остаётся «в работе», пока нейросеть рисует
   const wantDeck = formats.includes("slides") && deckPick === "ai", wantWs = formats.includes("worksheet") && wsPick === "ai";
-  if (useAi && (wantDeck || wantWs)) L._after = async () => {
+  if (useAi && (wantDeck || wantWs)) L._after = async ({ slidesOnly = false } = {}) => {
     const stage = async (doc, label, fn) => {
       L.status[doc] = "run"; state.gen = { lessonId: L.id, doc, pct: 4, label, fake: false, ctl: new AbortController() }; updateProgress(); if (state.lesson?.id === L.id) renderLesson();
       try { await fn(pct => { if (state.gen) { state.gen.pct = pct; updateProgress(); } }); } catch (e) { console.warn("pics", e); } finally { L.status[doc] = "ok"; state.gen = null; if (state.lesson?.id === L.id) renderLesson(); }
     };
     if (wantDeck) await stage("slides", "рисую картинки", () => aiDeckPics(L));
-    if (wantWs) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
+    if (wantWs && !slidesOnly) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
   };
   return runJob(L,p,type,gen,formats,useAi,hideTech);
 }
 /* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
 function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте ключ: режим разработчика → «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций» → «Проверить и нарисовать тест»." : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
-/* ИИ-картинки в презентации: красивые иллюстрации на титульном и ещё 2 слайдах; реальные картинки из поиска остаются как были */
+function deckImagePrompt(p, sl, wish = "") {
+  const details = String(sl.body || "").replace(Media.RE, "").replace(/[#*_`]/g, "").replace(/\s+/g, " ").trim().slice(0, 480);
+  const style = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "Clean educational illustration with high visual clarity.";
+  return `Create one 16:9 educational illustration for ${subjName(p?.subject)}, grade ${p?.grade || ""}.
+Lesson topic: «${p?.topic || sl.title}». Slide: «${sl.title}». Teach this exact subject: ${details || sl.title}.
+Show the single named object, scene or process from the slide, with only its relevant parts and context. Preserve the species, structure, materials, period or place where specified. For an experiment, show the stated apparatus and arrangement. For art or history, do not invent an attribution or present the image as a reproduction or historical source.
+Place the focal object in the middle third, with room to crop and a quiet background on both sides for readable slide text. No text, letters, numerals, logos, watermarks, borders, or other panels.
+${style}${wish ? "\nTeacher’s visual preferences: " + wish : ""}`;
+}
+/* ИИ-картинки в презентации: до трёх содержательных слайдов без готового изображения. */
 async function aiDeckPics(L) {
-  const md0 = L.docs?.slides; if (!md0 || !window.ImageGen) return;
+  const md0 = L.docs?.slides; if (!md0 || !window.ImageGen || !window.SlideEditor) return;
   if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-картинки входят в тариф «С ИИ», в пределах месячного лимита: 6 листов в месяц."); return; }
   if (!ImageGen.configured()) { imgFail("Ключ для картинок не подключён."); return; }
-  const parts = md0.split(/(\n-{3,}\s*\n)/); const cand = [];
-  parts.forEach((x, i) => { if (i % 2 === 0 && /^#{1,3}\s/m.test(x) && !/marp\s*:/.test(x) && !Media.RE.test(x)) cand.push(i); Media.RE.lastIndex = 0; });
+  const parts = splitSlides(md0), slides = parts.map(SlideEditor.parse);
+  const pending = /^(search|commons):/i;
+  const cand = slides.flatMap((sl, i) => sl.title && !SlideEditor.slideHasTools(sl) &&
+    !/рефлекс|домашн|план урока|условные обозначения|^итог/i.test(sl.title) &&
+    !sl.set.bgimg && !sl.set.stk?.some(s => s.img) &&
+    ![...sl.body.matchAll(Media.RE)].some(m => !pending.test(m[2])) ? [i] : []);
   if (!cand.length) return;
   const pick = [...new Set([cand[0], cand[Math.floor(cand.length / 2)], cand[cand.length - 1]])].slice(0, 3);
   toast("Рисую красивые картинки для презентации…", 60000);
   let n = 0, lastErr = "";
   for (const i of pick) {
-    const title = (parts[i].match(/^#{1,3}\s+(.+)$/m) || [, L.title])[1].replace(/[*_`]/g, "");
+    const sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
     try {
-      const adStyle = window.ArtDirection?.imagePrompt?.(L.params) || "Soft atmospheric flat illustration, calm light background, a few clear objects directly related to the topic, no dark fills.";
-      const im = await ImageGen.image(`Illustration for a school presentation slide. Subject: ${L.params?.subject}, grade ${L.params?.grade}, lesson topic «${L.title}», slide «${title}». ${adStyle} The same recurring character/motif must look consistent across the whole deck. No text, no letters, no numbers, no logos, no watermark.`, { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
-      const blob = await (await fetch(im.url)).blob(), id = "img-" + uid(); await Store.put("images", id, blob);
-      parts[i] = parts[i].replace(/\s*$/, "") + `\n\n${Media.mdImage(title, "idb:" + id, {})}\n`; n++;
+      const im = await ImageGen.image(deckImagePrompt(L.params, sl), { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
+      const response = await fetch(im.url);
+      if (!response.ok) throw new Error("Не удалось загрузить изображение.");
+      const blob = await response.blob(), id = "img-" + uid(); await Store.put("images", id, blob);
+      const body = sl.body.replace(Media.RE, (raw, _cap, src) => pending.test(src) ? "" : raw).trim();
+      sl.body = [Media.mdImage(title, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
+      sl.set.afs = undefined;
+      parts[i] = SlideEditor.build(sl); n++;
     } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
   }
   if (!n) imgFail("Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : "."));
-  if (n) { L.docs.slides = parts.join(""); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); window.Access?.countImage(1); await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000); }
+  if (n && L.docs.slides === md0) {
+    L.docs.slides = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
+    L.slidesFitted = false;
+    window.Access?.countImage(1);
+    await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000);
+  }
 }
 /* рабочий лист «фотографией»: страницы рисует нейросеть, текст берётся из готового листа */
 async function aiSheetPhotos(L, setPct) {
@@ -1854,15 +1877,15 @@ async function textLookup() {
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic, wishes: "", formats: [], type: state.type };
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, state.type); } catch { }
   if (seq !== textSeq) return; // тема уже изменилась
-  if (plan && String(plan.text || "").trim().length > 80) { pendingPlan = { key, plan }; paintTextBox(box, "found", work, author, key, plan); return; }
+  if (validWorkText(plan?.text)) { pendingPlan = { key, plan }; paintTextBox(box, "found", work, author, key, plan); return; }
   paintTextBox(box, "need", work, author, key, plan);
 }
 function paintTextBox(box, mode, work, author, key, plan) {
   box.hidden = false;
   const addManual = async () => {
-    const p = { subject: state.subject, grade: state.grade, topic: state.topic || $("#topic").value.trim() };
+    const p = { subject: state.subject, grade: state.grade, topic: state.topic || $("#topic").value.trim(), lessonNo: state.lessonNo, lessonTotal: state.lessonTotal };
     const ans = await askWorkText(p, work || p.topic, author || "", { manual: true });
-    if (ans?.text) { state.textOverride = { text: ans.text, source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; paintTextBox(box, "text", work, author, key); }
+    if (ans?.text && key === textBoxKey()) { state.textOverride = { text: ans.text, source: "текст, добавленный учителем", fragments: ans.fragments }; state.textChoice = { key, mode: "text" }; paintTextBox(box, "text", work, author, key); }
     else if (ans?.skip) { state.textChoice = { key, mode: "skip" }; paintTextBox(box, "skip", work, author, key); }
   };
   const src = plan?.textSource ? ` · ${esc(plan.textSource)}` : "";
@@ -1887,29 +1910,32 @@ function paintTextBox(box, mode, work, author, key, plan) {
 }
 let pendingPlan = null; // план урока, найденный при проверке текста, — чтобы не искать второй раз
 const planKey = p => [p.subject, p.grade, p.lessonNo || 1, p.topic].join("|");
+const validWorkText = text => String(text || "").trim().length >= 80;
 async function checkWorkText(p, type) {
   const work = (p.topic.match(/«([^»]+)»/) || [])[1], author = Engine.authorOf(p.topic);
   if (!work && !author) return true; // обзорная тема — тексту произведения взяться неоткуда
-  const own = window.Notes?.snapshot?.()?.text; if (own && own.trim().length > 80) return true;
+  if (validWorkText(window.Notes?.snapshot?.()?.text)) return true;
   if (state.textChoice && state.textChoice.key === planKey(p)) {
     const ch = state.textChoice;
-    if (ch.mode === "text" && String(state.textOverride?.text || "").trim().length > 80) return true;
+    if (ch.mode === "text" && validWorkText(state.textOverride?.text)) return true;
     if (ch.mode === "skip" && (!window.Access || !Access.commercial() || Access.isDev())) return true;
     // «без текста» от обычного пользователя не принимаем: текст обязателен
   }
-  if (pendingPlan && pendingPlan.key === planKey(p) && String(pendingPlan.plan?.text || "").trim().length > 80) return true;
+  if (pendingPlan && pendingPlan.key === planKey(p) && validWorkText(pendingPlan.plan?.text)) return true;
   $("#createHint").textContent = "Ищу текст произведения…";
   let plan = null; try { plan = await Variety.prepare({ ...p, notes: null }, type); } catch { }
   $("#createHint").textContent = "";
-  if (plan && String(plan.text || "").trim().length > 80) { pendingPlan = { key: planKey(p), plan }; return true; }
+  if (validWorkText(plan?.text)) { pendingPlan = { key: planKey(p), plan }; return true; }
   const ans = await askWorkText(p, work || p.topic, author || "");
   if (ans === null) return null; // учитель закрыл окно — урок не собираем
-  if (ans.text) state.textOverride = { text: ans.text, source: "текст, добавленный учителем" };
+  if (ans.text) {
+    state.textOverride = { text: ans.text, source: "текст, добавленный учителем", fragments: ans.fragments };
+    state.textChoice = { key: planKey(p), mode: "text" };
+  }
   else if (ans.skip) { if (window.Access && Access.commercial() && !Access.isDev()) { toast("Без текста произведения урок по литературе не собирается.", 7000); return null; } if (plan) pendingPlan = { key: planKey(p), plan }; }
   return true;
 }
 /* Большие произведения: делим текст на части и даём выбрать фрагменты до генерации. */
-function textHash(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 function splitTextFragments(text, target = 18000) {
   const t = String(text || "").replace(/\r\n/g, "\n").trim();
   if (t.length <= 50000) return [];
@@ -1967,9 +1993,10 @@ function askWorkText(p, work, author, opts = {}) {
       <div class="pk-foot" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
     const fragBox = m.querySelector("#awFrags"), aiBtn = m.querySelector("#awAiFrags"), aiMsg = m.querySelector("#awAiMsg");
-    let frags = [], aiPick = null;
+    let frags = [], aiPick = null, fragsText = "";
     const drawFrags = (items, note) => {
       frags = items || [];
+      fragsText = ta.value.trim();
       if (!frags.length) { fragBox.innerHTML = ""; return; }
       const shown = frags.slice(0, 40);
       fragBox.innerHTML = `<div style="margin:10px 0;padding:10px 12px;border:1.5px solid #b08a44;border-radius:12px;background:#fffaf0">
@@ -1987,23 +2014,22 @@ function askWorkText(p, work, author, opts = {}) {
       aiPick = null;
       drawFrags(splitTextFragments(text).map(f => ({ ...f, select: false })), `Текст большой: ${text.length.toLocaleString("ru-RU")} знаков.`);
     };
-    ta.addEventListener("input", () => { aiPick = null; setTimeout(renderFrags, 350); });
+    ta.addEventListener("input", () => {
+      aiPick = null;
+      setTimeout(() => { if (ta.value.trim() !== fragsText) renderFrags(); }, 350);
+    });
     aiBtn.onclick = async () => {
       const raw = ta.value.trim();
       if (raw.length < 1500) { aiMsg.textContent = "Сначала вставьте текст или загрузите файл."; return; }
       if (!(window.AI?.configured?.() || window.UCHU?.configured?.())) { aiMsg.textContent = "Для подбора фрагментов нужно подключить ИИ в «⚙ ИИ»."; return; }
-      const key = `lf:${textHash(raw)}:${String(work || p.topic || "").toLowerCase()}:${String(p.topic || "").toLowerCase()}`;
       let picked = null;
-      try { picked = JSON.parse(localStorage.getItem(key) || "null"); } catch { }
-      if (!Array.isArray(picked) || !picked.length) {
-        aiBtn.disabled = true; aiBtn.textContent = "✨ Подбираю…"; aiMsg.textContent = "ИИ читает произведение и выбирает эпизоды под тему урока…";
-        window.Usage?.begin("Подбор фрагментов", work || p.topic || "");
-        try {
-          picked = await aiFragments({ ...p, subject: "lit", topic: p.topic || [author, work].filter(Boolean).join(" "), plan: { text: raw, analysis: {}, kit: {} }, wishes: "" });
-          if (Array.isArray(picked) && picked.length) { try { localStorage.setItem(key, JSON.stringify(picked)); } catch { } }
-        } catch (e) { aiMsg.textContent = "Не удалось подобрать: " + (e.message || e); picked = null; }
-        finally { aiBtn.disabled = false; aiBtn.textContent = "✨ Подобрать фрагменты по теме"; }
-      }
+      aiBtn.disabled = true; aiBtn.textContent = "✨ Подбираю…"; aiMsg.textContent = "ИИ читает произведение и выбирает эпизоды под тему урока…";
+      try {
+        picked = await aiFragments({ ...p, subject: "lit", topic: p.topic || [author, work].filter(Boolean).join(" "), plan: { text: raw, analysis: {}, kit: {} }, wishes: "" },
+          () => window.Usage?.begin("Подбор фрагментов", work || p.topic || ""));
+      } catch { }
+      finally { aiBtn.disabled = false; aiBtn.textContent = "✨ Подобрать фрагменты по теме"; }
+      if (done || ta.value.trim() !== raw) { aiMsg.textContent = ""; return; }
       if (!Array.isArray(picked) || !picked.length) {
         aiMsg.textContent = "ИИ не нашёл эпизодов — можно выбрать главы вручную ниже или вставить нужный отрывок.";
         renderFrags(); return;
@@ -2017,13 +2043,23 @@ function askWorkText(p, work, author, opts = {}) {
     sk.onchange = () => { skGo.disabled = !sk.checked; };
     m.querySelector("#awGo").onclick = () => {
       const raw = ta.value.trim();
+      if (frags.length && raw !== fragsText) renderFrags();
       if (raw.length > 50000 && !frags.length) renderFrags();
       if (raw.length > 50000 && !frags.length) { msg.textContent = "Текст очень большой, но разбить его на фрагменты не удалось. Вставьте нужный отрывок целиком."; return; }
-      const selected = [...fragBox.querySelectorAll("[data-fi]:checked")].map(x => frags[+x.dataset.fi]?.text).filter(Boolean);
-      const t = selected.length ? selected.join("\n\n") : raw;
+      const picked = [...fragBox.querySelectorAll("[data-fi]:checked")].map(x => frags[+x.dataset.fi]).filter(Boolean);
+      const unique = new Map();
+      picked.forEach(f => { const k = fragmentKey(f.text); if (!unique.has(k)) unique.set(k, f); });
+      const selected = [...unique.values()];
+      const t = selected.length ? selected.map(f => f.text).join("\n\n") : raw;
       if (frags.length && !selected.length) { msg.textContent = "Текст большой: выберите хотя бы один фрагмент — урок не должен собираться по всему произведению сразу."; return; }
       if (t.length < 80) { msg.textContent = "Нужен текст подлиннее (хотя бы одна строфа или абзац) — или отметьте «Продолжить без добавления текста»."; return; }
-      done || (fin({ text: t }), closeModal());
+      let a = 0;
+      const fragments = selected.map(f => {
+        const end = a + f.text.length, range = { a, end, label: f.title, why: f.why };
+        a = end + 2;
+        return range;
+      });
+      done || (fin({ text: t, fragments }), closeModal());
     };
     skGo.onclick = () => { if (!sk.checked) return; fin({ skip: true }); closeModal(); };
   });
@@ -2099,21 +2135,45 @@ async function runJobContent(L, p, type, gen, formats, useAi, hideTech) {
   const done = () => { addPrevHw(L, p); if (L.docs.conspect) L.docs.conspect = normalizeTechmap(L.docs.conspect, p); if (L.hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; } delete L.hideTech; };
   try {
     if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen);
-    if (L._after) { const a = L._after; delete L._after; await a(); }
-    /* тест — после всех материалов, как просил учитель; QR-слайд добавляем в готовую презентацию */
-    if (window.QuizLink && QuizLink.wanted() && !L.quiz) {
-      const stopQ = startQuizGen(L);
-      try { const qt = await QuizLink.createTest(p); if (qt) { L.quiz = qt; L.quizAt = new Date().toISOString(); await saveLesson(L); toast("Интерактивный тест готов.", 5000); } }
-      catch (e) { toast("Тест не создан: " + (e.message || e), 9000); }
-      finally { stopQ(); }
-    }
-    if (L.quiz && L.docs.slides && window.QuizLink.slideFor && !/Проверка знаний: тест по теме/.test(String(L.docs.slides))) {
-      try { const sm = await QuizLink.slideFor(p, L.quiz); if (sm) { L.docs.slides = String(L.docs.slides).replace(/\s+$/, "") + "\n\n" + sm; L.status.slides = "ok"; } } catch (e2) { }
-    }
+    await finishPresentationOptions(L, p);
     clearJob(L.id);
   }
   catch (e) { if (e?.code === "cancelled") clearJob(L.id); throw e; }
   finally { done(); restore(); if (state.lesson?.id === L.id) renderLesson(); saveLesson(L); }
+}
+async function finishPresentationOptions(L, p, opts) {
+  if (L._after) { const after = L._after; delete L._after; await after(opts); }
+  const quiz = window.QuizLink;
+  if (quiz?.wanted() && !L.quiz) {
+    const stop = startQuizGen(L);
+    try {
+      const result = await quiz.createTest(p);
+      if (result) { L.quiz = result; L.quizAt = new Date().toISOString(); await saveLesson(L); toast("Интерактивный тест готов.", 5000); }
+    } catch (e) { toast("Тест не создан: " + (e.message || e), 9000); }
+    finally { stop(); }
+  }
+  if (L.quiz && L.docs.slides && quiz?.slideFor && !/Проверка знаний: тест по теме/.test(L.docs.slides)) {
+    try {
+      let slide = await quiz.slideFor(p, L.quiz);
+      if (slide && window.QR && slide.includes("https://api.qrserver.com/")) {
+        const id = "img-qr-" + L.quiz.id;
+        const png = await QR.png(L.quiz.url, 720);
+        await Store.put("images", id, png);
+        slide = slide.replace(Media.RE, (raw, cap, url) =>
+          url.startsWith("https://api.qrserver.com/") ? Media.mdImage(cap, "idb:" + id, {}) : raw);
+      }
+      if (slide) { L.docs.slides = L.docs.slides.trimEnd() + "\n\n---\n\n" + slide; L.status.slides = "ok"; L.slidesFitted = false; }
+    } catch { }
+  }
+}
+async function finishDeck(md, L, p, refresh, { stickers = false } = {}) {
+  const ctx = { subject: p.subject, grade: p.grade, topic: p.topic, goal: p.plan?.goal || p.plan?.idea || "" };
+  const editor = window.SlideEditor;
+  if (!editor) return Media.autoFill(md, refresh, ctx).catch(() => md);
+  let out = await editor.fillImages(md, ctx, refresh).catch(() => md);
+  if (stickers) out = await editor.stickerize(out, { lesson: L }).catch(() => out);
+  L.slidesFitted = false;
+  return editor.autoFullFrame(out, p);
 }
 /* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
 /* тема без готового материала: нейросеть собирает слайды по готовому конспекту (материал, задания, ответы – сразу после задания) */
@@ -2292,10 +2352,9 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         L.deckOutline = await Deck.mediaFill(Deck.prune(cards)).catch(() => cards);
         state.gen.pct = 50; updateProgress();
         md = Deck.toMarkdown(L.deckOutline);
-        md = await Media.autoFill(md, (done, total) => {
+        md = await finishDeck(md, L, p, (done, total) => {
           state.gen.pct = 50 + Math.round(done / total * 45); updateProgress();
-        }, { subject: p.subject, grade: p.grade, topic: p.topic }).catch(() => md);
-        L.slidesFitted = false;
+        });
       }
       else if (useAi && ["conspect", "lesson", "worksheet"].includes(f) && (window.AI ? AI.configured() : caps.sample)) {
         try {
@@ -2313,6 +2372,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       L.docs[f] = md; L.status[f] = L.generationWarnings?.[f] ? "err" : "ok"; state.gen = null;
       await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
     }
+    await finishPresentationOptions(L, p, { slidesOnly: true });
     clearJob(L.id);
   } catch (e) { if (e?.code === "cancelled") clearJob(L.id); formats.forEach(x => { if (L.status[x] === "wait" || L.status[x] === "run") L.status[x] = L.docs[x] ? "ok" : "err"; }); }
   finally {
@@ -2364,15 +2424,15 @@ async function buildWithAi(L, p, type, formats) {
         autoTheme(L, p);
         const r = await Deck.build(cmd, p, type, { ai: true, signal: state.gen.ctl.signal });
         L.deckOutline = r.cards; state.gen.pct = 60; updateProgress();
-        const seed2 = window.SlideEditor?.ensureSubjectImages
-          ? SlideEditor.ensureSubjectImages(window.SlideEditor?.seedTemplateImages ? SlideEditor.seedTemplateImages(r.md, p) : r.md, p)
-          : (window.SlideEditor?.seedTemplateImages ? SlideEditor.seedTemplateImages(r.md, p) : r.md);
-        L.docs.slides = await Media.autoFill(seed2, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => r.md);
-        if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; L.docs.slides = await SlideEditor.stickerize(L.docs.slides).catch(() => L.docs.slides); state.lesson = prev; }
-        if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params);
+        L.docs.slides = await finishDeck(r.md, L, p, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { stickers: true });
         /* тест создаётся отдельно от презентации — см. ниже */
         L.status.slides = "ok";
-      } catch (e) { L.docs.slides = buildDocNoAi("slides", L, p, type); if (window.SlideEditor?.seedTemplateImages) L.docs.slides = SlideEditor.seedTemplateImages(L.docs.slides, p); if (window.SlideEditor?.ensureSubjectImages) L.docs.slides = SlideEditor.ensureSubjectImages(L.docs.slides, p); if (window.SlideEditor?.autoFullFrame) L.docs.slides = SlideEditor.autoFullFrame(L.docs.slides, L.params); L.status.slides = "ok"; }
+      } catch (e) {
+        if (e?.code === "cancelled") throw e;
+        const fallback = buildDocNoAi("slides", L, p, type);
+        L.docs.slides = await finishDeck(fallback, L, p).catch(() => fallback);
+        L.status.slides = "ok";
+      }
       state.gen = null; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
       continue;
     }
@@ -2402,7 +2462,7 @@ async function buildWithAi(L, p, type, formats) {
         const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = dedupeLongParagraphs(rv.md); L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
       }
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
-      else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await Media.autoFill(md, null, { subject: p.subject, topic: p.topic, grade: p.grade, goal: (p.plan && (p.plan.goal || p.plan.idea)) || "" }).catch(() => md); }
+      else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await finishDeck(md, L, p).catch(() => md); }
       if (f === "worksheet") md = await wsPersonPhoto(md, p);
       if (window.TableKit) md = TableKit.ensure(md, p, f);
       if (f === "conspect") md = normalizeTechmap(md, p);
@@ -2523,8 +2583,29 @@ function rememberVerbatim(L, p) {
 /* v5: план урока (текст произведения, анализ, образцовый урок, необычный формат) — до сборки листов */
 /* Отрывки для урока выбирает нейросеть: 3–5 смысловых эпизодов (под тему и вопрос урока), с начала предложения;
    границы ищем в тексте дословно – если цитата не нашлась, остаются отрывки, выбранные сайтом. */
-async function aiFragments(p) {
+const fragmentKey = text => String(text || "").toLowerCase().replace(/ё/g, "е").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+function fragmentResult(full, ranges) {
+  if (!Array.isArray(ranges)) return [];
+  const lineNo = i => full.slice(0, i).split("\n").filter(l => l.trim()).length + 1;
+  return ranges.filter(f => Number.isInteger(f?.a) && Number.isInteger(f?.end) && f.a >= 0 && f.end > f.a && f.end <= full.length)
+    .sort((x, y) => x.a - y.a).map((f, i) => {
+      const text = full.slice(f.a, f.end).trim(), from = lineNo(f.a);
+      return { n: i + 1, label: f.label, why: f.why, from, to: from + text.split("\n").filter(l => l.trim()).length - 1, text };
+    });
+}
+async function aiFragments(p, onRequest) {
   const full = String(p.plan.text || ""); if (full.length < 1500) return null;
+  const cacheInput = JSON.stringify([p.topic, p.grade, p.lessonNo, p.lessonTotal, p.plan.kit?.problem, p.wishes, p.plan.analysis?.heroes, full]);
+  const digest = await globalThis.crypto?.subtle?.digest("SHA-256", new TextEncoder().encode(cacheInput)).catch(() => null);
+  const cacheKey = digest ? Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, "0")).join("") : "";
+  const cache = () => {
+    const entries = local.get("lit-fragments-v2", []);
+    return Array.isArray(entries) ? entries : [];
+  };
+  if (cacheKey) {
+    const stored = fragmentResult(full, cache().find(e => e?.key === cacheKey)?.ranges);
+    if (stored.length >= 3 && stored.length <= 5 && new Set(stored.map(f => fragmentKey(f.text))).size === stored.length) return stored;
+  }
   const nrm = x => String(x || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-яa-z0-9]+/g, " ").trim();
   // длинный текст (повесть, роман): нейросети – оглавление ВСЕГО произведения по абзацам [§N], а не только начало
   let text = full, paras = null;
@@ -2556,9 +2637,10 @@ ${lessonSeries(p)}
 ${paras ? `Текст длинный, поэтому ниже он дан по абзацам [§N] – начало каждого абзаца, по всему произведению от начала до конца. Выбирай эпизоды из ВСЕГО текста, а не только из начала. Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","from":номер первого абзаца,"to":номер последнего абзаца}] (отрывок – 1–6 абзацев подряд).` : `Верни только JSON-массив: [{"label":"короткое название эпизода","why":"зачем он на уроке","start":"первые 6–10 слов отрывка ДОСЛОВНО","end":"последние 6–10 слов отрывка ДОСЛОВНО"}]`}
 ТЕКСТ:
 ${text}`;
+  onRequest?.();
   const r = await caps.sample(prompt, { modelTier: state.deep ? "complex" : "default", cache: true });
   const arr = JSON.parse((String(r.text).match(/\[[\s\S]*\]/) || ["[]"])[0]);
-  if (!Array.isArray(arr) || arr.length < 2) return null;
+  if (!Array.isArray(arr) || arr.length < 3) return null;
   // поиск дословной границы: по нормализованному тексту, с картой позиций в исходный
   const map = [], chars = []; for (let i = 0; i < full.length; i++) { const c = full[i].toLowerCase().replace("ё", "е"); if (/[а-яa-z0-9]/.test(c)) { chars.push(c); map.push(i); } else if (chars.length && chars[chars.length - 1] !== " ") { chars.push(" "); map.push(i); } }
   const flat = chars.join("");
@@ -2570,8 +2652,9 @@ ${text}`;
     }
     return i;
   };
-  const out = [];
-  for (const x of arr.slice(0, 6)) {
+  const out = [], seen = new Set();
+  for (const x of arr.slice(0, 20)) {
+    if (out.length === 5) break;
     if (!x || typeof x !== "object") continue;
     let start, end;
     if (paras) {
@@ -2590,13 +2673,14 @@ ${text}`;
       while (/[.!?…»"”)]/.test(full[end] || "")) end++;
     }
     const quote = full.slice(start, end).trim();
-    if (quote.length < 120 || quote.length > 6000 || out.some(item => start < item.end && item.a < end)) continue;
-    out.push({ label: String(x.label || "Эпизод").slice(0, 60), why: String(x.why || ""), text: quote, a: start, end });
+    const key = fragmentKey(quote);
+    if (quote.length < 120 || quote.length > 6000 || !key || seen.has(key) || out.some(item => start < item.end && item.a < end)) continue;
+    seen.add(key);
+    out.push({ label: String(x.label || "Эпизод").slice(0, 60), why: String(x.why || "").slice(0, 300), a: start, end });
   }
-  if (out.length < 2) return null;
-  out.sort((x, y) => x.a - y.a);
-  const lineNo = i => full.slice(0, i).split("\n").filter(l => l.trim()).length + 1;
-  return out.map((f, i) => ({ n: i + 1, label: f.label, why: f.why, from: lineNo(f.a), to: lineNo(f.a) + f.text.split("\n").filter(l => l.trim()).length - 1, text: f.text }));
+  if (out.length < 3) return null;
+  if (cacheKey) local.set("lit-fragments-v2", [{ key: cacheKey, ranges: out }, ...cache().filter(e => e?.key !== cacheKey)].slice(0, 8));
+  return fragmentResult(full, out);
 }
 async function preparePlan(L, p, type) {
   if (!window.Variety) return null;
@@ -2618,8 +2702,12 @@ ${txt ? `Текст:\n${txt}\n` : ""}Кандидаты, найденные са
     } catch (e) { console.warn("AI problem", e); }
   }
   // нейросеть выбирает отрывки СО СМЫСЛОМ: ключевые эпизоды для вопроса урока, а не что попало подряд
-  if (p.plan?.kit && p.plan.text && p.subject === "lit" && (window.AI ? AI.configured() : false)) {
-    try { const fr = await aiFragments(p); if (fr) { const K = p.plan.kit, W = LitKit.workOf(p.topic); K.fragments = fr; K.qa = fr.map(f => ({ n: f.n, items: LitKit.fragmentQA(f, p, W) })); K.glossary = LitKit.glossaryFor(fr.map(f => f.text)); K.fragSrc = "нейросеть: отрывки по смыслу урока"; } }
+  if (p.plan?.kit && p.plan.text && p.subject === "lit") {
+    try {
+      const chosen = fragmentResult(p.plan.text, p.textOverride?.fragments);
+      const fr = chosen.length ? chosen : L.built === "ai" && window.AI?.configured?.() ? await aiFragments(p) : null;
+      if (fr?.length) { const K = p.plan.kit, W = LitKit.workOf(p.topic); K.fragments = fr; K.qa = fr.map(f => ({ n: f.n, items: LitKit.fragmentQA(f, p, W) })); K.glossary = LitKit.glossaryFor(fr.map(f => f.text)); K.fragSrc = chosen.length ? "отрывки, выбранные учителем" : "нейросеть: отрывки по смыслу урока"; }
+    }
     catch (e) { if (e?.code === "cancelled") throw e; console.warn("AI fragments", e); }
   }
   if (p.plan) L.plan = { format: p.plan.format, structureNote: p.plan.structureNote, textSource: p.plan.textSource, textUrl: p.plan.textUrl, sample: p.plan.sample ? { topic: p.plan.sample.topic, src: p.plan.sample.src, num: p.plan.sample.num } : null };
@@ -2634,7 +2722,10 @@ async function buildWithoutAi(L, p, type, formats) {
     let md = buildDocNoAi(f, L, p, type);
     if (f !== "slides") { state.gen.pct = 55; updateProgress(); md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
     if (f === "slides" && window.Deck?.mediaFill && L.deckOutline?.some(c => c.auto && c.kind === "video")) { state.gen.pct = 58; updateProgress(); L.deckOutline = await Deck.mediaFill(L.deckOutline).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline); }
-    if (f === "slides") { state.gen.pct = 60; updateProgress(); md = await Media.autoFill(md, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }).catch(() => md); if (window.SlideEditor?.stickerize) { const prev = state.lesson; state.lesson = L; md = await SlideEditor.stickerize(md).catch(() => md); state.lesson = prev; } }
+    if (f === "slides") {
+      state.gen.pct = 60; updateProgress();
+      md = await finishDeck(md, L, p, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { stickers: true });
+    }
     /* MaterialResolver в урок не добавляем: справки, типовые задания и темы года не должны попадать в конспект */
     if (f === "conspect") md = normalizeTechmap(md, p);
     L.docs[f] = md; L.status[f] = "ok"; state.gen = null;
@@ -3022,6 +3113,7 @@ function openAddText(L) {
     Object.assign(state, { subject: P.subject, grade: P.grade, duration: P.duration || 45, mode: P.mode || "school", lessonNo: P.lessonNo || 1, control: P.control || "school", topic: P.topic });
     try { setSeg("segSubject", state.subject); fillGrades(); $("#grade").value = state.grade; $("#topic").value = state.topic; } catch { }
     state.textOverride = { text: t, source: "текст, добавленный учителем" };
+    state.textChoice = { key: planKey(P), mode: "text" };
     const oldId = L.id; await createLesson();
     try { await Store.del("lessons", oldId); if (window.Account) Account.remove(oldId); } catch { }
   };

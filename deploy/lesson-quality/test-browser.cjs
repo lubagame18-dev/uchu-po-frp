@@ -76,21 +76,28 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
  const fragments=await page.evaluate(async()=>{
   const first='Первый эпизод. ' + 'Ученик читает авторский текст и сравнивает детали. '.repeat(12);
   const second='Второй эпизод. ' + 'Ученик отмечает слова и отвечает на вопрос по тексту. '.repeat(12);
-  const full=first+'\n\nГлава II\n\n'+second+'\n\n'+(second+'\n\n').repeat(44);
+  const third='Третий эпизод. ' + 'Класс сопоставляет поступки и обсуждает их последствия. '.repeat(12);
+  const full=[first,'Глава II',second,third,...Array(44).fill(second)].join('\n\n');
   const saved=caps.sample;
-  let instruction='';
+  let instruction='', requests=0;
   try {
    caps.sample=async prompt=>{
+    requests++;
     instruction=prompt;
-    return {text:JSON.stringify([{from:1,to:2},{from:2,to:2},{from:3,to:3},null,{from:9999,to:9999}])};
+    return {text:JSON.stringify([{from:1,to:2},{from:2,to:2},{from:3,to:3},{from:4,to:4},{from:5,to:5},null,{from:9999,to:9999}])};
    };
-   const result=await aiFragments({subject:'lit',grade:7,topic:'Анализ эпизодов',lessonNo:2,lessonTotal:3,plan:{text:full}});
-   return {instruction,fragments:result?.length,keptHeading:result?.[0].text.includes('Глава II'),verbatim:result?.every(f=>full.includes(f.text))};
+   const params={subject:'lit',grade:7,topic:'Анализ эпизодов',lessonNo:2,lessonTotal:3,plan:{text:full}};
+   const result=await aiFragments(params);
+   const cached=await aiFragments(params);
+   const sameCache=JSON.stringify(result)===JSON.stringify(cached) && requests===1;
+   await aiFragments({...params,lessonNo:3});
+   return {instruction,fragments:result?.length,keptHeading:result?.[0].text.includes('Глава II'),verbatim:result?.every(f=>full.includes(f.text)),sameCache,requests};
   } finally {caps.sample=saved;}
  });
- assert.match(fragments.instruction,/Урок 2 из 3/);
- assert.equal(fragments.fragments,2);
- assert.ok(fragments.keptHeading && fragments.verbatim);
+ assert.match(fragments.instruction,/Урок 3 из 3/);
+ assert.equal(fragments.fragments,3);
+ assert.ok(fragments.keptHeading && fragments.verbatim && fragments.sameCache);
+ assert.equal(fragments.requests,2);
  const deckExport=await page.evaluate(async()=>{
   const previous=state.lesson, downloads=caps.downloads;
   const files={};

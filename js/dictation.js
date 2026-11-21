@@ -18,7 +18,7 @@
       return { supported: false, start() { }, stop() { } };
     }
     let rec = null, active = false, restartTimer = null;
-    let seen = new Set(), lastFinal = "", lastFinalAt = 0;
+    let lastFinal = "", lastFinalAt = 0, lastValue = "";
     const setStatus = (t, cls = "") => { if (status) { status.textContent = t; status.className = "small " + cls; } };
     const setActive = on => {
       active = on;
@@ -34,29 +34,36 @@
       const end = textarea.selectionEnd ?? textarea.value.length;
       const before = textarea.value.slice(0, start);
       const after = textarea.value.slice(end);
-      const sep = before && !/\s$/.test(before) ? " " : "";
-      textarea.value = before + sep + t + after;
-      const pos = (before + sep + t).length;
+      const leftSpace = before && !/[\s(«\[]$/.test(before) && !/^[,.;:!?…»)]/.test(t) ? " " : "";
+      const rightSpace = after && !/^[\s,.;:!?…»)\]]/.test(after) && !/[(«\[]$/.test(t) ? " " : "";
+      const first = before + leftSpace + t;
+      textarea.value = first + rightSpace + after;
+      const pos = first.length;
       try { textarea.setSelectionRange(pos, pos); } catch { }
       textarea.dispatchEvent(new Event("input", { bubbles: true }));
       textarea.focus();
     };
-    const stop = () => {
+    const stop = (message = "") => {
+      const current = rec;
+      rec = null;
       setActive(false);
-      setStatus("");
-      if (rec) { try { rec.stop(); } catch { } rec = null; }
+      setStatus(message, message ? "err" : "");
+      if (current) { try { current.stop(); } catch { } }
     };
     const start = () => {
       if (active) return;
-      rec = new SR();
-      rec.lang = "ru-RU";
-      rec.continuous = true;
-      rec.interimResults = true;
-      seen = new Set(); lastFinal = ""; lastFinalAt = 0;
+      const current = new SR();
+      rec = current;
+      current.lang = "ru-RU";
+      current.continuous = true;
+      current.interimResults = true;
+      const live = () => rec === current && active;
+      const seen = new Set();
       setActive(true);
       setStatus("Слушаю… говорите, текст появится в поле.");
-      rec.onstart = () => { seen = new Set(); };
-      rec.onresult = e => {
+      current.onstart = () => { seen.clear(); };
+      current.onresult = e => {
+        if (!live()) return;
         let interim = "";
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const r = e.results[i];
@@ -66,14 +73,15 @@
           const text = String(r[0].transcript || "").replace(/\s+/g, " ").trim();
           if (!text) continue;
           const norm = text.toLowerCase().replace(/[.,!?;:«»()\s]+/g, " ").trim();
-          if (norm && norm === lastFinal && Date.now() - lastFinalAt < 4000) continue; // страховка от повторов после перезапуска
+          if (norm && norm === lastFinal && textarea.value === lastValue && Date.now() - lastFinalAt < 4000) continue;
           insert(text);
-          lastFinal = norm; lastFinalAt = Date.now();
+          lastFinal = norm; lastFinalAt = Date.now(); lastValue = textarea.value;
         }
         if (interim) setStatus("Слушаю: " + interim);
         else setStatus("Слушаю… говорите, текст появится в поле.");
       };
-      rec.onerror = e => {
+      current.onerror = e => {
+        if (!live()) return;
         const map = {
           "not-allowed": "Нет доступа к микрофону. Разрешите его в настройках браузера.",
           "service-not-allowed": "Браузер запретил распознавание речи.",
@@ -81,15 +89,17 @@
           "network": "Нет связи с сервисом распознавания. Проверьте интернет.",
           "audio-capture": "Микрофон не найден."
         };
-        setStatus(map[e.error] || ("Ошибка распознавания: " + e.error), "err");
-        if (e.error === "not-allowed" || e.error === "service-not-allowed" || e.error === "audio-capture") stop();
+        const message = map[e.error] || ("Ошибка распознавания: " + e.error);
+        if (["not-allowed", "service-not-allowed", "audio-capture"].includes(e.error)) stop(message);
+        else setStatus(message, "err");
       };
-      rec.onend = () => {
-        if (!active) return;
+      current.onend = () => {
+        if (!live()) return;
         /* Chrome часто завершает сессию после паузы — продолжаем, пока учитель не нажал «Остановить» */
-        restartTimer = setTimeout(() => { try { if (active) rec.start(); } catch { stop(); } }, 250);
+        clearTimeout(restartTimer);
+        restartTimer = setTimeout(() => { try { if (live()) current.start(); } catch { stop(); } }, 250);
       };
-      try { rec.start(); } catch (e) { setStatus("Не удалось включить микрофон: " + (e.message || e), "err"); stop(); }
+      try { current.start(); } catch (e) { stop("Не удалось включить микрофон: " + (e.message || e)); }
     };
     button.onclick = () => active ? stop() : start();
     return { supported: true, start, stop };
