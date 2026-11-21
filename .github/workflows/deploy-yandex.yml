@@ -19,15 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 07c7d23c0384479a0f2ce9685a73d01ddaa487af
+          ref: 2b998f7e089e3e9c0410007edaf045cc3fbb7715
           fetch-depth: 2
       - name: Проверка списка обновлений
         run: |
-          git diff --diff-filter=M --name-only HEAD^ HEAD -- js > "$RUNNER_TEMP/lesson-files"
-          test "$(wc -l < "$RUNNER_TEMP/lesson-files")" -eq 2
+          git diff --diff-filter=AM --name-only HEAD^ HEAD -- vendor/html2pdf.bundle.min.js vendor/html2pdf.bundle.min.js.LICENSE.txt > "$RUNNER_TEMP/lesson-files"
+          git diff --diff-filter=M --name-only HEAD^ HEAD -- js >> "$RUNNER_TEMP/lesson-files"
+          test "$(wc -l < "$RUNNER_TEMP/lesson-files")" -eq 8
           while IFS= read -r file; do
             case "$file" in
-              js/*.js|knowledge/frp/lit/5/[0-9][0-9][0-9]/lesson.json) test -f "$file" ;;
+              js/*.js|vendor/html2pdf.bundle.min.js|vendor/html2pdf.bundle.min.js.LICENSE.txt) test -f "$file" ;;
               *) exit 1 ;;
             esac
           done < "$RUNNER_TEMP/lesson-files"
@@ -36,7 +37,14 @@ jobs:
           while IFS= read -r file; do
             target="$RUNNER_TEMP/previous/$file"
             mkdir -p "$(dirname "$target")"
-            aws s3api get-object --bucket "$BUCKET" --key "$file" --endpoint-url "$ENDPOINT" "$target" > "$target.metadata"
+            if ! aws s3api get-object --bucket "$BUCKET" --key "$file" --endpoint-url "$ENDPOINT" "$target" > "$target.metadata" 2>"$RUNNER_TEMP/backup-error"; then
+              if [[ "$file" == vendor/html2pdf.bundle.min.js* ]] && grep -Eq 'NoSuchKey|\(404\)|Not Found' "$RUNNER_TEMP/backup-error"; then
+                rm -f "$target.metadata"
+              else
+                cat "$RUNNER_TEMP/backup-error"
+                exit 1
+              fi
+            fi
           done < "$RUNNER_TEMP/lesson-files"
       - uses: actions/upload-artifact@v4
         with:
@@ -51,6 +59,7 @@ jobs:
             set +e
             while IFS= read -r file; do
               source="$RUNNER_TEMP/previous/$file"
+              [ -f "$source.metadata" ] || continue
               type=$(jq -r '.ContentType // "application/octet-stream"' "$source.metadata")
               cache=$(jq -r '.CacheControl // "no-cache"' "$source.metadata")
               aws s3 cp "$source" "s3://$BUCKET/$file" --endpoint-url "$ENDPOINT" --no-progress --content-type "$type" --cache-control "$cache" || echo "::error::Не удалось восстановить $file"
@@ -62,7 +71,7 @@ jobs:
           while IFS= read -r file; do
             case "$file" in
               *.js) type=application/javascript ;;
-              *.json) type=application/json ;;
+              *.txt) type=text/plain ;;
             esac
             printf '%s\n' "$file" >> "$RUNNER_TEMP/attempted"
             aws s3 cp "$file" "s3://$BUCKET/$file" --endpoint-url "$ENDPOINT" --no-progress --content-type "$type" --cache-control "no-cache"
