@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 58b757588462b2ea7db0ed9f1c20874ecc6d525a
+          ref: 07c7d23c0384479a0f2ce9685a73d01ddaa487af
           fetch-depth: 2
       - name: Проверка списка обновлений
         run: |
