@@ -482,8 +482,8 @@ function topicHint(topic, t) {
     const L = [];
     if (known) L.push(`✓ Тема есть в списке ${state.grade} класса по ФРП.`);
     else if (topic.length >= 3) L.push(`Темы нет в списке ФРП: это нормально. Урок соберётся по названию; если тема необычная, опишите её в поле «Пожелания», нейросеть достроит остальное.`);
-    let r = null; try { r = window.FRP?.results(state.subject, state.grade, topic, t.id); } catch { }
-    if (r?.loaded && r.subject?.length) L.push(`Результаты ФРП, на которые опирается урок: ${r.subject.length}.`);
+    const r = frpTechResults({ subject: state.subject, grade: state.grade, topic, anyName: state.anyName }, t);
+    if (r?.subject) L.push("В техкарту войдут подтверждённые предметные результаты ФРП.");
     let n = 0; try { n = relevantMaterials(topic, state.grade, state.subject).length; } catch { }
     if (n) L.push(`Ваших материалов по теме: ${n}, они войдут в урок.`);
     if (state.subject === "lit" && typeof Base !== "undefined") { let b = null; try { b = Base.lit(topic); } catch { } if (!b) L.push(`<span class="warn-red" style="color:#c0392b">Текста произведения в базе нет. Добавьте его до создания, иначе урок будет без цитат.</span>`); }
@@ -1516,6 +1516,16 @@ function teacherLine() {
   const n = window.Account?.session?.info?.name || window.Account?.session?.info?.full_name || "";
   return n ? `Выполнил(а): ${n}` : "Выполнил(а): ____________________";
 }
+const ENGLISH_RESULT_SKILLS = [
+  [/лексик|словосочетан|словар/i, /лексическ(?:их единиц|ая сторона|ой сторон)/i],
+  [/диалог|расспрос|представлени/i, /(?:вести разные виды|вести в стандартных ситуациях|вести комбинированный).*диалог/i],
+  [/монолог|устное высказывание|^(?:описание|рассказ о)/i, /(?:создавать|выстраивать).*монологическ\S+ высказыван/i],
+  [/аудировани|слушаем|на слух/i, /(?:аудирование:|воспринимать на слух и понимать)/i],
+  [/(?:^|[\s:])чтение|читаем/i, /^(?:смысловое чтение:|читать (?:вслух|про себя))/i],
+  [/письм[оае]|открытка|электронное сообщение|заполнение анкет/i, /^(?:письменная речь:|письмо:|создавать письменные высказывания|писать (?:короткие поздравления|с опорой на образец))/i],
+  [/грамматик|^(?:present|past|future|passive|reported|going to)\b|условные предложения|местоимени|наклонени|артикл|падеж|множественное число|прилагательн|наречи|исчисляем/i, /грамматическ(?:ая сторона|ой сторон)|понимать особенности структуры простых и сложных предложений/i],
+  [/фонетик|алфавит|транскрипци|произношени|звуки и букв/i, /фонетическ(?:ая сторона|ой сторон)|знать буквы алфавита/i]
+];
 function frpTechResults(p, type) {
   try {
     const key = p.subject === "any" && FRP.programSubject(p.anyName, "") === "dnkr" ? "dnkr" : p.subject;
@@ -1525,28 +1535,41 @@ function frpTechResults(p, type) {
     const topic = literature && !plan ? (String(p.topic || "").match(/«([^»]+)»/)?.[1] || p.topic) : p.topic;
     const words = FRP.topicStems(topic);
     const need = Math.max(1, Math.ceil(words.size * .6));
-    const matching = (items, terms = words, minimum = need) => [...new Set(items.map(x => String(x.text || "").trim()))]
+    const matching = (items, terms = words, minimum = need) => terms.size < minimum ? [] : [...new Set(items.map(x => String(x.text || "").trim()))]
       .map(text => ({ text, score: FRP.topicScore(text, terms) })).filter(x => x.score >= minimum)
       .sort((a, b) => b.score - a.score || a.text.length - b.text.length).slice(0, 2).map(x => x.text);
     const activity = (plan?.activity || "").split(/(?<=[.!?])\s+(?=[А-ЯЁ])/).map(text => ({ text }));
     const officialActivity = matching(activity)[0] || activity[0].text;
-    const r = FRP.results(key, p.grade, topic, type?.id, { strict: true, activity: literature ? officialActivity : "" });
+    const program = FRP.pick(key, p.grade);
+    const linked = program?.builtin && thematic?.exact ? thematic : null;
+    const cues = linked ? [linked.theme, linked.activity, ...linked.content].filter(Boolean).join(" ") : "";
+    const module = key === "orkse" ? (String(topic).toLowerCase().match(/(?:православной|исламской|буддийской|иудейской) культуры|светской этики/)?.[0] || "религиозных культур народов россии") : "";
+    const skill = key === "eng" && linked ? ENGLISH_RESULT_SKILLS.find(([label]) => label.test(topic))?.[1] : null;
+    const r = FRP.results(key, p.grade, topic, type?.id, { strict: true, activity: officialActivity || cues, module, skill });
+    if (key === "eng" && linked && !skill && !r.subject.length) {
+      r.subject = FRP.results(key, p.grade, topic, type?.id, { strict: true, skill: ENGLISH_RESULT_SKILLS[0][1] }).subject;
+    }
     const directSubject = matching(r.subject);
     const subject = directSubject.length ? directSubject : r.subject.slice(0, 2).map(x => x.text);
     // Для подтверждённой темы общие результаты связываются с деятельностью из той же программы.
-    const context = FRP.topicStems(literature ? [officialActivity, ...activity.map(x => x.text).filter(text => /^(?:анализировать|интерпретировать|развёрнуто отвечать)/i.test(text))].join(" ") : "");
-    const personal = matching(r.personal)[0] || matching(r.personal.filter(x => /эстетическ|духовно-нравствен/i.test(x.group)), context, 2)[0] || "";
+    const context = FRP.topicStems([officialActivity, cues, ...activity.map(x => x.text).filter(text => literature && /^(?:анализировать|интерпретировать|развёрнуто отвечать)/i.test(text))].join(" "));
+    const confirmed = Boolean(plan || linked || directSubject.length);
+    const personalGroup = literature || ["izo", "mus", "mhk"].includes(key) ? /эстетическ|духовно-нравствен/i : /познан|познават|учебн|трудов/i;
+    const personalScope = r.personal.filter(x => personalGroup.test(x.group));
+    const personal = matching(r.personal)[0] || matching(personalScope, context, 2)[0] || matching(r.personal, context, 2)[0] ||
+      (confirmed && (personalScope[0] || r.personal[0])?.text) || "";
     const meta = matching(r.meta);
     const metaFromActivity = ["Базовые логические действия", "Общение"].map(sub => {
       const items = r.meta.filter(x => x.sub === sub);
-      return matching(items.filter(x => /литератур|художеств|читательск|чтени|прочитан/i.test(x.text)), context, 2)[0] || matching(items, context, 2)[0];
+      return (literature && matching(items.filter(x => /литератур|художеств|читательск|чтени|прочитан/i.test(x.text)), context, 2)[0]) || matching(items, context, 2)[0];
     }).filter(Boolean);
-    const planGoal = !r.loaded || FRP.topicScore(thematic?.officialActivity, words) >= need ? thematic?.officialActivity : "";
-    const goal = directSubject[0] || officialActivity || planGoal || "";
+    const selectedMeta = meta.length ? meta : metaFromActivity.length ? metaFromActivity : matching(r.meta, context, 2);
+    if (!selectedMeta.length && confirmed && r.meta.length) selectedMeta.push((r.meta.find(x => /логическ/i.test(x.sub)) || r.meta[0]).text);
+    const goal = directSubject[0] || officialActivity || subject[0] || "";
     return {
       goal, subject: subject.join("; "),
-      personal, meta: (meta.length ? meta : metaFromActivity).join("; "),
-      source: [...new Set([r.loaded && r.source, !subject.length && !plan?.activity && planGoal && `ФРП, ${subjName(p.subject)}, ${p.grade} класс`, plan?.source].filter(Boolean))].join("; "),
+      personal, meta: selectedMeta.join("; "),
+      source: r.source || "",
       place: [plan?.section, plan?.title].filter(Boolean).join(". ") || thematic?.theme || ""
     };
   } catch { return null; }
@@ -1566,7 +1589,7 @@ function techmapMetaMarkdown(p, type, src = "") {
   };
   const r = frpTechResults(p, type);
   const materials = grabMeta("Материалы") || grabMeta("Ресурсы") || grabMeta("Оборудование") || grabMeta("Учебник") || "учебник, рабочий лист, презентация";
-  const unavailable = "Формулировка для этой темы в доступной ФРП не найдена";
+  const unavailable = r?.source ? "Формулировка для этой темы в доступной ФРП не найдена" : "Для этого предмета и класса нет подтверждённого источника ФРП";
   return [
     "|  |  |",
     "|---|---|",
@@ -3274,16 +3297,31 @@ function dropAsterisks(root) {
   };
   root.childNodes.forEach(walk);
 }
+const slideTimingLine = /^(?:если (?:осталось|останется|позволит) время(?:\s*\(в хронометраж(?: урока)? не входит\))?|\(?(?:в хронометраж(?: урока)? не входит|не входит в хронометраж(?: урока)?|вне хронометража урока)\)?)[.!:]?$/iu;
+const slideTimingNote = /(?:Если осталось время; в хронометраж урока не входит, слайд можно выключить|Разминка — не основной урок: берите, если осталось время)[.!]?/gi;
 function splitSlides(md) {
   const source = md.replace(/^\s*---\s*\n[\s\S]*?\n---\s*\n/, block => /marp\s*:/.test(block) ? "" : block);
-  const slides = []; let lines = [], fence = "";
+  const slides = []; let lines = [], fence = "", inNotes = false;
   const input = source.split(/\r?\n/);
   for (let i = 0; i < input.length; i++) {
-    const line = input[i];
+    let line = input[i];
     const marker = line.match(/^ {0,3}(\x60{3,}|~{3,})/);
     if (marker) {
       if (!fence) fence = marker[1];
       else if (marker[1][0] === fence[0] && marker[1].length >= fence.length && !line.slice(marker[0].length).trim()) fence = "";
+    }
+    if (!fence && !marker) {
+      const plain = line.trim().replace(/^(?:[-*+]\s+|#{1,3}\s+)/, "").replace(/^\*{1,2}|\*{1,2}$/g, "");
+      if (slideTimingLine.test(plain)) continue;
+      if (/^если (?:осталось|останется) время\s*\(/i.test(plain) && slideTimingLine.test(`${plain} ${input[i + 1]?.trim() || ""}`)) { i++; continue; }
+      if (inNotes) line = line.replace(slideTimingNote, "");
+      if (line.includes("-->")) inNotes = false;
+      line = line.replace(/<!--(?!@)(.*?)-->/g, (comment, notes) => {
+        const cleaned = notes.replace(slideTimingNote, "").trim();
+        return slideTimingLine.test(cleaned) || !cleaned ? "" : cleaned === notes.trim() ? comment : `<!-- ${cleaned} -->`;
+      });
+      const open = line.match(/<!--(?!@)(?:(?!-->).)*$/);
+      if (open) { inNotes = true; line = line.replace(slideTimingNote, ""); }
     }
     if (!fence && /^-{3,}[ \t]*$/.test(line)) {
       slides.push(lines.join("\n").trim());
@@ -3308,7 +3346,13 @@ async function renderPreview() {
   const sheet = $("#sheet"), L = state.lesson;
   if (!L) return;
   const busy = isGenerating(L, state.active), editable = !busy;
-  if (!busy && state.active === "conspect") md = normalizeTechmap(md, L.params);
+  if (!busy && state.active === "conspect") {
+    if (window.Plans?.pending(L.params.subject)) {
+      await window.Plans.ensure(L.params.subject);
+      if (state.lesson !== L || state.active !== "conspect" || $("#md").value !== md) return;
+    }
+    md = normalizeTechmap(md, L.params);
+  }
   if (!busy && state.active === "lesson") md = repairLessonTables(md);
   if (!md.trim()) { sheet.className = "sheet"; sheet.removeAttribute("contenteditable"); sheet.innerHTML = `<p class="small">${busy ? (state.gen?.fake ? "Собираю урок: нейросеть продумывает замысел и ход урока. Лист появится, как только будет готов." : "Готовлю документ… Первые строки появятся через 10–60 секунд.") : L.status?.[state.active] === "wait" && state.gen && state.gen.lessonId === L.id && state.gen.doc !== state.active && !(L.hideTech && state.gen.doc === "conspect") ? "Этот лист в очереди: он начнётся после предыдущего." : (L.status?.[state.active] === "wait" || L.status?.[state.active] === "run") ? "Готовлю документ…" : "Документ пуст."}</p>`; return; }
   // v5: презентация — в редакторе слайдов (шаблоны, автоподбор шрифта, миниатюры, картинки)
@@ -3864,6 +3908,7 @@ async function mdToDocxBlob(md, title, opts = {}) {
 /* Word: рабочий лист — ровно 2 страницы; всё, что не вошло (памятка, ответы, лишние задания), идёт вторым файлом «приложения» */
 async function docxBlobs(L, d) {
   if (d === "conspect" || d === "lesson") await ensureMarked();
+  if (d === "conspect") await window.Plans?.ensure(L.params.subject);
   let rest = ""; const o = { ...wsOpts(L, d), onRest: r => (rest = r) }; if (d === "conspect") o.techmap = true;
   const out = [[baseName(L, d) + ".docx", await mdToDocxBlob(d === "conspect" ? normalizeTechmap(L.docs[d], L.params) : d === "lesson" ? repairLessonTables(L.docs[d]) : (WS_DOCS.includes(d) ? wsKeysToH1(L.docs[d]) : L.docs[d]), L.title, o)]];
   if (d === "worksheet") for (let i = 0; i < (L.more || []).length; i++) out.push([baseName(L, d) + ` (лист ${i + 2}).docx`, await mdToDocxBlob(wsKeysToH1(L.more[i].md), `${L.title} · лист ${i + 2}`, { worksheet: true, twoPage: true, tag: o.tag })]);
@@ -4136,6 +4181,7 @@ function slidePdfColors(clone, frame) {
 }
 async function docToPdfBlob(L, doc) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
+  if (doc === "conspect") await window.Plans?.ensure(L.params.subject);
   const stage = $("#pdfstage"), md = doc === "conspect" ? normalizeTechmap(L.docs[doc], L.params) : doc === "lesson" ? repairLessonTables(L.docs[doc]) : doc === "worksheet" ? wsMainMd(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;

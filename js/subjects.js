@@ -41,7 +41,8 @@ const Subjects = (() => {
   const imper = s => String(s).replace(/(^|[,;:]\s*|\sи\s|\sили\s)([А-ЯЁа-яё]+)/g, (m, pre, w) => { const k = IMP[w.toLowerCase()]; return k ? pre + (pre === "" ? k[0].toUpperCase() + k.slice(1) : k) : m; });
   function frp(id, p, { strict = false } = {}) {
     const P = window.FRPPlans?.[id]?.[p.grade]; if (!P) return null;
-    const low = x => String(x).toLowerCase().trim(), row = P.l.find(r => low(r[0]) === low(p.topic));
+    const low = x => String(strict && typeof cleanTopic === "function" ? cleanTopic(x) : x).toLowerCase().replace(/ё/g, "е").trim();
+    const title = low(p.topic), row = P.l.find(r => low(r[0]) === title);
     let th = row && row[2] >= 0 ? P.th[row[2]] : null;
     if (!th) {
       // тема урока должна по-настоящему совпасть с темой программы: достаточно доли общих корней, а не одного общего слова («географические»)
@@ -64,7 +65,7 @@ const Subjects = (() => {
     const best = rank(acts).sort((a, b) => b.n - a.n || a.i - b.i)[0]?.x || "";
     const officialActivity = rank(String(th[2] || "").split(/;\s+|(?<=[.!?])\s+(?=[А-ЯЁ])/).map(x => x.trim()).filter(x => x.length > 15))
       .sort((a, b) => b.n - a.n || a.i - b.i).find(x => x.n > 0 || row)?.x || "";
-    return { theme: th[0], officialActivity, goal: best.replace(/^./, c => c.toLowerCase()), tasks: sel.map(x => imper(x).replace(/\s*\((?:в том числе|в т\. ?ч\.)[^)]*\)/gi, "").replace(/\s+и\s*\(или\)\s+(?:[а-яё]+ть)\b/gi, m => { const w = m.trim().split(/\s+/).pop(); const k = IMP[w.toLowerCase()]; return " и " + (k || w); }).replace(/\s+/g, " ").trim()), terms: [...rt, ...terms.filter(x => !rt.includes(x))].slice(0, 8), content: top(sents(th[1]), 6) };
+    return { theme: th[0], exact: !!row && row[2] >= 0 && P.th[row[2]] === th, activity: th[2], officialActivity, goal: best.replace(/^./, c => c.toLowerCase()), tasks: sel.map(x => imper(x).replace(/\s*\((?:в том числе|в т\. ?ч\.)[^)]*\)/gi, "").replace(/\s+и\s*\(или\)\s+(?:[а-яё]+ть)\b/gi, m => { const w = m.trim().split(/\s+/).pop(); const k = IMP[w.toLowerCase()]; return " и " + (k || w); }).replace(/\s+/g, " ").trim()), terms: [...rt, ...terms.filter(x => !rt.includes(x))].slice(0, 8), content: top(sents(th[1]), 6) };
   }
   /* Документы урока по ФРП (когда у сайта нет готового набора задач и фактов по этой теме):
      задания ученикам — из видов деятельности ФРП, понятия и содержание — из программы. Ответы не выдумываются. */

@@ -272,9 +272,8 @@ const Deck = (() => {
     if (c.hw.length) add({ kind: "hw", title: "Домашнее задание", points: c.hw.slice(0, 4) });
     // разминка в конце: не входит в время урока, учитель берёт любое задание, если осталось время (или переносит на начало следующего урока)
     if (kit.glossary.length) {
-      add({ kind: "section", title: "Разминка", points: ["Если останется время (в хронометраж урока не входит)"], warm: true });
       const per = Math.ceil(kit.glossary.length / Math.ceil(kit.glossary.length / 5));
-      for (let i = 0; i < kit.glossary.length; i += per) add({ kind: "list", title: "Разминка: незнакомые слова", points: kit.glossary.slice(i, i + per).map(g => `${g.word} — ${String(g.def || "").replace(/\s+/g, " ").slice(0, 140)}`), warm: true, notes: "Карточки переворачиваются по щелчку: ученик объясняет слово, потом открываем значение. Разминка — не основной урок: берите, если осталось время." });
+      for (let i = 0; i < kit.glossary.length; i += per) add({ kind: "list", title: "Разминка: незнакомые слова", points: kit.glossary.slice(i, i + per).map(g => `${g.word} — ${String(g.def || "").replace(/\s+/g, " ").slice(0, 140)}`), warm: true, notes: "Карточки переворачиваются по щелчку: ученик объясняет слово, потом открываем значение." });
     }
     return cards;
   }
@@ -351,7 +350,7 @@ const Deck = (() => {
     if (o?.amount !== "brief" && out.length < target && !out.some(c => /рефлекс/i.test(c.title || ""))) {
       // рефлексия — до домашнего задания и до слайдов-приложений, они всегда остаются в конце
       const i = out.findIndex(c => c.kind === "hw" || c.kind === "section" || c.kind === "appendix");
-      out.splice(i >= 0 ? i : out.length, 0, { id: "refl", on: true, kind: "cards", title: "Рефлексия", points: ["Что было главным на уроке?", "Что осталось непонятным? Сформулируйте вопрос.", "Оцените себя: «могу объяснить сам», «понял с подсказкой», «остались вопросы»."], notes: "Если осталось время; в хронометраж урока не входит, слайд можно выключить." });
+      out.splice(i >= 0 ? i : out.length, 0, { id: "refl", on: true, kind: "cards", title: "Рефлексия", points: ["Что было главным на уроке?", "Что осталось непонятным? Сформулируйте вопрос.", "Оцените себя: «могу объяснить сам», «понял с подсказкой», «остались вопросы»." ] });
     }
     return out;
   }
@@ -1119,7 +1118,6 @@ ${JSON.stringify(frs)}`;
         const heroes = (j.heroes || []).filter(x => x?.name && x?.hint && txt.includes(String(x.name).toLowerCase().replace(/ё/g, "е").split(/\s+/)[0].slice(0, 5)) && !String(x.hint).toLowerCase().includes(String(x.name).toLowerCase().split(/\s+/)[0].slice(0, 5))).slice(0, 5);
         const events = (j.events || []).map(x => String(x || "").trim().slice(0, 90)).filter(x => x.length > 8).slice(0, 7);
         const warm = [];
-        if (!cards.some(c => c.warm && c.kind === "section")) warm.push({ kind: "section", title: "Разминка", points: ["Если останется время (в хронометраж урока не входит)"], warm: true });
         if (heroes.length >= 3) warm.push({ kind: "list", title: "Разминка: угадай героя по описанию", points: heroes.map(h => `${String(h.hint).replace(/\s+/g, " ")} — ${h.name}`), warm: true, notes: "Карточки переворачиваются по щелчку: класс называет героя по описанию, потом открываем имя." });
         if (events.length >= 4) {
           const order = events.map((e, i) => [e, i]).sort((a, b) => ((a[1] * 7 + 3) % 11) - ((b[1] * 7 + 3) % 11));
@@ -1127,7 +1125,7 @@ ${JSON.stringify(frs)}`;
           warm.push({ kind: "list", title: "Разминка: восстанови сюжет", points: order.map(([e], i) => `${L[i]}. ${e}`), warm: true, notes: "События перепутаны: класс называет правильный порядок букв. Ответ — на следующем слайде." });
           warm.push({ kind: "steps", title: "Сюжет по порядку", points: events, warm: true, notes: "Правильный порядок событий." });
         }
-        if (warm.length > (cards.some(c => c.warm && c.kind === "section") ? 0 : 1)) {
+        if (warm.length) {
           const addWarm = warm.map((c, i) => ({ id: "w" + i + "_" + Math.random().toString(36).slice(2, 5), on: true, ...c }));
           // слайды-приложения всегда остаются последними: разминку вставляем перед ними
           const ai = cards.findIndex(c => c.kind === "appendix");

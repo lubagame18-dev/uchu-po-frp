@@ -68,7 +68,7 @@ async function loadDeck(page) {
     const detail = await picture('presentation-pass-detail', 1200, 650, '#85A284');
     const slide = (title, body, set = {}, notes = '') => SlideEditor.build({ title, body, set, notes, level: 2 });
     const withPic = (title, src) => Media.mdImage(title, src, {});
-    const rule = slide('Правило наблюдения', 'Начинайте с общего вида и переходите к деталям.', {}, 'Тезис для учителя.\n\n- Проверить ход наблюдения.');
+    const rule = slide('Правило наблюдения', 'Начинайте с общего вида и переходите к деталям.\n\nЕсли останется время (в хронометраж урока не входит)', {}, 'Тезис для учителя.\n\n- Проверить ход наблюдения. Если осталось время; в хронометраж урока не входит, слайд можно выключить.');
     const compare = slide('Сравнение образцов', 'Признак | Первый вид | Второй вид\n--- | --- | ---\nЛист | Простой | Сложный\nКрай листа | Гладкий | Зубчатый', {}, 'Спросите, какой признак помог сравнить образцы.');
     const sides = [['right','frosted'],['left','paper'],['bottom','dark'],['center','clear']];
     const manual = sides.map(([pos, style], i) => slide(['Наблюдение справа','Наблюдение слева','Плашка снизу','Плашка по центру'][i],
@@ -356,9 +356,11 @@ async function exportsFrom(page, fixture, browser) {
     return { html, pptx: await base64(pptx), slides: slides.length, frames: full.length, countArt, fits,
       lastTask: fitted.some(s => s.body.includes('Покажите последний образец.')), retainedTable: !!table && table.includes('Первый вид') && /<a:lnL/.test(table),
       dark: full.some(x => x.includes('FFF8EC') && x.includes('90000')), fonts: full.some(x => x.includes('typeface="Georgia"') && x.includes('typeface="Arial"')),
+      timingNote: [...slides, ...notes, html].some(x => /хронометраж урока/i.test(x)),
       notes: notes.some(x => x.includes('Проверить ход наблюдения')) };
   }, fixture);
   assert.equal(output.frames, 4);
+  assert.equal(output.timingNote, false);
   assert.deepEqual(output.countArt, [2, 1, 1, 1]);
   assert.ok(output.fits > 1 && output.lastTask && output.retainedTable && output.dark && output.fonts && output.notes, JSON.stringify({ ...output, html: !!output.html, pptx: !!output.pptx }));
   fs.writeFileSync(path.join(out, 'presentation-check.pptx'), Buffer.from(output.pptx, 'base64'));

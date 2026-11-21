@@ -44,7 +44,9 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
     await page.goto(fixtureOrigin);
     await page.waitForFunction(() => window.Layout && window.LessonNotes && window.SlideEditor && window.marked);
     const result = await page.evaluate(async pdfSmoke => {
+      await Base.ready();
       await FRP.load();
+      await Promise.all(['eng', 'inf', 'chem', 'orkse'].map(subject => Plans.ensure(subject)));
       const topics = [
         ['eng', 9, 'Монологическая речь'], ['bio', 9, 'Кровообращение'],
         ['hist', 5, 'Работа с исторической картой'], ['math', 10, 'График функции'], ['vis', 9, 'Вероятность случайного события'],
@@ -52,6 +54,13 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
         ['tech', 5, 'Робототехника'], ['pe', 10, 'Баскетбол'], ['any', 5, 'Нравственные ценности']
       ];
       const programs = topics.map(([subject, grade, topic]) => frpTechResults({ subject, grade, topic, anyName: 'Духовно-нравственная культура России' }));
+      const gradePrograms = [
+        ['eng', 9, 'Взаимоотношения в семье и с друзьями: чтение'], ['eng', 5, 'Моя семья: лексика'],
+        ['chem', 8, 'Воздух – смесь газов. Состав воздуха. Загрязнение воздуха'], ['inf', 7, 'Информация и информационные процессы'], ['orkse', 4, 'Ислам']
+      ].map(([subject, grade, topic]) => {
+        const result = frpTechResults({ subject, grade, topic });
+        return { subject, grade, result, source: FRP.pick(subject, grade)?.name };
+      });
       const literary = [[11, 'А. А. Блок. Поэма «Двенадцать». Анализ'], [10, 'Л. Н. Толстой. Роман-эпопея «Война и мир»'], [7, 'А. С. Пушкин. Поэма «Полтава»']];
       const literatureResults = literary.map(([grade, topic]) => {
         const picked = frpTechResults({ subject: 'lit', grade, topic });
@@ -105,7 +114,7 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
       const pdf = pdfSmoke ? await docToPdfBlob({ params: p, docs: { conspect: strict } }, 'conspect') : null;
       const parsed = splitSlides('## Словарь терминов\n\n- Повтор.\n\n## 🧪 Проверка знаний: тест по теме\n\n![QR](idb:qr)\n\n- Наведите камеру.\n- Впишите имя.\n- Решите тест.\n\n<!--@ {"kind":"qr"} -->');
       return {
-        programs, literatureResults, unknownWork, misplacedWork, byTitle, repairedSavedMap: normalizeTechmap(savedMap, p) === map, badGrade, excerpts, headers, tables: body.querySelectorAll('table').length, code: body.querySelector('pre').textContent,
+        programs, gradePrograms, literatureResults, unknownWork, misplacedWork, byTitle, repairedSavedMap: normalizeTechmap(savedMap, p) === map, badGrade, excerpts, headers, tables: body.querySelectorAll('table').length, code: body.querySelector('pre').textContent,
         idempotent: Layout.repair(repaired) === repaired, original, wrongAuthor, hamlet: hamlet?.title, translated: Base.russianWorkText(hamlet?.text),
         sameText: p.plan.text === original.text, found, plan: lesson.plan.textSource, mapHtml, notes, verseHtml: /Черн|Чёрн/.test(verseHtml) && /<br>Белый снег\./.test(verseHtml), strict,
         mapTables: (mapXml.match(/<w:tbl>/g) || []).length, mapBreaks: (mapXml.match(/<w:br\/>/g) || []).length,
@@ -115,6 +124,9 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
       };
     }, !!process.env.PDF_SMOKE);
     for (const p of result.programs) assert.ok(p?.source?.includes('.pdf') && p.goal && p.subject, JSON.stringify(p));
+    for (const { result: row, source } of result.gradePrograms) assert.ok(row?.source === source && row.goal && row.personal && row.meta && row.subject, JSON.stringify(row));
+    assert.match(result.gradePrograms[0].result.subject, /^смысловое чтение:/i);
+    assert.match(result.gradePrograms[1].result.subject, /лексическ.*единиц/i);
     assert.ok(result.literatureResults.every(x => x.matchesProgram), JSON.stringify(result.literatureResults));
     assert.match(result.literatureResults[0].picked.meta, /развёрнуто и логично излагать.*анализа литературного произведения/i);
     assert.doesNotMatch(result.literatureResults[0].picked.meta, /нематериальных ресурсов/i);

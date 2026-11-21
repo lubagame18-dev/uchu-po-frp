@@ -947,7 +947,7 @@ const FRP = (() => {
      Слова «личностные результаты» внутри пояснительной записки заголовком не считаются. */
   function headRe(words) {
     const w = words.split(" ").join("\\s+");
-    const end = "(?:[ \\t]+\\([^\\n]+\\))?[ \\t]*(?=\\n|$)";
+    const end = "(?:[ \\t]+\\([^\\n]+\\))?(?:[ \\t]*\\d{1,2})?[ \\t]*(?=\\n|$)";
     return [new RegExp("(?:^|\\n)[ \\t]*" + w.toUpperCase() + end), new RegExp("(?:^|\\n)[ \\t]*" + w + end, "i")];
   }
   function section(text, start, ends) {
@@ -1020,13 +1020,13 @@ const FRP = (() => {
 
   /* ---------- предметные по классам ---------- */
   function parseSubject(text, key, name) {
-    const ends = ["тематическое планирование", "поурочное планирование", "примерное распределение часов по годам обучения"];
+    const ends = ["тематическое планирование", "поурочное планирование", "примерное распределение часов по годам обучения", "содержание обучения"];
     const read = source => section(source, "предметные результаты", ends).split(/^ *МОДУЛЬ\s+«/m)[0];
     const splitCourses = key === "math" ? [...text.matchAll(/^ *ФЕДЕРАЛЬНАЯ РАБОЧАЯ ПРОГРАММА УЧЕБНОГО КУРСА\s+«([^»]+)»[^\n]*\n(?= *ПОЯСНИТЕЛЬНАЯ ЗАПИСКА)/gm)] : [];
     const chunks = splitCourses.length ? splitCourses.map((m, i) => ({ label: oneLine(m[1]), body: read(text.slice(m.index + m[0].length, splitCourses[i + 1]?.index)) })) : [{ label: "", body: read(text) }];
     const range = (name + " " + text.slice(0, 700)).match(/(\d{1,2})\s*[–—-]\s*(\d{1,2})\s*класс/i);
     const out = {}, courses = {};
-    const heading = /^(?:К (?:концу|окончанию) |Предметные результаты |в \d{1,2}|обучения в \d{1,2}|\d{1,2}(?:-й)?\s+класс)/i;
+    const heading = /^(?:К (?:концу|окончанию) |Предметные результаты |В процессе изучения |в \d{1,2}|обучения в \d{1,2}|\d{1,2}(?:-й)?\s+класс)/i;
     for (const { label, body } of chunks) {
       if (!body) continue;
       const subject = /вероятность и статистика/i.test(label) ? (courses.vis ||= {}) : out;
@@ -1054,7 +1054,7 @@ const FRP = (() => {
           if (/^(?:обучающийся\s+)?научится:$/i.test(lines[i + 1] || "")) i++;
           continue;
         }
-        const cleanHead = heading.test(line) && ahead.match(/^(?:\S+\s+){0,22}?(\d{1,2})(?:\s*[–—-]\s*(\d{1,2}))?\s*(?:-й\s*)?класс(?:е|а|ах)?(?:[.:]|\s+(?:выпускник|обучающийся|должн)|$)/i);
+        const cleanHead = heading.test(line) && ahead.match(/^(?:\S+\s+){0,22}?(\d{1,2})(?:\s*[–—-]\s*(\d{1,2}))?\s*(?:-й\s*)?класс(?:е|а|ах)?(?:[.:]|\s+(?:выпускник|обучающ|должн|предметн|по\s|у\s)|$)/i);
         if (cleanHead) {
           flush();
           const from = +cleanHead[1], to = +(cleanHead[2] || from);
@@ -1062,11 +1062,17 @@ const FRP = (() => {
           cur = module || "Общее";
           const indicator = new RegExp(`\\b${from}(?:\\s*[–—-]\\s*${to})?\\s*(?:-й\\s*)?класс`, "i");
           while (!indicator.test(lines[i]) && i + 1 < lines.length) i++;
-          if (/^(?:результаты|должны отражать|обучения)\s*[^:]{0,90}:$/i.test(lines[i + 1] || "")) i++;
+          if (!/[:.]$/.test(lines[i])) {
+            while (i + 1 < lines.length && /^(?:результаты|должны отражать|обучени[яе]|обучаю[щш]|следующие)/i.test(lines[i + 1])) {
+              i++;
+              if (/[:.]$/.test(lines[i])) break;
+            }
+          }
           continue;
         }
         if (!grades.length) continue;
         const sub = line.length < 105 && !para && (
+          /^Модуль\s+(?:№\s*\d+\s*)?«[^»]+»[.:]?$/i.test(line) ||
           (/^(?:Раздел|Знание |Работа с |Историческ|Применение |Оценка |Речевые умения|Языковые навыки|Социокультурные знания)/i.test(line) && /:$/.test(line)) ||
           (/^Тема\s+«[^»]+»[.:]?$|^Введение\./i.test(line) && key === "dnkr") ||
           (label && /^[А-ЯЁ]/.test(line) && /^[А-ЯЁ]/.test(next) && !/[.;:,]$/.test(line))
@@ -1180,17 +1186,22 @@ const FRP = (() => {
     const words = [...stems(text)];
     return [...query].filter(x => words.some(y => x.startsWith(y) || y.startsWith(x))).length;
   }
-  function pickSubject(d, grade, topic, n = 4, strict = false, activity = "") {
-    const secs = d?.subject?.[grade] || d?.levelSubject; if (!secs) return [];
+  function pickSubject(d, grade, topic, n = 4, strict = false, activity = "", module = "", skill = null) {
+    const gradeResults = d?.subject?.[grade] || d?.levelSubject || [];
+    const secs = module ? gradeResults.filter(x => x.section.toLowerCase().includes(module)) : gradeResults;
+    if (!secs.length) return [];
     const st = strict ? topicStems(topic) : stems(topic);
     const need = Math.max(1, Math.ceil(st.size * .6));
     const rank = strict ? topicScore : score;
-    const by = (words, minimum) => secs.flatMap(sec => sec.items.map(text => ({ text, section: sec.section, hits: rank(text, words), heading: rank(sec.section, words) })))
+    const candidates = secs.flatMap(sec => sec.items.filter(text => !skill || skill.test(text)).map(text => ({ text, section: sec.section })));
+    const by = (words, minimum) => candidates.map(x => ({ ...x, hits: rank(x.text, words), heading: rank(x.section, words) }))
       .filter(x => strict ? x.hits >= minimum : x.hits || x.heading)
       .sort((a, b) => (b.hits - a.hits) * 3 + b.heading - a.heading).slice(0, n)
       .map(({ section, text }) => ({ section, text }));
     const best = by(st, need);
-    return best.length || !activity ? best : by(topicStems(activity), 2);
+    if (best.length) return best;
+    if (skill) return candidates.slice(0, 1);
+    return activity ? by(topicStems(activity), 2) : [];
   }
   function pickPersonal(d, subjectKey, n = 3) {
     if (!d?.personal?.length) return [];
@@ -1213,10 +1224,10 @@ const FRP = (() => {
   const list = k => [].concat(data[k] || []).filter(Boolean);
   const gradesOf = d => new Set([...(d.grades || []), ...Object.keys(d.topics || {}), ...Object.keys(d.subject || {})].map(Number));
   function pick(k, grade) { const l = list(k); return (grade ? l.find(d => gradesOf(d).has(+grade)) : l[0]) || null; }
-  function results(subjectKey, grade, topic, type, { strict = false, activity = "" } = {}) {
+  function results(subjectKey, grade, topic, type, { strict = false, activity = "", module = "", skill = null } = {}) {
     const d = pick(subjectKey, grade);
     const all = groups => (groups || []).flatMap(({ items, ...group }) => items.map(text => ({ ...group, text })));
-    return { loaded: !!d, builtin: !!d?.builtin, source: d?.name, personal: strict ? all(d?.personal) : pickPersonal(d, subjectKey), meta: strict ? all(d?.meta) : pickMeta(d, type), subject: pickSubject(d, grade, topic, 4, strict, activity) };
+    return { loaded: !!d, builtin: !!d?.builtin, source: d?.name, personal: strict ? all(d?.personal) : pickPersonal(d, subjectKey), meta: strict ? all(d?.meta) : pickMeta(d, type), subject: pickSubject(d, grade, topic, 4, strict, activity, module, skill) };
   }
   function topicsFor(subjectKey, grade) { return pick(subjectKey, grade)?.topics?.[grade] || null; }
   /* Строка тематического планирования ФРП к теме урока: программное содержание и виды деятельности (дословно) */
