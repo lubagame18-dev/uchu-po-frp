@@ -1992,7 +1992,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const btn = $("#sxPickPics"); if (btn?.disabled) return;
     const before = Ls.docs.slides || "";
     if (!window.Media?.autoFill) { toast("Модуль подбора картинок не загружен.", 5000); return; }
-    const seeded = seedTemplateImages(before, Ls.params || {});
+    const seeded = ensureSubjectImages(seedTemplateImages(before, Ls.params || {}), Ls.params || {});
     const count = (seeded.match(/\]\((?:search|commons):/g) || []).length;
     if (!count) { toast("Пустых мест для картинок не осталось.", 5000); return; }
     if (btn) { btn.disabled = true; btn.textContent = "🖼 Подбираю…"; }
