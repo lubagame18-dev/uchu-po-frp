@@ -95,7 +95,15 @@ const QuizLink = (() => {
   }
 
   /* отдельный тест: создаётся независимо от презентации, ссылка прикрепляется к уроку */
-  async function createTest(p) {
+  async function createTest(p, { useAi = true } = {}) {
+    const fromCatalog = async () => {
+      const template = find(p);
+      if (!template || (p.subject && p.subject !== template.subject) || !template.grades.includes(+p.grade)) return null;
+      if (!logged()) throw new Error("войдите в личный кабинет");
+      const id = await create(template, p.topic);
+      return { id, url: linkOf(template, id), title: template.title };
+    };
+    if (!useAi) return fromCatalog();
     const a = await aiTest(p);
     return { id: a.id, url: a.url, title: String(a.data.title || p.topic || "Тест"), warn: a.warn || "" };
   }

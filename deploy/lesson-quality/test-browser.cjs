@@ -84,7 +84,7 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
    caps.sample=async prompt=>{
     requests++;
     instruction=prompt;
-    return {text:JSON.stringify([{from:1,to:2},{from:2,to:2},{from:3,to:3},{from:4,to:4},{from:5,to:5},null,{from:9999,to:9999}])};
+    return {text:JSON.stringify([{from:1,to:2,why:'Начало наблюдения'},{from:2,to:2,why:'Пересекающийся фрагмент'},{from:3,to:3,why:'Поступок героя'},{from:4,to:4,why:'Последствие поступка'},{from:5,to:5},null,{from:9999,to:9999,why:'Отсутствующая цитата'}])};
    };
    const params={subject:'lit',grade:7,topic:'Анализ эпизодов',lessonNo:2,lessonTotal:3,plan:{text:full}};
    const result=await aiFragments(params);
@@ -287,6 +287,7 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
   }finally{Object.assign(state,old.state);readForm=old.read;updateType=old.type;Access.canBuildAsync=old.allow;AI.configured=old.configured;Object.assign(Notes.draft,old.notes);}
  });assert(retained,'Denied access must preserve the teacher photo draft');
  await page.evaluate(()=>paintCosts());assert.equal(await page.locator('#btnCreate .btn-cost').count(),0,'Creation must not advertise refinement-point spending');
+ assert.equal(await page.locator('#btnCreateLocal').count(),0,'The lesson form uses one creation button');
  const accounting=await page.evaluate(async()=>{
   const old={run:runJobContent,save:saveLesson,config:AccountsBackend.config,session:Object.getOwnPropertyDescriptor(Account,"session"),db:Account.db,refresh:Account.refreshPlan,count:Access.countLesson,commercial:Access.commercial,dev:Access.isDev,promo:Access.promoFree,set:AI.setCreationLesson};
   let context=[],count=0;
@@ -298,10 +299,31 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
    const flagged=L.status.lesson==='err'&&L.contentCheck.issues.lesson.length===1;
    saveLesson=async()=>{throw Error('storage fixture')};let rejected=false;
    try{await runJob({id:'quality-error-fixture',docs:{},status:{}},{subject:'math'},null,[],['lesson'],true,false)}catch(e){rejected=e.message==='storage fixture'}
-   return {flagged,rejected,count,context};
+   const billable={count,context:[...context]};
+   saveLesson=async()=>{};
+   const outcomes=[];
+   for(const code of ['network','provider_timeout','rate_limited','payment_required','access_failed','invalid_json','cancelled']){
+    const calls=[];
+    const R={id:'backup-fixture',built:'ai',docs:{lesson:'A completed document'},status:{lesson:'ok',worksheet:'run'}};
+    runJobContent=async (L,p,type,documents,formats,ai)=>{
+     calls.push({documents,ai});
+     if(ai){L.docs.worksheet='An incomplete document';throw {code,message:'fixture'};}
+     L.docs.worksheet='The completed worksheet';L.status.worksheet='ok';
+    };
+    await runJob(R,{subject:'math'},null,['lesson','worksheet'],['lesson','worksheet'],true,false);
+    outcomes.push({code,built:R.built,completed:R.docs.lesson,worksheet:R.docs.worksheet,calls});
+   }
+   return {flagged,rejected,...billable,outcomes};
   }finally{runJobContent=old.run;saveLesson=old.save;AccountsBackend.config=old.config;Object.defineProperty(Account,"session",old.session);Account.db=old.db;Account.refreshPlan=old.refresh;Access.countLesson=old.count;Access.commercial=old.commercial;Access.isDev=old.dev;Access.promoFree=old.promo;AI.setCreationLesson=old.set;}
  });
  assert(accounting.flagged);assert(accounting.rejected);assert.equal(accounting.count,2);assert.deepEqual(accounting.context,['quality-fixture','','quality-error-fixture','']);
+ for(const row of accounting.outcomes){
+  const shouldRecover=['network','provider_timeout'].includes(row.code);
+  assert.equal(row.completed,'A completed document');
+  assert.equal(row.built,shouldRecover?'noai':'ai');
+  assert.deepEqual(row.calls.slice(1),shouldRecover?[{documents:['worksheet'],ai:false}]:[]);
+  if(shouldRecover)assert.equal(row.worksheet,'The completed worksheet');
+ }
  assert.deepEqual(errors,[]);
  fs.writeFileSync(path.join(out,'prompts.json'),JSON.stringify(generated,null,2));
  fs.writeFileSync(path.join(out,'browser.json'),JSON.stringify({subjects:cases.length,photoAndNoPhoto:true,scopedEditsRetainPhotos:true,worksheetAnchor:true,conversionPreservesTheoryAndExamples:true,browserErrors:errors},null,2));

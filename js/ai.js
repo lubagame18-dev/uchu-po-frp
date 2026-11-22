@@ -195,19 +195,28 @@ const AI = (() => {
     }
     if (buf.trim()) handle(buf);
   }
-  function httpErr(status, text) {
-    if (status === 401 || status === 403) return { code: "auth_failed", message: text };
+  const isUnavailable = e => e?.providerUnavailable === true || ["network", "provider_timeout"].includes(e?.code);
+  function httpErr(status, text, id) {
+    let body;
+    try { body = JSON.parse(text); } catch { }
+    const reason = body?.reason;
+    if (["quota", "free", "payment"].includes(reason)) return { code: "payment_required", message: body.error };
+    if (reason === "rate") return { code: "rate_limited", message: body.error };
+    if (["login", "confirm", "profile", "storage"].includes(reason)) return { code: "access_failed", message: body.error };
+    if (status === 401 || status === 403) return { code: "auth_failed", message: body?.error || text, providerUnavailable: id !== "site" || reason === "no_key" };
     if (status === 402) return { code: "payment_required", message: text };
     if (status === 407) return { code: "proxy_auth", message: text };
     if (status === 413) return { code: "prompt_too_large", message: text };
     if (status === 429) return { code: "rate_limited", message: text };
-    return { code: "upstream_error", message: `HTTP ${status}: ${String(text).slice(0, 300)}` };
+    const providerUnavailable = reason === "no_key" || (status >= 500 && (id !== "site" ||
+      (!body && [502, 503, 504].includes(status)) || /^Нейросеть не ответила ни на одном общем ключе:/.test(body?.error)));
+    return { code: "upstream_error", message: `HTTP ${status}: ${String(text).slice(0, 300)}`, providerUnavailable };
   }
   async function openaiCompat(id, url, headers, model, prompt, opts, emit) {
     const c = cfg();
     const [u, init] = viaRelay(c, id, url, { method: "POST", signal: opts.signal, headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ model, stream: true, ...(id === "deepseek" ? { stream_options: { include_usage: true } } : {}), ...(id==='site'?{usage_phase:creationLesson?'creation':'refine',...(creationLesson?{lesson_id:creationLesson}:{})}:{}), messages: [{ role: "user", content: prompt }] }) });
     const res = await fetch(u, init);
-    if (!res.ok) throw httpErr(res.status, await res.text());
+    if (!res.ok) throw httpErr(res.status, await res.text(), id);
     let stop = null, usage = null;
     await readSSE(res, x => {
       if (x.text) { emit(x.text); stop = x.finish; usage = x.usage || usage; return; }
@@ -228,7 +237,7 @@ const AI = (() => {
     yandexfn: (c, p, o, e) => { const base = c.yandexFn.replace(/\/+$/, ""); const url = /functions\.yandexcloud\.net/.test(base) ? `${base}?path=${encodeURIComponent("/gigachat/v1/chat/completions")}` : base + "/gigachat/v1/chat/completions"; return openaiCompat("yandexfn", url, c.keys.gigachat ? { "X-GigaChat-Key": (gigaKey(c.keys.gigachat).key || c.keys.gigachat) } : {}, o.modelTier === "complex" ? "GigaChat-2-Max" : c.models.gigachat, p, o, e); },
     anthropic: async (c, p, o, emit) => {
       const [u, init] = viaRelay(c, "anthropic", "https://api.anthropic.com/v1/messages", { method: "POST", signal: o.signal, headers: { "content-type": "application/json", "x-api-key": c.keys.anthropic, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" }, body: JSON.stringify({ model: c.models.anthropic, max_tokens: 16000, stream: true, messages: [{ role: "user", content: p }] }) });
-      const res = await fetch(u, init); if (!res.ok) throw httpErr(res.status, await res.text());
+      const res = await fetch(u, init); if (!res.ok) throw httpErr(res.status, await res.text(), "anthropic");
       let stop = null;
       await readSSE(res, x => { if (x.text) return emit(x.text); const j = JSON.parse(x.data); if (j.type === "content_block_delta" && j.delta?.type === "text_delta") emit(j.delta.text); else if (j.type === "message_delta") stop = j.delta?.stop_reason; else if (j.type === "error") throw { code: "upstream_error", message: j.error?.message }; }, o.signal);
       return { truncated: stop === "max_tokens" };
@@ -239,6 +248,7 @@ const AI = (() => {
   function why(e) {
     const c = e?.code;
     if (c === "network") return "не открывается из этой сети (блокировка, нет интернета или сервис не принимает запросы со страниц)";
+    if (c === "provider_timeout") return "истекло время ожидания ответа";
     if (c === "auth_failed") return "ключ не принят";
     if (c === "payment_required") return "закончился бесплатный лимит или нужна оплата";
     if (c === "rate_limited") return "превышен лимит запросов";
@@ -261,26 +271,31 @@ const AI = (() => {
     // opts.only — конкретная нейросеть (например, Claude для «Обучения сайта»)
     if (opts.only && list.includes(opts.only)) list.splice(0, list.length, opts.only);
     const order = [...list.filter(id => !(st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)), ...list.filter(id => st[id] && !st[id].ok && /лимит/.test(st[id].why || "") && now - st[id].at < 600000)];
-    let lastErr = null, prev = null; const fails = [];
+    let lastErr = null, blocked = null, prev = null; const fails = [];
     for (const id of order) {
       let text = "";
+      const deadline = opts.providerTimeoutMs && AbortSignal.timeout?.(opts.providerTimeoutMs);
+      const signal = deadline && opts.signal ? AbortSignal.any?.([opts.signal, deadline]) || opts.signal : deadline || opts.signal;
       const emit = d => { if (!d) return; text += d; try { opts.onText && opts.onText({ text, delta: d }); } catch (er) { console.error(er); } };
       try {
         if (prev) { if (window.Log) Log.add("ИИ", `${P[prev.id].name} → ${P[id].name}: ${prev.why}`); }
-        const r = await (RUN[id] || runExtra(id))(c, prompt, opts, emit);
+        const r = await (RUN[id] || runExtra(id))(c, prompt, { ...opts, signal }, emit);
         if (!text.trim()) throw { code: "empty_completion" };
         setStatus(id, { ok: true }); active = id; paint();
         try { window.Usage?.add({ prompt, text, usage: r.usage || null, provider: id }); } catch { }
         return { text, truncated: !!r.truncated, modelTierApplied: opts.modelTier || "default", provider: id };
       } catch (e) {
-        if (e?.name === "AbortError" || opts.signal?.aborted || e?.code === "cancelled") throw { code: "cancelled", text };
-        const err = e instanceof TypeError ? { code: "network", message: e.message } : { code: e?.code || "upstream_error", message: e?.message || String(e) };
-        if (text.trim().length > 400) throw { ...err, text }; // ответ шёл и оборвался — не начинаем заново у другого
+        if (opts.signal?.aborted || (!deadline?.aborted && (e?.name === "AbortError" || e?.code === "cancelled"))) throw { code: "cancelled", text };
+        const err = deadline?.aborted ? { code: "provider_timeout", message: "Нейросеть не ответила вовремя" }
+          : e instanceof TypeError ? { code: "network", message: e.message } : { ...e, code: e?.code || "upstream_error", message: e?.message || String(e) };
+        if (!isUnavailable(err)) blocked = err;
+        if (text.trim().length > 400) throw { ...(blocked || err), text }; // ответ шёл и оборвался — не начинаем заново у другого
         const w = why(err); setStatus(id, { ok: false, why: w }); prev = { id, why: w }; lastErr = err; fails.push(`${P[id]?.name || id}: ${w}`);
         if (opts.onText && text) try { opts.onText({ text: "", delta: "" }); } catch { }
       }
     }
-    throw { ...(lastErr || { code: "upstream_error" }), message: `ни одна нейросеть не ответила. Проверено: ${fails.join("; ") || "—"}` };
+    const error = blocked || lastErr || { code: "upstream_error" };
+    throw { ...error, message: blocked ? blocked.message : `ни одна нейросеть не ответила. Проверено: ${fails.join("; ") || "—"}` };
   }
   sample.json = async (input, opts) => {
     const { text } = await sample(input, opts);
@@ -498,6 +513,6 @@ const AI = (() => {
   window.openAiSettingsImpl = open;
   document.addEventListener("DOMContentLoaded", () => { document.querySelector(".account")?.append(btn); paint(); });
   document.addEventListener("uchu:ready", () => { finishOpenrouter(); finishPollinations(); offerTransfer(); paint(); });
-  return { setCreationLesson:id=>{creationLesson=String(id||"");}, sample, cfg, save, chain, configured, ownConfigured, openLite, label, open, test, probeYandex, connectKey, listModels, P, ORDER, status };
+  return { setCreationLesson:id=>{creationLesson=String(id||"");}, sample, isUnavailable, cfg, save, chain, configured, ownConfigured, openLite, label, open, test, probeYandex, connectKey, listModels, P, ORDER, status };
 })();
 window.AI = AI;

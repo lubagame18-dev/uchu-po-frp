@@ -112,6 +112,12 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
       };
       const mapXml = await documentXml('conspect'), notesXml = await documentXml('lesson');
       const pdf = pdfSmoke ? await docToPdfBlob({ params: p, docs: { conspect: strict } }, 'conspect') : null;
+      let slidePdfSignature = null;
+      if (pdfSmoke) {
+        const lesson = { ...doc, id: 'pdf-regression', slideTheme: 'denim', status: {}, docs: { ...doc.docs, slides: splitSlides(deckMarkdown).slice(0, 2).join('\n\n---\n\n') } };
+        openLesson(lesson, 'slides', false);
+        slidePdfSignature = await (await docToPdfBlob(lesson, 'slides')).slice(0, 4).text();
+      }
       const parsed = splitSlides('## Словарь терминов\n\n- Повтор.\n\n## 🧪 Проверка знаний: тест по теме\n\n![QR](idb:qr)\n\n- Наведите камеру.\n- Впишите имя.\n- Решите тест.\n\n<!--@ {"kind":"qr"} -->');
       return {
         programs, gradePrograms, literatureResults, unknownWork, misplacedWork, byTitle, repairedSavedMap: normalizeTechmap(savedMap, p) === map, badGrade, excerpts, headers, tables: body.querySelectorAll('table').length, code: body.querySelector('pre').textContent,
@@ -120,7 +126,7 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
         mapTables: (mapXml.match(/<w:tbl>/g) || []).length, mapBreaks: (mapXml.match(/<w:br\/>/g) || []).length,
         originalInExport: mapXml.includes('Белый снег') && notesXml.includes('Белый снег'), twoSlides: parsed.length,
         literatureRowsInExport: ['personal', 'subject'].every(key => new DOMParser().parseFromString(mapXml, 'application/xml').documentElement.textContent.includes(literatureResults[0].picked[key])),
-        pdfSignature: pdf ? await pdf.slice(0, 4).text() : null
+        pdfSignature: pdf ? await pdf.slice(0, 4).text() : null, slidePdfSignature
       };
     }, !!process.env.PDF_SMOKE);
     for (const p of result.programs) assert.ok(p?.source?.includes('.pdf') && p.goal && p.subject, JSON.stringify(p));
@@ -150,7 +156,10 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
     assert.doesNotMatch(result.strict, /Выдуманный результат/);
     assert.match(result.strict, /Источник ФРП\s*\|.+Биология.+\.pdf/);
     assert.equal(result.twoSlides, 2);
-    if (process.env.PDF_SMOKE) assert.equal(result.pdfSignature, '%PDF');
+    if (process.env.PDF_SMOKE) {
+      assert.equal(result.pdfSignature, '%PDF');
+      assert.equal(result.slidePdfSignature, '%PDF');
+    }
     assert.deepEqual(errors, []);
     console.log('PASS: official FRP by subject and grade, table repair, Russian originals and translation, verse in HTML and DOCX, separate legacy QR slide.');
   } finally { await browser.close(); }

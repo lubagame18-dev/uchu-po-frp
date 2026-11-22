@@ -130,10 +130,10 @@ const Notes = (() => {
     const parts = [];
     if (n.prompt) parts.push(`**Пожелания учителя:** ${n.prompt.replace(/\n+/g, " ")}`);
     if (n.observe) parts.push(`**Заметки и наблюдения:** ${n.observe.replace(/\n+/g, " ")}`);
-    if (n.checklist.length) parts.push(`**Акценты урока (чек-лист):**\n\n${n.checklist.map(c => `- ☑ ${c}`).join("\n")}`);
-    if (n.cues.group) parts.push("**Формы работы:** работа в группах и парах — на этапах анализа и творческого задания.");
-    if (n.cues.weak) parts.push("**Уровень класса:** задания базового уровня идут первыми, к сложным даны образцы.");
-    if (n.links.length) parts.push(`**Ссылки учителя:**\n\n${n.links.map(l => `- [${l.replace(/^https?:\/\//, "").slice(0, 60)}](${l})`).join("\n")}`);
+    if (n.checklist?.length) parts.push(`**Акценты урока (чек-лист):**\n\n${n.checklist.map(c => `- ☑ ${c}`).join("\n")}`);
+    if (n.cues?.group) parts.push("**Формы работы:** работа в группах и парах — на этапах анализа и творческого задания.");
+    if (n.cues?.weak) parts.push("**Уровень класса:** задания базового уровня идут первыми, к сложным даны образцы.");
+    if (n.links?.length) parts.push(`**Ссылки учителя:**\n\n${n.links.map(l => `- [${l.replace(/^https?:\/\//, "").slice(0, 60)}](${l})`).join("\n")}`);
     if (n.text) parts.push(`**Текст произведения:** взят из заметок учителя.`);
     return parts.length ? `## Учтено из заметок учителя\n\n${parts.join("\n\n")}\n\n---\n\n` : "";
   }

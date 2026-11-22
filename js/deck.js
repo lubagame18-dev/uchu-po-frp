@@ -228,7 +228,7 @@ const Deck = (() => {
       add({
         kind: "fragment", fn: fragment.n, ...card,
         mdBody: LitKit.markup(verbatimMd(card.text, { verse: card.verse }), context),
-        notes: [card.notes, ...context.map(item => item.note)].filter(Boolean).join(" ")
+        notes: [card.notes, fragment.why, ...context.map(item => item.note)].filter(Boolean).join(" ")
       });
     };
     for (const f of frags) {

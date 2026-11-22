@@ -122,7 +122,7 @@ const Sync = (() => {
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(e => console.warn("SW", e)));
   }
   window.addEventListener("online", () => { paint(); setTimeout(() => run(), 1500); });
-  window.addEventListener("offline", () => { paint(); toast("Нет интернета. Уроки продолжают собираться по встроенной базе; источники и картинки добавятся при подключении.", 7000); });
+  window.addEventListener("offline", () => { paint(); toast("Нет подключения к интернету.", 7000); });
   // кнопка доработки видна только в режиме разработчика; учителям доработка идёт сама, незаметно
   document.addEventListener("DOMContentLoaded", () => { chip.hidden = true; document.querySelector(".account")?.prepend(chip); paint(); setInterval(() => { chip.hidden = !window.Dev?.on; }, 1500); });
   document.addEventListener("uchu:ready", () => { paint(); if (navigator.onLine !== false) setTimeout(() => run(), 4000); });

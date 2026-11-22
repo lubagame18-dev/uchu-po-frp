@@ -121,7 +121,7 @@ const HistKit = (() => {
     const used = new Set(), G = (kinds, n) => { const out = [], got = {}; for (let i = 0; i < n * 12 && out.length < n; i++) { const k = kinds[i % kinds.length], g = GRP[k] || k; if ((got[g] || 0) >= (k === "term" ? 2 : 1)) continue; const x = T_[k](r, T); if (!x || used.has(x.q)) continue; used.add(x.q); got[g] = (got[g] || 0) + 1; out.push(x); } return out; };
     return {
       T, r, plan, prev: P && P !== T ? P : null,
-      warm: (P ? gen(r, P, ["century", "gap", "term", "dateOf"], 4) : gen(r, T, ["century"], 2)),
+      warm: (P ? gen(r, P, ["century", "gap", "term", "dateOf"], 4) : gen(r, T, ["century"], 2)).slice(0, 1),
       v1: fill(G(["chrono", "term", "persMatch", "dateOf", "person", "termDef", "century"], 4)), v2: fill(G(["dateMatch", "person", "term", "century", "persMatch", "dateOf", "termDef"], 4)),
       hw: G(["term", "dateOf", "person"], 3), trap: T_.trap(r, T), book: bookTasks(p),
       creative: pick(r, [`Напишите мини-сочинение (8–10 предложений): «${T.prob[1]}» Приведите не менее трёх аргументов с опорой на факты.`, `Напишите письмо от лица современника событий темы «${T.t}»: что он видит, чего боится, на что надеется.`, `Составьте кроссворд из 6–8 понятий и имён темы «${T.t}».`, `Составьте развёрнутый план ответа на вопрос: «${T.prob[1]}»`])

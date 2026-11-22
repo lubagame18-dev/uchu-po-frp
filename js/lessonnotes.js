@@ -237,6 +237,7 @@ const LessonNotes = (() => {
           const firstQ = qa[0] ? (qa[0].steps ? qa[0].steps[0] : qa[0].q) : "";
           out += X.box("Установка на чтение", [`Прочитаем ${f.part ? "эту часть" : "фрагмент"}${f.whole ? "" : ` (строки ${f.from}–${f.to})`}.${firstQ ? ` Обратите внимание, чтобы потом ответить: ${clean(firstQ)}` : ""}`]);
           out += X.box(`Отрывок ${f.n}. ${f.label}`, excerpt(f.text));
+          if (f.why) out += X.row("Зачем читаем отрывок", [f.why]);
           const context = contexts.get(f.n);
           const words = wordNotes(context);
           if (words.length) out += X.row("Пояснения при чтении", words);
@@ -274,6 +275,7 @@ const LessonNotes = (() => {
       out += "*Этапы урока не найдены — откройте технологическую карту.*\n\n";
       for (const f of K?.fragments || []) {
         out += X.box(`Отрывок ${f.n}. ${f.label}`, excerpt(f.text));
+        if (f.why) out += X.row("Зачем читаем отрывок", [f.why]);
         const notes = contexts.get(f.n).map(item => item.note);
         if (notes.length) out += X.row("Комментарий к отрывку", notes);
       }

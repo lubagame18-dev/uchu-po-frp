@@ -75,6 +75,7 @@ const FrpKit = (() => {
       return { ...baseKit,
         conspect: p => LP.conspect(p),
         lesson: p => LP.lesson(p),
+        cards: (p, t) => LP.cards(p) || baseKit.cards(p, t),
         worksheet: p => LP.worksheet(p) };
     }
     if (id === "ru1" && window.RuPrimary) {
@@ -87,7 +88,7 @@ const FrpKit = (() => {
     return baseKit;
   };
   const kits = {};
-  const get = (id, name, o) => kits[id] || (kits[id] = mk(id, name, o));
+  const get = (id, name, o) => kits[id] || (window.Kits?.pending(id) ? mk(id, name, o) : (kits[id] = mk(id, name, o)));
   const G = () => window.GeoMethod;
   const Y = () => window.PhyMethod;
   const C = () => window.ChemMethod;

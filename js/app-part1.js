@@ -1245,20 +1245,25 @@ const FRP = (() => {
     const t = String(topic).toLowerCase().replace(/ё/g, "е").trim();
     const direct = rows.find(x => String(x.title).toLowerCase().replace(/ё/g, "е").trim() === t);
     if (direct) return { ...direct, source: src };
-    // урок из поурочного планирования знает свою тему
     const les = ((o?.topics || d?.topics?.[grade]) || []).find(x => x.theme && String(x.title).toLowerCase().replace(/ё/g, "е") === t);
-    if (les) { const r = rows.find(x => x.num === les.theme); if (r) return { ...r, source: src }; }
-    // произведение в «кавычках» или фамилия автора
+    const linked = les && rows.find(x => x.num === les.theme);
+    const literary = ["lit", "lit1"].includes(subjectKey);
     const q = (t.match(/«([^»]+)»/) || [])[1];
-    if (strict && ["lit", "lit1"].includes(subjectKey)) {
+    if (literary && (strict || o)) {
       const titleKey = s => s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim().replace(/[.!?…]+$/, "");
-      const work = titleKey(q || t.replace(/^["„“]|["”]$/g, ""));
+      const works = q ? new Set([...t.matchAll(/«([^»]+)»/g)].map(m => titleKey(m[1]))) : new Set([titleKey(t.replace(/^["„“]|["”]$/g, ""))]);
       const words = topicStems(topic);
-      const row = rows.filter(x => [...`${x.title} ${x.content || ""}`.matchAll(/«([^»]+)»/g)].some(m => titleKey(m[1]) === work))
-        .sort((a, b) => topicScore(b.title, words) - topicScore(a.title, words))[0];
+      const author = String(topic).match(/(?:[А-ЯЁ]\.[ \u00a0]*){1,2}([А-ЯЁ][а-яё-]{3,})/)?.[1];
+      const nameMatch = x => titleKey(x.title).includes(titleKey(author));
+      const candidates = author ? rows.filter(nameMatch) : rows;
+      const matching = candidates.map(x => ({ x, count: [...`${x.title} ${x.content || ""}`.matchAll(/«([^»]+)»/g)].filter(m => works.has(titleKey(m[1]))).length }))
+        .filter(r => r.count).sort((a, b) => b.count - a.count || topicScore(b.x.title, words) - topicScore(a.x.title, words));
+      const row = matching[0]?.x;
       if (row) return { ...row, source: src };
-      if (q) return null;
+      if (q && strict) return null;
+      if (!q && candidates.length === 1 && author) return { ...candidates[0], source: src };
     }
+    if (linked && (!literary || !o)) return { ...linked, source: src };
     if (q) { const r = rows.find(x => x.title.toLowerCase().replace(/ё/g, "е").includes(q) || x.content.toLowerCase().replace(/ё/g, "е").includes(q)); if (r) return { ...r, source: src }; }
     const st = stems(topic);
     if (strict && st.size < 2) return null;
@@ -1770,6 +1775,9 @@ const Engine = (() => {
   }
   function litStageRow(stage, p, mins, extra) {
     const add = extra ? `<br>— ${cellSafe(short(extra.t, 260))} *(${extra.src})*` : "";
+    const students = /чтен|беседа|анализ|сопостав/i.test(stage)
+      ? "Читают фрагмент, отвечают с опорой на цитату."
+      : "Выполняют указанное задание, формулируют ответ своими словами.";
     // v5: вопросы строятся по тексту произведения и типам вопросов из методических файлов (Variety + Learn)
     if (window.Variety && p.plan) {
       const r = Variety.litRow(stage, p, p.plan, mins);
@@ -1798,10 +1806,10 @@ const Engine = (() => {
       }
       if (window.Heur) { const b = Heur.bridge(stage, p); if (b && !/^Организац/i.test(stage)) teacher = `🔗 *Переход:* «${b}»<br>${teacher}`; }
       const why = window.Heur ? Heur.purpose(stage) : "";
-      return `| ${stage} (${mins} мин) | ${cellSafe(teacher)}${add} | ${why ? `**Зачем:** ${why}.<br>` : ""}${cellSafe(r.methods)} |`;
+      return `| ${stage} (${mins} мин) | ${cellSafe(teacher)}${add} | ${students} | ${why ? `**Зачем:** ${why}.<br>` : ""}${cellSafe(r.methods)} |`;
     }
     const tpl = (LIT_STAGE.find(([re]) => re.test(stage)) || LIT_STAGE.find(([re]) => re.test("анализ")))[1];
-    return `| ${stage} (${mins} мин) | ${tpl.t.join("<br>")}${add}<br>*(ответы учеников)* | ${tpl.u} |`;
+    return `| ${stage} (${mins} мин) | ${tpl.t.join("<br>")}${add} | ${students} | ${tpl.u} |`;
   }
   function splitMinutes(stages, total, ru) {
     // вес этапа — по его названию (до двоеточия): открытие и практика длиннее, организационные и подводящие этапы короче
@@ -1857,8 +1865,10 @@ const Engine = (() => {
     const gradeOk = src => { const g = +(String(src).match(/(\d{1,2})\s*кл/) || [])[1]; return !g || Math.abs(g - p.grade) <= 1; };
     const onTopic = q => sameWork(q.text) && gradeOk(q.source) && !(typeof Learn !== "undefined" && Learn.offTopic?.(q.text, p.topic));
     const litQs = LB ? [...LB.questions.filter(onTopic).map(q => ({ t: q.text, src: q.source })), ...LB.lessons.flatMap(l => l.questions.filter(t => onTopic({ text: t, source: l.title })).map(t => ({ t, src: "разработка: " + l.title })))] : [];
-    const stages = p.plan?.stages || type.stages;
-    const mins = splitMinutes(stages, p.duration, ru);
+    const stages = [...(p.plan?.stages || type.stages)];
+    const reviewMinutes = !ru && type.id !== "ctrl" ? Math.min(3, Math.floor(p.duration / 10)) : 0;
+    const mins = splitMinutes(stages, p.duration - reviewMinutes, ru);
+    if (reviewMinutes) { stages.splice(1, 0, "Короткое повторение"); mins.splice(1, 0, reviewMinutes); }
     const goal = ru && p.plan?.rukit?.goal ? p.plan.rukit.goal : ru ? ({ onz: `сформировать представление о теме «${p.topic}» и научить применять новое правило`, refl: `закрепить умения по теме «${p.topic}», выявить и устранить типичные ошибки`, sys: `обобщить и систематизировать знания по теме «${core(p.topic)}»`, ctrl: `проверить уровень освоения темы «${core(p.topic)}»`, speech: `научить создавать текст по теме «${p.topic}»`, text: `научить анализировать текст с опорой на тему «${p.topic}»`, workshop: `организовать самостоятельное открытие знания по теме «${p.topic}»` }[type.id] || `освоить тему «${p.topic}»`)
       : ({ bio: `познакомить с жизнью и творческим путём автора в связи с эпохой (тема «${p.topic}») и подготовить к чтению его произведений`, lyric: `научить анализировать лирическое стихотворение: тема, идея, лирический герой, образы, средства выразительности (тема «${p.topic}»)`, lyricTheme: `сопоставить несколько стихотворений и сформулировать сквозную мысль автора (тема «${p.topic}»)`, commented: `научить медленному, комментированному чтению текста (тема «${p.topic}»)`, epic: `дать представление о композиции, конфликте и системе персонажей произведения (тема «${p.topic}»)`, performative: `научить выразительному чтению с опорой на анализ текста (тема «${p.topic}»)`, problem: `исследовать проблемный вопрос урока на материале текстов и документов эпохи (тема «${p.topic}»)` }[type.id] || `организовать осмысленное чтение и анализ (тема «${p.topic}»)`);
     let md = `# ${p.topic}\n\n**Класс:** ${p.grade} · **Предмет:** ${ru ? "Русский язык" : "Литература"} · **Тип урока:** ${type.name} · **Урок по теме:** ${lessonLabel(p.lessonNo)} · **Длительность:** ${p.duration} мин\n\n`;
@@ -1887,9 +1897,14 @@ const Engine = (() => {
         return ruStageRow(s, p, mins[i], { task, teacher });
       }).join("\n");
     } else {
-      md += `| ${KB.lit.techmapColumns.join(" | ")} |\n|---|---|---|\n`;
+      md += "| Этап урока | Учитель | Ученики | Методика |\n|---|---|---|---|\n";
       let qi = 0;
       md += stages.map((s, i) => {
+        if (s === "Короткое повторение") {
+          const prev = typeof previousTopicFor === "function" ? previousTopicFor(p) : "";
+          const question = prev ? `Какое наблюдение с урока «${prev}» поможет при чтении сегодня?` : "Как доказать своё наблюдение о герое словами из произведения?";
+          return `| ${s} (${mins[i]} мин) | ${cellSafe(question)} | Приводят один пример или называют один способ работы с текстом. | |`;
+        }
         const extra = /анализ|беседа|комментари|синтез|проблем|документ|хронолог|сравн|сопостав|композиц|истори|итог|вывод/i.test(s) && qi < litQs.length ? litQs[qi++] : null;
         return litStageRow(s, p, mins[i], extra);
       }).join("\n");

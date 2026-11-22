@@ -121,7 +121,7 @@ const BioKit = (() => {
     if (trap) used.add(`Верно ли утверждение: «${trap.q}»?`);
     return {
       T, r, plan, prev: P, lab,
-      warm: P ? gen(r, P, ["qa", "term", "tf", "qa"], 4) : gen(r, T, ["term"], 2),
+      warm: (P ? gen(r, P, ["qa", "term", "tf", "qa"], 4) : gen(r, T, ["term"], 2)).slice(0, 1),
       v1: fill(gen(r, T, ["qa", "term", "tf", "match", "seq", "odd", "qa"], 5, used)), v2: fill(gen(r, T, ["qa", "termDef", "tf", "odd", "seq", "match", "qa"], 5, used)),
       hw: gen(r, T, ["qa", "tf", "term", "odd"], 3, used, 1), trap, book: bookTasks(p),
       creative: T.home ? T.home : pick(r, [`Составьте кроссворд из 6–8 понятий темы «${tn}».`, `Подготовьте короткое сообщение (5–7 предложений) с иллюстрацией: «${T.prob[1]}»`, `Составьте схему (кластер) по теме «${tn}» и подпишите связи между понятиями.`, `Придумайте 3 вопроса по теме урока с ответами для одноклассников.`])
