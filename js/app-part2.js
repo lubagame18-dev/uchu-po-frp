@@ -59,7 +59,7 @@ const lessonLabel = n => Engine.lessonLabel(n);
 /* ---------- состояние ---------- */
 const state = {
   subject: "ru", grade: 8, duration: 45, mode: "school", stage: "middle", lessonNo: 1, lessonTotal: 1, control: "school", topic: "", wishes: "", level: "medium", examFocus: "full", wsDesign: "interactive",
-  formats: { lesson: true, conspect: false, slides: true, worksheet: true }, deep: false, build: "ai",
+  formats: { lesson: true, conspect: false, slides: true, worksheet: true }, wsPages: 2, wsPrint: "standard", deep: false, build: "ai",
   extra: { ctrl: "", variants: false, keys: true, memoSheet: false, memo: false, hw: false, hwText: "", extraText: "" },
   type: null, lesson: null, active: "conspect",
   gen: null,            // {lessonId, doc, pct, ctl}
@@ -647,11 +647,12 @@ function syncBuild() {
 }
 function readForm() {
   state.grade = +$("#grade").value; state.duration = +$("#duration").value;
+  state.wsPages = worksheetPageLimit({ wsPages: $("#wsPages")?.value }) || 2;
   state.anyName = ($("#anyName")?.value || state.anyName || "").trim(); state.control = $("#control").value; state.topic = $("#topic").value.trim(); state.wishes = $("#wishes")?.value.trim() || "";
   state.deep = !!$("#deep")?.checked;
   $$("#formats > .check > input:not([id])").forEach(i => state.formats[i.value] = i.checked);
   if (window.updateLessonSeg) updateLessonSeg();
-  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, examFocus: state.examFocus, wsDesign: "interactive", anyName: state.anyName });
+  local.set("form", { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats: state.formats, build: "ai", level: state.level, examFocus: state.examFocus, wsDesign: "interactive", wsPages: state.wsPages, anyName: state.anyName });
   try { syncFieldVisibility(); } catch { }
 }
 /* «Оформление презентации» показываем только при отмеченной презентации,
@@ -665,6 +666,7 @@ function syncFieldVisibility() {
     if (was && flag) { el.classList.remove("field-reveal"); void el.offsetWidth; el.classList.add("field-reveal"); }
   };
   show(document.getElementById("thField"), on("slides"));
+  show(document.getElementById("wsPageField"), on("worksheet"));
   show(document.getElementById("ctrlField"), wsLike);
   show(document.getElementById("examFocusBox"), wsLike && state.control !== "school");
   const ch = document.getElementById("controlHint"); if (ch) ch.hidden = !wsLike || !ch.textContent;
@@ -673,6 +675,9 @@ function restoreForm() {
   const f = local.get("form", null);
   if (f) Object.assign(state, { subject: f.subject || "ru", grade: f.grade || 8, duration: f.duration || 45, mode: f.mode || "school", lessonNo: f.lessonNo || 1, control: "school", topic: f.topic || "", wishes: f.wishes || "", formats: f.formats ? { lesson: true, ...f.formats, ...(f.formats.lesson === undefined ? { conspect: false } : {}) } : state.formats, build: "ai", level: f.level || state.level || "medium", examFocus: "full", wsDesign: "interactive" });
   state.stage = stageOfSubject(state.subject, state.grade).id;
+  state.wsPages = worksheetPageLimit(f) || 2;
+  if ($("#wsPages")) $("#wsPages").value = state.wsPages;
+  state.wsPrint = local.get("worksheet-print", "standard") === "two-up" ? "two-up" : "standard";
   setSeg("segStage", state.stage); fillSubjects(state.stage);
   setSeg("segMode", state.mode); setSeg("segLesson", state.lessonNo);
   fillGrades(); $("#duration").value = state.duration; $("#topic").value = state.topic; if ($("#wishes")) $("#wishes").value = ""; state.wishes = "";
@@ -944,6 +949,11 @@ function lessonPrompt(p, doc, text, anchor = "") {
   return window.LessonQuality ? LessonQuality.compose(text, p, doc, anchor) : text;
 }
 const notebookMode = p => Array.isArray(p?.formats) && !p.formats.includes("worksheet");
+function worksheetPageLimit(p) {
+  const pages = Number(p?.wsPages);
+  return Number.isInteger(pages) && pages >= 1 && pages <= 4 ? pages : 0;
+}
+const worksheetTaskLimit = p => [0, 3, 5, 7, 9][worksheetPageLimit(p)];
 function worksheetRules(p) {
   const support = ({
     lit: "Дай точный отрывок для читающего и вопросы к его строкам, если подлинник передан.",
@@ -956,9 +966,11 @@ function worksheetRules(p) {
     obzh: "Дай бытовую ситуацию и вопросы о выборе безопасного действия.",
     orkse: "Дай конкретную ситуацию и вопросы, в которых ученик объяснит свой выбор."
   })[p.subject] || "Дай исходные данные, примеры или схему, нужные для решения.";
+  const pages = worksheetPageLimit(p);
+  const count = pages ? `Подготовь до ${worksheetTaskLimit(p)} заданий, сохранив ${pages === 1 ? "одну страницу" : "не более " + pages + " страниц"} A4. Считай каждое задание вместе с исходными данными и местом для письма.` : "Дай 5–7 заданий по умолчанию или количество, которое просит учитель.";
   return `\n\n## Рабочий лист ученика
 Опирайся на переданный конспект, его упражнения и изученные действия. Соблюдай тему, класс и номер урока. ${support}
-Дай 5–7 заданий по умолчанию или количество, которое просит учитель. Начни с узнавания, затем предложи применение, заверши самостоятельным заданием и короткой самопроверкой без раскрытия ответа. Чередуй уместные форматы: пропуски, таблица, схема, выбор или соответствие, задача, краткий ответ. У каждого задания заголовок «### Задание N», полное условие, конкретное действие и место для ответа. Запрещены ссылки на упражнение вместо условия и фразы «выполните задание» или «по учебнику» без исходных данных.
+${count} Начни с узнавания, затем предложи применение, заверши самостоятельным заданием и короткой самопроверкой без раскрытия ответа. Чередуй уместные форматы: пропуски, таблица, схема, выбор или соответствие, задача, краткий ответ. У каждого задания заголовок «### Задание N», полное условие, конкретное действие и место для ответа. Запрещены ссылки на упражнение вместо условия и фразы «выполните задание» или «по учебнику» без исходных данных.
 Для компактного материала планируй одну страницу A4, для объёмного две или больше. Укладывай отдельное задание вместе с полем ответа на одну страницу при шрифте не менее 12 pt, полях 11 мм и межстрочном интервале 1,1–1,15. Короткие задания можно поставить рядом, широкие таблицы, тексты с сохранёнными строками и развёрнутые решения занимают всю ширину. Выделяй номера, ключевые термины и условия жирным, примеры и подсказки курсивом. Не добавляй ручных разрывов страниц, повторов заданий и текста ради объёма.
 В ученической части только материал, указания и зоны ответа. Ключи и критерии, если они предусмотрены, вынеси после отдельного заголовка первого уровня «Ответы и критерии для учителя».`;
 }
@@ -969,6 +981,8 @@ function lessonFormatRules(p, doc) {
 Укажи форму на каждом этапе: фронтальная, парная, групповая, самостоятельная или индивидуальная. Дай точные указания, что записать: дату и тему, определения, заголовки таблицы и содержимое колонок, схему, правило и разобранный пример. Укажи, где начать с новой строки, что подчеркнуть, заключить в рамку и пронумеровать. Приведи полные условия и вопросы с эталонами для учителя. Весь сценарий проходит без распечаток и упоминаний рабочего листа. Сумма этапов — ровно ${p.duration || 45} мин.` : "";
   if (p.assessment) rules += `\n\n## Проверка в ходе урока
 Выдели один этап «${p.assessment.name}» на ${p.assessment.minutes} мин. Сожми остальные этапы до ${Number(p.duration || 45) - p.assessment.minutes} мин, оставь только необходимое новое содержание. Укажи цель, инструктаж, формат ответа и используй варианты в готовом порядке. Ниже уже подготовленный документ «Контроль». Сохрани его условия и ключи.\n\n${p.assessment.md}`;
+  const pages = worksheetPageLimit(p);
+  if (pages && p.formats?.includes("worksheet")) rules += `\n\n## Распределение практики\nРабочий лист рассчитан максимум на ${pages} стр. A4 и ${worksheetTaskLimit(p)} заданий. ${pages <= 2 ? "Оставь на листе краткую самостоятельную практику. Остальные упражнения запланируй у доски и в обычных тетрадях, с полными условиями и ответами." : "Основную практику перенеси в рабочий лист. У доски проведи только необходимый общий разбор, записи в тетради ограничь правилом или выводом. Не повторяй задания листа."} Не увеличивай время урока. Презентация показывает примеры и иллюстрации к объяснению. Условия для листа и доски выделяй явно.`;
   return rules;
 }
 const assessmentNames = { self: "Самостоятельная работа", check: "Проверочная работа", test: "Контрольная работа" };
@@ -2043,6 +2057,7 @@ async function buildLessonFromForm() {
   updateType();
   const type = state.type;
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type, level: state.level, examFocus: state.examFocus, wsDesign: "interactive" };
+  if (formats.includes("worksheet")) p.wsPages = state.wsPages;
   if (p.subject === "any") p.anyName = state.anyName;
   /* Вариант в формате экзамена: метка с датой/временем + seed, чтобы каждый новый запрос давал уникальные задания */
   if (state.control !== "school") {
@@ -2448,6 +2463,9 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
       await saveLesson(L);
       await runJobContent(L, p, type, pending, formats, false, hideTech);
     }
+    await fitGeneratedWorksheet(L, p);
+    if (worksheetPageLimit(p) && L.docs.worksheet) await saveLesson(L);
+    clearJob(L.id);
     completed = true;
     return true;
   } catch (e) {
@@ -2487,7 +2505,6 @@ async function runJobContent(L, p, type, gen, formats, useAi, hideTech) {
   try {
     if (!useAi) await buildWithoutAi(L, p, type, gen); else await buildWithAi(L, p, type, gen);
     await finishPresentationOptions(L, p);
-    clearJob(L.id);
   }
   finally { restore(); }
   done();
@@ -2739,7 +2756,6 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
     }
     await finishPresentationOptions(L, p, { slidesOnly: true });
-    clearJob(L.id);
   } finally { state.gen = null; }
   if (hideTech && L.docs.conspect) { L.tech = L.docs.conspect; delete L.docs.conspect; delete L.status.conspect; }
   await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
@@ -2753,7 +2769,12 @@ async function resumeJob() {
   if (J.hideTech && rec.tech && !L.docs.conspect) L.docs.conspect = rec.tech; // техкарта «за кадром» уже готова
   // уже готовые листы не пересобираются — только недостающие
   const gen = J.gen.filter(f => !L.docs[f]);
-  if (!gen.length) { clearJob(); return; }
+  if (!gen.length) {
+    await fitGeneratedWorksheet(L, J.p);
+    await saveLesson(L);
+    clearJob(L.id);
+    return;
+  }
   J.formats.forEach(f => (L.status[f] = L.docs[f] ? "ok" : "wait"));
   const type = Engine.detectType({ subject: J.p.subject, topic: J.p.topic, lessonNo: J.p.lessonNo, grade: J.p.grade });
   const p = { ...J.p, type, notes: rec.notes || J.notes || null };
@@ -3276,8 +3297,8 @@ const EditHistory = (() => {
   const suppressed = () => Date.now() < suppressUntil;
   const sync = () => {
     const u = $("#btnUndo"), r = $("#btnRedo");
-    if (u) u.disabled = !state.lesson || (index <= 0 && !dirty);
-    if (r) r.disabled = !redo.length;
+    if (u) u.disabled = !state.lesson || isGenerating() || (index <= 0 && !dirty);
+    if (r) r.disabled = isGenerating() || !redo.length;
   };
   const ensure = (L, doc, md) => {
     const k = (L?.id || "") + "|" + (doc || "");
@@ -3312,11 +3333,11 @@ const EditHistory = (() => {
     if (!state.lesson || isGenerating()) return;
     ensure(state.lesson, state.active, state.lesson.docs[state.active] || $("#md").value);
     const md = await live();
-    if (md !== states[index]) {
+    if (dirty && md !== states[index]) {
       redo.push(md); apply(states[index]); dirty = false; sync(); return;
     }
     if (index <= 0) { toast("Отменять пока нечего.", 3500); return; }
-    redo.push(md); index--; apply(states[index]); dirty = false; sync();
+    redo.push(states[index]); index--; apply(states[index]); dirty = false; sync();
   }
   async function redoLast() {
     if (!redo.length || isGenerating()) { if (!isGenerating()) toast("Возвращать пока нечего.", 3500); return; }
@@ -3324,7 +3345,7 @@ const EditHistory = (() => {
     states = states.slice(0, index + 1); states.push(md); index++;
     apply(md); dirty = false; sync();
   }
-  function markDirty() { dirty = true; sync(); }
+  function markDirty() { suppressUntil = 0; dirty = true; sync(); }
   return { ensure, record, undo, redo: redoLast, dirty: markDirty, sync, suppressed };
 })();
 function renderLesson() {
@@ -3377,8 +3398,14 @@ function renderDownloads() {
   const ready = L ? Object.keys(DOCS).filter(d => L.docs[d] && !isGenerating(L, d)) : [];
   if (!L || !ready.length || (state.gen && state.gen.lessonId === L.id)) { box.hidden = true; return; }
   const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"], ["html", "Интерактивный HTML"]] : d === "pack" ? [["html", "Инструкция ученика (HTML)"], ["docx", "Word"], ["pdf", "PDF"], ["zip", "ZIP с файлами"]] : d === "worksheet" ? [["docx", "Word"], ["pdf", "PDF"], ["png", "PNG (как фото)"]] : [["docx", "Word"], ["pdf", "PDF"]];
-  box.innerHTML = `<div class="dl-h">⬇ ${Object.values(L.status || {}).includes("err") ? "Материалы и черновики" : "Урок готов"}. Скачайте нужное:</div><div class="dl-rows">${ready.map(d => `<div class="dl-row"><b>${DOCS[d].label}</b>${fmts(d).map(([f, n]) => `<button class="btn sm ${f === "pdf" ? "flame" : "teal"}" data-dl="${d}:${f}">${n}</button>`).join("")}</div>`).join("")}<div class="dl-row"><b>Весь урок</b><button class="btn sm" data-dl="all:zip">Всё одним архивом</button></div></div>`;
+  box.innerHTML = `<div class="dl-h">⬇ ${Object.values(L.status || {}).includes("err") ? "Материалы и черновики" : "Урок готов"}. Скачайте нужное:</div><div class="dl-rows">${ready.map(d => `<div class="dl-row"><b>${DOCS[d].label}</b>${fmts(d).map(([f, n]) => `<button class="btn sm ${f === "pdf" ? "flame" : "teal"}" data-dl="${d}:${f}">${n}</button>`).join("")}${d === "worksheet" ? `<label class="ws-print-field small" for="wsPrintMode">Формат печати <select id="wsPrintMode" aria-describedby="wsPrintHelp"><option value="standard">А4 книжный · 1 копия</option><option value="two-up">А4 альбомный · 2 копии</option></select></label><small class="ws-print-help" id="wsPrintHelp" hidden>Двусторонняя печать, переворот по короткому краю. Word в этом формате предназначен для печати.</small>` : ""}</div>`).join("")}<div class="dl-row"><b>Весь урок</b><button class="btn sm" data-dl="all:zip">Всё одним архивом</button></div></div>`;
   box.hidden = false;
+  const printMode = $("#wsPrintMode");
+  if (printMode) {
+    const sync = () => { $("#wsPrintHelp").hidden = state.wsPrint !== "two-up"; };
+    printMode.value = state.wsPrint; sync();
+    printMode.onchange = () => { state.wsPrint = printMode.value === "two-up" ? "two-up" : "standard"; local.set("worksheet-print", state.wsPrint); sync(); };
+  }
   $$("[data-dl]", box).forEach(b => b.onclick = async () => {
     const [d, f] = b.dataset.dl.split(":"); b.disabled = true;
     try { await exportOne(state.lesson, d, f); } catch (e) { console.error(e); toast("Выгрузка не удалась: " + (e.message || e)); } finally { b.disabled = false; }
@@ -3407,6 +3434,8 @@ $("#deckAiChk")?.addEventListener("change", syncStyleChoices); $("#wsAiChk")?.ad
 function syncTools() {
   syncStyleChoices();
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
+  if ($("#docEditActions")) $("#docEditActions").hidden = !has;
+  if ($("#wsPageStatus") && (state.active !== "worksheet" || !has || busy)) $("#wsPageStatus").hidden = true;
   { const bm = $("#btnMore"); if (bm) { const bx = $("#wsMoreBox"); if (bx) bx.hidden = !(state.active === "worksheet" && has); bm.hidden = false; const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
   { const ws = state.active === "worksheet" && has && !!window.ImageGen; $("#btnDeco").hidden = true;  if (ws) $("#btnDeco").textContent = state.lesson.art?.banner ? "🎨 Нарисовать другой" : "🎨 Оформить красиво"; }
   $("#btnPackZip").hidden = state.active !== "pack" || !has; $("#btnDocx").hidden = state.active === "slides"; { const dev = !window.Access || !Access.commercial() || Access.isDev(), isWs = state.active === "worksheet" && has; $("#btnPng").hidden = !(isWs && (state.lesson.art?.banner || state.lesson.art?.slots?.length)); $("#btnMdToggle").hidden = !dev; } $("#btnPptx").hidden = state.active !== "slides"; if (window.WorkSearch) WorkSearch.syncBtn();
@@ -3456,6 +3485,7 @@ function openAddText(L) {
     const t = ta.value.trim(); if (t.length < 80) { msg.textContent = "Нужен текст подлиннее (хотя бы одна строфа или абзац)."; return; }
     closeModal();
     Object.assign(state, { subject: P.subject, grade: P.grade, duration: P.duration || 45, mode: P.mode || "school", lessonNo: P.lessonNo || 1, control: P.control || "school", topic: P.topic });
+    if ($("#wsPages") && worksheetPageLimit(P)) $("#wsPages").value = P.wsPages;
     state.stage = stageOfSubject(P.subject, P.grade).id;
     setSeg("segStage", state.stage); fillSubjects(state.stage); fillGrades(); $("#topic").value = state.topic;
     state.textOverride = { text: t, source: "текст, добавленный учителем" };
@@ -3651,7 +3681,13 @@ async function renderPreview() {
       const { source, mediaReady } = wsLayout(sheet, L, md);
       await wsPageReady(source, mediaReady);
       if (!source.isConnected || state.lesson !== L || state.active !== "worksheet") return;
-      wsPaginate(sheet, source);
+      const limit = worksheetPageLimit(L.params);
+      const pages = wsPaginate(sheet, source, limit >= 3 ? limit : 0);
+      const status = $("#wsPageStatus");
+      if (status) {
+        status.hidden = !limit;
+        status.textContent = pages.length > limit ? `Страниц сейчас ${pages.length}. Лимит ${limit}. Сократите лист перед скачиванием.` : `Страниц ${pages.length} из ${limit}`;
+      }
     } else {
       sheet.className = "sheet" + (WS_DOCS.includes(state.active) ? " ws-sheet" : "") + (state.active === "lesson" ? " lx-sheet" : "");
       sheet.innerHTML = state.active === "conspect" ? techmapHtml(md) : mdToHtml(state.active === "worksheet" ? wsMainMd(md) : md);
@@ -3781,6 +3817,7 @@ async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);
   const rec = { id: L.id, title: L.title, params: L.params, docs: L.docs, built: L.built, createdAt: L.createdAt, updatedAt: new Date().toISOString(), plan: L.plan || null, verify: L.verify || null, notes: L.notes || null, prompts: L.prompts || null, more: L.more || [], design: L.design || null, slideTheme: L.slideTheme || null, slideThemeAuto: L.slideThemeAuto ?? null, slideFonts: L.slideFonts || null, artDirection: L.artDirection || null, slideAnim: L.slideAnim || null, exFull: L.exFull || null, planFull: L.planFull || null, deckOutline: L.deckOutline || null, pending: L.pending || null, wantAi: L.wantAi || false, web: L.web || null, art: L.art || null, quiz: L.quiz || null, quizAt: L.quizAt || null, lastRefine: L.lastRefine || null };
+  if (L.wsAllocated) rec.wsAllocated = true;
   try { await Store.put("lessons", L.id, rec); } catch (e) { toast(e?.code === "quota_exceeded" ? "Память браузера заполнена: удалите старые уроки или материалы." : "Не удалось сохранить урок."); }
 }
 async function listLessons() { try { return (await Store.all("lessons")).sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt))); } catch { return []; } }
@@ -3983,7 +4020,9 @@ async function addExtraSheet() {
     const q = `Ты методист. Составь ДОПОЛНИТЕЛЬНЫЙ рабочий лист № ${n} по той же теме («${L.title}», ${L.params?.grade} класс). ${worksheetRules(L.params || {})} Каждое задание — заголовок третьего уровня (###) и зона для записи. Задания НОВЫЕ, не повторяют уже выданные, по нарастающей сложности, в том же формате Markdown и тоне. Первая строка — заголовок первого уровня (#). Не выдумывай факты; ключ ответов не нужен. Уже выданное:\n\n${prev}\n\nВерни только Markdown листа.`;
     const r = await AI.sample(q, { modelTier: "default" }); const md = String(r.text || "").trim();
     if (md.length < 400) throw new Error("нейросеть вернула слишком короткий лист");
-    L.more = [...(L.more || []), { md, at: Date.now() }]; window.Access?.countSheet(1); await saveLesson(L); syncTools();
+    const extra = { title: L.title, docs: { worksheet: md }, params: L.params };
+    await fitGeneratedWorksheet(extra, L.params);
+    L.more = [...(L.more || []), { md: extra.docs.worksheet, at: Date.now() }]; window.Access?.countSheet(1); await saveLesson(L); syncTools();
     toast(`Лист ${n} готов. Он сохранится отдельным Word-файлом вместе с основным листом.`, 8000);
   } catch (e) { console.error(e); toast("Не получилось добавить лист: " + (e.message || e.code || e), 9000); }
   finally { b.disabled = false; }
@@ -4172,14 +4211,36 @@ async function worksheetDocx(L, md) {
   });
   return mdToDocxBlob("", L.title, { worksheet: true, grid });
 }
-async function docxBlobs(L, d) {
+async function worksheetPrintDocx(L) {
+  await Promise.all([loadScript("docx"), ensureMarked(), loadScript("html2pdf")]);
+  const D = window.docx;
+  const children = await withPrintStage(async stage => {
+    const out = [];
+    for await (const canvas of wsPrintCanvases(L, stage, "two-up")) {
+      const data = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      const width = Math.round(290 * 96 / 25.4), height = Math.round(width * canvas.height / canvas.width);
+      out.push(new D.Paragraph({ alignment: D.AlignmentType.CENTER, pageBreakBefore: out.length > 0, spacing: { before: 0, after: 0 },
+        children: [new D.ImageRun({ type: "png", data: new Uint8Array(await data.arrayBuffer()), transformation: { width, height } })] }));
+    }
+    return out;
+  });
+  const mm = D.convertMillimetersToTwip;
+  return D.Packer.toBlob(new D.Document({ title: L.title, creator: "Учу по ФРП", sections: [{ properties: { page: {
+    size: { width: mm(210), height: mm(297), orientation: D.PageOrientation.LANDSCAPE },
+    margin: { top: mm(2), bottom: mm(2), left: mm(3), right: mm(3) }
+  } }, children }] }));
+}
+const wsPrintSuffix = mode => mode === "two-up" ? " — 2 копии" : "";
+async function docxBlobs(L, d, mode = state.wsPrint) {
   if (d === "worksheet") {
     await ensureMarked();
     const { main, appendix } = wsDocuments(L.docs[d]);
-    const out = [[baseName(L, d) + ".docx", await worksheetDocx(L, main)]];
+    const make = (lesson, md) => mode === "two-up" ? worksheetPrintDocx(lesson) : worksheetDocx(lesson, md);
+    const suffix = wsPrintSuffix(mode);
+    const out = [[baseName(L, d) + suffix + ".docx", await make(L, main)]];
     for (const [i, item] of (L.more || []).entries()) {
       const sheet = wsDocuments(item.md), name = baseName(L, d) + ` (лист ${i + 2})`;
-      out.push([name + ".docx", await worksheetDocx({ ...L, art: null }, sheet.main)]);
+      out.push([name + suffix + ".docx", await make({ ...L, art: null, docs: { worksheet: item.md } }, sheet.main)]);
       if (sheet.appendix) out.push([name + " — ключи для учителя.docx", await mdToDocxBlob(sheet.appendix, L.title, { worksheet: true })]);
     }
     if (appendix) out.push([baseName(L, d) + " — ключи для учителя.docx", await mdToDocxBlob(appendix, L.title, { worksheet: true })]);
@@ -4197,11 +4258,12 @@ async function exportAppx() { const L = state.lesson; if (!L?.docs?.worksheet) {
 /* лист картинками (PNG): страницы нельзя редактировать */
 async function exportPng() {
   const L = state.lesson; if (!L?.docs.worksheet) return;
-  if (L.art?.photos?.length) { let k = 0; for (const x of L.art.photos) await saveFile(`${baseName(L, "worksheet")} (стр. ${++k}).png`, await (await fetch(x.url)).blob()); return; }
+  const mode = state.wsPrint;
+  if (L.art?.photos?.length && mode !== "two-up") { let k = 0; for (const x of L.art.photos) await saveFile(`${baseName(L, "worksheet")} (стр. ${++k}).png`, await (await fetch(x.url)).blob()); return; }
   if (!confirm("Лист скачается как картинки страниц (PNG). Такой лист нельзя отредактировать: текст в картинке не меняется. Для правки скачивайте Word, в нём картинки стоят отдельными рисунками. Скачать картинками?")) return;
   toast("Готовлю картинки страниц…", 15000);
-  const cvs = await docToPngCanvases(L); let i = 0;
-  for (const cv of cvs) { const blob = await new Promise(r => cv.toBlob(r, "image/png")); await saveFile(`${baseName(L, "worksheet")} (стр. ${++i}).png`, blob); }
+  const cvs = await docToPngCanvases(L, mode); let i = 0;
+  for (const cv of cvs) { const blob = await new Promise(r => cv.toBlob(r, "image/png")); await saveFile(`${baseName(L, "worksheet")}${wsPrintSuffix(mode)} (стр. ${++i}).png`, blob); }
 }
 
 /* ---------- PowerPoint: текст от 26 pt, перенос, картинки ---------- */
@@ -4339,7 +4401,7 @@ function wsDecorate(root, L) {
   (L?.art?.slots || []).forEach(sl => { const card = [...root.querySelectorAll(".ws-card")].find(c => c.querySelector("h3")?.textContent.replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").replace(/\s+/g, " ").trim() === sl.at.replace(/\s+/g, " ")); if (!card || card.querySelector(".ws-slot")) return; const im = document.createElement("img"); im.className = "ws-slot " + (sl.side === "left" ? "l" : "r") + (sl.size === "m" ? " m" : ""); im.alt = ""; im.src = sl.url; card.querySelector("h3").after(im); });
 }
 /* Документ с несколькими страницами печатается с переворотом по длинному краю. */
-const pdfDuplex = pdf => { try { if (pdf.viewerPreferences) pdf.viewerPreferences({ Duplex: "DuplexFlipLongEdge", PrintScaling: "None" }, true); } catch (e) { console.warn("duplex", e); } };
+const pdfDuplex = (pdf, shortEdge = false) => { try { if (pdf.viewerPreferences) pdf.viewerPreferences({ Duplex: shortEdge ? "DuplexFlipShortEdge" : "DuplexFlipLongEdge", PrintScaling: "None" }, true); } catch (e) { console.warn("duplex", e); } };
 /* Чистка рабочего листа от технических символов: ⟦…⟧, {ор:…}, пустые квадратные скобки,
    служебные комментарии. Смысл и задания не меняются. */
 function wsStripTech(md) {
@@ -4361,6 +4423,90 @@ function wsMainMd(md) {
   const main = wsDocuments(md).main.replace(/^[ \t]*(?:[-*]\s+)?\*{0,2}(?:[❓💬]\s*)?(?:Учитель|Ученики|Деятельность учителя|Деятельность учеников|Примечание для учителя|Цель этапа)(?=[:\s*]|$).*$/gim, "");
   return wsStripTech(main);
 }
+const wsJoin = parts => parts.map(text => String(text || "").trim()).filter(Boolean).join("\n\n");
+function wsDraftParts(md) {
+  const { main, appendix } = wsDocuments(md), items = [];
+  let intro = "", part = null;
+  for (const token of window.marked.lexer(main)) {
+    if (token.type === "heading" && [2, 3].includes(token.depth)) {
+      const title = token.text.replace(/^[^\p{L}\p{N}]+/u, "");
+      const task = (token.depth === 3 || /^\d+[.)]\s|^Задание|^Упражнение/i.test(title)) && !/^(?:\d+[.)]\s*)?(?:самооцен|самопроверк|рефлекс|запомни|вспомни|образец|поняти|проверь себя)/i.test(title);
+      part = { task, md: "" };
+      items.push(part);
+    }
+    if (part) part.md += token.raw;
+    else intro += token.raw;
+  }
+  return { intro, items, appendix };
+}
+function addWorksheetPractice(L, p, moved, appendix) {
+  const pages = worksheetPageLimit(p);
+  const plan = pages <= 2 ? "Разберите один образец у доски. После короткой работы с листом продолжите практику в обычных тетрадях." :
+    "Основная практика проходит на рабочем листе. У доски разберите один образец, в тетради запишите правило или вывод.";
+  const details = moved.map(({ md }) => md.replace(/^#{2,3} /, "#### ").replace(/^[ \t]*\[[ \t_]*\][ \t]*$/gm, "").trim()).join("\n\n");
+  const block = wsJoin(["#### Распределение практики", plan, details && "Следующие условия выполните у доски и в тетрадях. Сохраните нумерацию.", details,
+    details && appendix ? "Ключи к этим заданиям находятся в отдельном файле ответов." : ""]);
+  if (L.docs.lesson && !L.docs.lesson.includes("#### Распределение практики")) {
+    const md = L.docs.lesson;
+    const entries = [...md.matchAll(/^#{2,3}\s+(?:(?:ЭТАП|БЛОК)\s+)?\d+[.)]\s+[^\n]+$/gim)];
+    const index = entries.findIndex(entry => /закреплен|практик|трениров|применени/i.test(entry[0]));
+    const end = index < 0 ? md.length : entries[index + 1]?.index ?? md.length;
+    L.docs.lesson = wsJoin([md.slice(0, end), block, md.slice(end)]);
+  }
+  const map = L.docs.conspect || L.tech;
+  if (map && !map.includes("Распределение практики")) {
+    const entries = [...map.matchAll(/^\| Блок \d+\. [^\n]+$/gm)];
+    const index = entries.findIndex(entry => /закреплен|практик|трениров|применени/i.test(entry[0]));
+    const end = index < 0 ? map.length : entries[index + 1]?.index ?? map.length;
+    const next = map.slice(0, end).trimEnd() + "\n" + techmapContentRows(L.docs.lesson ? wsJoin(["#### Распределение практики", plan, details]) : block).join("\n") + "\n" + map.slice(end);
+    if (L.docs.conspect) L.docs.conspect = next;
+    else L.tech = next;
+  }
+  return block;
+}
+async function fitGeneratedWorksheet(L, p) {
+  const limit = worksheetPageLimit(p);
+  if (!limit || !L.docs.worksheet || L.wsAllocated) return;
+  await ensureMarked();
+  const { intro, items, appendix } = wsDraftParts(L.docs.worksheet);
+  const attr = { ...L, art: L.art ? { ...L.art, photos: [] } : undefined };
+  const chosen = items.slice(), moved = [];
+  const remove = index => moved.unshift(chosen.splice(index, 1)[0]);
+  const taskCount = () => chosen.filter(item => item.task).length;
+  while (taskCount() > worksheetTaskLimit(p)) remove(chosen.findLastIndex(item => item.task));
+  let lead = intro;
+  const main = () => wsJoin([lead, ...chosen.map(item => item.md)]);
+  await withPrintStage(async stage => {
+    const fits = async () => {
+      const { root, pages } = await wsMeasuredPages({ ...attr, docs: { worksheet: main() } }, stage);
+      return root.childElementCount && pages.length <= limit && pages.every(page => !page.dataset.oversize && page.scrollHeight <= page.clientHeight + 1);
+    };
+    while (!await fits()) {
+      const index = chosen.findLastIndex(item => item.task);
+      if (index >= 0 && chosen.length > 1) remove(index);
+      else if (chosen.length) remove(chosen.length - 1);
+      else {
+        const title = `# ${String(L.title || p.topic).replace(/\n/g, " ")}`;
+        if (lead.trim() === title) break;
+        moved.unshift({ md: lead.replace(/^# [^\n]+\n*/, "") });
+        lead = title;
+        break;
+      }
+    }
+    if (!taskCount() && moved.some(item => item.task)) {
+      for (const item of moved.filter(item => item.task)) {
+        chosen.push(item);
+        if (await fits()) { moved.splice(moved.indexOf(item), 1); break; }
+        chosen.pop();
+      }
+      if (!taskCount()) lead = wsJoin([lead, "Практические задания выполняются у доски и в тетради."]);
+    }
+  });
+  const overflow = addWorksheetPractice(L, p, moved, appendix);
+  const teacher = moved.length && !L.docs.lesson && !L.docs.conspect ? wsJoin(["# Практика у доски и в тетради — для учителя", overflow]) : "";
+  L.docs.worksheet = wsJoin([main(), appendix || (teacher ? "# Для учителя" : ""), teacher]);
+  L.wsAllocated = true;
+}
 function wsEditableMd(element) {
   const copy = element.cloneNode(true);
   $$(".ws-tag, .ws-ico, .wc, .ws-art, .ws-slot, .ws-writing", copy).forEach(node => node.remove());
@@ -4381,7 +4527,7 @@ function wsLayout(root, L, md) {
   wsDecorate(source, L);
   return { source, mediaReady };
 }
-function wsPaginate(root, source) {
+function wsPaginate(root, source, target = 0) {
   const grid = document.createElement("div"); grid.className = "ws-grid";
   const blocks = [...source.children].filter(node => node.tagName !== "HR" && !node.classList.contains("ws-photo-note"));
   const narrow = node => node?.classList.contains("ws-card") && node.textContent.length <= 420 &&
@@ -4404,6 +4550,13 @@ function wsPaginate(root, source) {
     pages.at(-1).push(item); size += item.height;
   }
   const height = page => page.reduce((sum, x) => sum + x.height, 0);
+  while (pages.length < target) {
+    const canSplit = pages.map((page, index) => ({ page, index, tasks: page.map((item, i) => item.row.querySelector(".ws-card, h2") ? i : -1).filter(i => i >= 0) }))
+      .filter(part => part.tasks.length > 1).sort((a, b) => height(b.page) - height(a.page));
+    const split = canSplit[0];
+    if (!split) break;
+    pages.splice(split.index + 1, 0, split.page.splice(split.tasks[Math.ceil(split.tasks.length / 2)]));
+  }
   for (let i = pages.length - 1; i > 0; i--) {
     const before = pages[i - 1], after = pages[i];
     while (before.length > 1 && height(after) + before.at(-1).height < height(before) - before.at(-1).height && height(after) + before.at(-1).height <= capacity) {
@@ -4440,12 +4593,18 @@ async function wsPageReady(source, mediaReady) {
   await Promise.all($$("img", source).map(img => img.decode().catch(() => {})));
   await document.fonts?.ready;
 }
-async function wsBuildPages(L, stage) {
+async function wsMeasuredPages(L, stage) {
   const root = document.createElement("div"); stage.replaceChildren(root);
   const { source, mediaReady } = wsLayout(root, L, L.docs.worksheet || "");
   await wsPageReady(source, mediaReady);
-  const pages = wsPaginate(root, source);
+  const limit = worksheetPageLimit(L.params);
+  return { root, pages: wsPaginate(root, source, limit >= 3 ? limit : 0) };
+}
+async function wsBuildPages(L, stage) {
+  const { pages } = await wsMeasuredPages(L, stage);
   if (!pages.length) throw new Error("Рабочий лист пуст. Добавьте задание перед выгрузкой.");
+  const limit = worksheetPageLimit(L.params);
+  if (limit && pages.length > limit) throw new Error(`Лист превышает выбранный объём (${limit} стр. A4). Сократите его в редакторе.`);
   if (pages.some(page => page.dataset.oversize || page.scrollHeight > page.clientHeight + 1)) {
     throw new Error("Задание целиком не помещается на A4. Разделите его в редакторе на два задания с отдельными полями ответа.");
   }
@@ -4454,20 +4613,53 @@ async function wsBuildPages(L, stage) {
 async function wsPageCanvas(page) {
   const { width, height } = page.getBoundingClientRect();
   return window.html2pdf().set({ margin: 0, pagebreak: { mode: [] }, html2canvas: {
-    scale: 2, width: Math.ceil(width), height: Math.ceil(height), useCORS: true, backgroundColor: "#ffffff", onclone: slidePdfColors
+    scale: 2, width: Math.ceil(width), height: Math.ceil(height), scrollX: 0, scrollY: 0, useCORS: true, backgroundColor: "#ffffff", onclone: slidePdfColors
   } }).from(page).toCanvas().get("canvas");
 }
-async function wsPdfBlob(L, stage) {
-  const pages = await wsBuildPages(L, stage);
-  const seed = document.createElement("canvas"); seed.width = seed.height = 1;
-  const pdf = await window.html2pdf().set({ margin: 0, jsPDF: { orientation: "portrait", unit: "mm", format: "a4", compress: true } })
-    .from(seed, "canvas").toPdf().get("pdf");
-  for (let i = 0; i < pages.length; i++) {
-    const canvas = await wsPageCanvas(pages[i]);
-    if (i) pdf.addPage();
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, 210, 297);
+function wsTwoCopies(portrait) {
+  const canvas = document.createElement("canvas"), px = 8;
+  canvas.width = 297 * px; canvas.height = 210 * px;
+  const ctx = canvas.getContext("2d"), half = canvas.width / 2;
+  const scale = Math.min((half - 8 * px) / portrait.width, (canvas.height - 8 * px) / portrait.height);
+  const w = Math.round(portrait.width * scale), h = Math.round(portrait.height * scale);
+  const x = Math.floor((half - w) / 2), y = Math.floor((canvas.height - h) / 2);
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(portrait, x, y, w, h);
+  ctx.drawImage(canvas, 0, 0, half, canvas.height, half, 0, half, canvas.height);
+  ctx.strokeStyle = "#414141"; ctx.lineWidth = 2; ctx.setLineDash([24, 12]);
+  ctx.beginPath(); ctx.moveTo(half, 4 * px); ctx.lineTo(half, canvas.height - 4 * px); ctx.stroke();
+  return canvas;
+}
+async function* wsPrintCanvases(L, stage, mode) {
+  if (L.art?.photos?.length) {
+    for (const photo of L.art.photos) {
+      const img = new Image(); img.src = photo.url; await img.decode();
+      const page = document.createElement("canvas"); page.width = 1680; page.height = 2376;
+      const ctx = page.getContext("2d"), scale = Math.min((page.width - 176) / img.width, (page.height - 176) / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, page.width, page.height);
+      ctx.drawImage(img, (page.width - w) / 2, (page.height - h) / 2, w, h);
+      yield mode === "two-up" ? wsTwoCopies(page) : page;
+    }
+    return;
   }
-  if (pages.length > 1) pdfDuplex(pdf);
+  for (const page of await wsBuildPages(L, stage)) {
+    const canvas = await wsPageCanvas(page);
+    yield mode === "two-up" ? wsTwoCopies(canvas) : canvas;
+  }
+}
+async function wsPdfBlob(L, stage, mode) {
+  const landscape = mode === "two-up", [width, height] = landscape ? [297, 210] : [210, 297];
+  // html2pdf rounds the calculated page height down, so a 1 px seed cannot initialize landscape.
+  const seed = document.createElement("canvas"); seed.width = 16; seed.height = 8;
+  const pdf = await window.html2pdf().set({ margin: 0, jsPDF: { orientation: landscape ? "landscape" : "portrait", unit: "mm", format: "a4", compress: true } })
+    .from(seed, "canvas").toPdf().get("pdf");
+  let count = 0;
+  for await (const canvas of wsPrintCanvases(L, stage, mode)) {
+    if (count++) pdf.addPage("a4", landscape ? "landscape" : "portrait");
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, width, height);
+  }
+  if (count > 1 || landscape) pdfDuplex(pdf, landscape);
   return pdf.output("blob");
 }
 // html2canvas understands sRGB as rgba(), while Chromium serializes color-mix() as color(srgb …).
@@ -4525,10 +4717,10 @@ function withPrintStage(render) {
   printQueue = pending.catch(() => {});
   return pending;
 }
-function docToPdfBlob(L, doc) { return withPrintStage(stage => renderPdf(L, doc, stage)); }
-async function renderPdf(L, doc, stage) {
+function docToPdfBlob(L, doc, mode = state.wsPrint) { return withPrintStage(stage => renderPdf(L, doc, stage, mode)); }
+async function renderPdf(L, doc, stage, mode) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
-  if (doc === "worksheet") return wsPdfBlob(L, stage);
+  if (doc === "worksheet") return wsPdfBlob(L, stage, mode);
   if (doc === "conspect") await window.Plans?.ensure(L.params.subject);
   const md = doc === "conspect" ? normalizeTechmap(L.docs[doc], L.params) : doc === "lesson" ? repairLessonTables(L.docs[doc]) : doc === "slides" && !/<!--@/.test(L.docs[doc]) ? Engine.normalizeSlides(L.docs[doc]) : L.docs[doc];
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
@@ -4562,14 +4754,14 @@ async function renderPdf(L, doc, stage) {
   else blob = await h2p().outputPdf("blob");
   return blob;
 }
-function docToPngCanvases(L) { return withPrintStage(stage => renderPngPages(L, stage)); }
-async function renderPngPages(L, stage) {
+function docToPngCanvases(L, mode = state.wsPrint) { return withPrintStage(stage => renderPngPages(L, stage, mode)); }
+async function renderPngPages(L, stage, mode) {
   await Promise.all([ensureMarked(), loadScript("html2pdf")]);
-  const pages = await wsBuildPages(L, stage), out = [];
-  for (const pg of pages) out.push(await wsPageCanvas(pg));
+  const out = [];
+  for await (const canvas of wsPrintCanvases(L, stage, mode)) out.push(canvas);
   return out;
 }
-async function exportPdf() { const L = state.lesson; toast("Готовлю PDF…", 9000); await saveFile(baseName(L, state.active) + ".pdf", await docToPdfBlob(L, state.active)); }
+async function exportPdf() { return exportOne(state.lesson, state.active, "pdf"); }
 async function exportZip(L) {
   // каждый файл собирается отдельно: если один не получился (например, PDF на планшете не хватило памяти
   // или библиотека PDF не загрузилась), архив всё равно скачивается с остальными файлами
@@ -4611,7 +4803,7 @@ async function exportOne(L, d, f) { try { window.Learn2?.learnExport?.({ subject
   if (f === "zip") { toast("Собираю файлы для урока…", 6000); return saveFile(`${fileSafe(L.title, 70) || "Урок"} — файлы для урока.zip`, await packZipBlob(L)); }
   if (f === "docx") { toast("Готовлю Word…", 6000); const files = (await docxBlobs(L, d)).filter(([n]) => !APPX_RE.test(n)); for (const [n, b] of files) await saveFile(n, b); return; }
   if (f === "pptx") { toast("Готовлю презентацию…", 8000); return saveFile(baseName(L, d) + ".pptx", await slidesToPptxBlob(L.docs[d], L.title)); }
-  if (f === "pdf") { toast("Готовлю PDF…", 9000); return saveFile(baseName(L, d) + ".pdf", await docToPdfBlob(L, d)); }
+  if (f === "pdf") { const mode = state.wsPrint; toast("Готовлю PDF…", 9000); return saveFile(baseName(L, d) + (d === "worksheet" ? wsPrintSuffix(mode) : "") + ".pdf", await docToPdfBlob(L, d, mode)); }
   if (f === "png") { toast("Готовлю PNG…", 9000); return exportPng(); }
 }
 function guarded(fn) { return async () => { if (!state.lesson?.docs[state.active]) return; try { await fn(); } catch (e) { console.error(e); toast("Выгрузка не удалась: " + (e.message || e)); } }; }
@@ -4732,6 +4924,7 @@ function bind() {
   $("#grade").onchange = () => { state.grade = +$("#grade").value; syncControls(); clearTopic(); refreshTopics(); };
   $("#control").onchange = () => { state.control = $("#control").value; syncControls(); readForm(); };
   if ($("#duration")) $("#duration").addEventListener("change", readForm);
+  $("#wsPages")?.addEventListener("change", readForm);
   $("#topic").addEventListener("input", debounce(() => { readForm(); updateType(); if (!$("#topicPanel").hidden) renderTopicPanel(); }, 250));
   $("#topic").addEventListener("focus", () => { if (!$("#topic").value) openTopicPanel(); });
   $("#topic").addEventListener("keydown", e => { if (e.key === "ArrowDown") { e.preventDefault(); openTopicPanel(); $("#topicPanel button")?.focus(); } if (e.key === "Escape") $("#topicPanel").hidden = true; });
@@ -4758,6 +4951,10 @@ function bind() {
   $("#sheet").addEventListener("input", () => EditHistory.dirty());
   $("#btnUndo").onclick = () => EditHistory.undo();
   $("#btnRedo").onclick = () => EditHistory.redo();
+  const topbar = $(".topbar");
+  if (topbar && window.ResizeObserver) new ResizeObserver(() => {
+    $("#workspace").style.setProperty("--doc-toolbar-top", `${Math.ceil(topbar.getBoundingClientRect().height)}px`);
+  }).observe(topbar);
   document.addEventListener("keydown", e => {
     if (!state.lesson || !(e.ctrlKey || e.metaKey)) return;
     if (!e.target.closest || !e.target.closest("#sheet,#md,#mdPane,#workspace")) return;

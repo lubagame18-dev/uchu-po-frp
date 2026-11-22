@@ -1077,6 +1077,13 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 
 /* Лист ученика. Размеры используются в предпросмотре и при выгрузке. */
 .ws-pages { display: grid; gap: 12px; justify-content: start; overflow: auto; outline: none; }
+#workspace { overflow: clip; }
+.doc-edit-actions { position: sticky; z-index: 8; top: var(--doc-toolbar-top, 0px); display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; background: var(--card); }
+.doc-edit-actions .btn { min-height: 40px; }
+.ws-page-status { margin: 0 0 8px; }
+.ws-print-field { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ws-print-field select { max-width: 100%; }
+.ws-print-help { flex-basis: 100%; }
 .ws-page.sheet {
   box-sizing: border-box; width: 210mm; height: 297mm; min-height: 0; max-width: none;
   padding: 11mm; margin: 0; border: 0; border-radius: 0; background: #fff; color: #171321;
@@ -1110,6 +1117,7 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .ws-page .ws-grid-row > :last-child { margin-bottom: 0; }
 @page worksheet { size: A4 portrait; margin: 11mm; }
 @media print {
+  .doc-edit-actions, .ws-page-status { display: none !important; }
   body:has(#sheet.ws-pages) > :not(#view-builder),
   #view-builder:has(#sheet.ws-pages) > :not(main),
   .builder:has(#sheet.ws-pages) > :not(#workspace),

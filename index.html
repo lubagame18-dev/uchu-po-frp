@@ -704,6 +704,10 @@ window.UCHU_SITE = {
             <div hidden><span id="mbLock"></span><input type="file" id="xExtraFile" hidden><span id="xExtraName"></span><textarea id="xExtraTxt"></textarea><input type="file" id="xHwFile" hidden><span id="xHwName"></span><textarea id="xHwTxt"></textarea></div>
           </div>
         </div>
+        <div class="field" id="wsPageField">
+          <label for="wsPages">Объём рабочего листа</label>
+          <select id="wsPages"><option value="1">До 1 страницы</option><option value="2" selected>До 2 страниц</option><option value="3">До 3 страниц</option><option value="4">До 4 страниц</option></select>
+        </div>
         <div class="field th-field" id="thField"><span class="lbl">Оформление презентации</span>
           <div class="pv-grid th-grid" id="slThemeGrid" role="radiogroup" aria-label="Оформление презентации"></div>
           <select id="slTheme" aria-label="Оформление презентации" hidden><option value="modern">Модерн</option></select>
@@ -735,14 +739,11 @@ window.UCHU_SITE = {
         <div class="ws-tools" id="wsTools">
           
           <button class="btn sm ghost" id="btnFixDoc" disabled title="Проверить формулировки, условия и ответы во всех предметах">🔎 Проверить формулировки</button>
-          <button class="btn sm ghost" id="btnUndo" disabled title="Отменить последнюю правку (Ctrl+Z)" aria-label="Отменить последнюю правку">↶</button>
-          <button class="btn sm ghost" id="btnRedo" disabled title="Вернуть отменённую правку (Ctrl+Y)" aria-label="Вернуть отменённую правку">↷</button>
           <button class="btn sm flame" id="btnPackZip" hidden>⬇ Файлы для урока (ZIP)</button>
           <button class="btn sm teal" id="btnDocx">Скачать Word</button>
           <button class="btn sm ghost" id="btnPng" hidden title="Скачать страницы листа картинками: такой лист нельзя редактировать">Скачать картинками (PNG)</button>
           <button class="btn sm teal" id="btnPptx" hidden>Скачать PowerPoint</button>
           <button class="btn sm flame" id="btnPdf">Скачать PDF</button>
-          <button class="btn plain" id="btnMdToggle">Markdown</button>
         </div>
       </div>
       <div class="lesson-title" id="lessonTitle" hidden></div>
@@ -754,7 +755,15 @@ window.UCHU_SITE = {
           <div class="pane-h">Markdown</div>
           <textarea id="md" spellcheck="true" aria-label="Текст документа в Markdown"></textarea>
         </div>
-        <div class="pane preview"><div class="sheetwrap" id="sheetwrap"><div class="sheet" id="sheet"></div></div></div>
+        <div class="pane preview">
+          <div class="doc-edit-actions" id="docEditActions" role="group" aria-label="Правки документа" hidden>
+            <button type="button" class="btn sm ghost" id="btnUndo" disabled title="Отменить последнюю правку (Ctrl+Z)">↶ Отменить</button>
+            <button type="button" class="btn sm ghost" id="btnRedo" disabled title="Вернуть отменённую правку (Ctrl+Y)">↷ Повторить</button>
+            <button type="button" class="btn plain" id="btnMdToggle">Markdown</button>
+          </div>
+          <p class="ws-page-status small" id="wsPageStatus" role="status" hidden></p>
+          <div class="sheetwrap" id="sheetwrap"><div class="sheet" id="sheet"></div></div>
+        </div>
       </div>
       <button id="btnDeco" hidden style="display:none"></button>
       <details class="ws-more" id="wsMoreBox" hidden><summary>📄 Дополнительные рабочие листы</summary>
