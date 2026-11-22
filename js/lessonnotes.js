@@ -18,11 +18,12 @@ const LessonNotes = (() => {
   /* ---------- разбор техкарты ---------- */
   function head(md) {
     const pick = re => (md.match(re) || [])[1] || "";
-    const tbl = label => { const m = md.match(new RegExp("\\|\\s*" + label + "\\s*\\|\\s*([^\\n|]+)")); return m ? clean(m[1]).replace(/^\*\*|\*\*$/g, "") : ""; };
+    const tbl = label => clean(pick(new RegExp(`^\\|[ \\t]*\\*{0,2}${label}\\*{0,2}[ \\t]*\\|[ \\t]*([^\\n|]+)`, "im")))
+      .replace(/^\*\*|\*\*$/g, "").replace(/&#124;/g, "|");
     return {
-      title: pick(/^#\s+(.+)$/m),
+      title: tbl("Тема(?: урока)?") || pick(/^#\s+(.+)$/m),
       meta: pick(/^(\*\*Класс:\*\*.+)$/m),
-      goal: pick(/\*\*Цель:\*\*\s*([^\n]+)/) || tbl("Цель"),
+      goal: tbl("Цель(?: урока)?") || pick(/\*\*Цель:\*\*[ \t]*([^\n]+)/),
       equip: pick(/\*\*Оборудование:\*\*\s*([^\n]+)/) || tbl("Ресурсы"),
       text: pick(/\*\*Текст для анализа:\*\*\s*([^\n]+)/),
       book: pick(/\*\*Опора в учебнике:\*\*\s*([^\n]+)/) || tbl("Учебник"),
@@ -45,17 +46,9 @@ const LessonNotes = (() => {
   function rows(md) {
     const blocks = blockTable(md);
     if (blocks) return blockRows(blocks.lines);
-    let i = md.search(/^##\s+Технологическая карта/m);
-    if (i < 0) { const t = md.search(/^\|\s*(Этап|№)[^\n]*\|[^\n]*(Учител|учител|Деятельность)/m); if (t < 0) return []; i = md.lastIndexOf("\n", Math.max(0, t - 2)); if (i < 0) i = 0; } // нейросеть могла не поставить заголовок
-    const out = [];
-    for (const line of md.slice(i).split("\n").slice(1)) {
-      if (/^##\s/.test(line)) break;
-      if (!/^\|/.test(line) || /^\|\s*-+/.test(line)) continue;
-      const c = line.replace(/^\|/, "").replace(/\|\s*$/, "").split("|").map(x => x.trim());
-      if (/^Этап/.test(c[0])) continue;
-      out.push(c);
-    }
-    return out;
+    const table = md.match(/^\|[ \t]*(?:\*\*)?(?:Этап|№)[^\n]*\|[^\n]*(?:Учител|Деятельность)[^\n]*(?:\n\|[^\n]*)+/im);
+    return table ? table[0].split("\n").slice(2).map(line => line.trim().slice(1, -1)
+      .split(/(?<!\\)\|/).map(x => x.trim().replace(/\\\||&#124;/g, "|"))) : [];
   }
   /* реплики учителя → вопросы с ожидаемыми ответами и пометки */
   function talk(cellText) {
@@ -74,10 +67,15 @@ const LessonNotes = (() => {
     return { qs, notes };
   }
   function task(cellText) {
-    const m = String(cellText).match(/\*\*Задание\*\*(?:\s*\*\(источник:\s*([^)]*)\)\*)?:?\s*(?:<br>)?([\s\S]*)$/);
-    if (m) return { src: clean(m[1] || ""), text: m[2].split(/<br\s*\/?>/i).map(x => x.trim()).filter(Boolean).join("<br>") };
-    const g = String(cellText).match(/\*\*Задание:\*\*\s*([\s\S]*)$/);
-    return g ? { src: "", text: clean(g[1]) } : null;
+    const m = String(cellText).match(/\*\*Задание:?\*\*(?:\s*\*\((?:источник|из материалов):\s*([^)]*)\)\*)?:?\s*([\s\S]*)$/i);
+    if (!m) return null;
+    const lines = m[2].split(/(?:<br\s*\/?>|\n)/i).map(x => x.trim()).filter(Boolean);
+    const keyLabel = /^\*{0,2}(?:Ответ(?:ы|ы и критерии)?|Ключ(?:и)?|Решение|Эталон)\*{0,2}:\*{0,2}\s*/i;
+    const contextLabel = /^(?:\*{0,2}(?:Проверка|Результаты|Задача этапа|Схема-опора|Деятельность учащихся|Ученики|Задание)\*{0,2}:|\*\((?:Верный|Ожидаемый) ответ)/i;
+    const stop = lines.findIndex(x => keyLabel.test(x) || contextLabel.test(x));
+    const split = stop < 0 ? lines.length : stop;
+    const key = keyLabel.test(lines[split] || "") ? [lines[split].replace(keyLabel, ""), ...lines.slice(split + 1)].join(" ").trim() : "";
+    return { src: clean(m[1] || ""), text: lines.slice(0, split).join("<br>"), key };
   }
 
   /* ---------- выводы учителя ---------- */
@@ -127,19 +125,21 @@ const LessonNotes = (() => {
   function blockRows(lines) {
     lines = lines.map(x => x.trim()).filter(x => !/^\|\s*:?-{2,}/.test(x));
     const out = []; let cur = null;
-    const cells = l => l.replace(/^\|/, "").replace(/\|$/, "").split("|").map(x => x.replace(/\*\*/g, "").trim());
     for (const l of lines) {
-      const t = cells(l).join(" ").trim(); if (!t) continue;
-      if (/^Блок\s+\d+/i.test(t)) { if (cur) out.push(cur); cur = { stage: t.replace(/^Блок\s*\d+\.?\s*/i, ""), teacher: "", students: "", results: "", goal: "" }; continue; }
+      const t = l.slice(1, -1).trim(); if (!t) continue;
+      const stage = t.match(/^\*{0,2}Блок\s*\d+[.)]?\s*\*{0,2}\s*([^*]+?)\s*\*{0,2}$/i);
+      if (stage) { if (cur) out.push(cur); cur = { stage: stage[1], teacher: [], students: [], materials: [] }; continue; }
       if (!cur) continue;
-      if (/^Цель этапа/i.test(t)) cur.goal = t.replace(/^Цель этапа:\s*/i, "");
-      else if (/^Учитель:/i.test(t)) cur.teacher = t.replace(/^Учитель:\s*/i, "");
-      else if (/^Ученики:/i.test(t)) cur.students = t.replace(/^Ученики:\s*/i, "");
-      else if (/^Планируемые результаты:/i.test(t)) cur.results = t.replace(/^Планируемые результаты:\s*/i, "");
-      else if (/^Домашнее задание:/i.test(t)) cur.stage += " · Домашнее задание";
+      const field = t.match(/^\*{0,2}([^:*]+?)\*{0,2}:\*{0,2}\s*([\s\S]*)$/);
+      const label = field?.[1] || "", value = field?.[2].replace(/&#124;|\\\|/g, "|") || "";
+      if (/^(Учитель|Деятельность учителя)$/i.test(label)) cur.teacher.push(value);
+      else if (/^(Ученики|Учащиеся|Деятельность (?:учеников|учащихся))$/i.test(label)) cur.students.push(value);
+      else if (/^Домашнее задание$/i.test(label)) { if (!/Домашнее задание/i.test(cur.stage)) cur.stage += " · Домашнее задание"; cur.teacher.push(value); }
+      else if (/^(Материалы|Ресурсы)$/i.test(label)) cur.materials.push(value);
+      else if (/^\*\*Задание(?=[:*])/i.test(t)) cur.materials.push(t);
     }
     if (cur) out.push(cur);
-    return out.map(c => [c.stage, c.teacher, c.students, [(c.goal ? "Цель этапа: " + c.goal + ". " : ""), c.teacher, c.results ? "Результаты: " + c.results : ""].filter(Boolean).join(" ")]);
+    return out.map(c => [c.stage, c.teacher.join("<br>"), c.students.join("<br>"), c.materials.join("<br>")]);
   }
 
   /* ---------- сборка: вёрстка по образцу конспектов учителя (Layout) ---------- */
@@ -156,7 +156,7 @@ const LessonNotes = (() => {
     // план урока
     const st = R.map((c, i) => {
       const stage = c[0] || `Этап ${i + 1}`, name = stage.replace(/\s*\(\d+\s*мин\)\s*$/, ""), min = (stage.match(/\((\d+)\s*мин\)/) || [])[1] || "";
-      const t = ru ? task(c[3] || "") : null;
+      const t = ru ? task(c[3] || "") || task(c[1] || "") : null;
       const side = strip(ru ? c[3] : c[2]);
       const mat = t?.src ? t.src : /рабоч[а-я]* лист/i.test(side) ? "рабочий лист" : /слайд|доск/i.test(side + c[1]) ? "доска, слайд" : !ru && K?.fragments?.length && /аналит|анализ|комментар|беседа/i.test(name) ? "текст произведения" : "беседа";
       return { c, name, min, t, side, mat };
@@ -226,7 +226,7 @@ const LessonNotes = (() => {
         const pre = ru && /актуализ|пробн|выявлен|мотивац/i.test(name);
         out += X.ex(`Упражнение ${ex}${t.src ? ` · ${t.src}` : ""}`, lines, pre ? ["Выполните задание так, как считаете верным, без подсказок.", "Поставьте «?» там, где сомневаетесь.", "Сравните ответы с соседом: где они разошлись?"] : steps, pre ? "Пробное действие" : algo?.name);
         const key = typeof Base !== "undefined" && Base.keyFor ? Base.keyFor(t.text) : "";
-        out += X.row("Ответы", students || key || [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""].filter(Boolean).join("; "));
+        out += X.row("Ответы", t.key || students || key || [t.src ? `по ключу пособия (${t.src})` : "проверить по правилу", algo?.ex?.length ? `образцы: ${algo.ex.join("; ")}` : ""].filter(Boolean).join("; "));
       }
       // литература: работа с фрагментами текста — по блокам: установка на чтение → отрывок → словарная работа → вопросы → вывод
       if (fragStageNow) {
@@ -293,6 +293,6 @@ const LessonNotes = (() => {
     }
     return Layout.merge(out).replace(/ +»/g, "»");
   }
-  return { build, rows, talk };
+  return { build, head, rows, section, talk, task };
 })();
 window.LessonNotes = LessonNotes;

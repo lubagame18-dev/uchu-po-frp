@@ -38,6 +38,8 @@ const Deck = (() => {
     flip: "Проверь себя (карточки)", video: "Видеофрагмент", section: "Разделитель"
   };
   const VERBATIM = new Set(["quote", "poem", "task", "rule", "fragment"]);
+  const WIDGETS = new Set(["check", "quiz", "choice", "odd", "timeline", "compare", "charmap", "selfcheck", "score", "flip"]);
+  const PRACTICE_RULE = "Если ученик должен сам расставить знаки препинания, напиши явную инструкцию. Из предложения для ученика убери именно те знаки, которые нужно поставить. Полный вариант со знаками помести только в ответ или заметку учителю. В разобранных образцах и цитатах сохраняй пунктуацию. Для объяснения правила и самопроверки используй разные примеры.";
   const CREATIVE = new Set(["izo", "mhk", "mus", "lit"]);
   /* Предметные группы для методических добавок (справки, карты, схема «вспомним → образец → …»). */
   const TECH = new Set(["math", "phys", "chem", "inf"]);
@@ -110,23 +112,22 @@ const Deck = (() => {
   }
 
   /* ---------- разбор конспекта ---------- */
+  const documentTitle = title => /^(?:технологическая карта(?: урока)?|конспект(?: урока)?|тема урока)[.\s:]*$/i.test(plainMd(title));
   function parseConspect(md) {
     md = String(md || "");
-    const r = { title: (md.match(/^#\s+(.+)$/m) || [])[1] || "", goal: (md.match(/\*\*Цель:\*\*\s*(.+)/) || [])[1] || "", rows: [], rules: [], hw: [], wiki: "", plan: [] };
-    const planBlock = md.split(/^## План урока\s*$/m)[1];
-    if (planBlock) r.plan = planBlock.split(/^---|^## /m)[0].split("\n").filter(l => /^\d+\.\s/.test(l)).map(l => l.replace(/^\d+\.\s*/, "").replace(/\s*\(\d+\s*мин\)\s*$/, "").trim());
-    const tm = md.split(/^## Технологическая карта урока\s*$/m)[1];
-    if (tm) {
-      const lines = tm.split("\n").filter(l => /^\|/.test(l) && !/^\|\s*:?-{2,}/.test(l));
-      lines.slice(1).forEach(l => {
-        const cells = l.split("|").slice(1, -1).map(c => c.trim());
-        if (cells.length < 2) return;
-        r.rows.push({ stage: cells[0].replace(/\s*\(\d+\s*мин\)\s*/, "").trim(), cells, content: cells[1], extra: cells.slice(2) });
-      });
-    }
+    const notes = window.LessonNotes, { title = "", goal = "" } = notes?.head?.(md) || {};
+    const untimed = s => s.replace(/\s*\(\d+(?:\s*[–—-]\s*\d+)?\s*мин\)\s*/gi, " ").trim();
+    const r = { title: documentTitle(title) ? "" : title, goal, rows: [], rules: [], hw: [], wiki: "", plan: [] };
+    r.rows = (notes?.rows(md) || []).filter(cells => cells.length >= 2).map(cells => ({
+      stage: untimed(cells[0]), cells, content: cells[1], extra: cells.slice(2)
+    }));
+    const planBlock = notes?.section?.(md, "План урока");
+    r.plan = planBlock ? planBlock.split("\n").filter(l => /^\d+\.\s/.test(l)).map(l => untimed(l.replace(/^\d+\.\s*/, ""))) : r.rows.map(row => row.stage);
     for (const m of md.matchAll(/^>\s*💡\s*ВАЖНО:\s*(.+)$/gm)) if (!/⟦/.test(m[1])) r.rules.push(m[1].trim());
-    const hw = md.split(/^## Домашнее задание\s*$/m)[1];
-    if (hw) r.hw = hw.split(/^## /m)[0].split("\n").filter(l => /^\s*[-*]\s/.test(l)).map(l => plainMd(l.replace(/^\s*[-*]\s+/, "")));
+    const hw = notes?.section?.(md, "Домашнее задание");
+    const home = r.rows.findLast(row => /(?:^| · )Домашнее задание/i.test(row.stage));
+    r.hw = unbr(hw || home?.content || "").split("\n").map(l => cleanLine(l.replace(/^\s*(?:[-*—]|\d+[.)])\s+/, "")))
+      .filter(l => l && !/^(?:🔗|Переход|Записывают|Домашнее задание\s*:?$)/i.test(l));
     const wiki = md.match(/\*\*Википедия, «[^»]*»:\*\*\s*([^\n]+)/);
     if (wiki) r.wiki = wiki[1].replace(/\[Открыть статью\]\([^)]*\)/, "").trim();
     return r;
@@ -187,7 +188,7 @@ const Deck = (() => {
     const first = +p.lessonNo === 1;
     const wikiYears = (() => { const m = String(c.wiki || "").match(/\(([^)]*?\d{4}[^)]*?\d{4}[^)]*?)\)/); if (!m) return ""; const ys = m[1].match(/\d{4}/g); return ys && ys.length >= 2 ? `${ys[0]}–${ys[ys.length - 1]}` : ""; })();
     const wikiWho = (() => { const w = String(c.wiki || "").match(/\)\s*[—–-]\s*([^.;]{8,120})/); return w ? capF(w[1].trim()) : ""; })();
-    add({ kind: "title", title: work ? `«${work}»` : (c.title || p.topic), points: [author || "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${author ? author.split(/\s|\./).filter(Boolean).pop() + " " : ""}${work || p.topic} иллюстрация картина художника` : "", acc: "right" });
+    add({ kind: "title", title: p.topic || c.title, points: [author && !p.topic.includes(author) ? author : "", `${p.grade} класс · Литература`].filter(Boolean), img: imgOn ? `commons:${author ? author.split(/\s|\./).filter(Boolean).pop() + " " : ""}${work || p.topic} иллюстрация картина художника` : "", acc: "right" });
     // 1. Биография автора — первый слайд урока (портрет + годы + 2–3 вопроса)
     if (first && author) add({ kind: "author", title: author, points: [wikiYears, wikiWho].filter(Boolean), qs: ["Что в судьбе автора помогает понять произведение?", "Какие события жизни и эпохи отразились в его творчестве?", "Что удивило вас в биографии писателя?"], img: imgOn ? `commons:${author} портрет` : "", acc: "left", notes: `Биография: ${clip(c.wiki || "", 500) || "по учебнику"}. Вопросы — короткое обсуждение до чтения (2–3 минуты).` });
     // 1а. Из биографии: только то, что помогает понять это произведение (без «автора в разные годы» и случайных фото)
@@ -646,7 +647,7 @@ const Deck = (() => {
      Ответы – отдельным слайдом СРАЗУ после своего задания, а не одним слайдом на все проверки урока. */
   const GENERIC = /(могу объяснить|оцени(те)? себя|что было главным|что осталось непонятн|на какие вопросы мы ответили|что нового (я )?узнал|сформулируйте вопрос|понял\(а\)? с подсказкой|остались вопросы|какое настроение|что получилось|что было трудн|^—?$)/i;
   const EMPTY_TITLE = /^(подвед[её]м итоги?|итоги( урока)?|переходим[^]*|продолжаем[^]*|вопросы\??|есть вопросы\??|спасибо( за урок| за внимание)?!?|практика|читаем и думаем|работа с текстом|этап[^]*|физминутка|какие вопросы у вас возникают\??)$/i;
-  function hasBody(c) { return ["points", "items", "quote", "poem", "task", "rule", "lead", "body", "mdBody", "img", "answers", "steps", "rows", "table"].some(k => { const v = c[k]; return Array.isArray(v) ? v.some(x => String(Array.isArray(x) ? x.join(" ") : x || "").trim()) : !!String(v || "").trim(); }); }
+  function hasBody(c) { return ["points", "items", "quote", "poem", "task", "rule", "lead", "body", "text", "mdBody", "img", "answers", "steps", "rows", "table", "options", "events", "images"].some(k => { const v = c[k]; return Array.isArray(v) ? v.some(x => String(Array.isArray(x) ? x.join(" ") : x || "").trim()) : !!String(v || "").trim(); }); }
   function pairAnswers(cards) {
     const out = [];
     cards.forEach((c, i) => {
@@ -654,14 +655,9 @@ const Deck = (() => {
       out.push(c.links ? { ...c, links: c.links.filter(l => l !== "answers") } : c);
       // ключ к заданию лежит только в заметке («Ключ: …») – выводим ответы отдельным слайдом сразу после задания
       const nk = String(c.notes || "").match(/(?:^|\s)(?:Ключ|Ответы|Ответ|Решение)\s*:\s*([^\n]+)/);
-      if (c.kind !== "check" && nk && /проверь себя|разминк|самостоятельн|тест|викторин|найди ошибку|верно или|задач|упражнени|задани/i.test(String(c.title || "")) && !/^ответ/i.test(String(cards[i + 1]?.title || ""))) {
+      if (!WIDGETS.has(c.kind) && nk && /проверь себя|разминк|самостоятельн|тест|викторин|найди ошибку|верно или|задач|упражнени|задани/i.test(String(c.title || "")) && !/^ответ/i.test(String(cards[i + 1]?.title || ""))) {
         const pts = (/(В-\d|Вариант \d)/.test(nk[1]) ? nk[1].split(/[;,]?\s*(?=В-\d|Вариант \d)/) : nk[1].split(/;\s*|\s+(?=\d+\)\s)/)).map(x => x.trim().replace(/[;,]\s*$/, "")).filter(Boolean).slice(0, 12);
         if (pts.length) out.push({ id: (c.id || "k" + i) + "-ans", on: c.on !== false, kind: "list", title: `${/задач/i.test(String(c.title)) ? "Решение" : "Ответы"}: ${String(c.title).replace(/^ответы:\s*/i, "")}`, points: pts, notes: "Показываем после того, как класс выполнил это задание." });
-        return;
-      }
-      if (c.kind === "check" && (c.answers || []).some(Boolean) && false) { // ответы теперь за кнопкой «Ответ» на самом слайде (qa)
-        const nx = cards[i + 1]; if (nx && /^ответ/i.test(String(nx.title || ""))) return;
-        out.push({ id: (c.id || "chk" + i) + "-ans", on: c.on !== false, kind: "list", title: `Ответы: ${String(c.title || "Проверь себя").replace(/^ответы:\s*/i, "")}`, points: (c.points || []).map((q, k) => c.answers[k] ? `${k + 1}) ${c.answers[k]}` : "").filter(Boolean), notes: "Показываем после того, как класс ответил на это задание." });
       }
     });
     return out;
@@ -669,7 +665,12 @@ const Deck = (() => {
   function prune(cards) {
     if (!Array.isArray(cards)) return cards;
     const STAGE = /^(с чего начн|вспомн|в ч[её]м затруднен|план работы|открываем|открытие|закреплен|первичное закреплен|рефлекс|самостоятельн|повторен|мотивац|актуализ|итог|домашн|организац|целеполаган|постановка|включение в систему|проверка домашн)/i;
-    cards = cards.map(c => c && Array.isArray(c.points) ? { ...c, points: c.points.filter(x => !/^\s*(🔗|\*?Переход)/.test(String(x))) } : c);
+    cards = cards.map(c => {
+      if (!Array.isArray(c?.points)) return c;
+      const visible = c.points.map((_, i) => i).filter(i => !/^\s*(?:🔗|\*?Переход)/.test(String(c.points[i])));
+      if (visible.length === c.points.length) return c;
+      return { ...c, points: visible.map(i => c.points[i]), ...(Array.isArray(c.answers) ? { answers: visible.map(i => c.answers[i]) } : {}) };
+    });
     const keep = cards.filter(c => {
       if (!c) return false;
       // «План урока» из названий этапов («С чего начнём, Вспомним, В чём затруднение…») – служебный, ученикам ничего не даёт
@@ -678,7 +679,7 @@ const Deck = (() => {
       const t = String(c.title || "").replace(/[*_]/g, "").trim();
       if (c.kind === "section") return false;
       // картина или изображение – отдельные слайды (image, art) оставляем выше; картинка-акцент пустой слайд не спасает
-      if (EMPTY_TITLE.test(t) && !(c.points || []).some(x => !GENERIC.test(String(x)))) return false;
+      if (EMPTY_TITLE.test(t) && !WIDGETS.has(c.kind) && !(c.points || []).some(x => !GENERIC.test(String(x)))) return false;
       if (/рефлекс/i.test(t) && (c.points || []).every(x => GENERIC.test(String(x)))) return false;
       // слайд, где только вопросы учителя без материала (они в конспекте): «В чём затруднение?», «План работы», «Закрепление: где чуть не ошиблись?»
       if (["big", "cards", "list"].includes(c.kind) && !/вопрос урока|проблемн/i.test(t)) {
@@ -715,10 +716,8 @@ const Deck = (() => {
     const core = typeof Engine !== "undefined" ? Engine.core(p.topic) : p.topic;
     const surname = author ? author.split(/\s|\./).filter(Boolean).pop() : "";
     // 1. Титульный: тема + класс, картинка-акцент к произведению или теме
-    // название: для литературы — произведение крупно, автор отдельной строкой (без лишних пометок)
     const shortWork = work && work.length > 44 ? work.split(/,\s*/)[0] + "…" : work;
-    const titleText = lit && work ? `«${work}»` : (c.title || p.topic);
-    add({ kind: "title", title: titleText, points: [lit && author ? author : "", `${p.grade} класс · ${subjectName(p)}`].filter(Boolean), img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "bg", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
+    add({ kind: "title", title: p.topic || c.title, points: [lit && author && !p.topic.includes(author) ? author : "", `${p.grade} класс · ${subjectName(p)}`].filter(Boolean), img: lit ? (work ? `${work} ${surname} иллюстрация` : `${author || p.topic} портрет`) : `${core}`, acc: "bg", notes: `${type?.name || ""}. ${typeof lessonLabel === "function" ? lessonLabel(p.lessonNo) : ""}.` });
     // 2. Автор: портрет и короткая справка из открытого источника (годы жизни, кто это)
     if (lit && author && c.wiki) { // слайд об авторе — только если есть проверенная справка (без пустого слайда)
       const pts = [];
@@ -765,7 +764,7 @@ const Deck = (() => {
     // 6. Этапы техкарты
     const poem = lit && p.plan?.analysis?.verse && p.plan.analysis.stanzas?.length ? p.plan.analysis.stanzas : null;
     let poemDone = false;
-    const exFull = p.exFull || [];
+    const exFull = p.exFull || [], readTask = window.LessonNotes?.task;
     for (const row of c.rows) {
       const stage = row.stage;
       if (flushRules) { ruleCards.splice(0).forEach(add); flushRules = false; }
@@ -776,14 +775,14 @@ const Deck = (() => {
       const title = stageTitle(stage);
       // упражнение — дословно, полностью
       // задание может стоять в любой колонке техкарты (у русского — в колонке УУД/материалов)
-      const allLines = unbr(row.cells.slice(1).join("\n")).split("\n").map(s => s.trim());
-      const tIdx = allLines.findIndex(l => /\*\*Задание\*\*/.test(l));
-      if (tIdx >= 0) {
-        const src = (allLines[tIdx].match(/\*\((?:источник|из материалов):\s*([^)]*)\)\*/) || [])[1] || "";
-        const full = exFull.find(e => e.source === src);
-        const tail = []; for (const l of allLines.slice(tIdx + 1)) { if (/^\s*$/.test(l) && tail.length && /^\s*$/.test(tail[tail.length - 1])) break; tail.push(l); }
-        const text = full ? full.text : [allLines[tIdx].replace(/^.*?\*\((?:источник|из материалов):[^)]*\)\*:?\s*/, ""), ...tail].join("\n").trim();
-        const taskCard = { kind: "task", title: `Упражнение${(text.match(/^\s*(\d{1,3})\.\s/) || [])[1] ? " " + text.match(/^\s*(\d{1,3})\./)[1] : ""}`, task: text, src, notes: `Упражнение приведено дословно (${src || "источник — в конспекте"}). ${notes}`.slice(0, 900) };
+      const task = readTask && row.cells.slice(1).map(readTask).find(x => x?.text && !/⟦/.test(x.text));
+      if (task) {
+        const { src } = task;
+        const sameSource = src ? exFull.filter(e => e.source === src) : [];
+        const full = sameSource.find(e => e.stage && stage.startsWith(e.stage)) || (sameSource.length === 1 ? sameSource[0] : null);
+        const text = full?.text || unbr(task.text).trim();
+        const key = task.key ? `Ответ учителю: ${task.key}. ` : "";
+        const taskCard = { kind: "task", title: `Упражнение${(text.match(/^\s*(\d{1,3})\.\s/) || [])[1] ? " " + text.match(/^\s*(\d{1,3})\./)[1] : ""}`, task: text, src, notes: `Упражнение из ${src || "конспекта"}. ${key}${notes}`.slice(0, 900) };
         const rest = lines.filter(l => isQ(cleanLine(l)) && !/\*\*Задание\*\*/.test(l)).map(l => tight(l, amt));
         if (rest.length) add({ kind: rest.length > 1 ? "cards" : "big", title, lead: rest.length > 1 ? "" : rest[0], points: rest.length > 1 ? pickPoints(rest, amt) : [], notes });
         add(taskCard);
@@ -847,6 +846,84 @@ const Deck = (() => {
     const full = card.full || rows.every(r => Array.isArray(r) && r.length >= head.length);
     return `| ${head.map(md1).join(" | ")} |\n|${head.map(() => "---").join("|")}|\n` + rows.map(r => full ? `| ${head.map((_, i) => md1(r[i])).join(" | ")} |` : `| ${md1(r[0])} |${" |".repeat(head.length - 1)}`).join("\n");
   }
+  /* Меняем только условие задания на расстановку, оставляя формулировку и ключ. */
+  function punctuationTarget(text) {
+    const s = plainMd(text).replace(/^Задание:\s*/i, "");
+    const start = /^(?:(?:(?:прочитай|спиши|запиши)(?:те)?\s+[^:?!]{1,90}?\s+и|в (?:(?:следующем|следующих|данном|данных)\s+)?(?:тексте|предложени(?:и|ях))|при необходимости)\s+)?(?:расстав(?:ь|ьте)|постав(?:ь|ьте)|встав(?:ь|ьте)|восстанов(?:и|ите)|добав(?:ь|ьте))(?=\s|,)/iu;
+    const locate = /^(?:где (?:нужно |надо )?(?:поставить|ставятся|нужны)|(?:спиши|запиши)(?:те)?\s+[^:?!]{1,90}?\s+расставляя)\s+/iu;
+    if ((!start.test(s) && !locate.test(s)) || /(?:одна|один|часть) [^:]{0,30}уже поставлен|сохрани(?:те)? (?:данн|поставлен)/i.test(s)) return "";
+    if (/знак(?:и|ов) препинания/i.test(s)) return "marks";
+    return /запят(?:ую|ые|ых|ой)/i.test(s) ? "commas" : "";
+  }
+  function hidePunctuation(text, target) {
+    const out = text.replace(/(?<!\d),|,(?!\d)/g, (comma, i) => /[\p{L}\d»”)]/u.test(text[i - 1] || "") && /[\p{L}\d«“(]/u.test(text[i + 1] || "") ? " " : "");
+    return target === "marks" ? out.replace(/[;:] (?=\S)|(?<=\s)[—–]\s/g, " ").replace(/ {2,}(?=\S)/g, " ") : out;
+  }
+  const practiceHeading = /^Проверь себя(?:[.!:]|\s+\(продолжение\)|$)/i;
+  function practiceBody(sl, p) {
+    if (sl.set.choice || sl.set.odd || sl.set.tl || sl.set.cmap || /^(?:quote|poem|fragment|rule)$/.test(sl.set.kind || "")) return sl.body;
+    let target = punctuationTarget(sl.title), fence = "";
+    const punctuationTopic = /^(ru|ru1)$/.test(p.subject || "") && /пунктуац|знак[а-яё]* препинания|запят/i.test(p.topic || "");
+    const selfCheck = (sl.set.qa || sl.set.quiz) && practiceHeading.test(plainMd(sl.title));
+    const bank = selfCheck && punctuationTopic ? window.Mnemo?.find(p.topic, "", p.subject) : null;
+    return sl.body.split("\n").map(line => {
+      const marker = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+      if (marker) {
+        if (!fence) fence = marker[1];
+        else if (marker[1][0] === fence[0] && marker[1].length >= fence.length && !marker[2].trim()) fence = "";
+        return line;
+      }
+      if (fence || /^\s*(?:\||>|\[!|!\[|<|#)/.test(line)) return line;
+      const m = line.match(/^(\s*(?:(?:[-*+]|\d+[.)])\s+)?(?:Задание:\s*)?)(.*?)(\s+\|\|\s+.*)?$/i);
+      const [, prefix, text, answer = ""] = m;
+      if (!text || /^\*{0,2}(?:Ответ|Решение|Эталон|Ключ|Образец|Пример:|Подсказ|Объясн|Почему|Верно ли|Найдите ошибку|Выберите|Сравните)/i.test(text)) return line;
+      for (const sep of text.matchAll(/[:.!?]\*{0,2}(?:[ \t]+|(?=[«„“"]))|[ \t]+[—–][ \t]+|(?=[«„“"])/g)) {
+        const type = punctuationTarget(text.slice(0, sep.index));
+        if (!type) continue;
+        const start = sep.index + sep[0].length;
+        return prefix + text.slice(0, start) + hidePunctuation(text.slice(start), type) + answer;
+      }
+      const directive = punctuationTarget(text);
+      if (directive) { target = directive; return line; }
+      if (target) return prefix + hidePunctuation(text, target) + answer;
+      // Старый слайд самопроверки мог дать готовое предложение и повторить его в ключе.
+      const example = text.replace(/\(что\?\)/i, "");
+      if (selfCheck && punctuationTopic && answer && !/[:?]/.test(example)) {
+        const key = s => s.replace(/[^\p{L}\d]/gu, "").toLowerCase();
+        const marker = answer.match(/^\s+\|\|\s+(?:Ответ:\s*)?/i)[0], solution = answer.slice(marker.length);
+        const savedPair = bank?.punctuation && bank.quiz.find(([question, correct]) =>
+          key(question.replace(/^Расставьте запятые:\s*/i, "")) === key(example) && key(correct) === key(example + solution));
+        if (savedPair) return prefix + savedPair[0] + marker + savedPair[1];
+        if (key(example) === key(solution)) return prefix + hidePunctuation(text, "commas") + answer;
+      }
+      return line;
+    }).join("\n");
+  }
+  function repairPresentation(md, p = {}, { generated = false } = {}) {
+    const editor = window.SlideEditor;
+    if (!editor || !md) return md;
+    const topic = md1(p.topic);
+    let changed = false;
+    const parts = splitSlides(md).map((raw, i) => {
+      const sl = editor.parse(raw);
+      const knownCover = sl.set.kind === "title" || sl.set.layout === "title" || documentTitle(sl.title);
+      const title = topic && i === 0 && (documentTitle(sl.title) || (!sl.title && knownCover) || (generated && (knownCover || sl.level === 1))) ? topic : sl.title;
+      const inferQa = sl.set.qa == null && !sl.set.quiz && !sl.set.choice && !sl.set.odd && !sl.set.tl && !sl.set.cmap &&
+        practiceHeading.test(plainMd(sl.title)) && window.marked?.lexer(sl.body).some(t => t.type === "list" && t.items.some(item => /^[^\n|]+[ \t]+\|\|[ \t]+\S/.test(item.text)));
+      if (inferQa) sl.set.qa = 1;
+      const body = practiceBody(sl, p);
+      if (!inferQa && title === sl.title && body === sl.body) return raw;
+      if (title !== sl.title) delete sl.set.afs;
+      changed = true;
+      return editor.build({ ...sl, title, body });
+    });
+    return changed ? editor.joinSlides(md, parts) : md;
+  }
+  function repairOutlineTitle(cards, topic) {
+    if (!Array.isArray(cards) || !topic) return cards;
+    const first = cards.findIndex(c => c?.kind === "title" && c.on !== false);
+    return first >= 0 && (!cards[first].title || documentTitle(cards[first].title)) ? cards.map((c, i) => i === first ? { ...c, title: topic } : c) : cards;
+  }
   function cardMd(card) {
     const set = {};
     let title = card.title || "", level = 2, body = "";
@@ -889,7 +966,13 @@ const Deck = (() => {
       /* «Проверь себя»: 2–4 вопроса; ответы — в заметках учителя (комментарий <!-- … -->) */
       case "check": set.layout = "list";
         // есть ответы – вопрос с кнопкой «Ответ»: в показе и в PowerPoint ответ открывается на своём слайде, оттуда – назад к вопросу
-        if ((card.answers || []).filter(Boolean).length >= Math.max(1, (card.points || []).length - 1)) { set.qa = 1; body = (card.points || []).map((x, i) => `- ${md1(x).replace(/\|\|/g, "|")} || ${md1(card.answers[i] || "—").replace(/\|\|/g, "|")}`).join("\n"); }
+        if (card.answers?.some(x => md1(x))) {
+          set.qa = 1;
+          body = (card.points || []).map((x, i) => {
+            const answer = md1(card.answers[i]);
+            return `- ${md1(x).replace(/\|\|/g, "|")}${answer ? ` || ${answer.replace(/\|\|/g, "|")}` : ""}`;
+          }).join("\n");
+        }
         else body = (card.points || []).map((x, i) => `${i + 1}. ${md1(x)}`).join("\n");
         body += card.callout ? `\n\n> 💡 ${md1(card.callout)}` : ""; break;
       /* «Алгоритм»: нумерованные шаги + опора */
@@ -966,16 +1049,25 @@ const Deck = (() => {
     const notes = String(card.notes || "").replace(/-->/g, "—>").replace(/\s+/g, " ").trim();
     return [title ? `${level === 1 ? "#" : "##"} ${md1(title)}` : "", body, `<!--@ ${JSON.stringify(set)} -->`, notes ? `<!-- ${notes} -->` : ""].filter(Boolean).join("\n\n");
   }
-  function toMarkdown(cards) {
-    const keyOf = c => (String(c.title || "") + "|" + String(c.lead || "") + "|" + [].concat(c.points || c.task || c.quote || c.poem || c.rule || "").join(" ")).toLowerCase().replace(/[^а-яёa-z0-9]+/g, " ").trim().slice(0, 160); const seen = new Set(); const uniq = cards.filter(c => c.on !== false).filter(c => { if (c.kind === "title") return true; if (c.kind === "section") return hasBody(c); const k = keyOf(c); if (seen.has(k)) return false; seen.add(k); return true; }); return `---\nmarp: true\npaginate: true\n---\n\n` + uniq.map(cardMd).join("\n\n---\n\n") + "\n";
+  function toMarkdown(cards, p) {
+    const seen = new Set(), parts = [];
+    for (const c of cards) {
+      if (c.on === false || (c.kind === "section" && !hasBody(c))) continue;
+      const md = cardMd(c), key = md.replace(/\n\n<!-- [\s\S]*? -->$/, "");
+      if (c.kind !== "title" && seen.has(key)) continue;
+      seen.add(key);
+      parts.push(md);
+    }
+    const md = `---\nmarp: true\npaginate: true\n---\n\n${parts.join("\n\n---\n\n")}\n`;
+    return p ? repairPresentation(md, p) : md;
   }
 
   /* ---------- нейросеть (по желанию): сжать формулировки обычных слайдов ---------- */
   async function condenseAi(cards, p, amtKey, signal) {
     if (!window.UCHU?.configured?.() || typeof caps === "undefined") return cards;
     const amt = AMOUNT[amtKey] || AMOUNT.medium;
-    const FIXED = new Set(["title", "author", "art", "check", "board", "video", "image", "section", "terms", "glossary", "appendix", "quiz"]);
-    const editable = cards.filter(c => !VERBATIM.has(c.kind) && !FIXED.has(c.kind) && (c.points?.length || c.lead));
+    const FIXED = new Set(["title", "author", "art", "board", "video", "image", "section", "terms", "glossary", "appendix"]);
+    const editable = cards.filter(c => !VERBATIM.has(c.kind) && !FIXED.has(c.kind) && !WIDGETS.has(c.kind) && (c.points?.length || c.lead));
     if (!editable.length) return cards;
     const payload = editable.map(c => ({ id: c.id, title: c.title, lead: c.lead || "", points: c.points || [] }));
     const prompt = `Ты — редактор учебных презентаций в стиле Gamma. Сделай формулировки слайдов к уроку «${p.topic}» (${p.grade} класс) лаконичными: одна мысль — один пункт, ${amt.max} пункта максимум, каждый пункт короче ${amt.len} знаков, заголовок — до 5 слов.
@@ -1035,8 +1127,7 @@ ${JSON.stringify(payload)}`;
   }
   /* Аудио и видео: сайт ищет чтение артистов и экранизации; не нашёл — слайд остаётся в плане выключенным */
   function preserveTools(draft, original) {
-    const kinds = new Set(["scheme", "algo", "mnemo", "check", "quiz", "choice", "odd", "selfcheck",
-      "flip", "board", "video", "glossary", "terms", "timeline", "compare", "appendix", "fragment", "poem", "art", "author"]);
+    const kinds = new Set([...WIDGETS, "scheme", "algo", "mnemo", "board", "video", "glossary", "terms", "appendix", "fragment", "poem", "art", "author"]);
     const key = card => card.kind + "|" + LIMG_NORM(card.title);
     const tools = original.filter(card => card.on !== false && kinds.has(card.kind));
     const reserved = new Set(tools.map(key));
@@ -1116,12 +1207,12 @@ ${JSON.stringify(frs)}`;
   async function aiWishes(cards, p, signal) {
     const n = p.notes || {}, wish = [p.wishes, n.prompt, n.observe].map(x => String(x || "").trim()).filter(Boolean).join("\n");
     if (!wish || !window.UCHU?.configured?.() || typeof caps === "undefined") return cards;
-    const LOCK = new Set(["fragment", "poem", "task", "quote", "rule", "title", "date"]);
-    const payload = cards.filter(c => c.on !== false).map(c => ({ id: c.id, kind: c.kind, title: c.title || "", lead: c.lead || "", points: c.points || [], locked: LOCK.has(c.kind) }));
+    const locked = c => VERBATIM.has(c.kind) || WIDGETS.has(c.kind) || ["title", "board", "date"].includes(c.kind);
+    const payload = cards.filter(c => c.on !== false).map(c => ({ id: c.id, kind: c.kind, title: c.title || "", lead: c.lead || "", points: c.points || [], locked: locked(c) }));
     const prompt = `Ты – помощник учителя. Ниже план презентации к уроку «${p.topic}» (${p.grade} класс) – список слайдов в порядке показа. Учитель написал пожелания к уроку:
 «${wish}»
 Примени к презентации ТОЛЬКО то в пожеланиях, что касается слайдов и хода урока (что показать, что убрать, порядок, формулировки, количество, акценты). Если пожелания не касаются презентации – верни план без изменений.
-Правила: слайды с "locked": true (тексты произведений, упражнения, цитаты, правила) не переписывай – их можно только оставить, убрать или переставить; новые слайды добавляй с "id":"new"; факты не придумывай; не выводи на слайды реплики учителя, хронометраж или отдельные карточки с терминами. В литературе оставляй пояснение там, где читают сам отрывок.
+Правила: слайды с "locked": true (тексты произведений, упражнения с ключами, цитаты, правила, интерактив) не переписывай – их можно только оставить, убрать или переставить; новые слайды добавляй с "id":"new"; факты не придумывай; не выводи на слайды реплики учителя, хронометраж или отдельные карточки с терминами. В литературе оставляй пояснение там, где читают сам отрывок. ${PRACTICE_RULE}
 Верни только JSON-массив слайдов в новом порядке: [{"id":"…","kind":"…","title":"…","lead":"…","points":["…"]}].
 ${JSON.stringify(payload).slice(0, 14000)}`;
     try {
@@ -1131,11 +1222,13 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       const byId = new Map(cards.map(c => [c.id, c])); let k = 0; const out = [];
       for (const x of j) {
         const old = x && byId.get(x.id);
-        if (old) { out.push(LOCK.has(old.kind) ? old : { ...old, title: String(x.title ?? old.title), lead: String(x.lead ?? old.lead ?? ""), points: Array.isArray(x.points) ? x.points.map(String) : old.points }); byId.delete(x.id); }
+        if (old) { out.push(locked(old) ? old : { ...old, title: String(x.title ?? old.title), lead: String(x.lead ?? old.lead ?? ""), points: Array.isArray(x.points) ? x.points.map(String) : old.points }); byId.delete(x.id); }
         else if (x && x.id === "new" && (x.title || x.points?.length)) out.push({ id: "w" + (++k), on: true, kind: ["cards", "list", "big", "steps"].includes(x.kind) ? x.kind : "list", title: String(x.title || ""), lead: String(x.lead || ""), points: Array.isArray(x.points) ? x.points.map(String) : [], notes: "Добавлено по пожеланию учителя." });
       }
       // служебные и выключенные слайды, которых нет в ответе: выключенные остаются выключенными, титул и «Классная работа» не теряем
       for (const c of cards) if (byId.has(c.id) && (c.on === false || ["title", "date"].includes(c.kind))) out.splice(c.kind === "title" ? 0 : out.length, 0, c);
+      const title = out.findIndex(c => c.kind === "title" && c.on !== false);
+      if (title > 0) out.unshift(...out.splice(title, 1));
       return out.length >= 3 ? out : cards;
     } catch (e) { if (e?.code === "cancelled") throw e; return cards; }
   }
@@ -1144,7 +1237,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiScheme(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); cards = await aiWishes(cards, p, signal).catch(() => cards); }
     cards = await mediaFill(cards).catch(() => cards);
     cards = prune(cards);
-    return { cards, md: toMarkdown(cards) };
+    return { cards, md: toMarkdown(cards, p) };
   }
 
   /* ---------- окно «План презентации» ---------- */
@@ -1153,7 +1246,8 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     const p = { ...L.params, plan: L.planFull || null, exFull: L.exFull || [] };
     const type = L.params.type || {};
     const o = opts();
-    let cards = L.deckOutline ? JSON.parse(JSON.stringify(L.deckOutline)) : outline(L.docs.conspect || "", p, type, o);
+    const source = () => L.docs.conspect || L.tech || L.docs.lesson || "";
+    let cards = L.deckOutline ? JSON.parse(JSON.stringify(L.deckOutline)) : outline(source(), p, type, o);
     const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>План презентации</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div>
       <div class="dlg-b deck-ol">
         <p class="hint">Поправьте заголовки, выключите лишнее, перетащите карточки.</p>
@@ -1173,8 +1267,10 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       list.innerHTML = cards.map((c, i) => {
         const vb = VERBATIM.has(c.kind);
         const fixed = vb || c.items || c.rows;
+        const paired = c.kind === "check" && c.answers?.some(Boolean);
         const text = vb ? (c.task || c.quote || c.poem || c.rule || c.text || "")
-          : c.kind === "quiz" ? (c.items || []).map(([q, a]) => `Задание: ${q} || Ответ: ${a}`).join("\n")
+          : paired ? (c.points || []).map((q, j) => c.answers[j] ? `${q} || ${c.answers[j]}` : q).join("\n")
+            : c.kind === "quiz" ? (c.items || []).map(([q, a]) => `Задание: ${q} || Ответ: ${a}`).join("\n")
             : c.kind === "appendix" && c.items ? c.items.map(x => `${x.term || x.word} — ${x.def}`).join("\n")
               : c.items ? c.items.map(x => `${x.word || x.term} — ${x.def}`).join("\n")
                 : c.rows ? `${c.head.join(" | ")}`
@@ -1184,7 +1280,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
           <div class="dk-main">
             <div class="dk-row"><input type="checkbox" data-on ${c.on === false ? "" : "checked"} aria-label="Включить слайд"><input type="text" data-title value="${esc(c.title || "")}" aria-label="Заголовок"><select data-kind aria-label="Вид слайда">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}" ${k === c.kind ? "selected" : ""}>${v}</option>`).join("")}</select>
               <label class="dk-img" title="Картинка из Яндекса: запрос">🖼 <input type="text" data-img value="${esc(c.img || "")}" placeholder="без картинки"></label><button class="btn sm ghost" data-del aria-label="Удалить карточку">×</button></div>
-            ${fixed ? `<div class="dk-vb"><span class="tag">${vb ? "дословно" : "из конспекта"}</span> ${esc(text.slice(0, 260))}${text.length > 260 ? "…" : ""} <span class="small">(${text.length} зн.)</span></div>` : `<textarea data-pts rows="${Math.min(6, Math.max(2, (c.points || []).length + (c.lead ? 1 : 0)))}" aria-label="Тезисы, по одному в строке">${esc(text)}</textarea>`}
+            ${fixed ? `<div class="dk-vb"><span class="tag">${vb ? "дословно" : "из конспекта"}</span> ${esc(text.slice(0, 260))}${text.length > 260 ? "…" : ""} <span class="small">(${text.length} зн.)</span></div>` : `<textarea data-pts rows="${Math.min(6, Math.max(2, (c.points || []).length + (c.lead ? 1 : 0)))}" aria-label="${paired ? "Вопрос || ответ, по одной паре в строке" : "Тезисы, по одному в строке"}">${esc(text)}</textarea>`}
           </div></li>`;
       }).join("");
       $("#dkCount", m).textContent = `Слайдов: ${cards.filter(c => c.on !== false).length}`;
@@ -1200,7 +1296,17 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
           c.kind = k; draw();
         };
         const ta = li.querySelector("[data-pts]");
-        if (ta) ta.oninput = e => { const ls = e.target.value.split("\n").map(s => s.trim()).filter(Boolean); if (c.kind === "big") { c.lead = ls[0] || ""; c.points = ls.slice(1); } else if (c.kind === "goal" && c.lead) { c.lead = ls[0] || ""; c.points = ls.slice(1); } else c.points = ls; };
+        if (ta) ta.oninput = e => {
+          const ls = e.target.value.split("\n").map(s => s.trim()).filter(Boolean);
+          if (c.kind === "check") {
+            const pairs = ls.map(line => line.split(/\s+\|\|\s+/, 2));
+            c.points = pairs.map(([question]) => question);
+            c.answers = pairs.map(([, answer]) => answer || "");
+          } else if (c.kind === "big" || (c.kind === "goal" && c.lead)) {
+            c.lead = ls[0] || "";
+            c.points = ls.slice(1);
+          } else c.points = ls;
+        };
         li.querySelector("[data-del]").onclick = () => { cards.splice(+li.dataset.i, 1); draw(); };
         li.addEventListener("dragstart", e => { if (e.target.closest("input,textarea,select")) { e.preventDefault(); return; } e.dataTransfer.setData("text/x-card", li.dataset.i); li.classList.add("drag"); });
         li.addEventListener("dragend", () => li.classList.remove("drag"));
@@ -1224,14 +1330,14 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       box.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { thPick = b.dataset.th; drawTh(); });
       // лента: первые слайды ЭТОЙ презентации в выбранном оформлении — видно, что весь урок в одном стиле
       const strip = $("#dkThPrev", m), k = thPick === "auto" ? kAuto : thPick;
-      const sl = splitSlides(toMarkdown(cards.filter(c => c.on !== false).slice(0, 8))).map(SlideEditor.parse);
+      const sl = splitSlides(toMarkdown(cards.filter(c => c.on !== false).slice(0, 8), p)).map(SlideEditor.parse);
       strip.innerHTML = sl.map((x, i) => `<div class="th-s">${SlideEditor.slideHtml({ ...x, set: { ...x.set, afs: .62 } }, i, { th: k })}</div>`).join("");
       strip.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
     };
     drawTh();
     const cur = () => ({ amount: $("#dkAmt", m).value, images: $("#dkImg", m).value });
     $("#dkAmt", m).onchange = $("#dkImg", m).onchange = () => saveOpts(cur());
-    $("#dkRe", m).onclick = () => { saveOpts(cur()); cards = outline(L.docs.conspect || "", p, type, cur()); draw(); };
+    $("#dkRe", m).onclick = () => { saveOpts(cur()); cards = outline(source(), p, type, cur()); draw(); };
     $("#dkAdd", m).onclick = () => { cards.push({ id: "c" + Date.now(), on: true, kind: "cards", title: "Новый слайд", points: ["Тезис"] }); draw(); list.lastElementChild?.scrollIntoView({ block: "nearest" }); };
     $("#dkBuild", m).onclick = async () => {
       window.Usage?.begin("Пересборка презентации", p.topic);
@@ -1243,7 +1349,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       if ($("#dkAi", m)?.checked) { $("#dkMsg", m).textContent = "Уточняю выводы по фрагментам…"; cards = await aiLit(cards, p).catch(() => cards); }
       $("#dkMsg", m).textContent = "Ищу чтение артистов и фрагменты фильмов…"; cards = await mediaFill(cards).catch(() => cards);
       L.deckOutline = cards;
-      let md = toMarkdown(cards);
+      let md = toMarkdown(cards, p);
       md = await Media.autoFill(md).catch(() => md);
       try { localStorage.setItem("uchu:cutout", $("#dkCut", m)?.checked ? "1" : "0"); } catch { }
       if (window.SlideEditor?.stickerize) md = await SlideEditor.stickerize(md, { onStep: t => { $("#dkMsg", m).textContent = t; } }).catch(() => md);
@@ -1257,6 +1363,6 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
   }
 
-  return { prune, localImages, lessonImages, childGoal, outline, toMarkdown, build, preserveTools, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM };
+  return { prune, localImages, lessonImages, childGoal, outline, toMarkdown, build, preserveTools, repairPresentation, repairOutlineTitle, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM, PRACTICE_RULE };
 })();
 window.Deck = Deck;

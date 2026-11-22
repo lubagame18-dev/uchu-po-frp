@@ -1161,7 +1161,7 @@ function promptReview(p, md, f = "conspect") {
 1. Лишнее по теме: правила, термины, примеры и задания из другой темы (например, приставки пре-/при- в уроке про причастие) или вообще не относящиеся к уроку. Такое нужно убрать или заменить на материал по теме.
 2. Странные, жёсткие, неестественные или пафосные формулировки в мотивации, проблемном вопросе и цели: жестокость, насилие, смерть и казни в вопросе, морализаторство («разве не должен…»), эмоциональные ловушки («обидно ли вам?»), оценочные вопросы без опоры на материал, высокопарное начало. Замени на спокойную, понятную детям формулировку по теме. Нормально, если проблемная ситуация — два примера, где в одном запятая есть, в другом нет.
 3. Явные ошибки: неверное правило, неверный пример, имя или термин не на своём месте, неверные даты/единицы/формулы. Проверяй также предметную точность: ${window.LessonQuality?.SUBJECTS[p.subject] || ""}
-4. Вопросы учителя без верного ответа ученика: после вопроса должен стоять *(Верный ответ ученика: …)*. Если его нет, дополни: в «new» повтори фрагмент вопроса и добавь конкретный верный ответ.
+4. ${f === "slides" ? `Сохраняй тему на титульном слайде и отделяй условия самопроверки от ключей в парах «- вопрос || ответ» с настройкой <!--@ {"qa":1} -->. ${window.Deck?.PRACTICE_RULE || ""}` : "Вопросы учителя без верного ответа ученика: после вопроса должен стоять *(Верный ответ ученика: …)*. Если его нет, дополни: в «new» повтори фрагмент вопроса и добавь конкретный верный ответ."}
 5. Нарушения требований учителя (это его методические заметки, они главнее общих шаблонов):
 ${window.TeacherRules ? TeacherRules.checklist(p, f).map(x => "– " + x).join("\n") : ""}
 6. Отсылки к отсутствующему учебнику, странице, упражнению, аудио или исходным данным. Вместо них дай конкретное самостоятельное задание с исходными данными и ответом; при наличии страниц сохрани подходящие теме подтверждённые номера.
@@ -1476,7 +1476,7 @@ marp: true
 paginate: true
 ---
 - Слайды разделяй строкой --- (с пустыми строками вокруг). Порядок — как этапы техкарты.
-- Слайд 1: «# Тема» и строка «${p.grade} класс · ${subjName(p.subject)}». Заголовок — КРАТКОЕ название (2–5 слов): не перечисляй авторов, века и произведения в заголовке.
+- Слайд 1 начинается ровно со строки «# ${p.topic}», затем строка «${p.grade} класс · ${subjName(p.subject)}». Не бери заголовок документа из конспекта или техкарты и не сокращай тему.
 - В презентации должно быть **8–12 изображений**: обложка, ключевые понятия, примеры, исторические/научные иллюстрации. Картинка должна занимать заметную часть слайда, а не быть маленькой иконкой. Для каждой — подпись и вопрос/задание к классу; на слайде с картиной — 2–3 вопроса для анализа.
 - Алгоритм или схему добавляй **только если тема этого требует** (правило, порядок действий, опыт, разбор, вычисление); не придумывай алгоритм ради алгоритма. Обязательны: «Запомни» (схема или мнемоника по теме), «Проверь себя» (2–3 вопроса, ответы — в заметке учителю), слайд с упражнением из конспекта (дословно) и слайд-схема с условными обозначениями по ГОСТ, если он уместен. **Схемы и мнемоники должны быть по теме урока, а не общие.** Схемы рисуй текстом: короткие пункты, стрелки →, таблица, жирные метки. Не вставляй HTML.
 - Второй слайд — запись в тетрадь: только число, «Классная работа» и тема. Больше на нём ничего нет.
@@ -1485,6 +1485,7 @@ paginate: true
 ${window.Conv ? Conv.prompt(p) : ""}
 - **Справочные материалы** оформляй заметкой: «<!--@ {"note":1} -->» — на слайде появится квадратик с восклицательным знаком и полупрозрачной плашкой; картинка без фона — «<!--@ {"cut":1} -->» (объект с прозрачным фоном и тенью).
 - **Вопросы разминки и «Проверь себя»:** оформляй блоком «<!--@ {"qa":1} -->» и строками «- вопрос || ответ». Не ставь ссылки «-> #slide-N» в вопросах — система сама сделает отдельный слайд ответа и кнопку возврата.
+- ${window.Deck?.PRACTICE_RULE || "В условиях самопроверки не показывай готовый ответ."}
 - **Интерактив — только по целесообразности:** выбор с проверкой — на этапе практики (после образца), скрытый ответ `[!answer]` — в «Проверь себя», «светофор» самооценки — в конце. Минуты этапов, продолжительность урока и организационные пометки оставляй только в заметках учителя. Таймер добавляй только по прямому пожеланию учителя.
 - **Интерактив в разметке:** «[!answer] текст» — ответ под кнопкой; выбор — «<!--@ {"choice":1} -->» и пункты «- [+] верный | пояснение», «- [-] неверный | пояснение»; «светофор» — «<!--@ {"selfcheck":1} -->».
 - **Ещё интерактив:** лента времени (история) — «<!--@ {"tl":1} -->» и строки «- дата | событие | подробности»; карта персонажей — «<!--@ {"cmap":1} -->» и «- имя | характеристика | цитата»; итог тренажёра — «<!--@ {"score":1} -->»; ветка квеста — в тексте варианта допиши «-> #slide-N».
@@ -1618,7 +1619,7 @@ ${md.slice(0, 60000)}
 - Правка учителя важнее общих правил оформления: сделай именно так, как он просит, даже если обычно делаешь иначе, но не нарушай границу темы.
 - Меняй только то, что относится к просьбе; остальной текст, структуру, Markdown, картинки ![…](…), таблицы и комментарии <!-- … --> сохраняй без изменений.
 - Не выдумывай факты, даты и цитаты; не упоминай сайт, ИИ и ссылки; не добавляй служебные пояснения.
-${isSlides ? "- Слайды разделяй строкой --- (с пустыми строками вокруг). Формат заголовков слайдов сохраняй; заметка учителю — в <!-- … -->. Картинка — строкой ![Подпись](search:запрос). Если просят больше картинок, схем или слайдов — добавь их в том же формате." : "- Сохраняй заголовки, таблицы и условные обозначения по ГОСТ; если просят схемы и опоры — добавь их аккуратными таблицами или списками."}
+${isSlides ? `- Слайды разделяй строкой --- (с пустыми строками вокруг). Сохраняй титул темы, формат заголовков и комментарии <!-- … -->. Сохраняй настройки интерактива <!--@ … --> и пары «- вопрос || ответ» в том же порядке. Картинка — строкой ![Подпись](search:запрос). Если просят больше картинок, схем или слайдов — добавь их в том же формате. ${window.Deck?.PRACTICE_RULE || ""}` : "- Сохраняй заголовки, таблицы и условные обозначения по ГОСТ; если просят схемы и опоры — добавь их аккуратными таблицами или списками."}
 - Верни только готовый документ целиком.`);
 }
 function promptRefineSlide(L, index, total, title, md, instruction) {
@@ -1638,7 +1639,7 @@ ${String(md || "").slice(0, 20000)}
 Просьба учителя (выполни буквально): ${instruction}
 
 Правила:
-- Сохрани формат слайда: строка заголовка «## …», короткие пункты, при необходимости таблица, картинка ![Подпись](search:запрос), заметка учителю <!-- … -->.
+- Сохрани исходный уровень заголовка, заметку учителю <!-- … --> и настройки интерактива <!--@ … -->. Если есть пары «- вопрос || ответ», сохраняй этот формат и порядок. ${window.Deck?.PRACTICE_RULE || ""}
 - Текст не длиннее, чем помещается на слайд: 3–5 коротких пунктов; если просят подробнее — лучше добавь аккуратную таблицу или схему, а не сплошной текст.
 - Не выдумывай факты; без пояснений от себя; учитывай пожелания учителя и прежнюю логику презентации; верни только слайд.`);
 }
@@ -1876,9 +1877,12 @@ function workQuote(text) {
 function finishTechmap(src, p, rows) {
   const official = frpTechResults(p, p.type);
   const results = [official?.personal, official?.meta, official?.subject].filter(Boolean).join(" ");
-  rows = rows.filter(row => {
+  rows = rows.flatMap(row => {
     const m = row.match(/^\s*\|\s*\**(?:Планируемые результаты|УУД):\**\s*([^|]+?)\s*\|/i);
-    return !m || (m[1].trim().length > 10 && results.includes(m[1].trim()));
+    if (!m || (m[1].trim().length > 10 && results.includes(m[1].trim()))) return [row];
+    // В старых картах упражнение могло лежать в той же ячейке, что и УУД.
+    const task = m[1].match(/\*\*Задание:?\*\*[\s\S]*/i)?.[0];
+    return task ? [`| **Материалы:** ${task} |`] : [];
   }).map(row => row.replace(/^(\s*\|\s*\**)Цель этапа(?=[:*])/i, "$1Задача этапа"));
   const fragments = p.subject === "lit" ? p.plan?.kit?.fragments : null;
   if (fragments?.length && !rows.some(row => row.includes("<!--work-excerpt-->"))) {
@@ -1930,11 +1934,11 @@ function normalizeTechmap(md, p) {
     const joint = cT >= 0 && cT === cS;
     /* если заголовки нестандартные — берём позиции стандартной пятиколоночной таблицы */
     if (!joint) { cT = cT < 0 ? 1 : cT; cS = cS < 0 ? 2 : cS; }
-    let cU = idx(/ууд|результат|задани/); if (cU < 0 && H.length >= 4) cU = 3;
-    const cM = idx(/материал|средств|оборуд/);
+    let cU = idx(/ууд|результат/);
     const cTime = idx(/время|минут/);
     if (cT === cS) cS = -1;
-    if ([cStage, cT, cS, cTime, cM].includes(cU)) cU = -1;
+    if ([cStage, cT, cS, cTime].includes(cU)) cU = -1;
+    const extra = H.map((_, i) => i).filter(i => ![cStage, cT, cS, cTime, cU].includes(i));
     const clean = s => String(s || "").replace(/\|/g, "&#124;").replace(/\s+/g, " ").trim();
     const rows = tab.rows.map(r => r.map(c => clean(c.text))).filter(r => (r[cStage] || r[0] || "").trim());
     const blocks = [];
@@ -1945,7 +1949,7 @@ function normalizeTechmap(md, p) {
       const teacher = clean(r[cT] || "");
       const students = clean(r[cS] || "");
       const res = r[cU] || "";
-      const material = cM >= 0 && ![cStage, cT, cS, cTime].includes(cM) ? r[cM] : "";
+      const material = extra.map(j => r[j]).filter(Boolean).join("<br>");
       blocks.push(`| Блок ${i + 1}. ${title}${time ? ` (${time} мин)` : ""} |`);
       if (teacher) blocks.push(`| **Учитель:** ${teacher} |`);
       if (students) blocks.push(`| **Ученики:** ${students} |`);
@@ -2010,10 +2014,9 @@ const cleanMd = t => String(t || "")
 /* Текст презентации: строки-разделители слайдов «---» не должны исчезать при чистке.
    Иначе презентация после правки/пересборки склеивается в один слайд. */
 function cleanDeck(raw) {
-  const S = "\u0001SLIDE_SEP\u0001";
-  const marked = String(raw || "").replace(/\r/g, "").replace(/^\s*-{3,}\s*$/gm, S);
-  const clean = cleanMd(marked).split(S).join("\n\n---\n\n").replace(/\n{3,}/g, "\n\n");
-  try { return Engine.normalizeSlides(clean); } catch { return clean; }
+  const src = String(raw || "").replace(/\r/g, "").trim();
+  const md = src.replace(/^(`{3,})(?:markdown|md)?[ \t]*\n([\s\S]*?)\n\1[ \t]*$/i, "$2");
+  try { return Engine.normalizeSlides(md); } catch { return md; }
 }
 let creatingLesson = false;
 async function createLesson() {
@@ -2537,6 +2540,7 @@ async function finishPresentationOptions(L, p, opts) {
   }
 }
 async function finishDeck(md, L, p, refresh, { stickers = false } = {}) {
+  md = window.Deck?.repairPresentation?.(md, p, { generated: true }) ?? md;
   const ctx = { subject: p.subject, grade: p.grade, topic: p.topic, goal: p.plan?.goal || p.plan?.idea || "" };
   const editor = window.SlideEditor;
   if (!editor) return Media.autoFill(md, refresh, ctx).catch(() => md);
@@ -2548,7 +2552,7 @@ async function finishDeck(md, L, p, refresh, { stickers = false } = {}) {
 /* ---------- другие предметы (математика и далее): документы собирает модуль предмета, нейросеть — по его заданию ---------- */
 /* тема без готового материала: нейросеть собирает слайды по готовому конспекту (материал, задания, ответы – сразу после задания) */
 async function aiDeckFromLesson(md, p, signal) {
-  const prompt = lessonPrompt(p,"slides", `${window.TeacherRules ? TeacherRules.brief(p, "slides") + "\n\n" : ""}Сделай план презентации к уроку «${p.topic}» (${p.grade} класс) СТРОГО по конспекту ниже: на слайдах – то, с чем работает класс (факты и понятия темы, правило или формула, схема, задания, источники), а не вопросы учителя. 9–14 слайдов. Один слайд — одна мысль. Для пояснения дай 2–4 пункта не длиннее 90 знаков каждый. Таблицу длиннее четырёх строк раздели, повторяя заголовки. Длинные условия задач вынеси на отдельные слайды без сокращения исходных данных. Не переноси на слайды продолжительность урока и минуты этапов, не добавляй таймер. Понятия поясняй рядом с примером, опытом или цитатой из конспекта, без отдельного словаря и карточек на запоминание. Задание с ответами – kind "check" с полями points (задания) и answers (ответы по порядку); ответы покажутся отдельным слайдом сразу после задания.
+  const prompt = lessonPrompt(p,"slides", `${window.TeacherRules ? TeacherRules.brief(p, "slides") + "\n\n" : ""}Сделай план презентации к уроку «${p.topic}» (${p.grade} класс) СТРОГО по конспекту ниже: на слайдах – то, с чем работает класс (факты и понятия темы, правило или формула, схема, задания, источники), а не вопросы учителя. 9–14 слайдов. Один слайд — одна мысль. Для пояснения дай 2–4 пункта не длиннее 90 знаков каждый. Таблицу длиннее четырёх строк раздели, повторяя заголовки. Длинные условия задач вынеси на отдельные слайды без сокращения исходных данных. Не переноси на слайды продолжительность урока и минуты этапов, не добавляй таймер. Понятия поясняй рядом с примером, опытом или цитатой из конспекта, без отдельного словаря и карточек на запоминание. Задание с ответами — kind "check" с полями points (только условия) и answers (ответы в том же порядке, по одному на условие); ключ открывается по нажатию. ${window.Deck?.PRACTICE_RULE || ""}
 Верни только JSON-массив: [{"kind":"list|steps|rule|check|task|cards|hw","title":"короткий заголовок","points":["…"],"answers":["…"]}] (поле answers – только для check). Первый слайд-тему не включай. Последним добавь kind "hw" с конкретным домашним заданием из конспекта.
 КОНСПЕКТ:
 ${String(md).slice(0, 16000)}`);
@@ -2564,7 +2568,7 @@ ${String(md).slice(0, 16000)}`);
     if (kind === "rule") { c.rule = pts.join("\n"); }
     return c;
   });
-  return [{ id: "ai0", on: true, kind: "title", title: p.topic, points: [`${p.grade} класс`] }, ...cards];
+  return [{ id: "ai0", on: true, kind: "title", title: p.topic, points: [`${p.grade} класс · ${subjName(p.subject)}`] }, ...cards];
 }
 /* условные обозначения предмета: для плагинов предметов (математика, физика, химия…) — в лист, памятку и презентацию */
 function convWs(md, p) { const lg = window.Conv ? Conv.legendLine(p) : ""; if (!lg || /🔣 \*\*Условные обозначения/.test(md)) return md; return /✍️ ФИО:[^\n]*\n/.test(md) ? md.replace(/(✍️ ФИО:[^\n]*\n)/, `$1\n${lg}\n`) : md.replace(/^(# [^\n]*\n+[^\n]*\n)/, `$1\n${lg}\n`); }
@@ -2711,7 +2715,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         const source = L.docs.lesson || L.docs.conspect || L.tech;
         if (count(cards) < 6) {
           try {
-            const alt = Deck.outline(source || PL.lesson(p, type), p, type);
+            const alt = Deck.outline(L.docs.conspect || L.tech || source || PL.lesson(p, type), p, type);
             if (count(alt) > count(cards)) cards = Deck.preserveTools(alt, originals);
           } catch (e) { console.warn("thin deck", e); }
         }
@@ -2727,7 +2731,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         }
         L.deckOutline = await Deck.mediaFill(Deck.prune(cards)).catch(() => cards);
         state.gen.pct = 50; updateProgress();
-        md = Deck.toMarkdown(L.deckOutline);
+        md = Deck.toMarkdown(L.deckOutline, p);
         md = await finishDeck(md, L, p, (done, total) => {
           state.gen.pct = 50 + Math.round(done / total * 45); updateProgress();
         });
@@ -2822,9 +2826,10 @@ async function buildWithAi(L, p, type, formats) {
     const prompt = prompt0 + (window.TableKit ? "\n\n" + TableKit.brief(p, f) : "");
     L.prompts = { ...(L.prompts || {}), [f]: prompt, ...(f === "conspect" && p.design ? { design: p.design } : {}) };
     const paint = throttle(text => { if (state.lesson?.id === L.id && state.active === f) { $("#md").value = text; renderPreview(); } }, 300);
+    const clean = f === "slides" ? cleanDeck : cleanMd;
     try {
       window.UCHU_CTX = { params: { subject: p.subject, grade: p.grade, mode: p.mode, control: p.control, formats: p.formats, topic: p.topic }, countUsage: true };
-      const onText = base => ({ text }) => { L.docs[f] = cleanMd(base + text); if (!state.gen.fake || shown(f) === f) { const v = Math.min(95, Math.round((base.length + text.length) / DOCS[f].expect * 100)); state.gen.pct = Math.max(state.gen.fake ? state.gen.pct : 0, v); } updateProgress(); paint(L.docs[f]); };
+      const onText = base => ({ text }) => { L.docs[f] = clean(base + text); if (!state.gen.fake || shown(f) === f) { const v = Math.min(95, Math.round((base.length + text.length) / DOCS[f].expect * 100)); state.gen.pct = Math.max(state.gen.fake ? state.gen.pct : 0, v); } updateProgress(); paint(L.docs[f]); };
       let res, raw = "";
       try { res = await lessonSample(prompt, { modelTier: state.deep ? "complex" : "default", cache: false, signal: state.gen.ctl.signal, onText: onText("") }); raw = res.text; }
       catch (e) { if (e?.code === "cancelled" || lessonProviderDown(e) || lessonAccessFailed(e) || !(e?.text && e.text.length > 400)) throw e; raw = e.text; res = { text: raw, truncated: true }; }
@@ -2834,20 +2839,20 @@ async function buildWithAi(L, p, type, formats) {
         try { const more = await lessonSample(`${prompt}\n\n---\nТы уже написал начало документа, оно оборвалось. Вот его конец:\n${raw.slice(-2500)}\n---\nПродолжи документ ровно с места обрыва (с той же строки таблицы или того же абзаца). Не повторяй написанное, не начинай заново, без вступлений. Доведи документ до конца (рефлексия, домашнее задание).`, { modelTier: "default", cache: false, signal: state.gen.ctl.signal, onText: onText(raw + "\n") }); raw = joinCont(raw, more.text); res = { text: raw, truncated: more.truncated }; }
         catch (e) { if (e?.code === "cancelled" || lessonProviderDown(e) || lessonAccessFailed(e)) throw e; if (e?.text) raw = joinCont(raw, e.text); break; }
       }
-      let md = cleanMd(raw);
+      let md = clean(raw);
       if (f === "conspect" && md.length > 1500) { // вторая проверка со стороны: лишние темы и странные формулировки
         state.gen.pct = Math.max(state.gen.pct || 0, 92); updateProgress();
         const rv = await reviewConspect(md, p, state.gen.ctl.signal, f); md = dedupeLongParagraphs(rv.md); L.review = { at: new Date().toISOString(), n: rv.n, done: rv.done };
       }
       if (f !== "slides") { md = injectResults(md, p, type, f); if (f === "conspect") md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
-      else { md = Engine.normalizeSlides(md); state.gen.pct = 96; updateProgress(); md = await finishDeck(md, L, p).catch(() => md); }
+      else { state.gen.pct = 96; updateProgress(); md = await finishDeck(md, L, p).catch(() => md); }
       if (f === "worksheet") md = await wsPersonPhoto(md, p);
       if (window.TableKit) md = TableKit.ensure(md, p, f);
       if (f === "conspect") md = scenarioTechmap(md, p);
       L.docs[f] = md; L.status[f] = "ok";
       if (!finished(f, raw)) toast("Документ получился длинным: проверьте окончание. Если оно оборвано, попросите ИИ: «допиши окончание».", 7000);
     } catch (e) {
-      if (e?.text && e.code === "cancelled") L.docs[f] = cleanMd(e.text);
+      if (e?.text && e.code === "cancelled") L.docs[f] = clean(e.text);
       throw e;
     }
     state.gen = null;
@@ -2921,7 +2926,7 @@ function buildDocNoAi(f, L, p, type) {
   if (EXTRA_DOCS.includes(f)) { techOf(L, p, type); return Engine.extra(f, p, type, state.materials, { ...(p.extra || state.extra), ctrl: (p.extra || state.extra).ctrl || "self" }); }
   const cmd = techOf(L, p, type);
   rememberVerbatim(L, p);
-  if (window.Deck) { autoTheme(L, p); const cards = Deck.outline(cmd, p, type); L.deckOutline = cards; return Deck.toMarkdown(cards); }
+  if (window.Deck) { autoTheme(L, p); const cards = Deck.outline(cmd, p, type); L.deckOutline = cards; return Deck.toMarkdown(cards, p); }
   return Engine.slidesFromConspect(cmd, p, type);
 }
 /* v5.4: для презентации «как в Gamma» запоминаем дословные тексты: упражнения целиком и стихотворение по строфам */
@@ -3086,7 +3091,7 @@ async function buildWithoutAi(L, p, type, formats) {
     await new Promise(r => setTimeout(r, 30));
     let md = buildDocNoAi(f, L, p, type);
     if (f !== "slides") { state.gen.pct = 55; updateProgress(); md = applyWeb(md, f, await webData(L, p, type).catch(() => null)); }
-    if (f === "slides" && window.Deck?.mediaFill && L.deckOutline?.some(c => c.auto && c.kind === "video")) { state.gen.pct = 58; updateProgress(); L.deckOutline = await Deck.mediaFill(L.deckOutline).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline); }
+    if (f === "slides" && window.Deck?.mediaFill && L.deckOutline?.some(c => c.auto && c.kind === "video")) { state.gen.pct = 58; updateProgress(); L.deckOutline = await Deck.mediaFill(L.deckOutline).catch(() => L.deckOutline); md = Deck.toMarkdown(L.deckOutline, p); }
     if (f === "slides") {
       state.gen.pct = 60; updateProgress();
       md = await finishDeck(md, L, p, (d, n) => { state.gen.pct = 60 + Math.round(d / n * 35); updateProgress(); }, { stickers: true });
@@ -3138,12 +3143,13 @@ async function refineDocs(list, instr) {
       state.gen = { lessonId: L.id, doc: d, pct: 0, label: list.length > 1 ? `${DOCS[d].short} ${k + 1}/${list.length}` : "", ctl: new AbortController() };
       renderLesson();
       const paint = throttle(t => { if (state.lesson?.id === L.id && state.active === d) { $("#md").value = t; renderPreview(); } }, 300);
+      const clean = d === "slides" ? cleanDeck : cleanMd;
       try {
         const res = await caps.sample(promptRefine(d, src, instr, L), {
           modelTier: "default", cache: false, signal: state.gen.ctl.signal,
-          onText: ({ text }) => { const part = 100 / list.length; state.gen.pct = Math.min(95, part * k + Math.min(95, text.length / Math.max(src.length, 1000) * part)); updateProgress(); if (state.active === d) paint(cleanMd(text)); }
+          onText: ({ text }) => { const part = 100 / list.length; state.gen.pct = Math.min(95, part * k + Math.min(95, text.length / Math.max(src.length, 1000) * part)); updateProgress(); if (state.active === d) paint(clean(text)); }
         });
-        L.docs[d] = d === "slides" ? cleanDeck(res.text) : cleanMd(res.text);
+        L.docs[d] = clean(res.text);
         L.lastRefine = instr;
         done++;
       } catch (e) { lastErr = e; if (e?.code === "cancelled") break; }
@@ -3618,11 +3624,11 @@ function splitSlides(md) {
       const open = line.match(/<!--(?!@)(?:(?!-->).)*$/);
       if (open) { inNotes = true; line = line.replace(slideTimingNote, ""); }
     }
-    if (!fence && /^-{3,}[ \t]*$/.test(line)) {
+    if (!fence && !inNotes && /^-{3,}[ \t]*$/.test(line)) {
       slides.push(lines.join("\n").trim());
       lines = [];
     } else {
-      if (!fence && /^##\s+(?:\p{Extended_Pictographic}\uFE0F?\s+)?Проверка знаний: тест по теме\s*$/u.test(line)) {
+      if (!fence && !inNotes && /^##\s+(?:\p{Extended_Pictographic}\uFE0F?\s+)?Проверка знаний: тест по теме\s*$/u.test(line)) {
         const tail = input.slice(i + 1, i + 21).join("\n").split(/^---+\s*$|^#{1,3}\s+/m, 1)[0];
         if (/^<!--@.*"kind"\s*:\s*"qr"/m.test(tail)) {
           slides.push(lines.join("\n").trim());
@@ -3807,12 +3813,33 @@ function scrubDoc(md, keepLinks) {
 }
 /* легенда условных обозначений – только на уроке, где они вводятся; иначе обозначения просто применяются */
 function dropLegend(md, slides) {
-  let t = String(md || "").replace(/^>?\s*🔣?\s*\*\*Условные обозначения:?\*\*:?[^\n]*\n?/gm, "");
+  let t = String(md || "").replace(/^>?[ \t]*🔣?[ \t]*\*\*Условные обозначения:?\*\*:?[^\n]*\n?/gm, "");
+  if (slides && window.SlideEditor) {
+    const parts = splitSlides(t);
+    const kept = parts.filter(part => !/^(?:🔣\s*)?Условные обозначения(?:[\s.:]|$)/i.test(SlideEditor.parse(part).title));
+    return kept.length < parts.length ? SlideEditor.joinSlides(t, kept) : t;
+  }
   t = t.replace(/^(#{2,4})\s*(?:🔣\s*)?Условные обозначения[^\n]*\n[\s\S]*?(?=^#{1,4}\s|^---\s*$|(?![\s\S]))/gm, "");
   if (slides) t = t.split(/\n[ \t]*---[ \t]*\n/).filter(sl => sl.trim() && !/^\s*#{1,3}\s*(?:🔣\s*)?Условные обозначения/m.test(sl)).map(x => x.trim()).join("\n\n---\n\n");
   return t.replace(/\n{3,}/g, "\n\n");
 }
-function scrubLesson(L) { if (!L?.docs) return; for (const k of Object.keys(L.docs)) if (typeof L.docs[k] === "string") { L.docs[k] = scrubDoc(L.docs[k], k === "slides"); if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject, k); if (window.Conv?.intro && !Conv.intro(L.params)) L.docs[k] = dropLegend(L.docs[k], k === "slides"); if (k === "lesson") L.docs[k] = repairLessonTables(L.docs[k]); if (k === "conspect" && window.Layout?.appendices) { try { L.docs[k] = Layout.appendices(L.docs[k]); } catch (e) { console.warn("appendices", e); } } } }
+function scrubLesson(L) {
+  if (!L?.docs) return;
+  for (const k of Object.keys(L.docs)) {
+    if (typeof L.docs[k] !== "string") continue;
+    const slides = k === "slides";
+    L.docs[k] = scrubDoc(L.docs[k], slides);
+    if (window.Conv) L.docs[k] = Conv.fix(L.docs[k], L.params?.subject, k);
+    if (window.Conv?.intro && !Conv.intro(L.params)) L.docs[k] = dropLegend(L.docs[k], slides);
+    if (slides && window.Deck?.repairPresentation) {
+      const p = { ...L.params, topic: L.params?.topic || L.title };
+      L.docs[k] = Deck.repairPresentation(L.docs[k], p);
+      if (L.deckOutline && Deck.repairOutlineTitle) L.deckOutline = Deck.repairOutlineTitle(L.deckOutline, p.topic);
+    }
+    if (k === "lesson") L.docs[k] = repairLessonTables(L.docs[k]);
+    if (k === "conspect" && window.Layout?.appendices) { try { L.docs[k] = Layout.appendices(L.docs[k]); } catch (e) { console.warn("appendices", e); } }
+  }
+}
 async function saveLesson(L) {
   if (!L || L.sample) return;
   scrubLesson(L);

@@ -2212,8 +2212,10 @@ const Engine = (() => {
     return `## ✍️ ${stage || "Задание"}\n\n**${instrText}**${ex.length ? "\n\n" + ex.map((l, i) => `${i + 1}. ${l.replace(/^\d{1,2}\.\s*/, "")}`).join("\n") : ""}\n\n<!-- Источник: ${m[1]}. -->`;
   }
   function slidesFromConspect(md, p, type) {
-    const title = (md.match(/^#\s+(.+)$/m) || [0, p.topic])[1];
-    const slides = [`# ${title}\n\n${p.grade} класс · ${p.subject === "ru" ? "Русский язык" : "Литература"}\n\n<!-- ${type.name}. ${lessonLabel(p.lessonNo)}. -->`];
+    const head = window.LessonNotes?.head?.(md);
+    const title = p.topic || head?.title || (md.match(/^#\s+(.+)$/m) || [])[1] || "";
+    const subject = window.Subjects?.name(p.subject) || (p.subject === "ru" ? "Русский язык" : "Литература");
+    const slides = [`# ${title}\n\n${p.grade} класс · ${subject}\n\n<!-- ${type.name}. ${lessonLabel(p.lessonNo)}. -->`];
     const author = p.subject === "lit" ? authorOf(p.topic) : null;
     if (author) slides.push(`## 🖼 ${author}\n\n![Портрет: ${author}](search:${author} портрет)\n\n<!-- Портрет писателя. Подпись: художник, год — уточните по источнику изображения. -->`);
     // v5: иллюстрации — к произведению (литература) и к теме урока; если подходящей картинки нет, на слайде остаётся окошко «подобрать»
@@ -2221,11 +2223,10 @@ const Engine = (() => {
     if (p.subject === "lit" && work) slides.push(`## 🖼 «${work}»\n\n![Иллюстрация к «${work}»](search:${work} ${author ? author.split(/\s|\./).filter(Boolean).pop() : ""} иллюстрация)\n\n<!-- Иллюстрация к произведению. Вопрос: совпадает ли рисунок с тем, как вы представляли героев и место действия? -->`);
     if (p.subject === "ru") slides.push(`## 🖼 ${core(p.topic)}\n\n![${core(p.topic)}](search:${core(p.topic)})\n\n<!-- Картинка для мотивации: что на ней можно описать с помощью изучаемой темы? Замените на свою, щёлкнув по картинке. -->`);
     if (/сочинени|картин|по картине/i.test(p.topic)) slides.push(`## 🖼 Картина\n\n![Картина к сочинению](search:${p.topic.replace(/сочинение|по картине/gi, "").trim()} картина)\n\n<!-- Рассмотрите картину вместе с классом: первый план, детали, настроение. -->`);
-    const goal = (md.match(/\*\*Цель:\*\*\s*(.+)/) || [])[1];
+    const goal = head?.goal || (md.match(/\*\*Цель:\*\*\s*(.+)/) || [])[1];
     if (goal) slides.push(`## 🎯 Цель урока\n\n- ${short(goal, 160)}`);
-    const rows = md.split("\n").filter(l => /^\|/.test(l) && !/^\|\s*-/.test(l)).slice(1);
-    for (const row of rows) {
-      const cells = row.split("|").slice(1, -1).map(c => c.trim());
+    const rows = window.LessonNotes?.rows(md) || [];
+    for (const cells of rows) {
       if (cells.length < 2) continue;
       const stage = cells[0].replace(/\(\d+ мин\)/, "").trim();
       const text = cells.slice(1).join(" <br> ");
@@ -2250,9 +2251,10 @@ const Engine = (() => {
     const head = (md.match(/^\s*---\s*\n[\s\S]*?\n---\s*\n/) || [""])[0];
     const hasHead = /marp\s*:/.test(head);
     const body = hasHead ? md.slice(head.length) : md;
-    const slides = body.split(/\n-{3,}\s*\n/).map(s => s.trim()).filter(Boolean);
+    const slides = typeof splitSlides === "function" ? splitSlides(md) : body.split(/\n-{3,}\s*\n/).map(s => s.trim()).filter(Boolean);
     const out = [];
     for (const s of slides) {
+      if (/<!--@|^ {0,3}(?:`{3,}|~{3,})|^\[!(?:answer|hint)\]|^[-*][ \t]+[^\n|]+[ \t]+\|\|[ \t]+\S/m.test(s)) { out.push(s); continue; }
       const notes = (s.match(/<!--[\s\S]*?-->/g) || []).join("\n");
       const content = s.replace(/<!--[\s\S]*?-->/g, "").trim();
       const lines = content.split("\n");

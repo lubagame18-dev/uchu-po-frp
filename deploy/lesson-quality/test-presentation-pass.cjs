@@ -52,6 +52,112 @@ async function fixturePage(browser, width) {
   return { page, errors };
 }
 
+async function testGeneratedContent(page) {
+  const result = await page.evaluate(async () => {
+    const topic = 'Знаки препинания в сложном предложении';
+    const p = { subject: 'ru', topic, grade: 8, duration: 45, type: { name: 'Урок закрепления' } };
+    const legacy = `# ${topic}
+
+## Технологическая карта урока
+
+| Этап | Деятельность учителя | Деятельность учащихся | УУД и материалы |
+|---|---|---|---|
+| Актуализация (5 мин) | Где граница частей в предложении «Потеплело, и лёд тронулся»? | Выделяют основы | Доска |
+| Первичное закрепление (35 мин) | Прочитайте примеры и расставьте знаки. | Выполняют задание | Неподтверждённая формулировка.<br>**Задание** *(источник: карточка)*:<br>Поставьте запятую: «Потеплело, и лёд тронулся».<br>**Ключ:** Потеплело, и лёд тронулся. |
+| Домашнее задание (5 мин) | Подберите два примера сложных предложений. | Записывают задание | Тетрадь |
+
+## Домашнее задание
+
+- Подберите два примера сложных предложений.`;
+    const techmap = normalizeTechmap(legacy, p);
+    const L = { id: 'deck-content-ru', params: p, docs: { conspect: techmap } };
+    const generated = buildDocNoAi('slides', L, p, p.type);
+    const slides = src => splitSlides(src).map(SlideEditor.parse);
+    const parsed = Deck.parseConspect(techmap);
+    const check = slides(generated).find(s => s.title === 'Проверь себя');
+    const question = '- Расставьте запятые, если они нужны: «Лес притих, когда началась гроза». || Лес притих, когда началась гроза.';
+    const legacyDeck = [
+      '# Технологическая карта урока\n\n8 класс\n\n<!--@ {"kind":"title","layout":"title"} -->',
+      '## Проверь себя\n\n' + question + '\n- Объясните, почему поставлена запятая: «Лес притих, когда началась гроза». || Между частями.\n- Шёл дождь, а мы гуляли || ССП: союз А',
+      '## Образец\n\nЧисло 3,14 и цитата «Лес притих, когда началась гроза».\n\n<!-- заметка автора -->',
+      '## Расставьте запятые\n\n- На табло появилось число 3,14, когда закончился расчёт.\n\n**Образец:** Небо потемнело, но дождя не было.'
+    ].join('\n\n---\n\n');
+    const saved = { id: 'deck-saved-ru', title: topic, params: p, docs: { slides: legacyDeck }, status: { slides: 'ok' },
+      deckOutline: [{ kind: 'title', title: 'Технологическая карта урока' }] };
+    openLesson(saved, 'slides', false);
+    const [first, practice, sample, decimals] = slides(saved.docs.slides);
+    const visible = new DOMParser().parseFromString(SlideEditor.stageHtml(saved.docs.slides), 'text/html');
+    const button = visible.querySelector('.qa-i');
+    const target = slides(generated).find(s => s.set.kind === 'task');
+    const choice = n => ({ kind: 'choice', title: 'Проверь результат', q: `Вопрос ${n}`, options: [{ text: `Вариант ${n}`, ok: true }] });
+    const tools = slides(Deck.toMarkdown(Deck.prune([choice(1), choice(2), {
+      kind: 'check', title: 'Проверь результат', points: ['🔗 Переход', 'Оставленный вопрос'], answers: ['Лишний ключ', 'Нужный ключ']
+    }])));
+    const fenced = '# Образец\n\n~~~text\nВот код\n---\nЗдесь он продолжается\n~~~';
+    const cleaned = cleanDeck('---\nmarp: true\n---\n\n' + fenced + '\n\n---\n\n## Следующий слайд\n\nТекст');
+    return {
+      mapShape: techmap.startsWith('# Технологическая карта урока') && parsed.title === topic && parsed.rows.length === 3,
+      title: slides(generated)[0].title,
+      task: !!target && /Потеплело и лёд тронулся/.test(target.body) && !/Потеплело,|Ключ:|Неподтверждённая/.test(target.body) && target.notes.includes('Ответ учителю: Потеплело, и лёд тронулся.'),
+      homework: slides(generated).some(s => /^Домашнее задание$/.test(s.title) && s.body.includes('два примера')),
+      bank: !!check && /Шёл дождь а мы гуляли/.test(check.body) && /Когда пришла весна растаял снег/.test(check.body),
+      storedTitle: first.title,
+      storedOutline: saved.deckOutline[0].title,
+      storedQuestion: practice.body.split('\n')[0],
+      restoredBank: practice.body.includes('Расставьте запятые: Шёл дождь а мы гуляли. || Шёл дождь, а мы гуляли. ССП: союз А.'),
+      display: [button?.textContent.replace(/\u2060/g, ''), button?.getAttribute('data-a')],
+      explanation: practice.body.includes('Объясните, почему поставлена запятая: «Лес притих, когда началась гроза».'),
+      example: sample.body.includes('3,14 и цитата «Лес притих, когда началась гроза».') && sample.notes === 'заметка автора',
+      decimals: decimals.body.includes('число 3,14 когда закончился расчёт.') && decimals.body.includes('Небо потемнело, но дождя не было.'),
+      idempotent: Deck.repairPresentation(saved.docs.slides, p) === saved.docs.slides,
+      originalTitle: Deck.repairPresentation(saved.docs.slides.replace(`# ${topic}`, '# Мой заголовок'), p).startsWith('# Мой заголовок'),
+      choices: tools.filter(s => s.set.choice).length,
+      key: tools.some(s => s.body.includes('Оставленный вопрос || Нужный ключ')),
+      code: slides(cleaned).length === 2 && slides(cleaned)[0].body.includes('Вот код\n---\nЗдесь он продолжается')
+    };
+  });
+  const topic = 'Знаки препинания в сложном предложении';
+  assert.deepEqual(result, {
+    mapShape: true, title: topic, task: true, homework: true, bank: true,
+    storedTitle: topic, storedOutline: topic,
+    storedQuestion: '- Расставьте запятые, если они нужны: «Лес притих когда началась гроза». || Лес притих, когда началась гроза.',
+    restoredBank: true, display: ['Расставьте запятые, если они нужны: «Лес притих когда началась гроза».', 'Лес притих, когда началась гроза.'], explanation: true, example: true, decimals: true,
+    idempotent: true, originalTitle: true, choices: 2, key: true, code: true
+  });
+}
+
+async function testAiPresentation(page) {
+  const result = await page.evaluate(async () => {
+    const p = { subject: 'ru', topic: 'Обособление вводных слов', grade: 8, duration: 45, wishes: 'Сделайте слайды короче.' };
+    const model = [
+      { kind: 'rule', title: 'Правило', points: ['Вводное слово выделяется запятыми.'] },
+      { kind: 'check', title: 'Проверь себя', points: ['Запишите предложение, расставляя запятые: Он, кажется, прав.'], answers: ['Он, кажется, прав.'] },
+      { kind: 'list', title: 'Сравнение', points: ['Сравните два употребления слова «кажется».'] },
+      { kind: 'hw', title: 'Домашнее задание', points: ['Найдите два примера вводных слов.'] }
+    ];
+    const old = { sample: caps.sample, configured: UCHU.configured };
+    let asked = '';
+    try {
+      caps.sample = async prompt => { asked = prompt; return { text: JSON.stringify(model) }; };
+      UCHU.configured = () => true;
+      const cards = await aiDeckFromLesson('Пунктуация при вводных словах.', p);
+      const hasRule = asked.includes('Из предложения для ученика убери именно те знаки');
+      caps.sample = async () => ({ text: JSON.stringify([cards[2], { ...cards[0], title: 'Технологическая карта урока' }, ...cards.slice(3)].map(c => c.kind === 'check' ? { ...c, points: ['Другой вопрос'] } : c)) });
+      const edited = await Deck.aiWishes(cards, p);
+      const md = Deck.toMarkdown(edited, p);
+      const pptx = await slidesToPptxBlob(md, p.topic);
+      await loadScript('jszip');
+      const zip = await JSZip.loadAsync(await pptx.arrayBuffer());
+      const xml = await Promise.all(Object.values(zip.files).filter(file => /^ppt\/slides\/slide\d+\.xml$/.test(file.name)).map(file => file.async('text')));
+      const [cover, check] = splitSlides(md).map(SlideEditor.parse);
+      return { hasRule, title: cover.title, question: check.body, pptxCondition: xml.some(x => x.includes('Он кажется прав.') && !x.includes('Он, кажется, прав.')),
+        pptxKey: xml.some(x => x.includes('Он, кажется, прав.') && /show="0"/.test(x)) };
+    } finally { UCHU.configured = old.configured; caps.sample = old.sample; }
+  });
+  assert.deepEqual(result, { hasRule: true, title: 'Обособление вводных слов',
+    question: '- Запишите предложение, расставляя запятые: Он кажется прав. || Он, кажется, прав.', pptxCondition: true, pptxKey: true });
+}
+
 async function loadDeck(page) {
   return page.evaluate(async () => {
     async function picture(id, width, height, color) {
@@ -285,7 +391,7 @@ async function testReadingContext(page) {
       await Plans.ensure('lit');
       const current = FRP.topicsFor('lit', 6);
       const prev = previousTopicFor({ ...p, topic: current[1].title, lessonNo: 1 });
-      return { goal: deck.find(s => s.set.kind === 'goal').title, legacy: [legacy.title, legacy.body], headings,
+      return { title: deck[0].title, goal: deck.find(s => s.set.kind === 'goal').title, legacy: [legacy.title, legacy.body], headings,
         fragmentCount: fragments.length, word: fragmentPage.querySelector('.sx-gl')?.textContent,
         notesAgree: context.length > 1 && context.every(item => fragments[0].notes.includes(item.note) && notes.includes(item.note)),
         otherFragment: fragments[1].notes.includes('ямщик') && !fragments[1].notes.includes('безмолвная ночь'),
@@ -296,6 +402,7 @@ async function testReadingContext(page) {
         stages: !subjectsOfStage('middle').includes('lit1') };
     } finally { state.lesson = previous; }
   });
+  assert.equal(result.title, 'Анализ стихотворения «Зимний вечер»');
   assert.equal(result.goal, 'Сегодня на уроке мы');
   assert.deepEqual(result.legacy, ['Сегодня на уроке мы', '- Сравним образы.']);
   assert.deepEqual(result.headings, ['Тема и идея произведения', 'Уроки истории', 'Разбор фрагмента']);
@@ -479,6 +586,8 @@ async function exportsFrom(page, fixture, browser) {
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true, args: ['--no-sandbox'] });
   try {
     const desktop = await fixturePage(browser, 1440);
+    await testGeneratedContent(desktop.page);
+    await testAiPresentation(desktop.page);
     const fixture = await loadDeck(desktop.page);
     await testFlows(desktop.page, fixture);
     await testDictationAndLiterature(desktop.page);
