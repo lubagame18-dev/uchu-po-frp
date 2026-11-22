@@ -9,6 +9,8 @@ window.MathPrimary = (() => {
   const cap = s => String(s || "").replace(/^./, c => c.toUpperCase());
   const norm = s => String(s || "").toLowerCase().replace(/ё/g, "е");
   const MAX = g => (+g === 1 ? 10 : +g === 2 ? 20 : +g === 3 ? 100 : 1000);
+  const arithmeticTopic = p => +p.grade >= 1 && +p.grade <= 4 && /^(?:\d+(?:\.\d+)*\s+)?сложение и вычитание(?: чисел)?[.!]?$/i.test(String(p.topic).trim());
+  const arithmetic = (p, tag) => tasks("addsub", p.grade, `${p.topic}:${p.grade}:${tag}`, +p.grade === 2 ? 100 : MAX(p.grade));
 
   function kindOf(topic) {
     const t = norm(topic);
@@ -39,12 +41,13 @@ window.MathPrimary = (() => {
     return blocks[kind] || blocks.numbers;
   }
 
-  function tasks(kind, grade, seed) {
-    const r = rnd(seed), m = MAX(grade), out = [];
+  function tasks(kind, grade, seed, limit) {
+    const r = rnd(seed), m = limit || MAX(grade), out = [];
     const answer = (q, a) => ({ q, a });
     for (let i = 0; i < 6; i++) {
       if (kind === "addsub" || kind === "numbers") {
-        const a = ri(r, 1, m), b = ri(r, 1, Math.max(2, Math.floor(m / 2)));
+        const a = ri(r, 1, limit ? m - 1 : m);
+        const b = ri(r, 1, limit ? Math.min(m - a, Math.floor(m / 2)) : Math.max(2, Math.floor(m / 2)));
         if (i % 2 === 0) out.push(answer(`${a} + ${b} = ?`, `${a + b}`));
         else { const big = Math.max(a, b), sm = Math.min(a, b); out.push(answer(`${big} − ${sm} = ?`, `${big - sm}`)); }
       } else if (kind === "muldiv") {
@@ -102,7 +105,7 @@ window.MathPrimary = (() => {
     return [
       `# ${p.topic}`,
       "",
-      `**Класс:** ${g} · **Предмет:** Математика · **Время:** 45 минут`,
+      `**Класс:** ${g} · **Предмет:** Математика · **Время:** ${p.duration || 45} минут`,
       "",
       "## Цель урока",
       `Формировать умение по теме «${p.topic}» и применять его при решении примеров и задач.`,
@@ -130,6 +133,12 @@ window.MathPrimary = (() => {
   }
 
   function worksheet(p) {
+    if (arithmeticTopic(p)) {
+      const [example, ...items] = arithmetic(p, "лист");
+      const headings = ["Устный счёт", "Запись выражения", "Вычисление", "Проверка обратным действием", "Самостоятельная работа"];
+      const numbered = items.map(({ q }, i) => `### Задание ${i + 1}. ${headings[i]}\n\n${q}${i === 3 ? " Проверь ответ обратным действием." : ""}\n\n[ ________________________________________ ]`);
+      return `# ${p.topic}\n\n✍️ ФИО: ________________________ | 📅 Дата: _________\n\n**Образец.** ${example.q.replace("?", example.a)}\n\n${numbered.join("\n\n")}\n\n**Самопроверка.** Сверь знак действия и проверь один результат обратным действием.\n\n# Ответы для учителя\n\n${items.map((x, i) => `${i + 1}) ${x.a}`).join("; ")}`;
+    }
     const g = +p.grade, kind = kindOf(p.topic), ts = tasks(kind, g, p.topic + "ws" + g);
     return [
       `# Рабочий лист: ${p.topic}`,
@@ -156,7 +165,15 @@ window.MathPrimary = (() => {
     ].join("\n");
   }
 
+  function control(p, o = {}) {
+    const count = { self: 2, check: 3, test: 4 }[o.ctrl] || 3;
+    const variants = Array.from({ length: o.variants ? 2 : 1 }, (_, i) => arithmetic(p, `контроль ${i + 1}`).slice(0, count));
+    const body = variants.map((items, i) => `${o.variants ? `## Вариант ${i + 1}\n\n` : ""}${items.map(({ q }, j) => `### Задание ${j + 1}\n\n${q}\n\n[ ________________________________________ ]`).join("\n\n")}`).join("\n\n");
+    const keys = variants.map((items, i) => `${o.variants ? `Вариант ${i + 1}. ` : ""}${items.map(({ a }, j) => `${j + 1}) ${a}`).join("; ")}`).join("\n\n");
+    return `# Сложение и вычитание\n\n${body}${o.keys === false ? "" : `\n\n# Ответы для учителя\n\n${keys}`}`;
+  }
+
   function lesson(p) { return conspect(p, { name: "Урок открытия нового знания" }); }
 
-  return { kindOf, tasks, explain, conspect, worksheet, lesson };
+  return { kindOf, tasks, explain, conspect, worksheet, lesson, arithmeticTopic, control };
 })();

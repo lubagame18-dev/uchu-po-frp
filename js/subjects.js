@@ -94,6 +94,13 @@ const Subjects = (() => {
     const lessonNo = Math.min(lessonTotal, Math.max(1, Number(p.lessonNo) || 1));
     const focus = Math.floor((lessonNo - 1) * availableTasks.length / lessonTotal);
     const T = [...availableTasks.slice(focus), ...availableTasks.slice(0, focus)];
+    const practice = () => {
+      const tasks = [...new Set(T.filter(task => !/параграф|по учебнику|в краеведческих источниках|соседа по парте/i.test(task)))];
+      const ownExample = `Приведите пример по теме «${p.topic}». Назовите один изученный признак и поясните, как он проявляется в вашем примере.`;
+      if (!tasks.length) tasks.push(ownExample, `Сформулируйте один вывод по теме «${p.topic}» и обоснуйте его на материале урока.`);
+      else if (tasks.length === 1 && tasks[0] !== ownExample) tasks.push(ownExample);
+      return tasks;
+    };
     const Wb = p.web?.items || [], wDef = Wb.filter(x => x.kind === "def").map(x => x.text), wDate = Wb.filter(x => x.kind === "date").map(x => x.text), wFact = Wb.filter(x => x.kind === "fact").map(x => x.text);
     const terms = F.terms, cont = [...F.content, ...wFact.slice(0, 4)], H = hwCheck(p);
     const lst = (a, br = "<br>") => a.map((x, i) => `${i + 1}) ${x}`).join(br);
@@ -137,18 +144,14 @@ const Subjects = (() => {
     if (kind === "worksheet") {
       let md = `# ${isEng ? "Worksheet" : "Рабочий лист урока"}\n\n**Тема:** ${p.topic}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________ | 🏫 Класс: ${p.grade}\n\n### ❓ Мои вопросы к теме урока\n\n1. ________________________________________\n\n2. ________________________________________\n\n`;
       if (terms.length) md += `### 📖 Понятия урока\n\n${terms.map(t => `- **${t}** — ________________________`).join("\n")}\n\n`;
-      T.slice(0, 4).forEach((x, i) => { md += `### 🔓 Задание ${i + 1}\n\n${x}.\n\n[ ________________________________________ ]\n\n[ ________________________________________ ]\n\n`; });
+      practice().slice(0, 4).forEach((x, i) => { md += `### 🔓 Задание ${i + 1}\n\n${/[.!?]$/.test(x) ? x : x + "."}\n\n[ ________________________________________ ]\n\n[ ________________________________________ ]\n\n`; });
       return md + `### 🪞 Самооценка\n\n☐ Могу объяснить сам(а)  ☐ Понял(а) с подсказкой  ☐ Остались вопросы\n`;
     }
     if (kind === "memo") return `# Памятка\n\n**Тема:** ${p.topic}\n\n${terms.length ? `## 📖 Понятия\n\n${terms.map(t => `- ${t}`).join("\n")}\n\n` : ""}${cont.length ? `## 📌 Главное по теме\n\n${cont.map(x => `- ${x}`).join("\n")}\n\n` : ""}## 🧭 Что нужно уметь\n\n${T.map(x => `- ${x}`).join("\n")}\n`;
     if (kind === "homework") return `# Домашнее задание\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade}\n\n## Базовый уровень\n\nПараграф учебника по теме урока${terms.length ? `; понятия: ${terms.slice(0, 4).join(", ")}` : ""}.\n\n## Повышенный уровень\n\n${T[Math.min(1, T.length - 1)]}.\n${T.length > 2 ? `\n## Для самопроверки\n\n${T.filter((x, i) => i !== Math.min(1, T.length - 1)).slice(0, 3).map((x, i) => `${i + 1}) ${x}.`).join("\n")}\n` : ""}`;
     if (kind === "control") {
       const opts = p.extra || {}, taskLimit = { self: 2, check: 3, test: 4 }[opts.ctrl] || 3;
-      const pool = [...new Set(T.filter(task => !/параграф|по учебнику|в краеведческих источниках|соседа по парте/i.test(task)))];
-      const ownExample = `Приведите пример по теме «${p.topic}». Назовите один изученный признак и поясните, как он проявляется в вашем примере.`;
-      const explain = `Сформулируйте один вывод по теме «${p.topic}» и обоснуйте его на материале урока.`;
-      if (!pool.length) pool.push(ownExample, explain);
-      else if (pool.length === 1 && opts.variants) pool.push(ownExample);
+      const pool = practice();
       const variant = index => {
         const tasks = (opts.variants ? pool.filter((_, i) => i % 2 === index || (pool.length % 2 && i === pool.length - 1)) : pool).slice(0, taskLimit);
         return `${opts.variants ? `## Вариант ${index + 1}\n\n` : ""}${tasks.map((task, i) => `### Задание ${i + 1}\n\n${/[.!?]$/.test(task) ? task : task + "."}\n\n[ ________________________________________ ]`).join("\n\n")}`;

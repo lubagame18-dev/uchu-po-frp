@@ -139,7 +139,26 @@ const server = http.createServer((req,res) => {
       assert.equal(/^#{2,3} Вариант 2$/m.test(document),variants,subject);
       assert.equal(/^Вариант 2:/m.test(document),subject==='phys' && variants,subject);
       assert.match(document,/Ключи и критерии для учителя/);
+      assert.equal(document.includes('номер варианта'),variants,subject);
     }
+    const arithmetic=await page.evaluate(async()=>{
+      const p={subject:'math',grade:2,topic:'2.1 Сложение и вычитание',duration:45,formats:['worksheet','control'],extra:{ctrl:'check',keys:true,variants:true}};
+      const kit=Subjects.plugin('math'),type=kit.detectType(p),L={id:'primary-arithmetic',title:p.topic,params:p,docs:{worksheet:kit.worksheet(p,type)}};
+      prepareAssessment(L,p,type,kit);
+      const pages=await withPrintStage(stage=>wsBuildPages(L,stage).then(result=>result.map(page=>page.querySelectorAll('.blank').length)));
+      return {...wsDocuments(L.docs.worksheet),assessment:p.assessment.md,pages};
+    });
+    assert.doesNotMatch(arithmetic.main,/параграф|ключи|ответы для учителя/i);
+    assert.equal(arithmetic.pages.reduce((total,fields)=>total+fields,0),5);
+    const calculations=text=>[...text.matchAll(/(\d+) ([+−]) (\d+) = \?/g)].map(([,a,op,b])=>op==='+'?+a + +b:+a - +b);
+    const keyNumbers=text=>[...text.matchAll(/\d+\) (\d+)/g)].map(m=>Number(m[1]));
+    assert.deepEqual(calculations(arithmetic.main),keyNumbers(arithmetic.appendix));
+    assert(calculations(arithmetic.main).every(n=>n>=0 && n<=100));
+    const [arithmeticQuestions,arithmeticKeys]=arithmetic.assessment.split(/^# Ключи и критерии для учителя/m);
+    assert.deepEqual(calculations(arithmeticQuestions),keyNumbers(arithmeticKeys));
+    assert.equal(calculations(arithmeticQuestions).length,6);
+    const writing=await page.evaluate(()=>notebookText('Раздаёт рабочие листы. В рабочих листах ученики записывают ответ.\n> Рабочие листы — цитата.'));
+    assert.equal(writing,'Просит открыть тетради. В тетрадях ученики записывают ответ.\n> Рабочие листы — цитата.');
     const fromBuilder=await page.evaluate(async()=>{
       const before={gate:Access.canBuildAsync,tech:Access.techAllowed,can:AI.configured,model:caps.sample,web:Subjects.webFacts};
       try{

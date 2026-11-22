@@ -998,7 +998,9 @@ function prepareAssessment(L, p, type, kit) {
   if (keys) keys = `# Ключи и критерии для учителя\n\n${keys}`;
   const fragments = p.plan?.kit?.fragments?.filter(f => tasks.includes(`фрагмент ${f.n}`)) || [];
   if (fragments.length) tasks = fragments.map(f => `## Фрагмент ${f.n}. ${f.label}\n\n${workQuote(f.text)}`).join("\n\n") + "\n\n" + tasks;
-  const instruction = notebookMode(p) ? "Запишите дату, тему и номер варианта в тетради. Нумеруйте ответы по условиям. Проверку выполняйте индивидуально." : "Запишите имя, дату и номер варианта на выданном бланке контроля. Нумеруйте ответы по условиям. Работайте индивидуально.";
+  const headerFields = notebookMode(p) ? (opts.variants ? "дату, тему и номер варианта в тетради" : "дату и тему в тетради") :
+    (opts.variants ? "имя, дату и номер варианта на бланке контроля" : "имя и дату на бланке контроля");
+  const instruction = `Запишите ${headerFields}. Нумеруйте ответы по заданиям. Работайте индивидуально.`;
   const md = `# ${name}\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade} · **Время:** ${minutes} мин\n\n**Цель:** проверить действия, отработанные по теме урока.\n\n**Инструктаж:** ${instruction}\n\n${tasks}${keys ? "\n\n" + keys : ""}`;
   p.assessment = { name, minutes, md: window.Conv?.fix ? Conv.fix(md, p.subject, "control") : md };
   const job = loadJob();
@@ -1030,7 +1032,10 @@ function allocateStages(stages, p) {
 function notebookText(md) {
   return String(md || "").split("\n").map(line => /^\s*>|<!--work-excerpt-->/.test(line) ? line : line
     .replace(/(?:распечатайте|раздайте|возьмите)\s+(?:рабоч(?:ий|ие)\s+лист(?:ы)?|распечатк[уи])/gi, "Откройте тетради")
+    .replace(/разда[её]т\s+рабочие листы/gi, "Просит открыть тетради")
+    .replace(/(?:на|в)\s+рабочих\s+листах/gi, text => (text[0] === text[0].toUpperCase() ? "В" : "в") + " тетрадях")
     .replace(/(?:на|в)\s+рабоч(?:ем|ий)\s+лист(?:е)?/gi, "в тетради")
+    .replace(/рабочими листами/gi, "тетрадями").replace(/рабочих листов/gi, "тетрадей").replace(/рабочие листы/gi, "тетради")
     .replace(/рабочему листу/gi, "тетради").replace(/рабочего листа/gi, "тетради")
     .replace(/рабочим листом/gi, "тетрадью").replace(/рабочий лист/gi, "тетрадь").replace(/распечатк[ауеи]/gi, "запись в тетради"))
     .join("\n");
@@ -1688,6 +1693,47 @@ const ENGLISH_RESULT_SKILLS = [
   [/грамматик|^(?:present|past|future|passive|reported|going to)\b|условные предложения|местоимени|наклонени|артикл|падеж|множественное число|прилагательн|наречи|исчисляем/i, /грамматическ(?:ая сторона|ой сторон)|понимать особенности структуры простых и сложных предложений/i],
   [/фонетик|алфавит|транскрипци|произношени|звуки и букв/i, /фонетическ(?:ая сторона|ой сторон)|знать буквы алфавита/i]
 ];
+const TOPIC_RESULT_SKILLS = {
+  ru1: [
+    [/составлени[ея].*рассказ|составля[ею]м.*рассказ/i, /устно составлять текст|составлять (?:небольшой |устный )?рассказ/i],
+    [/нулевое окончание|состав слова|морфем|корень слова|выделени.*(?:приставк|суффикс|окончан)/i, /(?:находить|выделять).*морфем.*окончани|разбирать.*по составу/i],
+    [/^Имя существительное(?=[:.\s]|$)/i, /распознавать имена существительные/i],
+    [/^Имя прилагательное(?=[:.\s]|$)/i, /распознавать имена прилагательные/i],
+    [/^Глагол(?=[:.\s]|$)/i, /распознавать глаголы/i]
+  ],
+  lit1: [
+    [/букв[аыуами]+.{0,26}звуки?|звуки?.{0,26}букв[аыуами]+/i, /владеть техникой слогового|читать осознанно вслух/i],
+    [/главная мысль (?:рассказа|произведения|текста)/i, /(?:определять|понимать|формулировать).*тему(?: и|,) главную мысль/i]
+  ],
+  lit: [
+    [/сочинени|разв[её]рнут[а-яё]+ ответ/i, /(?:создавать|писать|уметь).*сочинени|разв[её]рнуто отвечать/i],
+    [/анализ|композици|сюжет|проблематик|тематика|художественн|система образов/i, /(?:анализировать|анализ и интерпретац).*произведени/i]
+  ],
+  okr: [[/гигиен|закаливани/i, /(?:соблюдать|выполнять).*личн[а-яё]+ гигиен/i]],
+  math: [[/^(?:сложение|вычитание) дробей с одинаковыми знаменателями/i, /(?:выполнять|применять).*арифметические действия.*дроб|(?:складывать|вычитать).*дроб/i]],
+  soc: [[/^(?:как устроено общество|человек и общество)[.!]?$/i, /(?:знания|первоначальн[а-яё]+ представлен[а-яё]+) о человеке и обществе/i]],
+  orkse: [[/^добро и взаимопомощь[.!]?$/i, /(?:нравственн[а-яё]+ ценност|взаимопомощ)/i]]
+};
+function historyFrpChapter(grade, topic, words) {
+  const chapters = window.FRPPlans2025?.hist?.[grade]?.th || [];
+  if (/крещени[ея]\s+руси/i.test(topic)) {
+    const chapter = chapters.find(([, content]) => /принятие христианства и его значение/i.test(content));
+    if (chapter) return { title: chapter[0], activity: chapter[2], action: /значению принятия христианства на Руси/i };
+  }
+  const person = topic.match(/([А-ЯЁ][а-яё]{2,})\s+([IVXLCDM]{1,5})(?![A-Za-z])/);
+  if (person) {
+    const name = new RegExp(`${person[1]}[а-яё]*\\s+${person[2]}(?![A-Za-z])`, "i");
+    const matches = chapters.filter(([title, content, activity]) => name.test(`${title} ${content} ${activity}`));
+    if (matches.length === 1) return { title: matches[0][0], activity: matches[0][2], action: name };
+    if (matches.length > 1) return null;
+  }
+  if (words.size < 2 || /^(?:резерв|итогов|повторительно|обобщаю)/i.test(topic)) return null;
+  const ranked = chapters.filter(([, content, activity]) => content && activity).map(([title, content, activity]) => ({
+    title, activity, score: FRP.topicScore(`${title} ${content} ${activity}`, words)
+  })).sort((a, b) => b.score - a.score);
+  const first = ranked[0];
+  return first && first.score >= Math.max(2, Math.ceil(words.size * .6)) && first.score > (ranked[1]?.score || 0) ? first : null;
+}
 function frpTechResults(p, type) {
   try {
     const key = p.subject === "any" && FRP.programSubject(p.anyName, "") === "dnkr" ? "dnkr" : p.subject;
@@ -1700,23 +1746,39 @@ function frpTechResults(p, type) {
     const matching = (items, terms = words, minimum = need) => terms.size < minimum ? [] : [...new Set(items.map(x => String(x.text || "").trim()))]
       .map(text => ({ text, score: FRP.topicScore(text, terms) })).filter(x => x.score >= minimum)
       .sort((a, b) => b.score - a.score || a.text.length - b.text.length).slice(0, 2).map(x => x.text);
-    const activity = (plan?.activity || "").split(/(?<=[.!?])\s+(?=[А-ЯЁ])/).map(text => ({ text }));
-    const officialActivity = matching(activity)[0] || activity[0].text;
     const program = FRP.pick(key, p.grade);
     const linked = program?.builtin && thematic?.exact ? thematic : null;
+    const history = key === "hist" && program?.builtin && (!linked || /^Резервное время/i.test(linked.theme)) ? historyFrpChapter(p.grade, topic, words) : null;
+    const activity = (plan?.activity || history?.activity || "").split(/(?<=[.!?])\s+(?=[А-ЯЁ])/).map(text => ({ text }));
+    const officialActivity = (history?.action && activity.find(({ text }) => history.action.test(text))?.text) || matching(activity)[0] || (plan ? activity[0].text : "");
     const cues = linked ? [linked.theme, linked.activity, ...linked.content].filter(Boolean).join(" ") : "";
-    const module = key === "orkse" ? (String(topic).toLowerCase().match(/(?:православной|исламской|буддийской|иудейской) культуры|светской этики/)?.[0] || "религиозных культур народов россии") : "";
+    const secular = key === "orkse" && /светск[а-яё]+\s+этик|(?:^|\s)этика\s+(?:и е[её] значение|в отношениях)|категории этики|золотое правило этики/i.test(topic);
+    const module = key === "orkse" ? (String(topic).toLowerCase().match(/(?:православной|исламской|буддийской|иудейской) культуры/)?.[0] || (secular ? "светской этики" : "религиозных культур народов россии")) : "";
     const skill = key === "eng" && linked ? ENGLISH_RESULT_SKILLS.find(([label]) => label.test(topic))?.[1] : null;
-    const r = FRP.results(key, p.grade, topic, type?.id, { strict: true, activity: officialActivity || cues, module, skill });
+    const r = FRP.results(key, p.grade, topic, type?.id, { strict: true, activity: history ? "" : officialActivity || cues, module, skill });
     if (key === "eng" && linked && !skill && !r.subject.length) {
       r.subject = FRP.results(key, p.grade, topic, type?.id, { strict: true, skill: ENGLISH_RESULT_SKILLS[0][1] }).subject;
+    }
+    let focusedSubject = false;
+    if (!r.subject.length && program?.builtin) {
+      const historySkill = /карт[аеы]|границ|территори/i.test(topic) ? /(?:извлекать|показывать).*карт[а-яё]+/i :
+        /хронолог|(?:^|\s)дат[аыуе]/i.test(topic) ? /называть даты|хронологические рамки/i :
+        /указывать \(называть\).*участник|(?:называть|рассказывать).*важнейши[а-яё]+ события/i;
+      const topicSkill = (key !== "lit" || plan) ? TOPIC_RESULT_SKILLS[key]?.find(([label]) => label.test(topic))?.[1] : null;
+      const aligned = key === "hist" && (history || (linked?.activity && !/^Резервное время/i.test(linked.theme))) ? historySkill :
+        secular ? /(?:рассказывать|раскрывать).*российской светской.*этик/i : topicSkill;
+      if (aligned) {
+        r.subject = FRP.results(key, p.grade, topic, type?.id, { strict: true, module, skill: aligned }).subject;
+        focusedSubject = r.subject.length > 0;
+      }
     }
     const directSubject = matching(r.subject);
     const subject = directSubject.length ? directSubject : r.subject.slice(0, 2).map(x => x.text);
     // Для подтверждённой темы общие результаты связываются с деятельностью из той же программы.
     const context = FRP.topicStems([officialActivity, cues, ...activity.map(x => x.text).filter(text => literature && /^(?:анализировать|интерпретировать|развёрнуто отвечать)/i.test(text))].join(" "));
-    const confirmed = Boolean(plan || linked || directSubject.length);
-    const personalGroup = literature || ["izo", "mus", "mhk"].includes(key) ? /эстетическ|духовно-нравствен/i : /познан|познават|учебн|трудов/i;
+    const confirmed = Boolean(plan || linked || history || directSubject.length || focusedSubject);
+    const personalGroup = literature || ["izo", "mus", "mhk"].includes(key) ? /эстетическ|духовно-нравствен/i :
+      key === "okr" && /гигиен|закаливани/i.test(topic) ? /физическ|здоровь/i : /познан|познават|учебн/i;
     const personalScope = r.personal.filter(x => personalGroup.test(x.group));
     const personal = matching(r.personal)[0] || matching(personalScope, context, 2)[0] || matching(r.personal, context, 2)[0] ||
       (confirmed && (personalScope[0] || r.personal[0])?.text) || "";
@@ -1728,11 +1790,13 @@ function frpTechResults(p, type) {
     const selectedMeta = meta.length ? meta : metaFromActivity.length ? metaFromActivity : matching(r.meta, context, 2);
     if (!selectedMeta.length && confirmed && r.meta.length) selectedMeta.push((r.meta.find(x => /логическ/i.test(x.sub)) || r.meta[0]).text);
     const goal = directSubject[0] || officialActivity || subject[0] || "";
+    const place = thematic?.theme && (!focusedSubject || linked) &&
+      (!/^Резервное время/i.test(thematic.theme) || /^Резерв/i.test(topic)) ? thematic.theme : "";
     return {
       goal, subject: subject.join("; "),
       personal, meta: selectedMeta.join("; "),
       source: r.source || "",
-      place: [plan?.section, plan?.title].filter(Boolean).join(". ") || thematic?.theme || ""
+      place: [plan?.section, plan?.title].filter(Boolean).join(". ") || history?.title || place
     };
   } catch { return null; }
 }

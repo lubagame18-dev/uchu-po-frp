@@ -1252,14 +1252,23 @@ const FRP = (() => {
     if (literary && (strict || o)) {
       const titleKey = s => s.toLowerCase().replace(/ё/g, "е").replace(/\s+/g, " ").trim().replace(/[.!?…]+$/, "");
       const works = q ? new Set([...t.matchAll(/«([^»]+)»/g)].map(m => titleKey(m[1]))) : new Set([titleKey(t.replace(/^["„“]|["”]$/g, ""))]);
+      const workWords = [...works].map(stems).filter(set => set.size >= 2);
+      const sameWork = value => {
+        const normalized = titleKey(value);
+        if (works.has(normalized)) return true;
+        const words = stems(normalized);
+        return workWords.some(set => words.size === set.size && [...set].every(word => words.has(word)));
+      };
       const words = topicStems(topic);
       const author = String(topic).match(/(?:[А-ЯЁ]\.[ \u00a0]*){1,2}([А-ЯЁ][а-яё-]{3,})/)?.[1];
-      const nameMatch = x => titleKey(x.title).includes(titleKey(author));
+      const authorWords = author && stems(author);
+      const nameMatch = x => titleKey(x.title).includes(titleKey(author)) || (authorWords.size > 0 && topicScore(x.title, authorWords) === authorWords.size);
       const candidates = author ? rows.filter(nameMatch) : rows;
-      const matching = candidates.map(x => ({ x, count: [...`${x.title} ${x.content || ""}`.matchAll(/«([^»]+)»/g)].filter(m => works.has(titleKey(m[1]))).length }))
+      const matching = candidates.map(x => ({ x, count: [...`${x.title} ${x.content || ""}`.matchAll(/«([^»]+)»/g)].filter(m => sameWork(m[1])).length }))
         .filter(r => r.count).sort((a, b) => b.count - a.count || topicScore(b.x.title, words) - topicScore(a.x.title, words));
       const row = matching[0]?.x;
       if (row) return { ...row, source: src };
+      if (les && author && candidates.length === 1 && /по выбору/i.test(candidates[0].title)) return { ...candidates[0], source: src };
       if (q && strict) return null;
       if (!q && candidates.length === 1 && author) return { ...candidates[0], source: src };
     }

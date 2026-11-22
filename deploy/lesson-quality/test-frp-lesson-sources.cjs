@@ -46,7 +46,7 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
     const result = await page.evaluate(async pdfSmoke => {
       await Base.ready();
       await FRP.load();
-      await Promise.all(['eng', 'inf', 'chem', 'orkse', 'lit'].map(subject => Plans.ensure(subject)));
+      await Promise.all(['eng', 'inf', 'chem', 'orkse', 'lit', 'hist', 'ru1', 'lit1', 'okr'].map(subject => Plans.ensure(subject)));
       const topics = [
         ['eng', 9, 'Монологическая речь'], ['bio', 9, 'Кровообращение'],
         ['hist', 5, 'Работа с исторической картой'], ['math', 10, 'График функции'], ['vis', 9, 'Вероятность случайного события'],
@@ -61,6 +61,20 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
         const result = frpTechResults({ subject, grade, topic });
         return { subject, grade, result, source: FRP.pick(subject, grade)?.name };
       });
+      const narrowTopics = [
+        ['hist', 6, 'Крещение Руси при князе Владимире'],
+        ['hist', 6, 'Иван III – государь всея Руси 1'],
+        ['ru1', 3, 'Нулевое окончание'],
+        ['ru1', 3, 'Имя существительное: значение и вопросы'],
+        ['lit1', 3, 'Главная мысль рассказа о взаимопомощи'],
+        ['okr', 1, 'Предметы личной гигиены. Закаливание организма солнцем, воздухом, водой. Условия и правила закаливания'],
+        ['orkse', 4, 'Этика и её значение в жизни человека']
+      ].map(([subject, grade, topic]) => {
+        const program = FRP.pick(subject, grade);
+        const row = frpTechResults({ subject, grade, topic });
+        const gradeItems = (program.subject?.[grade] || program.levelSubject || []).flatMap(s => s.items);
+        return { ...row, inProgram: row.source === program.name && gradeItems.some(text => row.subject === text || gradeItems.some(next => row.subject === `${text}; ${next}`)) };
+      });
       const literary = [[11, 'А. А. Блок. Поэма «Двенадцать». Анализ'], [10, 'Л. Н. Толстой. Роман-эпопея «Война и мир»'], [7, 'А. С. Пушкин. Поэма «Полтава»']];
       const literatureResults = literary.map(([grade, topic]) => {
         const picked = frpTechResults({ subject: 'lit', grade, topic });
@@ -72,6 +86,13 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
       const unknownWork = frpTechResults({ subject: 'lit', grade: 11, topic: 'Несуществующий автор. «Несуществующее произведение»' });
       const misplacedWork = frpTechResults({ subject: 'lit', grade: 7, topic: literary[0][1] });
       const byTitle = frpTechResults({ subject: 'lit', grade: 11, topic: 'Двенадцать' });
+      const catalogueWorks = [
+        [9, 'Развитие речи. Подготовка к домашнему сочинению по «Слову о полку Игореве»'],
+        [10, 'Развитие речи. Подготовка к домашнему сочинению по пьесе А.Н. Островского «Гроза»'],
+        [11, 'Развитие речи. Подготовка к домашнему сочинению по пьесе М. Горького «На дне»'],
+        [11, 'Своеобразие сюжета повести А.И. Куприна «Олеся». Художественное мастерство писателя']
+      ].map(([grade, topic]) => frpTechResults({ subject:'lit', grade, topic }));
+      const inventedByKnownAuthor = frpTechResults({ subject:'lit', grade:11, topic:'А.И. Куприн. Повесть «Вымышленное произведение»' });
       const badGrade = frpTechResults({ subject: 'bio', grade: 8, topic: 'Кровеносная система человека' });
       const savedMaterials = state.materials;
       state.materials = [
@@ -120,7 +141,7 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
       }
       const parsed = splitSlides('## Словарь терминов\n\n- Повтор.\n\n## 🧪 Проверка знаний: тест по теме\n\n![QR](idb:qr)\n\n- Наведите камеру.\n- Впишите имя.\n- Решите тест.\n\n<!--@ {"kind":"qr"} -->');
       return {
-        programs, gradePrograms, literatureResults, unknownWork, misplacedWork, byTitle, repairedSavedMap: normalizeTechmap(savedMap, p) === map, badGrade, excerpts, headers, tables: body.querySelectorAll('table').length, code: body.querySelector('pre').textContent,
+        programs, gradePrograms, narrowTopics, literatureResults, catalogueWorks, unknownWork, misplacedWork, inventedByKnownAuthor, byTitle, repairedSavedMap: normalizeTechmap(savedMap, p) === map, badGrade, excerpts, headers, tables: body.querySelectorAll('table').length, code: body.querySelector('pre').textContent,
         idempotent: Layout.repair(repaired) === repaired, original, wrongAuthor, hamlet: hamlet?.title, translated: Base.russianWorkText(hamlet?.text),
         sameText: p.plan.text === original.text, found, plan: lesson.plan.textSource, mapHtml, notes, verseHtml: /Черн|Чёрн/.test(verseHtml) && /<br>Белый снег\./.test(verseHtml), strict,
         mapTables: (mapXml.match(/<w:tbl>/g) || []).length, mapBreaks: (mapXml.match(/<w:br\/>/g) || []).length,
@@ -133,10 +154,17 @@ const fixture = (name, fallback) => process.env.WIKISOURCE_FIXTURES
     for (const { result: row, source } of result.gradePrograms) assert.ok(row?.source === source && row.goal && row.personal && row.meta && row.subject, JSON.stringify(row));
     assert.match(result.gradePrograms[0].result.subject, /^смысловое чтение:/i);
     assert.match(result.gradePrograms[1].result.subject, /лексическ.*единиц/i);
+    assert.ok(result.narrowTopics.every(row => row.inProgram && row.goal && row.personal && row.meta), JSON.stringify(result.narrowTopics));
+    assert.match(result.narrowTopics[0].goal, /принятия христианства на Руси/i);
+    assert.match(result.narrowTopics[1].place, /Создание единого Русского государства/i);
+    assert.match(result.narrowTopics[2].subject, /однозначно выделяемыми морфемами окончание/i);
+    assert.match(result.narrowTopics[6].subject, /российской светской.*этик/i);
     assert.ok(result.literatureResults.every(x => x.matchesProgram), JSON.stringify(result.literatureResults));
     assert.match(result.literatureResults[0].picked.meta, /развёрнуто и логично излагать.*анализа литературного произведения/i);
     assert.doesNotMatch(result.literatureResults[0].picked.meta, /нематериальных ресурсов/i);
-    for (const p of [result.unknownWork, result.misplacedWork]) assert.ok(['goal', 'personal', 'meta', 'subject'].every(key => !p[key]), JSON.stringify(p));
+    for (const p of [result.unknownWork, result.misplacedWork, result.inventedByKnownAuthor]) assert.ok(['goal', 'personal', 'meta', 'subject'].every(key => !p[key]), JSON.stringify(p));
+    const locations = [/Слово о полку Игореве/i, /Островский.*«Гроза»/i, /Горький.*«На дне»/i, /Куприн.*Рассказы и повести/i];
+    result.catalogueWorks.forEach((row,i) => { assert.match(row.place,locations[i]); assert.ok(row.goal && row.personal && row.meta && row.subject, JSON.stringify(row)); });
     assert.doesNotMatch(result.mapHtml, /Формулировка для этой темы в доступной ФРП не найдена/);
     assert.ok(result.byTitle.goal && result.byTitle.subject && result.literatureRowsInExport && result.repairedSavedMap);
     assert.equal(result.badGrade.subject, '');
