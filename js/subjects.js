@@ -142,7 +142,19 @@ const Subjects = (() => {
     }
     if (kind === "memo") return `# Памятка\n\n**Тема:** ${p.topic}\n\n${terms.length ? `## 📖 Понятия\n\n${terms.map(t => `- ${t}`).join("\n")}\n\n` : ""}${cont.length ? `## 📌 Главное по теме\n\n${cont.map(x => `- ${x}`).join("\n")}\n\n` : ""}## 🧭 Что нужно уметь\n\n${T.map(x => `- ${x}`).join("\n")}\n`;
     if (kind === "homework") return `# Домашнее задание\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade}\n\n## Базовый уровень\n\nПараграф учебника по теме урока${terms.length ? `; понятия: ${terms.slice(0, 4).join(", ")}` : ""}.\n\n## Повышенный уровень\n\n${T[Math.min(1, T.length - 1)]}.\n${T.length > 2 ? `\n## Для самопроверки\n\n${T.filter((x, i) => i !== Math.min(1, T.length - 1)).slice(0, 3).map((x, i) => `${i + 1}) ${x}.`).join("\n")}\n` : ""}`;
-    if (kind === "control") return `# Проверочная работа\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________\n\n${[...T.slice(0, 4)].filter(Boolean).map((x, i) => `**${i + 1}.** ${x}.\n\n[ ________________________________________ ]`).join("\n\n")}\n\n---\n\n**Ответы:** открытые задания: проверяйте по определениям и схеме из памятки и конспекта урока.\n`;
+    if (kind === "control") {
+      const opts = p.extra || {}, taskLimit = { self: 2, check: 3, test: 4 }[opts.ctrl] || 3;
+      const pool = [...new Set(T.filter(task => !/параграф|по учебнику|в краеведческих источниках|соседа по парте/i.test(task)))];
+      const ownExample = `Приведите пример по теме «${p.topic}». Назовите один изученный признак и поясните, как он проявляется в вашем примере.`;
+      const explain = `Сформулируйте один вывод по теме «${p.topic}» и обоснуйте его на материале урока.`;
+      if (!pool.length) pool.push(ownExample, explain);
+      else if (pool.length === 1 && opts.variants) pool.push(ownExample);
+      const variant = index => {
+        const tasks = (opts.variants ? pool.filter((_, i) => i % 2 === index || (pool.length % 2 && i === pool.length - 1)) : pool).slice(0, taskLimit);
+        return `${opts.variants ? `## Вариант ${index + 1}\n\n` : ""}${tasks.map((task, i) => `### Задание ${i + 1}\n\n${/[.!?]$/.test(task) ? task : task + "."}\n\n[ ________________________________________ ]`).join("\n\n")}`;
+      };
+      return `# Проверочная работа\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade}\n\n${variant(0)}${opts.variants ? "\n\n" + variant(1) : ""}${opts.keys === false ? "" : "\n\n# Критерии для учителя\n\nДля каждого задания проверьте соответствие теме, точность названных признаков и обоснованность вывода. Сверьте факты и термины с материалом, разобранным в классе."}\n`;
+    }
     if (kind === "cards") {
       const c = []; let n = 0; const add = x => c.push({ id: "f" + (++n), on: true, ...x });
       add({ kind: "title", title: p.topic, points: [`${p.grade} класс · ${subj}`], img: isEng ? "" : p.topic });

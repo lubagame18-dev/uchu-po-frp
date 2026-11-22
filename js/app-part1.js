@@ -2008,7 +2008,6 @@ const Engine = (() => {
           wsKeys.push(`**Задание ${n}.** ${bank.tasks.map(([, a], i) => `${i + 1}) ${a}`).join("; ")}`);
           if (bank.tasks[0] && /^[^:]{3,60}:/.test(bank.tasks[0][0])) md = md.replace(/(· Тренировка\n\n)/, `$1*${bank.tasks[0][0].split(":")[0]}.*\n\n`);
         }
-        if (ex.length + (bank?.tasks?.length ? 1 : 0) < 3) md += `${lvl(false)} · Упражнение из учебника\n\nУпражнение № ______ (номер называет учитель). Выполните его в тетради, рядом запишите, какое правило применяли.\n\n${BL}\n\n`;
       }
       // v5: творческое задание — каждый раз другая механика из рабочих тетрадей (кроссворд, лингвистическое уравнение, перфокарта…)
       const own = RK?.wsTasks?.find(x => /Создаём/.test(x.name));
@@ -2016,7 +2015,7 @@ const Engine = (() => {
       else if (p.plan?.format) md += `### 🏆 Задание ${++n}. Творческое (${p.plan.format.name.toLowerCase()})\n\n${p.plan.format.task}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
       else md += `### 🏆 Задание ${++n}. Творческое\n\nСоставьте 3–4 предложения по теме «${p.topic}». Подчеркните то, что изучали на уроке.\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
     } else {
-      md += `<!--TEXT-->\n\n`;
+      if (!p.plan?.kit?.fragments?.length) md += `<!--TEXT-->\n\n`;
       // v5: задания по тексту произведения, разные от урока к уроку, с необычным форматом в конце
       if (window.Variety && p.plan) {
         const LBv = typeof Base !== "undefined" ? Base.lit(p.topic) : null;
@@ -2027,7 +2026,7 @@ const Engine = (() => {
         for (const t of tasks) {
           const fm = String(t.name || "").match(/(?:Фрагмент|Часть) (\d+)/), stg = fm && p.plan?.fragStage?.[+fm[1]];
           const head = (t.lvl === 3 ? `### 🏆 Задание ${++n}. Творческое${t.name ? ` (${t.name.toLowerCase()})` : ""}` : lvl(t.lvl === 2) + (t.name ? ` · ${t.name}` : "")) + (stg ? ` · этап «${stg}»` : "");
-          md += `${head}\n\n${t.text}\n\n${/\|/.test(t.text) || /^>/m.test(t.text) ? "" : Array(t.lines || 2).fill(BL).join("\n\n") + "\n\n"}`;
+          md += `${head}\n\n${t.text}\n\n${/^\s*\|/m.test(t.text) ? "" : Array(t.lines || 2).fill(BL).join("\n\n") + "\n\n"}`;
         }
         md += selfCheck(r);
         const K = p.plan.kit, G = (K?.glossary || []).slice(0, 6);
@@ -2111,30 +2110,36 @@ const Engine = (() => {
     const ru = p.subject === "ru", RK = p.plan?.rukit, K = p.plan?.kit;
     const head = t => `# ${t}\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade}\n\n✍️ ФИО: ___________________________ | 📅 Дата: _________\n\n`;
     if (kind === "control") {
-      const C = CTRL[o.ctrl] || CTRL.self, variants = o.variants && o.ctrl !== "self" ? 2 : 1;
+      const C = CTRL[o.ctrl] || CTRL.self, variants = o.variants ? 2 : 1;
       const used = new Set([...(p.exFull || []).map(e => e.text.slice(0, 60)), p.hwText?.exText ? p.hwText.exText.slice(0, 60) : ""]);
       const pool = ru ? pickEx(p, materials, C.n * variants * 2 + 4).filter(e => !used.has(e.text.slice(0, 60))) : [];
       let md = `# ${C.name}\n\n**Тема:** ${p.topic} · **Класс:** ${p.grade} · **Время:** ${C.min} мин\n\n`;
-      const keys = [];
+      const keyBlocks = [];
       for (let v = 0; v < variants; v++) {
+        const keys = [];
         md += `${variants > 1 ? `## Вариант ${v + 1}\n\n` : ""}✍️ ФИО: ___________________________ | 📅 Дата: _________\n\n`;
         if (ru) {
           const mine = pool.filter((_, i) => i % variants === v).slice(0, C.n);
-          mine.forEach((e, i) => { md += `### Задание ${i + 1}${i === mine.length - 1 && C.n > 2 ? " (повышенный уровень)" : ""}\n\n${trimEx(e.text, 2500)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`; keys.push(`${variants > 1 ? `В${v + 1}, ` : ""}задание ${i + 1}: по ключу пособия (${e.source})`); });
+          mine.forEach((e, i) => { md += `### Задание ${i + 1}${i === mine.length - 1 && C.n > 2 ? " (повышенный уровень)" : ""}\n\n${trimEx(e.text, 2500)}${srcLn(e.source)}\n\n${BL}\n\n${BL}\n\n`; keys.push(`задание ${i + 1}: по ключу пособия (${e.source})`); });
           if (!mine.length && RK?.algo?.ex?.length) { md += `### Задание 1\n\nОбъясните написание (постановку знаков) по алгоритму «${RK.algo.name}», обозначьте графически.\n\n${RK.algo.ex.map((x, i) => `${i + 1}) ${x}`).join("\n")}\n\n${BL}\n\n${BL}\n\n`; keys.push(`задание 1: ${RK.algo.ex.join("; ")}`); }
-          md += `### Задание ${Math.max(mine.length, 1) + 1}. Своими словами\n\nСформулируйте правило по теме «${p.topic}» и приведите свой пример.\n\n${BL}\n\n${BL}\n\n`;
+          md += `### Задание ${(mine.length || (RK?.algo?.ex?.length ? 1 : 0)) + 1}. Своими словами\n\nСформулируйте правило по теме «${p.topic}» и приведите свой пример.\n\n${BL}\n\n${BL}\n\n`;
           if (RK?.algo) keys.push(`своими словами: ${RK.algo.steps.slice(1).join(" ")}`);
         } else {
           const T = (K?.terms || []).filter(t => t.ex).slice(v * 2, v * 2 + 4);
-          if (T.length >= 2) { md += `### Задание 1. Соотнесите термин и пример\n\n| № | Термин | Буква | Пример |\n|---|---|---|---|\n${T.map((t, i) => `| ${i + 1} | ${t.term} |  | ${"АБВГ"[i]}) «${T[(i + 1) % T.length].ex.replace(/[«»|]/g, "")}» |`).join("\n")}\n\n`; keys.push(`${variants > 1 ? `В${v + 1}: ` : ""}${T.map((t, i) => `${i + 1} — ${"АБВГ"[(i + T.length - 1) % T.length]}`).join(", ")}`); }
+          if (T.length >= 2) { md += `### Задание 1. Соотнесите термин и пример\n\n| № | Термин | Буква | Пример |\n|---|---|---|---|\n${T.map((t, i) => `| ${i + 1} | ${t.term} |  | ${"АБВГ"[i]}) «${T[(i + 1) % T.length].ex.replace(/[«»|]/g, "")}» |`).join("\n")}\n\n`; keys.push(`задание 1: ${T.map((t, i) => `${i + 1} — ${"АБВГ"[(i + T.length - 1) % T.length]}`).join(", ")}`); }
           const qs = (K?.qa || []).flatMap(x => x.items.map(y => ({ ...y, n: x.n }))).filter((_, i) => i % variants === v).slice(0, C.n);
           qs.forEach((x, i) => { md += `### Задание ${(T.length >= 2 ? 2 : 1) + i}\n\n${x.q} *(фрагмент ${x.n})*\n\n${BL}\n\n${BL}\n\n`; keys.push(`${x.q} — ${x.a}`); });
-          if (o.ctrl !== "self") md += `### Задание ${(T.length >= 2 ? 1 : 0) + qs.length + 1}. Развёрнутый ответ\n\n${K?.problem ? `**${K.problem}** Ответьте в 6–8 предложениях, приведите 2 цитаты.` : "Сформулируйте главную мысль произведения и подтвердите её цитатами (6–8 предложений)."}\n\n${BL}\n\n${BL}\n\n${BL}\n\n${BL}\n\n`;
-          if (K?.answer) keys.push(`развёрнутый ответ: ${K.answer}`);
+          if (o.ctrl !== "self" || (T.length < 2 && !qs.length)) {
+            const fragment = K?.fragments?.[v] || K?.fragments?.[0];
+            const question = K?.problem ? `Ответьте на вопрос: «${K.problem}» Обоснуйте ответ одной деталью из прочитанного.` : "Сформулируйте главную мысль прочитанного на уроке фрагмента и укажите деталь, которая подтверждает ваш вывод.";
+            md += `### Задание ${(T.length >= 2 ? 1 : 0) + qs.length + 1}. Развёрнутый ответ\n\n${question}${fragment ? ` *(фрагмент ${fragment.n})*` : ""}\n\n${BL}\n\n${BL}\n\n`;
+            keys.push(K?.answer ? `развёрнутый ответ: ${K.answer}` : "развёрнутый ответ: сформулирован вывод, названа подтверждающая его деталь и объяснена связь между ними.");
+          }
         }
+        keyBlocks.push(`${variants > 1 ? `### Вариант ${v + 1}\n\n` : ""}${keys.map(k => "- " + k).join("\n") || "- Оцените точность формулировки и соответствие примера теме урока."}`);
       }
       md += `---\n\n## Критерии оценивания\n\n${o.ctrl === "test" ? "Базовые задания — по 1 баллу, повышенные и развёрнутый ответ — по 2–3 балла. «5» — 90–100%, «4» — 70–89%, «3» — 50–69%, «2» — меньше 50%." : "Базовое задание — 1 балл, повышенное — 2 балла. «5» — всё верно, «4» — одна-две неточности, «3» — выполнено больше половины."}\n\n`;
-      if (o.keys !== false) md += `# Ключи (для учителя)\n\n${keys.map(k => "- " + k).join("\n") || "- по ключам пособий, указанных в заданиях"}\n`;
+      if (o.keys !== false) md += `# Ключи (для учителя)\n\n${keyBlocks.join("\n\n")}\n`;
       if (o.extraText) md += `\n\n# Дополнительные материалы\n\n${o.extraText}\n`;
       return md;
     }

@@ -582,6 +582,7 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 .ws-sheet h2 { color: #6b2bd9; }
 @media (max-width: 600px) { .ws-sheet .ws-banner h1 { font-size: 26px; max-width: 70%; } .ws-sheet .ws-ico { width: 56px; height: 56px; font-size: 28px; right: 14px; } }
 @media print { .ws-sheet .ws-banner.pb { break-before: page; margin-top: 0; } }
+
 .an-opts { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
 .an-opts .chip.on { background: var(--ink); color: var(--paper); }
 /* v5.12: тарифы — отдельные «переливающиеся» окна, текущий тариф подсвечен */
@@ -1073,6 +1074,54 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .ws-sheet .ws-card > h3:not(:has(.ws-num))::before { content: ""; }
 .ws-sheet .ws-card ol, .ws-sheet .ws-card ul { padding-left: 30px; }
 .ws-sheet .ws-card > p, .ws-sheet .ws-card li { max-width: none; }
+
+/* Лист ученика. Размеры используются в предпросмотре и при выгрузке. */
+.ws-pages { display: grid; gap: 12px; justify-content: start; overflow: auto; outline: none; }
+.ws-page.sheet {
+  box-sizing: border-box; width: 210mm; height: 297mm; min-height: 0; max-width: none;
+  padding: 11mm; margin: 0; border: 0; border-radius: 0; background: #fff; color: #171321;
+  font: 12pt/1.12 Arial, sans-serif; box-shadow: none; overflow-wrap: anywhere;
+}
+.ws-page.sheet::before { display: none; }
+.ws-page .ws-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.4mm; }
+.ws-page .ws-grid-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3mm; break-inside: avoid; }
+.ws-page .ws-grid-row.pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ws-page .ws-grid-row > * { min-width: 0; }
+.ws-page .ws-card { display: flow-root; margin: 0; padding: 2.5mm; break-inside: avoid; }
+.ws-page .ws-banner { margin: 0; padding: 3mm 4mm 3mm 16mm; border-radius: 2mm; box-shadow: none; }
+.ws-page .ws-banner h1 { max-width: 86%; margin: 1mm 0 0; font: bold 20pt/1.1 Arial, sans-serif; }
+.ws-page .ws-banner .ws-tag { padding: 0; background: transparent; border: 0; color: #191522; font-size: 12pt; }
+.ws-page .ws-ico { width: 10mm; height: 10mm; left: 3mm; right: auto; background: transparent; box-shadow: none; font-size: 16pt; }
+.ws-page h2, .ws-page .ws-card > h3 { margin: 0 0 1.5mm; font: bold 14pt/1.12 Arial, sans-serif; }
+.ws-page p, .ws-page li, .ws-page td, .ws-page th, .ws-page blockquote, .ws-page pre, .ws-page figcaption {
+  font-size: 12pt; line-height: 1.12; overflow-wrap: anywhere;
+}
+.ws-page p, .ws-page blockquote, .ws-page ul, .ws-page ol, .ws-page figure { margin: 0 0 1.4mm; }
+.ws-page .ws-card ol, .ws-page .ws-card ul { padding-left: 5mm; }
+.ws-page .tblwrap { max-width: 100%; overflow: visible; }
+.ws-page table { width: 100%; min-width: 0; table-layout: fixed; }
+.ws-page td, .ws-page th { padding: 1mm 1.4mm; min-width: 0; }
+.ws-page tr { break-inside: avoid; }
+.ws-page img { max-width: 100%; max-height: 85mm; object-fit: contain; }
+.ws-page .ws-photo { max-height: 275mm; }
+.ws-page .blank, .ws-page .uline { max-width: 100%; }
+.ws-page .ws-writing { display: grid; margin-top: 1mm; }
+.ws-page .ws-writing-line { display: block; height: 6mm; border-bottom: 1px solid #706b7a; }
+.ws-page .ws-grid-row > :last-child { margin-bottom: 0; }
+@page worksheet { size: A4 portrait; margin: 11mm; }
+@media print {
+  body:has(#sheet.ws-pages) > :not(#view-builder),
+  #view-builder:has(#sheet.ws-pages) > :not(main),
+  .builder:has(#sheet.ws-pages) > :not(#workspace),
+  #workspace:has(#sheet.ws-pages) > :not(#split),
+  #split:has(#sheet.ws-pages) > :not(.preview) { display: none !important; }
+  body:has(#sheet.ws-pages) :is(.builder, #workspace, #split, .preview, #sheetwrap, #sheet) {
+    display: block; width: auto; height: auto; min-height: 0; max-height: none; margin: 0;
+    padding: 0; overflow: visible; border: 0; box-shadow: none;
+  }
+  .ws-page.sheet { page: worksheet; width: 188mm; height: 275mm; padding: 0; break-after: page; print-color-adjust: exact; }
+  .ws-page.sheet:last-child { break-after: auto; }
+}
 
 /* ===== Памятка: по образцу учителя — пунктир для разрезания, две колонки, таблицы с серой шапкой ===== */
 .sheet.memo-sheet { padding: 26px 30px 36px; font: 13.5px/1.4 "Times New Roman", "PT Serif", Georgia, serif; color: #111; background: #fff; }

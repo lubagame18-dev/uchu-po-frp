@@ -524,8 +524,8 @@ ${G.map((g, i) => `| ${i + 1} | ${g.word} |  | ${L[i]}) ${G[order[i]].def} |`).j
       for (const f of (K.fragments || []).slice(0, 4)) {
         const it = (K.qa || []).find(x => x.n === f.n)?.items || [];
         if (!it.length) continue;
-        const first = String(f.text).split("\n").find(l => l.trim()) || "";
-        tasks.push({ lvl: it.length > 1 ? 2 : 1, name: f.part ? `Часть ${f.n}` : `Фрагмент ${f.n}`, text: `**${f.part ? `Часть ${f.n}. ${f.label}` : `Фрагмент ${f.n}. ${f.label}`}** (строки ${f.from}–${f.to}, текст на слайде; начало: «${clip(short(first, 50))}…»).\n\n${it.slice(0, 2).map((x, j) => `${j + 1}) ${x.q}`).join("\n\n")}`, lines: Math.min(4, 2 * Math.min(2, it.length)) });
+        const quote = String(f.text).trim().split("\n").map(line => line.trim() ? `> ${line}  ` : ">").join("\n");
+        tasks.push({ lvl: it.length > 1 ? 2 : 1, name: f.part ? `Часть ${f.n}` : `Фрагмент ${f.n}`, text: `**${f.part ? `Часть ${f.n}. ${f.label}` : `Фрагмент ${f.n}. ${f.label}`}** (строки ${f.from}–${f.to}).\n\n${quote}\n\n${it.slice(0, 2).map((x, j) => `${j + 1}) ${x.q}`).join("\n\n")}`, lines: Math.min(4, 2 * Math.min(2, it.length)) });
       }
       const T = (K.terms || []).slice(0, 5);
       if (T.length) tasks.push({ lvl: 2, name: "Работа с терминами", text: `Запишите определения терминов (слайды «Работа с терминами») и найдите пример во фрагментах урока.\n\n| Термин | Определение | Пример из текста (фрагмент №) |\n|---|---|---|\n${T.map(t => `| ${t.term} |  |  |`).join("\n")}` });
