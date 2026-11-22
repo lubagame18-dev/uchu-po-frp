@@ -80,12 +80,13 @@ async function testGeneratedContent(page) {
       '# Технологическая карта урока\n\n8 класс\n\n<!--@ {"kind":"title","layout":"title"} -->',
       '## Проверь себя\n\n' + question + '\n- Объясните, почему поставлена запятая: «Лес притих, когда началась гроза». || Между частями.\n- Шёл дождь, а мы гуляли || ССП: союз А',
       '## Образец\n\nЧисло 3,14 и цитата «Лес притих, когда началась гроза».\n\n<!-- заметка автора -->',
-      '## Расставьте запятые\n\n- На табло появилось число 3,14, когда закончился расчёт.\n\n**Образец:** Небо потемнело, но дождя не было.'
+      '## Расставьте запятые\n\n- На табло появилось число 3,14, когда закончился расчёт.\n\n**Образец:** Небо потемнело, но дождя не было.',
+      '## Где нужна запятая?\n\n- Едва рассвело, мы вышли из дома. || Едва рассвело, мы вышли из дома.\n- Нужна ли здесь запятая? Лес молчал, а поле шумело. || Да, перед союзом «а».\n\n<!--@ {"qa":1} -->'
     ].join('\n\n---\n\n');
     const saved = { id: 'deck-saved-ru', title: topic, params: p, docs: { slides: legacyDeck }, status: { slides: 'ok' },
       deckOutline: [{ kind: 'title', title: 'Технологическая карта урока' }] };
     openLesson(saved, 'slides', false);
-    const [first, practice, sample, decimals] = slides(saved.docs.slides);
+    const [first, practice, sample, decimals, locate] = slides(saved.docs.slides);
     const visible = new DOMParser().parseFromString(SlideEditor.stageHtml(saved.docs.slides), 'text/html');
     const button = visible.querySelector('.qa-i');
     const target = slides(generated).find(s => s.set.kind === 'task');
@@ -109,6 +110,7 @@ async function testGeneratedContent(page) {
       explanation: practice.body.includes('Объясните, почему поставлена запятая: «Лес притих, когда началась гроза».'),
       example: sample.body.includes('3,14 и цитата «Лес притих, когда началась гроза».') && sample.notes === 'заметка автора',
       decimals: decimals.body.includes('число 3,14 когда закончился расчёт.') && decimals.body.includes('Небо потемнело, но дождя не было.'),
+      locate: locate.body.includes('Едва рассвело мы вышли из дома. || Едва рассвело, мы вышли из дома.') && locate.body.includes('Нужна ли здесь запятая? Лес молчал а поле шумело. || Да, перед союзом «а».'),
       idempotent: Deck.repairPresentation(saved.docs.slides, p) === saved.docs.slides,
       originalTitle: Deck.repairPresentation(saved.docs.slides.replace(`# ${topic}`, '# Мой заголовок'), p).startsWith('# Мой заголовок'),
       choices: tools.filter(s => s.set.choice).length,
@@ -121,7 +123,7 @@ async function testGeneratedContent(page) {
     mapShape: true, title: topic, task: true, homework: true, bank: true,
     storedTitle: topic, storedOutline: topic,
     storedQuestion: '- Расставьте запятые, если они нужны: «Лес притих когда началась гроза». || Лес притих, когда началась гроза.',
-    restoredBank: true, display: ['Расставьте запятые, если они нужны: «Лес притих когда началась гроза».', 'Лес притих, когда началась гроза.'], explanation: true, example: true, decimals: true,
+    restoredBank: true, display: ['Расставьте запятые, если они нужны: «Лес притих когда началась гроза».', 'Лес притих, когда началась гроза.'], explanation: true, example: true, decimals: true, locate: true,
     idempotent: true, originalTitle: true, choices: 2, key: true, code: true
   });
 }
