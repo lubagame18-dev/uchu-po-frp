@@ -1178,26 +1178,6 @@ ${JSON.stringify(frs)}`;
           cards.splice(last + 1, 0, { id: "v" + n, on: true, kind: "concl", title: "Вывод", points: [concl.get(n)], notes: "Показывайте после обсуждения: вывод сначала формулируют ученики, слайд — для записи. Слайд можно выключить." });
         }
       }
-      // разминка в конце презентации (не входит в время урока): «Угадай героя» и «Восстанови сюжет»
-      if (!p.plan?.analysis?.verse) {
-        const txt = kit.fragments.map(f => f.text).join("\n").toLowerCase().replace(/ё/g, "е");
-        const heroes = (j.heroes || []).filter(x => x?.name && x?.hint && txt.includes(String(x.name).toLowerCase().replace(/ё/g, "е").split(/\s+/)[0].slice(0, 5)) && !String(x.hint).toLowerCase().includes(String(x.name).toLowerCase().split(/\s+/)[0].slice(0, 5))).slice(0, 5);
-        const events = (j.events || []).map(x => String(x || "").trim().slice(0, 90)).filter(x => x.length > 8).slice(0, 7);
-        const warm = [];
-        if (heroes.length >= 3) warm.push({ kind: "list", title: "Разминка: угадай героя по описанию", points: heroes.map(h => `${String(h.hint).replace(/\s+/g, " ")} — ${h.name}`), warm: true, notes: "Карточки переворачиваются по щелчку: класс называет героя по описанию, потом открываем имя." });
-        if (events.length >= 4) {
-          const order = events.map((e, i) => [e, i]).sort((a, b) => ((a[1] * 7 + 3) % 11) - ((b[1] * 7 + 3) % 11));
-          const L = "АБВГДЕЖ";
-          warm.push({ kind: "list", title: "Разминка: восстанови сюжет", points: order.map(([e], i) => `${L[i]}. ${e}`), warm: true, notes: "События перепутаны: класс называет правильный порядок букв. Ответ — на следующем слайде." });
-          warm.push({ kind: "steps", title: "Сюжет по порядку", points: events, warm: true, notes: "Правильный порядок событий." });
-        }
-        if (warm.length) {
-          const addWarm = warm.map((c, i) => ({ id: "w" + i + "_" + Math.random().toString(36).slice(2, 5), on: true, ...c }));
-          // слайды-приложения всегда остаются последними: разминку вставляем перед ними
-          const ai = cards.findIndex(c => c.kind === "appendix");
-          if (ai >= 0) cards.splice(ai, 0, ...addWarm); else cards.push(...addWarm);
-        }
-      }
     } catch (e) { console.warn("Deck AI lit", e); }
     return cards;
   }

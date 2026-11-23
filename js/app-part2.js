@@ -1319,13 +1319,32 @@ function densityBlock(p) {
 - Включи 2 источника или документа: название, автор/происхождение, что из него следует. Если документа нет в материалах — не выдумывай страницы и цитаты, дай проверяемый ориентир.
 - Для каждого этапа — конкретный вопрос, задание и полный ответ; не писать «работа с учебником» без переданного текста.
 - Отдели факт от оценки; покажи 2 точки зрения, если тема спорная.`;
-  if (subj.startsWith("lit")) return `
-## Обязательная литературная наполненность (не сокращать)
+  if (subj.startsWith("lit")) {
+    const verse = !!(p.plan?.analysis?.verse || /стих|поэм|баллад|лирик|ода|элеги|сонет|песн/i.test(String(p.topic || "")));
+    const noText = !p.plan?.text || p.textSkip;
+    const textRule = noText ? "Текст произведения НЕ передан: не вставляй цитаты и не делай вид, что текст есть; работай по сюжету, героям, конфликту и контексту, без выдуманных страниц и пустых заглушек." : "Цитаты — только из переданного текста; номера страниц и глав не выдумывай.";
+    if (verse) return `
+## Обязательная литературная наполненность: ЛИРИКА (не сокращать)
 - Дай контекст 1–2 абзаца: эпоха, место произведения в творчестве, история создания.
-- Анализируй не менее 2 эпизодов/фрагментов; цитаты — только если текст передан в материалах.
-- Введи 4–6 терминов (жанр, композиция, конфликт, тропы) и объясни их на материале темы.
+- Работа с текстом обязательна: 2–3 фрагмента/строфы, цитаты только из переданного текста.
+- Анализируй тропы, ритм, интонацию, лирического героя и настроение — это основа урока.
+- Введи 4–6 терминов и объясни их на материале строк.
 - Для каждого этапа — конкретный вопрос, задание и полный ответ; не писать «работа с учебником» без переданного текста.
-- Не выдумывай номера страниц, цитаты и названия глав.`;
+- Не выдумывай номера страниц, цитаты и названия глав.
+- Если на слайде есть иллюстрация — продублируй 1–2 вопроса к ней в конспекте.${textRule}`;
+    return `
+## Обязательная литературная наполненность: ПРОЗА (не сокращать)
+- Дай контекст 1–2 абзаца: эпоха, место произведения в творчестве, история создания.
+- Главный фокус — сюжет, конфликт, поступки и мотивы героев, авторская идея.
+- Анализируй не менее 2 эпизодов/фрагментов; цитаты — только если текст передан в материалах.
+- Не добавляй обязательный формальный разбор эпитетов/метафор/сравнений.
+  Средства выразительности — только если это смыслообразующая деталь конкретного эпизода
+  (антитеза конфликта, психологический параллелизм, говорящая деталь, говорящая фамилия).
+- В «Проверь себя» проверяй понимание сюжета, характеров, конфликта и идеи, а не угадывание базовых тропов.
+- Введи 4–6 терминов, связанных с прозой (жанр, композиция, конфликт, герой, авторская позиция).
+- Не выдумывай номера страниц, цитаты и названия глав.
+- Если на слайде есть иллюстрация — продублируй 1–2 вопроса к ней в конспекте.${textRule}`;
+  }
   return `
 ## Наполненность (не сокращать)
 - ${p.assessment ? "Оставь столько этапов, сколько нужно для подготовки и проведения проверки" : "8–10 этапов"}. В каждом — конкретные действия, вопросы с ответами и задания по смыслу этапа.
@@ -2090,7 +2109,7 @@ async function buildLessonFromForm() {
   p.extra = { ...state.extra };
   try { const tk = String(p.topic || "").trim().toLowerCase() + "|" + p.subject; for (const m of state.materials) if (m.pinned) { m.pinned = false; m.pinTopic = tk; Store.put("materials", m.id, m); } paintPinned(); } catch (e) { console.warn("pin", e); }
   state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
-  if (state.textChoice?.key === planKey(p) && validWorkText(state.textOverride?.text)) p.textOverride = state.textOverride;
+  if (state.textChoice?.key === planKey(p)) { if (state.textChoice.mode === "skip") p.textSkip = true; else if (validWorkText(state.textOverride?.text)) p.textOverride = state.textOverride; }
   state.textOverride = null; state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   window.Usage?.begin("Сборка урока", state.topic); // тариф, промокод, бесплатный лимит (сервер)
@@ -2257,8 +2276,7 @@ async function checkWorkText(p, type) {
   if (state.textChoice && state.textChoice.key === planKey(p)) {
     const ch = state.textChoice;
     if (ch.mode === "text" && validWorkText(state.textOverride?.text)) return true;
-    if (ch.mode === "skip" && (!window.Access || !Access.commercial() || Access.isDev())) return true;
-    // «без текста» от обычного пользователя не принимаем: текст обязателен
+    if (ch.mode === "skip") { p.textSkip = true; return true; }
   }
   if (pendingPlan && pendingPlan.key === planKey(p) && validWorkText(pendingPlan.plan?.text)) return remember(pendingPlan.plan);
   $("#createHint").textContent = "Ищу текст произведения…";
@@ -2271,7 +2289,7 @@ async function checkWorkText(p, type) {
     state.textOverride = { text: ans.text, source: "текст, добавленный учителем", fragments: ans.fragments };
     state.textChoice = { key: planKey(p), mode: "text" };
   }
-  else if (ans.skip) { if (window.Access && Access.commercial() && !Access.isDev()) { toast("Без текста произведения урок по литературе не собирается.", 7000); return null; } if (plan) pendingPlan = { key: planKey(p), plan }; }
+  else if (ans.skip) { p.textSkip = true; if (plan) pendingPlan = { key: planKey(p), plan }; }
   else { toast("Добавьте оригинал произведения на русском или русский перевод.", 7000); return null; }
   return true;
 }
@@ -2321,7 +2339,7 @@ function askWorkText(p, work, author, opts = {}) {
   return new Promise(resolve => {
     let done = false; const fin = v => { if (done) return; done = true; obs.disconnect(); resolve(v); };
     const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>${manual ? "Встроить текст произведения" : "Нужен текст произведения"}</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
-      <p>${manual ? `Вставьте текст «${esc(work)}»${author ? ` (${esc(author)})` : ""} — он заменит автоматически найденный фрагмент и будет использоваться во всех материалах урока.` : `Сайт не нашёл полный текст «${esc(work)}»${author ? ` (${esc(author)})` : ""}. Прикрепите его до генерации: с ним вопросы и задания пойдут по строфам и эпизодам именно этого произведения. Пока текст не добавлен, материалы не создаются и расход по тарифу не списывается.`}</p>
+      <p>${manual ? `Вставьте текст «${esc(work)}»${author ? ` (${esc(author)})` : ""} — он заменит автоматически найденный фрагмент и будет использоваться во всех материалах урока.` : `Сайт не нашёл полный текст «${esc(work)}»${author ? ` (${esc(author)})` : ""}. Можно вставить текст, повторить поиск или продолжить без текста: тогда урок будет построен на сюжете, героях и смысле произведения, без выдуманных цитат.`}</p>
       <ol class="at-steps"><li><b>Найдите текст</b>:<div class="mat-row">${L.map(([t, u]) => `<a class="btn sm ghost" target="_blank" rel="noopener" href="${u}">${t}</a>`).join("")}</div></li>
         <li><b>Вставьте текст</b> (или нужный фрагмент) — либо загрузите файл (.txt, .docx, .pdf):
         <textarea id="awText" rows="9" placeholder="Вставьте текст произведения или фрагмента…"></textarea>
@@ -2329,8 +2347,8 @@ function askWorkText(p, work, author, opts = {}) {
         <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div>
         <div id="awFrags"></div></li></ol>
       <div class="pk-foot"><button class="btn flame" id="awGo">${manual ? "📖 Встроить текст" : "Собрать урок с этим текстом"}</button></div>
-      <label class="check" style="margin-top:12px" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><input type="checkbox" id="awSkip"> Продолжить без добавления текста (только для разработчика)</label>
-      <div class="pk-foot" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
+      <label class="check" style="margin-top:12px"><input type="checkbox" id="awSkip"> Продолжить без текста</label>
+      <div class="pk-foot"><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
     const fragBox = m.querySelector("#awFrags"), aiBtn = m.querySelector("#awAiFrags"), aiMsg = m.querySelector("#awAiMsg");
     let frags = [], aiPick = null, fragsText = "";
@@ -2686,6 +2704,20 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
       new Promise(res => setTimeout(() => res(null), 9000))
     ]) : null;
     if (signal.aborted) throw { code: "cancelled" };
+    if (p.textSkip && p.subject === "lit" && !p.plan?.text && window.Variety?.prepare) {
+      try {
+        const late = await Variety.prepare({ ...p, notes: null }, p.type);
+        if (validWorkText(late?.text)) {
+          p.plan = { ...(p.plan || {}), ...late };
+          p.textOverride = { text: late.text, source: late.textSource, url: late.textUrl, verse: late.analysis?.verse, fragments: late.kit?.fragments || [] };
+          p.textSkip = false;
+          state.textChoice = { key: planKey(p), mode: "text" };
+          state.textOverride = p.textOverride;
+          const tb = $("#textBox"); if (tb) paintTextBox(tb, "text", (p.topic.match(/«([^»]+)»/) || [])[1] || p.topic, Engine.authorOf ? Engine.authorOf(p.topic) : "", planKey(p));
+          toast("Текст произведения найден во время сборки и встроен в урок.", 6000);
+        }
+      } catch (e) { console.warn("late text lookup", e); }
+    }
     if (p.web?.items?.length) toast(`Найдено в источниках: ${p.web.items.length} выдержек (${p.web.sources.length} сайтов).`, 5000);
     else if (p.find) toast(p.web?.reason === "no_keys" ? "Поиск по источникам не настроен на сервере (нужен ключ Яндекс-поиска)." : "По запросу в образовательных источниках ничего не нашлось.", 7000);
     state.gen = null;
