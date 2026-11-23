@@ -129,22 +129,74 @@ async function legacyDocText(file) {
   const a = run(u16), b = run(new TextDecoder("windows-1251").decode(buf));
   return (a.length >= b.length ? a : b).replace(/[ \t]{2,}/g, " ").replace(/\r/g, "\n");
 }
+/* Сохраняем таблицы и оформление приложенных файлов, а не только плоский текст. */
+function docTableMd(rows) {
+  const clean = x => String(x == null ? "" : x).replace(/\|/g, "\\|").replace(/\s+/g, " ").trim();
+  const rs = (rows || []).map(r => (r || []).map(clean)).filter(r => r.some(Boolean));
+  if (!rs.length) return "";
+  const n = Math.max(...rs.map(r => r.length));
+  const norm = r => Array.from({ length: n }, (_, i) => r[i] || "");
+  const head = norm(rs[0]), body = rs.slice(1).map(norm);
+  return [`| ${head.join(" | ")} |`, `|${head.map(() => "---").join("|")}|`, ...body.map(r => `| ${r.join(" | ")} |`)].join("\n");
+}
+function docStructureText(text) {
+  const t = String(text || "");
+  const tables = [];
+  let group = [];
+  const cellsOf = line => line.split(/\t+|\s{3,}|\s*\|\s*/).map(x => x.trim()).filter((x, i, a) => x.length || (i > 0 && i < a.length - 1));
+  const flush = () => { if (group.length >= 2 && group.every(r => r.length >= 2)) tables.push(group.map(r => r.slice())); group = []; };
+  for (const line of t.split(/\r?\n/)) {
+    if (!line.trim()) { flush(); continue; }
+    const cells = cellsOf(line);
+    if (cells.length >= 2 && (/(?:\t|\s{3,}|\|)/.test(line))) group.push(cells); else flush();
+  }
+  flush();
+  const tableMd = tables.map(docTableMd).filter(Boolean).join("\n\n");
+  return { text: t, markdown: tableMd ? t + "\n\n" + tableMd : t, tables, headings: [], tasks: (t.match(/(?:^|\n)\s*(?:Задание|Упражнение|Задача|Вопрос)\s*[№#\d]/gi) || []).slice(0, 40) };
+}
+function docHtmlStructure(html) {
+  const root = document.createElement("div"); root.innerHTML = String(html || "");
+  const out = [], tables = [], headings = [], tasks = [];
+  const txt = el => String(el.textContent || "").replace(/\s+/g, " ").trim();
+  const walk = el => {
+    for (const n of el.children) {
+      const tag = n.tagName.toLowerCase();
+      if (tag === "table") {
+        const rows = [...n.querySelectorAll("tr")].map(tr => [...tr.children].map(td => txt(td)));
+        if (rows.length) { tables.push(rows); out.push(docTableMd(rows)); }
+        continue;
+      }
+      if (/^h[1-6]$/.test(tag)) { const x = txt(n); if (x) { headings.push(x); out.push(`${"#".repeat(+tag[1])} ${x}`); } continue; }
+      if (tag === "ul" || tag === "ol") { [...n.children].filter(x => x.tagName === "LI").forEach((li, i) => out.push(`${tag === "ol" ? i + 1 + "." : "-"} ${txt(li)}`)); continue; }
+      if (tag === "p") { const x = txt(n); if (x) out.push(x); continue; }
+      if (tag === "br") continue;
+      if (["div", "section", "article", "body"].includes(tag)) { walk(n); continue; }
+      const x = txt(n); if (x) out.push(x);
+    }
+  };
+  walk(root);
+  const text = String(root.textContent || "").replace(/\n{3,}/g, "\n\n").trim();
+  for (const m of text.matchAll(/(?:^|\n)\s*(?:Задание|Упражнение|Задача|Вопрос)\s*[№#\d][^\n]{0,180}/gi)) tasks.push(m[0].trim());
+  return { text, markdown: out.filter(Boolean).join("\n\n"), tables, headings, tasks };
+}
+function docCsvStructure(text, delim = ",") {
+  const rows = String(text || "").split(/\r?\n/).filter(Boolean).map(l => l.split(delim).map(x => x.replace(/^"|"$/g, "")));
+  return { text: rows.map(r => r.join(" | ")).join("\n"), markdown: docTableMd(rows), tables: rows.length ? [rows] : [], headings: [], tasks: [] };
+}
 async function readFile(file) {
   const ext = (file.name.split(".").pop() || "").toLowerCase();
   if (["txt", "md", "json", "csv", "tsv", "srt", "log"].includes(ext)) {
     const buf = new Uint8Array(await file.arrayBuffer());
     let t = new TextDecoder("utf-8").decode(buf);
-    if ((t.match(/\uFFFD/g) || []).length > 20) t = new TextDecoder("windows-1251").decode(buf); // старые файлы в кодировке Windows
-    return { text: t };
+    if ((t.match(/\uFFFD/g) || []).length > 20) t = new TextDecoder("windows-1251").decode(buf);
+    if (ext === "csv" || ext === "tsv") return { ...docCsvStructure(t, ext === "tsv" ? "\t" : ","), format: ext };
+    return { ...docStructureText(t), format: ext };
   }
   if (ext === "docx" || ext === "docm" || ext === "dotx") {
     await loadScript("mammoth");
     const buf = await file.arrayBuffer();
     const r = await window.mammoth.convertToHtml({ arrayBuffer: buf });
-    const div = document.createElement("div"); div.innerHTML = r.value;
-    div.querySelectorAll("p,li,h1,h2,h3,h4,tr").forEach(n => n.append("\n"));
-    div.querySelectorAll("td,th").forEach(n => n.append(" | "));
-    return { text: div.textContent.replace(/\n{3,}/g, "\n\n"), html: r.value };
+    return { ...docHtmlStructure(r.value), html: r.value, format: "docx" };
   }
   if (ext === "pdf") {
     await loadScript("pdfworker"); await loadScript("pdfjs");
@@ -154,29 +206,30 @@ async function readFile(file) {
       const tc = await (await doc.getPage(i)).getTextContent();
       out += tc.items.map(it => it.str + (it.hasEOL ? "\n" : " ")).join("") + "\n\f\n"; // \f — граница страницы (для очистки колонтитулов)
     }
-    return { text: out, pages: n, scanned: out.replace(/\s/g, "").length < n * 40 };
+    return { ...docStructureText(out), pages: n, format: "pdf-text", scanned: out.replace(/\s/g, "").length < n * 40 };
   }
   if (["pptx", "ppsx", "potx", "pptm"].includes(ext)) {
     const z = await zipOf(file);
     const names = Object.keys(z.files).filter(n => /^ppt\/(slides\/slide|notesSlides\/notesSlide)\d+\.xml$/.test(n)).sort((a, b) => (/notes/.test(a) - /notes/.test(b)) || (+a.match(/(\d+)\.xml/)[1] - +b.match(/(\d+)\.xml/)[1]));
     let out = "";
     for (const n of names) { const xml = await z.file(n).async("string"); const ps = xml.split(/<\/a:p>/).map(p => (p.match(/<a:t>([^<]*)<\/a:t>/g) || []).map(x => x.replace(/<\/?a:t>/g, "")).join("")).filter(Boolean); out += `${/notes/.test(n) ? "Заметки к слайду" : "Слайд"} ${n.match(/(\d+)\.xml/)[1]}\n${ps.join("\n")}\n\n`; }
-    return { text: out.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"') };
+    return { ...docStructureText(out.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/&quot;/g, '"')), format: "pptx" };
   }
   if (["xlsx", "xlsm"].includes(ext)) {
     const z = await zipOf(file);
     const ss = z.file("xl/sharedStrings.xml") ? xmlText(await z.file("xl/sharedStrings.xml").async("string"), /^si$/) : [];
-    let out = "";
+    let out = "", md = "", tables = [];
     for (const n of Object.keys(z.files).filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n))) {
       const d = new DOMParser().parseFromString(await z.file(n).async("string"), "application/xml");
-      for (const row of d.getElementsByTagName("row")) out += [...row.getElementsByTagName("c")].map(c => { const v = c.getElementsByTagName("v")[0]?.textContent ?? c.textContent; return c.getAttribute("t") === "s" ? ss[+v] || "" : v; }).join(" | ") + "\n";
-      out += "\n";
+      const rows = [...d.getElementsByTagName("row")].map(row => [...row.getElementsByTagName("c")].map(c => { const v = c.getElementsByTagName("v")[0]?.textContent ?? c.textContent; return c.getAttribute("t") === "s" ? ss[+v] || "" : v; })).filter(r => r.some(Boolean));
+      if (!rows.length) continue;
+      out += rows.map(r => r.join(" | ")).join("\n") + "\n\n"; tables.push(rows); md += `### ${n.split("/").pop()}\n${docTableMd(rows)}\n\n`;
     }
-    return { text: out };
+    return { text: out, markdown: md.trim(), tables, headings: [], tasks: [], format: "xlsx" };
   }
   if (["odt", "odp", "ods", "ott"].includes(ext)) {
     const z = await zipOf(file); const xml = await z.file("content.xml").async("string");
-    return { text: xmlText(xml, /^(p|h)$/).join("\n") };
+    return { ...docStructureText(xmlText(xml, /^(p|h)$/).join("\n")), format: ext };
   }
   if (ext === "epub") {
     const z = await zipOf(file); let out = "";
@@ -184,81 +237,9 @@ async function readFile(file) {
     return { text: out };
   }
   if (ext === "fb2") { const t = await file.text(); return { text: xmlText(t, /^(p|v|title|subtitle)$/).join("\n") }; }
-  if (["html", "htm", "xhtml", "mht"].includes(ext)) { const d = new DOMParser().parseFromString(await file.text(), "text/html"); d.querySelectorAll("p,h1,h2,h3,h4,li,br,tr,div").forEach(x => x.append("\n")); return { text: (d.body?.textContent || "").replace(/\n{3,}/g, "\n\n"), html: d.body?.innerHTML }; }
-  if (ext === "rtf") return { text: rtfToText(await file.text()) };
-  if (ext === "doc" || ext === "dot") { const t = await legacyDocText(file); return { text: t, scanned: t.replace(/\s/g, "").length < 200, note: "старый формат .doc: текст извлечён автоматически, для точности лучше пересохранить как .docx" }; }
-  if (IMG_EXT.includes(ext) || /^image\//.test(file.type)) return { text: "", pages: 1, scanned: true, image: true };
-  // неизвестный формат: пробуем как текст; если это не текст — сохраняем файл без текста (не отклоняем)
-  const buf = new Uint8Array(await file.arrayBuffer());
-  const t = new TextDecoder("utf-8").decode(buf.slice(0, 2000000));
-  const printable = (t.match(/[\u0020-\u007E\u0400-\u04FF\s«»—–…№]/g) || []).length / Math.max(1, t.length);
-  if (printable > 0.85) return { text: t };
-  return { text: "", scanned: true, unknown: true };
-}
-async function loadMaterials() {
-  try { state.materials = (await Store.all("materials")).sort((a, b) => String(b.addedAt).localeCompare(String(a.addedAt))); } catch { state.materials = []; }
-  // материалы, встроенные владельцем сайта (data/extra.js): видны всем учителям
-  const extra = [].concat((window.UCHU_EXTRA && window.UCHU_EXTRA.items) || []).map(m => ({ ...m, builtin: true }));
-  state.materials = [...state.materials, ...extra.filter(e => !state.materials.some(m => m.id === e.id))];
-  // общая база в облаке: всё, что загрузили разработчики, — сразу у всех учителей
-  if (window.CloudBase) { const hs = new Set(state.materials.map(m => m.hash).filter(Boolean)); state.materials = [...state.materials, ...CloudBase.items().filter(c => !(c.hash && hs.has(c.hash)))]; }
-  // v5: после изменения набора материалов система переобучается (новые вопросы, структуры уроков)
-  if (window.Learn && state.learnReady) Learn.update().catch(e => console.warn("Learn", e));
-}
-/* Для владельца сайта: выгрузить файл, который кладётся в папку data/ репозитория, — и материал станет общим */
-function downloadDataJs(name, varName, obj) {
-  const js = `/* «Учу по ФРП»: файл для папки data/ на GitHub. Создан ${new Date().toLocaleDateString("ru-RU")}. */\nwindow.${varName} = ${JSON.stringify(obj)};\n`;
-  return saveFile(name, new Blob([js], { type: "text/javascript" }));
-}
-async function embedFrp() {
-  const out = Object.fromEntries(Object.keys(FRP.data).filter(k => FRP.list(k).length).map(k => [k, FRP.list(k).map(({ builtin, ...d }) => d)]));
-  await downloadDataJs("frp.js", "UCHU_FRP", out);
-  toast("Файл frp.js скачан. Загрузите его в папку data в репозитории сайта — программа станет общей для всех учителей.", 9000);
-}
-async function embedMaterials() {
-  const items = state.materials.map(({ builtin, ...m }) => m);
-  if (!items.length) { toast("Сначала прикрепите материалы."); return; }
-  await downloadDataJs("extra.js", "UCHU_EXTRA", { items });
-  toast("Файл extra.js скачан. Загрузите его в папку data в репозитории сайта — материалы станут общими для всех учителей.", 9000);
-}
-/* Файл, брошенный на страницу, прикрепляется к урокам, который собирается: входит в него целиком и остаётся в «Моих материалах» */
-async function addToLesson(files) {
-  const names = new Set(files.map(f => f.name));
-  toast("Прикрепляю к уроку: " + files.length + " файл(ов)…", 4000);
-  await addMaterials(files);
-  let n = 0;
-  for (const m of state.materials) if (!m.builtin && names.has(m.name) && String(m.text || "").trim() && m.kind !== "frp") { m.pinned = true; m.pinTopic = ""; try { await Store.put("materials", m.id, m); } catch { } n++; }
-  paintPinned();
-  try { // если под темой ждут текст произведения — брошенный файл и есть этот текст
-    let box = $("#textBox"); const pin = state.materials.find(m => m.pinned && names.has(m.name)); if (!box && $("#typeBox")) { box = document.createElement("div"); box.id = "textBox"; $("#typeBox").insertAdjacentElement("afterend", box); }
-    if (pin && (state.subject === "lit" || state.subject === "ru") && box) { const key = textBoxKey(); state.textOverride = { text: String(pin.text).slice(0, 400000), source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; const w = ((state.topic || $("#topic")?.value || "").match(/«([^»]+)»/) || [])[1] || ""; paintTextBox(box, "text", w, "", key); }
-  } catch (e) { console.warn("drop→text", e); }
-  if (n) toast("Прикреплено к уроку: " + n + ". Нажмите «Создать» — текст войдёт в конспект, лист и презентацию.", 6000);
-}
-function paintPinned() {
-  let box = $("#pinChips");
-  if (!box) { const t = $("#topic")?.closest(".row-btn, .combo, div"); if (!t) return; box = document.createElement("div"); box.id = "pinChips"; box.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin:6px 0"; t.parentElement.insertBefore(box, t.nextSibling); }
-  const pins = state.materials.filter(m => m.pinned);
-  box.innerHTML = pins.map(m => `<span style="display:inline-flex;gap:6px;align-items:center;background:#efe9ff;border:1px solid #7c5cff;border-radius:999px;padding:3px 10px;font-size:14px">📎 ${esc(m.name)} — войдёт в урок <button type="button" data-unpin="${esc(m.id)}" aria-label="Открепить" style="border:0;background:none;cursor:pointer;font-size:16px">✕</button></span>`).join("");
-  box.querySelectorAll("[data-unpin]").forEach(b => b.onclick = async () => { const m = state.materials.find(x => x.id === b.dataset.unpin); if (m) { m.pinned = false; try { await Store.put("materials", m.id, m); } catch { } } paintPinned(); });
-}
-
-async function addMaterials(list, forceKind) {
-  // v5: пакетная загрузка без дублей, автоочистка текста, автосортировка, OCR для сканов
-  let added = 0, dup = 0, ocrN = 0, cloudN = 0, cloudErr = ""; const cleanedSum = [];
-  const known = new Set(state.materials.filter(m => !m.builtin).map(m => m.hash).filter(Boolean));
-  // архивы распаковываются: каждый файл внутри встраивается отдельно
-  async function* files() {
-    for (const file of list) {
-      if (!/\.zip$/i.test(file.name)) { yield { f: file, sourceName: file.name }; continue; }
-      try {
-        const z = await zipOf(file);
-        for (const item of Object.values(z.files)) {
-          if (item.dir || /(^|\/)(__MACOSX|\.)/.test(item.name) || /\.zip$/i.test(item.name)) continue;
-          yield { f: new File([await item.async("blob")], item.name.split("/").pop()), sourceName: item.name, fromArchive: true };
-        }
-      } catch (e) { toast(`Архив «${file.name}» не открылся: ${e.message || e}`, 6000); }
-    }
+  if (["html", "htm", "xhtml", "mht"].includes(ext)) {
+    const d = new DOMParser().parseFromString(await file.text(), "text/html");
+    return { ...docHtmlStructure(d.body?.innerHTML || ""), html: d.body?.innerHTML || "", format: "html" };
   }
   for await (const { f, sourceName, fromArchive } of files()) {
     toast("Читаю " + f.name + "…", 20000);
