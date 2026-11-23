@@ -1164,7 +1164,8 @@ ${JSON.stringify(payload)}`;
 2) heroes: только для прозы и драмы (для стихотворения — пустой массив): 3–5 главных действующих лиц из этих фрагментов. "name" — имя как в тексте, "hint" — описание по поступку или черте в одном предложении, БЕЗ имени героя, до 110 знаков.
 3) events: только для прозы и драмы: 5–7 ключевых событий этих фрагментов в правильном порядке, каждое до 70 знаков, только то, что есть в тексте.
 4) bio: 2–4 факта из жизни автора, которые помогают понять ИМЕННО это произведение (например, чем автор занимался, что изучал, откуда взял материал), каждый до 160 знаков; только достоверные, общеизвестные факты; если не уверен – пустой массив.
-Верни только JSON: {"concl":[{"n":1,"t":"…"}],"heroes":[{"name":"…","hint":"…"}],"events":["…"],"bio":["…"]}
+Верни только JSON: {"concl":[{"n":1,"t":"…"}],"heroes":[{"name":"…","hint":"…"}],"events":["…"],"bio":["…"],"table":[{"hero":"…","quote":"…","char":"…","concl":"…"}]}
+5) table: только для прозы и драмы — 3–4 строки таблицы «Образ героя»: hero — имя, quote — короткая точная цитата, char — характеристика по поступку, concl — вывод о смысле. Только то, что подтверждается фрагментами; для стихотворения — пустой массив.
 ${JSON.stringify(frs)}`;
     try {
       const res = await caps.sample(prompt, { modelTier: "default", cache: false, signal });
@@ -1178,6 +1179,17 @@ ${JSON.stringify(frs)}`;
           cards.splice(last + 1, 0, { id: "v" + n, on: true, kind: "concl", title: "Вывод", points: [concl.get(n)], notes: "Показывайте после обсуждения: вывод сначала формулируют ученики, слайд — для записи. Слайд можно выключить." });
         }
       }
+      const trows = (j.table || []).filter(x => x?.hero && x?.char).slice(0, 4);
+      if (!p.plan?.analysis?.verse && trows.length) {
+        const tableCards = [];
+        const head = ["Герой", "Цитата", "Характеристика", "Вывод"];
+        trows.forEach((row, i) => {
+          tableCards.push({ id: "tblank" + i, on: true, kind: "table", title: `Образы героев: строка ${i + 1}`, head, rows: [[row.hero, "", "", ""]], notes: "Заполняем только эту строку: цитата → характеристика → вывод." });
+          tableCards.push({ id: "tref" + i, on: true, kind: "table", title: `Образы героев: проверяем строку ${i + 1}`, head, rows: [[row.hero, row.quote || "—", row.char, row.concl || "—"]], full: true, notes: "Эталон: сверьте формулировки и вернитесь к тексту." });
+        });
+        const existing = cards.findIndex(c => c.kind === "table" && /Образы героев/i.test(String(c.title || "")));
+        if (existing >= 0) cards.splice(existing, 1, ...tableCards); else cards.push(...tableCards);
+      }
       // Необязательная разминка «Угадай героя»; «Восстанови сюжет» удалена.
       if (!p.plan?.analysis?.verse) {
         const txt = kit.fragments.map(f => f.text).join("\n").toLowerCase().replace(/ё/g, "е");
@@ -1190,6 +1202,25 @@ ${JSON.stringify(frs)}`;
       }
     } catch (e) { console.warn("Deck AI lit", e); }
     return cards;
+  }
+  function filterGenreTests(cards, p) {
+    if (p.subject !== "lit" || p.plan?.analysis?.verse) return cards;
+    const trope = /эпитет|метафор|олицетвор|сравнени|гипербол|троп|средств[а-я]* выразительн|аллитерац|ассонанс|ритм|рифм|строф/i;
+    return cards.map(c => {
+      if (c.kind === "check" && c.points) {
+        const keep = c.points.map((q, i) => ({ q, a: (c.answers || [])[i] })).filter(x => !trope.test(String(x.q)));
+        if (keep.length !== c.points.length) return { ...c, points: keep.map(x => x.q), answers: keep.map(x => x.a || "по тексту") };
+      }
+      if (c.kind === "quiz" && c.items) {
+        const keep = c.items.filter(x => !trope.test(String(x[0])));
+        if (keep.length !== c.items.length) return { ...c, items: keep };
+      }
+      if (c.kind === "flip" && c.points) {
+        const keep = c.points.filter(x => !trope.test(String(x)));
+        if (keep.length !== c.points.length) return { ...c, points: keep };
+      }
+      return c;
+    }).filter(c => !(c.kind === "check" && (!c.points || !c.points.length)) && !(c.kind === "quiz" && (!c.items || !c.items.length)));
   }
   /* ---------- сборка ---------- */
   /* Презентация по запросу учителя: пожелания к уроку (поле пожеланий, заметки) применяются к плану слайдов –
@@ -1226,7 +1257,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     let cards = outline(md, p, type, o);
     if (ai) { cards = await condenseAi(cards, p, o.amount, signal); cards = await aiMnemo(cards, p).catch(() => cards); cards = await aiScheme(cards, p).catch(() => cards); cards = await aiLit(cards, p, signal).catch(() => cards); cards = await aiWishes(cards, p, signal).catch(() => cards); }
     cards = await mediaFill(cards).catch(() => cards);
-    cards = prune(cards);
+    cards = filterGenreTests(prune(cards), p);
     return { cards, md: toMarkdown(cards, p) };
   }
 

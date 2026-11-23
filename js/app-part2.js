@@ -2108,6 +2108,7 @@ async function buildLessonFromForm() {
   updateType();
   const type = state.type;
   const p = { subject: state.subject, grade: state.grade, duration: state.duration, mode: state.mode, lessonNo: state.lessonNo, lessonTotal: state.lessonTotal || 1, control: state.control, topic: state.topic, wishes: state.wishes, formats, type, level: state.level, examFocus: state.examFocus, wsDesign: "interactive" };
+  pendingLessonParamsForStatus = p; p.textStatus = state.textStatus || null;
   if (formats.includes("worksheet")) p.wsPages = state.wsPages;
   if (p.subject === "any") p.anyName = state.anyName;
   /* Вариант в формате экзамена: метка с датой/временем + seed, чтобы каждый новый запрос давал уникальные задания */
@@ -2138,7 +2139,7 @@ async function buildLessonFromForm() {
   p.extra = { ...state.extra };
   try { const tk = String(p.topic || "").trim().toLowerCase() + "|" + p.subject; for (const m of state.materials) if (m.pinned) { m.pinned = false; m.pinTopic = tk; Store.put("materials", m.id, m); } paintPinned(); } catch (e) { console.warn("pin", e); }
   state.wishes = ""; if ($("#wishes")) $("#wishes").value = ""; Object.assign(state.extra, { extraFile: "", hwFile: "", extraText: "", hwText: "" }); ["#xExtraTxt", "#xHwTxt"].forEach(id => { if ($(id)) $(id).value = ""; }); readForm(); // пожелания и файлы — только для этого урока, к следующему не переходят
-  if (state.textChoice?.key === planKey(p)) { if (state.textChoice.mode === "skip") p.textSkip = true; else if (validWorkText(state.textOverride?.text)) p.textOverride = state.textOverride; }
+  if (state.textChoice?.key === planKey(p)) { if (state.textChoice.mode === "skip") { p.textSkip = true; p.textStatus = TEXT_SKIPPED; } else if (validWorkText(state.textOverride?.text)) { p.textOverride = state.textOverride; p.textStatus = TEXT_FOUND; } }
   state.textOverride = null; state.textChoice = null; setTimeout(() => textLookupSoon(), 0); // текст, который учитель добавил сам
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   window.Usage?.begin("Сборка урока", state.topic); // тариф, промокод, бесплатный лимит (сервер)
@@ -2242,6 +2243,11 @@ async function aiSheetPhotos(L, setPct) {
 }
 /* ---------- текст произведения до сборки урока литературы ---------- */
 /* литература: текст произведения запрашиваем сразу при выборе темы, а не после «Создать» */
+let pendingLessonParamsForStatus = null;
+const TEXT_FOUND = "ТЕКСТ_НАЙДЕН";
+const TEXT_NOT_FOUND = "ТЕКСТ_НЕ_НАЙДЕН";
+const TEXT_SKIPPED = "ТЕКСТ_ПРОПУЩЕН_УЧИТЕЛЕМ";
+const setTextStatus = (p, status) => { if (p) p.textStatus = status; state.textStatus = status; };
 const textBoxKey = () => planKey({ subject: state.subject, grade: state.grade, lessonNo: state.lessonNo, topic: state.topic || $("#topic")?.value.trim() || "" });
 let textSeq = 0;
 function dropStaleTextChoice(key) { const c = state.textChoice; if (c && c.key !== key) { if (c.mode === "text") state.textOverride = null; state.textChoice = null; } }
@@ -2264,6 +2270,7 @@ async function textLookup() {
   paintTextBox(box, "need", work, author, key, plan);
 }
 function paintTextBox(box, mode, work, author, key, plan) {
+  setTextStatus(pendingLessonParamsForStatus || null, mode === "text" || mode === "found" ? TEXT_FOUND : mode === "skip" ? TEXT_SKIPPED : TEXT_NOT_FOUND);
   box.hidden = false;
   const addManual = async () => {
     const p = { subject: state.subject, grade: state.grade, topic: state.topic || $("#topic").value.trim(), lessonNo: state.lessonNo, lessonTotal: state.lessonTotal };
@@ -2298,6 +2305,7 @@ async function checkWorkText(p, type) {
   const work = (p.topic.match(/«([^»]+)»/) || [])[1], author = Engine.authorOf(p.topic);
   const remember = plan => {
     p.textOverride = { text: plan.text, source: plan.textSource, url: plan.textUrl, verse: plan.analysis?.verse };
+    p.textStatus = TEXT_FOUND;
     return true;
   };
   if (!work && !author) return true; // обзорная тема — тексту произведения взяться неоткуда
@@ -2305,7 +2313,7 @@ async function checkWorkText(p, type) {
   if (state.textChoice && state.textChoice.key === planKey(p)) {
     const ch = state.textChoice;
     if (ch.mode === "text" && validWorkText(state.textOverride?.text)) return true;
-    if (ch.mode === "skip") { p.textSkip = true; return true; }
+    if (ch.mode === "skip") { p.textSkip = true; p.textStatus = TEXT_SKIPPED; return true; }
   }
   if (pendingPlan && pendingPlan.key === planKey(p) && validWorkText(pendingPlan.plan?.text)) return remember(pendingPlan.plan);
   $("#createHint").textContent = "Ищу текст произведения…";
