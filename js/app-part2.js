@@ -2290,7 +2290,7 @@ function paintTextBox(box, mode, work, author, key, plan) {
     return;
   }
   if (mode === "skip") {
-    box.innerHTML = `<div class="small" style="margin-top:8px">Урок соберётся без текста произведения (без цитат). <button type="button" class="btn sm ghost" id="tbBack">📖 Встроить текст</button></div>`;
+    box.innerHTML = `<div class="small" style="margin-top:8px;padding:10px 12px;border:1.5px solid #b08a44;border-radius:12px;background:#fffaf0;color:#6b4b12"><b>Текст произведения не найден.</b> Выбрано «Продолжить без текста». Нажмите «Создать урок» ещё раз — поиск текста продолжится в фоне. <button type="button" class="btn sm ghost" id="tbBack">📖 Встроить текст</button></div>`;
     $("#tbBack").onclick = addManual;
     return;
   }
@@ -2326,7 +2326,14 @@ async function checkWorkText(p, type) {
     state.textOverride = { text: ans.text, source: "текст, добавленный учителем", fragments: ans.fragments };
     state.textChoice = { key: planKey(p), mode: "text" };
   }
-  else if (ans.skip) { p.textSkip = true; if (plan) pendingPlan = { key: planKey(p), plan }; }
+  else if (ans.skip) {
+    p.textSkip = true; p.textStatus = TEXT_SKIPPED;
+    state.textChoice = { key: planKey(p), mode: "skip" };
+    if (plan) pendingPlan = { key: planKey(p), plan };
+    const box = $("#textBox"); if (box) paintTextBox(box, "skip", work || p.topic, author || "", planKey(p));
+    $("#createHint").textContent = "Текст произведения не найден. Нажмите «Создать урок» ещё раз, чтобы продолжить без текста.";
+    return null;
+  }
   else { toast("Добавьте оригинал произведения на русском или русский перевод.", 7000); return null; }
   return true;
 }
@@ -2385,7 +2392,8 @@ function askWorkText(p, work, author, opts = {}) {
         <div id="awFrags"></div></li></ol>
       <div class="pk-foot"><button class="btn flame" id="awGo">${manual ? "📖 Встроить текст" : "Собрать урок с этим текстом"}</button></div>
       <label class="check" style="margin-top:12px"><input type="checkbox" id="awSkip"> Продолжить без текста</label>
-      <div class="pk-foot"><button class="btn ghost" id="awSkipGo" disabled>Собрать урок без текста</button></div></div></div>`);
+      <div class="pk-foot"><button class="btn ghost" id="awSkipGo" disabled>Продолжить без текста</button></div>
+      <p class="small">После этого окно закроется. Нажмите «Создать урок» ещё раз — тогда генерация начнётся без текста, но поиск текста продолжится в фоне.</p></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
     const fragBox = m.querySelector("#awFrags"), aiBtn = m.querySelector("#awAiFrags"), aiMsg = m.querySelector("#awAiMsg");
     let frags = [], aiPick = null, fragsText = "";
@@ -2747,7 +2755,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
         if (validWorkText(late?.text)) {
           p.plan = { ...(p.plan || {}), ...late };
           p.textOverride = { text: late.text, source: late.textSource, url: late.textUrl, verse: late.analysis?.verse, fragments: late.kit?.fragments || [] };
-          p.textSkip = false;
+          p.textSkip = false; p.textStatus = TEXT_FOUND;
           state.textChoice = { key: planKey(p), mode: "text" };
           state.textOverride = p.textOverride;
           const tb = $("#textBox"); if (tb) paintTextBox(tb, "text", (p.topic.match(/«([^»]+)»/) || [])[1] || p.topic, Engine.authorOf ? Engine.authorOf(p.topic) : "", planKey(p));
