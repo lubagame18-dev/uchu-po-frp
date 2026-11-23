@@ -55,7 +55,7 @@ window.Dossier = (() => {
         const ex = (Base.exercises(p.topic, p.grade, 4) || []).slice(0, 4);
         ex.forEach((e, i) => add(`Упражнение ${i + 1}${e.sec ? ` (раздел «${cut(e.sec, 60)}»)` : ""}`, e.text, e.own ? "тетради «Учу по ФРП»" : e.source));
       }
-      if (typeof relevantMaterials === "function") for (const m of relevantMaterials(p.topic, p.grade, S, 2500).slice(0, 3)) add(`Материал учителя «${m.name}»`, m.text, "материалы учителя");
+      if (typeof relevantMaterials === "function") for (const m of relevantMaterials(p.topic, p.grade, S, 5000).slice(0, 3)) add(`Материал учителя «${m.name}»${m.tables?.length ? ` (таблиц: ${m.tables.length})` : ""}`, m.markdown || m.text, "материалы учителя");
       /* предметную базу сайта в промпт не подмешиваем: темы года по ФРП и справки не должны попадать в конспект */
       if (S === "lit" && p.plan?.text) { const T = String(p.plan.text), F = p.plan.kit?.fragments || []; if (T.length <= 3000 || !F.length) add(T.length <= 3000 ? "Текст произведения" : "Текст произведения (начало)", T.slice(0, 2500), p.plan.textSource || "текст произведения"); else add("Ключевые эпизоды по всему тексту", F.slice(0, 5).map(f => `${f.label}: ${String(f.text).replace(/\s+/g, " ").slice(0, 380)}`), p.plan.textSource || "текст произведения"); }
       if (p.plan?.workWiki) add("О произведении", p.plan.workWiki, "Википедия");
