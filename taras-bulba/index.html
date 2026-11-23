@@ -37,6 +37,7 @@ button{font-family:var(--f-text);font-size:16px;cursor:pointer;border:none}
 .name input{flex:1;min-width:0;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid #8a5a4e;background:rgba(20,6,8,.75);color:var(--paper)}
 .name input::placeholder{color:#b9a096}
 .btn.gold{background:var(--gold);color:var(--ink)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
 .gmsg{color:#f3c6b8;font-size:14px;min-height:18px;margin-top:6px}
 .who-line{margin-top:12px;font-size:15px;color:var(--gold2)}
 .who-line b{color:var(--paper)}
@@ -197,8 +198,8 @@ textarea{width:100%;font:inherit;font-size:16px;border-radius:12px;border:1px so
     <h1>Тарас Бульба</h1>
     <p>История · сюжет · герои и их выбор · смысл повести</p>
     <div class="gate" id="gate">
-      <div class="name"><input id="fam" placeholder="Код участника без ФИО" autocomplete="off" maxlength="32"><input id="im" value="" hidden aria-hidden="true"><p class="small">Используй условный код от учителя. Не вводи фамилию, имя, телефон или адрес. <a href="/legal/privacy.html">Политика данных</a></p></div>
-      <div class="name"><input id="kl" placeholder="Класс (7Г)" style="flex:0 0 45%"><button class="btn gold" id="start">Начать</button></div>
+      <div class="name"><input id="fam" placeholder="Фамилия" autocomplete="family-name" maxlength="40"><input id="im" placeholder="Имя" autocomplete="given-name" maxlength="40"></div>
+      <div class="name"><input id="kl" placeholder="Класс (7Г)" autocomplete="off" maxlength="4" style="flex:0 0 45%"><button class="btn gold" id="start" disabled>Начать тест</button></div>
       <div class="gmsg" id="gmsg"></div>
     </div>
     <div class="who-line hidden" id="whoLine"></div>
@@ -464,15 +465,18 @@ const res = { hist: 0, s1: null, s2: 0, s2n: 0, ch: 0, s3: null, s4: 0 };
 const fb = (el, cls, html) => { el.className = "fb show " + cls; el.innerHTML = html; };
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-/* Условный код участника вместо ФИО; содержание урока не изменяется. */
+/* Ученик вводит фамилию, имя и класс – так учитель видит, кто прошёл тест. */
 const CLOUD = window.UCHU_ACCOUNTS ? {...AccountsBackend.config(), key: "", lesson: "taras-bulba-2"} : {"url": "https://accounts.uchu-po-frp.ru/api/uchu", "anonKey": "", "key": "", "lesson": "taras-bulba-2"};
 window.ME = store.get("me", null);
-if(window.ME && (!/^[a-zA-Z0-9_-]{6,32}$/.test(window.ME.fam||"") || window.ME.im)){window.ME=null;store.set("me",null);}
+if (window.ME && (String(window.ME.fam || "").trim().length < 2 || String(window.ME.im || "").trim().length < 2 || !String(window.ME.kl || "").trim())) { window.ME = null; store.set("me", null); }
 ["fam", "im", "kl"].forEach(k => { if (window.ME && window.ME[k]) $("#" + k).value = window.ME[k]; });
-const fullName = () => window.ME ? window.ME.fam : "";
+const fullName = () => window.ME ? `${window.ME.fam} ${window.ME.im}`.trim() : "";
+const syncStart = () => { $("#start").disabled = !($("#fam").value.trim() && $("#im").value.trim() && $("#kl").value.trim()); };
+["fam", "im", "kl"].forEach(k => { $("#" + k).addEventListener("input", syncStart); });
+syncStart();
 function startLesson() {
-  const fam = $("#fam").value.trim(), im = "", kl = $("#kl").value.trim();
-  if (!/^[a-zA-Z0-9_-]{6,32}$/.test(fam) || (kl && !/^(?:[1-9]|1[01])[A-Za-zА-Яа-я]?$/.test(kl))) { $("#gmsg").textContent = "Введи код участника: 6–32 латинских символа, цифры, _ или -. Класс — например 7А."; return; }
+  const fam = $("#fam").value.trim(), im = $("#im").value.trim(), kl = $("#kl").value.trim();
+  if (fam.length < 2 || im.length < 2 || !kl) { $("#gmsg").textContent = "Впиши фамилию, имя и класс – так учитель увидит твой результат."; return; }
   Object.assign(window, { ME: { fam, im, kl } }); store.set("me", window.ME);
   $("#gate").classList.add("hidden"); $("#whoLine").classList.remove("hidden");
   $("#whoLine").innerHTML = `Работает: <b>${fam} ${im}</b>${kl ? ", " + kl : ""} · <a href="#" id="chg" style="color:var(--gold2)">изменить</a>`;
