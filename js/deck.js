@@ -1206,7 +1206,7 @@ ${JSON.stringify(frs)}`;
   function filterGenreTests(cards, p) {
     if (p.subject !== "lit" || p.plan?.analysis?.verse) return cards;
     const trope = /эпитет|метафор|олицетвор|сравнени|гипербол|троп|средств[а-я]* выразительн|аллитерац|ассонанс|ритм|рифм|строф/i;
-    return cards.map(c => {
+    const out = cards.map(c => {
       if (c.kind === "check" && c.points) {
         const keep = c.points.map((q, i) => ({ q, a: (c.answers || [])[i] })).filter(x => !trope.test(String(x.q)));
         if (keep.length !== c.points.length) return { ...c, points: keep.map(x => x.q), answers: keep.map(x => x.a || "по тексту") };
@@ -1221,6 +1221,17 @@ ${JSON.stringify(frs)}`;
       }
       return c;
     }).filter(c => !(c.kind === "check" && (!c.points || !c.points.length)) && !(c.kind === "quiz" && (!c.items || !c.items.length)));
+    if (!out.some(c => ["check", "quiz", "flip"].includes(c.kind))) {
+      const qa = [];
+      for (const block of (p.plan?.kit?.qa || [])) for (const item of (block.items || [])) if (item?.q && item?.a && item.q.length > 12) qa.push([String(item.q), String(item.a)]);
+      const questions = qa.length ? qa.slice(0, 3) : [
+        ["Какое событие стало завязкой конфликта?", "Определите по тексту и объясните, почему именно здесь начинается конфликт."],
+        ["Как поступок героя раскрывает его характер?", "Ответ подтвердите конкретным эпизодом или цитатой из текста."],
+        ["Как автор относится к герою и его выбору?", "Сформулируйте авторскую позицию, опираясь на текст."]
+      ];
+      out.push({ id: "prosecheck", on: true, kind: "check", title: "Проверь себя", points: questions.map(x => x[0]), answers: questions.map(x => x[1]), notes: "Проверка понимания сюжета, героев, конфликта и авторской идеи; ответы — для учителя." });
+    }
+    return out;
   }
   /* ---------- сборка ---------- */
   /* Презентация по запросу учителя: пожелания к уроку (поле пожеланий, заметки) применяются к плану слайдов –
