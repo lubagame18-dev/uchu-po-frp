@@ -88,7 +88,10 @@ const FrpKit = (() => {
     return baseKit;
   };
   const kits = {};
-  const get = (id, name, o) => kits[id] || (window.Kits?.pending(id) ? mk(id, name, o) : (kits[id] = mk(id, name, o)));
+  // Do not cache a kit before its lazy subject module (OkrPrimary/InfMethod/etc.)
+  // has loaded: otherwise a base kit without the subject-specific worksheet is
+  // returned for the rest of the page lifetime.
+  const get = (id, name, o) => mk(id, name, o);
   const G = () => window.GeoMethod;
   const Y = () => window.PhyMethod;
   const C = () => window.ChemMethod;
