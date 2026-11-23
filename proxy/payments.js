@@ -270,14 +270,14 @@ function patchFor(p, type, item, promo) {
   const aiOf = x => promo ? 0 : PLANS[x]?.ai || 0, tokOf = x => promo ? 0 : PLANS[x]?.tokens || 0;
   const now = Date.now(), until = p.paid_until && new Date(p.paid_until) > now ? new Date(p.paid_until).getTime() : now;
   const leftTok = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0));
-  if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + (PLANS[item]?.days || 30) * DAY).toISOString(), tokens_limit: tokOf(item) + (p.plan === item ? leftTok : 0), tokens_used: 0 };
-  if (type === "single") { const n = Math.max(1, Math.min(50, +item || 1)); return { plan: "single", ai_left: (p.ai_left || 0) + n, paid_until: new Date(now + 365 * DAY).toISOString(), tokens_limit: (p.tokens_limit || 0) + n * 90000 }; }
-  if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: (p.tokens_limit || 0) + Math.max(0, tokOf(item) - tokOf(p.plan)) };
+  if (type === "plan") return { plan: item, ai_left: aiOf(item) + (p.plan === item ? Math.max(0, (p.ai_left || 0)) : 0), paid_until: new Date((p.plan === item ? until : now) + (PLANS[item]?.days || 30) * DAY).toISOString(), tokens_limit: leftTok + tokOf(item), tokens_used: 0 };
+  if (type === "single") { const n = Math.max(1, Math.min(50, +item || 1)); return { plan: "single", ai_left: (p.ai_left || 0) + n, paid_until: new Date(now + 365 * DAY).toISOString(), tokens_limit: leftTok + n * 90000, tokens_used: 0 }; }
+  if (type === "up") return { plan: item, ai_left: Math.max(0, (p.ai_left || 0) + aiOf(item) - aiOf(p.plan)), tokens_limit: leftTok + Math.max(0, tokOf(item) - tokOf(p.plan)), tokens_used: 0 };
   // докупка: пакет (pack) или своё количество (custom) — уроки и токены добавляются к текущим.
   // По промокоду докупка не нужна (ИИ — своя нейросеть), поэтому ничего не начисляем.
   const n = promo ? 0 : (type === "custom" ? customN(item) : (PACKS[item]?.ai || 0));
   const tok = promo ? 0 : (type === "custom" ? n * PER_LESSON : (PACKS[item]?.tokens || 0));
-  return { ai_left: (p.ai_left || 0) + n, tokens_limit: (p.tokens_limit || 0) + tok };
+  return { ai_left: (p.ai_left || 0) + n, tokens_limit: leftTok + tok, tokens_used: 0 };
 }
 async function apply(uid, p, type, item, promo, request, readAll) {
   const patch = patchFor(p, type, item, promo);

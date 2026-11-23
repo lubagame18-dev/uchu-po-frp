@@ -377,20 +377,18 @@ const Account = (() => {
       const quota = num(left), qmax = num(p.ai_limit) ?? 50;
       if (quota !== null) { h.push(row("Уроков в этом месяце", `${fmt(quota)} из ${fmt(qmax)}`)); if (quota === 0) h.push(`<div class="pc-note bad">Лимит уроков исчерпан — докупите уроки, чтобы продолжить.</div>`); }
     } else if (credit) {
-      const one = total === 1;
-      h.push(`<div class="pc-status credits"><b>${one ? "1 урок" : "Пакет уроков"}</b><span>${one ? "Остался 1 урок" : `Осталось ${fmt(left)} из ${fmt(total || left)} уроков`}</span></div>`);
-      if (total !== null && total >= 5) {
-        h.push(`<div class="pc-main"><b>${fmt(left)}</b><span>из ${fmt(total)} уроков</span></div>`);
-        h.push(meter(Math.round(left / total * 100), `Осталось ${left} из ${total} уроков`, left / total < .2 ? "warn" : "ok"));
-      } else if (total !== null && total > 1) {
-        h.push(pips(left, total));
-      } else {
-        h.push(`<div class="pc-main"><b>${fmt(left)}</b><span>уроков</span></div>`);
-      }
+      const one = (total || left) === 1;
+      const totalShown = total || left || 1;
+      h.push(`<div class="pc-status credits"><b>${one ? "1 урок" : "Пакет уроков"}</b><span>${one ? `Остался ${fmt(left)} из 1 урока` : `Осталось ${fmt(left)} из ${fmt(totalShown)} уроков`}</span></div>`);
+      h.push(`<div class="pc-main"><b>${fmt(left)}</b><span>из ${fmt(totalShown)} уроков</span></div>`);
+      h.push(meter(Math.round(left / totalShown * 100), `Осталось ${left} из ${totalShown} уроков`, left / totalShown < .2 ? "warn" : "ok"));
+      h.push(`<div class="pc-meter-caption">${left} из ${totalShown} уроков</div>`);
       h.push(row("Оплата", "разовая, без подписки"));
       h.push(row("Действует до", until ? until.toLocaleDateString("ru-RU") : "—"));
     } else if (plan === "single" && left === 0) {
       h.push(`<div class="pc-status credits"><b>Урок использован</b><span>Купленный урок израсходован. Можно купить ещё.</span></div>`);
+      h.push(meter(0, "Осталось 0 из 1 урока", "bad"));
+      h.push(`<div class="pc-meter-caption">0 из 1 урока</div>`);
       h.push(`<button class="btn sm flame" type="button" id="acRenew">Купить ещё урок</button>`);
     } else if (expired) {
       h.push(`<div class="pc-status bad"><b>Срок подписки истёк</b><span>${until ? `Закончилась ${until.toLocaleDateString("ru-RU")}` : "Продлите доступ, чтобы продолжить."}</span></div>`);

@@ -335,25 +335,27 @@ function applyPayment(app, body, c) {
     const n = type==='single'?Math.max(1, Math.min(50, Number(item) || 1)):1;
     p.ai_limit=Math.max(0,p.ai_limit??p.ai_left??0)+n;
     p.plan = 'single'; p.ai_left = (p.ai_left || 0) + n;
-    p.tokens_limit = (p.tokens_limit || 0) + n * 90000;
+    p.tokens_limit = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0)) + n * 90000;
+    p.tokens_used = 0;
     order.credit_budget_version=2;order.tokens_allocated=n*90000;p.creation_limit=(p.creation_limit||0)+n*90000;order.creation_budget_version=1;
     p.paid_until = new Date(Date.now() + 365*86400000).toISOString();
   } else if (type === 'plan' && plan) {
     const same = p.plan === item, until = Math.max(Date.now(), Date.parse(p.paid_until || '') || 0);
     p.ai_limit=plan.ai;p.creation_limit=(p.creation_limit||0)+plan.ai*30000;
     p.ai_left = (promo ? 0 : plan.ai) + (same ? Math.max(0,p.ai_left || 0) : 0);
-    p.tokens_limit = (promo ? 0 : plan.tokens) + (same ? Math.max(0,(p.tokens_limit || 0)-(p.tokens_used || 0)) : 0);
+    p.tokens_limit = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0)) + (promo ? 0 : plan.tokens);
     p.tokens_used = 0; p.paid_until = new Date((same ? until : Date.now())+plan.days*86400000).toISOString(); p.plan = item;
   } else if (type === 'up' && plan) {
     p.ai_limit=plan.ai;
     const old = plans[p.plan] || {ai:0,tokens:0};p.creation_limit=(p.creation_limit||0)+Math.max(0,plan.ai-old.ai)*30000;p.plan=item;
     p.ai_left = Math.max(0,(p.ai_left || 0)+(promo ? 0 : plan.ai-old.ai));
-    p.tokens_limit = (p.tokens_limit || 0)+(promo ? 0 : Math.max(0,plan.tokens-old.tokens));
+    p.tokens_limit = Math.max(0, (p.tokens_limit || 0) - (p.tokens_used || 0)) + (promo ? 0 : Math.max(0,plan.tokens-old.tokens));
+    p.tokens_used = 0;
   } else if ((type === 'pack' && packs[item]) || (type === 'custom' && /^\d+$/.test(item) && Number(item)>=1 && Number(item)<=200)) {
     const n = promo ? 0 : (type === 'pack' ? packs[item] : Number(item));
     if(['none','free'].includes(p.plan))p.plan='single';
     if(p.plan==='single')p.ai_limit=(p.ai_limit??p.ai_left??0)+n;
-    p.creation_limit=(p.creation_limit||0)+n*30000;p.ai_left=(p.ai_left || 0)+n; p.tokens_limit=(p.tokens_limit || 0)+n*20000;
+    p.creation_limit=(p.creation_limit||0)+n*30000;p.ai_left=(p.ai_left || 0)+n; p.tokens_limit=Math.max(0,(p.tokens_limit || 0)-(p.tokens_used || 0))+n*20000; p.tokens_used=0;
   } else fail(409, 'Invalid stored product');
   write(app, 'profiles', p, c, 'PATCH'); order.status='paid'; write(app, 'payments', order, c, 'PATCH');
   return {applied: true};
