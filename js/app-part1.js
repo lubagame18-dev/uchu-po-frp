@@ -2015,6 +2015,7 @@ const Engine = (() => {
     return false;
   }
   window.isPracticalTopic = isPracticalTopic;
+  window.practicalWorksheet = practicalWorksheet;
   function practicalWorksheet(p) {
     const t = String(p.topic || "").replace(/ё/g, "е");
     const K = p.plan?.kit || {}, lab = K.lab || p.plan?.lab || {}, T = K.T || p.plan?.T || {};

@@ -2774,7 +2774,7 @@ async function runPlugin(L, p, type, gen, formats, useAi, hideTech, PL) {
     catch (e) { if (e?.code === "cancelled" || lessonProviderDown(e) || lessonAccessFailed(e)) throw e; } finally { state.gen = null; }
   }
   const withWeb = (f, md) => p.web?.items?.length && PL.hasOwn?.(p) && ["conspect", "lesson"].includes(f) ? md + "\n" + Subjects.webBlock(p) : md;
-  const draft0 = f => f === "control" && p.assessment ? p.assessment.md : f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(PL.worksheet(p, type), p) : f === "slides" ? "" : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
+  const draft0 = f => f === "control" && p.assessment ? p.assessment.md : f === "conspect" ? PL.conspect(p, type) : f === "lesson" ? withTaskBlocks(window.Layout ? Layout.restyle(PL.lesson(p, type), p, type) : PL.lesson(p, type), p) : f === "worksheet" ? convWs(window.isPracticalTopic?.(p) && window.practicalWorksheet ? window.practicalWorksheet(p) : PL.worksheet(p, type), p) : f === "slides" ? "" : (f === "memo" ? convMemo(window.Schemes ? Schemes.inject(PL.extra(f, p, type, p.extra || {}), p.subject, p.topic) : PL.extra(f, p, type, p.extra || {}), p) : PL.extra(f, p, type, p.extra || {}));
   const draft = f => withWeb(f, draft0(f));
   const shown = f => (hideTech && f === "conspect") ? (formats.find(x => x !== "conspect") || f) : f;
   try {
