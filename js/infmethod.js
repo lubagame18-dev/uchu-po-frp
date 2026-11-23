@@ -234,12 +234,12 @@ ${c.links.length ? `<h2>Ссылки</h2><table><tr><th>Что это</th><th>С
     P.tf.forEach(f => out.push({ n: `${base}/1_Uchitelyu/${f.n}`, c: f.c }));
     return out;
   };
-  return { ctx, spec, pack, packDoc, cardHtml, instructionHtml, zip, folderOf, short, FORM, KEYS, stepsFull, fileWhy, slug };
+  return { ctx, spec, pack, packDoc, cardHtml, instructionHtml, zip, folderOf, short, FORM, KEYS, stepsFull, fileWhy, slug, localFallback };
 })());
 /* ---------- ход урока и документы ---------- */
 Object.assign(InfMethod, (() => {
   const M = InfMethod;
-  const { find, norm, baseTitle, partOf, hash, rng, pk, cell, lst, blank, lvName, probsOf, FAM, TB, EYES, SEAT, ctx, pack, packDoc, short, FORM } = M;
+  const { find, norm, baseTitle, partOf, hash, rng, pk, cell, lst, blank, lvName, probsOf, FAM, TB, EYES, SEAT, ctx, pack, packDoc, short, FORM, localFallback } = M;
   const GOAL_BY = { comp: "освоить приёмы работы в программе и получить готовый результат по инструкции", onz: "ввести понятия темы, показать способ действия и закрепить на заданиях", gen: "систематизировать знания по теме и проверить умение решать типовые задания", ctrl: "проверить усвоение темы", proj: "представить и оценить проекты" };
   const RES = ["называть и объяснять понятия темы, решать типовые задачи, выполнять практическую работу по инструкции", "читать и составлять инструкции, планировать действия, проверять результат, работать в паре", "ответственно относиться к чужой информации, соблюдать правила работы за компьютером"];
   const HK = "Горячие клавиши: Ctrl+C — копировать, Ctrl+V — вставить, Ctrl+X — вырезать, Ctrl+Z — отменить, Ctrl+S — сохранить, Ctrl+A — выделить всё, Ctrl+F — поиск, Win+E — открыть «Проводник».";
