@@ -1359,3 +1359,27 @@ figure.pic[data-src*="lessons/own/"] img { object-fit: contain !important; backg
 .sx.full-frame .sx-body > p:first-child { margin-top: 0; }
 .slide-notes textarea.nt { width: 100%; margin-top: .5em; }
 
+
+
+/* Карточка доступа: подписка по времени и пакет уроков — разные визуальные модели */
+.pc-status { display:flex; flex-direction:column; gap:3px; padding:10px 12px; border-radius:12px; margin:4px 0 10px; border:1.5px solid var(--ink); background:#fff; }
+.pc-status b { font-size:15px; }
+.pc-status span { font-size:13px; line-height:1.35; }
+.pc-status.ok { background:#eaf7ee; border-color:#2a7a3b; }
+.pc-status.warn { background:#fff8e5; border-color:#b08a44; }
+.pc-status.bad { background:#fff1f0; border-color:#c0392b; }
+.pc-status.credits { background:#f3edff; border-color:#6b2bd9; }
+.pc-status.muted { background:#f4f3ef; }
+.pc-main { display:flex; align-items:baseline; gap:8px; margin:8px 0 2px; }
+.pc-main b { font-size:30px; line-height:1; }
+.pc-main span { font-size:13px; color:#555; }
+.pc-meter { height:14px; margin:8px 0 2px; border:2px solid var(--ink); border-radius:99px; overflow:hidden; background:#fff; }
+.pc-meter span { display:block; height:100%; background:#86cfa4; transition:width .25s ease; }
+.pc-meter.warn span { background:#f5d272; }
+.pc-meter.bad span { background:#f0a19b; }
+.pc-meter-caption { margin:0 0 8px; font-size:12px; color:#555; }
+.pc-pips { display:flex; gap:7px; margin:10px 0 8px; }
+.pc-pips i { width:13px; height:13px; border:2px solid var(--ink); border-radius:50%; background:#fff; }
+.pc-pips i.on { background:#6b2bd9; }
+.pc-note { margin:8px 0; font-size:13px; line-height:1.35; }
+.pc-note.bad { color:#a5281b; }

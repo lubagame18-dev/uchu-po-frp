@@ -326,15 +326,19 @@ const Access = (() => {
       const ready=S?.profileState==="ready",loading=!!S&&(!S.profileState||S.profileState==="loading");
       const fmt=n=>new Intl.NumberFormat("ru-RU").format(n),unknown=loading?"Загрузка…":"—";
       const points=n=>window.Usage?.balance?Usage.balance(n):(n>0&&n<900?"<0,1":fmt(Math.floor(n/900)/10));
-      const render=(id,label,left,limit,tokens)=>{
+      const render=(id,label,left,limit,tokens,noBar=false,credit=false)=>{
         const known=typeof left==="number"&&Number.isFinite(left)&&typeof limit==="number"&&Number.isFinite(limit)&&limit>=0;
         const ratio=known&&limit>0?Math.max(0,Math.min(1,left/limit)):0,color=ratio<.1?"low":ratio<.3?"medium":"high";
-        const value=known?(tokens?`${points(left)} / ${points(limit)}`:fmt(left)):unknown;
+        const value=known?(tokens?`${points(left)} / ${points(limit)}`:(credit&&limit>=5?`${fmt(left)} из ${fmt(limit)}`:fmt(left))):unknown;
         const empty=known&&left===0;
-        return `<div class="quota-counter" id="${id}"><span class="quota-label" role="tooltip" id="${id}Label">${label}</span><span class="quota-meter ${known?color:"unknown"}" tabindex="${empty?-1:0}" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?(tokens?`${points(left)} из ${points(limit)} баллов`:`${fmt(left)} из ${fmt(limit)}`):unknown}"><span class="quota-fill" style="width:${ratio*100}%"></span><b class="quota-value">${value}</b></span>${empty?`<button class="quota-action" type="button" aria-label="${label}: ${value}. Купить уроки" aria-haspopup="dialog"></button>`:""}</div>`;
+        const meter = noBar ? `<span class="quota-meter ${known?color:"unknown"} quota-plain" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?`${fmt(left)} из ${fmt(limit)}`:unknown}"><b class="quota-value">${value}</b></span>` : `<span class="quota-meter ${known?color:"unknown"}" tabindex="${empty?-1:0}" role="progressbar" aria-label="${label}" aria-describedby="${id}Label" aria-valuemin="0" aria-valuemax="${known?Math.max(1,limit):100}" ${known?`aria-valuenow="${Math.min(left,Math.max(1,limit))}"`:""} aria-valuetext="${known?(tokens?`${points(left)} из ${points(limit)} баллов`:`${fmt(left)} из ${fmt(limit)}`):unknown}"><span class="quota-fill" style="width:${ratio*100}%"></span><b class="quota-value">${value}</b></span>`;
+        return `<div class="quota-counter" id="${id}"><span class="quota-label" role="tooltip" id="${id}Label">${label}</span>${meter}${empty?`<button class="quota-action" type="button" aria-label="${label}: ${value}. Купить уроки" aria-haspopup="dialog"></button>`:""}</div>`;
       };
-      const left=ready?S.aiLeft:null,limit=ready?(S.plan==="single"?S.aiLimit:S.plan==="none"?0:["ai","aiYear"].includes(S.plan)?50:null):null,T=ready?S.tokens:null;
-      counters.innerHTML=render("lessonBadge","Уроков доступно",left,limit,false)+render("tokBadge","Баллы на доработки",T?Math.max(0,T.limit-T.used):null,T?.limit,true);
+      const isSub=ready&&["ai","aiYear"].includes(S.plan), isCredits=ready&&S.plan==="single";
+      const label=isCredits?(S.aiLimit===1&&S.aiLeft===1?"Остался 1 урок":"Осталось уроков"):"Уроков доступно";
+      const left=ready?S.aiLeft:null,limit=ready?(isCredits?S.aiLimit:S.plan==="none"?0:isSub?50:null):null,T=ready?S.tokens:null;
+      const noBar=isCredits&&(!S.aiLimit||S.aiLimit<5);
+      counters.innerHTML=render("lessonBadge",label,left,limit,false,noBar,isCredits)+render("tokBadge","Баллы на доработки",T?Math.max(0,T.limit-T.used):null,T?.limit,true);
       counters.querySelectorAll(".quota-action").forEach(button=>button.addEventListener("click",()=>open()));
     }
     document.dispatchEvent(new Event("uchu:access"));

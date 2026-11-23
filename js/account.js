@@ -339,29 +339,74 @@ const Account = (() => {
   const TOK = { none:0,free:0, ai: 2700000, aiYear: 2700000 }; // запас токенов тарифа «С ИИ»: 50 уроков + правки
   function planCard(p) {
     if(!p)return `<div class="plan-card" role="status">${S?.profileState==="loading"?"Загрузка данных кабинета…":"Данные кабинета пока недоступны. Попробуйте обновить."}</div>`;
-    // старые тарифы («Без ИИ», «Методист») показываем как «С ИИ» — доступ сохранён
     const raw = p ? (["promo","free"].includes(p.plan)?"none":p.plan) : "none";
-    const plan = S?.promoFree ? "ai" : (raw === "basic" || raw === "basicYear" || raw === "pro" ? "ai" : raw);
-    const name = PLAN_NAMES[plan] || plan, dev = window.Access?.isDev?.();
-    const until = p?.paid_until && plan !== "none" ? new Date(p.paid_until) : null, days = until ? Math.max(0, Math.ceil((until - Date.now()) / 864e5)) : null;
-    const hasTok = typeof p?.tokens_limit === "number";
-    const lim = hasTok ? p.tokens_limit : 0, used = hasTok ? Math.min(p.tokens_used || 0, Math.max(lim, p.tokens_used || 0)) : 0, left = Math.max(0, lim - used);
-    const pct = lim ? Math.round(used / lim * 100) : 0;
+    const plan = S?.promoFree ? "ai" : (["basic","basicYear","pro"].includes(raw) ? "ai" : raw);
+    const dev = window.Access?.isDev?.(), promo = S.promoFree;
+    const num = v => typeof v === "number" && Number.isFinite(v) ? v : null;
+    const fmt = n => new Intl.NumberFormat("ru-RU").format(n);
+    const until = p?.paid_until ? new Date(p.paid_until) : null;
+    const days = until && plan !== "none" ? Math.max(0, Math.ceil((until - Date.now()) / 864e5)) : null;
+    const period = plan === "aiYear" ? 365 : 30;
+    const left = num(window.Access?.lessonsLeft?.()) ?? num(p.ai_left);
+    const total = num(p.ai_limit) ?? (plan === "single" ? left : null);
+    const subscription = ["ai","aiYear"].includes(plan) && days !== null && days > 0;
+    const expired = ["ai","aiYear","single"].includes(plan) && days !== null && days <= 0;
+    const credit = !subscription && left !== null && left > 0;
+    const tokenLimit = num(p.tokens_limit), tokenUsed = num(p.tokens_used);
+    const hasTok = tokenLimit !== null;
+    const h = [];
     const row = (k, v) => `<div class="pc-row"><span>${k}</span><b>${v}</b></div>`;
-    let h = `<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(name)}</span>${S.promoFree ? `<span class="tag ok">доступ по промокоду</span>` : S.promo ? `<span class="tag ok">промокод −${S.promoPct || 50}%</span>` : ""}${dev ? `<span class="tag">вы — разработчик: всё открыто</span>` : ""}</div>`;
-    if (S?.promoFree) { h += row("Доступ", "все возможности сайта, без оплаты и без срока") + (window.Usage ? Usage.html({}) : "") + "</div>"; return h; }
-    h += row("Оплачено до", until ? `${until.toLocaleDateString("ru-RU")} (ещё ${days} дн.)` : "—");
-    {const leftL=window.Access?.lessonsLeft?.(),n=leftL===Infinity?"∞":leftL??"—";h+=row("Уроков доступно",n);}
-
-    if (S.promo) h += row("ИИ", "своя нейросеть (ваш ключ)");
-    else if (!lim && !dev) h += row("ИИ сайта", "не входит в тариф");
-    // расход в баллах ИИ: по тарифу — с сервера, у разработчика и со своим ключом — журнал этого браузера
-    const points=n=>window.Usage?.balance?Usage.balance(n):(Math.floor(n/900)/10).toLocaleString("ru-RU");
-    h+=row("Баллы ИИ",hasTok&&typeof p.tokens_used==="number"?`${points(Math.max(0,p.tokens_limit-p.tokens_used))} / ${points(p.tokens_limit)}`:"—");
-    h+='<p class="small">Баллы расходуются только на доработки. Создание списывает один урок и не уменьшает этот запас. Расход правок зависит от длины текста.</p>';
-    if(window.Usage&&(dev||S.promo))h+=Usage.html({dev,planTok:0,usedTok:null});
-    h += "</div>";
-    return h;
+    const meter = (pct, label, tone = "") => `<div class="pc-meter ${tone}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="${label}"><span style="width:${Math.max(0, Math.min(100, pct))}%"></span></div>`;
+    const pips = (n, total) => `<div class="pc-pips" aria-label="Осталось ${n} из ${total}">${Array.from({length: Math.min(total, 20)}, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div>`;
+    const points = n => window.Usage?.balance ? Usage.balance(n) : (Math.floor(n / 900) / 10).toLocaleString("ru-RU");
+    h.push(`<div class="plan-card"><div class="pc-head"><span class="pc-name">${esc(PLAN_NAMES[plan] || plan)}</span>${promo ? '<span class="tag ok">по промокоду</span>' : S.promo ? `<span class="tag ok">промокод −${S.promoPct || 50}%</span>` : dev ? '<span class="tag">разработчик</span>' : ""}</div>`);
+    if (promo) {
+      h.push(`<div class="pc-status ok"><b>Доступ активен</b><span>Все возможности сайта, без оплаты и без срока.</span></div>`);
+      if (window.Usage) h.push(Usage.html({}));
+      h.push("</div>"); return h.join("");
+    }
+    if (dev) {
+      h.push(`<div class="pc-status ok"><b>Доступ разработчика</b><span>Все тарифы и функции открыты.</span></div>`);
+    } else if (subscription) {
+      const soon = days <= 7;
+      h.push(`<div class="pc-status ${soon ? "warn" : "ok"}"><b>${days <= 3 ? "Подписка заканчивается" : "Подписка активна"}</b><span>Действует до ${until.toLocaleDateString("ru-RU")} · осталось ${days} дн.</span></div>`);
+      h.push(`<div class="pc-main"><b>${days}</b><span>дней доступа</span></div>`);
+      h.push(meter(Math.round(days / period * 100), `Осталось ${days} из ${period} дней`, soon ? "warn" : "ok"));
+      h.push(`<div class="pc-meter-caption">${days} из ${period} дней</div>`);
+      h.push(row("Действует до", until.toLocaleDateString("ru-RU")));
+      const quota = num(left), qmax = num(p.ai_limit) ?? 50;
+      if (quota !== null) { h.push(row("Уроков в этом месяце", `${fmt(quota)} из ${fmt(qmax)}`)); if (quota === 0) h.push(`<div class="pc-note bad">Лимит уроков исчерпан — докупите уроки, чтобы продолжить.</div>`); }
+    } else if (credit) {
+      const one = total === 1;
+      h.push(`<div class="pc-status credits"><b>${one ? "1 урок" : "Пакет уроков"}</b><span>${one ? "Остался 1 урок" : `Осталось ${fmt(left)} из ${fmt(total || left)} уроков`}</span></div>`);
+      if (total !== null && total >= 5) {
+        h.push(`<div class="pc-main"><b>${fmt(left)}</b><span>из ${fmt(total)} уроков</span></div>`);
+        h.push(meter(Math.round(left / total * 100), `Осталось ${left} из ${total} уроков`, left / total < .2 ? "warn" : "ok"));
+      } else if (total !== null && total > 1) {
+        h.push(pips(left, total));
+      } else {
+        h.push(`<div class="pc-main"><b>${fmt(left)}</b><span>уроков</span></div>`);
+      }
+      h.push(row("Оплата", "разовая, без подписки"));
+      h.push(row("Действует до", until ? until.toLocaleDateString("ru-RU") : "—"));
+    } else if (plan === "single" && left === 0) {
+      h.push(`<div class="pc-status credits"><b>Урок использован</b><span>Купленный урок израсходован. Можно купить ещё.</span></div>`);
+      h.push(`<button class="btn sm flame" type="button" id="acRenew">Купить ещё урок</button>`);
+    } else if (expired) {
+      h.push(`<div class="pc-status bad"><b>Срок подписки истёк</b><span>${until ? `Закончилась ${until.toLocaleDateString("ru-RU")}` : "Продлите доступ, чтобы продолжить."}</span></div>`);
+      h.push(meter(0, "Срок действия истёк", "bad"));
+      h.push(`<button class="btn sm flame" type="button" id="acRenew">Продлить подписку</button>`);
+    } else {
+      h.push(`<div class="pc-status muted"><b>Нет активного доступа</b><span>Купите уроки или подключите подписку.</span></div>`);
+      h.push(`<button class="btn sm flame" type="button" id="acRenew">Выбрать тариф</button>`);
+    }
+    if (subscription || credit) {
+      if (hasTok && tokenUsed !== null) h.push(row("Баллы ИИ на доработки", `${points(Math.max(0, tokenLimit - tokenUsed))} из ${points(tokenLimit)}`));
+      h.push(`<p class="small">Создание урока списывает один урок. Баллы на доработки расходуются отдельно.</p>`);
+      if (window.Usage && (dev || S.promo)) h.push(Usage.html({dev, planTok:0, usedTok:null}));
+    }
+    h.push("</div>");
+    return h.join("");
   }
   /* Расход ИИ по тарифу: полоска «потрачено из доступного» */
   const kTok = n => (Math.floor(n/900)/10).toLocaleString("ru-RU")+" бал.";
@@ -425,7 +470,7 @@ const Account = (() => {
       m.querySelector("#acProf").onsubmit = async e => { e.preventDefault(); pm.textContent = "Сохраняю…"; try {await saveInfo(fields()); pm.textContent = "Сохранено ✓";} catch(er){pm.textContent=er.message;} };
       m.querySelector("#acPhoto").onchange = async e => { const f = e.target.files?.[0]; if (!f) return; try { pm.textContent = "Загружаю фото…"; await saveInfo({ ...fields(), avatar: await shrink(f) }); closeModal(); open(); } catch (er) { pm.textContent = "Не получилось: " + er.message; } };
       m.querySelector("#acNoPhoto")?.addEventListener("click", async () => { await saveInfo({ ...fields(), avatar: null }); closeModal(); open(); });
-      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el) el.innerHTML = planCard(p); });
+      (S.local ? Promise.resolve(null) : plan()).then(p => { const el = m.querySelector("#acPlan"); if (el) { el.innerHTML = planCard(p); el.querySelector("#acRenew")?.addEventListener("click", () => { closeModal(); Access.open(); }); } });
       if (m.querySelector("#acSync")) m.querySelector("#acSync").onclick = async e => { e.target.disabled = true; e.target.textContent = "Синхронизирую…"; try { const n = await pull(); toast(n ? `Получено из облака уроков: ${n}.` : "Всё синхронизировано."); } catch (er) { toast("Не получилось: " + RU(er.message)); } closeModal(); };
       m.querySelector("#acOut").onclick = () => { closeModal(); signOut(); };
       return;
