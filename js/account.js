@@ -386,9 +386,11 @@ const Account = (() => {
       h.push(row("Оплата", "разовая, без подписки"));
       h.push(row("Действует до", until ? until.toLocaleDateString("ru-RU") : "—"));
     } else if (plan === "single" && left === 0) {
-      h.push(`<div class="pc-status credits"><b>Урок использован</b><span>Купленный урок израсходован. Можно купить ещё.</span></div>`);
-      h.push(meter(0, "Осталось 0 из 1 урока", "bad"));
-      h.push(`<div class="pc-meter-caption">0 из 1 урока</div>`);
+      const bought = num(p.ai_limit) || 0;
+      const one = bought === 1;
+      h.push(`<div class="pc-status credits"><b>${one ? "Урок использован" : "Уроки закончились"}</b><span>${one ? "Купленный урок израсходован." : `Все ${bought} купленных урока израсходованы.`} Можно купить ещё.</span></div>`);
+      h.push(meter(0, one ? "Осталось 0 из 1 урока" : "Уроки закончились", "bad"));
+      h.push(`<div class="pc-meter-caption">0</div>`);
       h.push(`<button class="btn sm flame" type="button" id="acRenew">Купить ещё урок</button>`);
     } else if (expired) {
       h.push(`<div class="pc-status bad"><b>Срок подписки истёк</b><span>${until ? `Закончилась ${until.toLocaleDateString("ru-RU")}` : "Продлите доступ, чтобы продолжить."}</span></div>`);
