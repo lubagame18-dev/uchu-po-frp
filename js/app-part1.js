@@ -1982,10 +1982,8 @@ const Engine = (() => {
   const BL = "[ ________________________________________ ]";
   /* «Оцени себя» — по правилам сайта: простые фразы для детей, результаты ФРП или ничего */
   function selfCheck(r) {
-    const m = window.Rules ? Rules.get("ws_selfcheck") : "kids";
-    if (m === "none") return "";
-    if (m === "frp") return r.loaded && r.subject.length ? `---\n\n### 🪞 Оцени себя\n\n${r.subject.map(x => `- ☐ ${x.text}`).join("\n")}\n\n` : "";
-    return `---\n\n### 🪞 Оцени себя\n\n- ☐ Я понял(а) тему и могу объяснить её соседу\n- ☐ Я выполнил(а) задания сам(а), без подсказки\n- ☐ Мне нужно ещё потренироваться\n\n`;
+    // Пустые «Оцени себя» в рабочем листе не печатаем: это не задание и не проверка.
+    return "";
   }
   function worksheetCore(p, type, materials) {
     const ru = p.subject === "ru";
