@@ -1979,6 +1979,45 @@ const Engine = (() => {
   }
 
   /* ---------- 6. Рабочий лист без ИИ ---------- */
+  /* Тема сама подсказывает формат: лабораторная, практикум, опыт, измерение,
+     наблюдение, исследование или построение — даже если слова «лабораторная» нет. */
+  function isPracticalTopic(p) {
+    const t = String(p?.topic || "").toLowerCase().replace(/ё/g, "е");
+    if (!t) return false;
+    if (p?.type?.id === "lab" || p?.plan?.type?.id === "lab" || p?.plan?.lab || p?.plan?.kit?.lab) return true;
+    const explicit = /(лабораторн|лаборатор|практическ|практикум|опыт|эксперимент|измерен|исследован|моделирован|конструир|построен|микроскоп|контурн|работа с картой|сравнительн.*наблюден)/.test(t);
+    if (explicit) return true;
+    const subject = String(p?.subject || "");
+    if (["bio", "chem", "phys", "geo", "math", "vis", "astr", "tech", "pe", "izo", "mus", "okr"].includes(subject)) {
+      return /(наблюден|определен|получен|свойств|реакц|прораст|дыхан|фотосинтез|препарат|величин|частот|вероятност|площад|объем|масштаб|процент|координат)/.test(t);
+    }
+    return false;
+  }
+  window.isPracticalTopic = isPracticalTopic;
+  function practicalWorksheet(p) {
+    const t = String(p.topic || "").replace(/ё/g, "е");
+    const K = p.plan?.kit || {}, lab = K.lab || p.plan?.lab || {}, T = K.T || p.plan?.T || {};
+    const lt = T.lab || {};
+    const labKind = lab.kind || (/практическ|практикум/i.test(t) ? "Практическая работа" : "Лабораторная работа");
+    const name = lab.name || lt.n || (t.match(/«([^»]+)»/) || [])[1] || t.replace(/^(лабораторная|практическая) работа[^«]*/i, "").trim() || t;
+    const subject = String(p.subject || "");
+    const aim = lab.aim || lt.aim || `выполнить ${labKind.toLowerCase()} «${name}» и сделать обоснованный вывод`;
+    const eq = lab.eq || lab.eqpt || lt.eq || lt.eqpt || "оборудование и материалы по инструкции учителя";
+    const steps = (lab.st || lt.st || [
+      `Рассмотрите объект/явление по теме «${name}».`,
+      "Запишите, что наблюдаете или измеряете.",
+      "Сравните результаты и объясните причину.",
+      "Сформулируйте вывод по цели работы."
+    ]).slice(0, 6);
+    const cols = lab.cols || lt.cols || (subject === "phys" || subject === "astr"
+      ? ["Опыт", "Измеряемая величина", "Результат", "Единица"]
+      : subject === "chem"
+        ? ["Опыт", "Наблюдение", "Уравнение/объяснение"]
+        : ["Объект/опыт", "Что наблюдаю или измеряю", "Результат"]);
+    const table = [`| ${cols.join(" | ")} |`, `|${cols.map(() => "---").join("|")}|`, ...Array.from({ length: 4 }, () => `| ${cols.map(() => "").join(" | ")} |`)].join("\n");
+    const out = `# ${p.topic}\n\n**Класс:** ${p.grade} | **Дата:** ________________ | **ФИО:** ______________________________\n\n## ${labKind}: «${name}»\n\n**Цель:** ${aim}\n\n**Оборудование и материалы:** ${eq}\n\n**Техника безопасности:** работайте по инструкции учителя; не пробуйте вещества на вкус; осторожно обращайтесь со стеклом и приборами.\n\n## Ход работы\n\n${steps.map((x, i) => `${i + 1}. ${x}`).join("\n")}\n\n## Наблюдения и измерения\n\n${table}\n\n## Расчёты и рисунок\n\n${BL}\n\n${BL}\n\n## Вывод\n\nВывод: ____________________________________________________________ потому что ____________________________________________________________.\n\n${BL}\n\n`;
+    return out;
+  }
   const BL = "[ ________________________________________ ]";
   /* «Оцени себя» — по правилам сайта: простые фразы для детей, результаты ФРП или ничего */
   function selfCheck(r) {
@@ -1986,6 +2025,7 @@ const Engine = (() => {
     return "";
   }
   function worksheetCore(p, type, materials) {
+    if (isPracticalTopic(p) && !/^(lit|lit1|ru|ru1)$/.test(String(p.subject || ""))) return practicalWorksheet(p);
     const ru = p.subject === "ru";
     const exam = p.control !== "school" && KB.exams[p.control];
     const r = FRP.results(p.subject, p.grade, p.topic, type.id);
