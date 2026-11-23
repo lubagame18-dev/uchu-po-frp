@@ -1178,6 +1178,16 @@ ${JSON.stringify(frs)}`;
           cards.splice(last + 1, 0, { id: "v" + n, on: true, kind: "concl", title: "Вывод", points: [concl.get(n)], notes: "Показывайте после обсуждения: вывод сначала формулируют ученики, слайд — для записи. Слайд можно выключить." });
         }
       }
+      // Необязательная разминка «Угадай героя»; «Восстанови сюжет» удалена.
+      if (!p.plan?.analysis?.verse) {
+        const txt = kit.fragments.map(f => f.text).join("\n").toLowerCase().replace(/ё/g, "е");
+        const heroes = (j.heroes || []).filter(x => x?.name && x?.hint && txt.includes(String(x.name).toLowerCase().replace(/ё/g, "е").split(/\s+/)[0].slice(0, 5)) && !String(x.hint).toLowerCase().includes(String(x.name).toLowerCase().split(/\s+/)[0].slice(0, 5))).slice(0, 5);
+        if (heroes.length >= 3) {
+          const warm = [{ id: "w0_" + Math.random().toString(36).slice(2, 5), on: true, kind: "list", title: "Разминка: угадай героя по описанию", points: heroes.map(h => `${String(h.hint).replace(/\s+/g, " ")} — ${h.name}`), warm: true, notes: "Карточки переворачиваются по щелчку: класс называет героя по описанию, потом открываем имя." }];
+          const ai = cards.findIndex(c => c.kind === "appendix");
+          if (ai >= 0) cards.splice(ai, 0, ...warm); else cards.push(...warm);
+        }
+      }
     } catch (e) { console.warn("Deck AI lit", e); }
     return cards;
   }
