@@ -204,8 +204,86 @@ const QuizLink = (() => {
 .qz-item b{display:block}.qz-item .small{opacity:.8}.qz-stats{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.qz-stat{border:1px solid var(--line,#ddd);border-radius:10px;padding:6px 10px}.qz-stat b{font-size:20px;display:block}
 .qz-tab{width:100%;border-collapse:collapse;font-size:14px}.qz-tab th,.qz-tab td{border-bottom:1px solid var(--line,#ddd);padding:6px 5px;text-align:left;vertical-align:top}.qz-tab tr.qz-new td{background:rgba(201,164,92,.15)}.qz-det td{font-size:13.5px;opacity:.9}
 .qz-qr{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.qz-qr svg{width:120px;height:120px}
-.qzload{display:flex;justify-content:center;padding:34px 0}.qzload span{display:block;width:42px;height:42px;border-radius:50%;border:4px solid rgba(14,116,144,.18);border-top-color:#0e7490;animation:qzspin .9s linear infinite}@keyframes qzspin{to{transform:rotate(360deg)}}`;
+.qz-edit-q{border:1.5px solid var(--line,#ddd);border-radius:12px;padding:10px;margin:10px 0;background:#fff}.qz-edit-head{display:flex;gap:8px;align-items:center;margin-bottom:6px}.qz-edit-head b{flex:1}.qz-edit-type{border:1.5px solid var(--line,#ddd);border-radius:8px;padding:5px 7px;font:inherit}.qz-edit-input{width:100%;border:1.5px solid var(--line,#ddd);border-radius:8px;padding:7px 9px;font:inherit;margin:4px 0;background:#fff}.qz-edit-label{display:block;font-size:13px;font-weight:700;margin:7px 0 2px}.qz-edit-options{display:grid;gap:5px}.qz-edit-opt{display:flex;gap:7px;align-items:center}.qz-edit-opt .qz-edit-input{flex:1}.qzload{display:flex;justify-content:center;padding:34px 0}.qzload span{display:block;width:42px;height:42px;border-radius:50%;border:4px solid rgba(14,116,144,.18);border-top-color:#0e7490;animation:qzspin .9s linear infinite}@keyframes qzspin{to{transform:rotate(360deg)}}`;
     document.head.appendChild(s);
+  }
+  /* Редактор интерактивного теста: вопросы, варианты, правильные ответы и мягкие варианты. */
+  async function getQuizData(id) {
+    try {
+      const rows = await Account.db(`/rest/v1/quiz_questions?quiz_id=eq.${encodeURIComponent(id)}`);
+      return rows?.[0]?.data || null;
+    } catch { return null; }
+  }
+  async function saveQuizData(id, data, title) {
+    const rows = await Account.db(`/rest/v1/quiz_questions?quiz_id=eq.${encodeURIComponent(id)}`).catch(() => []);
+    const body = JSON.stringify({ data });
+    if (rows?.length) await Account.db(`/rest/v1/quiz_questions?quiz_id=eq.${encodeURIComponent(id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body });
+    else await Account.db("/rest/v1/quiz_questions", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ quiz_id: id, data }) });
+    if (title) await Account.db(`/rest/v1/quizzes?id=eq.${encodeURIComponent(id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ title: String(title).slice(0, 200) }) }).catch(() => null);
+  }
+  async function editQuiz(id, q) {
+    const data = await getQuizData(id);
+    if (!data || !Array.isArray(data.questions)) { window.toast?.("В этом тесте нет редактируемых вопросов.", 5000); return; }
+    const draft = JSON.parse(JSON.stringify(data));
+    draft.questions = draft.questions.map(x => ({ ...x, type: x.type === "text" || !Array.isArray(x.options) || !x.options.length ? "text" : "choice", accept: Array.isArray(x.accept) ? x.accept : [] }));
+    const m = openModal(`<div class="dialog wide"><div class="dlg-h"><h2>Редактировать тест</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
+      <label class="qz-edit-label">Название теста<input id="qzEdTitle" class="qz-edit-input" value="${esc(draft.title || q.title || "")}" maxlength="200"></label>
+      <div id="qzEdList"></div>
+      <div class="mat-row"><button type="button" class="btn sm ghost" id="qzEdAdd">＋ Добавить вопрос</button><span class="small" id="qzEdMsg"></span></div>
+      <div class="pk-foot"><button type="button" class="btn sm ghost" data-close>Отмена</button><button type="button" class="btn flame" id="qzEdSave">Сохранить тест</button></div>
+    </div></div>`);
+    const list = m.querySelector("#qzEdList"), msg = m.querySelector("#qzEdMsg");
+    const draw = () => {
+      list.innerHTML = draft.questions.map((x, i) => {
+        const choice = x.type !== "text";
+        const options = choice ? (Array.isArray(x.options) ? x.options : []).concat(Array(4 - (x.options?.length || 0)).fill("")).slice(0, 4) : [];
+        return `<section class="qz-edit-q" data-i="${i}">
+          <div class="qz-edit-head"><b>Вопрос ${i + 1}</b><select class="qz-edit-type" data-f="type"><option value="choice" ${choice ? "selected" : ""}>С выбором ответа</option><option value="text" ${!choice ? "selected" : ""}>Развёрнутый ответ</option></select><button type="button" class="btn sm ghost" data-del="${i}" title="Удалить">×</button></div>
+          <textarea class="qz-edit-input" data-f="q" rows="2" placeholder="Текст вопроса">${esc(x.q || "")}</textarea>
+          ${choice ? `<div class="qz-edit-options">${options.map((o, k) => `<label class="qz-edit-opt"><input type="radio" name="qzCorrect${i}" value="${k}" ${Number(x.answer) === k ? "checked" : ""}><input class="qz-edit-input" data-f="option" value="${esc(o)}" placeholder="Вариант ${k + 1}"></label>`).join("")}</div>` : `<label class="qz-edit-label">Правильный ответ<textarea class="qz-edit-input" data-f="answer" rows="2" placeholder="Основной правильный ответ">${esc(x.answer || "")}</textarea></label><label class="qz-edit-label">Допустимые варианты ответа <span class="small">— по одному в строке</span><textarea class="qz-edit-input" data-f="accept" rows="3" placeholder="Другой вариант ответа&#10;Ещё одна формулировка">${esc((x.accept || []).join("\n"))}</textarea></label>`}
+          <label class="qz-edit-label">Пояснение <input class="qz-edit-input" data-f="explain" value="${esc(x.explain || "")}" placeholder="Почему ответ верный"></label>
+        </section>`;
+      }).join("");
+      list.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { draft.questions.splice(+b.dataset.del, 1); draw(); });
+      list.querySelectorAll(".qz-edit-type").forEach(sel => sel.onchange = () => { draft.questions[+sel.closest("[data-i]").dataset.i].type = sel.value; draw(); });
+    };
+    const read = () => {
+      const questions = [];
+      list.querySelectorAll(".qz-edit-q").forEach((sec, i) => {
+        const f = n => sec.querySelector(`[data-f="${n}"]`);
+        const q = String(f("q")?.value || "").trim();
+        const type = String(f("type")?.value || "choice");
+        if (!q) return;
+        if (type === "text") {
+          const answer = String(f("answer")?.value || "").trim();
+          const accept = String(f("accept")?.value || "").split("\n").map(x => x.trim()).filter(Boolean);
+          if (!answer) { msg.textContent = `Вопрос ${i + 1}: укажите правильный ответ.`; throw new Error("no answer"); }
+          questions.push({ ...draft.questions[i], q, type: "text", answer, accept });
+        } else {
+          const opts = [...sec.querySelectorAll("[data-f=option]")].map(x => String(x.value || "").trim()).filter(Boolean);
+          const correct = [...sec.querySelectorAll(`input[name="qzCorrect${i}"]`)].find(x => x.checked);
+          if (opts.length < 2) { msg.textContent = `Вопрос ${i + 1}: нужно минимум два варианта.`; throw new Error("few options"); }
+          if (!correct) { msg.textContent = `Вопрос ${i + 1}: отметьте правильный вариант.`; throw new Error("no correct"); }
+          questions.push({ ...draft.questions[i], q, type: "choice", options: opts, answer: Math.max(0, Math.min(opts.length - 1, +correct.value)), accept: [] });
+        }
+      });
+      if (!questions.length) throw new Error("нет вопросов");
+      return questions;
+    };
+    m.querySelector("#qzEdAdd").onclick = () => { draft.questions.push({ type: "choice", q: "", options: ["", "", "", ""], answer: 0, explain: "", accept: [] }); draw(); };
+    m.querySelector("#qzEdSave").onclick = async () => {
+      const btn = m.querySelector("#qzEdSave"); msg.textContent = "Сохраняю…"; btn.disabled = true;
+      try {
+        const questions = read();
+        const title = m.querySelector("#qzEdTitle").value.trim() || q.title || "Тест";
+        const out = { ...data, title, questions };
+        await saveQuizData(id, out, title);
+        window.toast?.(`Тест сохранён: ${questions.length} вопросов.`, 5000);
+        closeModal();
+        await load().catch(() => null);
+      } catch (e) { msg.textContent = e.message === "no answer" || e.message === "few options" || e.message === "no correct" ? msg.textContent : ("Не сохранилось: " + (e.message || e)); btn.disabled = false; }
+    };
+    draw();
   }
   async function openResults() {
     css();
@@ -232,7 +310,7 @@ const QuizLink = (() => {
         const wr = {}; rs.forEach(r => (r.details?.wrong || []).forEach(x => wr[x] = (wr[x] || 0) + 1));
         const hard = Object.entries(wr).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, c]) => `№${k} (${c})`).join(", ") || "—";
         const secs = Object.keys(rs[0]?.details?.sections || {});
-        body.innerHTML = `<div class="mat-row"><button class="btn sm ghost" id="qzBack">← Все уроки</button><button class="btn sm ghost" id="qzRe">Обновить</button><button class="btn sm ghost" id="qzCsv">Скачать таблицу</button><label class="check"><input type="checkbox" id="qzLast" ${lastOnly ? "checked" : ""}> только последняя попытка</label></div>
+        body.innerHTML = `<div class="mat-row"><button class="btn sm ghost" id="qzBack">← Все уроки</button><button class="btn sm ghost" id="qzRe">Обновить</button>${q.template === "ai-test" ? '<button class="btn sm ghost" id="qzEdit">✏️ Редактировать вопросы</button>' : ""}<button class="btn sm ghost" id="qzCsv">Скачать таблицу</button><label class="check"><input type="checkbox" id="qzLast" ${lastOnly ? "checked" : ""}> только последняя попытка</label></div>
           <h3>${esc(q.title || (t && t.title) || "Тест")}</h3>
           <div class="qz-qr">${window.QR ? QR.svg(url) : ""}<div class="small">Ссылка для учеников:<br><a href="${esc(url)}" target="_blank" rel="noopener">${esc(shortOf(url))}</a><br><button class="btn sm ghost" id="qzCopy" style="margin-top:6px">Скопировать ссылку</button></div></div>
           <div class="qz-stats"><div class="qz-stat"><b>${n}</b><span class="small">учеников</span></div><div class="qz-stat"><b>${avg}</b><span class="small">средний балл из ${tot}</span></div><div class="qz-stat"><b style="font-size:15px">${hard}</b><span class="small">вопросы с ошибками</span></div></div>
@@ -243,6 +321,7 @@ const QuizLink = (() => {
             : `<p>Пока никто не прошёл. Покажите ученикам QR-код со слайда или отправьте ссылку.</p>`}`;
         body.querySelector("#qzBack").onclick = list;
         body.querySelector("#qzRe").onclick = async () => { await load().catch(() => null); draw(); };
+        body.querySelector("#qzEdit")?.addEventListener("click", () => editQuiz(id, q));
         body.querySelector("#qzLast").onchange = e => { lastOnly = e.target.checked; draw(); };
         body.querySelector("#qzCopy").onclick = () => { navigator.clipboard?.writeText(url).then(() => window.toast?.("Ссылка скопирована.")); };
         body.querySelector("#qzCsv").onclick = () => {

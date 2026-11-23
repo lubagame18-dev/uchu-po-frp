@@ -44,6 +44,7 @@ h1{position:relative;z-index:1;font:700 30px/1.14 Unbounded,Manrope,Georgia,seri
 label{display:block;font-weight:800;font-size:13px;margin:16px 0 6px;color:#33404f}
 input{width:100%;border:2px solid var(--line);border-radius:14px;padding:13px 14px;font:inherit;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
 input:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+.q textarea{width:100%;min-height:92px;margin-top:8px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;background:#fff;outline:none;resize:vertical}.q textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
 .btn{width:100%;border:0;border-radius:16px;padding:15px;font:800 16px Manrope,Arial;color:#fff;cursor:pointer;margin-top:14px;
   background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 12px 26px color-mix(in srgb,var(--accent) 28%,transparent);transition:transform .15s,filter .15s}
 .btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn:active{transform:none}.btn:disabled{opacity:.55;cursor:default;transform:none}
@@ -157,31 +158,53 @@ function intro() {
     S.klass = $("klass").value.trim(); quiz();
   };
 }
+const isOpenQuestion = x => x?.type === "text" || !Array.isArray(x?.options) || !x.options.length;
+const normAnswer = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/gi, " ").replace(/\s+/g, " ").trim();
+const answerWords = s => [...new Set(normAnswer(s).split(" ").filter(w => w.length > 3 && !/^(это|как|что|для|при|или|если|когда|который|которая|которые|через|после|перед|между|только|очень|также|более|менее)$/i.test(w)))];
+function softAnswerOk(given, canonical, accept) {
+  const g = normAnswer(given); if (!g) return false;
+  const list = [canonical, ...(Array.isArray(accept) ? accept : [])].map(normAnswer).filter(Boolean);
+  if (list.some(v => g === v || (v.length > 8 && (g.includes(v) || v.includes(g))))) return true;
+  const keys = answerWords([canonical, ...(Array.isArray(accept) ? accept : [])].join(" "));
+  if (!keys.length) return false;
+  const hit = keys.filter(w => g.includes(w)).length;
+  return hit / keys.length >= 0.6;
+}
 function quiz() {
   const Q = S.q.questions, t = S.theme;
   $("app").innerHTML = `<div class="prog"><span id="pc">0 / ${Q.length}</span><div class="bar"><i id="pb"></i></div></div>
     <div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(S.q.title || "Тест")}</h1><div class="meta">${S.klass ? esc(S.klass) + " класс" : "Ученик"}</div></div>
     <div id="qs"></div>
-    <div class="card"><button class="btn accent" id="finish">Проверить результат</button><p class="small" id="progNote">Выберите ответ в каждом вопросе.</p></div>`;
-  $("qs").innerHTML = Q.map((x, i) => `<div class="q" data-i="${i}"><b><span class="qn">${i + 1}</span><span>${esc(x.q)}</span></b>${x.options.map((o, k) => `<label class="opt"><input type="radio" name="q${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("");
+    <div class="card"><button class="btn accent" id="finish">Проверить результат</button><p class="small" id="progNote">Ответьте на каждый вопрос.</p></div>`;
+  $("qs").innerHTML = Q.map((x, i) => `<div class="q" data-i="${i}"><b><span class="qn">${i + 1}</span><span>${esc(x.q)}</span></b>${isOpenQuestion(x) ? `<textarea name="q${i}" placeholder="Напишите ответ…"></textarea>` : x.options.map((o, k) => `<label class="opt"><input type="radio" name="q${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("");
   const update = () => {
-    const n = Object.keys(S.picked).length;
+    const n = Object.keys(S.picked).filter(k => S.picked[k] !== "" && S.picked[k] != null).length;
     $("pc").textContent = n + " / " + Q.length; $("pb").style.width = (n / Q.length * 100) + "%";
     $("progNote").textContent = n < Q.length ? "Отвечено " + n + " из " + Q.length : "Можно проверять результат.";
   };
-  $("qs").addEventListener("change", e => {
+  const read = e => {
     const q = e.target.closest(".q"); if (!q) return;
-    S.picked[+q.dataset.i] = +e.target.value;
+    const i = +q.dataset.i;
+    S.picked[i] = e.target.type === "radio" ? +e.target.value : e.target.value;
     q.querySelectorAll(".opt").forEach(o => o.classList.toggle("sel", o.contains(e.target)));
     update();
-  });
+  };
+  $("qs").addEventListener("change", read);
+  $("qs").addEventListener("input", read);
   update();
   $("finish").onclick = finish;
 }
 async function finish() {
   const Q = S.q.questions, t = S.theme;
-  if (Object.keys(S.picked).length < Q.length) { alert("Ответьте на все вопросы."); return; }
-  const rows = Q.map((x, i) => ({ q: x.q, answer: x.options[x.answer], picked: x.options[S.picked[i]], ok: S.picked[i] === x.answer, explain: x.explain || "" }));
+  const answered = Q.every((x, i) => { const v = S.picked[i]; return isOpenQuestion(x) ? String(v || "").trim().length > 0 : v !== undefined && v !== null; });
+  if (!answered) { alert("Ответьте на все вопросы."); return; }
+  const rows = Q.map((x, i) => {
+    if (isOpenQuestion(x)) {
+      const picked = String(S.picked[i] || "").trim();
+      return { q: x.q, answer: x.answer || "", picked, ok: softAnswerOk(picked, x.answer, x.accept), explain: x.explain || "", type: "text" };
+    }
+    return { q: x.q, answer: x.options[x.answer], picked: x.options[S.picked[i]], ok: S.picked[i] === x.answer, explain: x.explain || "", type: "choice" };
+  });
   const score = rows.filter(r => r.ok).length, pct = Math.round(score / rows.length * 100);
   const emoji = pct === 100 ? "🏆" : pct >= 80 ? "🌟" : pct >= 50 ? "💪" : "📚";
   const title = pct === 100 ? "Блестяще!" : pct >= 80 ? "Отличный результат!" : pct >= 50 ? "Неплохо, есть что повторить" : "Нужно повторить тему";
