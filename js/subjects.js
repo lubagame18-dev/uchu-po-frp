@@ -39,8 +39,14 @@ const Subjects = (() => {
   // полный поурочный список тем по ФРП (js/frpplans.js): одинаковые темы подряд — 1-й, 2-й… урок по теме
   const planData = (id, grade) => window.FRPPlans2025?.[id]?.[grade] || window.FRPPlans?.[id]?.[grade];
   function planTopics(id, grade) {
-    const P = planData(id, grade); if (!P) return null;
-    return P.l.map(([title, si], i) => ({ n: i + 1, title, section: P.s[si] || "" }));
+    const P = planData(id, grade);
+    if (P) return P.l.map(([title, si], i) => ({ n: i + 1, title, section: P.s[si] || "" }));
+    // ru/lit лежат в data/frp.js как rich-курсы, а не в FRPPlans.
+    const courses = [].concat(window.UCHU_FRP?.[id] || []);
+    const rows = courses.flatMap(c => c?.topics?.[String(grade)] || []);
+    if (!rows.length) return null;
+    const sections = [...new Set(rows.map(x => x.section).filter(Boolean))];
+    return rows.map((x, i) => ({ n: i + 1, title: String(x.title || "").trim(), section: sections.indexOf(x.section) >= 0 ? x.section : "" })).filter(x => x.title);
   }
   /* Урок без готового материала — по ФРП: тема тематического планирования, виды деятельности (→ задания ученикам),
      понятия и элементы программного содержания, отобранные по теме урока. Ничего не придумывается сверх ФРП. */

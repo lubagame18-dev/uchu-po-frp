@@ -782,7 +782,7 @@ function trackBlock(p) {
     const mech = KB.ru.mechanics.filter(m => gradeIn(m.grades, p.grade));
     return `## Русский язык — жёсткое следование шаблону
 Формат техкарты — по скелету ниже: две таблицы («Общая информация», «Блочно-модульное описание»), без пятиколоночной таблицы.
-Этапы урока (тип «${p.type.name}»): ${p.type.stages.join(" → ")}
+Этапы урока (тип «${p.type.name}»): ${(Array.isArray(p.type?.stages) ? p.type.stages : []).join(" → ") || "этапы типа не заданы"}
 Практический материал строй по механикам рабочих тетрадей (формулировки сохраняй):
 ${mech.map(m => `- ${m.name}: «${m.formula}» Пример: ${m.example}`).join("\n")}
 ${KB.ru.materialRules.map(r => "- " + r).join("\n")}`;
@@ -791,7 +791,7 @@ ${KB.ru.materialRules.map(r => "- " + r).join("\n")}`;
   const t = p.type;
   return `## Литература
 Тип урока: «${t.name}». ${t.focus || ""}
-Этапы: ${t.stages.join(" → ")}
+Этапы: ${(Array.isArray(t.stages) ? t.stages : []).join(" → ") || "этапы типа не заданы"}
 ${t.mustHave?.length ? "Обязательно: " + t.mustHave.join("; ") : ""}
 Формат техкарты — по скелету ниже: две таблицы («Общая информация», «Блочно-модульное описание»), без пятиколоночной таблицы.
 Приёмы (3–5 уместных): ${KB.lit.techniques.map(x => x.name + " — " + x.how).join("; ")}`;
