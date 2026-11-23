@@ -51,6 +51,7 @@ window.OkrPrimary = (() => {
     if (/прав[ао] и обязанност/.test(t)) return "rights";
     if (/конституци/.test(t)) return "constitution";
     if (/безопасн|дорог|пожар|правил|осторож/.test(t)) return "safety";
+    if (/круговорот|вод[аыуе]|воздух|опыт|веществ|свойств/.test(t)) return "experiment";
     if (/времен|сезон|погод|природ/.test(t)) return "nature";
     if (/животн|звер|птиц|рыб|насеком/.test(t)) return "animals";
     if (/растен|дерев|цвет|лист/.test(t)) return "plants";
