@@ -1388,3 +1388,11 @@ figure.pic[data-src*="lessons/own/"] img { object-fit: contain !important; backg
 .pc-pips i.on { background:#6b2bd9; }
 .pc-note { margin:8px 0; font-size:13px; line-height:1.35; }
 .pc-note.bad { color:#a5281b; }
+
+/* Печать/PDF: каждый лист рабочего листа — отдельная страница A4.
+   Раньше лист с картинками мог уехать одной длинной страницей. */
+@media print {
+  .ws-pages { display: block; }
+  .ws-page.sheet { break-after: page; break-inside: avoid; box-shadow: none; margin: 0; }
+  .ws-page.sheet:last-child { break-after: auto; }
+}

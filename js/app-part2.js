@@ -4785,6 +4785,9 @@ function wsEditableMd(element) {
   return htmlToMd(copy.innerHTML);
 }
 const WS_GAP = 2.4 * 96 / 25.4, WS_LINE = 6 * 96 / 25.4;
+/* Вписать содержимое листа в A4: если блоков больше, чем влезает на страницу,
+   уменьшаем масштаб так, чтобы лист остался ровно A4. «Одной большой страницы» быть не должно. */
+const wsFitScale = (height, capacity) => (height <= capacity || capacity <= 0 ? 1 : Math.max(0.5, capacity / height));
 function worksheetPage() {
   const page = document.createElement("section");
   page.className = "sheet ws-sheet ws-page ws-doc-interactive";
@@ -4815,8 +4818,50 @@ function wsPaginate(root, source, target = 0) {
   source.replaceChildren(grid);
   const style = getComputedStyle(source);
   const capacity = source.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - 2;
+  /* Если карточка задания с картинкой всё равно выше листа, режем её на части:
+     первая часть остаётся на этой странице, продолжение печатается на следующей.
+     Так лист с несколькими картинками выходит двумя-тремя листами A4, а не одной длинной страницей. */
+  for (let i = 0; i < measured.length; i++) {
+    const item = measured[i];
+    if (Math.ceil(item.height - WS_GAP) <= capacity) continue;
+    const card = item.row.querySelector(".ws-card");
+    if (!card || card.children.length < 3) continue;
+    const kids = [...card.children], parts = []; let chunk = [], used = 0;
+    for (const node of kids) {
+      const nh = node.getBoundingClientRect().height + 2;
+      if (chunk.length && used + nh > capacity - 8) { parts.push(chunk); chunk = []; used = 0; }
+      chunk.push(node); used += nh;
+    }
+    if (chunk.length) parts.push(chunk);
+    if (parts.length < 2) continue; // делить нечего — останется как есть (ниже ужмём масштабом)
+    const rows = [];
+    parts.forEach((nodes, idx) => {
+      const row = document.createElement("div"); row.className = "ws-grid-row";
+      const part = document.createElement("section"); part.className = card.className + (idx ? " ws-cont" : "");
+      if (idx) { const h = document.createElement("h3"); h.className = card.querySelector("h3")?.className || ""; h.textContent = "Продолжение задания"; part.appendChild(h); }
+      nodes.forEach(node => part.appendChild(node));
+      row.appendChild(part); grid.insertBefore(row, item.row.nextSibling);
+      rows.push({ row, height: row.getBoundingClientRect().height + WS_GAP });
+    });
+    item.row.remove();
+    measured.splice(i, 1, ...rows);
+    i += rows.length - 1;
+  }
   const pages = []; let size = 0;
   const measured = [...grid.children].map(row => ({ row, height: row.getBoundingClientRect().height + WS_GAP }));
+  /* Картинка не должна делать задание выше листа: сначала подгоняем размер картинки,
+     чтобы задание целиком помещалось на A4 (а не уезжало на «одну большую страницу»). */
+  for (const item of measured) {
+    if (Math.ceil(item.height - WS_GAP) <= capacity) continue;
+    const imgs = [...item.row.querySelectorAll("img")];
+    if (!imgs.length) continue;
+    const base = imgs.map(img => Math.max(24, Math.round(img.getBoundingClientRect().height || img.naturalHeight || 160)));
+    for (const k of [0.85, 0.7, 0.6, 0.5, 0.4, 0.3]) {
+      imgs.forEach((img, i) => { img.style.maxHeight = Math.max(20, Math.round(base[i] * k)) + "px"; img.style.height = "auto"; });
+      const h = item.row.getBoundingClientRect().height + WS_GAP;
+      if (Math.ceil(h) <= capacity) { item.height = h; break; }
+    }
+  }
   for (const item of measured) {
     if (!pages.length || Math.ceil(size + item.height) > capacity) { pages.push([]); size = 0; }
     pages.at(-1).push(item); size += item.height;
@@ -4837,12 +4882,6 @@ function wsPaginate(root, source, target = 0) {
   }
   for (const items of pages) {
     const page = worksheetPage(), body = grid.cloneNode(false);
-    const oversize = items.some(x => Math.ceil(x.height - WS_GAP) > capacity);
-    if (oversize) {
-      page.dataset.oversize = "true";
-      page.style.height = "auto";
-      page.style.minHeight = "297mm";
-    }
     const writable = items.filter(x => x.row.querySelector(".ws-card") && !x.row.querySelector("h3.answers"));
     const rest = Math.max(0, capacity - height(items) - 8);
     const lines = writable.length ? Math.max(0, Math.floor((rest / writable.length - 5) / WS_LINE)) : 0;
@@ -4856,6 +4895,15 @@ function wsPaginate(root, source, target = 0) {
       body.appendChild(item.row);
     }
     page.appendChild(body); root.appendChild(page);
+    /* лист всегда остаётся A4: если содержимое чуть выше, ужимаем масштаб, а не растягиваем страницу */
+    const pad = (parseFloat(getComputedStyle(page).paddingTop) || 0) + (parseFloat(getComputedStyle(page).paddingBottom) || 0);
+    const fit = wsFitScale(body.getBoundingClientRect().height, page.clientHeight - pad - 2);
+    if (fit < 0.999) {
+      body.style.transformOrigin = "top left";
+      body.style.transform = `scale(${fit})`;
+      body.style.width = (100 / fit).toFixed(2) + "%";
+      page.dataset.scaled = fit.toFixed(2);
+    }
   }
   source.remove();
   return [...root.querySelectorAll(".ws-page")];
@@ -4877,7 +4925,7 @@ async function wsBuildPages(L, stage) {
   if (!pages.length) throw new Error("Рабочий лист пуст. Добавьте задание перед выгрузкой.");
   const limit = worksheetPageLimit(L.params);
   if (limit && pages.length > limit) throw new Error(`Лист превышает выбранный объём (${limit} стр. A4). Сократите его в редакторе.`);
-  if (pages.some(page => page.dataset.oversize || page.scrollHeight > page.clientHeight + 1)) {
+  if (pages.some(page => !page.dataset.scaled && page.scrollHeight > page.clientHeight + 1)) {
     throw new Error("Задание целиком не помещается на A4. Разделите его в редакторе на два задания с отдельными полями ответа.");
   }
   return pages;
