@@ -3631,7 +3631,12 @@ function syncStyleChoices() {
     const r = document.querySelector(`input[name="${name}"][value="${c.checked ? "ai" : (name === "wsPics" ? "plain" : "real")}"]`); if (r) r.checked = true;
     if ($(note)) $(note).textContent = can ? "" : "(тариф с ИИ)";
   };
-  set("#deckStyle", "#deckAiChk", "deckPics", "#deckAiNote", on("slides")); set("#wsStyle", "#wsAiChk", "wsPics", "#wsAiNote", on("worksheet"));
+  set("#deckStyle", "#deckAiChk", "deckPics", "#deckAiNote", on("slides"));
+  // Рабочий лист всегда остаётся текстовым: ИИ-картинки и «красивое оформление»
+  // для него больше не предлагаем и не запускаем.
+  set("#wsStyle", "#wsAiChk", "wsPics", "#wsAiNote", false);
+  const wc = $("#wsAiChk"); if (wc) { wc.checked = false; wc.disabled = true; }
+  const wp = document.querySelector('input[name="wsPics"][value="plain"]'); if (wp) wp.checked = true;
   // Для презентации ИИ-картинки включаются по умолчанию, как только тариф/ключ это разрешает.
   // Пользователь может снять галочку — тогда выбор запоминается на этот сеанс.
   const dc = $("#deckAiChk");
