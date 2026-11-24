@@ -52,13 +52,15 @@ const Subjects = (() => {
   const planData = (id, grade) => {
     const legacy = window.FRPPlans?.[id]?.[grade];
     const official = window.FRPPlans2025?.[id]?.[grade];
-    // Для биологии, физики, химии и других предметов собранный план 2025
-    // иногда содержит подряд идущие дубли строк (одна тема на несколько уроков).
-    // Если в базовом школьном плане дублей меньше — берём его: там поурочные
-    // формулировки тем ближе к учебнику и не размножаются.
-    let P = official || legacy;
-    if (official && legacy && planDupCount(official) > planDupCount(legacy)) P = legacy;
-    return dedupePlan(P);
+    // В собранном плане 2025 бывают подряд идущие дубли одной темы. Сначала
+    // схлопываем их. Затем сравниваем с базовым школьным планом по числу
+    // реальных уроков: более подробный и поурочный список обычно ближе к
+    // учебнику. Короткий список-оглавление не должен затирать полный план.
+    const officialClean = dedupePlan(official);
+    const legacyClean = dedupePlan(legacy);
+    let P = officialClean || legacyClean;
+    if (officialClean && legacyClean && legacyClean.l.length > officialClean.l.length) P = legacyClean;
+    return P;
   };
   function planTopics(id, grade) {
     const P = planData(id, grade);
