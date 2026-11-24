@@ -2294,7 +2294,10 @@ async function aiDeckPics(L) {
     !/рефлекс|домашн|план урока|условные обозначения|^итог/i.test(sl.title) &&
     !sl.set.bgimg && !sl.set.stk?.some(s => s.img) &&
     ![...sl.body.matchAll(Media.RE)].some(m => !pending.test(m[2])) ? [i] : []);
-  if (!cand.length) return;
+  if (!cand.length) {
+    toast("ИИ-картинки не добавлены: на всех подходящих слайдах уже есть изображения или служебные блоки.", 8000);
+    return;
+  }
   const pick = [...new Set([cand[0], cand[Math.floor(cand.length / 2)], cand[cand.length - 1]])].slice(0, 3);
   // Арт-директор: реальных людей, портреты, картины, карты и исторические кадры
   // не рисуем нейросетью. Для них уже работает поиск; если поиск не дал
@@ -2302,13 +2305,15 @@ async function aiDeckPics(L) {
   const realVisual = (sl) => {
     if (!sl) return true;
     const text = `${L.params?.subject || ""} ${sl.title || ""} ${sl.body || ""}`.toLowerCase().replace(/ё/g, "е");
-    if (["lit", "hist", "mhk", "izo", "mus", "geo"].includes(String(L.params?.subject || ""))) return true;
+    // Даже в литературе и истории ИИ может проиллюстрировать общую сцену,
+    // быт или процесс. Запрещаем генерацию только там, где нужен реальный
+    // портрет, конкретная картина, карта или исторический кадр.
     return /портрет|писател|поэт|художник|композитор|учен|историческ|картина|репродукц|скульптур|памятник|архитектур|карта|photograph|фотограф|иллюстрац|произведен|биограф/.test(text);
   };
   const allowed = pick.filter(i => !realVisual(slides[i]));
   const limited = allowed.slice(0, 3);
   if (!limited.length) {
-    // ничего не рисуем: поиск уже отработал, а подменять реальные объекты нельзя
+    toast("ИИ-картинки не добавлены: для этих слайдов нужны реальные изображения (портреты, картины, карты) — их ищет поиск.", 8000);
     return;
   }
   toast("Рисую красивые картинки для презентации…", 60000);
