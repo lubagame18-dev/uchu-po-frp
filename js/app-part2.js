@@ -2273,7 +2273,11 @@ async function buildLessonFromForm() {
   return L;
 }
 /* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
-function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте ключ: режим разработчика → «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций» → «Проверить и нарисовать тест»." : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
+/* Техническая поломка источника картинок (сервер 5xx, сломанный/пустой общий ключ, бесплатный
+   запасной генератор тоже не ответил) — это не отказ по тарифу. Учителю в этом случае довольно
+   спокойного тоста: презентация уже собрана с изображениями, которые сайт подобрал сам. */
+const imgTechFail = msg => /сервер сайта: 5\d\d|запасной бесплатный генератор|не настроено/i.test(String(msg || "")) && !/войдите|входят в тариф|подключите тариф|исчерпан|недостаточно средств/i.test(String(msg || ""));
+function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); const key = /401|403/.test(msg) ? " Сервер ответил 401/403: ключ картинок недействителен или удалён — вставьте новый." : ""; openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте общий ключ: режим разработчика → «Ключи ИИ» → вкладка «Общие ключи» → блок «Общие ключи — картинки» → «Проверить»." + key : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
 function deckImagePrompt(p, sl, wish = "") {
   const details = String(sl.body || "").replace(Media.RE, "").replace(/[#*_`]/g, "").replace(/\s+/g, " ").trim().slice(0, 480);
   const style = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "Clean educational illustration with high visual clarity, soft pastel palette, consistent across the presentation.";
@@ -2316,8 +2320,8 @@ async function aiDeckPics(L) {
     toast("ИИ-картинки не добавлены: для этих слайдов нужны реальные изображения (портреты, картины, карты) — их ищет поиск.", 8000);
     return;
   }
-  toast("Рисую красивые картинки для презентации…", 60000);
-  let n = 0, lastErr = "";
+  toast("Рисую красивые картинки для презентации…", 60000); // если общий ключ ИИ не работает, запасной генератор рисует медленнее — до двух минут на три картинки
+  let n = 0, freeN = 0, lastErr = "";
   for (const i of limited) {
     const sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
     try {
@@ -2329,14 +2333,23 @@ async function aiDeckPics(L) {
       sl.body = [Media.mdImage(title, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
       sl.set.afs = undefined;
       parts[i] = SlideEditor.build(sl); n++;
+      if (im.free) freeN++; // картинку дорисовал бесплатный запасной генератор: лимит тарифа не тратим
     } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
   }
-  if (!n) imgFail("Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : "."));
+  if (!n) {
+    const m = "Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : ".");
+    if (imgTechFail(lastErr) && !ImageGen.isDevUser()) toast("ИИ-картинки сейчас недоступны: у сайта перестал работать ключ ИИ. Презентация собрана с изображениями, которые сайт подобрал сам, лимит картинок не потрачен. Попробуйте позже.", 12000);
+    else imgFail(m);
+  }
   if (n && L.docs.slides === md0) {
     L.docs.slides = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
     L.slidesFitted = false;
-    window.Access?.countImage(1);
-    await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast(`Добавлено ИИ-картинок: ${n}.`, 5000);
+    if (freeN < n) window.Access?.countImage(1);
+    await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
+    toast(freeN === n
+      ? `Добавлено картинок: ${n}. Их нарисовал бесплатный запасной генератор: общие ключи ИИ на сервере сейчас не работают, поэтому в углу каждой картинки — небольшая подпись сервиса. Лимит тарифа не потрачен.`
+      : freeN ? `Добавлено картинок: ${n}, из них ${freeN} — бесплатным запасным генератором (общий ключ ИИ недоступен).`
+        : `Добавлено ИИ-картинок: ${n}.`, freeN ? 14000 : 5000);
   }
 }
 /* рабочий лист «фотографией»: страницы рисует нейросеть, текст берётся из готового листа */
@@ -4275,12 +4288,13 @@ async function decorateWorksheet(L0, auto, setPct) {
     toast("Нейросеть-оформитель выбирает места для картинок и рисует, до двух минут…", 120000);
     setPct && setPct(15);
     const pr = { ...L.params, topic: L.title }, bn = await ImageGen.image(await ImageGen.bannerWithBrief(pr), { aspect: "16:9", maxW: 1320, strip: 6 });
-    window.Access?.countImage(1);
+    if (!bn.free) window.Access?.countImage(1); // бесплатный запасной генератор лимит тарифа не тратит
     L.art = { ...(L.art || {}), banner: bn }; delete L.art.pages; delete L.art.gallery;
     setPct && setPct(55);
     try { const sl = await ImageGen.slots(pr, L.docs.worksheet); L.art.slots = sl; } catch (e) { console.warn("slots", e); }
-    await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); toast("Готово. Картинки добавлены к заданиям рабочего листа.", 6000);
-  } catch (e) { console.error(e); imgFail("Нейросеть не нарисовала картинки: " + (e.message || e)); }
+    await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
+    toast(bn.free ? "Готово. Картинки нарисовал бесплатный запасной генератор: общий ключ ИИ на сервере сейчас не работает, в углу картинок — небольшая подпись сервиса. Лимит тарифа не потрачен." : "Готово. Картинки добавлены к заданиям рабочего листа.", bn.free ? 14000 : 6000);
+  } catch (e) { console.error(e); const m = "Нейросеть не нарисовала картинки: " + (e.message || e); if (imgTechFail(m) && !ImageGen.isDevUser()) toast("ИИ-картинки сейчас недоступны: у сайта перестал работать ключ ИИ. Лист остался без них, лимит картинок не потрачен.", 12000); else imgFail(m); }
   finally { b.disabled = false; b.textContent = t; }
 }
 /* зеркальные поля для двусторонней печати: в docx это w:mirrorMargins в settings.xml (библиотека docx такого параметра не даёт) */

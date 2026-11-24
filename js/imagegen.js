@@ -6,13 +6,19 @@
      chat   — OpenAI-совместимый /chat/completions с картинкой в ответе (OpenRouter и похожие);
      proxy  — ваша серверная функция: сайт шлёт ей {prompt, aspect}, ключи лежат только на сервере.
    Ключ хранится только в этом браузере (localStorage). Для общего доступа используйте proxy.
+   Если общий серверный ключ картинок перестал работать (истёк, удалён, кончились деньги —
+   сервер отвечает 5xx), картинку дорисовывает бесплатный запасной генератор (Pollinations, FLUX):
+   без ключей и без затрат владельца сайта. В бесплатном режиме сервис ставит в углу свою
+   небольшую подпись — это условие его тарифа, поэтому запасные картинки помечаются r.free = true,
+   и сайт честно говорит об этом учителю.
    Нейросеть рисует только иллюстрации и фоны: текст, подчёркивания и условные обозначения
    на картинку не попадают, их накладывает код (методические обозначения нейросетью не рисуются).
    =================================================================== */
 const ImageGen = (() => {
   "use strict";
   const KEY = "uchu:img";
-  const DEF = { provider: "intelion", key: "", base: "", model: "", path: "", proxy: "", on: true };
+  /* free — разрешён ли бесплатный запасной генератор, если общий серверный ключ не работает */
+  const DEF = { provider: "intelion", key: "", base: "", model: "", path: "", proxy: "", on: true, free: true };
   /* модели посредника: один ключ, выбор из списка. via — формат запроса; lit — насколько буквально следует описанию */
   const MODELS = [
     { id: "flux-schnell", name: "FLUX Schnell: дёшево и быстро, рисует ровно описанное (рекомендуется для листов)", via: "images" },
@@ -37,13 +43,47 @@ const ImageGen = (() => {
   /* общий вход сайта: серверная функция разработчика; ключи лежат только на сервере, тариф проверяется там же */
   const siteUrl = () => { const u = String(window.UCHU_SITE?.nanoBanana || window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""); return u ? (/functions\.yandexcloud\.net/.test(u) ? `${u}?path=${encodeURIComponent("/image")}` : u + "/image") : ""; };
   const isDevUser = () => !window.Access || !Access.commercial?.() || !!Access.isDev?.();
-  /* личный ключ, сохранённый в этом браузере, работает всегда (вставить его можно только в режиме разработчика) */
-  const configured = () => own() || (!!siteUrl() && !isDevUser());
+  /* личный ключ, сохранённый в этом браузере, работает всегда (вставить его можно только в режиме разработчика);
+     бесплатный запасной генератор работает и без ключей, поэтому картинки доступны даже при пустом сервере */
+  const configured = () => own() || (!!siteUrl() && !isDevUser()) || freeOn();
   const trim = u => String(u || "").replace(/\/+$/, "");
   const withTimeout = (ms, f) => { const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms); return f(ctl.signal).finally(() => clearTimeout(t)); };
   const toDataUrl = (mime, b64) => `data:${mime || "image/png"};base64,${b64}`;
-  const err = (r, body) => { const m = (body && ((typeof body.error === "string" ? body.error : body.error?.message) || body.message || body.detail)) || ""; return new Error(`${r.status} ${r.status === 401 || r.status === 403 ? "ключ не подошёл или нет доступа" : r.status === 429 ? "превышен лимит запросов" : r.status === 402 ? "недостаточно средств на счёте" : r.status === 503 ? "сервис перегружен или не подключён" : "ошибка сервиса"}${m ? ": " + String(m).slice(0, 160) : ""}`); };
+  const err = (r, body) => { const m = (body && ((typeof body.error === "string" ? body.error : body.error?.message) || body.message || body.detail)) || ""; const e = new Error(`${r.status} ${r.status === 401 || r.status === 403 ? "ключ не подошёл или нет доступа" : r.status === 429 ? "превышен лимит запросов" : r.status === 402 ? "недостаточно средств на счёте" : r.status === 503 ? "сервис перегружен или не подключён" : "ошибка сервиса"}${m ? ": " + String(m).slice(0, 160) : ""}`); e.status = r.status; return e; };
   const fromUrl = async (u, signal) => { if (/^data:/.test(u)) return u; const r = await fetch(u, { signal }); const b = await r.blob(); return await new Promise(ok => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(b); }); };
+
+  /* ---------- запасной бесплатный генератор (без ключей) ----------
+     Нужен, когда общий ключ картинок на сервере сайта перестал работать: учитель не остаётся
+     без иллюстраций, а владелец сайта ничего не платит. У бесплатного тарифа два ограничения:
+     сервис ставит в углу свою подпись (картинки помечаются free, сайт об этом предупреждает)
+     и пускает одну картинку примерно в 45 секунд с одного адреса — этот лимит сервис пишет
+     в ответе, и мы честно ждём столько, сколько он просит. */
+  const FREE = { url: "https://image.pollinations.ai/prompt/", size: { "1:1": [1024, 1024], "4:3": [1152, 864], "3:4": [864, 1152], "16:9": [1280, 720], "9:16": [720, 1280] } };
+  const freeOn = () => load().free !== false;
+  async function freeRaw(prompt, aspect = "16:9") {
+    const [w, h] = FREE.size[aspect] || FREE.size["16:9"];
+    const text = String(prompt || "").replace(/\s+/g, " ").trim();
+    /* в адрес нельзя положить очень длинный промпт: оставляем начало и конец (в конце — запрет на текст и логотипы) */
+    const p = text.length > 950 ? text.slice(0, 640) + " " + text.slice(-280) : text;
+    const url = `${FREE.url}${encodeURIComponent(p)}?width=${w}&height=${h}&model=flux&seed=${Math.floor(Math.random() * 1e9)}`;
+    const once = signal => fetch(url, { signal, mode: "cors", cache: "no-store" }).then(async r => {
+      if (!r.ok) {
+        let body = ""; try { body = await r.text(); } catch { }
+        const wait = +(String(body).match(/retry after (\d+)\s*s/i) || [])[1] || 0;
+        const e = new Error(r.status === 402 || r.status === 429 ? "лимит бесплатного тарифа (одна картинка в 45 секунд)" : "ответил " + r.status);
+        e.status = r.status; e.retryAfter = Math.max(0, Math.min(60, wait)); throw e;
+      }
+      const b = await r.blob();
+      if (!/^image\//.test(String(b.type || ""))) throw new Error("не вернул картинку");
+      return await new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = () => no(new Error("картинка не прочиталась")); fr.readAsDataURL(b); });
+    });
+    try { return await withTimeout(60000, once); }
+    catch (e) {
+      if (!e.retryAfter) throw e;
+      await new Promise(r => setTimeout(r, (e.retryAfter + 2) * 1000)); // ждём ровно столько, сколько просит сервис
+      return await withTimeout(120000, once);
+    }
+  }
 
   async function raw(prompt, o = {}) {
     const c = load(), P = PRESET[c.provider] || PRESET.gemini, aspect = o.aspect || "16:9", model = c.model || P.model, base = trim(c.base || P.base);
@@ -55,8 +95,8 @@ const ImageGen = (() => {
         const j2 = await r2.json().catch(() => ({}));
         if (r2.status === 401) throw new Error("войдите в личный кабинет");
         if (r2.status === 403) throw new Error("картинки входят в тариф «С ИИ»: 6 листов в месяц");
-        if (!r2.ok) throw err(r2, j2);
-        const im = j2.image || j2.data || j2.url; if (!im) throw new Error("сервер не вернул картинку");
+        if (!r2.ok) { const e = err(r2, j2); e.fromServer = true; throw e; }
+        const im = j2.image || j2.data || j2.url; if (!im) { const e = new Error("сервер не вернул картинку"); e.status = 502; e.fromServer = true; throw e; }
         return /^(data:|https?:)/.test(im) ? fromUrl(im, signal) : toDataUrl("image/png", im);
       });
     }
@@ -98,7 +138,37 @@ const ImageGen = (() => {
   const shrink = (url, maxW = 1100, q = 0.86, strip = 0) => new Promise((ok, no) => {
     const im = new Image(); im.onload = () => { const k = Math.min(1, maxW / im.width), W = Math.round(im.width * k), H = Math.round(im.height * k), sh = strip ? Math.round(W / strip) : H, c = document.createElement("canvas"); c.width = W; c.height = Math.min(H, sh); const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, -Math.round((H - c.height) / 2), W, H); ok({ url: c.toDataURL("image/jpeg", q), w: c.width, h: c.height }); }; im.onerror = () => no(new Error("картинка не открылась")); im.src = url;
   });
-  const image = async (prompt, o = {}) => { let last; const wait = ms => new Promise(r => setTimeout(r, ms)); for (let i = 0; i < 3; i++) { try { return await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0); } catch (e) { last = e; if (/401|403|402|не настроено|войдите|тариф/.test(String(e.message))) break; if (i < 2) await wait(i ? 6000 : 2500); } } if (last) last.message = (own() ? "ваш ключ: " : "сервер сайта: ") + last.message; throw last; };
+  /* общий серверный ключ перестал работать: 5xx, пустой ответ, «нет ключа». Это не отказ по тарифу
+     (401/403/402) — тариф и вход не обходим, а только подменяем сломанный источник картинок. */
+  const serverDown = e => !!e && e.fromServer === true && (e.status === 0 || e.status >= 500);
+  let serverBrokenAt = 0; // чтобы не долбить сломанный сервер на каждой картинке одной сборки
+  const image = async (prompt, o = {}) => {
+    let last;
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const freeReady = () => !own() && freeOn() && !o.noFree;
+    const noServer = () => !own() && !siteUrl(); // адрес сервера не задан вовсе — сразу запасной генератор
+    if (!noServer() && (!freeReady() || Date.now() - serverBrokenAt > 120e3)) {
+      for (let i = 0; i < 3; i++) {
+        try { return await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0); }
+        catch (e) {
+          last = e;
+          if (/401|403|402|не настроено|войдите|тариф/.test(String(e.message))) break;
+          if (serverDown(e)) { serverBrokenAt = Date.now(); break; } // не три круга по 90 секунд, а сразу запасной генератор
+          if (i < 2) await wait(i ? 6000 : 2500);
+        }
+      }
+    }
+    if (freeReady() && (noServer() || serverDown(last) || serverBrokenAt || /не настроено/i.test(String(last && last.message)))) {
+      try {
+        const u = await freeRaw(prompt, o.aspect || "16:9");
+        const r = await shrink(u, o.maxW, 0.86, o.strip || 0);
+        r.free = true;
+        return r;
+      } catch (e2) { const fm = "запасной бесплатный генератор " + (e2.message || e2); if (last) last.message = String(last.message) + "; " + fm; else last = e2; }
+    }
+    if (last) last.message = (own() ? "ваш ключ: " : "сервер сайта: ") + last.message;
+    throw last || new Error("картинка не создалась");
+  };
 
   /* ---------- описание картинки по теме урока ---------- */
   const NEG = "No text, no letters, no numbers, no words, no logos, no watermark, no arrows, no underlines, no frames.";
@@ -198,7 +268,7 @@ const ImageGen = (() => {
     const pg = splitSheet(md).filter(x => x.trim()); const out = [];
     for (let i = 0; i < pg.length; i++) {
       onStep && onStep(i, pg.length);
-      const r = await image(photoPrompt(p, pg[i], i + 1, pg.length), { aspect: "3:4", maxW: 1240, kind: i ? "part" : "sheet", timeout: 150000 });
+      const r = await image(photoPrompt(p, pg[i], i + 1, pg.length), { aspect: "3:4", maxW: 1240, kind: i ? "part" : "sheet", timeout: 150000, noFree: true });
       out.push({ url: r.url, w: r.w, h: r.h });
     }
     return out;
@@ -238,9 +308,9 @@ const ImageGen = (() => {
 
   async function test() {
     const t0 = Date.now();
-    try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url }; }
+    try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url, free: !!r.free, provider: r.free ? "бесплатный запасной генератор" : "общий ключ сайта" }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { photos, slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF };
+  return { photos, slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF, freeOn, freeRaw, FREE };
 })();
 window.ImageGen = ImageGen;
