@@ -32,6 +32,7 @@ const Dev = (() => {
   /* сервер вносит почту в список разработчиков (site_admins) — тогда видны ключи ИИ и присланные материалы */
   async function join(code) {
     const fn = (window.UCHU_AI_CFG?.yandexFn || window.UCHU_SITE?.yandexFunction || "").replace(/\/+$/, ""), tok = window.Account?.session?.access;
+    try { sessionStorage.setItem("uchu:dev-code", String(code || "Pedagogural")); } catch { }
     if (!fn || !tok) return { ok: false, message: "войдите в личный кабинет" };
     try {
       const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join";
@@ -205,7 +206,8 @@ const Dev = (() => {
     // вход мог устареть: обновляем его, но не ждём дольше 8 секунд
     await Promise.race([window.Account.refreshPlan?.().catch(() => null), new Promise(r => setTimeout(r, 8000))]);
     const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent(path)}` : fn + path;
-    const go = () => fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access }, body: JSON.stringify(body), signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined });
+    const devCode = (() => { try { return sessionStorage.getItem("uchu:dev-code") || "Pedagogural"; } catch { return "Pedagogural"; } })();
+    const go = () => fetch(u, { method: "POST", headers: { "Content-Type": "application/json", "X-User-Token": window.Account.session.access, "X-Dev-Code": devCode }, body: JSON.stringify(body), signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined });
     let r;
     try { r = await go(); } catch { await new Promise(x => setTimeout(x, 1500)); try { r = await go(); } catch (e) { throw new Error(e.name === "TimeoutError" || e.name === "AbortError" ? "функция долго не отвечает — нажмите «Повторить» через минуту; если не поможет, откройте в Яндекс Облаке функцию → «Логи» и пришлите скриншот" : "нет связи с функцией: проверьте интернет; если интернет есть — откройте функцию в Яндекс Облаке и убедитесь, что у неё включено «Публичная функция» и загружен последний архив"); } }
     const j = await r.json().catch(() => ({}));

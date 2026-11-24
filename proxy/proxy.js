@@ -345,7 +345,7 @@ function cors(req, res) {
   if (allowed) res.setHeader("Access-Control-Allow-Origin", allowed);
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-GigaChat-Key, X-Yandex-Key, X-Yandex-Folder, X-Proxy-Auth, X-Api-Key, Anthropic-Version, Anthropic-Dangerous-Direct-Browser-Access, HTTP-Referer, X-Title, X-User-Token, X-Admin-Token, X-Uchu-Slot");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-GigaChat-Key, X-Yandex-Key, X-Yandex-Folder, X-Proxy-Auth, X-Api-Key, Anthropic-Version, Anthropic-Dangerous-Direct-Browser-Access, HTTP-Referer, X-Title, X-User-Token, X-Admin-Token, X-Dev-Code, X-Uchu-Slot");
   res.setHeader("Access-Control-Expose-Headers", "X-Uchu-Reason, X-Uchu-Tokens, X-Uchu-Account");
 }
 function send(res, status, obj) { if (obj && obj.reason) res.setHeader("X-Uchu-Reason", obj.reason); res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" }); res.end(JSON.stringify(obj)); }
@@ -797,16 +797,23 @@ async function handler(req, res) {
     if (route === "/pay/notify") { const r = await PAY.notify(raw, req.headers, request, readAll); res.writeHead(r.status, { "Content-Type": "text/plain; charset=utf-8" }); return res.end(r.text); }
     let body; try { body = JSON.parse(raw); } catch { return send(res, 400, { error: "тело запроса — не JSON" }); }
     if (route === "/admin/join") { const devCode = process.env.ADMIN_TOKEN || process.env.DEV_CODE || "Pedagogural"; const codeIn = String(body.code || ""); if (devCode && codeIn && codeIn.trim().toLowerCase() === String(devCode).trim().toLowerCase()) { const g = await Q.join(req.headers["x-user-token"], body.code, request, readAll, true); if (!g.ok && req.headers["x-user-token"]) return send(res, g.status || 403, { error: g.message }); return send(res, 200, { ok: true, dev: true, token: devCode }); } const r = await Q.join(req.headers["x-user-token"], body.code, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? { ok: true, already: !!r.already } : { error: r.message }); }
+    const devCodeOk = req => {
+      const expected = process.env.DEV_CODE || process.env.ADMIN_TOKEN || "Pedagogural";
+      const got = String(req.headers["x-dev-code"] || "").trim();
+      return !!(got && expected && got.toLowerCase() === String(expected).trim().toLowerCase());
+    };
     if (route === "/admin/keys") {
-      // ячейки ключей DeepSeek — только автору сайта (вход в кабинет почтой из site_admins или X-Admin-Token)
+      // Общие ключи доступны разработчику по коду (или автору сайта из site_admins).
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
-      if (!tokOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для автора сайта: войдите в личный кабинет своей почтой" });
+      const devOk = !!(req.headers["x-user-token"] && devCodeOk(req));
+      if (!tokOk && !devOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для разработчика: войдите в кабинет и введите код разработчика" });
       const r = await DS.admin(body, request, readAll); return send(res, r.status, r.json);
     }
     if (route === "/admin/imgkeys") {
-      // ячейки общих ключей для картинок — только автору сайта
+      // Общие ключи картинок — тем же разработчикам.
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
-      if (!tokOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для автора сайта: войдите в личный кабинет своей почтой" });
+      const devOk = !!(req.headers["x-user-token"] && devCodeOk(req));
+      if (!tokOk && !devOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для разработчика: войдите в кабинет и введите код разработчика" });
       const r = await IMG.admin(body, request, readAll); return send(res, r.status, r.json);
     }
     if (route === "/image") {
