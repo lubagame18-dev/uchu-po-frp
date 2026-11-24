@@ -3599,8 +3599,17 @@ function syncStyleChoices() {
     if ($(note)) $(note).textContent = can ? "" : "(тариф с ИИ)";
   };
   set("#deckStyle", "#deckAiChk", "deckPics", "#deckAiNote", on("slides")); set("#wsStyle", "#wsAiChk", "wsPics", "#wsAiNote", on("worksheet"));
+  // Для презентации ИИ-картинки включаются по умолчанию, как только тариф/ключ это разрешает.
+  // Пользователь может снять галочку — тогда выбор запоминается на этот сеанс.
+  const dc = $("#deckAiChk");
+  if (dc && can && on("slides") && (window.UCHU_SITE?.imageGenUi !== false) && !dc.dataset.touched) {
+    dc.checked = true;
+    const r = document.querySelector('input[name="deckPics"][value="ai"]'); if (r) r.checked = true;
+  }
 }
-$("#deckAiChk")?.addEventListener("change", syncStyleChoices); $("#wsAiChk")?.addEventListener("change", syncStyleChoices);
+$("#deckAiChk")?.addEventListener("change", e => { e.target.dataset.touched = "1"; syncStyleChoices(); });
+$("#wsAiChk")?.addEventListener("change", e => { e.target.dataset.touched = "1"; syncStyleChoices(); });
+document.addEventListener("uchu:access", () => { try { syncStyleChoices(); } catch { } });
 function syncTools() {
   syncStyleChoices();
   const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();

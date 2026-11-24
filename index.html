@@ -600,7 +600,7 @@ figure.pic:hover img,figure.pic:hover .pic-empty{outline:3px solid var(--sun);ou
    mail — куда приходят материалы от учителей (через бесплатный сервис форм FormSubmit). */
 window.UCHU_SITE = {
   /* Картинки ИИ в рабочих листах и презентациях: false — в конструкторе и редакторе их не видно, сама сборка и подключение ключей остаются. Включить — true. */
-  imageGenUi: false,
+  imageGenUi: true,
   yandexFunction: "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24",
   pollinationsAppKey: "",
   mail: { to: "pedagogruslit@gmail.com", subject: "Методические наработки для сайта" },
@@ -687,7 +687,7 @@ window.UCHU_SITE = {
             <label class="check" id="chkTech" title="Технологическая карта по ФРП — для проверки оформления и сдачи"><input type="checkbox" value="conspect"> Техкарта <span class="pro-lock" hidden>🔒</span></label>
             <label class="check"><input type="checkbox" value="slides" checked> Презентация</label>
             <details class="xstyle sub" id="deckStyle" hidden><summary>🖼 Картинки ИИ</summary>
-              <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk"> сгенерировать картинки <span class="small" id="deckAiNote"></span></label>
+              <label class="check" id="deckAiLbl" title="Красивые картинки от нейросети; реальные изображения тоже используются"><input type="checkbox" id="deckAiChk" checked> сгенерировать картинки <span class="small" id="deckAiNote"></span></label>
               <span hidden><input type="radio" name="deckPics" value="real" checked><input type="radio" name="deckPics" value="ai"></span></details>
             <label class="check" id="chkQuiz" title="Можно выбрать только тест — без конспекта, техкарты и презентации. Нейросеть составит вопросы, ссылка и QR появятся сразу; результаты — в кабинете"><input type="checkbox" id="xQuiz"> 📱 Интерактивный тест</label>
             <label class="check"><input type="checkbox" value="worksheet" checked> Рабочий лист</label>
