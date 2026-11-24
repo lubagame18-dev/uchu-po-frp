@@ -852,9 +852,18 @@ const SAMPLES = [
 const Store = (() => {
   "use strict";
   const DB_NAME = "uchu-po-frp", VERSION = 1, STORES = ["lessons", "materials", "images", "kv"];
-  let dbp = null;
+  let dbp = null, broken = false, warned = false;
   const mem = Object.fromEntries(STORES.map(s => [s, new Map()]));
+  const isIO = e => /IOError|Failed to write blobs|UnknownError|InvalidStateError|AbortError|corrupt|database/i.test(String(e?.name || "") + " " + String(e?.message || ""));
+  const degrade = () => {
+    broken = true; dbp = null;
+    if (!warned) {
+      warned = true;
+      try { if (typeof toast === "function") toast("Хранилище браузера работает с ошибкой: локальные данные не сохраняются. Уроки в кабинете сохраняются в облаке. Очистите данные сайта в браузере, если ошибка повторяется.", 12000); } catch { }
+    }
+  };
   function open() {
+    if (broken) return Promise.resolve(null);
     if (dbp) return dbp;
     dbp = new Promise(resolve => {
       try {
@@ -868,7 +877,7 @@ const Store = (() => {
     return dbp;
   }
   async function tx(store, mode, fn) {
-    const db = await open();
+    const db = broken ? null : await open();
     if (!db) return fn(null, mem[store]);
     return new Promise((resolve, reject) => {
       const t = db.transaction(store, mode), os = t.objectStore(store);
@@ -878,20 +887,38 @@ const Store = (() => {
   }
   const req = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
   return {
-    async get(store, key) { return tx(store, "readonly", (os, m) => os ? req(os.get(key)) : m.get(key)); },
+    async get(store, key) {
+      try { return await tx(store, "readonly", (os, m) => os ? req(os.get(key)) : m.get(key)); }
+      catch (e) { if (!isIO(e)) throw e; degrade(); return mem[store].get(key); }
+    },
     async put(store, key, val) {
       try { return await tx(store, "readwrite", (os, m) => os ? req(os.put(val, key)) : m.set(key, val)); }
-      catch (e) { if (String(e?.name).includes("Quota")) throw { code: "quota_exceeded", message: "Память браузера заполнена" }; throw e; }
+      catch (e) {
+        if (String(e?.name).includes("Quota")) throw { code: "quota_exceeded", message: "Память браузера заполнена" };
+        if (!isIO(e)) throw e;
+        degrade(); mem[store].set(key, val); return key;
+      }
     },
-    async del(store, key) { return tx(store, "readwrite", (os, m) => os ? req(os.delete(key)) : m.delete(key)); },
+    async del(store, key) {
+      try { return await tx(store, "readwrite", (os, m) => os ? req(os.delete(key)) : m.delete(key)); }
+      catch (e) { if (!isIO(e)) throw e; degrade(); return mem[store].delete(key); }
+    },
     async all(store) {
-      return tx(store, "readonly", async (os, m) => {
-        if (!os) return [...m.values()];
-        return req(os.getAll());
-      });
+      try {
+        return await tx(store, "readonly", async (os, m) => {
+          if (!os) return [...m.values()];
+          return req(os.getAll());
+        });
+      } catch (e) { if (!isIO(e)) throw e; degrade(); return [...mem[store].values()]; }
     },
-    async keys(store) { return tx(store, "readonly", (os, m) => os ? req(os.getAllKeys()) : [...m.keys()]); },
-    async clear(store) { return tx(store, "readwrite", (os, m) => os ? req(os.clear()) : m.clear()); },
+    async keys(store) {
+      try { return await tx(store, "readonly", (os, m) => os ? req(os.getAllKeys()) : [...m.keys()]); }
+      catch (e) { if (!isIO(e)) throw e; degrade(); return [...mem[store].keys()]; }
+    },
+    async clear(store) {
+      try { return await tx(store, "readwrite", (os, m) => os ? req(os.clear()) : m.clear()); }
+      catch (e) { if (!isIO(e)) throw e; degrade(); return mem[store].clear(); }
+    },
     async usage() { try { const e = await navigator.storage?.estimate?.(); return e ? { used: e.usage, quota: e.quota } : null; } catch { return null; } },
     async persist() { try { return await navigator.storage?.persist?.(); } catch { return false; } }
   };
