@@ -127,13 +127,19 @@ const DEV_HASH = () => process.env.DEV_CODE_HASH || "";
 const fails = new Map();
 function tooMany(key) { const now = Date.now(), a = (fails.get(key) || []).filter(t => now - t < 900000); fails.set(key, a); return a.length >= (key === "*" ? 30 : 8); }
 function failed(key) { const a = fails.get(key) || []; a.push(Date.now()); fails.set(key, a); const g = fails.get("*") || []; g.push(Date.now()); fails.set("*", g); if (fails.size > 2000) for (const [k, v] of fails) if (!v.length || Date.now() - v[v.length - 1] > 900000) fails.delete(k); }
-async function join(userToken, code, request, readAll) {
+async function join(userToken, code, request, readAll, force = false) {
   if (!on()) return { ok: false, status: 503, message: "облако не подключено" };
   const u = await sb(request, readAll, "/auth/v1/user", { token: userToken });
   const email = (u.json?.email || "").toLowerCase(); if (u.status !== 200 || !email) return { ok: false, status: 401, message: "войдите в кабинет" };
   // уже разработчик (почта есть в site_admins) — код не нужен
   const ex = await sb(request, readAll, `/rest/v1/site_admins?email=eq.${encodeURIComponent(email)}&select=email`);
   if (Array.isArray(ex.json) && ex.json.length) return { ok: true, email, already: true };
+  // Общий код разработчика уже проверен в /admin/join: добавляем почту в site_admins.
+  if (force) {
+    const add = await sb(request, readAll, "/rest/v1/site_admins?on_conflict=email", { method: "POST", body: { email } });
+    if (add.status >= 300) return { ok: false, status: 502, message: "не удалось выдать доступ разработчика" };
+    return { ok: true, email };
+  }
   if (!DEV_HASH()) return { ok: false, status: 403, message: "вход по коду разработчика отключён на сервере" };
   if (tooMany(u.json.id) || tooMany("*")) return { ok: false, status: 429, message: "слишком много неверных попыток, подождите 15 минут" };
   const h = require("crypto").createHash("sha256").update("uchu-po-frp:dev:v5" + String(code || "")).digest("hex");

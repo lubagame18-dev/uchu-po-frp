@@ -37,19 +37,28 @@ const Subjects = (() => {
       box: [what, `**❓ Учитель:** ${how}`, H.key ? `**🔑 Ключ:** ${nl(H.key)}` : "", "**❓ Учитель:** Какое задание вызвало трудность? Разберём у доски."].filter(Boolean) };
   }
   // полный поурочный список тем по ФРП (js/frpplans.js): одинаковые темы подряд — 1-й, 2-й… урок по теме
-  const planData = (id, grade) => {
-    const P = window.FRPPlans2025?.[id]?.[grade] || window.FRPPlans?.[id]?.[grade];
+  const planDupCount = P => {
+    if (!P || !Array.isArray(P.l)) return 0;
+    let n = 0, prev = "";
+    for (const r of P.l) { const key = String(r[0] || "").trim(); if (key === prev) n++; prev = key; }
+    return n;
+  };
+  const dedupePlan = P => {
     if (!P || !Array.isArray(P.l) || !P.l.length) return P;
-    // В собранных планах 2025 встречаются подряд идущие одинаковые строки
-    // (тема/раздел/тема ФРП совпадают). Это не отдельные уроки — не размножаем их в списке.
-    const rows = [];
-    let prev = "";
-    for (const r of P.l) {
-      const key = [r[0], r[1], r[2]].join("\u0001");
-      if (key === prev) continue;
-      rows.push(r); prev = key;
-    }
+    const rows = []; let prev = "";
+    for (const r of P.l) { const key = String(r[0] || "").trim(); if (key === prev) continue; rows.push(r); prev = key; }
     return rows.length === P.l.length ? P : { ...P, l: rows };
+  };
+  const planData = (id, grade) => {
+    const legacy = window.FRPPlans?.[id]?.[grade];
+    const official = window.FRPPlans2025?.[id]?.[grade];
+    // Для биологии, физики, химии и других предметов собранный план 2025
+    // иногда содержит подряд идущие дубли строк (одна тема на несколько уроков).
+    // Если в базовом школьном плане дублей меньше — берём его: там поурочные
+    // формулировки тем ближе к учебнику и не размножаются.
+    let P = official || legacy;
+    if (official && legacy && planDupCount(official) > planDupCount(legacy)) P = legacy;
+    return dedupePlan(P);
   };
   function planTopics(id, grade) {
     const P = planData(id, grade);
