@@ -37,7 +37,20 @@ const Subjects = (() => {
       box: [what, `**❓ Учитель:** ${how}`, H.key ? `**🔑 Ключ:** ${nl(H.key)}` : "", "**❓ Учитель:** Какое задание вызвало трудность? Разберём у доски."].filter(Boolean) };
   }
   // полный поурочный список тем по ФРП (js/frpplans.js): одинаковые темы подряд — 1-й, 2-й… урок по теме
-  const planData = (id, grade) => window.FRPPlans2025?.[id]?.[grade] || window.FRPPlans?.[id]?.[grade];
+  const planData = (id, grade) => {
+    const P = window.FRPPlans2025?.[id]?.[grade] || window.FRPPlans?.[id]?.[grade];
+    if (!P || !Array.isArray(P.l) || !P.l.length) return P;
+    // В собранных планах 2025 встречаются подряд идущие одинаковые строки
+    // (тема/раздел/тема ФРП совпадают). Это не отдельные уроки — не размножаем их в списке.
+    const rows = [];
+    let prev = "";
+    for (const r of P.l) {
+      const key = [r[0], r[1], r[2]].join("\u0001");
+      if (key === prev) continue;
+      rows.push(r); prev = key;
+    }
+    return rows.length === P.l.length ? P : { ...P, l: rows };
+  };
   function planTopics(id, grade) {
     const P = planData(id, grade);
     if (P) return P.l.map(([title, si], i) => ({ n: i + 1, title, section: P.s[si] || "" }));
