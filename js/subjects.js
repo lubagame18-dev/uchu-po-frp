@@ -49,6 +49,26 @@ const Subjects = (() => {
     for (const r of P.l) { const key = String(r[0] || "").trim(); if (key === prev) continue; rows.push(r); prev = key; }
     return rows.length === P.l.length ? P : { ...P, l: rows };
   };
+  // В планах истории в название урока иногда попадает служебный хвост
+  // («1 из них уроков, отведённых…», «Уроки 86–102…», кодификатор).
+  // Оставляем только формулировку темы; для истории убираем и номер-артефакт «1».
+  const cleanPlanTitle = (title, id) => {
+    let t = String(title || "").replace(/\s+/g, " ").trim();
+    const cut = t.search(/\s+(?:из них уроков|Уроки\s+\d|ПЕРЕЧЕНЬ\b|\(КОДИФИКАТОР\)|РАСПРЕДЕЛЕННЫХ ПО КЛАССАМ|История нашего края)/i);
+    if (cut > 0) t = t.slice(0, cut).trim();
+    if (id === "hist") t = t.replace(/\s+\d{1,2}$/, "").trim();
+    return t;
+  };
+  const cleanPlanRows = (P, id) => {
+    if (!P || !Array.isArray(P.l)) return P;
+    const rows = []; let prev = "";
+    for (const r of P.l) {
+      const title = cleanPlanTitle(r[0], id);
+      if (!title || title === prev) continue;
+      rows.push([title, ...r.slice(1)]); prev = title;
+    }
+    return { ...P, l: rows };
+  };
   const planData = (id, grade) => {
     const legacy = window.FRPPlans?.[id]?.[grade];
     const official = window.FRPPlans2025?.[id]?.[grade];
@@ -60,7 +80,7 @@ const Subjects = (() => {
     const legacyClean = dedupePlan(legacy);
     let P = officialClean || legacyClean;
     if (officialClean && legacyClean && legacyClean.l.length > officialClean.l.length) P = legacyClean;
-    return P;
+    return cleanPlanRows(P, id);
   };
   function planTopics(id, grade) {
     const P = planData(id, grade);
@@ -70,7 +90,7 @@ const Subjects = (() => {
     const rows = courses.flatMap(c => c?.topics?.[String(grade)] || []);
     if (!rows.length) return null;
     const sections = [...new Set(rows.map(x => x.section).filter(Boolean))];
-    return rows.map((x, i) => ({ n: i + 1, title: String(x.title || "").trim(), section: sections.indexOf(x.section) >= 0 ? x.section : "" })).filter(x => x.title);
+    return rows.map((x, i) => ({ n: i + 1, title: cleanPlanTitle(x.title, id), section: sections.indexOf(x.section) >= 0 ? x.section : "" })).filter(x => x.title);
   }
   /* Урок без готового материала — по ФРП: тема тематического планирования, виды деятельности (→ задания ученикам),
      понятия и элементы программного содержания, отобранные по теме урока. Ничего не придумывается сверх ФРП. */
