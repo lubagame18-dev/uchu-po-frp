@@ -2274,6 +2274,13 @@ async function buildLessonFromForm() {
     if (wantWs && !slidesOnly) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
   };
   if (!await runJob(L, p, type, gen, formats, true, hideTech)) return;
+  // Пустых мест под картинки на слайдах не оставляем: рамки, которые поиск и ИИ не заполнили,
+  // убираем. Слайд без картинки лучше, чем пустое место; подобрать или нарисовать картинку
+  // заново можно в редакторе — «Подобрать картинки» и «Картинки ИИ».
+  if (formats.includes("slides") && L.docs?.slides) {
+    const clean = dropPendingPics(L.docs.slides);
+    if (clean !== L.docs.slides) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
+  }
   return L;
 }
 /* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
@@ -2282,80 +2289,89 @@ async function buildLessonFromForm() {
    спокойного тоста: презентация уже собрана с изображениями, которые сайт подобрал сам. */
 const imgTechFail = msg => /сервер сайта: 5\d\d|запасной бесплатный генератор|не настроено/i.test(String(msg || "")) && !/войдите|входят в тариф|подключите тариф|исчерпан|недостаточно средств/i.test(String(msg || ""));
 function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); const key = /401|403/.test(msg) ? " Сервер ответил 401/403: ключ картинок недействителен или удалён — вставьте новый." : ""; openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте общий ключ: режим разработчика → «Ключи ИИ» → вкладка «Общие ключи» → блок «Общие ключи — картинки» → «Проверить»." + key : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
-function deckImagePrompt(p, sl, wish = "") {
+function deckImagePrompt(p, sl, wish = "", o = {}) {
   const details = String(sl.body || "").replace(Media.RE, "").replace(/[#*_`]/g, "").replace(/\s+/g, " ").trim().slice(0, 480);
   const style = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "Clean educational illustration with high visual clarity, soft pastel palette, consistent across the presentation.";
   return `Create one 16:9 educational illustration for ${subjName(p?.subject)}, grade ${p?.grade || ""}.
 Lesson topic: «${p?.topic || sl.title}». Slide: «${sl.title}». Teach this exact subject: ${details || sl.title}.
-Show the single named object, scene or process from the slide, with only its relevant parts and context. Preserve the species, structure, materials, period or place where specified. For an experiment, show the stated apparatus and arrangement. For art or history, do not invent an attribution or present the image as a reproduction or historical source.
+Show the single named object, scene or process from the slide, with only its relevant parts and context. Preserve the species, structure, materials, period or place where specified. For an experiment, show the stated apparatus and arrangement. For art or history, do not invent an attribution or present the image as a reproduction or historical source.${o.real ? " The slide is about a real person, artwork, map or historical document: do not draw a recognisable face of a real person and do not present the result as a reproduction; show a neutral symbolic illustration of the event, place or idea instead." : ""}
 Place the focal object in the middle third, with room to crop and a quiet background on both sides for readable slide text. No text, letters, numerals, logos, watermarks, borders, or other panels.
 ${style}${wish ? "\nTeacher’s visual preferences: " + wish : ""}`;
 }
-/* ИИ-картинки в презентации: до трёх содержательных слайдов без готового изображения. */
-async function aiDeckPics(L) {
-  const md0 = L.docs?.slides; if (!md0 || !window.ImageGen || !window.SlideEditor) return;
-  if (window.Access && (!Access.imagesAllowed() || Access.imageLeft() <= 0)) { imgFail("ИИ-картинки входят в тариф «С ИИ», в пределах месячного лимита: 6 листов в месяц."); return; }
-  if (!ImageGen.configured()) { imgFail("Ключ для картинок не подключён."); return; }
+/* Незаполненные места под картинки: поиск не нашёл, ИИ не нарисовал — рамку с подсказкой
+   «подберите сами» с презентации убираем. Слайд не остаётся с пустым местом, а картинку
+   всегда можно подобрать или нарисовать заново кнопками в редакторе. */
+const PIC_PENDING = /^(search|commons):/i;
+function dropPendingPics(md) {
+  if (!md) return md || "";
+  const re = new RegExp((window.Media?.RE || Media.RE).source, "g");
+  const out = String(md).replace(re, (raw, _cap, src) => PIC_PENDING.test(String(src || "")) ? "" : raw);
+  return out.replace(/\n{3,}/g, "\n\n").replace(/[ \t]+$/gm, "").trim();
+}
+const spreadIdx = (arr, n) => { if (n <= 1 || arr.length <= n) return arr.slice(0, Math.max(1, n)); const out = []; for (let k = 0; k < n; k++) out.push(arr[Math.round(k * (arr.length - 1) / (n - 1))]); return [...new Set(out)]; };
+const REAL_VISUAL = /портрет|писател|поэт|художник|композитор|учен|историческ|картина|репродукц|скульптур|памятник|архитектур|карта|фотограф|иллюстрац|биограф|произведен/i;
+/* ИИ-картинки в презентации: слайды без готового изображения, до max штук за один заход.
+   Работает для всех предметов. Поисковые заготовки, которые поиск не заполнил, заменяются
+   нарисованной картинкой. opts.manual — запуск кнопкой из редактора (можно повторно). */
+async function aiDeckPics(L, opts = {}) {
+  const manual = !!opts.manual;
+  const md0 = L?.docs?.slides; if (!md0 || !window.ImageGen || !window.SlideEditor) return { n: 0 };
+  const stop = msg => { if (manual) toast(msg, 10000); else imgFail(msg); };
+  if (window.Access && !Access.imagesAllowed()) { stop("ИИ-картинки входят в тариф «С ИИ»: 6 листов в месяц."); return { n: 0 }; }
+  if (window.Access && Access.imageLeft() <= 0) { stop("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца."); return { n: 0 }; }
+  if (!ImageGen.configured()) { stop("Ключ для картинок не подключён."); return { n: 0 }; }
   const parts = splitSlides(md0), slides = parts.map(SlideEditor.parse);
-  const pending = /^(search|commons):/i;
   const cand = slides.flatMap((sl, i) => sl.title && !SlideEditor.slideHasTools(sl) &&
     !/рефлекс|домашн|план урока|условные обозначения|^итог/i.test(sl.title) &&
     !sl.set.bgimg && !sl.set.stk?.some(s => s.img) &&
-    ![...sl.body.matchAll(Media.RE)].some(m => !pending.test(m[2])) ? [i] : []);
+    ![...sl.body.matchAll(Media.RE)].some(m => !PIC_PENDING.test(m[2])) ? [i] : []);
+  const max = Math.max(1, Math.min(8, opts.max || (manual ? 6 : 4)));
   if (!cand.length) {
-    toast("ИИ-картинки не добавлены: на всех подходящих слайдах уже есть изображения или служебные блоки.", 8000);
-    return;
+    const clean = dropPendingPics(md0);
+    if (clean !== md0 && L.docs.slides === md0) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
+    toast(manual ? "Во всех подходящих слайдах уже есть картинки. Заменить картинку можно, щёлкнув по слайду." : "ИИ-картинки не добавлены: на всех подходящих слайдах уже есть изображения или служебные блоки.", 9000);
+    return { n: 0, cleaned: clean !== md0 };
   }
-  const pick = [...new Set([cand[0], cand[Math.floor(cand.length / 2)], cand[cand.length - 1]])].slice(0, 3);
-  // Арт-директор: реальных людей, портреты, картины, карты и исторические кадры
-  // не рисуем нейросетью. Для них уже работает поиск; если поиск не дал
-  // результата — оставляем слайд как есть, чтобы не подменять реальность.
-  const realVisual = (sl) => {
-    if (!sl) return true;
-    const text = `${L.params?.subject || ""} ${sl.title || ""} ${sl.body || ""}`.toLowerCase().replace(/ё/g, "е");
-    // Даже в литературе и истории ИИ может проиллюстрировать общую сцену,
-    // быт или процесс. Запрещаем генерацию только там, где нужен реальный
-    // портрет, конкретная картина, карта или исторический кадр.
-    return /портрет|писател|поэт|художник|композитор|учен|историческ|картина|репродукц|скульптур|памятник|архитектур|карта|photograph|фотограф|иллюстрац|произведен|биограф/.test(text);
-  };
-  const allowed = pick.filter(i => !realVisual(slides[i]));
-  const limited = allowed.slice(0, 3);
-  if (!limited.length) {
-    toast("ИИ-картинки не добавлены: для этих слайдов нужны реальные изображения (портреты, картины, карты) — их ищет поиск.", 8000);
-    return;
-  }
-  toast("Рисую красивые картинки для презентации…", 60000); // если общий ключ ИИ не работает, запасной генератор рисует медленнее — до двух минут на три картинки
+  const pick = spreadIdx(cand, max);
+  toast(manual ? "Рисую картинки для презентации… до двух минут." : "Рисую красивые картинки для презентации…", 90000); // запасной генератор рисует медленнее
   let n = 0, freeN = 0, lastErr = "";
-  for (const i of limited) {
+  for (const i of pick) {
     const sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
+    const real = REAL_VISUAL.test(`${sl.title || ""} ${sl.body || ""}`);
     try {
-      const im = await ImageGen.image(deckImagePrompt(L.params, sl), { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
+      const im = await ImageGen.image(deckImagePrompt(L.params, sl, "", { real }), { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
       const response = await fetch(im.url);
       if (!response.ok) throw new Error("Не удалось загрузить изображение.");
       const blob = await response.blob(), id = "img-" + uid(); await Store.put("images", id, blob);
-      const body = sl.body.replace(Media.RE, (raw, _cap, src) => pending.test(src) ? "" : raw).trim();
-      sl.body = [Media.mdImage(title, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
+      const body = sl.body.replace(Media.RE, (raw, _cap, src) => PIC_PENDING.test(src) ? "" : raw).trim();
+      sl.body = [Media.mdImage(real ? `${title} — иллюстрация (нейросеть)` : title, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
       sl.set.afs = undefined;
       parts[i] = SlideEditor.build(sl); n++;
       if (im.free) freeN++; // картинку дорисовал бесплатный запасной генератор: лимит тарифа не тратим
     } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
   }
-  if (!n) {
-    const m = "Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : ".");
-    if (imgTechFail(lastErr) && !ImageGen.isDevUser()) toast("ИИ-картинки сейчас недоступны: у сайта перестал работать ключ ИИ. Презентация собрана с изображениями, которые сайт подобрал сам, лимит картинок не потрачен. Попробуйте позже.", 12000);
-    else imgFail(m);
-  }
+  const next = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
+  const clean = dropPendingPics(next);
   if (n && L.docs.slides === md0) {
-    L.docs.slides = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
-    L.slidesFitted = false;
+    L.docs.slides = clean; L.slidesFitted = false;
     if (freeN < n) window.Access?.countImage(1);
     await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
     toast(freeN === n
       ? `Добавлено картинок: ${n}. Их нарисовал бесплатный запасной генератор: общие ключи ИИ на сервере сейчас не работают, поэтому в углу каждой картинки — небольшая подпись сервиса. Лимит тарифа не потрачен.`
       : freeN ? `Добавлено картинок: ${n}, из них ${freeN} — бесплатным запасным генератором (общий ключ ИИ недоступен).`
         : `Добавлено ИИ-картинок: ${n}.`, freeN ? 14000 : 5000);
+    return { n, freeN, cleaned: clean !== md0 };
   }
+  if (!n) {
+    const m = "Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : ".");
+    if (manual || (imgTechFail(lastErr) && !ImageGen.isDevUser())) toast(manual ? "Не удалось нарисовать: " + (lastErr || "нет ответа") + ". Можно подобрать картинку поиском — кнопка «Подобрать картинки»." : "ИИ-картинки сейчас недоступны: у сайта перестал работать ключ ИИ. Презентация собрана с изображениями, которые сайт подобрал сам, лимит картинок не потрачен. Попробуйте позже.", 12000);
+    else imgFail(m);
+    if (clean !== md0 && L.docs.slides === md0) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
+  }
+  return { n, freeN, cleaned: clean !== md0 };
 }
+/* Кнопка в редакторе презентации: догенерировать картинки во всю презентацию (можно повторно). */
+window.DeckAiPics = { run: (o = {}) => aiDeckPics(state.lesson, { manual: true, max: 6, ...o }), dropPending: dropPendingPics };
 /* рабочий лист «фотографией»: страницы рисует нейросеть, текст берётся из готового листа */
 async function aiSheetPhotos(L, setPct) {
   if (!L.docs?.worksheet || !window.ImageGen) return;

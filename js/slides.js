@@ -581,6 +581,7 @@ const SlideEditor = (() => {
         ${sl.set.full ? `<label class="sx-tl">Плашка <select id="sxFullPos">${[["right", "справа"], ["left", "слева"], ["bottom", "снизу"], ["center", "по центру"]].map(([k, n]) => `<option value="${k}" ${k === (typeof sl.set.full === "string" ? sl.set.full : (sl.set.fullPos || "right")) ? "selected" : ""}>${n}</option>`).join("")}</select></label><label class="sx-tl">Вид <select id="sxFullStyle">${[["frosted", "стекло"], ["paper", "плотная бумага"], ["dark", "тёмная"], ["clear", "прозрачная"]].map(([k, n]) => `<option value="${k}" ${k === (sl.set.fullStyle || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label>` : ""}
         <button class="btn sm ghost" id="sxAutoFull" title="Автоматически поставить полные кадры на слайды с одной картинкой и коротким текстом">✨ Полные кадры</button>
         <button class="btn sm ghost" id="sxPickPics" title="Подобрать картинки в пустые места и к шаблонам правила, сравнения, проверки, задания">🖼 Подобрать картинки</button>
+        ${window.UCHU_SITE?.imageGenUi === false ? "" : `<button class="btn sm" id="sxAiPics" title="Нарисовать ИИ-картинки на слайды, где их нет; кнопку можно нажимать повторно — картинки добавятся в оставшиеся слайды">🎨 Картинки ИИ</button>`}
         <label class="sx-tl">Картинка <select id="sxAcc">${Object.entries(ACC).map(([k, n]) => `<option value="${k}" ${k === (sl.set.acc || "") ? "selected" : ""}>${n}</option>`).join("")}</select></label>
         ${sl.set.acc === "bg" ? `<label class="sx-tl">Наложение <select id="sxOv">${Object.entries(OV).map(([k, n]) => `<option value="${k}" ${k === (sl.set.ov || "frosted") ? "selected" : ""}>${n}</option>`).join("")}</select></label><input type="range" id="sxOvi" min="0" max="100" step="5" value="${sl.set.ovi ?? 70}" title="Сила наложения" aria-label="Сила наложения">` : ""}
         <span class="sx-ha" role="group" aria-label="Выравнивание текста">${[["left", "⯇", "По левому краю"], ["center", "≡", "По центру"], ["right", "⯈", "По правому краю"]].map(([k, ic, t]) => `<button type="button" class="btn sm ${sl.set.ha === k ? "flame" : "ghost"}" data-ha="${k}" title="${t}" aria-pressed="${sl.set.ha === k}">${ic}</button>`).join("")}<label class="check small"><input type="checkbox" id="sxHaAll"> на всех</label></span>
@@ -695,6 +696,16 @@ const SlideEditor = (() => {
     const fst = $s("#sxFullStyle"); if (fst) fst.onchange = e => { const a = slides(); a[cur].set.fullStyle = e.target.value; write(a); rerender(); };
     $s("#sxAutoFull").onclick = applyAutoFullFrames;
     $s("#sxPickPics").onclick = autoPickImages;
+    { const bp = $s("#sxAiPics"); if (bp) bp.onclick = async () => {
+      const Ls = L(); if (!Ls || !window.DeckAiPics?.run) { toast("Модуль ИИ-картинок не загружен — обновите страницу.", 6000); return; }
+      if (bp.disabled) return;
+      const before = Ls.docs.slides, t0 = bp.textContent; bp.disabled = true; bp.textContent = "🎨 Рисую…";
+      try {
+        const r = await window.DeckAiPics.run();
+        if (r?.n && Ls.docs.slides !== before && L() === Ls) { write(splitSlides(Ls.docs.slides).map(parse)); rerender(); }
+      } catch (e) { toast("Не получилось: " + (e.message || e), 8000); }
+      finally { bp.disabled = false; bp.textContent = t0; }
+    }; }
     $s("#sxPic").onclick = () => addPicture(cur);
     if (window.UCHU_SITE?.imageGenUi === false) $s("#sxAiPic").hidden = true; else $s("#sxAiPic").onclick = () => aiPicture();
     $s("#sxAcc").onchange = e => { const v = e.target.value; const a = slides(); const has = new RegExp(Media.RE.source).test(a[cur].body); a[cur].set.acc = v || undefined; a[cur].set.afs = undefined; write(a); if (v && !has) { toast("Выберите картинку ниже, в «Картинках Яндекса», — она встанет на это место."); } rerender(); };
@@ -2143,7 +2154,9 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
         toast("Презентация изменилась во время поиска. Запустите подбор ещё раз.", 5000);
         return;
       }
-      const out = autoFullFrame(filled, Ls.params || {});
+      /* незаполненные поисковые заготовки убираем: пустых рамок на слайдах быть не должно */
+      const cleaned = window.DeckAiPics?.dropPending ? window.DeckAiPics.dropPending(filled) : filled;
+      const out = autoFullFrame(cleaned, Ls.params || {});
       if (out === before) { toast("Новых подходящих изображений не найдено.", 6000); return; }
       Ls.slidesFitted = false;
       write(splitSlides(out).map(parse)); rerender();
