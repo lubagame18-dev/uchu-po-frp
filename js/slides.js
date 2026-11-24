@@ -1687,10 +1687,17 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     look.bg = bgc;
     const addImg = async (img, fig) => {
       const b = box(img); if (b.w < .05 || b.h < .05) return;
+      const src = fig ? fig.dataset.src : img.dataset.src;
       const o = Media.parseOpts ? { z: fig?.dataset.z, x: fig?.dataset.x, y: fig?.dataset.y } : {};
       const cs = getComputedStyle(img);
-      const data = await imgCanvas(fig ? fig.dataset.src : img.dataset.src, o, b.pw, b.ph, cs.objectFit === "cover" ? "cover" : "contain", cs.objectPosition);
-      if (data) s.addImage({ data, x: b.x, y: b.y, w: b.w, h: b.h });
+      let data = null;
+      try {
+        data = await imgCanvas(src, o, b.pw, b.ph, cs.objectFit === "cover" ? "cover" : "contain", cs.objectPosition);
+      } catch (e) { console.warn("[картинки] PowerPoint: не удалось подготовить изображение:", (e?.message || e) + " · " + String(src || "").slice(0, 40)); }
+      if (data) { s.addImage({ data, x: b.x, y: b.y, w: b.w, h: b.h }); return; }
+      /* Картинка не открылась — не оставляем пустоту: рисуем аккуратную рамку-плейсхолдер. */
+      console.warn("[картинки] PowerPoint: изображение не вставлено, поставлена рамка:", String(src || "").slice(0, 40));
+      s.addShape(pptx.ShapeType.rect, { x: b.x, y: b.y, w: b.w, h: b.h, fill: { color: "F4F1EA" }, line: { color: "C9BFAE", dashType: "dash", width: 1 } });
     };
     // фон-картинка слайда и картинка-акцент
     const bgImg = sx.querySelector("img.sx-bgimg"); if (bgImg && bgImg.dataset.src) await addImg(bgImg, null);

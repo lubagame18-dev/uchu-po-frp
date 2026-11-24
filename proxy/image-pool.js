@@ -47,6 +47,39 @@ async function queue(request, readAll) {
   return fresh.length ? fresh : ord;
 }
 const sizeOf = (aspect, model) => { const dalle = /dall-e-3/.test(model); return aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024"); };
+/* ---------------------------------------------------------------
+   Ответ сервиса → готовая картинка в data URL (байты в памяти, без записи на диск/S3).
+   Сервисы возвращают по-разному: b64_json (иногда уже с префиксом data:), url, images[].
+   Если пришла ссылка — скачиваем её здесь же: браузер учителя не может (CORS) и не должен. */
+function pickPayload(j) {
+  const out = [];
+  const add = v => {
+    if (typeof v === "string") { if (v.trim()) out.push(v.trim()); return; }
+    if (Array.isArray(v)) { v.forEach(add); return; }
+    if (!v || typeof v !== "object") return;
+    add(v.b64_json); add(v.url); add(v.base64); add(v.image); add(v.data);
+    if (v.image_url) add(v.image_url.url || v.image_url);
+  };
+  add(j?.data); add(j?.image); add(j?.url); add(j?.b64_json); add(j?.images); add(j?.output); add(j?.artifacts);
+  for (const v of out) {
+    const s = String(v).trim();
+    if (/^data:image\//i.test(s) || /^https?:\/\//i.test(s)) return s;
+    if (/^[A-Za-z0-9+/=\s]{80,}$/.test(s)) return s.replace(/\s+/g, "");
+  }
+  return "";
+}
+async function asDataUrl(im, fetchImage) {
+  const s = String(im || "").trim();
+  if (!s) return "";
+  if (/^data:image\//i.test(s)) return s; // уже data URL — не добавляем второй префикс
+  if (/^https?:\/\//i.test(s)) {
+    if (!fetchImage) return s;
+    try { const r = await fetchImage(s); return `data:${r.type};base64,${r.buf.toString("base64")}`; }
+    catch (e) { console.error("[картинки] не удалось скачать ссылку от сервиса:", String(e.message || e).slice(0, 160)); throw Object.assign(new Error("сервис вернул ссылку на картинку, но скачать её не удалось: " + (e.message || e)), { status: 502 }); }
+  }
+  if (/^data:/i.test(s)) throw Object.assign(new Error("сервис вернул не картинку: " + s.slice(0, 40)), { status: 502 });
+  return `data:image/png;base64,${s.replace(/^data:[^,]*;base64,/i, "")}`;
+}
 /* Один запрос к одному ключу: 3 попытки с упрощением параметров (некоторые сервисы не знают response_format / size) */
 async function one(a, prompt, aspect, request, readAll, only) {
   const base = (a.url || DEF_URL()).replace(/\/+$/, ""), model = a.model || DEF_MODEL();
@@ -61,7 +94,7 @@ async function one(a, prompt, aspect, request, readAll, only) {
   }
   return { status: res.statusCode, text };
 }
-async function image(prompt, aspect, request, readAll, onlySlot) {
+async function image(prompt, aspect, request, readAll, onlySlot, fetchImage) {
   let accounts = await queue(request, readAll);
   if (onlySlot) accounts = (await pool(request, readAll)).filter(a => a.slot === +onlySlot && !isPlaceholder(a.key));
   if (!accounts.length) { const e = new Error("на сервере не подключён ни один общий ключ для картинок"); e.status = 503; e.reason = "no_key"; throw e; }
@@ -72,8 +105,9 @@ async function image(prompt, aspect, request, readAll, onlySlot) {
       if (r.skip) continue;
       if (r.status === 200) {
         let j = {}; try { j = JSON.parse(r.text); } catch { }
-        const d = j.data?.[0], im = d?.b64_json ? "data:image/png;base64," + d.b64_json : d?.url || "";
-        if (!im) { lastErr = { status: 502, text: "сервис не вернул картинку" }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text }); rest.set(a.id, Date.now() + 60e3); continue; }
+        const raw = pickPayload(j);
+        if (!raw) { lastErr = { status: 502, text: "сервис не вернул картинку" }; last.set(a.id, { at: Date.now(), status: 502, error: lastErr.text }); rest.set(a.id, Date.now() + 60e3); continue; }
+        const im = await asDataUrl(raw, fetchImage);
         rest.delete(a.id); last.set(a.id, { at: Date.now(), status: 200 });
         return { image: im, account: mask(a.label) };
       }
@@ -110,20 +144,20 @@ async function spend(c, request, readAll) {
   await sb(request, readAll, `/rest/v1/profiles?id=eq.${c.id}`, { method: "PATCH", body: { img_month: c.month, img_used: c.used + 1 } });
 }
 /* Запрос сайта: POST /image {prompt, aspect}. Лист с картинками = 1 единица лимита; сайт присылает kind:"sheet" один раз на лист, остальные запросы того же листа — kind:"part" (не списываются) */
-async function handle(body, userToken, request, readAll) {
+async function handle(body, userToken, request, readAll, fetchImage) {
   const prompt = String(body.prompt || "").slice(0, 3000), aspect = /^(1:1|3:4|4:3|16:9|9:16)$/.test(body.aspect) ? body.aspect : "16:9";
   if (!prompt) return { status: 400, json: { error: "нет описания картинки" } };
   const c = await check(userToken, request, readAll);
   if (!c.ok) return { status: c.status, json: { error: c.message, reason: c.reason } };
   if (c.left !== undefined && c.left <= 0 && body.kind !== "part") return { status: 402, json: { error: "Лимит листов с картинками на этот месяц исчерпан (6 в месяц). Он обновится в начале следующего месяца.", reason: "quota" } };
   try {
-    const r = await image(prompt, aspect, request, readAll);
+    const r = await image(prompt, aspect, request, readAll, undefined, fetchImage);
     if (body.kind !== "part") await spend(c, request, readAll);
     return { status: 200, json: { image: r.image } };
   } catch (e) { return { status: e.status || 502, json: { error: e.message, reason: e.reason } }; }
 }
 /* ---------- управление ячейками с сайта (только автору сайта) ---------- */
-async function admin(body, request, readAll) {
+async function admin(body, request, readAll, fetchImage) {
   if (!SB().url || !SB().key) return { status: 400, json: { error: "в функции не заданы SUPABASE_URL и SUPABASE_SERVICE_KEY" } };
   const act = body.action || "list", slot = Math.round(+body.slot);
   if (act !== "list" && !(slot >= 1 && slot <= MAX_SLOT)) return { status: 400, json: { error: "ячейка — от 1 до " + MAX_SLOT } };
@@ -144,7 +178,7 @@ async function admin(body, request, readAll) {
   if (act === "test") {
     const a = (await pool(request, readAll)).find(x => x.slot === slot);
     if (!a || isPlaceholder(a.key)) test = { ok: false, message: "в ячейке нет ключа" };
-    else { try { await image("A simple smiling sun, flat vector, white background. No text.", "1:1", request, readAll, slot); test = { ok: true, message: "ключ работает: тестовая картинка нарисована" }; } catch (e) { test = { ok: false, message: e.message }; } }
+    else { try { await image("A simple smiling sun, flat vector, white background. No text.", "1:1", request, readAll, slot, fetchImage); test = { ok: true, message: "ключ работает: тестовая картинка нарисована" }; } catch (e) { test = { ok: false, message: e.message }; } }
   }
   const now = Date.now();
   const existingSlots = (rows || []).map(r => +r.slot).filter(n => n >= 1);

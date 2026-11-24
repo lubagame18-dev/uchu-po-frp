@@ -74,17 +74,17 @@ ok(slides.includes("dropPending"), "«Подобрать картинки» то
 
 console.log("3. Генерация для всех предметов");
 ok(/async function aiDeckPics\(L, opts = \{\}\)/.test(app), "aiDeckPics умеет и сборку, и ручной запуск");
-ok(/window\.DeckAiPics = \{ run:/.test(app), "есть точка входа для кнопки");
+ok(/window\.DeckAiPics = \{\s*run:/.test(app), "есть точка входа для кнопки");
 ok(/manual \? 6 : 4/.test(app), "при ручном запуске больше картинок, при сборке — 4");
 ok(!/filter\(i => !realVisual\(slides\[i\]\)\)/.test(app), "старый запрет на портреты/картины убран");
 ok(/do not draw a recognisable face/.test(app), "для реальных людей/картин ИИ просят нейтральную иллюстрацию");
 ok(/иллюстрация \(нейросеть\)/.test(app), "такая картинка подписана честно");
-ok(/for \(const i of pick\)/.test(app) && /spreadIdx/.test(app), "слайды выбираются равномерно по презентации");
+ok(/for \(let k = 0; k < pick\.length/.test(app) && /spreadIdx/.test(app), "слайды выбираются равномерно по презентации");
 
 console.log("4. При сборке пустые рамки убираются всегда");
 ok(/const clean = dropPendingPics\(L\.docs\.slides\)/.test(app), "сборка урока чистит незаполненные места");
 ok(/formats\.includes\("slides"\) && L\.docs\?\.slides/.test(app), "делается это для презентаций");
-ok(/L\._after = async[\s\S]{0,900}aiDeckPics\(L\)/.test(app), "этап ИИ-картинок подключён к сборке");
+ok(/L\._after = async[\s\S]{0,1600}aiDeckPics\(L, \{ onStep/.test(app), "этап ИИ-картинок подключён к сборке");
 
 if (failed) { console.log(`\nПРОВАЛ: ${failed}`); process.exit(1); }
 console.log("\nВсе проверки пройдены.");

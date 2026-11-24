@@ -815,13 +815,13 @@ async function handler(req, res) {
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
       const anyUser = req.headers["x-user-token"] ? await Q.validUser(req.headers["x-user-token"], request, readAll) : null;
       if (!tokOk && !anyUser) return send(res, 403, { error: "войдите в кабинет сайта, чтобы открыть общие ключи" });
-      const r = await IMG.admin(body, request, readAll); return send(res, r.status, r.json);
+      const r = await IMG.admin(body, request, readAll, fetchImage); return send(res, r.status, r.json);
     }
     if (route === "/image") {
       // картинка для листа/презентации: вход, тариф «Учитель + ИИ» или «Методист», месячный лимит; ключи — пул из 5 ячеек с переключением
       const adm = await Q.isAdmin(req.headers["x-user-token"], request, readAll);
-      if (adm) { try { const r = await IMG.image(String(body.prompt || "").slice(0, 3000), /^(1:1|3:4|4:3|16:9|9:16)$/.test(body.aspect) ? body.aspect : "16:9", request, readAll); return send(res, 200, { image: r.image }); } catch (e) { return send(res, e.status || 502, { error: e.message, reason: e.reason }); } }
-      const r = await IMG.handle(body, req.headers["x-user-token"], request, readAll); return send(res, r.status, r.json);
+      if (adm) { try { const r = await IMG.image(String(body.prompt || "").slice(0, 3000), /^(1:1|3:4|4:3|16:9|9:16)$/.test(body.aspect) ? body.aspect : "16:9", request, readAll, null, fetchImage); return send(res, 200, { image: r.image }); } catch (e) { return send(res, e.status || 502, { error: e.message, reason: e.reason }); } }
+      const r = await IMG.handle(body, req.headers["x-user-token"], request, readAll, fetchImage); return send(res, r.status, r.json);
     }
     if (route === "/free/use") { const ip2 = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim(); const r = await Q.freeUse(req.headers["x-user-token"], body, ip2, request, readAll); return send(res, r.ok ? 200 : r.status, r.ok ? r : { error: r.message, reason: r.reason }); }
     if (route === "/pay/test") {

@@ -48,9 +48,82 @@ const ImageGen = (() => {
   const configured = () => own() || (!!siteUrl() && !isDevUser()) || freeOn();
   const trim = u => String(u || "").replace(/\/+$/, "");
   const withTimeout = (ms, f) => { const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms); return f(ctl.signal).finally(() => clearTimeout(t)); };
-  const toDataUrl = (mime, b64) => `data:${mime || "image/png"};base64,${b64}`;
+  /* любой ответ приводим к data URL и не добавляем второй префикс, если сервис уже вернул data:…;base64 */
+  const toDataUrl = (mime, b64) => { const s = String(b64 || "").trim(); if (/^data:image\//i.test(s)) return s; return `data:${mime || "image/png"};base64,${s.replace(/^data:[^,]*;base64,/i, "")}`; };
   const err = (r, body) => { const m = (body && ((typeof body.error === "string" ? body.error : body.error?.message) || body.message || body.detail)) || ""; const e = new Error(`${r.status} ${r.status === 401 || r.status === 403 ? "ключ не подошёл или нет доступа" : r.status === 429 ? "превышен лимит запросов" : r.status === 402 ? "недостаточно средств на счёте" : r.status === 503 ? "сервис перегружен или не подключён" : "ошибка сервиса"}${m ? ": " + String(m).slice(0, 160) : ""}`); e.status = r.status; return e; };
-  const fromUrl = async (u, signal) => { if (/^data:/.test(u)) return u; const r = await fetch(u, { signal }); const b = await r.blob(); return await new Promise(ok => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(b); }); };
+  const cleanB64 = s => String(s || "").trim().replace(/^data:[^,]*;base64,/i, "").replace(/\s+/g, "");
+  const looksB64 = s => /^[A-Za-z0-9+/=]{80,}$/.test(cleanB64(s));
+  /* Разбирает ответ любого OpenAI-совместимого сервиса: base64, data URL или ссылка.
+     Сервисы кладут картинку по-разному: data[0].b64_json/url, output[0], images[], artifacts[], message.images[].
+     Возвращает {kind:"data"|"url"|"raw", value}. Пустой/непонятный ответ → null. */
+  function extractImage(j) {
+    const out = [];
+    const add = v => {
+      if (typeof v === "string") { if (v.trim()) out.push(v.trim()); return; }
+      if (Array.isArray(v)) { v.forEach(add); return; }
+      if (!v || typeof v !== "object") return;
+      add(v.url); add(v.b64_json); add(v.base64); add(v.image); add(v.data);
+      if (v.image_url) add(v.image_url.url || v.image_url);
+    };
+    add(j?.data); add(j?.image); add(j?.url); add(j?.b64_json); add(j?.images); add(j?.output); add(j?.artifacts);
+    add(j?.choices?.[0]?.message?.images); add(j?.choices?.[0]?.message?.content);
+    for (const v of out) {
+      const s = String(v).trim();
+      if (!s) continue;
+      if (/^data:image\/[a-z0-9.+-]+;base64,/i.test(s)) return { kind: "data", value: s };
+      if (/^https?:\/\//i.test(s)) return { kind: "url", value: s };
+      if (looksB64(s)) return { kind: "raw", value: cleanB64(s) };
+    }
+    return null;
+  }
+  const blobToDataUrl = b => new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.onerror = () => no(new Error("картинка не прочиталась")); fr.readAsDataURL(b); });
+  const isImageBlob = b => /^image\//i.test(String(b?.type || ""));
+  /* Скачивает картинку по ссылке: сначала напрямую, при CORS — через серверный прокси сайта.
+     Результат — data URL: байты живут в памяти, на диск и в S3 ничего не пишем. */
+  async function fromUrl(u, signal) {
+    const s = String(u || "").trim();
+    if (/^data:image\//i.test(s)) return s;
+    const grab = async (url, opts) => { const r = await fetch(url, opts); if (!r.ok) throw new Error("HTTP " + r.status); const b = await r.blob(); if (!isImageBlob(b)) throw new Error("ответ не картинка (" + (b.type || "без типа") + ")"); return blobToDataUrl(b); };
+    try { return await grab(s, { signal }); }
+    catch (e) {
+      try {
+        const media = (typeof Media !== "undefined" && Media) || window.Media;
+        const b = media?.toBlob ? await media.toBlob(s) : null;
+        if (b && isImageBlob(b)) return await blobToDataUrl(b);
+      } catch (e2) { }
+      console.warn("[картинки] ссылку на картинку не удалось скачать в браузере:", e?.message || e);
+      throw new Error("не удалось получить файл картинки по ссылке: " + (e?.message || e));
+    }
+  }
+
+  /* ---------- бюджет на догенерирование картинок ----------
+     Картинка стоит денег (Intelion ~0,32 ₽ за кадр), поэтому за один заход рисуем не больше,
+     чем позволяет остаток месячного бюджета и потолок на заход. Бюджет хранится только в этом
+     браузере; тарифный лимит сайта считается отдельно (6 листов с картинками в месяц). */
+  const BUDGET_KEY = "uchu:img-budget", SPENT_KEY = "uchu:img-spent";
+  const COST_RUB = { intelion: 0.32, hub: 0.22, images: 0.4, chat: 0.4, gemini: 0.35, openai: 3, proxy: 0.32 };
+  const budgetCfg = () => { let b = {}; try { b = JSON.parse(localStorage.getItem(BUDGET_KEY) || "{}"); } catch { } return { rub: +b.rub > 0 ? +b.rub : 30, perRun: +b.perRun > 0 ? Math.min(8, +b.perRun) : 6 }; };
+  const monthKey = () => new Date().toISOString().slice(0, 7);
+  const spentOf = () => { let s = {}; try { s = JSON.parse(localStorage.getItem(SPENT_KEY) || "{}"); } catch { } if (s.month !== monthKey()) s = { month: monthKey(), rub: 0, n: 0 }; return { rub: +s.rub || 0, n: +s.n || 0, month: s.month }; };
+  const saveSpent = s => { try { localStorage.setItem(SPENT_KEY, JSON.stringify(s)); } catch { } };
+  /* сколько примерно стоит одна картинка на текущем подключении (0 — бесплатный запасной генератор) */
+  const costOf = () => { const c = load(); if (own()) return COST_RUB[c.provider] ?? 0.4; if (siteUrl()) return COST_RUB.intelion; return 0; };
+  /* сколько картинок можно нарисовать за один заход, чтобы не выйти за бюджет */
+  const budget = (o = {}) => {
+    const b = budgetCfg(), s = spentOf(), per = costOf(), left = Math.max(0, b.rub - s.rub);
+    const want = Math.max(0, Math.min(8, +o.max > 0 ? +o.max : b.perRun));
+    const byMoney = per > 0 ? Math.floor(left / per + 1e-9) : want;
+    const max = Math.max(0, Math.min(want, byMoney));
+    return { max, want, per, left, spent: s.rub, monthBudget: b.rub, perRun: b.perRun, month: s.month, reason: max ? "" : left <= 0 ? "месячный бюджет на картинки исчерпан" : "на одну картинку бюджет уже не хватает" };
+  };
+  const spend = (n = 1) => { if (!n) return spentOf(); const s = spentOf(); s.rub = Math.round((s.rub + costOf() * n) * 100) / 100; s.n += n; saveSpent(s); return s; };
+
+  /* ---------- буфер картинок в памяти (без записи на диск и в S3) ----------
+     Сгенерированные байты держим в Blob, пока собирается презентация; после сборки освобождаем. */
+  const mem = new Map();
+  const dataUrlToBlob = u => { try { const s = String(u || ""); const i = s.indexOf(","); if (i < 0) return null; const mime = (s.slice(0, i).match(/data:([^;]+)/) || [])[1] || "image/jpeg"; const bin = atob(s.slice(i + 1)); const arr = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k); return new Blob([arr], { type: mime }); } catch { return null; } };
+  const remember = r => { try { const b = r?.blob || dataUrlToBlob(r?.url); if (b) { r.blob = b; r.id = "mem-" + Math.random().toString(36).slice(2, 10); mem.set(r.id, { blob: b, at: Date.now() }); while (mem.size > 24) mem.delete(mem.keys().next().value); } } catch (e) { console.warn("[картинки] буфер в памяти:", e?.message || e); } return r; };
+  const release = id => { try { if (id) mem.delete(id); else mem.clear(); } catch { } };
 
   /* ---------- запасной бесплатный генератор (без ключей) ----------
      Нужен, когда общий ключ картинок на сервере сайта перестал работать: учитель не остаётся
@@ -87,52 +160,62 @@ const ImageGen = (() => {
 
   async function raw(prompt, o = {}) {
     const c = load(), P = PRESET[c.provider] || PRESET.gemini, aspect = o.aspect || "16:9", model = c.model || P.model, base = trim(c.base || P.base);
-    if (!configured()) throw new Error("Подключение к Nano Banana не настроено");
-    if (!own()) {
-      return withTimeout(o.timeout || 90000, async signal => {
-        const tok = window.Account?.session?.access || "";
-        const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect, kind: o.kind || "sheet" }) });
-        const j2 = await r2.json().catch(() => ({}));
-        if (r2.status === 401) throw new Error("войдите в личный кабинет");
-        if (r2.status === 403) throw new Error("картинки входят в тариф «С ИИ»: 6 листов в месяц");
-        if (!r2.ok) { const e = err(r2, j2); e.fromServer = true; throw e; }
-        const im = j2.image || j2.data || j2.url; if (!im) { const e = new Error("сервер не вернул картинку"); e.status = 502; e.fromServer = true; throw e; }
-        return /^(data:|https?:)/.test(im) ? fromUrl(im, signal) : toDataUrl("image/png", im);
+    if (!configured()) throw new Error("Подключение к картинкам не настроено");
+    /* ответ сервиса → data URL; ссылку скачиваем сами (при CORS — через сервер сайта) */
+    const finish = (got, signal) => {
+      if (!got) { const e = new Error("сервис не вернул картинку"); e.status = 502; throw e; }
+      if (got.kind === "url") return fromUrl(got.value, signal);
+      if (got.kind === "data") return got.value;
+      return toDataUrl("image/png", got.value);
+    };
+    try {
+      if (!own()) {
+        return await withTimeout(o.timeout || 90000, async signal => {
+          const tok = window.Account?.session?.access || "";
+          const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect, kind: o.kind || "sheet" }) });
+          const j2 = await r2.json().catch(() => ({}));
+          if (r2.status === 401) throw new Error("войдите в личный кабинет");
+          if (r2.status === 403) throw new Error("картинки входят в тариф «С ИИ»: 6 листов в месяц");
+          if (!r2.ok) { const e = err(r2, j2); e.fromServer = true; throw e; }
+          const got = extractImage(j2);
+          if (!got) { const e = new Error("сервер не вернул картинку"); e.status = 502; e.fromServer = true; throw e; }
+          return finish(got, signal);
+        });
+      }
+      return await withTimeout(o.timeout || 90000, async signal => {
+        let r, j;
+        if (c.provider === "gemini") {
+          r = await fetch(`${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: "POST", signal, headers: { "Content-Type": "application/json", "x-goog-api-key": c.key }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: aspect } } }) });
+          j = await r.json().catch(() => ({})); if (!r.ok) throw err(r, j);
+          const part = (j.candidates?.[0]?.content?.parts || []).find(x => x.inlineData || x.inline_data); const d = part?.inlineData || part?.inline_data;
+          if (d?.data) return toDataUrl(d.mimeType || d.mime_type, d.data);
+          return finish(extractImage(j), signal);
+        }
+        if (c.provider === "images" || c.provider === "hub" || c.provider === "openai" || c.provider === "intelion") {
+          const dalle = /dall-e-3/.test(model), size = aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024");
+          const go = body => fetch(`${base}${c.path || "/images/generations"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify(body) });
+          const bd = c.provider === "intelion"
+            ? { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size }
+            : { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" };
+          r = await go(bd); j = await r.json().catch(() => ({}));
+          if (!r.ok && r.status === 400) { delete bd.response_format; r = await go(bd); j = await r.json().catch(() => ({})); }
+          if (!r.ok && r.status === 400) { delete bd.size; r = await go(bd); j = await r.json().catch(() => ({})); }
+          if (!r.ok) throw err(r, j);
+          return finish(extractImage(j), signal);
+        }
+        if (c.provider === "chat") {
+          r = await fetch(`${base}${c.path || "/chat/completions"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify({ model, modalities: ["image", "text"], messages: [{ role: "user", content: `${prompt} Aspect ratio ${aspect}.` }] }) });
+          j = await r.json().catch(() => ({})); if (!r.ok) throw err(r, j);
+          return finish(extractImage(j), signal);
+        }
+        r = await fetch(c.proxy, { method: "POST", signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt, aspect }) });
+        j = await r.json().catch(() => ({})); if (!r.ok) throw err(r, j);
+        return finish(extractImage(j), signal);
       });
+    } catch (e) {
+      console.warn("[картинки] API:", (e?.message || e) + (e?.status ? " (HTTP " + e.status + ")" : ""));
+      throw e;
     }
-    return withTimeout(o.timeout || 90000, async signal => {
-      let r, j;
-      if (c.provider === "gemini") {
-        r = await fetch(`${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: "POST", signal, headers: { "Content-Type": "application/json", "x-goog-api-key": c.key }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: aspect } } }) });
-        j = await r.json().catch(() => ({})); if (!r.ok) throw err(r, j);
-        const part = (j.candidates?.[0]?.content?.parts || []).find(x => x.inlineData || x.inline_data); const d = part?.inlineData || part?.inline_data;
-        if (!d?.data) throw new Error("сервис не вернул картинку" + (j.promptFeedback?.blockReason ? ` (заблокировано: ${j.promptFeedback.blockReason})` : ""));
-        return toDataUrl(d.mimeType || d.mime_type, d.data);
-      }
-      if (c.provider === "images" || c.provider === "hub" || c.provider === "openai" || c.provider === "intelion") {
-        const dalle = /dall-e-3/.test(model), size = aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024");
-        const go = body => fetch(`${base}${c.path || "/images/generations"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify(body) });
-        const bd = c.provider === "intelion"
-          ? { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size }
-          : { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" };
-        r = await go(bd); j = await r.json().catch(() => ({}));
-        if (!r.ok && r.status === 400) { delete bd.response_format; r = await go(bd); j = await r.json().catch(() => ({})); }
-        if (!r.ok && r.status === 400) { delete bd.size; r = await go(bd); j = await r.json().catch(() => ({})); }
-        if (!r.ok) throw err(r, j);
-        const d = j.data?.[0]; if (d?.b64_json) return toDataUrl("image/png", d.b64_json); if (d?.url) return fromUrl(d.url, signal);
-        throw new Error("сервис не вернул картинку");
-      }
-      if (c.provider === "chat") {
-        r = await fetch(`${base}${c.path || "/chat/completions"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify({ model, modalities: ["image", "text"], messages: [{ role: "user", content: `${prompt} Aspect ratio ${aspect}.` }] }) });
-        j = await r.json().catch(() => ({})); if (!r.ok) throw err(r, j);
-        const m = j.choices?.[0]?.message, u = m?.images?.[0]?.image_url?.url || (Array.isArray(m?.content) ? m.content.find(x => x.type === "image_url")?.image_url?.url : "") || (String(m?.content || "").match(/data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+/) || [])[0];
-        if (!u) throw new Error("сервис не вернул картинку"); return fromUrl(u, signal);
-      }
-      r = await fetch(c.proxy, { method: "POST", signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt, aspect }) });
-      j = await r.json().catch(() => ({})); if (!r.ok) throw err(r, j);
-      const im = j.image || j.data || j.url; if (!im) throw new Error("функция не вернула картинку");
-      return /^(data:|https?:)/.test(im) ? fromUrl(im, signal) : toDataUrl("image/png", im);
-    });
   }
   /* картинка сжимается до разумного размера: лист хранится в браузере и уходит в Word */
   const shrink = (url, maxW = 1100, q = 0.86, strip = 0) => new Promise((ok, no) => {
@@ -149,7 +232,7 @@ const ImageGen = (() => {
     const noServer = () => !own() && !siteUrl(); // адрес сервера не задан вовсе — сразу запасной генератор
     if (!noServer() && (!freeReady() || Date.now() - serverBrokenAt > 120e3)) {
       for (let i = 0; i < 3; i++) {
-        try { return await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0); }
+        try { return remember(await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0)); }
         catch (e) {
           last = e;
           if (/401|403|402|не настроено|войдите|тариф/.test(String(e.message))) break;
@@ -161,7 +244,7 @@ const ImageGen = (() => {
     if (freeReady() && (noServer() || serverDown(last) || serverBrokenAt || /не настроено/i.test(String(last && last.message)))) {
       try {
         const u = await freeRaw(prompt, o.aspect || "16:9");
-        const r = await shrink(u, o.maxW, 0.86, o.strip || 0);
+        const r = remember(await shrink(u, o.maxW, 0.86, o.strip || 0));
         r.free = true;
         return r;
       } catch (e2) { const fm = "запасной бесплатный генератор " + (e2.message || e2); if (last) last.message = String(last.message) + "; " + fm; else last = e2; }
@@ -173,6 +256,24 @@ const ImageGen = (() => {
   /* ---------- описание картинки по теме урока ---------- */
   const NEG = "No text, no letters, no numbers, no words, no logos, no watermark, no arrows, no underlines, no frames.";
   const SUBJ = { ru: "Russian language", lit: "literature", math: "mathematics", hist: "history", eng: "English language", bio: "biology", geo: "geography", phys: "physics", chem: "chemistry", soc: "social studies", inf: "computer science" };
+  /* ---------- стиль картинки по предмету (для слайдов и фонов) ----------
+     Точные науки: схема, разрез, 3D-модель, инфографика процесса — без «красивых» выдумок.
+     Гуманитарные: историческая достоверность, эпоха, костюм, предметы быта, живописная иллюстрация
+     или фотореализм; без современных предметов в исторической сцене и без выдуманных портретов. */
+  const STYLE = {
+    exact: { group: "exact sciences", style: "Scientific infographic or clean 3D model: accurate structure, cross-section, stages of the process, laboratory apparatus, thin clear outlines, restrained palette, no decorative clutter. Labels are not drawn — the site adds explanations itself.", negative: "no fantasy elements, no wrong physical/chemical structure, no invented data" },
+    science: { group: "natural sciences", style: "Realistic but simplified scientific illustration: accurate species, organs, cells or ecosystem, cross-section or life-cycle diagram, natural muted palette, clean background.", negative: "no invented creatures, no cartoon anatomy, no wrong proportions" },
+    humanities: { group: "humanities", style: "Historically accurate illustration or photo-realistic scene: correct period, clothing, architecture, objects and setting; painterly lighting; no modern items in a historical scene; do not invent portraits, attributions or documentary evidence.", negative: "no anachronisms, no invented famous-person likeness, no fake museum label or signature" },
+    art: { group: "arts", style: "Museum-quality painterly illustration: careful colour and texture of canvas or paper, classical composition, atmospheric light.", negative: "no fake signature, no fake frame label, no collage of unrelated styles" },
+    primary: { group: "primary school", style: "Friendly cartoon illustration for primary school: big rounded shapes, cheerful faces, simple clear objects, bright but soft colours, one focal scene.", negative: "no scary imagery, no small unreadable details" }
+  };
+  const SUBJ_GROUP = { phys: "exact", chem: "exact", math: "exact", inf: "exact", astr: "exact", vis: "exact", bio: "science", okr: "science", geo: "humanities", hist: "humanities", lit: "humanities", mhk: "humanities", soc: "humanities", ru: "humanities", eng: "humanities", orkse: "humanities", obzh: "humanities", pe: "humanities", izo: "art", mus: "art" };
+  const styleFor = (p = {}) => {
+    const g = +p.grade || 7;
+    if (g <= 4) return { ...STYLE.primary };
+    const s = STYLE[SUBJ_GROUP[p.subject]] || STYLE.exact;
+    return { ...s };
+  };
   const banner = p => {
     const g = +p.grade || 7, small = g <= 4;
     const who = small ? "Cute friendly cartoon characters and large simple objects, big rounded shapes, cheerful." : g <= 9 ? "Modern flat vector illustration with a few expressive objects." : "Calm modern flat vector illustration, restrained, a few elegant objects.";
@@ -338,6 +439,6 @@ const ImageGen = (() => {
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url, free: !!r.free, provider: r.free ? "бесплатный запасной генератор" : "общий ключ сайта" }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { photos, slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF, freeOn, freeRaw, FREE, keyProvider, looksLikeUrl, fixSlotForm, KEY_PROVIDERS };
+  return { photos, slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF, freeOn, freeRaw, FREE, keyProvider, looksLikeUrl, fixSlotForm, KEY_PROVIDERS, styleFor, STYLE, SUBJ, SUBJ_GROUP, extractImage, toDataUrl, fromUrl, budget, spend, costOf, release, mem, dataUrlToBlob };
 })();
 window.ImageGen = ImageGen;

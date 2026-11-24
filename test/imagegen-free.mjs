@@ -54,7 +54,8 @@ function harness({ server, free, imgCfg = {}, site = SITE_FN } = {}) {
   return { gen: ctx.window.ImageGen, calls };
 }
 
-const serverOk = () => jsonRes(200, { image: "QUJD" });
+const B64 = "QUJD".repeat(60);
+const serverOk = () => jsonRes(200, { image: B64 });
 const freeOk = () => jsonRes(200, { image: "QUJD" });
 const PROMPT = "Educational illustration about the lesson topic, no text, no letters. " + "x".repeat(600);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -116,7 +117,7 @@ async function main() {
 
   console.log("5. Свой ключ разработчика — бесплатный генератор не трогаем");
   {
-    const { gen, calls } = harness({ server: u => (u.includes("yandexcloud") ? jsonRes(500, { error: "нельзя" }) : jsonRes(200, { data: [{ b64_json: "QUJD" }] })), free: freeOk, imgCfg: { provider: "images", key: "sk-own", base: "https://api.example.ru/v1", model: "flux-schnell" } });
+    const { gen, calls } = harness({ server: u => (u.includes("yandexcloud") ? jsonRes(500, { error: "нельзя" }) : jsonRes(200, { data: [{ b64_json: B64 }] })), free: freeOk, imgCfg: { provider: "images", key: "sk-own", base: "https://api.example.ru/v1", model: "flux-schnell" } });
     const r = await gen.image(PROMPT, { aspect: "16:9" });
     ok(!r.free, "картинка по своему ключу");
     ok(calls.some(u => u.startsWith("https://api.example.ru/v1/images/generations")), "запрос ушёл на свой адрес");

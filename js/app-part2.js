@@ -2258,22 +2258,38 @@ async function buildLessonFromForm() {
   // Все предметы используют общую содержательную основу; скрытая техкарта остаётся в L.tech.
   const hideTech = !formats.includes("conspect");
   const gen = ["conspect", ...formats.filter(f => f !== "conspect")];
+  // картинки — этап той же сборки: вкладка листа остаётся «в работе», пока нейросеть рисует
+  const wantDeck = formats.includes("slides") && deckPick === "ai", wantWs = formats.includes("worksheet") && wsPick === "ai";
   // сборка переживает обновление страницы: задание запоминается, после перезагрузки сайт продолжит с того листа, где остановился
-  saveJob({ id: L.id, at: Date.now(), useAi: true, gen, formats, hideTech, p: { ...pParams, extra: p.extra, textOverride: p.textOverride || null }, notes: p.notes });
+  saveJob({ id: L.id, at: Date.now(), useAi: true, gen, formats, hideTech, imgDeck: wantDeck, p: { ...pParams, extra: p.extra, textOverride: p.textOverride || null }, notes: p.notes });
   await saveLesson(L);
   if (window.Notes?.reset) Notes.reset(); // Вложения очищаем только после сохранения: отказ входа/оплаты не должен терять фото.
   formats.forEach(f => (L.status[f] = "wait"));
-  // картинки — этап той же сборки: вкладка листа остаётся «в работе», пока нейросеть рисует
-  const wantDeck = formats.includes("slides") && deckPick === "ai", wantWs = formats.includes("worksheet") && wsPick === "ai";
+  if (wantDeck) markDeckMedia(L, true, 2); // презентация не «готова», пока картинки не вставлены
   if (wantDeck || wantWs) L._after = async ({ slidesOnly = false } = {}) => {
     const stage = async (doc, label, fn) => {
       L.status[doc] = "run"; state.gen = { lessonId: L.id, doc, pct: 4, label, fake: false, ctl: new AbortController() }; updateProgress(); if (state.lesson?.id === L.id) renderLesson();
-      try { await fn(pct => { if (state.gen) { state.gen.pct = pct; updateProgress(); } }); } catch (e) { console.warn("pics", e); } finally { L.status[doc] = "ok"; state.gen = null; if (state.lesson?.id === L.id) renderLesson(); }
+      try {
+        await fn(pct => {
+          if (state.gen) { state.gen.pct = Math.max(state.gen.pct || 0, pct); updateProgress(); }
+          if (doc === "slides") setDeckMediaPct(L, pct);
+        });
+      } catch (e) { console.warn("[картинки] этап сборки:", e?.message || e); }
+      finally { L.status[doc] = "ok"; state.gen = null; if (state.lesson?.id === L.id) renderLesson(); }
     };
-    if (wantDeck) await stage("slides", "рисую картинки", () => aiDeckPics(L));
-    if (wantWs && !slidesOnly) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
+    try {
+      if (wantDeck) await stage("slides", "вставляю картинки", pct => aiDeckPics(L, { onStep: (k, n) => pct(4 + Math.round(k / Math.max(1, n) * 94)) }));
+      if (wantWs && !slidesOnly) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
+    } finally {
+      if (wantDeck) { markDeckMedia(L, false); try { window.ImageGen?.release?.(); } catch { } }
+      await saveLesson(L);
+    }
   };
-  if (!await runJob(L, p, type, gen, formats, true, hideTech)) return;
+  if (!await runJob(L, p, type, gen, formats, true, hideTech)) {
+    if (wantDeck) { markDeckMedia(L, false); try { await saveLesson(L); } catch { } }
+    return;
+  }
+  if (wantDeck) { markDeckMedia(L, false); try { await saveLesson(L); } catch { } }
   // Пустых мест под картинки на слайдах не оставляем: рамки, которые поиск и ИИ не заполнили,
   // убираем. Слайд без картинки лучше, чем пустое место; подобрать или нарисовать картинку
   // заново можно в редакторе — «Подобрать картинки» и «Картинки ИИ».
@@ -2289,14 +2305,49 @@ async function buildLessonFromForm() {
    спокойного тоста: презентация уже собрана с изображениями, которые сайт подобрал сам. */
 const imgTechFail = msg => /сервер сайта: 5\d\d|запасной бесплатный генератор|не настроено/i.test(String(msg || "")) && !/войдите|входят в тариф|подключите тариф|исчерпан|недостаточно средств/i.test(String(msg || ""));
 function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); const key = /401|403/.test(msg) ? " Сервер ответил 401/403: ключ картинок недействителен или удалён — вставьте новый." : ""; openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте общий ключ: режим разработчика → «Ключи ИИ» → вкладка «Общие ключи» → блок «Общие ключи — картинки» → «Проверить»." + key : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
+/* ---------- единый процесс «презентация + картинки» ----------
+   Презентация не считается готовой, пока картинки не вставлены: пока флаг стоит,
+   панель «Урок готов» и кнопки скачивания скрыты, а прогресс показывает один процесс.
+   Флаг переживает обновление страницы, поэтому у него есть срок давности. */
+function markDeckMedia(L, on, pct) {
+  if (!L) return;
+  try { if (on) sessionStorage.setItem("uchu:deck-media-" + L.id, "1"); else sessionStorage.removeItem("uchu:deck-media-" + L.id); } catch { }
+  if (on) L._deckMedia = { at: Date.now(), pct: Math.max(0, Math.min(99, +pct || 0)) };
+  else delete L._deckMedia;
+}
+/* Флаг «презентация ещё не готова» действует, только если сборка идёт в этой вкладке
+   (или уже идёт state.gen): старая запись после закрытия браузера файлы не блокирует. */
+function deckMediaBusy(L) {
+  const m = L?._deckMedia; if (!m) return false;
+  if (Date.now() - (+m.at || 0) > 15 * 60e3) return false;
+  if (state.gen && state.gen.lessonId === L.id) return true;
+  try { return sessionStorage.getItem("uchu:deck-media-" + L.id) === "1"; } catch { return false; }
+}
+function setDeckMediaPct(L, pct) {
+  if (!L || !L._deckMedia) return;
+  L._deckMedia.pct = Math.max(L._deckMedia.pct || 0, Math.max(0, Math.min(99, +pct || 0)));
+  if (state.gen && state.gen.lessonId === L.id) { state.gen.pct = Math.max(state.gen.pct || 0, L._deckMedia.pct); updateProgress(); }
+}
+/* Промпт картинки: контекст слайда + предмет + стиль предмета + контекст основного промпта урока. */
 function deckImagePrompt(p, sl, wish = "", o = {}) {
-  const details = String(sl.body || "").replace(Media.RE, "").replace(/[#*_`]/g, "").replace(/\s+/g, " ").trim().slice(0, 480);
-  const style = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "Clean educational illustration with high visual clarity, soft pastel palette, consistent across the presentation.";
-  return `Create one 16:9 educational illustration for ${subjName(p?.subject)}, grade ${p?.grade || ""}.
-Lesson topic: «${p?.topic || sl.title}». Slide: «${sl.title}». Teach this exact subject: ${details || sl.title}.
-Show the single named object, scene or process from the slide, with only its relevant parts and context. Preserve the species, structure, materials, period or place where specified. For an experiment, show the stated apparatus and arrangement. For art or history, do not invent an attribution or present the image as a reproduction or historical source.${o.real ? " The slide is about a real person, artwork, map or historical document: do not draw a recognisable face of a real person and do not present the result as a reproduction; show a neutral symbolic illustration of the event, place or idea instead." : ""}
-Place the focal object in the middle third, with room to crop and a quiet background on both sides for readable slide text. No text, letters, numerals, logos, watermarks, borders, or other panels.
-${style}${wish ? "\nTeacher’s visual preferences: " + wish : ""}`;
+  const details = String(sl.body || "").replace(Media.RE, "").replace(/[#*_`]/g, "").replace(/\s+/g, " ").trim().slice(0, 480).replace(/[\s.;:,]+$/, "");
+  const artStyle = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "";
+  const S = window.ImageGen?.styleFor?.(p) || { style: "Clean educational illustration with high visual clarity, soft pastel palette.", negative: "" };
+  const subject = window.ImageGen?.SUBJ?.[p?.subject] || "school subject";
+  const context = [p?.design, p?.wishes].filter(Boolean).join(" ").replace(/\s+/g, " ").trim().slice(0, 240);
+  return [
+    `Create one 16:9 educational illustration for ${subject}, grade ${p?.grade || ""}.`,
+    `Lesson topic: «${p?.topic || sl.title}». Slide: «${sl.title}». Teach exactly this: ${details || sl.title}.`,
+    `Subject style (${S.group}): ${S.style}`,
+    artStyle,
+    o.real ? "The slide is about a real person, artwork, map or historical document: do not draw a recognisable face of a real person and do not present the result as a reproduction; show a neutral symbolic illustration of the event, place or idea instead." : "",
+    "Show only the named object, scene or process with its relevant parts and context; preserve species, structure, materials, period or place where specified. For an experiment, show the stated apparatus and arrangement. Do not invent attributions or documentary evidence.",
+    "Composition: focal object in the middle third, room to crop, quiet background on both sides for readable slide text.",
+    context ? `Lesson context from the teacher: ${context}` : "",
+    "STRICT: no text, no letters, no words, no numbers, no formulas, no logos, no watermarks, no arrows, no frames, no UI panels.",
+    S.negative,
+    wish ? `Teacher’s visual preferences: ${wish}` : ""
+  ].filter(Boolean).join("\n");
 }
 /* Незаполненные места под картинки: поиск не нашёл, ИИ не нарисовал — рамку с подсказкой
    «подберите сами» с презентации убираем. Слайд не остаётся с пустым местом, а картинку
@@ -2310,57 +2361,75 @@ function dropPendingPics(md) {
 }
 const spreadIdx = (arr, n) => { if (n <= 1 || arr.length <= n) return arr.slice(0, Math.max(1, n)); const out = []; for (let k = 0; k < n; k++) out.push(arr[Math.round(k * (arr.length - 1) / (n - 1))]); return [...new Set(out)]; };
 const REAL_VISUAL = /портрет|писател|поэт|художник|композитор|учен|историческ|картина|репродукц|скульптур|памятник|архитектур|карта|фотограф|иллюстрац|биограф|произведен/i;
-/* ИИ-картинки в презентации: слайды без готового изображения, до max штук за один заход.
-   Работает для всех предметов. Поисковые заготовки, которые поиск не заполнил, заменяются
-   нарисованной картинкой. opts.manual — запуск кнопкой из редактора (можно повторно). */
+/* ИИ-картинки в презентации: слайды без готового изображения. Сколько рисовать —
+   решает бюджет (деньги и потолок за заход), а не «сколько влезет»: см. ImageGen.budget.
+   Работает для всех предметов; незаполненные поисковые заготовки заменяются картинкой.
+   opts.manual — запуск кнопкой из редактора; opts.onStep(done,total) — прогресс единого процесса;
+   opts.max — верхний потолок за заход (бюджет всё равно может уменьшить его). */
 async function aiDeckPics(L, opts = {}) {
   const manual = !!opts.manual;
   const md0 = L?.docs?.slides; if (!md0 || !window.ImageGen || !window.SlideEditor) return { n: 0 };
   const stop = msg => { if (manual) toast(msg, 10000); else imgFail(msg); };
-  if (window.Access && !Access.imagesAllowed()) { stop("ИИ-картинки входят в тариф «С ИИ»: 6 листов в месяц."); return { n: 0 }; }
-  if (window.Access && Access.imageLeft() <= 0) { stop("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца."); return { n: 0 }; }
-  if (!ImageGen.configured()) { stop("Ключ для картинок не подключён."); return { n: 0 }; }
+  if (window.Access && !Access.imagesAllowed()) { stop("ИИ-картинки входят в тариф «С ИИ»: 6 листов в месяц."); return { n: 0, reason: "plan" }; }
+  if (window.Access && Access.imageLeft() <= 0) { stop("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца."); return { n: 0, reason: "quota" }; }
+  if (!ImageGen.configured()) { stop("Ключ для картинок не подключён."); return { n: 0, reason: "no_key" }; }
+  /* Бюджет: сколько картинок можно нарисовать за этот заход и сколько это примерно стоит. */
+  const plan = window.ImageGen.budget?.({ max: opts.max || (manual ? 6 : 4) }) || { max: manual ? 6 : 4, per: 0, left: Infinity, monthBudget: 0 };
+  if (!plan.max) { toast(`Картинки не добавлены: ${plan.reason || "бюджет на картинки исчерпан"}. Презентация обновлена без новых картинок.`, 10000); return { n: 0, reason: "budget", plan }; }
   const parts = splitSlides(md0), slides = parts.map(SlideEditor.parse);
   const cand = slides.flatMap((sl, i) => sl.title && !SlideEditor.slideHasTools(sl) &&
     !/рефлекс|домашн|план урока|условные обозначения|^итог/i.test(sl.title) &&
     !sl.set.bgimg && !sl.set.stk?.some(s => s.img) &&
     ![...sl.body.matchAll(Media.RE)].some(m => !PIC_PENDING.test(m[2])) ? [i] : []);
-  const max = Math.max(1, Math.min(8, opts.max || (manual ? 6 : 4)));
   if (!cand.length) {
     const clean = dropPendingPics(md0);
     if (clean !== md0 && L.docs.slides === md0) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
     toast(manual ? "Во всех подходящих слайдах уже есть картинки. Заменить картинку можно, щёлкнув по слайду." : "ИИ-картинки не добавлены: на всех подходящих слайдах уже есть изображения или служебные блоки.", 9000);
-    return { n: 0, cleaned: clean !== md0 };
+    return { n: 0, cleaned: clean !== md0, plan };
   }
-  const pick = spreadIdx(cand, max);
-  toast(manual ? "Рисую картинки для презентации… до двух минут." : "Рисую красивые картинки для презентации…", 90000); // запасной генератор рисует медленнее
+  const pick = spreadIdx(cand, plan.max);
+  const money = plan.per > 0 ? `, ≈${(plan.per * pick.length).toFixed(2).replace(".", ",")} ₽ из ${String(plan.left.toFixed(2)).replace(".", ",")} ₽ остатка` : "";
+  toast(`Рисую картинки для презентации: ${pick.length}${money}. Это один процесс — дождитесь его окончания.`, 90000);
   let n = 0, freeN = 0, lastErr = "";
-  for (const i of pick) {
-    const sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
+  for (let k = 0; k < pick.length; k++) {
+    const i = pick[k], sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
     const real = REAL_VISUAL.test(`${sl.title || ""} ${sl.body || ""}`);
+    opts.onStep?.(k, pick.length, `картинка ${k + 1}/${pick.length}`);
     try {
       const im = await ImageGen.image(deckImagePrompt(L.params, sl, "", { real }), { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
-      const response = await fetch(im.url);
-      if (!response.ok) throw new Error("Не удалось загрузить изображение.");
-      const blob = await response.blob(), id = "img-" + uid(); await Store.put("images", id, blob);
+      /* Байты уже есть в памяти (im.blob); на диск/в S3 ничего не пишем. */
+      let blob = im.blob || null;
+      if (!blob) { try { blob = await (await fetch(im.url)).blob(); } catch (e) { console.warn("[картинки] не удалось прочитать картинку из памяти:", e?.message || e); } }
+      if (!blob || !/^image\//i.test(String(blob.type || ""))) throw new Error("картинка пришла пустой или не картинкой");
+      const id = "img-" + uid();
+      try { await Store.put("images", id, blob); }
+      catch (e) { console.warn("[картинки] не удалось сохранить картинку в хранилище браузера:", e?.message || e); throw e; }
       const body = sl.body.replace(Media.RE, (raw, _cap, src) => PIC_PENDING.test(src) ? "" : raw).trim();
       sl.body = [Media.mdImage(real ? `${title} — иллюстрация (нейросеть)` : title, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
       sl.set.afs = undefined;
       parts[i] = SlideEditor.build(sl); n++;
-      if (im.free) freeN++; // картинку дорисовал бесплатный запасной генератор: лимит тарифа не тратим
-    } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
+      if (im.free) freeN++;
+      else window.ImageGen.spend?.(1); // бесплатный запасной генератор деньги не списывает
+      ImageGen.release?.(im.id);
+    } catch (e) {
+      lastErr = String(e?.message || e);
+      console.warn("[картинки] вставка в презентацию:", lastErr);
+      if (/401|403|402|429/.test(lastErr)) break;
+    }
   }
-  const next = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
-  const clean = dropPendingPics(next);
+  opts.onStep?.(pick.length, pick.length, "вставляю на слайды");
+  /* Картинки уже вставлены. Авто-кадр — косметика: если он не сработал, слайды всё равно сохраняем. */
+  let joined;
+  try { joined = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params); }
+  catch (e) { console.warn("[картинки] авто-кадр не удался, сохраняю слайды как есть:", e?.message || e); joined = SlideEditor.joinSlides(md0, parts); }
+  let clean;
+  try { clean = dropPendingPics(joined); }
+  catch (e) { console.warn("[картинки] уборка пустых рамок не удалась:", e?.message || e); clean = joined; }
   if (n && L.docs.slides === md0) {
     L.docs.slides = clean; L.slidesFitted = false;
     if (freeN < n) window.Access?.countImage(1);
     await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
-    toast(freeN === n
-      ? `Добавлено картинок: ${n}. Их нарисовал бесплатный запасной генератор: общие ключи ИИ на сервере сейчас не работают, поэтому в углу каждой картинки — небольшая подпись сервиса. Лимит тарифа не потрачен.`
-      : freeN ? `Добавлено картинок: ${n}, из них ${freeN} — бесплатным запасным генератором (общий ключ ИИ недоступен).`
-        : `Добавлено ИИ-картинок: ${n}.`, freeN ? 14000 : 5000);
-    return { n, freeN, cleaned: clean !== md0 };
+    return { n, freeN, cleaned: clean !== md0, plan };
   }
   if (!n) {
     const m = "Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : ".");
@@ -2368,10 +2437,29 @@ async function aiDeckPics(L, opts = {}) {
     else imgFail(m);
     if (clean !== md0 && L.docs.slides === md0) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
   }
-  return { n, freeN, cleaned: clean !== md0 };
+  return { n, freeN, cleaned: clean !== md0, plan };
 }
-/* Кнопка в редакторе презентации: догенерировать картинки во всю презентацию (можно повторно). */
-window.DeckAiPics = { run: (o = {}) => aiDeckPics(state.lesson, { manual: true, max: 6, ...o }), dropPending: dropPendingPics };
+/* Кнопка в редакторе презентации: догенерировать картинки во всю презентацию (можно повторно).
+   Пока идёт рисование, презентация помечена «не готовой»: скачивание не выдаётся. */
+window.DeckAiPics = {
+  run: async (o = {}) => {
+    const L = state.lesson; if (!L) return { n: 0 };
+    const ownGen = !state.gen; // если уже идёт другой процесс — не перебиваем его прогресс
+    markDeckMedia(L, true, 2);
+    if (ownGen) state.gen = { lessonId: L.id, doc: "slides", pct: 2, label: "картинки", fake: false, ctl: new AbortController() };
+    else state.gen.label = "картинки";
+    updateProgress(); renderLesson();
+    try {
+      return await aiDeckPics(L, { manual: true, max: 6, onStep: (k, total, what) => { setDeckMediaPct(L, 2 + Math.round(k / Math.max(1, total) * 96)); if (state.gen) { state.gen.pct = Math.max(state.gen.pct || 0, 2 + Math.round(k / Math.max(1, total) * 96)); state.gen.label = what || `картинка ${k + 1}/${total}`; updateProgress(); } }, ...o });
+    } finally {
+      markDeckMedia(L, false);
+      try { window.ImageGen?.release?.(); } catch { }
+      if (ownGen) state.gen = null;
+      await saveLesson(L); renderLesson();
+    }
+  },
+  dropPending: dropPendingPics, budget: () => window.ImageGen?.budget?.({ max: 6 })
+};
 /* рабочий лист «фотографией»: страницы рисует нейросеть, текст берётся из готового листа */
 async function aiSheetPhotos(L, setPct) {
   if (!L.docs?.worksheet || !window.ImageGen) return;
@@ -3005,11 +3093,31 @@ async function resumeJob() {
   const gen = J.gen.filter(f => !L.docs[f]);
   if (!gen.length) {
     await fitGeneratedWorksheet(L, J.p);
+    /* Документы уже готовы, а картинки не успели вставиться (обновление страницы): доделываем их
+       тем же единым процессом, не выдавая презентацию без изображений. */
+    if (J.imgDeck && L.docs?.slides && window.ImageGen) {
+      markDeckMedia(L, true, 2);
+      state.gen = { lessonId: L.id, doc: "slides", pct: 2, label: "вставляю картинки", fake: false, ctl: new AbortController() };
+      if (state.lesson?.id === L.id) { updateProgress(); renderLesson(); }
+      try {
+        await aiDeckPics(L, { onStep: (k, n) => { setDeckMediaPct(L, 2 + Math.round(k / Math.max(1, n) * 96)); if (state.gen) { state.gen.pct = Math.max(state.gen.pct || 0, 2 + Math.round(k / Math.max(1, n) * 96)); state.gen.label = `картинка ${k + 1}/${n}`; updateProgress(); } } });
+      } catch (e) { console.warn("[картинки] доделать после перезагрузки:", e?.message || e); }
+      finally { state.gen = null; markDeckMedia(L, false); try { window.ImageGen?.release?.(); } catch { } }
+    }
     await saveLesson(L);
     clearJob(L.id);
     return;
   }
   J.formats.forEach(f => (L.status[f] = L.docs[f] ? "ok" : "wait"));
+  /* Презентацию помечаем «не готовой» сразу: пока не вставятся картинки, файлы не выдаются. */
+  if (J.imgDeck && J.formats.includes("slides")) {
+    markDeckMedia(L, true, 2);
+    L._after = async () => {
+      try {
+        await aiDeckPics(L, { onStep: (k, n) => setDeckMediaPct(L, 2 + Math.round(k / Math.max(1, n) * 96)) });
+      } finally { markDeckMedia(L, false); try { await saveLesson(L); } catch { } }
+    };
+  }
   const type = Engine.detectType({ subject: J.p.subject, topic: J.p.topic, lessonNo: J.p.lessonNo, grade: J.p.grade });
   const p = { ...J.p, type, notes: rec.notes || J.notes || null };
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
@@ -3363,30 +3471,52 @@ function syncRefineScope() {
 }
 async function refineDocs(list, instr) {
   const L = state.lesson; if (!L || !list.length) return;
+  const slidesScope = list.includes("slides") && !!L.docs.slides;
+  if (slidesScope) markDeckMedia(L, true, 2); // единый процесс: текст + картинки, файлы не выдаём до конца
   const before = {}; list.forEach(d => before[d] = L.docs[d]);
   try { await saveLesson({ ...L, id: L.id + "-v" + Date.now().toString(36), title: L.title + " (до правки)", docs: { ...L.docs } }); } catch { }
   window.Usage?.begin(list.length > 1 ? "Правка всего материала" : "Правка по просьбе", L.params?.topic || "");
-  let done = 0, lastErr = null;
+  let done = 0, lastErr = null, images = null;
   try {
     for (let k = 0; k < list.length; k++) {
       const d = list[k], src = before[d];
-      state.gen = { lessonId: L.id, doc: d, pct: 0, label: list.length > 1 ? `${DOCS[d].short} ${k + 1}/${list.length}` : "", ctl: new AbortController() };
+      state.gen = { lessonId: L.id, doc: d, pct: slidesScope ? 2 : 0, label: list.length > 1 ? `${DOCS[d].short} ${k + 1}/${list.length}` : (slidesScope ? "переписываю текст" : ""), ctl: new AbortController() };
       renderLesson();
       const paint = throttle(t => { if (state.lesson?.id === L.id && state.active === d) { $("#md").value = t; renderPreview(); } }, 300);
       const clean = d === "slides" ? cleanDeck : cleanMd;
       try {
         const res = await caps.sample(promptRefine(d, src, instr, L), {
           modelTier: "default", cache: false, signal: state.gen.ctl.signal,
-          onText: ({ text }) => { const part = 100 / list.length; state.gen.pct = Math.min(95, part * k + Math.min(95, text.length / Math.max(src.length, 1000) * part)); updateProgress(); if (state.active === d) paint(clean(text)); }
+          onText: ({ text }) => { const part = slidesScope ? 60 / list.length : 100 / list.length; state.gen.pct = Math.min(95, (slidesScope ? 2 : 0) + part * k + Math.min(part, text.length / Math.max(src.length, 1000) * part)); updateProgress(); if (state.active === d) paint(clean(text)); }
         });
         L.docs[d] = clean(res.text);
         L.lastRefine = instr;
         done++;
       } catch (e) { lastErr = e; if (e?.code === "cancelled") break; }
     }
-  } finally { state.gen = null; updateProgress(); }
+    /* Переделка презентации — это один процесс: после нового текста сразу вставляем картинки,
+       не закрывая сборку и не выдавая файлы. Рисуем, только если просьба про картинки/схемы
+       или на слайдах остались незаполненные места, — чтобы не тратить бюджет на каждую правку.
+       Количество картинок ограничено бюджетом. */
+    const wantPics = /картин|изображен|иллюстрац|рисун|схем|наглядн|фото/i.test(String(instr || "")) ||
+      /!\[[^\]]*\]\(\s*(?:search|commons):/i.test(String(L.docs.slides || ""));
+    if (slidesScope && done && wantPics && window.DeckAiPics?.run) {
+      state.gen = { lessonId: L.id, doc: "slides", pct: 62, label: "картинки", ctl: new AbortController() };
+      renderLesson();
+      try {
+        images = await aiDeckPics(L, {
+          manual: true,
+          onStep: (k, n, what) => {
+            if (state.gen) { state.gen.pct = Math.max(state.gen.pct || 0, 62 + Math.round(k / Math.max(1, n) * 34)); state.gen.label = what || "картинки"; updateProgress(); }
+            setDeckMediaPct(L, 62 + (k / Math.max(1, n)) * 34);
+          }
+        });
+      } catch (e) { console.warn("[презентация] картинки не добавлены:", e?.message || e); }
+    }
+  } finally { state.gen = null; if (slidesScope) { markDeckMedia(L, false); try { window.ImageGen?.release?.(); } catch { } } updateProgress(); }
   const box = $("#refineInput"); if (box) box.value = "";
-  if (done && done === list.length) toast(list.length === 1 ? "Правка внесена. Версия до правки — в «Моих уроках»." : `Правка внесена во все документы: ${done}. Версия до правки — в «Моих уроках».`, 5000);
+  const imgNote = images?.n ? ` и картинки (${images.n})` : "";
+  if (done && done === list.length) toast(list.length === 1 ? `Правка внесена${imgNote}. Версия до правки — в «Моих уроках».` : `Правка внесена во все документы: ${done}${imgNote}. Версия до правки — в «Моих уроках».`, 6000);
   else if (done) toast(`Правка внесена в ${done} из ${list.length}: ${list.filter((d, i) => i < done).map(d => DOCS[d].short).join(", ")}. Версия до правки — в «Моих уроках».`, 6000);
   if (lastErr && done < list.length) toast(sampleErr(lastErr), 7000);
   if(window.LessonQuality){
@@ -3628,11 +3758,13 @@ function renderLesson() {
   EditHistory.ensure(L, state.active, md); EditHistory.sync();
   renderPreview(); syncTools(); updateProgress(); renderDownloads();
 }
-/* Панель «Скачать»: появляется, когда листы готовы */
+/* Панель «Скачать»: появляется, когда урок и презентация действительно готовы.
+   Пока в презентацию не вставлены картинки (единый процесс сборки), файлы не выдаём. */
 function renderDownloads() {
   const L = state.lesson, box = $("#dlPanel"); if (!box) return;
-  const ready = L ? Object.keys(DOCS).filter(d => L.docs[d] && !isGenerating(L, d)) : [];
-  if (!L || !ready.length || (state.gen && state.gen.lessonId === L.id)) { box.hidden = true; return; }
+  const mediaPending = deckMediaBusy(L);
+  const ready = L ? Object.keys(DOCS).filter(d => L.docs[d] && !isGenerating(L, d) && !(mediaPending && d === "slides")) : [];
+  if (!L || !ready.length || (state.gen && state.gen.lessonId === L.id) || mediaPending) { box.hidden = true; return; }
   const fmts = d => d === "slides" ? [["pptx", "PowerPoint"], ["pdf", "PDF"], ["html", "Интерактивный HTML"]] : d === "pack" ? [["html", "Инструкция ученика (HTML)"], ["docx", "Word"], ["pdf", "PDF"], ["zip", "ZIP с файлами"]] : d === "worksheet" ? [["docx", "Word"], ["pdf", "PDF"], ["png", "PNG (как фото)"]] : [["docx", "Word"], ["pdf", "PDF"]];
   box.innerHTML = `<div class="dl-h">⬇ ${Object.values(L.status || {}).includes("err") ? "Материалы и черновики" : "Урок готов"}. Скачайте нужное:</div><div class="dl-rows">${ready.map(d => `<div class="dl-row"><b>${DOCS[d].label}</b>${fmts(d).map(([f, n]) => `<button class="btn sm ${f === "pdf" ? "flame" : "teal"}" data-dl="${d}:${f}">${n}</button>`).join("")}${d === "worksheet" ? `<label class="ws-print-field small" for="wsPrintMode">Формат печати <select id="wsPrintMode" aria-describedby="wsPrintHelp"><option value="standard">А4 книжный · 1 копия</option><option value="two-up">А4 альбомный · 2 копии</option></select></label><small class="ws-print-help" id="wsPrintHelp" hidden>Двусторонняя печать, переворот по короткому краю. Word в этом формате предназначен для печати.</small>` : ""}</div>`).join("")}<div class="dl-row"><b>Весь урок</b><button class="btn sm" data-dl="all:zip">Всё одним архивом</button></div></div>`;
   box.hidden = false;
@@ -3683,7 +3815,7 @@ $("#wsAiChk")?.addEventListener("change", e => { e.target.dataset.touched = "1";
 document.addEventListener("uchu:access", () => { try { syncStyleChoices(); } catch { } });
 function syncTools() {
   syncStyleChoices();
-  const L = state.lesson, has = !!(L && L.docs[state.active]), busy = isGenerating();
+  const L = state.lesson, has = !!(L && L.docs[state.active]), mediaPending = deckMediaBusy(L), busy = isGenerating() || mediaPending;
   if ($("#docEditActions")) $("#docEditActions").hidden = !has;
   if ($("#wsPageStatus") && (state.active !== "worksheet" || !has || busy)) $("#wsPageStatus").hidden = true;
   { const bm = $("#btnMore"); if (bm) { const bx = $("#wsMoreBox"); if (bx) bx.hidden = !(state.active === "worksheet" && has); bm.hidden = false; const n = state.lesson?.more?.length || 0, left = window.Access ? Access.sheetsLeft() : Infinity; bm.textContent = "➕ Добавить лист" + (n ? ` (уже +${n})` : "") + (left === Infinity ? "" : ` · осталось ${left}`); } }
@@ -5107,6 +5239,12 @@ async function packZipBlob(L) {
   return zip.generateAsync({ type: "blob", compression: "DEFLATE" });
 }
 async function exportOne(L, d, f) { try { window.Learn2?.learnExport?.({ subject: L.subject, grade: L.grade, kind: d, format: f }); } catch { }
+  /* Пока идёт единый процесс «текст + картинки», презентацию не выдаём: иначе учитель скачает
+     файл без изображений и решит, что генерация сломана. */
+  if ((d === "slides" || d === "all") && (deckMediaBusy(L) || (state.gen && state.gen.lessonId === L.id))) {
+    toast("Презентация ещё собирается: дождитесь, пока в неё вставятся картинки.", 7000);
+    return;
+  }
   // перед выгрузкой презентации — автоподбор шрифта и деление длинных слайдов (если редактор ещё не открывался)
   if (window.SlideEditor && (d === "slides" || d === "all") && L === state.lesson && L.docs.slides && !L.slidesFitted) { L.slidesFitted = true; SlideEditor.fitAll(); }
   if (d === "all") return exportZip(L);
