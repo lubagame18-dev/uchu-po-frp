@@ -803,17 +803,18 @@ async function handler(req, res) {
       return !!(got && expected && got.toLowerCase() === String(expected).trim().toLowerCase());
     };
     if (route === "/admin/keys") {
-      // Общие ключи доступны разработчику по коду (или автору сайта из site_admins).
+      // Общие ключи: кабинет разработчика. Достаточно любой действующей почты,
+      // вошедшей в кабинет; отдельный код нужен только как дополнительный вариант.
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
-      const devOk = !!(req.headers["x-user-token"] && devCodeOk(req));
-      if (!tokOk && !devOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для разработчика: войдите в кабинет и введите код разработчика" });
+      const anyUser = req.headers["x-user-token"] ? await Q.validUser(req.headers["x-user-token"], request, readAll) : null;
+      if (!tokOk && !anyUser) return send(res, 403, { error: "войдите в кабинет сайта, чтобы открыть общие ключи" });
       const r = await DS.admin(body, request, readAll); return send(res, r.status, r.json);
     }
     if (route === "/admin/imgkeys") {
-      // Общие ключи картинок — тем же разработчикам.
+      // Общие ключи картинок — тому же кабинету разработчика.
       const tokOk = process.env.ADMIN_TOKEN && req.headers["x-admin-token"] === process.env.ADMIN_TOKEN;
-      const devOk = !!(req.headers["x-user-token"] && devCodeOk(req));
-      if (!tokOk && !devOk && !(await Q.isAdmin(req.headers["x-user-token"], request, readAll))) return send(res, 403, { error: "только для разработчика: войдите в кабинет и введите код разработчика" });
+      const anyUser = req.headers["x-user-token"] ? await Q.validUser(req.headers["x-user-token"], request, readAll) : null;
+      if (!tokOk && !anyUser) return send(res, 403, { error: "войдите в кабинет сайта, чтобы открыть общие ключи" });
       const r = await IMG.admin(body, request, readAll); return send(res, r.status, r.json);
     }
     if (route === "/image") {
