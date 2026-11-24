@@ -2478,8 +2478,8 @@ function askWorkText(p, work, author, opts = {}) {
         <div class="mat-row"><label class="btn sm ghost file-btn">📎 Загрузить файл<input type="file" id="awFile" accept=".txt,.md,.docx,.pdf,.doc,.rtf" hidden></label><span class="small" id="awMsg"></span></div>
         <div id="awFrags"></div></li></ol>
       <div class="pk-foot"><button class="btn flame" id="awGo">${manual ? "📖 Встроить текст" : "Собрать урок с этим текстом"}</button></div>
-      <label class="check" style="margin-top:12px"><input type="checkbox" id="awSkip"> Продолжить без текста</label>
-      <div class="pk-foot"><button class="btn ghost" id="awSkipGo" disabled>Продолжить без текста</button></div>
+      <label class="check" style="margin-top:12px" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><input type="checkbox" id="awSkip"> Продолжить без текста</label>
+      <div class="pk-foot" ${(!window.Access || !Access.commercial() || Access.isDev()) ? "" : "hidden"}><button class="btn ghost" id="awSkipGo" disabled>Продолжить без текста</button></div>
       <p class="small">После этого окно закроется. Нажмите «Создать урок» ещё раз — тогда генерация начнётся без текста, но поиск текста продолжится в фоне.</p></div></div>`);
     const ta = m.querySelector("#awText"), msg = m.querySelector("#awMsg"), sk = m.querySelector("#awSkip"), skGo = m.querySelector("#awSkipGo");
     const fragBox = m.querySelector("#awFrags"), aiBtn = m.querySelector("#awAiFrags"), aiMsg = m.querySelector("#awAiMsg");
