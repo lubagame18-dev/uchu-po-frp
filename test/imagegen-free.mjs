@@ -14,7 +14,15 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const source = fs.readFileSync(path.join(root, "js", "imagegen.js"), "utf8");
+const SITE = "https://uchu-po-frp.ru/js/imagegen.js";
+/* --remote — проверяем не локальный файл, а тот, который уже выложен на сайте */
+let source = fs.readFileSync(path.join(root, "js", "imagegen.js"), "utf8");
+if (process.argv.includes("--remote")) {
+  const r = await fetch(SITE, { headers: { "Cache-Control": "no-cache" } });
+  if (!r.ok) throw new Error("не удалось взять живой js/imagegen.js: HTTP " + r.status);
+  source = await r.text();
+  console.log(`Источник: живой сайт, ${source.length} символов\n`);
+}
 const SITE_FN = "https://functions.yandexcloud.net/d4ek0q8grbhn7q5muf24";
 let failed = 0;
 const ok = (cond, name, extra = "") => { if (cond) console.log(`  ok   ${name}`); else { failed++; console.log(`  FAIL ${name}${extra ? " — " + extra : ""}`); } };
