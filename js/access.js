@@ -30,7 +30,7 @@ const Access = (() => {
     ai: ["✨", "#f05aa6", "ИИ пишет подробный конспект и правит листы по вашей просьбе"], ai50: ["🤖", "#a43fd0", "50 уроков с ИИ в месяц"],
     pics: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: 6 в месяц"],
     pics40: ["🎨", "#f05aa6", "Красивые рабочие листы с картинками: без ограничений"],
-    more: ["➕", "#ff9f1c", "Докупка уроков с ИИ в подписке — 10 ₽ за урок"], own: ["🔑", "#a43fd0", "Своя нейросеть: подключаете свой ключ"]
+    more: ["➕", "#ff9f1c", "Докупка уроков с ИИ в подписке — 10 ₽ за урок"], own: ["✨", "#a43fd0", "Своя нейросеть для опытных"]
   };
   const PLANS = {
   dev: { name: "Разработчик", price: 0, lessons: Infinity, extraSheets: 999, ai: true, img: true, imgQuota: 999, hidden: true, art: "🛠", tag: "разработчик", feats: ["unlim", "ai", "pics40", "more", "download", "cloud"] },
@@ -105,7 +105,6 @@ const Access = (() => {
   /* Перед сборкой урока: можно ли? Если нет — показываем тарифы */
   function canBuild(useAi) {
     if (useAi && !aiAllowed()) { open("Купите урок за 30 ₽ или подключите подписку «С ИИ»."); return false; }
-    if (useAi && isPromo() && !window.AI?.ownConfigured?.()) { toast("Подключите ключ своей нейросети — кнопка «⚙ Подключить ИИ» вверху.", 6000); window.AI?.openLite?.(); return false; }
     if (free() && !window.Account?.session) { toast("Чтобы создать урок, войдите в кабинет и выберите нужное количество уроков.", 7000); window.Account?.open?.(); return false; }
     if (lessonsLeft() !== null && lessonsLeft() <= 0) { open("Уроки закончились. Купите нужное количество: 30 ₽ за один урок или докупите уроки к подписке."); return false; }
     return true;
@@ -139,7 +138,7 @@ const Access = (() => {
     const featsOf = (k, p) => (pr && p.ai ? p.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : p.feats).filter(noPics);
     const m = openModal(`<div class="dialog wide tr-dlg"><div class="dlg-h"><h2>Тарифы</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       ${reason ? `<p class="tr-reason">${esc(reason)}</p>` : ""}
-      ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ работает ваша нейросеть: её ключ подключается при оформлении.</p>` : ""}${L !== "dev" && planOf(L).lessons !== Infinity ? `<p class="tr-now">Уроков доступно: <b>${lessonsLeft()??"Загрузка…"}</b></p>` : ""}
+      ${L === "dev" ? `<p class="tr-now ok">Доступ разработчика.</p>` : ""}${promoFree() ? `<p class="tr-now ok">У вас доступ по промокоду: все возможности сайта открыты, оплачивать ничего не нужно.</p>` : ""}${pr ? `<p class="tr-now ok">По промокоду все тарифы — со скидкой ${pct()}%. В тарифах с ИИ нейросеть сайта уже подключена.</p>` : ""}${L !== "dev" && planOf(L).lessons !== Infinity ? `<p class="tr-now">Уроков доступно: <b>${lessonsLeft()??"Загрузка…"}</b></p>` : ""}
       <div class="tr-grid">${Object.entries(PLANS).filter(([k, p]) => showPlan(k, p)).map(([k, p]) => `<article class="tr-card ${k === cur ? "on" : ""} ${k === "ai" ? "hot" : ""}">${k === cur && k !== "single" ? `<span class="tr-badge">${promoFree() ? "ваш доступ по промокоду" : "ваш тариф"}</span>` : ""}<div class="tr-in"><div class="tr-art" aria-hidden="true"><span>${p.art}</span><i></i><i></i></div>${p.price ? "" : `<h3>${p.name}</h3>`}<div class="tr-price">${promoFree() && k === cur ? `<s>${p.price}</s> 0 ₽` : p.price ? (pr ? `<s>${p.price}</s> ${priceOf(k)} ₽<small> ${p.once ? "за один урок" : "в " + (p.period === "год" ? "год" : "месяц")}</small>` : `${p.price} ₽<small> ${p.once ? "за один урок" : "в " + (p.period === "год" ? "год" : "месяц")}</small>`) : "0 ₽"}</div><ul class="tr-feats">${featsOf(k, p).map(f => `<li><span class="tr-ic" style="--c:${F[f][1]}">${F[f][0]}</span>${esc(F[f][2])}</li>`).join("")}</ul>${k === "single" ? `<span class="tr-cur">${cur === "single" ? "Куплен" : ""}</span><button class="btn sm flame" data-buy="single">Купить урок</button>` : k === cur ? `<span class="tr-cur">${promoFree() ? "Всё открыто по промокоду" : "Подключён сейчас"}</span>` : k === "none" || promoFree() ? "" : `<button class="btn sm flame" data-buy="${k}">${cur && planOf(cur).price && p.price > planOf(cur).price ? "Повысить" : cur && planOf(cur).price ? "Сменить" : "Выбрать"}</button>`}</div></article>`).join("")}</div>
       ${(cur === "ai" || cur === "aiYear") && !pr && !promoFree() ? `<div class="tr-packs"><b>Докупить уроки в подписке</b> ${Object.entries(PACKS).map(([k, x]) => `<button class="btn sm" data-pack="${k}">${x.name} — ${x.price} ₽</button>`).join("")}
         <details style="flex:1 1 100%;margin-top:6px"><summary class="small">Своё количество уроков (10 ₽ за урок)</summary>
@@ -205,8 +204,8 @@ const Access = (() => {
     const singleN = item === "single" ? Math.max(1, Math.min(50, Number(A.singleQty || 1))) : 0;
     const P = PLANS[item], K = PACKS[item] || custom, L = level(), pr = isPromo();
     const up = P && planOf(L).price && P.price > planOf(L).price;
-    const needKey = pr && P?.ai && !window.AI?.ownConfigured?.();
-    const feats = P ? (pr && P.ai ? P.feats.filter(f => !/^ai\d+$|^more$/.test(f)).concat("own") : P.feats).filter(f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false)) : [];
+    const needKey = false;
+    const feats = P ? (pr && P.ai ? P.feats.filter(f => !/^ai\d+$|^more$/.test(f)) : P.feats).filter(f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false)) : [];
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Оформление</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       <div class="co-item"><span class="co-art">${P ? P.art : "✨"}</span><div><b>${singleN ? `${singleN} уроков` : P ? `Тариф «${P.name}»` : K.name}</b><div class="co-price">${P ? (up ? "доплата за оставшиеся дни" : `${singleN ? singleN * 30 : priceOf(item)} ₽ ${P.once ? "итого · 30 ₽ за каждый урок" : "/ " + (P.period || "мес")}${pr ? ` <s>${P.price} ₽</s> · промокод −${pct()}%` : ""}`) : `${K.price} ₽`}</div></div></div>
       ${needKey ? `<div class="co-key"><b>Чтобы этот тариф работал, подключите ключ своей нейросети.</b><button type="button" class="btn sm flame" id="coKey">Подключить ключ</button></div>` : ""}

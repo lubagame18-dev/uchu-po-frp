@@ -39,6 +39,7 @@
 
 /* ---------- режим разработчика: всё служебное скрыто, пока режим выключен ---------- */
 body:not(.dev-on) [data-dev] { display: none !important; }
+body:not(.dev-on) #btnAi { display: none !important; }
 
 /* ---------- материалы: библиотека ---------- */
 .mat-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0 6px; }
@@ -642,6 +643,10 @@ input.secret:focus { -webkit-text-security: none; text-security: none; }
 .mat-note { margin: 8px 0 0; color: var(--muted-2); }
 
 /* ---------- режим разработчика: ячейки ключей ИИ ---------- */
+.dev-key-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 6px; }
+.dev-key-tabs .chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.key-slot .row2, #dvKeyOwnText .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 520px) { .key-slot .row2, #dvKeyOwnText .row2 { grid-template-columns: 1fr; } }
 .key-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
 .key-slot { min-width: 0; display: grid; gap: 7px; padding: 12px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; }
 .key-slot input[type=text] { width: 100%; padding: 7px 9px; border: 1.5px solid var(--ink); border-radius: 9px; font: inherit; font-size: 13px; }

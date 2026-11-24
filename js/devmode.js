@@ -211,74 +211,111 @@ const Dev = (() => {
   }
   const imgKeysApi = body => keysApi(body, "/admin/imgkeys");
   function secKeys(b) {
-    b.innerHTML = `<section class="dev-card key-own" id="dvOwn"></section><section class="dev-card" id="dvImg"></section><section class="dev-card"><h2>Общие ключи ИИ</h2><p class="small">Загружаю…</p></section><section class="dev-card"><h2>Общие ключи для картинок</h2><p class="small">Загружаю…</p></section><section class="dev-card" id="dvTest"></section>`;
-    ownKeyCard(b.querySelector("#dvOwn")); testPayCard(b.querySelector("#dvTest"));
-    const imgBox = b.querySelector("#dvImg");
-    const paintImg = () => {
-      const ok = window.ImageGen?.own?.(), site = !!(window.UCHU_SITE?.nanoBanana);
-      imgBox.innerHTML = `<h2>🎨 Подключение ключа к генерации рабочих листов и презентаций</h2>
-        <p class="small">Отдельный ключ для картинок. Он не связан с ключами языковой модели DeepSeek, которая пишет тексты.</p>
-        <div class="key-sub"><h3>Личный ключ ${ok ? '<span class="tag">подключён</span>' : '<span class="tag red">не подключён</span>'} <span class="tag">только у вас</span></h3>
-          <p class="small">Хранится только в этом браузере и работает только у вас: для ваших проверок и своих листов. Учителям не передаётся.</p>
-          <div id="dvImgForm"></div></div>
-        <p class="small">Общие ключи для всех учителей (пул с переключением; пустая ячейка внизу добавляет новый ключ) — ниже, в блоке «Общие ключи для картинок».</p>`;
-      window.imageKeyForm(imgBox.querySelector("#dvImgForm"), paintImg);
+    b.innerHTML = `<h2>Ключи ИИ</h2>
+      <p class="small">Только кабинет разработчика. Обычные учителя этих настроек не видят: для них работает общий пул сайта.</p>
+      <div class="dev-key-tabs" role="tablist" aria-label="Ключи ИИ">
+        <button class="chip" type="button" data-keytab="common" aria-pressed="true">Общие ключи</button>
+        <button class="chip" type="button" data-keytab="personal" aria-pressed="false">Личные ключи</button>
+      </div>
+      <div id="dvKeyCommon">
+        <section class="dev-card" id="dvKeyText"></section>
+        <section class="dev-card" id="dvKeyImg"></section>
+        <section class="dev-card" id="dvKeyTest"></section>
+      </div>
+      <div id="dvKeyPersonal" hidden>
+        <section class="dev-card" id="dvKeyOwnText"></section>
+        <section class="dev-card" id="dvKeyOwnImg"></section>
+      </div>`;
+    const tabs = [...b.querySelectorAll("[data-keytab]")];
+    const common = b.querySelector("#dvKeyCommon"), personal = b.querySelector("#dvKeyPersonal");
+    const setTab = name => {
+      tabs.forEach(x => x.setAttribute("aria-pressed", String(x.dataset.keytab === name)));
+      common.hidden = name !== "common"; personal.hidden = name !== "personal";
     };
-    paintImg();
-    const pool = (box, o) => {
+    tabs.forEach(x => x.onclick = () => setTab(x.dataset.keytab));
+
     const st = x => x.empty ? `<span class="tag">пусто</span>` : !x.isActive ? `<span class="tag">выключен</span>` : x.resting ? `<span class="tag red">отдыхает ${x.resting} мин${x.last?.status ? ` · ошибка ${x.last.status}` : ""}</span>` : x.last?.status === 200 ? `<span class="tag ok">работает</span>` : `<span class="tag ok">в очереди</span>`;
-    const draw = (j, note) => {
-      if (j && Array.isArray(j.slots)) window.__keySlots = j.slots.map(x => x.slot);
-      box.innerHTML = `<h2>${o.title} <span class="tag red">для всех учителей</span></h2>
-        <div class="key-warn">${o.warn}</div>
-        ${o.help}
-        ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
-        <div class="key-grid">${j.slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
-          <div class="key-h"><b>Аккаунт ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
-          <input type="text" name="label" placeholder="Название, например: почта аккаунта" value="${esc(x.label || "")}" autocomplete="off">
-          <input type="text" class="secret" name="key" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="${x.empty ? o.keyPh : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
-          ${o.models ? `<select class="mdl-sel" style="width:100%">${o.models.map(m => `<option value="${m.id}"${m.id === x.model ? " selected" : ""}>${esc(m.name)}</option>`).join("")}<option value=""${x.model && !o.models.some(m => m.id === x.model) ? " selected" : ""}>Другая (впишу название ниже)</option></select>` : ""}<input type="text" name="model" placeholder="${o.modelPh}" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false"${o.models && (!x.model || o.models.some(m => m.id === x.model)) ? " hidden" : ""}>${x.empty ? "" : `<p class="small">Сейчас работает на: <b>${esc(x.model || o.defModel || "модель по умолчанию")}</b></p>`}
-          <details${x.url ? " open" : ""}><summary class="small">Свой адрес API (необязательно)</summary><input type="text" name="url" placeholder="https://…/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
-          <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>
-          <div class="row-btn"><button class="btn sm flame" type="submit">Сохранить</button>${x.empty ? "" : `<button class="btn sm" type="button" data-k="test">Проверить</button><button class="btn sm ghost" type="button" data-k="delete">Очистить</button>`}</div>
-        </form>`).join("")}</div>
-        ${j.env?.length ? `<p class="small">Ещё в настройках функции (${o.envName}): ${j.env.map(e => esc(e.label) + " " + esc(e.key)).join(", ")}.</p>` : ""}`;
-      box.querySelectorAll(".key-slot").forEach(f => {
-        const slot = +f.dataset.slot, ms = f.querySelector(".mdl-sel");
-        if (ms) ms.onchange = () => { f.model.value = ms.value; f.model.hidden = !!ms.value; if (!ms.value) f.model.focus(); };
-        const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await o.api(body); draw(r, r.test ? { ...r.test, message: `Аккаунт ${slot}: ${r.test.message}` } : (body.action === "save" ? { ok: true, message: `Аккаунт ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Аккаунт ${slot} очищен.` } : null)); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
-        f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm("Это ОБЩИЙ ключ: им будут пользоваться " + o.who + ", деньги спишутся с этого аккаунта. Сохранить?")) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), model: f.model.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
-        f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить аккаунт ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
-      });
-    };
-    const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { localKeys(box, o, e); }); };
-    function localKeys(box, o, e) {
-      const isImg = /картинок/i.test(o.title || "");
-      const uniq = "lk" + Math.floor(Math.random() * 1e6);
-      box.innerHTML = `<h2>${o.title}</h2>
-        <p class="small">Серверные общие ключи доступны только с почты автора сайта (${esc(e.message)}).<br>В режиме разработчика можно сохранить ключи <b>локально в этом браузере — без почты</b>: они применятся к вашей работе с сайтом.</p>
-        <div class="row"><input id="${uniq}k" placeholder="${isImg ? "Ключ для картинок (Nano Banana / Google)" : "Ключ любой нейросети (DeepSeek/OpenRouter)"}" style="flex:1;min-width:240px"><input id="${uniq}m" placeholder="Модель (необязательно)" style="width:220px"><button class="btn sm flame" type="button" id="${uniq}s">Сохранить локально</button></div>
-        <p class="small" id="${uniq}msg"></p>`;
-      box.querySelector("#" + uniq + "s").onclick = () => {
-        try {
-          const ai = JSON.parse(localStorage.getItem("uchu:ai") || "{}") || {};
-          const key = box.querySelector("#" + uniq + "k").value.trim();
-          const model = box.querySelector("#" + uniq + "m").value.trim();
-          if (isImg) { ai.imgKey = key; }
-          else { ai.openaiKey = key; if (!ai.openaiBase) ai.openaiBase = "https://openrouter.ai/api/v1"; if (model) ai.openaiModel = model; }
-          localStorage.setItem("uchu:ai", JSON.stringify(ai));
-          box.querySelector("#" + uniq + "msg").textContent = "Сохранено локально. Перезагрузите страницу, чтобы ключ применился.";
-        } catch (err) { box.querySelector("#" + uniq + "msg").textContent = "Не удалось сохранить: " + err.message; }
+    const pool = (box, o) => {
+      const draw = (j, note) => {
+        if (j && Array.isArray(j.slots)) window.__keySlots = j.slots.map(x => x.slot);
+        const slots = (j?.slots || []).slice(0, 5);
+        box.innerHTML = `<h2>${o.title} <span class="tag red">для всех учителей</span></h2>
+          <div class="key-warn">${o.warn}</div>${o.help || ""}
+          ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
+          <div class="key-grid">${slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
+            <div class="key-h"><b>Слот ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
+            <input type="text" name="label" placeholder="Название" value="${esc(x.label || "")}" autocomplete="off">
+            <input type="text" class="secret" name="key" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="${x.empty ? o.keyPh : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
+            ${o.models ? `<select class="mdl-sel" style="width:100%">${o.models.map(m => `<option value="${m.id}"${m.id === x.model ? " selected" : ""}>${esc(m.name)}</option>`).join("")}<option value=""${x.model && !o.models.some(m => m.id === x.model) ? " selected" : ""}>Другая (впишу ниже)</option></select>` : ""}
+            <input type="text" name="model" placeholder="${o.modelPh}" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false"${o.models && (!x.model || o.models.some(m => m.id === x.model)) ? " hidden" : ""}>
+            ${x.empty ? "" : `<p class="small">Сейчас: <b>${esc(x.model || o.defModel || "по умолчанию")}</b></p>`}
+            <details${x.url ? " open" : ""}><summary class="small">Свой адрес API</summary><input type="text" name="url" placeholder="https://…/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
+            <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>
+            <div class="row-btn"><button class="btn sm flame" type="submit">Сохранить</button>${x.empty ? "" : `<button class="btn sm" type="button" data-k="test">Проверить</button><button class="btn sm ghost" type="button" data-k="delete">Очистить</button>`}</div>
+          </form>`).join("")}</div>
+          ${j?.env?.length ? `<p class="small">Ещё в настройках функции (${o.envName}): ${j.env.map(e => esc(e.label) + " " + esc(e.key)).join(", ")}.</p>` : ""}`;
+        box.querySelectorAll(".key-slot").forEach(f => {
+          const slot = +f.dataset.slot, ms = f.querySelector(".mdl-sel");
+          if (ms) ms.onchange = () => { f.model.value = ms.value; f.model.hidden = !!ms.value; if (!ms.value) f.model.focus(); };
+          const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await o.api(body); draw(r, r.test ? { ...r.test, message: `Слот ${slot}: ${r.test.message}` } : body.action === "save" ? { ok: true, message: `Слот ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Слот ${slot} очищен.` } : null); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
+          f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm(`Это общий ключ: им будут пользоваться ${o.who}, деньги спишутся с этого аккаунта. Сохранить?`)) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), model: f.model.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
+          f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить слот ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
+        });
       };
-    }
-    load();
+      const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Серверные общие ключи доступны только с почты автора сайта (${esc(e.message)}).</p>`; }); };
+      load();
     };
-    pool(b.children[2], { api: keysApi, title: "Общие ключи ИИ", who: "все учителя на тарифах с ИИ", envName: "переменная DEEPSEEK_POOL", keyPh: "Ключ любой нейросети", modelPh: "Модель (необязательно), например deepseek-flash",
-      warn: "<b>Внимательно: это общий ключ.</b> Им пользуются все учителя на тарифах с ИИ, расход идёт с баланса этого аккаунта. Свой ключ для личной работы сюда не вставляйте — для него блок «Личный ключ» выше.",
-      help: `<p class="small">Подходят DeepSeek и сторонний сервис по адресу (OpenAI-совместимый, работающий из России): впишите ключ сервиса, его адрес в «Свой адрес API» и модель. Напрямую Claude, OpenAI, Gemini, Grok и Groq не подключаются. <b>Через сторонние сервисы — на ваш страх и риск:</b> такие посредники обходят ограничения этих компаний, доступ могут отключить в любой момент.</p><p class="small">Заполните столько ячеек, сколько у вас аккаунтов. Запросы учителей идут по кругу; если аккаунт не отвечает (закончились деньги, лимит, сбой) — запрос сам переходит на следующий, учитель ошибки не видит. Ключ после сохранения хранится только на сервере — здесь видны лишь его начало и конец.</p>` });
-    pool(b.children[3], { api: imgKeysApi, models: window.ImageGen?.MODELS, defModel: "flux-schnell", title: "Общие ключи для картинок (рабочие листы и презентации)", who: "учителя на тарифе «С ИИ» (6 листов с картинками в месяц)", envName: "переменная IMG_POOL", keyPh: "Ключ сервиса картинок (например AITUNNEL)", modelPh: "Нейросеть, например flux-schnell или gemini-2.5-flash-image",
-      warn: "<b>Внимательно: это общий ключ для картинок.</b> Им пользуются учителя на тарифе «С ИИ», расход идёт с баланса этого аккаунта. Он не связан с ключами текстовой модели выше.",
-      help: `<p class="small">Нужен сервис с OpenAI-совместимым адресом генерации картинок (например AITUNNEL: адрес вида <code>https://api.aitunnel.ru/v1</code>, ключ из личного кабинета). В «Свой адрес API» впишите адрес сервиса, в «Нейросеть» её название из кабинета (для листов рекомендуем flux-schnell). Прямые Google, OpenAI и Claude не подключаются.</p><p class="small">Заполните столько ячеек, сколько у вас ключей: когда один ключ перегружен или закончились деньги, запрос сам уходит на следующий ключ, учитель ошибки не видит. Тариф и месячный лимит листов проверяются на сервере.</p>` });
+
+    pool(b.querySelector("#dvKeyText"), {
+      api: keysApi, title: "Общие ключи — текст", who: "все учителя на тарифах с ИИ", envName: "DEEPSEEK_POOL",
+      keyPh: "Ключ любой нейросети", modelPh: "Модель, например deepseek-flash",
+      warn: "<b>Это общий ключ.</b> Расход идёт с баланса этого аккаунта. Сюда не вставляйте личный ключ разработчика.",
+      help: "<p class=\"small\">DeepSeek или сторонний OpenAI-совместимый сервис. Запросы учителей идут по кругу; ошибка или лимит — переход на следующий слот.</p>"
+    });
+    pool(b.querySelector("#dvKeyImg"), {
+      api: imgKeysApi, models: window.ImageGen?.MODELS, defModel: "flux-schnell", title: "Общие ключи — картинки", who: "учителя на тарифе «С ИИ»", envName: "IMG_POOL",
+      keyPh: "Ключ сервиса картинок", modelPh: "Модель, например flux.1-schnell",
+      warn: "<b>Это общий ключ для картинок.</b> Он не связан с текстовыми ключами. Расход идёт с баланса этого аккаунта.",
+      help: "<p class=\"small\">OpenAI-совместимый /images/generations. При ошибке или лимите запрос уходит на следующий слот, учитель ошибки не видит.</p>"
+    });
+    testPayCard(b.querySelector("#dvKeyTest"));
+
+    const personalText = b.querySelector("#dvKeyOwnText");
+    const drawPersonalText = msg => {
+      const c = window.AI?.cfg?.() || {}, p = c.custom || {};
+      const active = !!(p.on !== false && p.key && p.base && p.model);
+      personalText.innerHTML = `<h2>Личный ключ — текст <span class="tag ${active ? "ok" : ""}">${active ? "подключён" : "не подключён"}</span> <span class="tag">только для вас</span></h2>
+        <p class="small">Любой ваш ключ без проверки формата. Используется только вами и только когда включён; иначе работают общие ключи.</p>
+        <input type="text" class="secret" id="ptKey" placeholder="Ключ API" value="${esc(p.key || "")}" autocomplete="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true">
+        <div class="row2"><input type="text" id="ptBase" placeholder="Адрес API: https://…/v1" value="${esc(p.base || "")}" autocomplete="off" spellcheck="false"><input type="text" id="ptModel" placeholder="Модель" value="${esc(p.model || "")}" autocomplete="off" spellcheck="false"></div>
+        <label class="check"><input type="checkbox" id="ptOn" ${p.on !== false ? "checked" : ""}> Использовать мой ключ</label>
+        <div class="row-btn"><button class="btn sm flame" id="ptSave" type="button">Сохранить личный ключ</button><button class="btn sm" id="ptTest" type="button">Проверить</button><button class="btn sm ghost" id="ptClear" type="button">Очистить</button></div>
+        <p class="small" id="ptMsg" role="status">${esc(msg || "")}</p>`;
+      const q = x => personalText.querySelector(x);
+      q("#ptSave").onclick = () => {
+        try {
+          const c = window.AI.cfg();
+          c.custom = { base: q("#ptBase").value.trim(), key: q("#ptKey").value.trim(), model: q("#ptModel").value.trim(), on: q("#ptOn").checked };
+          if (c.custom.on) c.prefer = "custom"; else if (c.prefer === "custom") c.prefer = "auto";
+          window.AI.save(c); drawPersonalText("Сохранено. При включённом ключе ваши запросы идут через него.");
+        } catch (e) { q("#ptMsg").textContent = "Не сохранилось: " + e.message; }
+      };
+      q("#ptTest").onclick = async () => {
+        try { q("#ptMsg").textContent = "Проверяю…"; const r = await window.AI.test("custom"); drawPersonalText((r.ok ? "✅ " : "❌ ") + r.text); }
+        catch (e) { q("#ptMsg").textContent = "❌ " + (e.message || e); }
+      };
+      q("#ptClear").onclick = () => {
+        try { const c = window.AI.cfg(); c.custom = { base: "", key: "", model: "", on: false }; if (c.prefer === "custom") c.prefer = "auto"; window.AI.save(c); drawPersonalText("Личный текстовый ключ очищен."); }
+        catch (e) { q("#ptMsg").textContent = "Не получилось: " + e.message; }
+      };
+    };
+    drawPersonalText();
+
+    const personalImg = b.querySelector("#dvKeyOwnImg");
+    personalImg.innerHTML = `<h2>Личный ключ — картинки <span class="tag">только для вас</span></h2>
+      <p class="small">Любой ваш ключ для картинок. Если выключен — работают общие ключи. Формат ключа не проверяется.</p><div id="dvOwnImgForm"></div>`;
+    if (window.imageKeyForm) window.imageKeyForm(personalImg.querySelector("#dvOwnImgForm"), () => {});
+    return;
   }
   /* Тестовая оплата: тариф начисляется без денег — чтобы проверить ИИ сайта (общие ключи DeepSeek) и учёт токенов */
   function testPayCard(box) {

@@ -241,6 +241,73 @@ async function readFile(file) {
     const d = new DOMParser().parseFromString(await file.text(), "text/html");
     return { ...docHtmlStructure(d.body?.innerHTML || ""), html: d.body?.innerHTML || "", format: "html" };
   }
+}
+async function loadMaterials() {
+  try { state.materials = (await Store.all("materials")).sort((a, b) => String(b.addedAt).localeCompare(String(a.addedAt))); } catch { state.materials = []; }
+  // материалы, встроенные владельцем сайта (data/extra.js): видны всем учителям
+  const extra = [].concat((window.UCHU_EXTRA && window.UCHU_EXTRA.items) || []).map(m => ({ ...m, builtin: true }));
+  state.materials = [...state.materials, ...extra.filter(e => !state.materials.some(m => m.id === e.id))];
+  // общая база в облаке: всё, что загрузили разработчики, — сразу у всех учителей
+  if (window.CloudBase) { const hs = new Set(state.materials.map(m => m.hash).filter(Boolean)); state.materials = [...state.materials, ...CloudBase.items().filter(c => !(c.hash && hs.has(c.hash)))]; }
+  // v5: после изменения набора материалов система переобучается (новые вопросы, структуры уроков)
+  if (window.Learn && state.learnReady) Learn.update().catch(e => console.warn("Learn", e));
+}
+/* Для владельца сайта: выгрузить файл, который кладётся в папку data/ репозитория, — и материал станет общим */
+function downloadDataJs(name, varName, obj) {
+  const js = `/* «Учу по ФРП»: файл для папки data/ на GitHub. Создан ${new Date().toLocaleDateString("ru-RU")}. */\nwindow.${varName} = ${JSON.stringify(obj)};\n`;
+  return saveFile(name, new Blob([js], { type: "text/javascript" }));
+}
+async function embedFrp() {
+  const out = Object.fromEntries(Object.keys(FRP.data).filter(k => FRP.list(k).length).map(k => [k, FRP.list(k).map(({ builtin, ...d }) => d)]));
+  await downloadDataJs("frp.js", "UCHU_FRP", out);
+  toast("Файл frp.js скачан. Загрузите его в папку data в репозитории сайта — программа станет общей для всех учителей.", 9000);
+}
+async function embedMaterials() {
+  const items = state.materials.map(({ builtin, ...m }) => m);
+  if (!items.length) { toast("Сначала прикрепите материалы."); return; }
+  await downloadDataJs("extra.js", "UCHU_EXTRA", { items });
+  toast("Файл extra.js скачан. Загрузите его в папку data в репозитории сайта — материалы станут общими для всех учителей.", 9000);
+}
+/* Файл, брошенный на страницу, прикрепляется к урокам, который собирается: входит в него целиком и остаётся в «Моих материалах» */
+async function addToLesson(files) {
+  const names = new Set(files.map(f => f.name));
+  toast("Прикрепляю к уроку: " + files.length + " файл(ов)…", 4000);
+  await addMaterials(files);
+  let n = 0;
+  for (const m of state.materials) if (!m.builtin && names.has(m.name) && String(m.text || "").trim() && m.kind !== "frp") { m.pinned = true; m.pinTopic = ""; try { await Store.put("materials", m.id, m); } catch { } n++; }
+  paintPinned();
+  try { // если под темой ждут текст произведения — брошенный файл и есть этот текст
+    let box = $("#textBox"); const pin = state.materials.find(m => m.pinned && names.has(m.name)); if (!box && $("#typeBox")) { box = document.createElement("div"); box.id = "textBox"; $("#typeBox").insertAdjacentElement("afterend", box); }
+    if (pin && (state.subject === "lit" || state.subject === "ru") && box) { const key = textBoxKey(); state.textOverride = { text: String(pin.text).slice(0, 400000), source: "текст, добавленный учителем" }; state.textChoice = { key, mode: "text" }; const w = ((state.topic || $("#topic")?.value || "").match(/«([^»]+)»/) || [])[1] || ""; paintTextBox(box, "text", w, "", key); }
+  } catch (e) { console.warn("drop→text", e); }
+  if (n) toast("Прикреплено к уроку: " + n + ". Нажмите «Создать» — текст войдёт в конспект, лист и презентацию.", 6000);
+}
+function paintPinned() {
+  let box = $("#pinChips");
+  if (!box) { const t = $("#topic")?.closest(".row-btn, .combo, div"); if (!t) return; box = document.createElement("div"); box.id = "pinChips"; box.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin:6px 0"; t.parentElement.insertBefore(box, t.nextSibling); }
+  const pins = state.materials.filter(m => m.pinned);
+  box.innerHTML = pins.map(m => `<span style="display:inline-flex;gap:6px;align-items:center;background:#efe9ff;border:1px solid #7c5cff;border-radius:999px;padding:3px 10px;font-size:14px">📎 ${esc(m.name)} — войдёт в урок <button type="button" data-unpin="${esc(m.id)}" aria-label="Открепить" style="border:0;background:none;cursor:pointer;font-size:16px">✕</button></span>`).join("");
+  box.querySelectorAll("[data-unpin]").forEach(b => b.onclick = async () => { const m = state.materials.find(x => x.id === b.dataset.unpin); if (m) { m.pinned = false; try { await Store.put("materials", m.id, m); } catch { } } paintPinned(); });
+}
+
+async function addMaterials(list, forceKind) {
+  // v5: пакетная загрузка без дублей, автоочистка текста, автосортировка, OCR для сканов
+  let added = 0, dup = 0, ocrN = 0, cloudN = 0, cloudErr = ""; const cleanedSum = [];
+  const known = new Set(state.materials.filter(m => !m.builtin).map(m => m.hash).filter(Boolean));
+  // архивы распаковываются: каждый файл внутри встраивается отдельно
+  async function* files() {
+    for (const file of list) {
+      if (!/\.zip$/i.test(file.name)) { yield { f: file, sourceName: file.name }; continue; }
+      try {
+        const z = await zipOf(file);
+        for (const item of Object.values(z.files)) {
+          if (item.dir || /(^|\/)(__MACOSX|\.)/.test(item.name) || /\.zip$/i.test(item.name)) continue;
+          yield { f: new File([await item.async("blob")], item.name.split("/").pop()), sourceName: item.name, fromArchive: true };
+        }
+      } catch (e) { toast(`Архив «${file.name}» не открылся: ${e.message || e}`, 6000); }
+    }
+  }
+
   for await (const { f, sourceName, fromArchive } of files()) {
     toast("Читаю " + f.name + "…", 20000);
     try {
@@ -2214,8 +2281,9 @@ async function aiDeckPics(L) {
   // не рисуем нейросетью. Для них уже работает поиск; если поиск не дал
   // результата — оставляем слайд как есть, чтобы не подменять реальность.
   const realVisual = (sl) => {
-    const text = `${p.subject} ${sl.title} ${sl.body}`.toLowerCase().replace(/ё/g, "е");
-    if (["lit", "hist", "mhk", "izo", "mus", "geo"].includes(String(p.subject))) return true;
+    if (!sl) return true;
+    const text = `${L.params?.subject || ""} ${sl.title || ""} ${sl.body || ""}`.toLowerCase().replace(/ё/g, "е");
+    if (["lit", "hist", "mhk", "izo", "mus", "geo"].includes(String(L.params?.subject || ""))) return true;
     return /портрет|писател|поэт|художник|композитор|учен|историческ|картина|репродукц|скульптур|памятник|архитектур|карта|photograph|фотограф|иллюстрац|произведен|биограф/.test(text);
   };
   const allowed = pick.filter(i => !realVisual(slides[i]));
@@ -4946,7 +5014,14 @@ function openModal(html) {
 function escClose(e) { if (e.key === "Escape") closeModal(); }
 function closeModal() { $("#modalRoot").innerHTML = ""; document.removeEventListener("keydown", escClose); }
 function openAiSettings() {
-  if (window.Access && Access.commercial() && !Access.ownAi()) { Access.open(Access.aiAllowed() ? "Тариф «С ИИ» уже подключён — нейросеть сайта доступна. Если что-то не работает, обновите страницу." : "Уроки с ИИ входят в тариф «С ИИ»: 400 ₽/мес, 50 уроков."); return; } if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl(); else toast("Нейросеть подключается в автономной версии сайта."); }
+  if (!(window.Dev?.on || window.Access?.isDev?.())) {
+    if (window.Access && Access.commercial() && !Access.ownAi()) Access.open(Access.aiAllowed() ? "Тариф «С ИИ» уже подключён — нейросеть сайта доступна. Если что-то не работает, обновите страницу." : "Уроки с ИИ входят в тариф «С ИИ»: 400 ₽/мес, 50 уроков.");
+    else toast("ИИ уже подключён к сайту автоматически. Настройки ИИ доступны только разработчику.", 6000);
+    return;
+  }
+  if (typeof window.openAiSettingsImpl === "function") window.openAiSettingsImpl();
+  else toast("Нейросеть подключается в автономной версии сайта.");
+}
 
 function bind() {
   ["builder", "library", "materials", "help"].forEach(v => { const n = $("#nav-" + v); if (n) n.onclick = () => go(v); });

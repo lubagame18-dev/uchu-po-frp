@@ -52,7 +52,7 @@ async function dbPool(request, readAll, force) {
 /* Все аккаунты: сначала ячейки с сайта, потом из переменных функции */
 async function pool(request, readAll, force) {
   const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, email: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.is_active !== false, weight: Math.max(1, +a.weight || 1), lastUsed: a.last_used ? Date.parse(a.last_used) : 0, failCount: +a.fail_count || 0, disabledUntil: a.disabled_until ? Date.parse(a.disabled_until) : 0 }));
-  return db.concat(loadPool());
+  return db.concat(loadPool()).slice(0, 5);
 }
 const isPlaceholder = k => !k || /^\.+$/.test(k) || /^(sk-)?\.{2,}/.test(k) || k.length < 10;
 const pool0 = (r, ra) => pool(r, ra);
@@ -134,7 +134,7 @@ async function balances(request, readAll) {
   return out;
 }
 /* ---------- управление ячейками с сайта (только автору сайта) ---------- */
-const MAX_SLOT = 100; /* ключей может быть сколько угодно: ограничение «5 ячеек» снято */
+const MAX_SLOT = 5; /* в кабинете разработчика 5 общих ячеек */
 function dbMark(a, body, request, readAll) { try { if (a && a.slot != null && /^s/.test(String(a.id))) sb(request, readAll, "/rest/v1/ai_keys?slot=eq." + a.slot, { method: "PATCH", body }).catch(() => { }); } catch (e) { } }
 const tail = k => isPlaceholder(k) ? "" : String(k).slice(0, 3) + "…" + String(k).slice(-4);
 async function admin(body, request, readAll) {

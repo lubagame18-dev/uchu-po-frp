@@ -26,7 +26,7 @@ const AI = (() => {
     prefer: "auto",
     keys: { openrouter: "", pollinations: "", deepseek: "", gemini: "", anthropic: "", gigachat: "", teamorouter: "" },
     models: { openrouter: "openrouter/free", openrouterDeep: "openrouter/free", pollinations: "openai", deepseek: "deepseek-flash", gemini: "gemini-2.5-flash", anthropic: "claude-sonnet-5-5", gigachat: "GigaChat-2-Pro", teamorouter: "deepseek-flash", teamorouterDeep: "" },
-    custom: { base: "", key: "", model: "" },
+    custom: { base: "", key: "", model: "", on: true },
     extra: [], // любые подключённые по одному ключу: [{ id, name, base, key, model }]
     yandexFn: SITE.yandexFunction || "",
     proxy: { on: false, url: "", port: "", login: "", password: "", split: true }
@@ -151,13 +151,12 @@ const AI = (() => {
     return out;
   }
   function save(c) { try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { toast("Не удалось сохранить настройки ИИ."); } paint(); }
-  const has = (c, id) => id[0] === "x" ? !!c.extra.find(x => x.id === id && x.model && !ruBlocked(x.key, x.base)) : ({ openrouter: !!c.keys.openrouter, pollinations: !!c.keys.pollinations, deepseek: !!c.keys.deepseek, teamorouter: !!c.keys.teamorouter, gemini: false, anthropic: false, yandexfn: !!c.yandexFn, site: !!(window.UCHU_SITE?.siteAi && c.yandexFn), custom: !!(c.custom.base && c.custom.model) })[id];
+  const has = (c, id) => id[0] === "x" ? !!c.extra.find(x => x.id === id && x.model && !ruBlocked(x.key, x.base)) : ({ openrouter: !!c.keys.openrouter, pollinations: !!c.keys.pollinations, deepseek: !!c.keys.deepseek, teamorouter: !!c.keys.teamorouter, gemini: false, anthropic: false, yandexfn: !!c.yandexFn, site: !!(window.UCHU_SITE?.siteAi && c.yandexFn), custom: !!(c.custom.base && c.custom.model && c.custom.key && c.custom.on !== false) })[id];
   function chain(c = cfg()) {
     let avail = [...c.extra.map(x => x.id), ...ORDER].filter(id => has(c, id));
     // коммерческая версия: свои ключи — только в свободной зоне (по промокоду); иначе — только ИИ сайта по тарифу
     if (window.Access?.commercial() && !Access.ownAi()) avail = Access.aiAllowed() ? avail.filter(id => id === "site") : [];
-    // по промокоду — только одна своя нейросеть (без ИИ сайта и без сервера сайта)
-    else if (window.Access?.commercial() && Access.isPromo()) avail = avail.filter(id => id !== "site" && id !== "yandexfn").slice(0, 1);
+    // по промокоду обычный учитель тоже идёт через общие ключи сайта; личные ключи — только в кабинете разработчика
     return c.prefer !== "auto" && avail.includes(c.prefer) ? [c.prefer, ...avail.filter(x => x !== c.prefer)] : avail;
   }
   const configured = () => chain().length > 0;
@@ -398,7 +397,9 @@ const AI = (() => {
     });
   }
   /* Окно для входа по промокоду: одна своя нейросеть — вставил ключ, и всё */
+  function canManageKeys() { return !!(window.Dev?.on || window.Access?.isDev?.()); }
   function openLite() {
+    if (!canManageKeys()) { toast("ИИ подключается автоматически. Настройки ИИ доступны только разработчику.", 6000); return; }
     const c = cfg(), cur = [...c.extra.map(x => x.id), ...ORDER].find(id => id !== "site" && id !== "yandexfn" && has(c, id));
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Ваша нейросеть</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">
       ${cur ? `<div class="auto-box"><b>Подключена: ${esc(P[cur].name)}</b><div class="row-btn" style="margin-top:8px"><button type="button" class="btn sm" id="lzTest">Проверить</button><button type="button" class="btn sm ghost" id="lzOff">Отключить</button><span class="small" id="lzSt"></span></div></div>` : ""}
@@ -421,6 +422,11 @@ const AI = (() => {
     $m("#lzTest")?.addEventListener("click", async () => { const s = $m("#lzSt"); s.textContent = "Проверяю…"; const r = await test(cur); s.textContent = (r.ok ? "✓ " : "✗ ") + r.text; });
   }
   function open() {
+    if (!canManageKeys()) {
+      if (window.Access?.commercial?.()) toast("ИИ уже подключён к сайту автоматически — отдельный ключ не нужен.", 6000);
+      else toast("ИИ подключается автоматически. Настройки ИИ доступны только разработчику.", 6000);
+      return;
+    }
     if (window.Access?.commercial() && Access.isPromo()) return openLite();
     const c = cfg(), st = status(), l = chain(c);
     const row = id => { const s = st[id]; return s ? (s.ok ? `<span class="tag ok">✓ работал ${ago(s.at)}</span>` : `<span class="tag red" title="${esc(s.why)}">✗ ${esc(s.why.slice(0, 50))}</span>`) : ""; };

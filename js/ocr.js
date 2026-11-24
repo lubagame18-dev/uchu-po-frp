@@ -29,7 +29,7 @@ const OCR = (() => {
   }
   async function ocrCanvas(src, mode = "normal") {
     let bmp = src;
-    if (!(src instanceof HTMLCanvasElement)) {
+    if (typeof HTMLCanvasElement === "undefined" || !(src instanceof HTMLCanvasElement)) {
       try { bmp = await createImageBitmap(src); }
       catch { bmp = await new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = rej; img.src = URL.createObjectURL(src); }); }
     }
@@ -65,6 +65,11 @@ const OCR = (() => {
   }
   async function recognizeBest(src) {
     const w = await getWorker();
+    // Node/unit-test fallback: there is no Canvas; Tesseract mock/recognizer gets the source directly.
+    if (typeof document === "undefined" || typeof HTMLCanvasElement === "undefined" || !document.createElement) {
+      const plain = await w.recognize(src);
+      return { data: plain.data, text: String(plain.data?.text || "") };
+    }
     const first = await w.recognize(await ocrCanvas(src, "normal"));
     let best = { data: first.data, text: String(first.data?.text || "") };
     const conf = Number(first.data?.confidence) || 0;

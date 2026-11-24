@@ -8,7 +8,7 @@
    Ключи — в таблице img_keys (SQL в supabase.sql) или в переменной IMG_POOL:
      [{"label":"основной","key":"sk-...","url":"https://api.aitunnel.ru/v1","model":"flux-schnell"}]
    =================================================================== */
-const MAX_SLOT = 100; /* ключей может быть сколько угодно */
+const MAX_SLOT = 5; /* в кабинете разработчика 5 общих ячеек */
 function dbMark(a, body, request, readAll) { try { if (a && a.slot != null && /^s/.test(String(a.id))) sb(request, readAll, "/rest/v1/img_keys?slot=eq." + a.slot, { method: "PATCH", body }).catch(() => { }); } catch (e) { } }
 const DEF_URL = () => process.env.IMG_API_URL || "https://api.aitunnel.ru/v1";
 const DEF_MODEL = () => process.env.IMG_MODEL || "flux-schnell";
@@ -37,7 +37,7 @@ function envPool() { try { return process.env.IMG_POOL ? JSON.parse(process.env.
 async function pool(request, readAll, force) {
   const db = (await dbPool(request, readAll, force)).map(a => ({ id: "s" + a.slot, slot: a.slot, label: String(a.label || "ячейка " + a.slot), key: String(a.key || "").trim(), url: String(a.base_url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.is_active !== false, weight: Math.max(1, +a.weight || 1), lastUsed: a.last_used ? Date.parse(a.last_used) : 0, failCount: +a.fail_count || 0, disabledUntil: a.disabled_until ? Date.parse(a.disabled_until) : 0 }));
   const env = envPool().map((a, i) => ({ id: "e" + i, label: String(a.label || "ключ " + (i + 1)), key: String(a.key || "").trim(), url: String(a.url || "").trim().replace(/\/+$/, ""), model: String(a.model || "").trim(), isActive: a.isActive !== false }));
-  return db.concat(env);
+  return db.concat(env).slice(0, 5);
 }
 const rest = new Map(), last = new Map(); let cursor = 0;
 async function queue(request, readAll) {
