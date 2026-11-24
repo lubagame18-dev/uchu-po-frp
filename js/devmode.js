@@ -37,6 +37,7 @@ const Dev = (() => {
       const u = /functions\.yandexcloud\.net/.test(fn) ? `${fn}?path=${encodeURIComponent("/admin/join")}` : fn + "/admin/join";
       const r = await fetch(u, { method: "POST", signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ code: code || "" }) });
       const j = await r.json().catch(() => ({}));
+      if (r.ok) { try { sessionStorage.setItem("uchu:dev-code", String(code || "Pedagogural")); } catch { } }
       return r.ok ? { ok: true } : { ok: false, message: j.error || "ошибка " + r.status };
     } catch { return { ok: false, message: "сервер не отвечает, попробуйте позже" }; }
   }
@@ -119,6 +120,12 @@ const Dev = (() => {
     // всё, что разработчик загружал раньше только у себя, — в общую базу сайта
     setTimeout(() => window.CloudBase?.pushPending().then(n => { if (n && section === "files") show("files"); }), 500);
     toast("Режим разработчика включён. Выход — кнопка «Выйти» вверху.");
+    // Даже если режим был запомнен (или открыт через ?dev=1), сервер должен
+    // поставить почту в site_admins — иначе общие ключи останутся недоступны.
+    if (window.Account?.session?.access) {
+      const code = (() => { try { return sessionStorage.getItem("uchu:dev-code") || "Pedagogural"; } catch { return "Pedagogural"; } })();
+      join(code).catch(() => null);
+    }
   }
   /* Выход: убираем всё, что добавил режим, и перерисовываем текущий раздел */
   function exit() {
