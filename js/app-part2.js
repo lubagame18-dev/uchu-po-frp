@@ -4818,6 +4818,21 @@ function wsPaginate(root, source, target = 0) {
   source.replaceChildren(grid);
   const style = getComputedStyle(source);
   const capacity = source.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - 2;
+  const pages = []; let size = 0;
+  const measured = [...grid.children].map(row => ({ row, height: row.getBoundingClientRect().height + WS_GAP }));
+  /* Картинка не должна делать задание выше листа: сначала подгоняем размер картинки,
+     чтобы задание целиком помещалось на A4 (а не уезжало на «одну большую страницу»). */
+  for (const item of measured) {
+    if (Math.ceil(item.height - WS_GAP) <= capacity) continue;
+    const imgs = [...item.row.querySelectorAll("img")];
+    if (!imgs.length) continue;
+    const base = imgs.map(img => Math.max(24, Math.round(img.getBoundingClientRect().height || img.naturalHeight || 160)));
+    for (const k of [0.85, 0.7, 0.6, 0.5, 0.4, 0.3]) {
+      imgs.forEach((img, i) => { img.style.maxHeight = Math.max(20, Math.round(base[i] * k)) + "px"; img.style.height = "auto"; });
+      const h = item.row.getBoundingClientRect().height + WS_GAP;
+      if (Math.ceil(h) <= capacity) { item.height = h; break; }
+    }
+  }
   /* Если карточка задания с картинкой всё равно выше листа, режем её на части:
      первая часть остаётся на этой странице, продолжение печатается на следующей.
      Так лист с несколькими картинками выходит двумя-тремя листами A4, а не одной длинной страницей. */
@@ -4846,21 +4861,6 @@ function wsPaginate(root, source, target = 0) {
     item.row.remove();
     measured.splice(i, 1, ...rows);
     i += rows.length - 1;
-  }
-  const pages = []; let size = 0;
-  const measured = [...grid.children].map(row => ({ row, height: row.getBoundingClientRect().height + WS_GAP }));
-  /* Картинка не должна делать задание выше листа: сначала подгоняем размер картинки,
-     чтобы задание целиком помещалось на A4 (а не уезжало на «одну большую страницу»). */
-  for (const item of measured) {
-    if (Math.ceil(item.height - WS_GAP) <= capacity) continue;
-    const imgs = [...item.row.querySelectorAll("img")];
-    if (!imgs.length) continue;
-    const base = imgs.map(img => Math.max(24, Math.round(img.getBoundingClientRect().height || img.naturalHeight || 160)));
-    for (const k of [0.85, 0.7, 0.6, 0.5, 0.4, 0.3]) {
-      imgs.forEach((img, i) => { img.style.maxHeight = Math.max(20, Math.round(base[i] * k)) + "px"; img.style.height = "auto"; });
-      const h = item.row.getBoundingClientRect().height + WS_GAP;
-      if (Math.ceil(h) <= capacity) { item.height = h; break; }
-    }
   }
   for (const item of measured) {
     if (!pages.length || Math.ceil(size + item.height) > capacity) { pages.push([]); size = 0; }
