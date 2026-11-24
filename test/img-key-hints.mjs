@@ -79,5 +79,17 @@ console.log("6. Интерфейс кабинета использует эти 
   ok(dev.includes("Название (подпись, не адрес)"), "поле названия подписано понятно");
 }
 
+console.log("7. Сервис по умолчанию у каждого пула свой (текст — DeepSeek, картинки — AITUNNEL)");
+{
+  const dev = read("js/devmode.js");
+  ok(dev.includes('defaultName: "DeepSeek"'), "текстовому пулу передан DeepSeek");
+  ok(dev.includes('defaultName: "AITUNNEL"'), "пулу картинок передан AITUNNEL");
+  ok(dev.includes("esc(o.defaultName"), "предупреждение берёт сервис из пула, а не жёстко AITUNNEL");
+  const bad = /color:#b42318">Адрес API не задан/.test(dev);
+  ok(!bad, "нет красного «уходят в AITUNNEL» для всех пулов сразу");
+  ok(dev.includes("https://api.deepseek.com"), "в подсказке текста указан адрес DeepSeek");
+  ok(/o\.images && !x\.empty && !x\.url && icKey/.test(dev), "предупреждение про Intelion только для пула картинок");
+}
+
 if (failed) { console.log(`\nПРОВАЛ: ${failed}`); process.exit(1); }
 console.log("\nВсе проверки пройдены.");

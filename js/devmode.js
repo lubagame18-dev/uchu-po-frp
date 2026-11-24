@@ -252,8 +252,9 @@ const Dev = (() => {
           ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
           <div class="key-grid">${slots.map(x => {
             const icKey = /^ic-/i.test(String(x.key || ""));
-            const where = x.empty ? "" : x.url ? `<p class="small">Куда уходят запросы: <b>${esc(x.url)}</b></p>` : `<p class="small" style="color:#b42318">Адрес API не задан — запросы уходят в <b>AITUNNEL</b> (сервис по умолчанию).</p>`;
-            const mismatch = !x.empty && !x.url && icKey ? `<p class="small" style="color:#b42318">Это ключ <b>Intelion</b>, а адрес не задан: AITUNNEL такой ключ не принимает (ошибка 401). Нажмите «Подставить адрес Intelion» и «Сохранить» — ключ останется прежним.</p><button class="btn sm" type="button" data-k="intelion">Подставить адрес Intelion</button>` : "";
+            /* сервис по умолчанию у каждого пула свой: у текста — DeepSeek, у картинок — AITUNNEL */
+            const where = x.empty ? "" : x.url ? `<p class="small">Куда уходят запросы: <b>${esc(x.url)}</b></p>` : `<p class="small">Адрес API не задан — запросы уходят в <b>${esc(o.defaultName || "сервис по умолчанию")}</b> (по умолчанию).${o.images ? " Если ключ от другого сервиса, впишите его адрес в «Свой адрес API»." : ""}</p>`;
+            const mismatch = o.images && !x.empty && !x.url && icKey ? `<p class="small" style="color:#b42318">Это ключ <b>Intelion</b>, а адрес не задан: AITUNNEL такой ключ не принимает (ошибка 401). Нажмите «Подставить адрес Intelion» и «Сохранить» — ключ останется прежним.</p><button class="btn sm" type="button" data-k="intelion">Подставить адрес Intelion</button>` : "";
             return `<form class="key-slot" data-slot="${x.slot}">
             <div class="key-h"><b>Слот ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
             ${where}${mismatch}
@@ -296,13 +297,13 @@ const Dev = (() => {
     };
 
     pool(b.querySelector("#dvKeyText"), {
-      api: keysApi, title: "Общие ключи — текст", who: "все учителя на тарифах с ИИ", envName: "DEEPSEEK_POOL",
+      api: keysApi, title: "Общие ключи — текст", who: "все учителя на тарифах с ИИ", envName: "DEEPSEEK_POOL", defaultName: "DeepSeek",
       keyPh: "Ключ любой нейросети", modelPh: "Модель, например deepseek-flash",
       warn: "<b>Это общий ключ.</b> Расход идёт с баланса этого аккаунта. Сюда не вставляйте личный ключ разработчика.",
-      help: "<p class=\"small\">DeepSeek или сторонний OpenAI-совместимый сервис. Запросы учителей идут по кругу; ошибка или лимит — переход на следующий слот.</p>"
+      help: "<p class=\"small\">DeepSeek или сторонний OpenAI-совместимый сервис. Если адрес не задан, запросы идут в DeepSeek (https://api.deepseek.com). Запросы учителей идут по кругу; ошибка или лимит — переход на следующий слот.</p>"
     });
     pool(b.querySelector("#dvKeyImg"), {
-      api: imgKeysApi, models: window.ImageGen?.MODELS, defModel: "flux-schnell", title: "Общие ключи — картинки", who: "учителя на тарифе «С ИИ»", envName: "IMG_POOL",
+      api: imgKeysApi, models: window.ImageGen?.MODELS, defModel: "flux-schnell", title: "Общие ключи — картинки", who: "учителя на тарифе «С ИИ»", envName: "IMG_POOL", defaultName: "AITUNNEL", images: true,
       keyPh: "Ключ сервиса картинок", modelPh: "Модель, например flux.1-schnell",
       warn: "<b>Это общий ключ для картинок.</b> Он не связан с текстовыми ключами. Расход идёт с баланса этого аккаунта.",
       help: "<p class=\"small\">OpenAI-совместимый /images/generations. Ключ и адрес должны быть от одного сервиса — иначе сервис ответит 401 «недействительный токен». Если адрес не задан, запросы идут в AITUNNEL по умолчанию: ключ Intelion (<b>ic-…</b>) так работать не будет — для него адрес <b>https://aiapi.intelion.cloud/v1</b> и модель <b>flux.1-schnell</b>. При ошибке или лимите запрос уходит на следующий слот, учитель ошибки не видит.</p>"
