@@ -250,24 +250,45 @@ const Dev = (() => {
         box.innerHTML = `<h2>${o.title} <span class="tag red">для всех учителей</span></h2>
           <div class="key-warn">${o.warn}</div>${o.help || ""}
           ${note ? `<p class="tr-now ${note.ok ? "ok" : ""}">${esc(note.message)}</p>` : ""}
-          <div class="key-grid">${slots.map(x => `<form class="key-slot" data-slot="${x.slot}">
+          <div class="key-grid">${slots.map(x => {
+            const icKey = /^ic-/i.test(String(x.key || ""));
+            const where = x.empty ? "" : x.url ? `<p class="small">Куда уходят запросы: <b>${esc(x.url)}</b></p>` : `<p class="small" style="color:#b42318">Адрес API не задан — запросы уходят в <b>AITUNNEL</b> (сервис по умолчанию).</p>`;
+            const mismatch = !x.empty && !x.url && icKey ? `<p class="small" style="color:#b42318">Это ключ <b>Intelion</b>, а адрес не задан: AITUNNEL такой ключ не принимает (ошибка 401). Нажмите «Подставить адрес Intelion» и «Сохранить» — ключ останется прежним.</p><button class="btn sm" type="button" data-k="intelion">Подставить адрес Intelion</button>` : "";
+            return `<form class="key-slot" data-slot="${x.slot}">
             <div class="key-h"><b>Слот ${x.slot}</b>${x.provider ? `<span class="tag">${esc(x.provider)}</span>` : ""}${st(x)}</div>
-            <input type="text" name="label" placeholder="Название" value="${esc(x.label || "")}" autocomplete="off">
+            ${where}${mismatch}
+            <input type="text" name="label" placeholder="Название (подпись, не адрес)" value="${esc(x.label || "")}" autocomplete="off">
             <input type="text" class="secret" name="key" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="${x.empty ? o.keyPh : "Ключ: " + esc(x.key) + " (вставьте новый, чтобы заменить)"}" autocomplete="off" spellcheck="false">
             ${o.models ? `<select class="mdl-sel" style="width:100%">${o.models.map(m => `<option value="${m.id}"${m.id === x.model ? " selected" : ""}>${esc(m.name)}</option>`).join("")}<option value=""${x.model && !o.models.some(m => m.id === x.model) ? " selected" : ""}>Другая (впишу ниже)</option></select>` : ""}
             <input type="text" name="model" placeholder="${o.modelPh}" value="${esc(x.model || "")}" autocomplete="off" spellcheck="false"${o.models && (!x.model || o.models.some(m => m.id === x.model)) ? " hidden" : ""}>
             ${x.empty ? "" : `<p class="small">Сейчас: <b>${esc(x.model || o.defModel || "по умолчанию")}</b></p>`}
-            <details${x.url ? " open" : ""}><summary class="small">Свой адрес API</summary><input type="text" name="url" placeholder="https://…/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
+            <details${x.url || !x.empty ? " open" : ""}><summary class="small">Свой адрес API</summary><input type="text" name="url" placeholder="https://…/v1 — например, https://aiapi.intelion.cloud/v1" value="${esc(x.url || "")}" autocomplete="off" spellcheck="false"></details>
             <label class="check"><input type="checkbox" name="on" ${x.empty || x.isActive ? "checked" : ""}> Включён</label>
             <div class="row-btn"><button class="btn sm flame" type="submit">Сохранить</button>${x.empty ? "" : `<button class="btn sm" type="button" data-k="test">Проверить</button><button class="btn sm ghost" type="button" data-k="delete">Очистить</button>`}</div>
-          </form>`).join("")}</div>
+          </form>`; }).join("")}</div>
           ${j?.env?.length ? `<p class="small">Ещё в настройках функции (${o.envName}): ${j.env.map(e => esc(e.label) + " " + esc(e.key)).join(", ")}.</p>` : ""}`;
         box.querySelectorAll(".key-slot").forEach(f => {
-          const slot = +f.dataset.slot, ms = f.querySelector(".mdl-sel");
+          const slot = +f.dataset.slot, ms = f.querySelector(".mdl-sel"), data = slots.find(s => s.slot === slot) || {};
+          const setModel = m => { f.model.value = m; if (ms) { ms.value = ""; f.model.hidden = false; } };
+          /* ключ Intelion работает только по своему адресу: подставляем адрес и модель, ключ не трогаем */
+          const setIntelion = () => { f.url.value = "https://aiapi.intelion.cloud/v1"; setModel("flux.1-schnell"); if (!f.label.value.trim() || window.ImageGen?.looksLikeUrl?.(f.label.value)) f.label.value = "Intelion"; const d = f.querySelector("details"); if (d) d.open = true; };
           if (ms) ms.onchange = () => { f.model.value = ms.value; f.model.hidden = !!ms.value; if (!ms.value) f.model.focus(); };
+          f.key.oninput = () => { if (/^ic-/i.test(f.key.value.trim()) && !f.url.value.trim()) { setIntelion(); toast("Похоже, ключ Intelion: подставил адрес API и модель flux.1-schnell. Нажмите «Сохранить».", 10000); } };
           const run = async (body, btn) => { const t = btn.textContent; btn.disabled = true; btn.textContent = "…"; try { const r = await o.api(body); draw(r, r.test ? { ...r.test, message: `Слот ${slot}: ${r.test.message}` } : body.action === "save" ? { ok: true, message: `Слот ${slot} сохранён.` } : body.action === "delete" ? { ok: true, message: `Слот ${slot} очищен.` } : null); } catch (e) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + e.message, 7000); } };
-          f.onsubmit = e => { e.preventDefault(); if (f.key.value.trim() && !confirm(`Это общий ключ: им будут пользоваться ${o.who}, деньги спишутся с этого аккаунта. Сохранить?`)) return; run({ action: "save", slot, label: f.label.value.trim(), key: f.key.value.trim(), url: f.url.value.trim(), model: f.model.value.trim(), isActive: f.on.checked }, f.querySelector("[type=submit]")); };
-          f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить слот ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
+          f.onsubmit = e => {
+            e.preventDefault();
+            const fix = window.ImageGen?.fixSlotForm ? window.ImageGen.fixSlotForm({ label: f.label.value, url: f.url.value, model: f.model.value, key: f.key.value, keyHint: data.key }) : { label: f.label.value.trim(), url: f.url.value.trim(), model: f.model.value.trim(), moves: [] };
+            f.label.value = fix.label; f.url.value = fix.url; f.model.value = fix.model;
+            if (fix.moves.length) toast(`Слот ${slot}: ${fix.moves.join("; ")}.`, 11000);
+            if (f.key.value.trim() && !confirm(`Это общий ключ: им будут пользоваться ${o.who}, деньги спишутся с этого аккаунта. Сохранить?`)) return;
+            run({ action: "save", slot, label: fix.label, key: f.key.value.trim(), url: fix.url, model: fix.model, isActive: f.on.checked }, f.querySelector("[type=submit]"));
+          };
+          f.querySelectorAll("[data-k]").forEach(btn => btn.onclick = () => {
+            const k = btn.dataset.k;
+            if (k === "intelion") { setIntelion(); toast("Адрес Intelion и модель подставлены. Нажмите «Сохранить» — ключ менять не нужно.", 10000); return; }
+            if (k === "delete" && !confirm(`Очистить слот ${slot}? Ключ удалится с сервера.`)) return;
+            run({ action: k, slot }, btn);
+          });
         });
       };
       const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Серверные общие ключи доступны разработчику (${esc(e.message)}).</p>`; }); };
@@ -284,7 +305,7 @@ const Dev = (() => {
       api: imgKeysApi, models: window.ImageGen?.MODELS, defModel: "flux-schnell", title: "Общие ключи — картинки", who: "учителя на тарифе «С ИИ»", envName: "IMG_POOL",
       keyPh: "Ключ сервиса картинок", modelPh: "Модель, например flux.1-schnell",
       warn: "<b>Это общий ключ для картинок.</b> Он не связан с текстовыми ключами. Расход идёт с баланса этого аккаунта.",
-      help: "<p class=\"small\">OpenAI-совместимый /images/generations. При ошибке или лимите запрос уходит на следующий слот, учитель ошибки не видит.</p>"
+      help: "<p class=\"small\">OpenAI-совместимый /images/generations. Ключ и адрес должны быть от одного сервиса — иначе сервис ответит 401 «недействительный токен». Если адрес не задан, запросы идут в AITUNNEL по умолчанию: ключ Intelion (<b>ic-…</b>) так работать не будет — для него адрес <b>https://aiapi.intelion.cloud/v1</b> и модель <b>flux.1-schnell</b>. При ошибке или лимите запрос уходит на следующий слот, учитель ошибки не видит.</p>"
     });
     testPayCard(b.querySelector("#dvKeyTest"));
 

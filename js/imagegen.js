@@ -306,11 +306,38 @@ const ImageGen = (() => {
     return out;
   }
 
+  /* ---------- подсказки для общих ключей в кабинете разработчика ----------
+     Частая ошибка: ключ одного сервиса (например, Intelion «ic-…») вставлен в слот,
+     а «Свой адрес API» не заполнен — тогда пул уходит в AITUNNEL по умолчанию,
+     и чужой ключ отвергается с 401. Эти функции распознают ключ и ставят адрес. */
+  const KEY_PROVIDERS = [
+    { re: /^ic-/, name: "Intelion", base: "https://aiapi.intelion.cloud/v1", model: "flux.1-schnell" },
+    { re: /^sk-/, name: "AITUNNEL", base: "https://api.aitunnel.ru/v1", model: "flux-schnell" }
+  ];
+  const looksLikeUrl = v => /^(https?:\/\/)?[\w-]+(\.[\w-]+)+(\/[\w./-]*)?$/i.test(String(v || "").trim());
+  const keyProvider = key => { const k = String(key || "").trim(); const p = KEY_PROVIDERS.find(x => x.re.test(k)); return p ? { name: p.name, base: p.base, model: p.model } : null; };
+  /* Приводит поля слота в порядок перед сохранением; moves — что именно исправлено (для подсказки). */
+  function fixSlotForm(f = {}) {
+    let label = String(f.label || "").trim(), url = String(f.url || "").trim(), model = String(f.model || "").trim();
+    const key = String(f.key || "").trim() || String(f.keyHint || "").trim();
+    const moves = [];
+    if (!url && label && looksLikeUrl(label)) { url = label; label = ""; moves.push("адрес был в поле «Название» — перенёс в «Свой адрес API»"); }
+    if (url && !/^https?:\/\//i.test(url)) { url = "https://" + url; moves.push("добавил https:// к адресу"); }
+    /* Intelion работает по адресу /v1 и с моделью flux.1-schnell; ключ у него начинается на ic- */
+    const intelionKey = keyProvider(key)?.name === "Intelion";
+    if (url && /^https?:\/\/(?:[\w-]+\.)*aiapi\.intelion\.cloud\/?$/i.test(url)) { url = "https://aiapi.intelion.cloud/v1"; moves.push("дописал /v1 к адресу Intelion"); }
+    url = url.replace(/\/+$/, "");
+    if (!url && intelionKey) { url = "https://aiapi.intelion.cloud/v1"; moves.push("ключ похож на Intelion — подставил его адрес API"); }
+    if (url && /aiapi\.intelion\.cloud/i.test(url) && (!model || MODELS.some(m => m.id === model))) { model = "flux.1-schnell"; moves.push("поставил модель Intelion flux.1-schnell"); }
+    if (label && looksLikeUrl(label)) moves.push("название похоже на адрес — проверьте, что это подпись");
+    return { label, url, model, moves };
+  }
+
   async function test() {
     const t0 = Date.now();
     try { const r = await image("A simple friendly smiling sun in pastel colors, flat vector, white background. " + NEG, { aspect: "1:1", maxW: 256, timeout: 60000 }); return { ok: true, ms: Date.now() - t0, url: r.url, free: !!r.free, provider: r.free ? "бесплатный запасной генератор" : "общий ключ сайта" }; }
     catch (e) { return { ok: false, ms: Date.now() - t0, error: String(e.message || e) }; }
   }
-  return { photos, slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF, freeOn, freeRaw, FREE };
+  return { photos, slots, pages, gallery, bannerWithBrief, MODELS, cfg, save, configured, own, siteUrl, isDevUser, PRESET, image, test, banner, spot, DEF, freeOn, freeRaw, FREE, keyProvider, looksLikeUrl, fixSlotForm, KEY_PROVIDERS };
 })();
 window.ImageGen = ImageGen;
