@@ -202,7 +202,7 @@ const Dev = (() => {
     let r;
     try { r = await go(); } catch { await new Promise(x => setTimeout(x, 1500)); try { r = await go(); } catch (e) { throw new Error(e.name === "TimeoutError" || e.name === "AbortError" ? "функция долго не отвечает — нажмите «Повторить» через минуту; если не поможет, откройте в Яндекс Облаке функцию → «Логи» и пришлите скриншот" : "нет связи с функцией: проверьте интернет; если интернет есть — откройте функцию в Яндекс Облаке и убедитесь, что у неё включено «Публичная функция» и загружен последний архив"); } }
     const j = await r.json().catch(() => ({}));
-    if (r.status === 401 || r.status === 403) throw new Error((j.error || "нет доступа") + ". Выйдите из личного кабинета и войдите снова своей почтой автора сайта.");
+    if (r.status === 401 || r.status === 403) throw new Error((j.error || "нет доступа") + ". Выйдите из личного кабинета и войдите снова, затем введите код разработчика.");
     if (r.status >= 500 && !j.error) throw new Error("функция ответила ошибкой " + r.status + " — откройте её в Яндекс Облаке → «Логи» и пришлите скриншот");
     if (r.status === 404 || r.status === 405 || (!r.ok && /нужен массив messages/.test(j.error || ""))) throw new Error("на сервере старая версия функции — загрузите новый uchu-function.zip");
     if (!r.ok) throw new Error(j.error || "HTTP " + r.status);
@@ -261,7 +261,7 @@ const Dev = (() => {
           f.querySelectorAll("[data-k]").forEach(x => x.onclick = () => { if (x.dataset.k === "delete" && !confirm(`Очистить слот ${slot}? Ключ удалится с сервера.`)) return; run({ action: x.dataset.k, slot }, x); });
         });
       };
-      const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Серверные общие ключи доступны только с почты автора сайта (${esc(e.message)}).</p>`; }); };
+      const load = () => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Загружаю…</p>`; o.api({ action: "list" }).then(j => draw(j)).catch(e => { box.innerHTML = `<h2>${o.title}</h2><p class="small">Серверные общие ключи доступны разработчику (${esc(e.message)}).</p>`; }); };
       load();
     };
 
