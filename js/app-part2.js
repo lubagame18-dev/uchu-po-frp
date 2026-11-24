@@ -2190,7 +2190,7 @@ async function buildLessonFromForm() {
 function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте ключ: режим разработчика → «Ключи ИИ» → «Подключение ключа к генерации рабочих листов и презентаций» → «Проверить и нарисовать тест»." : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
 function deckImagePrompt(p, sl, wish = "") {
   const details = String(sl.body || "").replace(Media.RE, "").replace(/[#*_`]/g, "").replace(/\s+/g, " ").trim().slice(0, 480);
-  const style = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "Clean educational illustration with high visual clarity.";
+  const style = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "Clean educational illustration with high visual clarity, soft pastel palette, consistent across the presentation.";
   return `Create one 16:9 educational illustration for ${subjName(p?.subject)}, grade ${p?.grade || ""}.
 Lesson topic: «${p?.topic || sl.title}». Slide: «${sl.title}». Teach this exact subject: ${details || sl.title}.
 Show the single named object, scene or process from the slide, with only its relevant parts and context. Preserve the species, structure, materials, period or place where specified. For an experiment, show the stated apparatus and arrangement. For art or history, do not invent an attribution or present the image as a reproduction or historical source.
@@ -2210,9 +2210,23 @@ async function aiDeckPics(L) {
     ![...sl.body.matchAll(Media.RE)].some(m => !pending.test(m[2])) ? [i] : []);
   if (!cand.length) return;
   const pick = [...new Set([cand[0], cand[Math.floor(cand.length / 2)], cand[cand.length - 1]])].slice(0, 3);
+  // Арт-директор: реальных людей, портреты, картины, карты и исторические кадры
+  // не рисуем нейросетью. Для них уже работает поиск; если поиск не дал
+  // результата — оставляем слайд как есть, чтобы не подменять реальность.
+  const realVisual = (sl) => {
+    const text = `${p.subject} ${sl.title} ${sl.body}`.toLowerCase().replace(/ё/g, "е");
+    if (["lit", "hist", "mhk", "izo", "mus", "geo"].includes(String(p.subject))) return true;
+    return /портрет|писател|поэт|художник|композитор|учен|историческ|картина|репродукц|скульптур|памятник|архитектур|карта|photograph|фотограф|иллюстрац|произведен|биограф/.test(text);
+  };
+  const allowed = pick.filter(i => !realVisual(slides[i]));
+  const limited = allowed.slice(0, 3);
+  if (!limited.length) {
+    // ничего не рисуем: поиск уже отработал, а подменять реальные объекты нельзя
+    return;
+  }
   toast("Рисую красивые картинки для презентации…", 60000);
   let n = 0, lastErr = "";
-  for (const i of pick) {
+  for (const i of limited) {
     const sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
     try {
       const im = await ImageGen.image(deckImagePrompt(L.params, sl), { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
