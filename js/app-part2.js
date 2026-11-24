@@ -2594,6 +2594,14 @@ function loadJob() { try { return JSON.parse(localStorage.getItem(JOB_KEY)); } c
 function clearJob(id) { const J = loadJob(); if (!J || !id || J.id === id) try { localStorage.removeItem(JOB_KEY); } catch { } }
 const lessonProviderDown = error => !!window.AI?.isUnavailable?.(error);
 const lessonAccessFailed = error => ["access_failed", "auth_failed", "payment_required", "rate_limited", "proxy_auth", "not_configured"].includes(error?.code);
+// 402/429 от общего пула и сетевые сбои не должны оставлять учителя без урока:
+// если ИИ недоступен, сборка автоматически повторяется без ИИ (локальный конструктор).
+const lessonProviderFatal = error => {
+  if (!error || error.code === "cancelled") return false;
+  if (lessonProviderDown(error) || lessonAccessFailed(error)) return true;
+  const msg = String(error.message || error);
+  return /HTTP\s*(401|402|403|429|5\d\d)|insufficient[_ ]balance|баланс|лимит|общем ключе|не ответила ни на одном/i.test(msg);
+};
 const lessonSample = (prompt, options) => caps.sample(prompt, { ...options, providerTimeoutMs: 180000 });
 async function runJob(L, p, type, gen, formats, useAi, hideTech) {
   const paid=window.AccountsBackend?.config().provider==='pocketbase'&&Account.session?.uid&&window.Access?.commercial()&&!Access.isDev()&&!Access.promoFree();
@@ -2605,8 +2613,9 @@ async function runJob(L, p, type, gen, formats, useAi, hideTech) {
     }
     try { await runJobContent(L, p, type, gen, formats, useAi, hideTech); }
     catch (e) {
-      if (!useAi || !lessonProviderDown(e)) throw e;
+      if (!useAi || !lessonProviderFatal(e)) throw e;
       state.gen = null;
+      toast("ИИ недоступен (лимит, баланс или сеть) — собираю урок без ИИ, по локальной базе.", 8000);
       const pending = gen.filter(doc => L.status[doc] !== "ok");
       for (const doc of pending) { delete L.docs[doc]; L.status[doc] = "wait"; }
       L.built = "noai";

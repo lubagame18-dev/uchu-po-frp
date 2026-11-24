@@ -318,7 +318,7 @@ const cases=JSON.parse(fs.readFileSync(path.join(__dirname,'cases.json')));
  });
  assert(accounting.flagged);assert(accounting.rejected);assert.equal(accounting.count,2);assert.deepEqual(accounting.context,['quality-fixture','','quality-error-fixture','']);
  for(const row of accounting.outcomes){
-  const shouldRecover=['network','provider_timeout'].includes(row.code);
+  const shouldRecover=['network','provider_timeout','payment_required','rate_limited','access_failed'].includes(row.code);
   assert.equal(row.completed,'A completed document');
   assert.equal(row.built,shouldRecover?'noai':'ai');
   assert.deepEqual(row.calls.slice(1),shouldRecover?[{documents:['worksheet'],ai:false}]:[]);
