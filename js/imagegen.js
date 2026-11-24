@@ -12,7 +12,7 @@
 const ImageGen = (() => {
   "use strict";
   const KEY = "uchu:img";
-  const DEF = { provider: "hub", key: "", base: "", model: "", path: "", proxy: "", on: true };
+  const DEF = { provider: "intelion", key: "", base: "", model: "", path: "", proxy: "", on: true };
   /* модели посредника: один ключ, выбор из списка. via — формат запроса; lit — насколько буквально следует описанию */
   const MODELS = [
     { id: "flux-schnell", name: "FLUX Schnell: дёшево и быстро, рисует ровно описанное (рекомендуется для листов)", via: "images" },
@@ -22,6 +22,7 @@ const ImageGen = (() => {
     { id: "flux-pro", name: "FLUX Pro: максимум качества, дороже", via: "images" }
   ];
   const PRESET = {
+    intelion: { name: "Intelion AI API (Россия, FLUX.1-schnell)", model: "flux.1-schnell", base: "https://aiapi.intelion.cloud/v1", hint: "Ключ из личного кабинета Intelion. Оплата за GPU-секунды в рублях, серверы в РФ. Модель: flux.1-schnell. Одна картинка ~0,32 ₽." },
     hub: { name: "Один ключ, много нейросетей (AITUNNEL и похожие)", model: "flux-schnell", base: "https://api.aitunnel.ru/v1", hint: "Вставьте ключ один раз и выберите нейросеть из списка. Адрес берётся из личного кабинета сервиса: если проверка не проходит, сверьте адрес и название модели там." },
     gemini: { name: "Google Gemini (Nano Banana)", model: "gemini-2.5-flash-image", base: "https://generativelanguage.googleapis.com", hint: "Ключ из Google AI Studio. Из России напрямую обычно недоступен: тогда используйте посредника или proxy." },
     openai: { name: "OpenAI напрямую (GPT Image)", model: "gpt-image-1", base: "https://api.openai.com/v1", hint: "Ключ из platform.openai.com (раздел API keys; нужна оплаченная учётная запись). Из России напрямую обычно недоступен: тогда используйте посредника (пункт выше) или proxy. Одно изображение стоит примерно 3–17 ₽ в зависимости от качества, один лист с картинками это до 7 изображений." },
@@ -68,7 +69,7 @@ const ImageGen = (() => {
         if (!d?.data) throw new Error("сервис не вернул картинку" + (j.promptFeedback?.blockReason ? ` (заблокировано: ${j.promptFeedback.blockReason})` : ""));
         return toDataUrl(d.mimeType || d.mime_type, d.data);
       }
-      if (c.provider === "images" || c.provider === "hub" || c.provider === "openai") {
+      if (c.provider === "images" || c.provider === "hub" || c.provider === "openai" || c.provider === "intelion") {
         const dalle = /dall-e-3/.test(model), size = aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024");
         const go = body => fetch(`${base}${c.path || "/images/generations"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify(body) });
         const bd = { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" };
