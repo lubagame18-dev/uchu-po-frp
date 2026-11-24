@@ -72,7 +72,9 @@ const ImageGen = (() => {
       if (c.provider === "images" || c.provider === "hub" || c.provider === "openai" || c.provider === "intelion") {
         const dalle = /dall-e-3/.test(model), size = aspect === "1:1" ? "1024x1024" : aspect === "9:16" || aspect === "3:4" ? (dalle ? "1024x1792" : "1024x1536") : (dalle ? "1792x1024" : "1536x1024");
         const go = body => fetch(`${base}${c.path || "/images/generations"}`, { method: "POST", signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + c.key }, body: JSON.stringify(body) });
-        const bd = { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" };
+        const bd = c.provider === "intelion"
+          ? { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size }
+          : { model, prompt: `${prompt} Aspect ratio ${aspect}.`, n: 1, size, response_format: "b64_json" };
         r = await go(bd); j = await r.json().catch(() => ({}));
         if (!r.ok && r.status === 400) { delete bd.response_format; r = await go(bd); j = await r.json().catch(() => ({})); }
         if (!r.ok && r.status === 400) { delete bd.size; r = await go(bd); j = await r.json().catch(() => ({})); }
