@@ -1,14 +1,14 @@
-﻿/* «Учу по ФРП» — работа без интернета (service worker).
+/* «Учу по ФРП» — работа без интернета (service worker).
    • Файлы сайта (страница, стили, модули, встроенная база и ФРП) хранятся в кэше браузера:
      сайт открывается и собирает уроки по локальным алгоритмам даже без сети.
    • Свои файлы сайта: сначала сеть (чтобы обновления с GitHub приходили сразу), без сети — кэш.
    • Библиотеки (Word, PowerPoint, PDF, шрифты): из кэша, если уже были загружены.
    • Ответы Википедии и Викитеки запоминаются: урок по той же теме без сети соберётся с ними.
    • Ключи нейросетей, запросы к нейросетям и к GitHub в кэш не попадают. */
-const VERSION = "uchu-v5.536-ws-pages";
+const VERSION = "uchu-v5.537-visualplan";
 const SHELL = ["./", "index.html", "css/v5.css", "data/base.js", "data/own.js", "data/extra.js", "data/frp.js", "data/promo.js", "data/legal.js", "data/culture.js", "manifest.json",
   "vendor/marked.umd.js", "vendor/purify.min.js", "vendor/turndown.js", "vendor/turndown-plugin-gfm.js", "vendor/pptxgen.bundle.js", "vendor/jszip.min.js", "vendor/docx.umd.js",
-  ...["log", "cleaner", "learn", "learn2", "variety", "methodbase", "plans-loader", "kits-loader", "imagegen", "frpkit", "subjects", "lesson-quality", "usage", "heur", "litkit", "notes", "dictation", "verify", "ocr", "materials", "collect", "devmode", "devcover", "accounts-config", "accounts-backend", "privacy", "account", "presence", "cloudbase", "rules", "schemes", "tablekit", "layout", "lessonnotes", "tutor", "mnemo", "themes", "themes2", "artdirection", "video", "photostk", "access", "rukit", "deck", "slides", "culture", "publish", "sync", "worksearch", "ai", "blobs", "qr", "quizlink"].map(n => `js/${n}.js`)];
+  ...["log", "cleaner", "learn", "learn2", "variety", "methodbase", "plans-loader", "kits-loader", "imagegen", "frpkit", "subjects", "lesson-quality", "usage", "heur", "litkit", "notes", "dictation", "verify", "ocr", "materials", "collect", "devmode", "devcover", "accounts-config", "accounts-backend", "privacy", "account", "presence", "cloudbase", "rules", "schemes", "tablekit", "layout", "lessonnotes", "tutor", "mnemo", "themes", "themes2", "artdirection", "visualplan", "video", "photostk", "access", "rukit", "deck", "slides", "culture", "publish", "sync", "worksearch", "ai", "blobs", "qr", "quizlink"].map(n => `js/${n}.js`)];
 SHELL.push("data/people.js", "data/lesson-images.js", "vendor/html2pdf.bundle.min.js",
   ...["app-part1", "app-part2", "supportlib", "materialresolver", "cardsplus", "subjects-base", "subjects-depth",
     "litsec", "rusec", "teacherrules", "methodology", "dossier", "conventions"].map(n => `js/${n}.js`));

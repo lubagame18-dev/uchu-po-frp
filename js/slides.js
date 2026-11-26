@@ -217,6 +217,56 @@ const SlideEditor = (() => {
   }
   const resolvedImage = src => !!src && !/^(search|commons):/i.test(src);
   const slideImages = body => [...String(body || "").matchAll(new RegExp(Media.RE.source, "g"))];
+  /* ------------------------------------------------------------------
+     Резерв вместо пустой картинки в показе и экспорте (js/visualplan.js):
+     незаполненные search:/commons:-заготовки на содержательных слайдах
+     получают локальный SVG-резерв (без текста, карт и лиц). В редакторе
+     заглушки «Нет картинки» не трогаем — это UI выбора, а не показ.
+     ------------------------------------------------------------------ */
+  function vpFallbackUrl(seed) {
+    const VP = window.VisualPlan;
+    if (!VP || typeof VP.fallbackSvg !== "function") return "";
+    try {
+      const svg = VP.fallbackSvg(String(seed || ""));
+      if (!svg) return "";
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(String(svg)).replace(/[()'"]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase());
+    } catch (e) { console.warn("visualplan", e); return ""; }
+  }
+  function vpSeedOf(q) {
+    const p = L()?.params || {};
+    return [p.subject, p.grade, p.topic || L()?.title, q].map(x => String(x ?? "").trim()).join("|");
+  }
+  /* quiz/choice/odd/selfcheck/appendix и ответы остаются без картинок (как и в Media.autoFill). */
+  const vpContentSlide = sl => !(sl?.set?.quiz || sl?.set?.choice || sl?.set?.odd || sl?.set?.selfcheck || sl?.set?.appendix);
+  function vpRescueFigure(fig, sl) {
+    if (!fig || !vpContentSlide(sl)) return false;
+    const q = String(fig.dataset?.q || "").trim(); if (!q) return false;
+    const url = vpFallbackUrl(vpSeedOf(q)); if (!url) return false;
+    const im = document.createElement("img"); im.alt = fig.dataset.cap || ""; im.src = url;
+    const ph = fig.querySelector(".pic-empty"); if (ph) ph.remove();
+    fig.classList.remove("empty"); fig.insertBefore(im, fig.firstChild); fig.dataset.src = url;
+    return true;
+  }
+  /* Для показа/PDF/PowerPoint: картинки-заготовки на содержательных слайдах заменяем резервом. */
+  function vpRescueMarkdown(md) {
+    if (!md || !window.VisualPlan || typeof window.VisualPlan.fallbackSvg !== "function") return md;
+    let any = false;
+    const out = splitSlides(md).map(raw => {
+      const sl = parse(raw); if (!vpContentSlide(sl)) return raw;
+      let hit = false;
+      const body = sl.body.replace(new RegExp(Media.RE.source, "g"), (all, cap, src) => {
+        if (!/^(search|commons):/i.test(src)) return all;
+        const q = decodeURIComponent(src.replace(/^(search|commons):/i, "")).trim(); if (!q) return all;
+        const url = vpFallbackUrl(vpSeedOf(q)); if (!url) return all;
+        hit = true;
+        return Media.mdImage(cap || "Иллюстрация", url, {});
+      });
+      if (!hit) return raw;
+      any = true;
+      return build({ ...sl, body, set: { ...sl.set, afs: undefined } });
+    });
+    return any ? joinSlides(md, out) : md;
+  }
   function frameImage(sl) {
     const images = slideImages(sl.body);
     const bg = resolvedImage(sl.set.bgimg) ? sl.set.bgimg : images.find(m => resolvedImage(m[2]))?.[2];
@@ -1298,11 +1348,12 @@ const SlideEditor = (() => {
     const popup = opts.open ? window.open("about:blank", "_blank") : null;
     if (popup) popup.opener = null;
     toast(opts.open ? "Открываю показ…" : "Готовлю HTML…", 6000);
-    const arr = fitAll({ source: opts.md ?? L().docs.slides, omitMissingImages: true });
+    const arr = fitAll({ source: vpRescueMarkdown(opts.md ?? L().docs.slides), omitMissingImages: true });
     const appendix = mapAppendices(arr);
     const css = [...document.styleSheets].flatMap(ss => { try { return [...ss.cssRules].map(r => r.cssText).filter(t => /\.sx|theme-|figure\.pic|\.blank|\.uline|\.tblwrap|@font-face|@keyframes (glowA|glowB|twinkle|shimmer)/.test(t)); } catch { return []; } }).join("\n");
     const fontLinks = [...document.querySelectorAll('link[href^="https://fonts.googleapis.com"]')].map(l => `<link rel="stylesheet" href="${l.href}">`).join("");
     const toData = async src => {
+      if (String(src || "").startsWith("data:")) return src; // локальный SVG-резерв уже в ready-to-use виде
       try {
         const res = src.startsWith("idb:") ? null : await fetch(src, { mode: "cors" });
         if (res && !res.ok) return src;
@@ -1324,8 +1375,13 @@ const SlideEditor = (() => {
     box.querySelectorAll(".sx-video.empty").forEach(v => { const sec = v.closest(".deck-s"); if (sec?.querySelector(".sx.k-video, .sx.lay-video")) v.replaceWith(Object.assign(document.createElement("p"), { textContent: "Видеозапись не прикреплена." })); else v.remove(); });
     box.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
     await new Promise(r => setTimeout(r, 300));
-    // в показе пустых мест «Нет картинки» не бывает: незаполненная картинка убирается
-    box.querySelectorAll("figure.pic").forEach(f => { if (/^(search|commons):/.test(f.dataset.src || "") || !f.querySelector("img")) { const acc = f.closest(".sx-acc"); (acc || f).remove(); } });
+    // в показе пустых мест «Нет картинки» не бывает: сначала локальный SVG-резерв на содержательных слайдах, иначе картинка убирается
+    box.querySelectorAll("figure.pic").forEach(f => {
+      if (!/^(search|commons):/.test(f.dataset.src || "") && f.querySelector("img")) return;
+      const sec = f.closest(".deck-s"), idx = sec ? [...box.children].indexOf(sec) : -1;
+      if (vpRescueFigure(f, arr[idx])) return;
+      const acc = f.closest(".sx-acc"); (acc || f).remove();
+    });
     for (const fig of box.querySelectorAll("figure.pic")) { const img = fig.querySelector("img"); if (img) img.src = await toData(fig.dataset.src); }
     for (const img of box.querySelectorAll("img.sx-bgimg, img.stk-img")) img.src = await toData(img.dataset.src);
     for (const au of box.querySelectorAll("audio[src]")) au.src = await toData(au.getAttribute("src"));
@@ -1500,7 +1556,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
 @media (prefers-reduced-motion:reduce){.ix-on .ix-tilt{transform:none}.ix-spot{display:none}}`;
   }
   /* Для PDF: те же слайды, что в редакторе */
-  function stageHtml(md) { return `<div class="sx-print theme-${theme()}">${fitAll({ source: md, omitMissingImages: true }).map((s, i) => `<div class="sx-frame print"${i ? ' style="break-before:page"' : ""}>${slideHtml(s, i)}</div>`).join("")}</div>`; }
+  function stageHtml(md) { return `<div class="sx-print theme-${theme()}">${fitAll({ source: vpRescueMarkdown(md), omitMissingImages: true }).map((s, i) => `<div class="sx-frame print"${i ? ' style="break-before:page"' : ""}>${slideHtml(s, i)}</div>`).join("")}</div>`; }
   function settingsOf(raw) { return parse(raw).set; }
   /* ---------- PowerPoint: слайд за слайдом «как на экране» ----------
      Каждый слайд рисуется в скрытом окне 1280×720, а затем каждый блок
@@ -1694,7 +1750,16 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     };
     // фон-картинка слайда и картинка-акцент
     const bgImg = sx.querySelector("img.sx-bgimg"); if (bgImg && bgImg.dataset.src) await addImg(bgImg, null);
-    for (const fig of sx.querySelectorAll(".sx-acc figure.pic")) { const img = fig.querySelector("img"); if (img) await addImg(img, fig); else { const b = box(fig); s.addShape(pptx.ShapeType.rect, { x: b.x, y: b.y, w: b.w, h: b.h, fill: { color: "EEEEEE" }, line: { color: "BBBBBB", dashType: "dash" } }); } }
+    for (const fig of sx.querySelectorAll(".sx-acc figure.pic")) {
+      const img = fig.querySelector("img");
+      if (img) { await addImg(img, fig); continue; }
+      const b = box(fig);
+      // картинка не заполнилась: вместо серой рамки — локальный SVG-резерв (если план ещё не дал картинку)
+      const fb = vpFallbackUrl(vpSeedOf(fig.dataset.q || sx.querySelector(".sx-title")?.textContent || ""));
+      const png = fb ? await imgCanvas(fb, {}, b.pw, b.ph, "contain") : null;
+      if (png) { s.addImage({ data: png, x: b.x, y: b.y, w: b.w, h: b.h }); continue; }
+      s.addShape(pptx.ShapeType.rect, { x: b.x, y: b.y, w: b.w, h: b.h, fill: { color: "EEEEEE" }, line: { color: "BBBBBB", dashType: "dash" } });
+    }
     // бумага под текст (рваный край поверх картинки) — прозрачной картинкой
     if (!fullFrame && sx.querySelector(".sx-paper") && window.ThemeKit) {
       const lay = autoLayout(sl, i), side = ThemeKit.sideOf(lay, sx.matches(".acc") ? (sl.set.acc || "") : sl.set.photo ? "right" : "");
@@ -1953,7 +2018,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     css.textContent = ":is(.sx-export,.sx-meter) ol.qa-x{list-style:none;padding:0;margin:.2em 0;display:flex;flex-direction:column;gap:.45em}:is(.sx-export,.sx-meter) ol.qa-x>li{padding:.45em 150px .45em 52px;min-height:2.2em;border-radius:.4em}:is(.sx-export,.sx-meter) p.rv-x{display:inline-block;padding:.4em 1em;min-width:300px;min-height:1.6em}:is(.sx-export,.sx-meter) .tm,:is(.sx-export,.sx-meter) .sf{display:none!important}";
     document.head.appendChild(css);
     try {
-      const arr = pptxSplitOversized(fitAll({ source: md, omitMissingImages: true }), host);
+      const arr = pptxSplitOversized(fitAll({ source: vpRescueMarkdown(md), omitMissingImages: true }), host);
       // слайды ответов встают сразу за своим вопросом (скрытыми): заранее считаем номера всех слайдов
       const appendix = mapAppendices(arr);
       const qas = arr.map(qaOf), at = []; let pos = 0;

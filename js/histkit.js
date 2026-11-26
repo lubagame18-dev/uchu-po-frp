@@ -254,7 +254,7 @@ const HistKit = (() => {
     add({ kind: "big", title: "Как это объяснить?", lead: T.prob[0], notes: `Ученики замечают противоречие и формулируют вопрос урока: «${T.prob[1]}»` });
     add({ kind: "big", title: "Вопрос урока", lead: T.prob[1] });
     add({ kind: "steps", title: "План урока", points: T.plan.map(x => x[0]) });
-    if (T.map) add({ kind: "image", title: "Работаем с картой", img: `карта ${T.map.split(",")[0]} ${T.t}`, cap: T.map, notes: `Показать: ${T.map}.` });
+    if (T.map) add({ kind: "big", title: "Работаем с картой", lead: T.map, notes: `Показать: ${T.map}. Карта на слайде не размещается: работаем с настенной картой или атласом.` });
     if (T.d?.length) add({ kind: "list", title: "Лента времени", points: [...T.d].sort((a, b) => a[2] - b[2]).map(x => `**${x[0]}** — ${x[1]}`) });
     if (T.src) add({ kind: "quote", title: "Работаем с источником", quote: T.src.x, by: T.src.n, notes: T.src.q.join(" ") });
     add({ kind: "glossary", title: "Словарь урока", items: T.k.map(x => ({ word: x[0], def: x[1] })), notes: "Понятие называем после того, как ученики описали явление." });

@@ -39,7 +39,31 @@ const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 function throttle(fn, ms) { let last = 0, t; return (...a) => { const now = Date.now(); clearTimeout(t); if (now - last > ms) { last = now; fn(...a); } else t = setTimeout(() => { last = Date.now(); fn(...a); }, ms); }; }
 let toastT;
-function toast(msg, ms = 3400) { const el = $("#toast"); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (el.hidden = true), ms); }
+/* Единый процесс сборки: снаружи одна плавная полоса, внутренние этапы скрыты.
+   Служебные сообщения процесса показываем только разработчику. */
+const buildFlow = { active: false, pct: 0, target: 0, label: "", hint: "", t0: 0, endT: 0 };
+function buildDev() { try { return !!(window.Access?.isDev?.() || window.UCHU_DEV || /(?:^|[?&])dev=1(?:&|$)/.test(location.search)); } catch (e) { return false; } }
+function buildBegin(label) { clearTimeout(buildFlow.endT); buildFlow.active = true; buildFlow.pct = 1; buildFlow.target = 96; buildFlow.label = label || "Создаю материалы урока"; buildFlow.hint = ""; buildFlow.t0 = Date.now(); updateProgress(); }
+function buildSetPct(p) { if (!buildFlow.active) return; const v = Number(p); if (!Number.isFinite(v)) return; buildFlow.pct = Math.max(buildFlow.pct, Math.min(99, v)); updateProgress(); }
+function buildSetTarget(p) { if (!buildFlow.active) return; const v = Number(p); if (!Number.isFinite(v)) return; buildFlow.target = Math.max(buildFlow.target, Math.min(99, v)); }
+function buildFinish(ok) {
+  if (!buildFlow.active) return;
+  const t = $("#progressText"), pb = $("#progressBar");
+  if (ok) {
+    buildFlow.pct = 100; buildFlow.target = 100; updateProgress();
+    if (t) t.textContent = "Готово";
+    if (pb) { pb.style.transition = "width .4s linear"; pb.style.width = "100%"; }
+  } else if (t) t.textContent = buildFlow.hint || "Сборка остановлена";
+  clearTimeout(buildFlow.endT);
+  buildFlow.endT = setTimeout(() => { buildFlow.active = false; updateProgress(); }, ok ? 700 : 1400);
+}
+function toast(msg, ms = 3400) {
+  const text = String(msg);
+  const critical = /не удалось|ошибк|лимит|тариф|войдите|подключ|закончил|не получилось|нет доступа|оплат|сохранён|превыш/i.test(text);
+  const processInfo = /один процесс|Рисую картинки|остат(?:ок|ка)|Добавлено ИИ-картинок|Добавлено картинок/i.test(text);
+  if (!buildDev() && !critical && (processInfo || buildFlow.active)) { try { console.info("[тихо]", text); } catch (e) { } return; }
+  const el = $("#toast"); if (!el) return; el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (el.hidden = true), ms);
+}
 const local = {
   get(k, d) { try { const v = localStorage.getItem("uchu:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem("uchu:" + k, JSON.stringify(v)); } catch { } }
@@ -2263,24 +2287,29 @@ async function buildLessonFromForm() {
   await saveLesson(L);
   if (window.Notes?.reset) Notes.reset(); // Вложения очищаем только после сохранения: отказ входа/оплаты не должен терять фото.
   formats.forEach(f => (L.status[f] = "wait"));
-  // картинки — этап той же сборки: вкладка листа остаётся «в работе», пока нейросеть рисует
+  // картинки — этап той же сборки: отдельного «второго прогресса» и уведомлений больше нет
   const wantDeck = formats.includes("slides") && deckPick === "ai", wantWs = formats.includes("worksheet") && wsPick === "ai";
   if (wantDeck || wantWs) L._after = async ({ slidesOnly = false } = {}) => {
-    const stage = async (doc, label, fn) => {
-      L.status[doc] = "run"; state.gen = { lessonId: L.id, doc, pct: 4, label, fake: false, ctl: new AbortController() }; updateProgress(); if (state.lesson?.id === L.id) renderLesson();
-      try { await fn(pct => { if (state.gen) { state.gen.pct = pct; updateProgress(); } }); } catch (e) { console.warn("pics", e); } finally { L.status[doc] = "ok"; state.gen = null; if (state.lesson?.id === L.id) renderLesson(); }
+    const stage = async (doc, fn) => {
+      L.status[doc] = "run"; buildSetTarget(98); if (state.lesson?.id === L.id) renderLesson();
+      try { await fn(pct => { const v = Number(pct); if (Number.isFinite(v)) buildSetPct(93 + Math.max(0, Math.min(100, v)) / 100 * 5); }); }
+      catch (e) { console.warn("pics", e); }
+      finally { L.status[doc] = "ok"; if (state.lesson?.id === L.id) renderLesson(); }
     };
-    if (wantDeck) await stage("slides", "рисую картинки", () => aiDeckPics(L));
-    if (wantWs && !slidesOnly) await stage("worksheet", "рисую картинки", pct => decorateWorksheet(L, true, pct));
+    if (wantDeck) await stage("slides", pct => aiDeckPics(L, pct));
+    if (wantWs && !slidesOnly) await stage("worksheet", pct => decorateWorksheet(L, true, pct));
   };
-  if (!await runJob(L, p, type, gen, formats, true, hideTech)) return;
-  // Пустых мест под картинки на слайдах не оставляем: рамки, которые поиск и ИИ не заполнили,
-  // убираем. Слайд без картинки лучше, чем пустое место; подобрать или нарисовать картинку
-  // заново можно в редакторе — «Подобрать картинки» и «Картинки ИИ».
-  if (formats.includes("slides") && L.docs?.slides) {
+  const buildLabel = formats.length === 1 && formats[0] === "slides" ? "Создаю презентацию" : "Создаю материалы урока";
+  buildBegin(buildLabel);
+  let jobOk = false;
+  try { jobOk = await runJob(L, p, type, gen, formats, true, hideTech); }
+  catch (e) { buildFlow.hint = "Сборка остановлена"; buildFinish(false); throw e; }
+  if (jobOk && formats.includes("slides") && L.docs?.slides) {
     const clean = dropPendingPics(L.docs.slides);
     if (clean !== L.docs.slides) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
   }
+  buildFinish(jobOk);
+  if (!jobOk) return;
   return L;
 }
 /* понятное окно, если картинки не создались (тосты исчезают, и причину не видно) */
@@ -2288,8 +2317,14 @@ async function buildLessonFromForm() {
    запасной генератор тоже не ответил) — это не отказ по тарифу. Учителю в этом случае довольно
    спокойного тоста: презентация уже собрана с изображениями, которые сайт подобрал сам. */
 const imgTechFail = msg => /сервер сайта: 5\d\d|запасной бесплатный генератор|не настроено/i.test(String(msg || "")) && !/войдите|входят в тариф|подключите тариф|исчерпан|недостаточно средств/i.test(String(msg || ""));
-function imgFail(msg) { const dev = !window.Access || !Access.commercial() || Access.isDev(); const key = /401|403/.test(msg) ? " Сервер ответил 401/403: ключ картинок недействителен или удалён — вставьте новый." : ""; openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился.${dev ? " Проверьте общий ключ: режим разработчика → «Ключи ИИ» → вкладка «Общие ключи» → блок «Общие ключи — картинки» → «Проверить»." + key : ""}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`); }
-function deckImagePrompt(p, sl, wish = "", o = {}) {
+function imgFail(msg) {
+  const dev = buildDev() || !window.Access || !Access.commercial() || Access.isDev();
+  /* Обычному учителю модалку о картинках не показываем: сборка идёт без них, прогресс/статус достаточно. */
+  if (!dev) { buildFlow.hint = "Материал собран без ИИ-картинок"; try { console.warn("[img]", msg); } catch (e) { } return; }
+  const key = /401|403/.test(msg) ? " Сервер ответил 401/403: ключ картинок недействителен или удалён — вставьте новый." : "";
+  openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>🎨 Картинки не создались</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b"><p>${esc(msg)}</p><p class="small">Материал собран без ИИ-картинок. Расход лимита картинок не списан, если рисунок не получился. Проверьте общий ключ: режим разработчика → «Ключи ИИ» → вкладка «Общие ключи» → блок «Общие ключи — картинки» → «Проверить».${key}</p><div class="pk-foot"><button class="btn flame" data-close>Понятно</button></div></div></div>`);
+}
+function deckImagePromptBase(p, sl, wish = "", o = {}) {
   const details = String(sl.body || "").replace(Media.RE, "").replace(/[#*_`]/g, "").replace(/\s+/g, " ").trim().slice(0, 480);
   const style = window.ArtDirection?.forLesson?.(p)?.imagePrompt || "Clean educational illustration with high visual clarity, soft pastel palette, consistent across the presentation.";
   return `Create one 16:9 educational illustration for ${subjName(p?.subject)}, grade ${p?.grade || ""}.
@@ -2298,6 +2333,137 @@ Show the single named object, scene or process from the slide, with only its rel
 Place the focal object in the middle third, with room to crop and a quiet background on both sides for readable slide text. No text, letters, numerals, logos, watermarks, borders, or other panels.
 ${style}${wish ? "\nTeacher’s visual preferences: " + wish : ""}`;
 }
+/* ---------- визуальные планы (js/visualplan.js): без модуля — прежний текст промпта ---------- */
+/* План для уже собранного слайда (title/body markdown): subject, grade, topic урока + slide. */
+function vpPlanForSlide(p, sl) {
+  const VP = window.VisualPlan;
+  if (!VP || typeof VP.planForSlide !== "function") return null;
+  try {
+    const body = String(sl?.body || "").replace(Media.RE, " ").replace(/[#*_`>]/g, " ").replace(/\s+/g, " ").trim();
+    const points = (String(sl?.body || "").match(/(?:^|\n)\s*(?:[-–—*]|\d+[.)])\s+[^\n]+/g) || [])
+      .map(x => x.replace(/^\s*(?:[-–—*]|\d+[.)])\s+/, "").replace(/[\[\]()]/g, " ").trim()).filter(Boolean).slice(0, 6);
+    const plan = VP.planForSlide({ subject: p?.subject, grade: p?.grade, topic: p?.topic || "",
+      slide: { title: String(sl?.title || "").replace(/[#*_`]/g, "").trim(), body: body.slice(0, 1500), points } });
+    return plan && typeof plan === "object" ? plan : null;
+  } catch (e) { console.warn("visualplan", e); return null; }
+}
+/* v1.2 (grounded-only): символический план — объект не распознан из темы/фактов, рисовать
+   «по ассоциации» нельзя. Групповая тема без grounded-объекта («Простейшие», «Кислоты»)
+   ведёт себя так же (уточнение Lead). Без API движка — false: прежнее поведение. */
+function vpIsSymbolicPlan(plan) {
+  if (!plan || typeof plan !== "object") return false;
+  const VP = window.VisualPlan;
+  if (!VP) return false;
+  try {
+    if (typeof VP.isSymbolic === "function" && VP.isSymbolic(plan) === true) return true;
+  } catch (e) { console.warn("visualplan", e); }
+  try {
+    if (typeof VP.grounding === "function") {
+      const g = VP.grounding(plan);
+      if (g && typeof g === "object") {
+        if (g.symbolic === true) return true;
+        if (g.topicType === "group" && g.grounded !== true) return true;
+      }
+    }
+  } catch (e) { console.warn("visualplan", e); }
+  return false;
+}
+/* Собственные изображения урока (data/lesson-images.js) по subject+grade+topic.
+   Основной путь — Deck.lessonImages; запасной — прямая выборка из UCHU_LESSON_IMAGES. */
+function vpLessonImages(p) {
+  const out = [];
+  try {
+    if (window.Deck && typeof window.Deck.lessonImages === "function") {
+      const list = window.Deck.lessonImages(p || {});
+      if (Array.isArray(list)) list.forEach(im => { if (im && im.img) out.push(im); });
+      if (out.length) return out;
+    }
+  } catch (e) { console.warn("lessonImages", e); }
+  try {
+    const B = window.UCHU_LESSON_IMAGES;
+    if (!B || !B.lessons || !B.images || !p) return out;
+    const norm = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/g, " ").trim();
+    const grade = String(p.grade == null ? "" : p.grade), subject = String(p.subject || ""), t = norm(p.topic);
+    let hit = null;
+    for (const e of Object.values(B.lessons)) {
+      if (!e) continue;
+      if (String(e.subject || "") !== subject || String(e.grade == null ? "" : e.grade) !== grade) continue;
+      const k = norm(e.topic);
+      if (k === t || (t.length >= 8 && (k.startsWith(t) || t.startsWith(k)))) { hit = e; break; }
+    }
+    if (!hit) return out;
+    (hit.keys || []).forEach((k, i) => {
+      const im = B.images[k]; if (!im || !im.img) return;
+      out.push({ ...im, caption: (hit.caps || [])[i] || im.caption, title: String((hit.caps || [])[i] || im.title || "").split(" — ")[0] });
+    });
+  } catch (e) { console.warn("lessonImages", e); }
+  return out;
+}
+/* v1.2: символическим слайдам — реальные изображения урока из библиотеки вместо FLUX.
+   Возвращает число слайдов, получивших картинку. */
+function vpSymbolicLibrary(indexes, slides, parts, p) {
+  if (!indexes || !indexes.length) return 0;
+  const lib = vpLessonImages(p);
+  if (!lib.length) return 0;
+  const used = new Set();
+  for (const sl of slides) for (const m of String(sl && sl.body || "").matchAll(Media.RE)) used.add(m[2]);
+  /* картографические изображения библиотеки не ставим (правило методиста) */
+  const libMap = /карт[аыуеой]|картосхем|атлас|\bmap\b/i;
+  const free = lib.filter(im => im.img && !used.has(im.img) && !libMap.test([im.title, im.caption, im.desc].join(" ")));
+  let n = 0;
+  for (const i of indexes) {
+    const im = free.shift(); if (!im) break;
+    const sl = slides[i]; if (!sl) continue;
+    try {
+      /* заготовку поиска убираем: библиотечная картинка приоритетнее */
+      const body = String(sl.body || "").replace(Media.RE, (raw, _cap, src) => /^(search|commons):/i.test(src) ? "" : raw).trim();
+      const cap = String(im.title || im.caption || sl.title || "Иллюстрация").slice(0, 120);
+      sl.body = [Media.mdImage(cap, im.img, {}), body].filter(Boolean).join("\n\n");
+      sl.set.afs = undefined;
+      parts[i] = SlideEditor.build(sl);
+      n++;
+    } catch (e) { console.warn("deck library pic", e); }
+  }
+  return n;
+}
+/* Пожелание учителя — пользовательский ввод: убираем слова, которые провоцируют текст на картинке. */
+function vpCleanWish(w) {
+  const s = String(w || "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!s) return "";
+  return s
+    .replace(/(?:без|никаких|no)\s+(?:текста|надписей|букв|цифр|подписей|логотипов|text|letters|numbers|labels|logos|watermark)/gi, " ")
+    // кириллица: \b в JS работает только для латиницы, поэтому основы слов режем без границ
+    .replace(/(?:текст[а-яё]*|надпис[а-яё]*|букв[а-яё]*|цифр[а-яё]*|подпис[а-яё]*|логотип[а-яё]*)/gi, " ")
+    .replace(/\b(?:text|texts|letter|letters|number|numbers|label|labels|caption|captions|logo|logos|watermark|watermarks)\b/gi, " ")
+    .replace(/\s+([,.;:])/g, "$1").replace(/\s*,\s*,+/g, ",")
+    .replace(/\s+/g, " ").replace(/^[,;:\s]+|[,;:\s]+$/g, "").trim();
+}
+/* Промпт из плана: английский базовый текст, пожелание — одной строкой перед NEG_TAIL. */
+function vpImagePrompt(base, wish = "") {
+  const prompt = String(base || "").trim();
+  if (!prompt || /[А-Яа-яЁё]/.test(prompt)) return "";
+  const tail = String(window.VisualPlan?.NEG_TAIL || "");
+  const w = vpCleanWish(wish);
+  if (!w || !tail || !prompt.endsWith(tail)) return prompt;
+  const head = prompt.slice(0, prompt.length - tail.length).replace(/\s+$/, "");
+  const full = `${head} Teacher's visual preferences: ${w} ${tail}`;
+  return full.length <= 900 ? full : prompt;
+}
+function deckImagePrompt(p, sl, wish = "") {
+  const VP = window.VisualPlan;
+  if (VP && typeof VP.planForSlide === "function") {
+    const vp = sl && sl.vp && sl.vp.image_prompt ? sl.vp : vpPlanForSlide(p, sl);
+    if (vp && vp.image_prompt) {
+      if (sl) sl.vp = vp;
+      const clean = vpImagePrompt(vp.image_prompt, wish);
+      if (clean) return clean;
+      /* v1.2: у символического плана промпт уже без предметов — возвращаем его как есть */
+      if (vpIsSymbolicPlan(vp) && vp.image_prompt) return String(vp.image_prompt);
+    }
+  }
+    return deckImagePromptBase(p, sl, wish, o);
+}
+
 /* Незаполненные места под картинки: поиск не нашёл, ИИ не нарисовал — рамку с подсказкой
    «подберите сами» с презентации убираем. Слайд не остаётся с пустым местом, а картинку
    всегда можно подобрать или нарисовать заново кнопками в редакторе. */
@@ -2314,32 +2480,48 @@ const REAL_VISUAL = /портрет|писател|поэт|художник|к�
    Работает для всех предметов. Поисковые заготовки, которые поиск не заполнил, заменяются
    нарисованной картинкой. opts.manual — запуск кнопкой из редактора (можно повторно). */
 async function aiDeckPics(L, opts = {}) {
-  const manual = !!opts.manual;
-  const md0 = L?.docs?.slides; if (!md0 || !window.ImageGen || !window.SlideEditor) return { n: 0 };
-  const stop = msg => { if (manual) toast(msg, 10000); else imgFail(msg); };
-  if (window.Access && !Access.imagesAllowed()) { stop("ИИ-картинки входят в тариф «С ИИ»: 6 листов в месяц."); return { n: 0 }; }
-  if (window.Access && Access.imageLeft() <= 0) { stop("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца."); return { n: 0 }; }
-  if (!ImageGen.configured()) { stop("Ключ для картинок не подключён."); return { n: 0 }; }
+  const onPct = typeof opts === "function" ? opts : null;
+  const o = (opts && typeof opts === "object") ? opts : {};
+  const manual = !!o.manual;
+  const pct = v => { try { onPct && onPct(v); } catch (e) { } };
+  const md0 = L?.docs?.slides; if (!md0 || !window.ImageGen || !window.SlideEditor) { pct(100); return { n: 0 }; }
+  const stop = msg => { if (manual) toast(msg, 10000); else if (buildDev()) imgFail(msg); else console.warn("[img]", msg); };
+  if (window.Access && !Access.imagesAllowed()) { stop("ИИ-картинки входят в тариф «С ИИ»: 6 листов в месяц."); pct(100); return { n: 0 }; }
+  if (window.Access && Access.imageLeft() <= 0) { stop("В этом месяце лимит листов с картинками исчерпан. Он обновится в начале следующего месяца."); pct(100); return { n: 0 }; }
+  if (!ImageGen.configured()) { stop("Ключ для картинок не подключён."); pct(100); return { n: 0 }; }
   const parts = splitSlides(md0), slides = parts.map(SlideEditor.parse);
   const cand = slides.flatMap((sl, i) => sl.title && !SlideEditor.slideHasTools(sl) &&
     !/рефлекс|домашн|план урока|условные обозначения|^итог/i.test(sl.title) &&
     !sl.set.bgimg && !sl.set.stk?.some(s => s.img) &&
     ![...sl.body.matchAll(Media.RE)].some(m => !PIC_PENDING.test(m[2])) ? [i] : []);
-  const max = Math.max(1, Math.min(8, opts.max || (manual ? 6 : 4)));
-  if (!cand.length) {
-    const clean = dropPendingPics(md0);
-    if (clean !== md0 && L.docs.slides === md0) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
-    toast(manual ? "Во всех подходящих слайдах уже есть картинки. Заменить картинку можно, щёлкнув по слайду." : "ИИ-картинки не добавлены: на всех подходящих слайдах уже есть изображения или служебные блоки.", 9000);
-    return { n: 0, cleaned: clean !== md0 };
+  const vpOk = window.VisualPlan && typeof window.VisualPlan.planForSlide === "function";
+  const plans = vpOk ? cand.map(i => vpPlanForSlide(L.params, slides[i])) : [];
+  const symIdx = cand.filter((i, k) => plans[k] && vpIsSymbolicPlan(plans[k]));
+  const lib = symIdx.length ? vpSymbolicLibrary(symIdx, slides, parts, L.params) : 0;
+  const genCand = vpOk ? cand.filter((i, k) => !plans[k] || (plans[k].editorial_check?.visual_strategy === "flux_generation" && !vpIsSymbolicPlan(plans[k]))) : cand;
+  const planOf = new Map(cand.map((i, k) => [i, plans[k]]));
+  const max = Math.max(1, Math.min(8, o.max || (manual ? 6 : 4)));
+  if (!genCand.length) {
+    const next0 = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
+    const clean0 = dropPendingPics(next0);
+    if ((lib || clean0 !== md0) && L.docs.slides === md0) { L.docs.slides = clean0; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
+    if (manual || buildDev()) toast(manual ? "Во всех подходящих слайдах уже есть картинки. Заменить картинку можно, щёлкнув по слайду." : "ИИ-картинки не добавлены: на всех подходящих слайдах уже есть изображения или служебные блоки.", 9000);
+    pct(100);
+    return { n: 0, lib, cleaned: clean0 !== md0 };
   }
-  const pick = spreadIdx(cand, max);
-  toast(manual ? "Рисую картинки для презентации… до двух минут." : "Рисую красивые картинки для презентации…", 90000); // запасной генератор рисует медленнее
+  const pick = spreadIdx(genCand, max);
+  if (manual || buildDev()) toast(manual ? "Рисую картинки для презентации… до двух минут." : "Рисую красивые картинки для презентации…", 90000);
+  pct(5);
   let n = 0, freeN = 0, lastErr = "";
-  for (const i of pick) {
+  for (let k = 0; k < pick.length; k++) {
+    const i = pick[k];
     const sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
+    const plan = planOf.get(i);
+    if (plan && vpIsSymbolicPlan(plan)) continue; // v1.2: символический план в FLUX не уходит
     const real = REAL_VISUAL.test(`${sl.title || ""} ${sl.body || ""}`);
     try {
-      const im = await ImageGen.image(deckImagePrompt(L.params, sl, "", { real }), { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
+      const prompt = plan && plan.image_prompt ? (vpImagePrompt(plan.image_prompt) || plan.image_prompt) : deckImagePrompt(L.params, sl, "", { real });
+      const im = await ImageGen.image(prompt, { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
       const response = await fetch(im.url);
       if (!response.ok) throw new Error("Не удалось загрузить изображение.");
       const blob = await response.blob(), id = "img-" + uid(); await Store.put("images", id, blob);
@@ -2347,28 +2529,31 @@ async function aiDeckPics(L, opts = {}) {
       sl.body = [Media.mdImage(real ? `${title} — иллюстрация (нейросеть)` : title, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
       sl.set.afs = undefined;
       parts[i] = SlideEditor.build(sl); n++;
-      if (im.free) freeN++; // картинку дорисовал бесплатный запасной генератор: лимит тарифа не тратим
+      if (im.free) freeN++;
     } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
+    pct(5 + ((k + 1) / Math.max(1, pick.length)) * 90);
   }
   const next = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
   const clean = dropPendingPics(next);
-  if (n && L.docs.slides === md0) {
+  if ((n || lib) && L.docs.slides === md0) {
     L.docs.slides = clean; L.slidesFitted = false;
-    if (freeN < n) window.Access?.countImage(1);
+    if (n && freeN < n) window.Access?.countImage(1);
     await saveLesson(L); if (state.lesson?.id === L.id) renderLesson();
-    toast(freeN === n
+    if (manual || buildDev()) toast(freeN === n && n
       ? `Добавлено картинок: ${n}. Их нарисовал бесплатный запасной генератор: общие ключи ИИ на сервере сейчас не работают, поэтому в углу каждой картинки — небольшая подпись сервиса. Лимит тарифа не потрачен.`
-      : freeN ? `Добавлено картинок: ${n}, из них ${freeN} — бесплатным запасным генератором (общий ключ ИИ недоступен).`
-        : `Добавлено ИИ-картинок: ${n}.`, freeN ? 14000 : 5000);
-    return { n, freeN, cleaned: clean !== md0 };
+      : n ? `Добавлено ИИ-картинок: ${n}.` : "Картинки взяты из библиотеки урока.", 9000);
+    pct(100);
+    return { n, freeN, lib, cleaned: clean !== md0 };
   }
   if (!n) {
     const m = "Нейросеть не нарисовала ни одной картинки" + (lastErr ? ": " + lastErr : ".");
-    if (manual || (imgTechFail(lastErr) && !ImageGen.isDevUser())) toast(manual ? "Не удалось нарисовать: " + (lastErr || "нет ответа") + ". Можно подобрать картинку поиском — кнопка «Подобрать картинки»." : "ИИ-картинки сейчас недоступны: у сайта перестал работать ключ ИИ. Презентация собрана с изображениями, которые сайт подобрал сам, лимит картинок не потрачен. Попробуйте позже.", 12000);
-    else imgFail(m);
+    if (manual || (imgTechFail(lastErr) && !ImageGen.isDevUser())) { if (manual || buildDev()) toast(manual ? "Не удалось нарисовать: " + (lastErr || "нет ответа") + ". Можно подобрать картинку поиском — кнопка «Подобрать картинки»." : "ИИ-картинки сейчас недоступны: презентация собрана с изображениями, которые сайт подобрал сам, лимит картинок не потрачен. Попробуйте позже.", 12000); }
+    else if (buildDev()) imgFail(m);
+    else console.warn("[img]", m);
     if (clean !== md0 && L.docs.slides === md0) { L.docs.slides = clean; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
   }
-  return { n, freeN, cleaned: clean !== md0 };
+  pct(100);
+  return { n, freeN, lib, cleaned: clean !== md0 };
 }
 /* Кнопка в редакторе презентации: догенерировать картинки во всю презентацию (можно повторно). */
 window.DeckAiPics = { run: (o = {}) => aiDeckPics(state.lesson, { manual: true, max: 6, ...o }), dropPending: dropPendingPics };
@@ -3014,9 +3199,11 @@ async function resumeJob() {
   const p = { ...J.p, type, notes: rec.notes || J.notes || null };
   if (p.notes?.prompt) p.wishes = p.notes.prompt;
   J.at = Date.now(); saveJob(J);
-  toast(`Продолжаю сборку урока «${J.p.topic}»…`, 4000);
+  const label = J.formats.length === 1 && J.formats[0] === "slides" ? "Создаю презентацию" : "Создаю материалы урока";
+  buildBegin(label);
   if (J.useAi) window.Usage?.begin("Сборка урока", J.p.topic);
-  return runJob(L, p, type, gen, J.formats, J.useAi, J.hideTech).catch(e => console.warn("resume", e));
+  try { const ok = await runJob(L, p, type, gen, J.formats, J.useAi, J.hideTech); buildFinish(ok); return ok; }
+  catch (e) { buildFinish(false); console.warn("resume", e); return false; }
 }
 async function buildWithAi(L, p, type, formats) {
   const lessonMaterialsNote = relevantMaterials(p.topic, p.grade, p.subject).length;
@@ -3483,10 +3670,16 @@ function askDeckEdit() {
 window.LessonAI = { refineSlide, refineDocs, askSlideEdit, askDeckEdit, refineScopeNow, syncRefineScope };
 // плавный прогресс, пока лист собирается «за кадром» (нейросеть продумывает замысел и техкарту)
 setInterval(() => { const g = state.gen; if (!g?.fake) return; g.pct = Math.min(92, Math.round((g.pct + Math.max(0.4, (92 - g.pct) * 0.02)) * 10) / 10); updateProgress(); }, 1000);
+/* Полоса единого процесса сборки ползёт непрерывно, пока идёт работа (включая ИИ-картинки). */
+setInterval(() => {
+  if (!buildFlow.active || buildFlow.pct >= 100) return;
+  if (buildFlow.pct < buildFlow.target) {
+    buildFlow.pct = Math.min(buildFlow.target, buildFlow.pct + Math.max(0.12, (buildFlow.target - buildFlow.pct) * 0.022));
+    updateProgress();
+  }
+}, 450);
 function updateProgress() {
   const g = state.gen, L = state.lesson;
-  /* Полоса не «прыгает» назад: внутри одного документа прогресс только растёт.
-     При переходе к следующему документу отсчёт начинается заново. */
   if (g) {
     if (g._pdoc !== g.doc) { g._pdoc = g.doc; g._pshown = Math.max(0, Math.min(100, +g.pct || 0)); }
     else { g.pct = Math.max(+g.pct || 0, g._pshown || 0); g._pshown = Math.max(g._pshown || 0, +g.pct || 0); }
@@ -3494,8 +3687,22 @@ function updateProgress() {
   }
   const mine = g && L && g.lessonId === L.id;
   $$(".doc-tab").forEach(b => { const d = b.dataset.doc, pct = $(".pct", b); if (!pct) return; pct.textContent = mine && g.doc === d ? ` ${Math.round(g.pct)}%` : ""; });
+  const progress = $("#progress"); if (!progress) return;
+  if (buildFlow.active) {
+    $$(".doc-tab .pct").forEach(p => { if (p) p.textContent = ""; });
+    if (g && Number.isFinite(+g.pct)) {
+      const mapped = 1 + Math.max(0, Math.min(100, +g.pct)) * 0.89;
+      if (mapped > buildFlow.pct) buildFlow.pct = Math.min(96, mapped);
+      if (buildFlow.pct + 3 < 96) buildFlow.target = Math.min(96, Math.max(buildFlow.target, buildFlow.pct + 3));
+    }
+    progress.hidden = false;
+    const pb = $("#progressBar"), txt = $("#progressText");
+    if (pb) { pb.style.transition = "width .5s linear"; pb.style.width = buildFlow.pct + "%"; }
+    if (txt && buildFlow.pct < 100) txt.textContent = `${buildFlow.label}… ${Math.round(buildFlow.pct)}%`;
+    return;
+  }
   const show = mine && g.doc === state.active;
-  $("#progress").hidden = !show;
+  progress.hidden = !show;
   if (show) { $("#progressText").textContent = `${DOCS[g.doc].label}${g.label ? " · " + g.label : ""}: ${Math.round(g.pct)}%`; const pb = $("#progressBar"); pb.style.transition = "width .5s linear"; pb.style.width = g.pct + "%"; }
 }
 

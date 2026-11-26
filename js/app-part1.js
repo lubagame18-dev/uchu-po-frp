@@ -1,4 +1,4 @@
-﻿
+
 /* ===================================================================
    МЕТОДИЧЕСКАЯ БАЗА «УЧУ ПО ФРП»
    Собрана из загруженных файлов (19 шт.) + ФРП/ФИПИ.
@@ -2598,6 +2598,18 @@ const Media = (() => {
     }).filter(Boolean).sort((a, b) => b.score - a.score);
     return entries[0]?.item || null;
   }
+  /* Резервная картинка-схема (js/visualplan.js): локальный SVG без текста, карт и лиц.
+     Ставится только там, где раньше оставалась пустая заглушка «подберите картинку». */
+  function vpFallbackUrl(seed, subject) {
+    const VP = window.VisualPlan;
+    if (!VP || typeof VP.fallbackSvg !== "function") return "";
+    try {
+      const svg = VP.fallbackSvg(String(seed || ""), subject);
+      if (!svg) return "";
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(String(svg)).replace(/[()'"]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase());
+    } catch (e) { console.warn("visualplan", e); return ""; }
+  }
+  function vpFallbackSeed(ctx, q) { return [ctx?.subject, ctx?.grade, ctx?.topic, q].map(x => String(x ?? "").trim()).join("|"); }
   async function autoFill(md, onProgress, ctx = {}) {
     // викторина, выбор ответа, самопроверка, справка и «Ответы» картинок не получают: вместо заглушки, вылезающей за рамку, токен просто убираем
     md = md.replace(RE, (match, _caption, src, _options, index, source) => {
@@ -2610,18 +2622,28 @@ const Media = (() => {
     for (const m of [...md.matchAll(RE)].filter(m => m[2].startsWith("commons:"))) {
       const q = decodeURIComponent(m[2].slice(8)).trim();
       const intent = artIntent(q);
+      const fbMap = intent === "map" ? vpFallbackUrl(vpFallbackSeed(ctx, q), ctx.subject) : "";
+      if (fbMap) { // карту не ищем вообще: сразу локальный резерв без картографических символов
+        md = md.replace(m[0], mdImage("Иллюстрация-схема: подберите наглядность сами", fbMap, { q }));
+        continue;
+      }
       const hit = intent ? await commonsBest(q, intent) : pickBest(q, await commons(q, 8));
       let rep = null;
       if (hit) { const b = await toBlob(hit.url); let src = hit.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } rep = mdImage(hit.cap, src, { ...parseOpts(m[3]), q, from: "Викисклад" }); }
-      else if (intent) { // случайное фото вместо картины/карты/схемы не ставим: пустое место с подсказкой
+      else if (intent) { // случайное фото вместо картины/карты/схемы не ставим: локальный SVG-резерв или место с подсказкой
         const isMap = intent === "map", isScheme = intent === "scheme";
         const cap = `${m[1] || (isMap ? "Карта" : isScheme ? "Схема" : "Репродукция")} — ${isMap ? "подберите карту" : isScheme ? "подберите схему" : "подберите репродукцию"}`;
-        const need = isMap
-          ? `Карту не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите карту или картосхему с подписью.`
-          : isScheme
-            ? `Схему не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите схему или диаграмму — либо оставьте текстовую схему на слайде.`
-            : `Репродукцию не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите картину или иллюстрацию с подписью — художник, название, год.`;
-        rep = mdImage(cap, m[2], { q, need });
+        const fb = vpFallbackUrl(vpFallbackSeed(ctx, q), ctx.subject);
+        if (fb) { // подпись честная: это схема-резерв, а не подделка репродукции/карты
+          rep = mdImage(`Иллюстрация-схема: подберите ${isMap ? "наглядность" : isScheme ? "схему" : "репродукцию"} сами`, fb, { q });
+        } else {
+          const need = isMap
+            ? `Карту не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите карту или картосхему с подписью.`
+            : isScheme
+              ? `Схему не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите схему или диаграмму — либо оставьте текстовую схему на слайде.`
+              : `Репродукцию не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите картину или иллюстрацию с подписью — художник, название, год.`;
+          rep = mdImage(cap, m[2], { q, need });
+        }
       }
       else rep = mdImage(`${m[1]} (укажите художника и название)`, "search:" + q, { q });
       md = md.replace(m[0], rep);
@@ -2633,6 +2655,12 @@ const Media = (() => {
     for (const [k, m] of todo.entries()) {
       const P = plan[k] || {}, q0 = decodeURIComponent(m[2].slice(7)), q = P.query || q0;
       const intent0 = artIntent(q0); // art/map-интент: проверяем, что пришла картина/карта, а не случайное фото
+      const fbMap0 = intent0 === "map" ? vpFallbackUrl(vpFallbackSeed(ctx, q0), ctx.subject) : "";
+      if (fbMap0) { // старый сохранённый урок с запросом карты: карту не ищем, ставим резерв без карт
+        out = out.replace(m[0], mdImage("Иллюстрация-схема: подберите наглядность сами", fbMap0, { ...Media_parse(m[3]), q: q0 }));
+        onProgress && onProgress(++done, todo.length);
+        continue;
+      }
       const queries = [...new Set([q, P.alt, !P.strict ? q0 : ""].filter(Boolean))];
       let found = null;
       for (const query of queries) {
@@ -2641,12 +2669,18 @@ const Media = (() => {
         if (found) break;
       }
       if (found) usedUrl.add(found.url);
-      else { // не нашлось: пустое место с подсказкой — о чём слайд и какую картинку подобрать
+      else { // не нашлось: локальный SVG-резерв вместо пустого места — о чём слайд и какую картинку подобрать
         const sl = slideOf(md, m.index), title = ((sl.match(/^#{1,2}\s+(.+)$/m) || [])[1] || "").replace(/[🖼🎯💬📖🔍✍️🪞🏠🧩📝*_]/gu, "").trim();
         const kw = P.must?.[0] && P.must[0] !== "\u0000" ? P.must[0] : "", lit = /«|портрет|иллюстрац/i.test(q0);
-        const need = `На слайде — «${title || m[1] || q0}». Подходящую картинку сайт не нашёл, искал «${kw || q0}». Подберите сами: ${/портрет/i.test(q0) ? "портрет писателя с подписью — художник, год" : lit ? "иллюстрацию к этой сцене или герою — художник, название" : kw ? `фото или рисунок, где есть «${kw}» — как в примере на слайде` : "картинку к примеру или тексту на слайде"}.`;
-        const cap = intent0 ? `${m[1] || (intent0 === "map" ? "Карта" : "Репродукция")} — ${intent0 === "map" ? "подберите карту" : "подберите репродукцию"}` : m[1];
-        out = out.replace(m[0], mdImage(cap, m[2].split(" ")[0] === m[2] ? m[2] : m[2], { ...Media_parse(m[3]), q: q0, need }));
+        const fb = vpFallbackUrl(vpFallbackSeed(ctx, q0), ctx.subject);
+        if (fb) {
+          const fbCap = m[1] && !/подберите|карт[аыуе]/i.test(m[1]) ? m[1] : `Иллюстрация${title ? ": " + title : ""}`;
+          out = out.replace(m[0], mdImage(fbCap, fb, { ...Media_parse(m[3]), q: q0 }));
+        } else {
+          const need = `На слайде — «${title || m[1] || q0}». Подходящую картинку сайт не нашёл, искал «${kw || q0}». Подберите сами: ${/портрет/i.test(q0) ? "портрет писателя с подписью — художник, год" : lit ? "иллюстрацию к этой сцене или герою — художник, название" : kw ? `фото или рисунок, где есть «${kw}» — как в примере на слайде` : "картинку к примеру или тексту на слайде"}.`;
+          const cap = intent0 ? `${m[1] || (intent0 === "map" ? "Карта" : "Репродукция")} — ${intent0 === "map" ? "подберите карту" : "подберите репродукцию"}` : m[1];
+          out = out.replace(m[0], mdImage(cap, m[2].split(" ")[0] === m[2] ? m[2] : m[2], { ...Media_parse(m[3]), q: q0, need }));
+        }
       }
       if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(found.cap || m[1] || found.title, src, { ...parseOpts(m[3]), q, from: found.src })); }
       onProgress && onProgress(++done, todo.length);

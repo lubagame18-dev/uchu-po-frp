@@ -350,6 +350,8 @@ const Deck = (() => {
   /* Своя база иллюстраций (data/lesson-images.js, собрано из Википедии/Викисклада, только свободные лицензии):
      картинки урока подставляются вместо поиска «commons:…»; если в уроке нет ни одной картинки — добавляется слайд с ней. */
   const LIMG_NORM = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9]+/g, " ").trim();
+  /* картографические изображения из библиотеки на слайды не ставим (правило методиста) */
+  const LIB_MAP_RE = /карт[аыуеой]|картосхем|атлас|\bmap\b/i;
   let limgIdx = null;
   function lessonImages(p) {
     const B = window.UCHU_LESSON_IMAGES; if (!B || !B.lessons || !p) return [];
@@ -365,10 +367,19 @@ const Deck = (() => {
     const L = lessonImages(p); if (!L.length) return cards;
     const credit = im => /собственн/.test(im.license || "") ? `Схема: собственный чертёж «Учу по ФРП».` : `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
     const used = new Set();
+    const available = () => L.filter(im => !used.has(im.img)).map(im => ({ ...im, url: im.img, cap: im.caption, artist: im.author }));
     const out = cards.map(c => {
-      if (!c || !/^commons:/.test(String(c.img || "")) || /портрет|(?:^|[\s:])карт[аыу]?(?:\s|$)|\bmap\b/i.test(c.img)) return c;
-      const available = L.filter(im => !used.has(im.img)).map(im => ({ ...im, url: im.img, cap: im.caption, artist: im.author }));
-      const im = window.Media?.pickBest?.(String(c.img).slice(8), available);
+      if (!c) return c;
+      /* v1.2: символический план — вместо FLUX реальная картинка урока из библиотеки;
+         нет подходящей — оставляем слайд чистым (пустой img не ставим). Карты не берём. */
+      if (!c.img && c.vp && vpSymbolic(c.vp)) {
+        const own = available().filter(im => !LIB_MAP_RE.test([im.title, im.caption, im.desc].join(" ")))[0];
+        if (!own) return c;
+        used.add(own.img);
+        return { ...c, img: own.img, cap: own.title, notes: [c.notes, own.caption && own.caption !== own.title ? own.caption + "." : "", credit(own)].filter(Boolean).join(" ") };
+      }
+      if (!/^commons:/.test(String(c.img || "")) || /портрет|(?:^|[\s:])карт[аыу]?(?:\s|$)|\bmap\b/i.test(c.img)) return c;
+      const im = window.Media?.pickBest?.(String(c.img).slice(8), available());
       if (!im) return c;
       used.add(im.img);
       return { ...c, img: im.img, cap: im.title, notes: [c.notes, im.caption && im.caption !== im.title ? im.caption + "." : "", credit(im)].filter(Boolean).join(" ") };
@@ -379,6 +390,72 @@ const Deck = (() => {
       if (end >= 0) out.splice(end, 0, card); else out.push(card);
     }
     return out;
+  }
+  /* ---------- визуальные планы (js/visualplan.js): без модуля — прежнее поведение ----------
+     План слайда: один объект/сцена, английский промпт без имён и текста, карты запрещены.
+     card.vp — план, card.img — запрос для автоподбора (search:/commons:/data:); flux — пусто
+     и card.vp.flow = "flux": картинку нарисует aiDeckPics по image_prompt. */
+  function vpPlanFor(p, slide) {
+    const VP = window.VisualPlan;
+    if (!VP || typeof VP.planForSlide !== "function") return null;
+    try {
+      const plan = VP.planForSlide({ subject: p?.subject, grade: p?.grade, topic: p?.topic, slide });
+      return plan && typeof plan === "object" ? plan : null;
+    } catch (e) { console.warn("visualplan", e); return null; }
+  }
+  function vpResolvePlan(plan) {
+    const VP = window.VisualPlan;
+    if (!VP || typeof VP.resolveQuery !== "function") return null;
+    try { return VP.resolveQuery(plan) || null; } catch (e) { console.warn("visualplan", e); return null; }
+  }
+  function vpSlideOf(card) {
+    const points = (card.points || []).map(x => String(x || "").trim()).filter(Boolean).slice(0, 6);
+    const body = [card.lead, ...points, card.body || card.text || ""].filter(Boolean).join("\n");
+    return { title: String(card.title || ""), body: body.slice(0, 1200), points };
+  }
+  /* v1.2 (grounded-only): символический план — объект не распознан из темы/фактов, рисовать
+     «по ассоциации» нельзя. Групповая тема без grounded-объекта («Простейшие», «Кислоты»)
+     ведёт себя так же (уточнение Lead). Без API движка — false: прежнее поведение. */
+  function vpSymbolic(plan) {
+    if (!plan || typeof plan !== "object") return false;
+    const VP = window.VisualPlan;
+    if (!VP) return false;
+    try {
+      if (typeof VP.isSymbolic === "function" && VP.isSymbolic(plan) === true) return true;
+    } catch (e) { console.warn("visualplan", e); }
+    try {
+      if (typeof VP.grounding === "function") {
+        const g = VP.grounding(plan);
+        if (g && typeof g === "object") {
+          if (g.symbolic === true) return true;
+          if (g.topicType === "group" && g.grounded !== true) return true;
+        }
+      }
+    } catch (e) { console.warn("visualplan", e); }
+    return false;
+  }
+  /* План для карточки. true — план/картинка поставлены (в т. ч. flux с пустым img). */
+  function vpFillCard(card, p) {
+    const plan = vpPlanFor(p, vpSlideOf(card));
+    if (!plan) return false;
+    card.vp = plan;
+    /* v1.2: символический план — пустой img не ставим и FLUX не просим; реальную
+       библиотечную картинку урока подставит localImages(), иначе слайд — чистый текст. */
+    if (vpSymbolic(plan)) return true;
+    const q = vpResolvePlan(plan);
+    if (!q || !q.value) { card.img = ""; return false; }
+    if (q.kind === "flux") { card.img = ""; card.vp.flow = "flux"; return true; }
+    card.img = q.kind === "search" ? "search:" + String(q.value)
+      : q.kind === "commons" ? "commons:" + String(q.value)
+        : String(q.value);
+    return true;
+  }
+  /* Запрос карты для картинки запрещён правилом методиста: вместо карты — план без карт или пусто. */
+  function vpMapQuery(img) {
+    const s = String(img || "").trim();
+    if (!s || /^(?:data:|idb:|img\/|https?:)/i.test(s)) return false;
+    const q = s.replace(/^(?:search|commons):/i, "");
+    return /(?:^|[\s:«"'(])(?:карт[аыуеой]|картосхем|атлас|atlas|map\b|план\s+местности|контурн[аоы]|схема\s+сражен)/i.test(q);
   }
   function fillImages(cards, p, o) {
     /* Картинки — только там, где они действительно уместны (литература, история, МХК, ИЗО, музыка, карты).
@@ -415,7 +492,8 @@ const Deck = (() => {
       const qImg = (lit ? `${sur} ${work || p.topic} иллюстрация картина художника ${spec}` : `${concrete} ${base}`).replace(/\s+/g, " ").trim(); // литература: только иллюстрация художника к произведению
       /* Литература, МХК, ИЗО, музыка: берём только проверенную живопись/иллюстрацию (commons:),
          а не случайное фото. Нет подходящей картины/иллюстрации — слайд остаётся без картинки. */
-      const artOnly = ["lit", "mhk", "izo", "mus"].includes(p.subject); card.img = artOnly ? `commons:${qImg}` : qImg;
+      const artOnly = ["lit", "mhk", "izo", "mus"].includes(p.subject);
+      if (!vpFillCard(card, p)) card.img = artOnly ? `commons:${qImg}` : qImg;
       card.acc = ++side % 2 ? "right" : "left";
     }
     /* мало картинок — добавляем на обложку и ключевые слайды, чтобы презентация не была «серой» */
@@ -425,14 +503,14 @@ const Deck = (() => {
         for (const cand of cards) {
           if (have >= 3) break;
           if (cand.img || !["title", "big", "cards", "list", "steps", "concl"].includes(cand.kind)) continue;
-          cand.img = cand.kind === "title" ? `${base} ${p.topic}` : `${String(cand.title || "").replace(/[«»"]/g, "")} ${base}`;
-          cand.acc = ++side % 2 ? "right" : "left"; have++;
+          if (!vpFillCard(cand, p)) cand.img = cand.kind === "title" ? `${base} ${p.topic}` : `${String(cand.title || "").replace(/[«»"]/g, "")} ${base}`;
+          cand.acc = ++side % 2 ? "right" : "left"; if (cand.img) have++;
         }
       }
     }
     if (mode === "key" && !lit) {
       const mot = cards.find(x => ["cards", "big"].includes(x.kind) && /начн|вспомн|задача/i.test(x.title || ""));
-      if (mot && !mot.img) { mot.img = core; mot.acc = "right"; }
+      if (mot && !mot.img) { if (!vpFillCard(mot, p)) mot.img = core; mot.acc = "right"; }
     }
     return cards;
   }
@@ -467,7 +545,23 @@ const Deck = (() => {
     const qs = p.subject === "geo"
       ? ["Найдите на карте объекты, о которых говорится в теме.", "Определите географическое положение: полушарие, широта, соседние объекты.", "Прочитайте легенду карты: какие условные знаки понадобились?"]
       : ["Найдите на карте место события и назовите соседние страны и моря.", "Проследите по карте ход события: откуда и куда двигались участники.", "Как география объясняет события урока?"];
-    return { kind: "appendix", appendix: "map", title: "Работа с картой", img: `commons:карта ${region}`, cap: "Карта: подпись и масштаб — на изображении", points: qs, notes: "Карта подбирается с проверкой: в названии файла должно быть «карта/map»; если не нашлась — выберите карту сами." };
+    /* Карту для изображения не подбираем (правило методиста): у географической темы — план с природным
+       ландшафтом без картографических обозначений, у негеографической — карточка без изображения.
+       Текст вопросов не меняется; карта остаётся в работе с настенной картой/атласом. */
+    const card = { kind: "appendix", appendix: "map", title: "Работа с картой", cap: p.subject === "geo" ? "Природная зона: вид местности" : "", points: qs, notes: "Вопросы — для работы с настенной картой или атласом: изображение карты сайт не подбирает, чтобы на слайде не оказалась случайная картосхема." };
+    if (p.subject === "geo") {
+      const plan = vpPlanFor(p, { title: "Работа с картой", body: `Природная зона: ${region}. Вид местности без картографических обозначений.`, points: [] });
+      if (plan) {
+        card.vp = plan;
+        /* v1.2: у символического плана FLUX не просим — карточка остаётся без изображения */
+        if (!vpSymbolic(plan)) {
+          const q = vpResolvePlan(plan);
+          if (q && q.kind === "flux") card.vp.flow = "flux";
+          else if (q && q.value && !vpMapQuery(String(q.value))) card.img = q.kind === "search" ? "search:" + q.value : q.kind === "commons" ? "commons:" + q.value : String(q.value);
+        }
+      }
+    }
+    return card;
   }
   function answersAppendix(cards) {
     const out = [];
@@ -924,10 +1018,18 @@ const Deck = (() => {
     const first = cards.findIndex(c => c?.kind === "title" && c.on !== false);
     return first >= 0 && (!cards[first].title || documentTitle(cards[first].title)) ? cards.map((c, i) => i === first ? { ...c, title: topic } : c) : cards;
   }
-  function cardMd(card) {
+  function cardMd(card, p) {
     const set = {};
     let title = card.title || "", level = 2, body = "";
-    const isrc = card.img ? (/^(commons:|img\/|https?:)/.test(card.img) ? card.img : "search:" + card.img).replace(/[()"]/g, "").trim() : "";
+    /* Карту для изображения не ищем (правило методиста): вместо запроса — план без карт или пустое место. */
+    if (card.img && vpMapQuery(card.img)) {
+      /* Карту не ищем: план без карт (или символический план — тогда просто убираем запрос карты) */
+      if (!vpFillCard(card, p || {})) card.img = "";
+      else if (card.vp && vpSymbolic(card.vp)) card.img = "";
+    }
+    const rawSrc = card.img ? (/^(?:commons:|search:|data:|img\/|https?:)/i.test(String(card.img)) ? String(card.img) : "search:" + card.img) : "";
+    // data: (SVG-план) не оборачиваем в search:; в адресе картинки нельзя оставлять скобки и кавычки — экранируем процентами
+    const isrc = /^data:/i.test(rawSrc) ? rawSrc.replace(/[()"]/g, c => c === "(" ? "%28" : c === ")" ? "%29" : "%22") : rawSrc.replace(/[()"]/g, "").trim();
     const img = card.img ? `![${md1(card.cap || card.title).replace(/[\[\]()]/g, "")}](${isrc})` : "";
     switch (card.kind) {
       case "title": level = 1; set.layout = "title"; body = (card.points || []).join("\n\n"); break;
@@ -1053,7 +1155,7 @@ const Deck = (() => {
     const seen = new Set(), parts = [];
     for (const c of cards) {
       if (c.on === false || (c.kind === "section" && !hasBody(c))) continue;
-      const md = cardMd(c), key = md.replace(/\n\n<!-- [\s\S]*? -->$/, "");
+      const md = cardMd(c, p), key = md.replace(/\n\n<!-- [\s\S]*? -->$/, "");
       if (c.kind !== "title" && seen.has(key)) continue;
       seen.add(key);
       parts.push(md);
@@ -1395,6 +1497,6 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
     };
   }
 
-  return { prune, localImages, lessonImages, childGoal, outline, toMarkdown, build, preserveTools, repairPresentation, repairOutlineTitle, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM, PRACTICE_RULE };
+  return { prune, localImages, lessonImages, fillImages, childGoal, outline, toMarkdown, build, preserveTools, repairPresentation, repairOutlineTitle, mediaFill, aiLit, aiWishes, openOutline, verbatimMd, parseConspect, tight, opts, AMOUNT, IMAGES, KINDS, VERBATIM, PRACTICE_RULE };
 })();
 window.Deck = Deck;
