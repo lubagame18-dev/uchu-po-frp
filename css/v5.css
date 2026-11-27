@@ -942,6 +942,9 @@ figure.pic .pic-empty.need span { max-width: 52ch; line-height: 1.35; }
 .acc-edge.e-top { left: 0; right: 0; top: calc(var(--aw, 44%) - 2cqw); height: 4cqw; cursor: ns-resize; }
 .acc-edge.e-top::before { left: 50%; top: 50%; height: 1.1cqw; width: 9cqw; transform: translate(-50%, -50%); }
 .inner-move { position: absolute; left: -.2cqw; top: -.2cqw; z-index: 6; display: none; touch-action: none; cursor: move; user-select: none; font-size: 2.2cqw; line-height: 1; padding: .5cqw .7cqw; border-radius: .6cqw; background: var(--sx-accent, #c0392b); color: #fff; box-shadow: 0 .2cqw .8cqw rgba(0,0,0,.3); }
+.photo-move { position: absolute; right: 1.2cqw; bottom: 1.2cqw; z-index: 7; display: none; touch-action: none; cursor: move; user-select: none; font-size: 2.4cqw; line-height: 1; padding: .55cqw .8cqw; border-radius: .6cqw; background: rgba(0,0,0,.62); color: #fff; box-shadow: 0 .2cqw .8cqw rgba(0,0,0,.35); }
+.sx-frame.big .sx:hover .photo-move, .sx-frame.big .sx:focus-within .photo-move { display: block; }
+.sx-mini .photo-move, .sx-view .photo-move { display: none !important; }
 .sx-frame.big .sx:hover .acc-edge, .sx-frame.big .sx:hover .inner-move, .sx-frame.big .sx:focus-within .acc-edge, .sx-frame.big .sx:focus-within .inner-move { display: block; }
 .sx-mini .acc-edge, .sx-mini .inner-move, .sx-view .acc-edge, .sx-view .inner-move { display: none !important; }
 /* На сенсорном экране ручки блока доступны после выбора. */

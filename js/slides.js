@@ -328,7 +328,7 @@ const SlideEditor = (() => {
     const H = sl.level === 1 || lay === "title" ? "h1" : "h2";
     const ttlText = shortTitle(tieQuotes(sl.title)); const ttlCls = ttlText.length > 62 ? "sx-title xlong" : ttlText.length > 38 ? "sx-title long" : "sx-title";
     const stk = [...(TK && !st.nostk ? ThemeKit.autoStickers(T, st.kind || lay, i).map(x => ({ ...x, auto: 1 })) : []), ...(st.stk || [])];
-    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${bgSrc ? `<img class="sx-bgimg" data-src="${esc(bgSrc)}" alt="">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(tieQuotes(parts.acc))}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
+    const html = `<div class="${cls}" data-i="${i}" style="${style}">${TK ? ThemeKit.decoHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}${bgSrc ? `<img class="sx-bgimg" data-src="${esc(bgSrc)}" alt="" draggable="false" style="object-position:${Number(st.bgx ?? 50)}% ${Number(st.bgy ?? 50)}%">` : ""}${acc ? `<div class="sx-acc">${mdToHtml(tieQuotes(parts.acc))}</div>` : ""}${T === "glow" ? `<div class="sx-glow" aria-hidden="true">${[[12, 18, 0], [78, 12, 1.1], [64, 82, .5], [30, 70, 2], [90, 52, 1.6], [48, 30, 2.4], [8, 88, .8]].map(([x, y, d]) => `<i style="left:${x}%;top:${y}%;animation-delay:${d}s"></i>`).join("")}</div>` : ""}${TK && T !== "board" ? ThemeKit.paperHtml(T, i, lay === "title" || lay === "section" ? lay : "", ThemeKit.sideOf(lay, acc || (st.photo ? "right" : "")), L()?.slidePalette) : ""}
       <div class="sx-inner"><${H} class="${ttlCls}" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Заголовок">${esc(ttlText)}</${H}>
       <div class="sx-body" ${edit ? 'contenteditable="true" spellcheck="true"' : ""} data-ph="Текст слайда">${bodyHtml}</div></div>${window.ThemeKit && stk.length ? ThemeKit.stickersHtml(stk, edit) : ""}</div>`;
     return st.free ? applyFree(html, st) : html;
@@ -744,6 +744,7 @@ const SlideEditor = (() => {
       else { sl0.set.full = sl0.set.fullPos || "right"; }
       sl0.set.afs = undefined;
       write(a); rerender();
+      if (sl0.set.full) toast("Полный кадр включён. Фото можно двигать: потяните его за уголок ✥ на слайде.", 7000);
     };
     const fp = $s("#sxFullPos"); if (fp) fp.onchange = e => set({ full: e.target.value, afs: undefined });
     const fst = $s("#sxFullStyle"); if (fst) fst.onchange = e => { const a = slides(); a[cur].set.fullStyle = e.target.value; write(a); rerender(); };
@@ -1213,9 +1214,77 @@ const SlideEditor = (() => {
   }
   function imageTools(fr) {
     layoutHandles(fr);
+    const sl = slides()[cur] || { set: {} };
+    /* Фото можно двигать внутри кадра: полный кадр (фон) и картинка-акцент.
+       Тянем изображение — меняется object-position, поэтому видно нужную часть (например, лицо на портрете). */
+    const panImage = (img, getPos, setPos) => {
+      if (!img) return;
+      img.draggable = false;
+      img.style.touchAction = "none";
+      let start = null, moved = false, pos = getPos();
+      img.style.cursor = "grab";
+      img.title = "Потяните фото, чтобы выбрать видимую часть (например, лицо на портрете)";
+      img.addEventListener("pointerdown", e => {
+        if (e.button || e.target.closest(".sx-resize")) return;
+        start = { cx: e.clientX, cy: e.clientY, x: pos.x, y: pos.y }; moved = false;
+        try { img.setPointerCapture(e.pointerId); } catch { }
+        e.preventDefault();
+      });
+      img.addEventListener("pointermove", e => {
+        if (!start) return;
+        const r = fr.getBoundingClientRect();
+        const dx = (e.clientX - start.cx) / Math.max(1, r.width) * 100;
+        const dy = (e.clientY - start.cy) / Math.max(1, r.height) * 100;
+        if (!moved && Math.abs(dx) + Math.abs(dy) < 0.5) return;
+        moved = true; img.style.cursor = "grabbing";
+        pos = { x: Math.max(0, Math.min(100, start.x - dx)), y: Math.max(0, Math.min(100, start.y - dy)) };
+        img.style.objectPosition = `${pos.x}% ${pos.y}%`;
+      });
+      const end = () => {
+        if (!start) return; const was = moved; start = null; img.style.cursor = "grab";
+        if (was) {
+          const fig = img.closest("figure.pic");
+          if (fig) fig.dataset.panMoved = "1"; // чтобы клик после перетаскивания не открывал меню
+          setPos(Math.round(pos.x), Math.round(pos.y));
+        } else pos = getPos();
+      };
+      img.addEventListener("pointerup", end);
+      img.addEventListener("pointercancel", end);
+    };
+    const bg = fr.querySelector("img.sx-bgimg");
+    if (bg) {
+      panImage(bg,
+        () => ({ x: Number(sl.set.bgx ?? 50), y: Number(sl.set.bgy ?? 50) }),
+        (x, y) => { const a = slides(); a[cur].set.bgx = x; a[cur].set.bgy = y; write(a); rerender(); });
+      /* Управляющая «ручка» поверх плашки: фото на весь слайд часто закрыто текстом, поэтому
+         двигать его можно и за уголок ✥ (потянуть) или нажать на него — вернуть в центр. */
+      const sx = bg.closest(".sx") || fr;
+      const mv = document.createElement("span"); mv.className = "photo-move"; mv.contentEditable = "false"; mv.textContent = "✥";
+      mv.title = "Потяните, чтобы двигать фото. Нажмите — вернуть в центр";
+      let x0 = 50, y0 = 50, nx = 50, ny = 50;
+      mv.addEventListener("pointerdown", () => {
+        const cx = Number(sl.set.bgx), cy = Number(sl.set.bgy);
+        x0 = Number.isFinite(cx) ? cx : 50; y0 = Number.isFinite(cy) ? cy : 50;
+      }, true);
+      dragHandle(mv, {
+        onMove: (dx, dy) => {
+          nx = Math.max(0, Math.min(100, x0 - dx)); ny = Math.max(0, Math.min(100, y0 - dy));
+          bg.style.objectPosition = `${nx}% ${ny}%`;
+        },
+        onUp: () => { const a = slides(); a[cur].set.bgx = Math.round(nx); a[cur].set.bgy = Math.round(ny); write(a); rerender(); },
+        onTap: () => { const a = slides(); a[cur].set.bgx = a[cur].set.bgy = undefined; write(a); rerender(); toast("Фото вернулось в центр."); }
+      });
+      sx.appendChild(mv);
+    }
+    fr.querySelectorAll(".sx-acc figure.pic").forEach((fig, idx) => {
+      const img = fig.querySelector("img"); if (!img) return;
+      panImage(img,
+        () => ({ x: Number(fig.dataset.x ?? 50), y: Number(fig.dataset.y ?? 50) }),
+        (x, y) => patchImage(idx, o => ({ ...o, x, y })));
+    });
     fr.querySelectorAll("figure.pic").forEach((fig, idx) => {
       const d = fig.dataset;
-      if (fig.closest(".sx-acc")) { fig.style.cursor = "pointer"; fig.title = "Щёлкните: заменить, обрезать, убрать фон, переставить"; fig.onclick = e => { e.preventDefault(); pictureMenu(fig, idx); }; return; }
+      if (fig.closest(".sx-acc")) { fig.style.cursor = "pointer"; fig.title = "Потяните фото — двигается видимая часть; щёлкните — заменить, обрезать, убрать фон"; fig.onclick = e => { e.preventDefault(); if (fig.dataset.panMoved) { delete fig.dataset.panMoved; return; } pictureMenu(fig, idx); }; return; }
       if (d.px) { fig.classList.add("free"); fig.style.left = d.px + "%"; fig.style.top = d.py + "%"; fig.style.width = d.pw + "%"; }
       const grip = document.createElement("span"); grip.className = "sx-resize"; grip.title = "Потяните, чтобы изменить размер"; fig.appendChild(grip);
       let drag = null, moved = false;
