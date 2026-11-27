@@ -153,6 +153,10 @@ h1.sx-title { font-size: min(calc(6cqw * var(--fs)), 9cqw); }
 .sx-body th, .sx-body td { overflow-wrap: anywhere; }
 .sx-body figure.pic { margin: .3em 0; display: flex; flex-direction: column; gap: .3em; }
 .sx-body figure.pic img { width: 100%; max-height: 38cqw; object-fit: cover; border: 0; border-radius: .8cqw; background: transparent; }
+/* Картинка вместе с текстом: фото не должно съедать весь слайд — текст обязан остаться видимым */
+.sx-body:has(> :not(figure.pic)) figure.pic img { max-height: 24cqw; object-fit: contain; }
+.sx-body:has(> :not(figure.pic)) figure.pic { margin: .2em 0; }
+.sx-body:has(> :not(figure.pic)) figure.pic figcaption { font-size: .55em; }
 .sx-body figure.pic figcaption { font-size: .62em; color: var(--sx-muted); font-style: italic; text-align: center; }
 .sx-body figure.pic .pic-empty { min-height: 16cqw; border: .3cqw dashed var(--sx-muted); border-radius: .8cqw; background: var(--sx-soft); font-size: .6em; }
 .sx-body figure.pic.free { position: absolute; z-index: 3; margin: 0; }

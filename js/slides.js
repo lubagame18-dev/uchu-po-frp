@@ -159,10 +159,13 @@ const SlideEditor = (() => {
   function resolveLinks(md, destinations = appendixMap()) {
     return String(md || "").replace(/\[([^\]]+)\]\(#a:([A-Za-z0-9_-]+)\)/g, (m, txt, key) => { const n = destinations[key]; return n ? `[${txt}](#slide-${n})` : txt; });
   }
-  function write(arr, { record = true } = {}) {
+  function write(arr, { record = true, fitted = false } = {}) {
     const Ls = L(), head = headOf(Ls.docs.slides || "");
     if (record) { undo.push(Ls.docs.slides); if (undo.length > 60) undo.shift(); redo.length = 0; }
     Ls.docs.slides = (/marp\s*:/.test(head) ? head.trim() + "\n\n" : "") + arr.map(build).join("\n\n---\n\n") + "\n";
+    /* любое изменение слайда (вставка фото, правка текста, шаблон) требует нового подбора —
+       иначе картинка и текст могут не поместиться, а в редакторе появятся полосы прокрутки */
+    if (!fitted) Ls.slidesFitted = false;
     if (Ls.sample && typeof forkSample === "function") forkSample();
     $("#md").value = state.lesson.docs.slides;
     saveLesson(state.lesson);
@@ -589,7 +592,7 @@ const SlideEditor = (() => {
       return index;
     });
     const fitted = splits ? remapSlideLinks(out, destinations) : out;
-    if (changed && source === null) write(fitted, { record: splits > 0 });
+    if (changed && source === null) write(fitted, { record: splits > 0, fitted: true });
     if (splits && source === null) toast(`Длинные слайды разделены, чтобы весь текст был виден (${splits}).`, 5000);
     return fitted;
   }

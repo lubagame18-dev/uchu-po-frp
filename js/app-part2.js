@@ -3712,6 +3712,9 @@ function updateProgress() {
 function revealWorkspace() { if (innerWidth < 900) setTimeout(() => $("#workspace").scrollIntoView({ behavior: "smooth", block: "start" }), 60); }
 function openLesson(L, doc, push = true) {
   scrubLesson(L);
+  /* при открытии урока подбираем размер текста/фото заново: после вставки картинки
+     старый кэш подбора мог оставить слайд с полосами прокрутки */
+  if (L) L.slidesFitted = false;
   if (window.SlideEditor && state.lesson?.id !== L.id) SlideEditor.reset();
   // старые уроки и образцы: конспект для печати собирается из их техкарты
   if (!L.docs.lesson && L.docs.conspect && window.LessonNotes && state.gen?.lessonId !== L.id) { try { L.docs.lesson = LessonNotes.build(L.docs.conspect, { ...L.params, plan: { ...L.plan, ...L.planFull } }); } catch (e) { console.warn(e); } }
