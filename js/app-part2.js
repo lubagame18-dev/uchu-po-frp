@@ -5000,7 +5000,7 @@ function wsEditableMd(element) {
 const WS_GAP = 2.4 * 96 / 25.4, WS_LINE = 6 * 96 / 25.4;
 /* Вписать содержимое листа в A4: если блоков больше, чем влезает на страницу,
    уменьшаем масштаб так, чтобы лист остался ровно A4. «Одной большой страницы» быть не должно. */
-const wsFitScale = (height, capacity) => (height <= capacity || capacity <= 0 ? 1 : Math.max(0.5, capacity / height));
+const wsFitScale = (height, capacity) => (height <= capacity || capacity <= 0 ? 1 : capacity / height);
 function worksheetPage() {
   const page = document.createElement("section");
   page.className = "sheet ws-sheet ws-page ws-doc-interactive";
@@ -5045,7 +5045,8 @@ function wsPaginate(root, source, target = 0) {
     for (const k of [0.85, 0.7, 0.6, 0.5, 0.4, 0.3]) {
       imgs.forEach((img, i) => { img.style.maxHeight = Math.max(20, Math.round(base[i] * k)) + "px"; img.style.height = "auto"; });
       const h = item.row.getBoundingClientRect().height + WS_GAP;
-      if (Math.ceil(h) <= capacity) { item.height = h; break; }
+      item.height = h;
+      if (Math.ceil(h - WS_GAP) <= capacity) break;
     }
   }
   /* Если карточка задания с картинкой всё равно выше листа, режем её на части:
@@ -5054,6 +5055,18 @@ function wsPaginate(root, source, target = 0) {
   for (let i = 0; i < measured.length; i++) {
     const item = measured[i];
     if (Math.ceil(item.height - WS_GAP) <= capacity) continue;
+    // Reflow a tall pair as two full-width rows before splitting either card.
+    if (item.row.classList.contains("pair")) {
+      const rows = [...item.row.children].map(card => {
+        const row = document.createElement("div"); row.className = "ws-grid-row";
+        row.appendChild(card); grid.insertBefore(row, item.row);
+        return { row, height: row.getBoundingClientRect().height + WS_GAP };
+      });
+      item.row.remove();
+      measured.splice(i, 1, ...rows);
+      i--;
+      continue;
+    }
     const card = item.row.querySelector(".ws-card");
     if (!card || card.children.length < 3) continue;
     const kids = [...card.children], parts = []; let chunk = [], used = 0;
@@ -5070,7 +5083,12 @@ function wsPaginate(root, source, target = 0) {
       const part = document.createElement("section"); part.className = card.className + (idx ? " ws-cont" : "");
       if (idx) { const h = document.createElement("h3"); h.className = card.querySelector("h3")?.className || ""; h.textContent = "Продолжение задания"; part.appendChild(h); }
       nodes.forEach(node => part.appendChild(node));
-      row.appendChild(part); grid.insertBefore(row, item.row.nextSibling);
+      row.appendChild(part);
+      if (!idx) {
+        const heading = item.row.firstElementChild;
+        if (heading !== card && /^H[12]$/.test(heading?.tagName || "")) row.prepend(heading);
+      }
+      grid.insertBefore(row, item.row);
       rows.push({ row, height: row.getBoundingClientRect().height + WS_GAP });
     });
     item.row.remove();
@@ -5117,6 +5135,8 @@ function wsPaginate(root, source, target = 0) {
       body.style.transformOrigin = "top left";
       body.style.transform = `scale(${fit})`;
       body.style.width = (100 / fit).toFixed(2) + "%";
+      const fittedHeight = body.getBoundingClientRect().height;
+      body.style.marginBottom = `${fittedHeight - body.offsetHeight}px`;
       page.dataset.scaled = fit.toFixed(2);
     }
   }
@@ -5261,11 +5281,11 @@ async function renderPdf(L, doc, stage, mode) {
   if (doc === "slides" && window.SlideEditor) stage.innerHTML = SlideEditor.stageHtml(md);
   else if (doc === "slides") stage.innerHTML = `<div class="slides">${splitSlides(md).map((s, i) => { const b = s.replace(/<!--[\s\S]*?-->/g, ""); const pic = /!\[[^\]]*\]\(/.test(b), txt = b.replace(Media.RE, "").replace(/^#.*$/gm, "").trim(); Media.RE.lastIndex = 0; return `<div class="slide${pic ? (txt ? " pic-side" : " pic-only") : ""}" data-n="${i + 1}" style="page-break-after:always">${mdToHtml(b)}</div>`; }).join("")}</div>`;
   else stage.innerHTML = `<div class="sheet${WS_DOCS.includes(doc) ? " ws-sheet" : ""}${doc === "lesson" ? " lx-sheet" : ""}">${doc === "conspect" ? techmapHtml(md) : mdToHtml(md)}</div>`;
-  decorate(stage);
+  await decorate(stage);
+  if (doc === "slides") await window.SlideEditor?.hydrateBg(stage);
   if (doc === "lesson" && window.Layout) Layout.decorate(stage.firstElementChild);
   if (doc === "memo") { stage.firstElementChild?.classList.add("memo-sheet"); memoDecorate(stage); } else if (WS_DOCS.includes(doc)) wsDecorate(stage, L);
-  await new Promise(r => setTimeout(r, 400));
-  await Promise.all($$("img", stage).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+  await Promise.all($$("img", stage).map(img => img.decode().catch(() => {})));
   const wsPrint = WS_DOCS.includes(doc);
   const h2p = () => window.html2pdf().set({ margin: [8, 6, 10, 6], image: { type: "jpeg", quality: 0.95 }, html2canvas: { scale: doc === "slides" ? 1.4 : 2, backgroundColor: "#ffffff", useCORS: true }, jsPDF: { unit: "mm", format: "a4", orientation: doc === "slides" ? "landscape" : "portrait" }, pagebreak: { mode: ["css", "legacy"], before: ".ws-banner.pb", avoid: ["tr", "h2", "h3", "blockquote", "li", ".slide", "figure", ".ws-banner"] } }).from(stage.firstElementChild);
   let blob;

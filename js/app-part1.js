@@ -2400,13 +2400,43 @@ const Media = (() => {
   function postprocess(html, figs) {
     return html.replace(/(<p>)?\s*FIGTOKEN(\d+)END\s*(<\/p>)?/g, (m, a, i) => figHtml(figs[+i], +i));
   }
-  async function hydrate(root) {
-    for (const fig of root.querySelectorAll("figure.pic")) {
-      const img = fig.querySelector("img"); if (!img) continue;
-      const src = fig.dataset.src;
-      if (src.startsWith("idb:")) { const u = await objectUrl(src.slice(4)); if (u) img.src = u; else { fig.classList.add("empty"); } }
-      else img.src = src;
+  async function loadImage(img, src) {
+    if (!src) return false;
+    // Remote images without CORS need the same proxy as downloadable pictures.
+    try {
+      img.crossOrigin = "anonymous";
+      img.src = src.startsWith("idb:") ? await objectUrl(src.slice(4)) || "" : src;
+      await img.decode();
+      return true;
+    } catch { }
+    if (/^https?:/i.test(src)) {
+      try {
+        const blob = await toBlob(src, true);
+        if (blob) {
+          img.src = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(blob);
+          });
+          await img.decode();
+          return true;
+        }
+      } catch { }
     }
+    img.removeAttribute("src");
+    return false;
+  }
+  async function hydrate(root) {
+    await Promise.all([...root.querySelectorAll("figure.pic")].map(async fig => {
+      const img = fig.querySelector("img");
+      if (!img || await loadImage(img, fig.dataset.src)) return;
+      fig.classList.add("empty");
+      const placeholder = document.createElement("div");
+      placeholder.className = "pic-empty";
+      placeholder.textContent = "Изображение недоступно";
+      img.replaceWith(placeholder);
+    }));
   }
   async function objectUrl(id) {
     if (urlCache.has(id)) return urlCache.get(id);
@@ -2446,8 +2476,8 @@ const Media = (() => {
     } catch { yandexState = "прокси с поиском Яндекса не отвечает"; return []; }
   }
   /* Скачать картинку к себе (в память браузера), чтобы её можно было обрезать и выгрузить в PowerPoint/PDF */
-  async function toBlob(url) {
-    try { const r = await fetch(url, { mode: "cors" }); if (r.ok) { const b = await r.blob(); if (/^image\//.test(b.type)) return b; } } catch { }
+  async function toBlob(url, proxyOnly = false) {
+    if (!proxyOnly) try { const r = await fetch(url, { mode: "cors" }); if (r.ok) { const b = await r.blob(); if (/^image\//.test(b.type)) return b; } } catch { }
     const u = proxyUrl("/img", `url=${encodeURIComponent(url)}`); if (!u) return null;
     try { const r = await fetch(u); if (r.ok) { const b = await r.blob(); if (/^image\//.test(b.type)) return b; } } catch { }
     return null;
@@ -2820,10 +2850,24 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
     try {
       if (src.startsWith("idb:")) blob = await Store.get("images", src.slice(4));
       else if (/^https?:/.test(src)) blob = await toBlob(src);
-      else if (/^(data:image|img\/|\.\/img\/|\/img\/)/.test(src)) { const r = await fetch(new URL(src, location.href).href); if (r.ok) blob = await r.blob(); }
+      else {
+        const url = new URL(src, location.href);
+        if (url.origin === location.origin || src.startsWith("data:image/")) {
+          const r = await fetch(url);
+          if (r.ok) blob = await r.blob();
+        }
+      }
     } catch { return null; }
     if (!blob) return null;
-    const bmp = await createImageBitmap(blob).catch(() => null); if (!bmp) return null;
+    const bmp = await createImageBitmap(blob).catch(async () => {
+      // Chromium requires intrinsic dimensions for SVG in createImageBitmap.
+      if (blob.type !== "image/svg+xml") return null;
+      const url = URL.createObjectURL(blob), image = new Image();
+      try { image.src = url; await image.decode(); return image; }
+      catch { return null; }
+      finally { URL.revokeObjectURL(url); }
+    });
+    if (!bmp) return null;
     const z = +o.z || 1, ox = (+o.x || 50) / 100, oy = (+o.y || 50) / 100;
     const ratio = bmp.width / bmp.height;
     const cw = Math.min(w, bmp.width), ch = Math.round(cw / ratio);
@@ -2832,9 +2876,10 @@ ${slides.map((s, i) => `Слайд ${i + 1}: ${s}`).join("\n")}
     const sw = bmp.width / z, sh = bmp.height / z;
     const sx = (bmp.width - sw) * ox, sy = (bmp.height - sh) * oy;
     g.drawImage(bmp, sx, sy, sw, sh, 0, 0, cw, ch);
+    bmp.close?.();
     return { data: c.toDataURL("image/png"), w: cw, h: ch };
   }
-  return { commons, yandexSearch, toBlob, proxyBase, get yandexState() { return yandexState; }, RE, preprocess, postprocess, hydrate, figToMd, search, autoFill, pickBest, openPicker, exportData, parseOpts, mdImage, yandexUrl, artIntent, commonsOk };
+  return { commons, yandexSearch, toBlob, proxyBase, get yandexState() { return yandexState; }, RE, preprocess, postprocess, hydrate, loadImage, figToMd, search, autoFill, pickBest, openPicker, exportData, parseOpts, mdImage, yandexUrl, artIntent, commonsOk };
 })();
 
 const HELP_MD = "# Как работать с сайтом\n\n## Создать урок\n1. **Конструктор** → предмет, класс, тема (стрелка ▾ — темы из ФРП).\n2. Номер урока по теме: 1-й, 2-й… Тип урока сайт определит сам.\n3. Отметьте: техкарта, презентация, рабочий лист → **«Создать урок»**. Урок собирает нейросеть: она опирается на ваши пожелания, встроенную базу и ФРП.\n\n**Уровень** — базовый / средний / сильный: базовый — больше объяснений и образцов, сильный — больше заданий и олимпиадные задачи. **Формат заданий** — школьный, ВПР, ОГЭ или ЕГЭ: выбирается карточками с превью теста; для экзамена — «Весь вариант» или «Только тему урока», стиль листа — строгий бланк, интерактивный или арт-поддержка.\n\n**Пожелания к уроку** — открытое окно под параметрами: напишите, что важно (класс слабый, нужна групповая работа, больше схем и картинок). Нейросеть выполнит их в первую очередь.\n\n**Фото учебника**: в пожеланиях кнопка «📷 Фото учебника» — сфотографируйте страницу, сайт распознает текст и задания, и урок пойдёт по ним дословно.\n\n## Поправить и скачать\n- Конспект и рабочий лист правятся прямо на странице: щёлкните по тексту.\n- **Правка с ИИ**: строка «Что изменить?» под документом. Слева выберите область: этот документ, **рабочий лист**, **презентацию** или **весь материал урока** — правка затронет только выбранное.\n- **Презентация**: в редакторе слайдов «✎ Слайд с ИИ» переписывает только выбранный слайд, «✎ Вся презентация» — всю презентацию по одной просьбе. «🎨 Оформление» меняет цвета и шрифты, «▶ Показ» — на весь экран.\n- **«Скачать»**: Word, PDF, PowerPoint или всё архивом.\n\n## Где хранятся уроки\nВ **«Моих уроках»**. Войдите в личный кабинет (**«Войти»** вверху справа) — уроки сохранятся в облаке и откроются на любом устройстве.\n\n## Свои материалы\n**«Материалы»** → **«Прикрепить и встроить»**. Сайт будет брать из них задания для уроков.\n\n## Тариф\nОдин тариф — **«С ИИ»**: 400 ₽/мес или 3900 ₽/год (≈325 ₽/мес, скидка 19%). Входит всё: конспект, техкарта, презентация, рабочий лист, контроль и памятки, картинки, выгрузка, облако — 50 уроков с ИИ в месяц. Не хватило — докупите уроки пакетом или любым количеством от 1 до 200 (7 ₽ за урок, минимум 70 ₽). Пробный доступ — 2 дня: 2 урока с ИИ.\n\n## Промокод\nКнопка тарифа вверху → войдите → внизу окна «Промокод».\n";

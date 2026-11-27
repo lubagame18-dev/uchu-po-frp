@@ -351,10 +351,9 @@ const SlideEditor = (() => {
     return out;
   }
   async function hydrateBg(root) {
-    for (const img of root.querySelectorAll("img.sx-bgimg, img.stk-img")) { const s = img.dataset.src; img.src = s.startsWith("idb:") ? (await idbUrl(s.slice(4))) || "" : s; }
+    await Promise.all([...root.querySelectorAll("img.sx-bgimg, img.stk-img")].map(img => Media.loadImage(img, img.dataset.src)));
   }
-  const urlCache = new Map();
-  async function idbUrl(id) { if (urlCache.has(id)) return urlCache.get(id); const b = await Store.get("images", id).catch(() => null); if (!b) return null; const u = URL.createObjectURL(b); urlCache.set(id, u); return u; }
+
 
   /* ---------- автоподбор шрифта и проверка, помещается ли слайд ---------- */
   let meter = null;
@@ -378,7 +377,7 @@ const SlideEditor = (() => {
     .replace(/\s*»/g, "\u2060»")
     .replace(/«\u2060\s+/g, "«\u00A0")
     .replace(/\s+\u2060»/g, "\u00A0»")
-    .replace(/\s+([,.;:!?])/g, "\u00A0$1");
+    .replace(/[ \t]+([,.;:!?])/g, "\u00A0$1");
   /* Интерактив слайда: скрытые ответы/подсказки, выбор с проверкой, таймер, светофор.
      Контракты (их генерирует Deck и может вписать учитель):
        [!answer] текст / [!hint] текст — скрытый блок с кнопкой «показать»;
@@ -1424,12 +1423,11 @@ const SlideEditor = (() => {
     const appendix = mapAppendices(arr);
     const css = [...document.styleSheets].flatMap(ss => { try { return [...ss.cssRules].map(r => r.cssText).filter(t => /\.sx|theme-|figure\.pic|\.blank|\.uline|\.tblwrap|@font-face|@keyframes (glowA|glowB|twinkle|shimmer)/.test(t)); } catch { return []; } }).join("\n");
     const fontLinks = [...document.querySelectorAll('link[href^="https://fonts.googleapis.com"]')].map(l => `<link rel="stylesheet" href="${l.href}">`).join("");
-    const toData = async src => {
+    const toData = async (src, audio = false) => {
       if (String(src || "").startsWith("data:")) return src; // локальный SVG-резерв уже в ready-to-use виде
       try {
-        const res = src.startsWith("idb:") ? null : await fetch(src, { mode: "cors" });
-        if (res && !res.ok) return src;
-        const b = res ? await res.blob() : await Store.get("images", src.slice(4));
+        const b = src.startsWith("idb:") ? await Store.get("images", src.slice(4)) :
+          audio ? await fetch(src).then(r => r.ok ? r.blob() : null) : await Media.toBlob(src);
         if (b?.size) return await new Promise((resolve, reject) => {
           const fr = new FileReader();
           fr.onload = () => resolve(fr.result);
@@ -1445,8 +1443,7 @@ const SlideEditor = (() => {
     box.querySelectorAll(".deck-s .sx.appendix").forEach(sx => { const b = document.createElement("button"); b.type = "button"; b.className = "sx-back"; b.textContent = "← Назад"; sx.appendChild(b); });
     // видеослайд без ссылки в показ не попадает; пустой плеер на обычном слайде убирается
     box.querySelectorAll(".sx-video.empty").forEach(v => { const sec = v.closest(".deck-s"); if (sec?.querySelector(".sx.k-video, .sx.lay-video")) v.replaceWith(Object.assign(document.createElement("p"), { textContent: "Видеозапись не прикреплена." })); else v.remove(); });
-    box.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
-    await new Promise(r => setTimeout(r, 300));
+    await Promise.all([...box.querySelectorAll(".sx-body, .sx-acc")].map(decorate));
     // в показе пустых мест «Нет картинки» не бывает: сначала локальный SVG-резерв на содержательных слайдах, иначе картинка убирается
     box.querySelectorAll("figure.pic").forEach(f => {
       if (!/^(search|commons):/.test(f.dataset.src || "") && f.querySelector("img")) return;
@@ -1456,7 +1453,7 @@ const SlideEditor = (() => {
     });
     for (const fig of box.querySelectorAll("figure.pic")) { const img = fig.querySelector("img"); if (img) img.src = await toData(fig.dataset.src); }
     for (const img of box.querySelectorAll("img.sx-bgimg, img.stk-img")) img.src = await toData(img.dataset.src);
-    for (const au of box.querySelectorAll("audio[src]")) au.src = await toData(au.getAttribute("src"));
+    for (const au of box.querySelectorAll("audio[src]")) au.src = await toData(au.getAttribute("src"), true);
     box.querySelectorAll("[contenteditable]").forEach(e => e.removeAttribute("contenteditable"));
     const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(L().title)}</title>${fontLinks}<style>
 ${css}
@@ -1786,10 +1783,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     const look = {};
     host.innerHTML = slideHtml(sl, i);
     const sx = host.firstElementChild;
-    sx.querySelectorAll(".sx-body, .sx-acc").forEach(decorate);
-    await hydrateBg(host);
-    await new Promise(r => setTimeout(r, 60));
-    await Promise.all([...host.querySelectorAll("img")].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; setTimeout(r, 4000); })));
+    await Promise.all([...sx.querySelectorAll(".sx-body, .sx-acc")].map(decorate).concat(hydrateBg(host)));
     const B = sx.getBoundingClientRect(), k = PX / B.width;
     // если текст на экране залез под заголовок – в PowerPoint сдвигаем весь текст слайда ниже заголовка (с запасом)
     let dyBody = 0;
@@ -2319,7 +2313,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     a[i] = { ...n, set: { ...old.set, ...(n.set || {}) } };
     write(a); rerender(); return true;
   }
-  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, autoFullFrame, fillImages, joinSlides, applyAutoFullFrames, slideHasTools, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
+  return { render, stickerize, applyTheme, fontKey, parse, build, slides, fitAll, exportHtml, stageHtml, hydrateBg, settingsOf, autoLayout, splitAcc, slideHtml, replaceAll, toPptxBlob, slideMarkdown, slideTitle, replaceSlideMarkdown, autoFullFrame, fillImages, joinSlides, applyAutoFullFrames, slideHasTools, insertImage: (cap, url) => insertBlob(null, cap, url), addAudio: a => { const arr = slides(); arr[cur].set.audio = a; arr[cur].set.afs = undefined; write(arr); rerender(); }, count: () => slides().length, curIndex: () => cur, LAYOUTS, THEMES, reset() { cur = 0; undo.length = 0; redo.length = 0; } };
 })();
 window.SlideEditor = SlideEditor;
 
