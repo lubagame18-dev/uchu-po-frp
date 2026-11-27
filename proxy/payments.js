@@ -7,7 +7,7 @@
      SITE_URL      — адрес сайта (куда вернуть учителя после оплаты)
      SUPABASE_URL, SUPABASE_SERVICE_KEY — облако кабинета (тариф записывается туда)
    Маршруты: POST /pay/create (сайт просит ссылку на оплату), POST /pay/notify (Продамус сообщает об оплате).
-   Тарифы: единственный платный — «С ИИ» (400 ₽/мес) и «С ИИ, год» (3900 ₽/год): всё доступно, 50 уроков с ИИ в месяц.
+   Тарифы: единственный платный — «С ИИ» (500 ₽/мес): всё доступно, 50 уроков с ИИ в месяц.
    Докупка уроков в подписке: пакеты 10/30/50 (100/300/500 ₽) и «своё количество» от 1 до 200 (10 ₽ за урок).
    Цены — только здесь, на сервере: подменить цену со стороны браузера нельзя.
    =================================================================== */
@@ -15,7 +15,7 @@ const crypto = require("crypto");
 /* tokens — запас токенов ИИ сайта (DeepSeek) на 50 уроков (≈ 40 тыс. токенов на урок) плюс правки и пересборки */
 const PLANS = {
   single: { name: "Один урок", price: 30, ai: 1, tokens: 90000, days: 365 },
-  ai: { name: "С ИИ", price: 400, ai: 50, tokens: 1000000, days: 30 },
+  ai: { name: "С ИИ", price: 500, ai: 50, tokens: 1000000, days: 30 },
   aiYear: { name: "С ИИ, год", price: 3900, ai: 50, tokens: 1000000, days: 365 }
 };
 const PROMO_K = 0.5; // скидка по промокоду, если у кода не задан свой процент
@@ -86,6 +86,7 @@ async function create(body, userToken, request, readAll) {
   const promo = !!p.promo || p.plan === "promo", k = kOf(p), pct = Math.round((1 - k) * 100); // по промокоду — скидка, которую задал выдавший код
   if (p.plan === "promo") p.plan = "free";
   const item = String(body.item || "");
+  if (item === "aiYear") return { status: 400, json: { error: "годовой тариф временно недоступен для покупки" } };
   // «своё количество» уроков: n — целое 1–200, цену считаем здесь, а не в браузере
   const custom = item === "aiCustom" ? customN(body.n) : 0;
   if (item === "aiCustom" && !custom) return { status: 400, json: { error: "количество уроков — целое число от 1 до 200" } };
@@ -99,11 +100,7 @@ async function create(body, userToken, request, readAll) {
     if (!PLANS[p.plan]?.ai) return { status: 400, json: { error: "дополнительные уроки с ИИ — для тарифа «С ИИ»" } };
     kind = "custom_" + custom; price = customPrice(custom); name = `${custom} уроков с ИИ (докупка)`;
   } else if (PLANS[item]) {
-    const cur = PLANS[p.plan], left = p.paid_until ? new Date(p.paid_until) - Date.now() : 0;
-    if (cur && left > 0 && PLANS[item].price > cur.price) {
-      // повышение тарифа: доплата разницы только за оставшиеся дни
-      kind = "up_" + item; price = Math.max(10, Math.round((PLANS[item].price - cur.price) * k * left / ((PLANS[item]?.days || 30) * DAY))); name = `Переход на тариф «${PLANS[item].name}» (доплата до ${new Date(p.paid_until).toLocaleDateString("ru-RU")})`;
-    } else if (item === "single") {
+    if (item === "single") {
       const n = Math.max(1, Math.min(50, Math.round(+body.n || 1)));
       kind = "single_" + n;
       price = n * 30;

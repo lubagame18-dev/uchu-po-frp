@@ -2,7 +2,7 @@
    «Учу по ФРП» — доступ: тарифы и промокод.
    Коммерческая версия (UCHU_SITE.commercial = true):
      • 30 ₽ за один урок; бесплатного пробного тарифа нет;
-     • «С ИИ» — 400 ₽/мес или «С ИИ, год» — 3900 ₽/год: всё доступно (техкарта, контроль,
+     • «С ИИ» — 500 ₽/мес: всё доступно (техкарта, контроль,
        памятки, домашние задания, конспекты и правки с ИИ, листы с картинками, доп. листы,
        выгрузка, облако), 50 уроков с ИИ в месяц; расход ИИ считает сервер;
      • докупка уроков с ИИ: пакеты и своё количество (1–200), цену считает только сервер;
@@ -36,8 +36,8 @@ const Access = (() => {
   dev: { name: "Разработчик", price: 0, lessons: Infinity, extraSheets: 999, ai: true, img: true, imgQuota: 999, hidden: true, art: "🛠", tag: "разработчик", feats: ["unlim", "ai", "pics40", "more", "download", "cloud"] },
     none:{name:"Уроки не подключены",price:0,lessons:0,extraSheets:0,ai:false,img:false,imgQuota:0,hidden:true,feats:[]},
     single: { name: "Один урок", price: 30, once: true, lessons: 1, ai: true, img: false, imgQuota: 0, extraSheets: 0, art: "📘", tag:"30 ₽ за один урок", feats: ["lesson", "tech", "ai", "download", "cloud"] },
-    ai: { name: "С ИИ", price: 400, period: "мес", lessons: 50, ai: true, img: true, imgQuota: 6, extraSheets: 20, art: "✨", tag: "всё с ИИ", feats: ["tech", "ai", "ai50", "pics", "more", "download", "cloud"] },
-    aiYear: { name: "С ИИ, год", price: 3900, period: "год", days: 365, lessons: 50, ai: true, img: true, imgQuota: 6, extraSheets: 20, art: "✨", tag: "год, −19%", feats: ["tech", "ai", "ai50", "pics", "more", "download", "cloud"] }
+    ai: { name: "С ИИ", price: 500, period: "мес", lessons: 50, ai: true, img: true, imgQuota: 6, extraSheets: 20, art: "✨", tag: "всё с ИИ", feats: ["tech", "ai", "ai50", "pics", "more", "download", "cloud"] },
+    aiYear: { hidden: true, name: "С ИИ, год", price: 3900, period: "год", days: 365, lessons: 50, ai: true, img: true, imgQuota: 6, extraSheets: 20, art: "✨", tag: "год, −19%", feats: ["tech", "ai", "ai50", "pics", "more", "download", "cloud"] }
 
   };
   const PACKS = { ai10: { name: "+10 уроков с ИИ", price: 100, lessons: 10 }, ai30: { name: "+30 уроков с ИИ", price: 300, lessons: 30 }, ai50: { name: "+50 уроков с ИИ", price: 500, lessons: 50 } };
@@ -196,6 +196,7 @@ const Access = (() => {
     checkout(item);
   }
   function checkout(item) {
+    if (item === "aiYear") { open("Годовой тариф временно недоступен для покупки."); return; }
     if (promoFree()) { toast("У вас доступ по промокоду: все тарифы и функции уже открыты.", 5000); return; }
     // докупка своего количества уроков: buy("aiCustom:30") — количество и цену всё равно проверит сервер
     const cm = /^aiCustom:(\d{1,3})$/.exec(String(item || ""));
@@ -203,7 +204,7 @@ const Access = (() => {
     const custom = cn ? { name: `${cn} уроков с ИИ`, price: customPrice(cn), n: cn } : null;
     const singleN = item === "single" ? Math.max(1, Math.min(50, Number(A.singleQty || 1))) : 0;
     const P = PLANS[item], K = PACKS[item] || custom, L = level(), pr = isPromo();
-    const up = P && planOf(L).price && P.price > planOf(L).price;
+    const up = false;
     const needKey = false;
     const feats = P ? (pr && P.ai ? P.feats.filter(f => !/^ai\d+$|^more$/.test(f)) : P.feats).filter(f => !(/^pics/.test(f) && window.UCHU_SITE?.imageGenUi === false)) : [];
     const m = openModal(`<div class="dialog narrow"><div class="dlg-h"><h2>Оформление</h2><button class="btn ghost x" data-close aria-label="Закрыть">×</button></div><div class="dlg-b">

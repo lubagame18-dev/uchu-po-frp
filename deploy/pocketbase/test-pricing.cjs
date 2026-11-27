@@ -4,7 +4,7 @@ const PAY = require("../../proxy/payments.js");
 
 assert.equal(PAY.PLANS.single.price, 30);
 assert.equal(PAY.PLANS.single.ai, 1);
-assert.equal(PAY.PLANS.ai.price, 400);
+assert.equal(PAY.PLANS.ai.price, 500);
 assert.equal(PAY.PLANS.ai.ai, 50);
 assert.equal(PAY.PACKS.ai10.price, 100);
 assert.equal(PAY.PACKS.ai30.price, 300);
@@ -33,4 +33,4 @@ const econ=require('../payment-fix/economics.json');
 const maxCost=units=>units/1e6*econ.peak_output_usd_per_million*econ.usd_rub*econ.fx_reserve_multiplier;
 assert.equal(PAY.PLANS.single.tokens/econ.tokens_per_point,10);
 assert(maxCost(PAY.PLANS.single.tokens+econ.creation_budget_equivalent)+30*econ.payment_and_tax_reserve_fraction<30);
-assert(maxCost(PAY.PLANS.ai.tokens+50*econ.subscription_creation_per_lesson)+400*econ.payment_and_tax_reserve_fraction<400);
+assert(maxCost(PAY.PLANS.ai.tokens+50*econ.subscription_creation_per_lesson)+500*econ.payment_and_tax_reserve_fraction<500);
