@@ -32,13 +32,13 @@ function makeCanvas() { return { width: 0, height: 0, getContext: () => makeCtx(
 
 function jsonRes(status, body) { return { ok: status >= 200 && status < 300, status, json: async () => body, blob: async () => ({ type: "image/jpeg", arrayBuffer: async () => new Uint8Array([1, 2, 3, 4]).buffer }), text: async () => JSON.stringify(body) }; }
 
-function harness({ server, free, imgCfg = {}, site = SITE_FN } = {}) {
+function harness({ server, free, imgCfg = {}, site = SITE_FN, now = Date.now } = {}) {
   const calls = [];
   const fetchMock = async (url, opts) => { const u = String(url); calls.push(u); if (u.includes("pollinations")) return free ? free(u, opts) : jsonRes(429, { error: "no free" }); return server(u, opts); };
   const store = { "uchu:img": JSON.stringify({ free: true, ...imgCfg }) };
   const ctx = {
     console: { log() { }, warn() { }, error() { } },
-    setTimeout, clearTimeout, setInterval, clearInterval, Promise, Math, Date, JSON, Error, String, Number, Array, Object, RegExp, encodeURIComponent, decodeURIComponent, btoa, atob,
+    setTimeout, clearTimeout, setInterval, clearInterval, Promise, Math, Date: { now }, JSON, Error, String, Number, Array, Object, RegExp, encodeURIComponent, decodeURIComponent, btoa, atob,
     AbortController,
     localStorage: { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } },
     document: { createElement: () => makeCanvas() },
@@ -83,6 +83,23 @@ async function main() {
     try { await gen.image(PROMPT, { aspect: "16:9" }); } catch (e) { err = String(e.message || e); }
     ok(/войдите/i.test(err), "ошибка про вход", err);
     ok(!calls.some(u => u.includes("pollinations")), "запасной генератор не звали");
+  }
+
+  console.log("2а. После сбоя проверяем актуальный ответ сервера");
+  {
+    let clock = Date.now();
+    let status = 0;
+    const { gen, calls } = harness({ now: () => clock, server: () => {
+      if (!status) throw new TypeError("Failed to fetch");
+      return jsonRes(status, {});
+    }, free: freeOk });
+    const result = await gen.image(PROMPT);
+    ok(result.free === true, "сетевой сбой переключает на запасной генератор");
+    clock += 121000;
+    status = 429;
+    let error;
+    try { await gen.image(PROMPT); } catch (e) { error = e; }
+    ok(error?.status === 429 && calls.length === 3, "после восстановления лимит сервера не обходится и запрос не повторяется");
   }
 
   console.log("3. Сервер работает — бесплатный генератор не нужен");

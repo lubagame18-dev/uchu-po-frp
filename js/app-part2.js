@@ -2409,14 +2409,14 @@ function vpSymbolicLibrary(indexes, slides, parts, p) {
   for (const sl of slides) for (const m of String(sl && sl.body || "").matchAll(Media.RE)) used.add(m[2]);
   /* картографические изображения библиотеки не ставим (правило методиста) */
   const libMap = /карт[аыуеой]|картосхем|атлас|\bmap\b/i;
-  const free = lib.filter(im => im.img && !used.has(im.img) && !libMap.test([im.title, im.caption, im.desc].join(" ")));
+  const free = [...new Map(lib.filter(im => im.img && !used.has(im.img) && !libMap.test([im.title, im.caption, im.desc].join(" "))).map(im => [im.img, im])).values()];
   let n = 0;
   for (const i of indexes) {
     const im = free.shift(); if (!im) break;
     const sl = slides[i]; if (!sl) continue;
     try {
       /* заготовку поиска убираем: библиотечная картинка приоритетнее */
-      const body = String(sl.body || "").replace(Media.RE, (raw, _cap, src) => /^(search|commons):/i.test(src) ? "" : raw).trim();
+      const body = String(sl.body || "").replace(Media.RE, (raw, _cap, src, opts) => replaceableDeckPic(src, opts) ? "" : raw).trim();
       const cap = String(im.title || im.caption || sl.title || "Иллюстрация").slice(0, 120);
       sl.body = [Media.mdImage(cap, im.img, {}), body].filter(Boolean).join("\n\n");
       sl.set.afs = undefined;
@@ -2449,7 +2449,7 @@ function vpImagePrompt(base, wish = "") {
   const full = `${head} Teacher's visual preferences: ${w} ${tail}`;
   return full.length <= 900 ? full : prompt;
 }
-function deckImagePrompt(p, sl, wish = "") {
+function deckImagePrompt(p, sl, wish = "", o = {}) {
   const VP = window.VisualPlan;
   if (VP && typeof VP.planForSlide === "function") {
     const vp = sl && sl.vp && sl.vp.image_prompt ? sl.vp : vpPlanForSlide(p, sl);
@@ -2461,13 +2461,22 @@ function deckImagePrompt(p, sl, wish = "") {
       if (vpIsSymbolicPlan(vp) && vp.image_prompt) return String(vp.image_prompt);
     }
   }
-    return deckImagePromptBase(p, sl, wish, o);
+  return deckImagePromptBase(p, sl, vpCleanWish(wish), { ...o, real: o.real ?? REAL_VISUAL.test(`${sl.title || ""} ${sl.body || ""}`) });
 }
 
 /* Незаполненные места под картинки: поиск не нашёл, ИИ не нарисовал — рамку с подсказкой
    «подберите сами» с презентации убираем. Слайд не остаётся с пустым местом, а картинку
    всегда можно подобрать или нарисовать заново кнопками в редакторе. */
 const PIC_PENDING = /^(search|commons):/i;
+/* Поисковый SVG-резерв можно обновить, не трогая картинки и схемы учителя. */
+function replaceableDeckPic(src, opts) {
+  if (PIC_PENDING.test(src)) return true;
+  const meta = Media.parseOpts(opts);
+  const legacy = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">' +
+    '<rect x="0" y="0" width="800" height="600" fill="#F8FAFC"';
+  return meta.fallback === "1" || Boolean(meta.q &&
+    src.startsWith("data:image/svg+xml;charset=utf-8," + encodeURIComponent(legacy)));
+}
 function dropPendingPics(md) {
   if (!md) return md || "";
   const re = new RegExp((window.Media?.RE || Media.RE).source, "g");
@@ -2480,7 +2489,7 @@ const REAL_VISUAL = /портрет|писател|поэт|художник|к�
    Работает для всех предметов. Поисковые заготовки, которые поиск не заполнил, заменяются
    нарисованной картинкой. opts.manual — запуск кнопкой из редактора (можно повторно). */
 async function aiDeckPics(L, opts = {}) {
-  const onPct = typeof opts === "function" ? opts : null;
+  const onPct = typeof opts === "function" ? opts : opts?.onProgress;
   const o = (opts && typeof opts === "object") ? opts : {};
   const manual = !!o.manual;
   const pct = v => { try { onPct && onPct(v); } catch (e) { } };
@@ -2493,7 +2502,7 @@ async function aiDeckPics(L, opts = {}) {
   const cand = slides.flatMap((sl, i) => sl.title && !SlideEditor.slideHasTools(sl) &&
     !/рефлекс|домашн|план урока|условные обозначения|^итог/i.test(sl.title) &&
     !sl.set.bgimg && !sl.set.stk?.some(s => s.img) &&
-    ![...sl.body.matchAll(Media.RE)].some(m => !PIC_PENDING.test(m[2])) ? [i] : []);
+    ![...sl.body.matchAll(Media.RE)].some(m => !replaceableDeckPic(m[2], m[3])) ? [i] : []);
   const vpOk = window.VisualPlan && typeof window.VisualPlan.planForSlide === "function";
   const plans = vpOk ? cand.map(i => vpPlanForSlide(L.params, slides[i])) : [];
   const symIdx = cand.filter((i, k) => plans[k] && vpIsSymbolicPlan(plans[k]));
@@ -2505,32 +2514,35 @@ async function aiDeckPics(L, opts = {}) {
     const next0 = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);
     const clean0 = dropPendingPics(next0);
     if ((lib || clean0 !== md0) && L.docs.slides === md0) { L.docs.slides = clean0; L.slidesFitted = false; await saveLesson(L); if (state.lesson?.id === L.id) renderLesson(); }
-    if (manual || buildDev()) toast(manual ? "Во всех подходящих слайдах уже есть картинки. Заменить картинку можно, щёлкнув по слайду." : "ИИ-картинки не добавлены: на всех подходящих слайдах уже есть изображения или служебные блоки.", 9000);
+    if (manual || buildDev()) toast(lib ? `Из библиотеки добавлено картинок: ${lib}.` : cand.length
+      ? "Для оставшихся слайдов визуальный план предусматривает подбор источника или готовой схемы. Можно подобрать картинку или создать иллюстрацию для отдельного слайда."
+      : "Нет слайдов для пакетной генерации. Картинку можно создать отдельно из меню слайда.", 9000);
     pct(100);
     return { n: 0, lib, cleaned: clean0 !== md0 };
   }
   const pick = spreadIdx(genCand, max);
-  if (manual || buildDev()) toast(manual ? "Рисую картинки для презентации… до двух минут." : "Рисую красивые картинки для презентации…", 90000);
+  if (manual || buildDev()) toast(manual ? "Рисую картинки для презентации…" : "Рисую красивые картинки для презентации…", 90000);
   pct(5);
   let n = 0, freeN = 0, lastErr = "";
   for (let k = 0; k < pick.length; k++) {
     const i = pick[k];
     const sl = slides[i], title = sl.title.replace(/[*_`]/g, "");
     const plan = planOf.get(i);
-    if (plan && vpIsSymbolicPlan(plan)) continue; // v1.2: символический план в FLUX не уходит
-    const real = REAL_VISUAL.test(`${sl.title || ""} ${sl.body || ""}`);
     try {
-      const prompt = plan && plan.image_prompt ? (vpImagePrompt(plan.image_prompt) || plan.image_prompt) : deckImagePrompt(L.params, sl, "", { real });
-      const im = await ImageGen.image(prompt, { aspect: "16:9", maxW: 1280, kind: n ? "part" : "sheet" });
+      const prompt = vpImagePrompt(plan?.image_prompt) || deckImagePrompt(L.params, sl);
+      const im = await ImageGen.image(prompt, { aspect: "16:9", maxW: 1280, kind: n > freeN ? "part" : "sheet" });
       const response = await fetch(im.url);
       if (!response.ok) throw new Error("Не удалось загрузить изображение.");
-      const blob = await response.blob(), id = "img-" + uid(); await Store.put("images", id, blob);
-      const body = sl.body.replace(Media.RE, (raw, _cap, src) => PIC_PENDING.test(src) ? "" : raw).trim();
-      sl.body = [Media.mdImage(real ? `${title} — иллюстрация (нейросеть)` : title, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
+      const blob = await response.blob();
+      if (!blob.size || !/^image\//i.test(blob.type)) throw new Error("Генератор вернул файл, который не является картинкой.");
+      if (L.docs.slides !== md0) { stop("Презентация изменилась во время генерации. Запустите её ещё раз."); pct(100); return { n: 0 }; }
+      const id = "img-" + uid(); await Store.put("images", id, blob);
+      const body = sl.body.replace(Media.RE, (raw, _cap, src, opts) => replaceableDeckPic(src, opts) ? "" : raw).trim();
+      sl.body = [Media.mdImage(`${title} — иллюстрация (нейросеть)`, "idb:" + id, {}), body].filter(Boolean).join("\n\n");
       sl.set.afs = undefined;
       parts[i] = SlideEditor.build(sl); n++;
       if (im.free) freeN++;
-    } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if (/401|403|402|429/.test(lastErr)) break; }
+    } catch (e) { console.warn("deck pic", e); lastErr = String(e.message || e); if ([401, 402, 403, 429].includes(e.status)) break; }
     pct(5 + ((k + 1) / Math.max(1, pick.length)) * 90);
   }
   const next = SlideEditor.autoFullFrame(SlideEditor.joinSlides(md0, parts), L.params);

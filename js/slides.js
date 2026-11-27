@@ -754,7 +754,7 @@ const SlideEditor = (() => {
       if (bp.disabled) return;
       const before = Ls.docs.slides, t0 = bp.textContent; bp.disabled = true; bp.textContent = "🎨 Рисую…";
       try {
-        const r = await window.DeckAiPics.run();
+        const r = await window.DeckAiPics.run({ onProgress: pct => { bp.textContent = `🎨 Рисую… ${Math.round(pct)}%`; } });
         if (r?.n && Ls.docs.slides !== before && L() === Ls) { write(splitSlides(Ls.docs.slides).map(parse)); rerender(); }
       } catch (e) { toast("Не получилось: " + (e.message || e), 8000); }
       finally { bp.disabled = false; bp.textContent = t0; }
@@ -1389,8 +1389,8 @@ const SlideEditor = (() => {
         const blob = await response.blob();
         if (L() !== lesson || cur !== index || lesson.docs.slides !== before) throw new Error("Слайд изменился. Откройте создание изображения для нужного слайда ещё раз.");
         await insertBlob(blob, title, "", true);
-        window.Access?.countImage(1);
-        closeModal(); toast("Картинка вставлена.", 7000);
+        if (!im.free) window.Access?.countImage(1);
+        closeModal(); toast(im.free ? "Картинка вставлена. Использован запасной генератор, лимит не списан." : "Картинка вставлена.", 7000);
       } catch (e) { out.textContent = "❌ " + (e.message || e); go.disabled = false; }
     };
   }

@@ -2654,7 +2654,7 @@ const Media = (() => {
       const intent = artIntent(q);
       const fbMap = intent === "map" ? vpFallbackUrl(vpFallbackSeed(ctx, q), ctx.subject) : "";
       if (fbMap) { // карту не ищем вообще: сразу локальный резерв без картографических символов
-        md = md.replace(m[0], mdImage("Иллюстрация-схема: подберите наглядность сами", fbMap, { q }));
+        md = md.replace(m[0], mdImage("Иллюстрация-схема: подберите наглядность сами", fbMap, { q, fallback: "1" }));
         continue;
       }
       const hit = intent ? await commonsBest(q, intent) : pickBest(q, await commons(q, 8));
@@ -2665,7 +2665,7 @@ const Media = (() => {
         const cap = `${m[1] || (isMap ? "Карта" : isScheme ? "Схема" : "Репродукция")} — ${isMap ? "подберите карту" : isScheme ? "подберите схему" : "подберите репродукцию"}`;
         const fb = vpFallbackUrl(vpFallbackSeed(ctx, q), ctx.subject);
         if (fb) { // подпись честная: это схема-резерв, а не подделка репродукции/карты
-          rep = mdImage(`Иллюстрация-схема: подберите ${isMap ? "наглядность" : isScheme ? "схему" : "репродукцию"} сами`, fb, { q });
+          rep = mdImage(`Иллюстрация-схема: подберите ${isMap ? "наглядность" : isScheme ? "схему" : "репродукцию"} сами`, fb, { q, fallback: "1" });
         } else {
           const need = isMap
             ? `Карту не удалось подобрать автоматически (искали «${q}»). Нажмите на место и выберите карту или картосхему с подписью.`
@@ -2687,7 +2687,7 @@ const Media = (() => {
       const intent0 = artIntent(q0); // art/map-интент: проверяем, что пришла картина/карта, а не случайное фото
       const fbMap0 = intent0 === "map" ? vpFallbackUrl(vpFallbackSeed(ctx, q0), ctx.subject) : "";
       if (fbMap0) { // старый сохранённый урок с запросом карты: карту не ищем, ставим резерв без карт
-        out = out.replace(m[0], mdImage("Иллюстрация-схема: подберите наглядность сами", fbMap0, { ...Media_parse(m[3]), q: q0 }));
+        out = out.replace(m[0], mdImage("Иллюстрация-схема: подберите наглядность сами", fbMap0, { ...Media_parse(m[3]), q: q0, fallback: "1" }));
         onProgress && onProgress(++done, todo.length);
         continue;
       }
@@ -2705,7 +2705,7 @@ const Media = (() => {
         const fb = vpFallbackUrl(vpFallbackSeed(ctx, q0), ctx.subject);
         if (fb) {
           const fbCap = m[1] && !/подберите|карт[аыуе]/i.test(m[1]) ? m[1] : `Иллюстрация${title ? ": " + title : ""}`;
-          out = out.replace(m[0], mdImage(fbCap, fb, { ...Media_parse(m[3]), q: q0 }));
+          out = out.replace(m[0], mdImage(fbCap, fb, { ...Media_parse(m[3]), q: q0, fallback: "1" }));
         } else {
           const need = `На слайде — «${title || m[1] || q0}». Подходящую картинку сайт не нашёл, искал «${kw || q0}». Подберите сами: ${/портрет/i.test(q0) ? "портрет писателя с подписью — художник, год" : lit ? "иллюстрацию к этой сцене или герою — художник, название" : kw ? `фото или рисунок, где есть «${kw}» — как в примере на слайде` : "картинку к примеру или тексту на слайде"}.`;
           const cap = intent0 ? `${m[1] || (intent0 === "map" ? "Карта" : "Репродукция")} — ${intent0 === "map" ? "подберите карту" : "подберите репродукцию"}` : m[1];

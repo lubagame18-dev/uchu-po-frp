@@ -50,7 +50,20 @@ const ImageGen = (() => {
   const withTimeout = (ms, f) => { const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms); return f(ctl.signal).finally(() => clearTimeout(t)); };
   const toDataUrl = (mime, b64) => `data:${mime || "image/png"};base64,${b64}`;
   const err = (r, body) => { const m = (body && ((typeof body.error === "string" ? body.error : body.error?.message) || body.message || body.detail)) || ""; const e = new Error(`${r.status} ${r.status === 401 || r.status === 403 ? "ключ не подошёл или нет доступа" : r.status === 429 ? "превышен лимит запросов" : r.status === 402 ? "недостаточно средств на счёте" : r.status === 503 ? "сервис перегружен или не подключён" : "ошибка сервиса"}${m ? ": " + String(m).slice(0, 160) : ""}`); e.status = r.status; return e; };
-  const fromUrl = async (u, signal) => { if (/^data:/.test(u)) return u; const r = await fetch(u, { signal }); const b = await r.blob(); return await new Promise(ok => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(b); }); };
+  const fromUrl = async (url, signal) => {
+    if (/^data:image\//i.test(url)) return url;
+    if (!/^https?:/i.test(url)) throw new Error("сервис вернул неверный адрес изображения");
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw err(response);
+    const blob = await response.blob();
+    if (!blob.size || !/^image\//i.test(blob.type)) throw new Error("сервис вернул файл вместо изображения");
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("не удалось прочитать изображение"));
+      reader.readAsDataURL(blob);
+    });
+  };
 
   /* ---------- запасной бесплатный генератор (без ключей) ----------
      Нужен, когда общий ключ картинок на сервере сайта перестал работать: учитель не остаётся
@@ -93,11 +106,17 @@ const ImageGen = (() => {
         const tok = window.Account?.session?.access || "";
         const r2 = await fetch(siteUrl(), { method: "POST", signal, headers: { "Content-Type": "application/json", "X-User-Token": tok }, body: JSON.stringify({ prompt, aspect, kind: o.kind || "sheet" }) });
         const j2 = await r2.json().catch(() => ({}));
-        if (r2.status === 401) throw new Error("войдите в личный кабинет");
-        if (r2.status === 403) throw new Error("картинки входят в тариф «С ИИ»: 6 листов в месяц");
+        if (r2.status === 401) { const e = new Error("войдите в личный кабинет"); e.status = 401; throw e; }
+        if (r2.status === 403) { const e = new Error("картинки входят в тариф «С ИИ»: 6 листов в месяц"); e.status = 403; throw e; }
         if (!r2.ok) { const e = err(r2, j2); e.fromServer = true; throw e; }
-        const im = j2.image || j2.data || j2.url; if (!im) { const e = new Error("сервер не вернул картинку"); e.status = 502; e.fromServer = true; throw e; }
+        const im = j2.image || j2.data || j2.url; if (typeof im !== "string" || !im.trim()) { const e = new Error("сервер не вернул картинку"); e.status = 502; e.fromServer = true; throw e; }
         return /^(data:|https?:)/.test(im) ? fromUrl(im, signal) : toDataUrl("image/png", im);
+      }).catch(e => {
+        if (e.name !== "AbortError" && e.name !== "TypeError") throw e;
+        const unavailable = new Error(e.name === "AbortError" ? "сервер картинок не ответил вовремя" : "сервер картинок недоступен");
+        unavailable.status = 0;
+        unavailable.fromServer = true;
+        throw unavailable;
       });
     }
     return withTimeout(o.timeout || 90000, async signal => {
@@ -147,18 +166,24 @@ const ImageGen = (() => {
     const wait = ms => new Promise(r => setTimeout(r, ms));
     const freeReady = () => !own() && freeOn() && !o.noFree;
     const noServer = () => !own() && !siteUrl(); // адрес сервера не задан вовсе — сразу запасной генератор
-    if (!noServer() && (!freeReady() || Date.now() - serverBrokenAt > 120e3)) {
+    const knownOutage = freeReady() && serverBrokenAt > 0 && Date.now() - serverBrokenAt <= 120e3;
+    if (!noServer() && !knownOutage) {
       for (let i = 0; i < 3; i++) {
-        try { return await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0); }
+        try {
+          const result = await shrink(await raw(prompt, o), o.maxW, 0.86, o.strip || 0);
+          serverBrokenAt = 0;
+          return result;
+        }
         catch (e) {
           last = e;
-          if (/401|403|402|не настроено|войдите|тариф/.test(String(e.message))) break;
+          if (e.status >= 400 && e.status < 500) { serverBrokenAt = 0; break; }
+          if (/не настроено|войдите|тариф/.test(String(e.message))) break;
           if (serverDown(e)) { serverBrokenAt = Date.now(); break; } // не три круга по 90 секунд, а сразу запасной генератор
           if (i < 2) await wait(i ? 6000 : 2500);
         }
       }
     }
-    if (freeReady() && (noServer() || serverDown(last) || serverBrokenAt || /не настроено/i.test(String(last && last.message)))) {
+    if (freeReady() && (noServer() || serverDown(last) || knownOutage)) {
       try {
         const u = await freeRaw(prompt, o.aspect || "16:9");
         const r = await shrink(u, o.maxW, 0.86, o.strip || 0);
