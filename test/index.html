@@ -64,6 +64,9 @@ input:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,va
 .prog .bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}
 .score{font:800 54px/1 Unbounded,Manrope,serif;color:var(--ink);letter-spacing:-.02em;margin-bottom:6px}
 .res-emoji{font-size:52px;line-height:1;margin-bottom:8px;display:block;animation:pop .5s cubic-bezier(.2,.8,.2,1) both}
+.icon svg{width:30px;height:30px;display:block}
+.res-emoji svg{width:52px;height:52px;display:block;fill:none;stroke:var(--accent);stroke-width:1.7}
+.res-emoji{display:grid;place-items:center}
 @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
 .small{font-size:13.5px;color:var(--muted)}
 .err{color:#a02020;font-weight:700}
@@ -81,7 +84,7 @@ a{color:color-mix(in srgb,var(--accent) 75%,#000)}
 <body>
 <div class="wrap">
   <div class="top"><span class="brand">Проверка знаний</span></div>
-  <div class="card hero" id="load"><div class="icon">🧪</div><h1>Загружаю тест…</h1><p class="meta" id="loadMsg">Это займёт пару секунд.</p></div>
+  <div class="card hero" id="load"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="17" rx="2.5"/><path d="M8.5 3.5h7M8 9h8M8 13h8M8 17h5"/></svg></div><h1>Загружаю тест…</h1><p class="meta" id="loadMsg">Это займёт пару секунд.</p></div>
   <div id="app" class="hidden"></div>
 </div>
 <script>
@@ -92,18 +95,23 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const qid = new URLSearchParams(location.search).get("q") || "";
 const S = { q: null, picked: {}, student: "", fullName: "", klass: "" };
 
-/* 8 палитр; выбор зависит от предмета и темы */
+/* Нейтральный знак проверки знаний: без солнца, улыбок и праздничных эмодзи —
+   тема может быть трагической (война, репрессии), оформление не должно шутить. */
+const NEUTRAL_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="3.5" width="15" height="17" rx="2.5"/><path d="M8.5 3.5h7M8 9h8M8 13h8M8 17h5"/></svg>`;
+
+/* палитры; выбор зависит от предмета */
 const THEMES = {
-  coastal:  { bg1:"#eefaff", bg2:"#c8ecf7", accent:"#0e7490", accent2:"#22b8cf", line:"#cfe8f2", icon:"🌊" },
-  whimsy:   { bg1:"#fff2f8", bg2:"#ffe0ef", accent:"#db2777", accent2:"#f472b6", line:"#f7d4e5", icon:"✨" },
-  botanical:{ bg1:"#f2fcf5", bg2:"#d6f2df", accent:"#15803d", accent2:"#4ade80", line:"#d8ecdf", icon:"🌿" },
-  sunset:   { bg1:"#fff5ea", bg2:"#ffe2c4", accent:"#ea580c", accent2:"#fb923c", line:"#f4dfca", icon:"🌅" },
-  space:    { bg1:"#f4f2ff", bg2:"#e0d9ff", accent:"#6d28d9", accent2:"#a78bfa", line:"#e2d9f5", icon:"🌌" },
-  paper:    { bg1:"#fdf9ee", bg2:"#f5e9d2", accent:"#a16207", accent2:"#d9a441", line:"#e9dec8", icon:"📜" },
-  mint:     { bg1:"#effcf9", bg2:"#ccfbf1", accent:"#0f766e", accent2:"#2dd4bf", line:"#d2ede7", icon:"🧬" },
-  berry:    { bg1:"#fff1f2", bg2:"#ffe0e6", accent:"#be123c", accent2:"#fb7185", line:"#f5d6dc", icon:"📚" }
+  coastal:  { bg1:"#eefaff", bg2:"#c8ecf7", accent:"#0e7490", accent2:"#22b8cf", line:"#cfe8f2" },
+  whimsy:   { bg1:"#fff2f8", bg2:"#ffe0ef", accent:"#db2777", accent2:"#f472b6", line:"#f7d4e5" },
+  botanical:{ bg1:"#f2fcf5", bg2:"#d6f2df", accent:"#15803d", accent2:"#4ade80", line:"#d8ecdf" },
+  sunset:   { bg1:"#fff5ea", bg2:"#ffe2c4", accent:"#ea580c", accent2:"#fb923c", line:"#f4dfca" },
+  space:    { bg1:"#f4f2ff", bg2:"#e0d9ff", accent:"#6d28d9", accent2:"#a78bfa", line:"#e2d9f5" },
+  paper:    { bg1:"#fdf9ee", bg2:"#f5e9d2", accent:"#a16207", accent2:"#d9a441", line:"#e9dec8" },
+  mint:     { bg1:"#effcf9", bg2:"#ccfbf1", accent:"#0f766e", accent2:"#2dd4bf", line:"#d2ede7" },
+  berry:    { bg1:"#fff1f2", bg2:"#ffe0e6", accent:"#be123c", accent2:"#fb7185", line:"#f5d6dc" },
+  slate:    { bg1:"#f7f8fa", bg2:"#e6e8ec", accent:"#3f4a5a", accent2:"#6b7789", line:"#d4d8df" }
 };
-const SUBJ_THEME = { geo:"coastal", bio:"botanical", chem:"mint", math:"space", phys:"space", inf:"space", hist:"sunset", soc:"berry", lit:"paper", ru:"berry", eng:"coastal", mhk:"whimsy", izo:"whimsy", mus:"whimsy" };
+const SUBJ_THEME = { geo:"coastal", bio:"botanical", chem:"mint", math:"space", phys:"space", inf:"space", hist:"slate", soc:"slate", lit:"paper", ru:"paper", eng:"coastal", mhk:"paper", izo:"paper", mus:"paper" };
 function themeFor(d) {
   const subj = String(d.subject || "").toLowerCase().slice(0, 4);
   const m = Object.keys(SUBJ_THEME).find(k => subj.startsWith(k));
@@ -135,12 +143,12 @@ async function boot() {
 }
 function fail(t) {
   $("load").classList.remove("hidden");
-  $("load").innerHTML = '<div class="icon">😕</div><h1>Тест недоступен</h1><p class="err"></p>';
+  $("load").innerHTML = '<div class="icon">' + NEUTRAL_ICON + '</div><h1>Тест недоступен</h1><p class="err"></p>';
   $("load").querySelector(".err").textContent = t;
 }
 function intro() {
   const d = S.q, t = S.theme;
-  $("app").innerHTML = `<div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(d.title || "Проверка знаний")}</h1>
+  $("app").innerHTML = `<div class="card hero"><div class="icon">${NEUTRAL_ICON}</div><h1>${esc(d.title || "Проверка знаний")}</h1>
     <div class="meta">${esc(d.subject || "")}${d.grade ? " · " + esc(d.grade) + " класс" : ""}</div>
     <div class="chip">${d.questions.length} вопросов · проверка знаний</div>
     <label for="surname">Фамилия</label><input id="surname" autocomplete="family-name" placeholder="Иванов" maxlength="40">
@@ -173,7 +181,7 @@ function softAnswerOk(given, canonical, accept) {
 function quiz() {
   const Q = S.q.questions, t = S.theme;
   $("app").innerHTML = `<div class="prog"><span id="pc">0 / ${Q.length}</span><div class="bar"><i id="pb"></i></div></div>
-    <div class="card hero"><div class="icon">${t.icon}</div><h1>${esc(S.q.title || "Тест")}</h1><div class="meta">${S.klass ? esc(S.klass) + " класс" : "Ученик"}</div></div>
+    <div class="card hero"><div class="icon">${NEUTRAL_ICON}</div><h1>${esc(S.q.title || "Тест")}</h1><div class="meta">${S.klass ? esc(S.klass) + " класс" : "Ученик"}</div></div>
     <div id="qs"></div>
     <div class="card"><button class="btn accent" id="finish">Проверить результат</button><p class="small" id="progNote">Ответьте на каждый вопрос.</p></div>`;
   $("qs").innerHTML = Q.map((x, i) => `<div class="q" data-i="${i}"><b><span class="qn">${i + 1}</span><span>${esc(x.q)}</span></b>${isOpenQuestion(x) ? `<textarea name="q${i}" placeholder="Напишите ответ…"></textarea>` : x.options.map((o, k) => `<label class="opt"><input type="radio" name="q${i}" value="${k}"><span>${esc(o)}</span></label>`).join("")}</div>`).join("");
@@ -206,10 +214,10 @@ async function finish() {
     return { q: x.q, answer: x.options[x.answer], picked: x.options[S.picked[i]], ok: S.picked[i] === x.answer, explain: x.explain || "", type: "choice" };
   });
   const score = rows.filter(r => r.ok).length, pct = Math.round(score / rows.length * 100);
-  const emoji = pct === 100 ? "🏆" : pct >= 80 ? "🌟" : pct >= 50 ? "💪" : "📚";
-  const title = pct === 100 ? "Блестяще!" : pct >= 80 ? "Отличный результат!" : pct >= 50 ? "Неплохо, есть что повторить" : "Нужно повторить тему";
+  /* Нейтральная формулировка: тема может быть трагической, оценка не должна «праздновать». */
+  const title = "Тест завершён";
   const details = { answers: rows, wrong: rows.map((r, i) => r.ok ? null : i + 1).filter(Boolean), own: "", sections: { "Тест": score + " / " + rows.length }, full_name: S.fullName };
-  $("app").innerHTML = `<div class="card hero"><span class="res-emoji">${emoji}</span><div class="score">${score} / ${rows.length}</div><h1>${title}</h1>
+  $("app").innerHTML = `<div class="card hero"><span class="res-emoji">${NEUTRAL_ICON}</span><div class="score">${score} / ${rows.length}</div><h1>${title}</h1>
     <div class="meta">${S.klass ? esc(S.klass) + " класс" : "Ученик"}</div>
     <div class="chip">${pct}% верных ответов</div>
     <div class="review">${rows.map((r, i) => `<div class="r"><b>${i + 1}. ${esc(r.q)}</b><br><span class="${r.ok ? "ok" : "no"}">${r.ok ? "Верно" : "Ошибка"}</span> · правильный ответ: <b>${esc(r.answer)}</b>${r.explain && !r.ok ? "<br><span class='small'>" + esc(r.explain) + "</span>" : ""}</div>`).join("")}</div>
