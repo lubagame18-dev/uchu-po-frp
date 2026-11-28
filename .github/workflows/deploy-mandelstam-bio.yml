@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'mandelstam-bio/index.html'
+      - 'mandelstam-bio/img/archive-*.webp'
       - '.github/workflows/deploy-mandelstam-bio.yml'
   workflow_dispatch:
 permissions:
@@ -26,6 +27,14 @@ jobs:
         run: |
           test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY"
           test -s mandelstam-bio/index.html
+      - name: Upload archived lesson illustrations
+        run: |
+          set -euo pipefail
+          for image in mandelstam-bio/img/archive-*.webp; do
+            aws s3 cp "$image" "s3://uchu-po-frp.ru/$image" \
+              --endpoint-url https://storage.yandexcloud.net \
+              --content-type image/webp --cache-control 'public, max-age=86400' --no-progress
+          done
       - name: Cache historical photographs from Wikimedia Commons
         run: |
           set -euo pipefail
@@ -77,6 +86,9 @@ jobs:
           aws s3api head-object --bucket uchu-po-frp.ru --key mandelstam-bio/index.html --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
           for key in osip-1914.jpg osip-1934.jpg petersburg.jpg nadezhda-1925.jpg tenishev-2016.jpg literary-circle-1914.jpg osip-1925.jpg literary-circle-1930s.jpg akhmatova-1912.jpg gumilev-1907.jpg leningrad-1933.jpg; do
             aws s3api head-object --bucket uchu-po-frp.ru --key "mandelstam-bio/img/$key" --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
+          done
+          for image in mandelstam-bio/img/archive-*.webp; do
+            aws s3api head-object --bucket uchu-po-frp.ru --key "$image" --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
           done
           aws s3api head-object --bucket uchu-po-frp.ru --key "mandelstam-bio/audio/bach-bwv645-excerpt.mp3" --endpoint-url https://storage.yandexcloud.net --query '{Length:ContentLength,Type:ContentType}' --output json
           http=$(curl -L --connect-timeout 10 --max-time 25 -sS -o "$RUNNER_TEMP/mandel-live.html" -w '%{http_code}' 'https://uchu-po-frp.ru/mandelstam-bio/index.html' || true)
