@@ -35,6 +35,9 @@ jobs:
           curl -fsSL --retry 3 --retry-delay 2 'https://commons.wikimedia.org/wiki/Special:FilePath/Nevsky_prospect_and_Gostiny_dvor_in_1900s.jpg' -o "$RUNNER_TEMP/mandel-images/petersburg.jpg"
           curl -fsSL --retry 3 --retry-delay 2 'https://upload.wikimedia.org/wikipedia/commons/5/5b/%D0%9D%D0%B0%D0%B4%D0%B5%CC%81%D0%B6%D0%B4%D0%B0_%D0%AF%CC%81%D0%BA%D0%BE%D0%B2%D0%BB%D0%B5%D0%B2%D0%BD%D0%B0_%D0%9C%D0%B0%D0%BD%D0%B4%D0%B5%D0%BB%D1%8C%D1%88%D1%82%D0%B0%CC%81%D0%BC.jpg' -o "$RUNNER_TEMP/mandel-images/nadezhda-1925.jpg"
           curl -fsSL --retry 3 --retry-delay 2 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/%D0%9C%D0%BE%D1%85%D0%BE%D0%B2%D0%B0%D1%8F_33-35_03.jpg/960px-%D0%9C%D0%BE%D1%85%D0%BE%D0%B2%D0%B0%D1%8F_33-35_03.jpg' -o "$RUNNER_TEMP/mandel-images/tenishev-2016.jpg"
+          curl -fsSL --retry 3 --retry-delay 2 'https://upload.wikimedia.org/wikipedia/commons/d/d2/Mandelstam%2C_Chukovsky%2C_Livshits_%26_Annenkov_1914_Karl_Bulla_%28with_smile%29.jpg' -o "$RUNNER_TEMP/mandel-images/literary-circle-1914.jpg"
+          curl -fsSL --retry 3 --retry-delay 2 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Om1923.jpg' -o "$RUNNER_TEMP/mandel-images/osip-1925.jpg"
+          curl -fsSL --retry 3 --retry-delay 2 'https://upload.wikimedia.org/wikipedia/commons/5/56/Chulkov_Petrovykh_Akhmatova_Mandelstam.jpg' -o "$RUNNER_TEMP/mandel-images/literary-circle-1930s.jpg"
           for f in "$RUNNER_TEMP"/mandel-images/*.jpg; do
             test "$(wc -c < "$f")" -gt 3500
             aws s3 cp "$f" "s3://uchu-po-frp.ru/mandelstam-bio/img/$(basename "$f")" \
@@ -51,7 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           aws s3api head-object --bucket uchu-po-frp.ru --key mandelstam-bio/index.html --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
-          for key in osip-1914.jpg osip-1934.jpg petersburg.jpg nadezhda-1925.jpg tenishev-2016.jpg; do
+          for key in osip-1914.jpg osip-1934.jpg petersburg.jpg nadezhda-1925.jpg tenishev-2016.jpg literary-circle-1914.jpg osip-1925.jpg literary-circle-1930s.jpg; do
             aws s3api head-object --bucket uchu-po-frp.ru --key "mandelstam-bio/img/$key" --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
           done
           http=$(curl -L --connect-timeout 10 --max-time 25 -sS -o "$RUNNER_TEMP/mandel-live.html" -w '%{http_code}' 'https://uchu-po-frp.ru/mandelstam-bio/index.html' || true)
