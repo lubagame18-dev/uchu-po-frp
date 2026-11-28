@@ -47,6 +47,23 @@ jobs:
               --endpoint-url https://storage.yandexcloud.net \
               --content-type image/jpeg --cache-control 'public, max-age=86400' --no-progress
           done
+      - name: Create licensed Bach organ excerpt and upload MP3
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mandel-audio"
+          curl -fL --retry 4 --retry-delay 3 --connect-timeout 20 --max-time 120 \
+            'https://upload.wikimedia.org/wikipedia/commons/d/d3/Rapha%C3%ABle_Garreau_de_Labarre_-_Bach_-_Wachet_auf%2C_ruft_uns_die_Stimme_-_28-07-2013.ogg' \
+            -o "$RUNNER_TEMP/mandel-audio/bach-source.ogg"
+          test "$(wc -c < "$RUNNER_TEMP/mandel-audio/bach-source.ogg")" -gt 3000000
+          command -v ffmpeg
+          ffmpeg -nostdin -hide_banner -loglevel error -y -i "$RUNNER_TEMP/mandel-audio/bach-source.ogg" \
+            -t 70 -codec:a libmp3lame -qscale:a 4 \
+            "$RUNNER_TEMP/mandel-audio/bach-bwv645-excerpt.mp3"
+          test "$(wc -c < "$RUNNER_TEMP/mandel-audio/bach-bwv645-excerpt.mp3")" -gt 300000
+          aws s3 cp "$RUNNER_TEMP/mandel-audio/bach-bwv645-excerpt.mp3" \
+            "s3://uchu-po-frp.ru/mandelstam-bio/audio/bach-bwv645-excerpt.mp3" \
+            --endpoint-url https://storage.yandexcloud.net \
+            --content-type "audio/mpeg" --cache-control "public, max-age=86400" --no-progress
       - name: Upload only biography page
         run: |
           aws s3 cp mandelstam-bio/index.html s3://uchu-po-frp.ru/mandelstam-bio/index.html \
@@ -60,6 +77,7 @@ jobs:
           for key in osip-1914.jpg osip-1934.jpg petersburg.jpg nadezhda-1925.jpg tenishev-2016.jpg literary-circle-1914.jpg osip-1925.jpg literary-circle-1930s.jpg akhmatova-1912.jpg gumilev-1907.jpg leningrad-1933.jpg; do
             aws s3api head-object --bucket uchu-po-frp.ru --key "mandelstam-bio/img/$key" --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
           done
+          aws s3api head-object --bucket uchu-po-frp.ru --key "mandelstam-bio/audio/bach-bwv645-excerpt.mp3" --endpoint-url https://storage.yandexcloud.net --query '{Length:ContentLength,Type:ContentType}' --output json
           http=$(curl -L --connect-timeout 10 --max-time 25 -sS -o "$RUNNER_TEMP/mandel-live.html" -w '%{http_code}' 'https://uchu-po-frp.ru/mandelstam-bio/index.html' || true)
           echo "Public page HTTP status: $http"
           test "$http" = "200"
