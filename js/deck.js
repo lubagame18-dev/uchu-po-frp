@@ -367,7 +367,7 @@ const Deck = (() => {
     const L = lessonImages(p); if (!L.length) return cards;
     const credit = im => /собственн/.test(im.license || "") ? `Схема: собственный чертёж «Учу по ФРП».` : `Изображение: ${im.title}${im.author ? `; автор: ${im.author}` : ""}${im.license ? `; ${im.license}` : ""}; источник — Викисклад.`;
     const used = new Set();
-    const available = () => L.filter(im => !used.has(im.img)).map(im => ({ ...im, url: im.img, cap: im.caption, artist: im.author }));
+    const available = () => L.filter(im => !used.has(im.img)).map(im => ({ ...im, url: im.img, cap: im.caption, artist: im.author, local: true }));
     const out = cards.map(c => {
       if (!c) return c;
       /* v1.2: символический план — вместо FLUX реальная картинка урока из библиотеки;
@@ -1484,7 +1484,7 @@ ${JSON.stringify(payload).slice(0, 14000)}`;
       $("#dkMsg", m).textContent = "Ищу чтение артистов и фрагменты фильмов…"; cards = await mediaFill(cards).catch(() => cards);
       L.deckOutline = cards;
       let md = toMarkdown(cards, p);
-      md = await Media.autoFill(md).catch(() => md);
+      md = await Media.autoFill(md, null, { subject: p.subject, grade: p.grade, topic: p.topic }).catch(() => md);
       try { localStorage.setItem("uchu:cutout", $("#dkCut", m)?.checked ? "1" : "0"); } catch { }
       if (window.SlideEditor?.stickerize) md = await SlideEditor.stickerize(md, { onStep: t => { $("#dkMsg", m).textContent = t; } }).catch(() => md);
       if ($("#dkQuiz", m)?.checked && window.QuizLink) {

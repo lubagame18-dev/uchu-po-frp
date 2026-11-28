@@ -2402,25 +2402,42 @@ const Media = (() => {
   }
   async function loadImage(img, src) {
     if (!src) return false;
-    // Remote images without CORS need the same proxy as downloadable pictures.
-    try {
-      img.crossOrigin = "anonymous";
-      img.src = src.startsWith("idb:") ? await objectUrl(src.slice(4)) || "" : src;
-      await img.decode();
-      return true;
-    } catch { }
-    if (/^https?:/i.test(src)) {
+    /* Показ картинки — не то же самое, что её выгрузка в Word/PowerPoint.
+       Для показа достаточно обычного <img>: чужие сайты часто не отдают CORS-заголовки,
+       и строгий режим с crossOrigin оставлял вместо фотографии надпись «Изображение недоступно».
+       Поэтому пробуем по очереди: с CORS, без CORS, через серверный прокси картинок, и только
+       в конце — через fetch+data-URL (он нужен для canvas и выгрузки). */
+    const abs = (u) => { try { return new URL(u, location.href).href; } catch { return ""; } };
+    const loaded = async (u, cors) => {
+      if (!u) return false;
+      try {
+        if (cors) img.crossOrigin = "anonymous"; else img.removeAttribute("crossorigin");
+        img.src = u;
+        if (img.decode) await img.decode().catch(() => { });
+        if (!img.complete) await new Promise(res => { img.onload = img.onerror = res; setTimeout(res, 8000); });
+        return img.naturalWidth > 0;
+      } catch { return false; }
+    };
+    const local = /^(?:img\/|data:)/i.test(src) || (abs(src) && new URL(abs(src)).origin === location.origin);
+    if (src.startsWith("idb:")) {
+      const u = await objectUrl(src.slice(4));
+      if (await loaded(u, false)) return true;
+    } else if (local && await loaded(abs(src), false)) return true;
+    if (!src.startsWith("idb:") && /^https?:/i.test(src)) {
+      if (await loaded(src, true)) return true;          // обычный путь, картинка остаётся пригодной для canvas
+      if (await loaded(src, false)) return true;         // чужой сайт без CORS — показываем как есть
+      const u = proxyUrl("/img", `url=${encodeURIComponent(src)}`);
+      if (u && await loaded(u, false)) return true;      // прокси отдаёт байты картинки
       try {
         const blob = await toBlob(src, true);
         if (blob) {
-          img.src = await new Promise((resolve, reject) => {
+          const data = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result);
             reader.onerror = () => reject(reader.error);
             reader.readAsDataURL(blob);
           });
-          await img.decode();
-          return true;
+          if (await loaded(data, false)) return true;
         }
       } catch { }
     }
@@ -2616,15 +2633,27 @@ const Media = (() => {
     const required = (must || []).filter(term => imageWords(term).length);
     const names = qNames(subjectQuery);
     const leadNames = names.length ? names : [];
+    /* Картинки собственной базы сайта (портреты писателей и исторических деятелей, иллюстрации уроков)
+       уже отобраны и проверены по подписи, автору и лицензии. Для запросов «портрет», «картина»,
+       «иллюстрация» их нельзя проверять как случайную выдачу Викисклада: в заголовке базы нет слова
+       «портрет» — только имя, годы и роль. Раньше из-за этого родной портрет Пушкина отбрасывался,
+       и слайд оставался с пустой схемой вместо фотографии. */
+    const curated = item => !!(item && (item.local || /^(?:База сайта|Схема сайта)$/.test(String(item.src || ""))));
     const entries = items.map((item, i) => {
       const title = imageTitle(item);
-      if (!title || item.noTitle || (!intent && TEXTY.test(title)) || badPhoto(title, subjectQuery)) return null;
-      if (intent && !commonsOk(item, intent, subjectQuery)) return null;
-      if (required.some(term => !hasImageTerm(term, title))) return null;
-      if (leadNames.length && !leadNames.some(name => hasImageTerm(name, title))) return null;
+      const ours = curated(item);
+      if (!title || item.noTitle || (!intent && !ours && TEXTY.test(title)) || badPhoto(title, subjectQuery)) return null;
+      if (intent && !ours && !commonsOk(item, intent, subjectQuery)) return null;
+      /* Своя база и библиотека урока уже подобраны по теме и подписи — не требуем от них
+         совпадения всех слов запроса: иначе «Плодовое тело гриба» из библиотеки отбрасывалось.
+         Но совсем без совпадения по теме свою картинку тоже не ставим. */
+      const named = leadNames.some(name => hasImageTerm(name, title));
+      if (!ours && required.some(term => !hasImageTerm(term, title))) return null;
+      if (leadNames.length && !(named || ours)) return null;
       const hits = words.filter(word => hasImageTerm(word, title)).length;
-      if (!required.length && hits < (words.length > 2 ? 2 : 1) && !leadNames.length) return null;
-      return { item, score: hits * 2 + (item.cap ? 0.4 : 0) - i * 0.05 };
+      if (!ours && !required.length && hits < (words.length > 2 ? 2 : 1) && !leadNames.length) return null;
+      if (ours && words.length && !named && !required.some(term => hasImageTerm(term, title)) && !hits) return null;
+      return { item, score: hits * 2 + (item.cap ? 0.4 : 0) + (ours ? 1.2 : 0) - i * 0.05 };
     }).filter(Boolean).sort((a, b) => b.score - a.score);
     return entries[0]?.item || null;
   }
@@ -2657,9 +2686,19 @@ const Media = (() => {
         md = md.replace(m[0], mdImage("Иллюстрация-схема: подберите наглядность сами", fbMap, { q, fallback: "1" }));
         continue;
       }
-      const hit = intent ? await commonsBest(q, intent) : pickBest(q, await commons(q, 8));
+      /* Сначала своя база сайта: портреты писателей и деятелей, иллюстрации уроков.
+         Для «commons:портрет»/«commons:картина» она даёт настоящую подобранную фотографию
+         сразу и без интернета, а Викисклад — только запасной вариант. */
+      const curatedHit = pickBest(q, [...localPeople(q), ...localLessons(q)], null, intent, q);
+      const hit = curatedHit || (intent ? await commonsBest(q, intent) : pickBest(q, await commons(q, 8)));
       let rep = null;
-      if (hit) { const b = await toBlob(hit.url); let src = hit.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } rep = mdImage(hit.cap, src, { ...parseOpts(m[3]), q, from: "Викисклад" }); }
+      if (hit) {
+        const b = await toBlob(hit.url); let src = hit.url;
+        if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; }
+        const cap = hit.cap || hit.title || m[1] || "";
+        const from = curatedHit ? (hit.src || "База сайта") : "Викисклад";
+        rep = mdImage(cap, src, { ...parseOpts(m[3]), q, from });
+      }
       else if (intent) { // случайное фото вместо картины/карты/схемы не ставим: локальный SVG-резерв или место с подсказкой
         const isMap = intent === "map", isScheme = intent === "scheme";
         const cap = `${m[1] || (isMap ? "Карта" : isScheme ? "Схема" : "Репродукция")} — ${isMap ? "подберите карту" : isScheme ? "подберите схему" : "подберите репродукцию"}`;
@@ -2712,7 +2751,7 @@ const Media = (() => {
           out = out.replace(m[0], mdImage(cap, m[2].split(" ")[0] === m[2] ? m[2] : m[2], { ...Media_parse(m[3]), q: q0, need }));
         }
       }
-      if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(found.cap || m[1] || found.title, src, { ...parseOpts(m[3]), q, from: found.src })); }
+      if (found) { const b = await toBlob(found.url); let src = found.url; if (b) { const id = "img-" + uid(); await Store.put("images", id, b); src = "idb:" + id; } out = out.replace(m[0], mdImage(found.cap || found.title || m[1], src, { ...parseOpts(m[3]), q, from: found.src })); }
       onProgress && onProgress(++done, todo.length);
     }
     return out;

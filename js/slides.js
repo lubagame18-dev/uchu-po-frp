@@ -2226,7 +2226,7 @@ ${Array.from({ length: 10 }, (_, i) => `.deck-s.on .sx-body>*:nth-child(${i + 1}
     });
     if (have < target) {
       const generic = /^(?:проверь|провер(?:ка|яем)|итог|рефлекс|домашн|цель|план (?:урока|изучения)|условные обозначения|ответ|вопрос урока|актуализац|запомни|итак|что (?:мы |вы )?(?:узна|замет|понял)|тема(?: урока)?$|урок\s*\d|закрепление$|работа с источником$)/i;
-      const localImages = (window.Deck?.lessonImages?.(p) || []).map(im => ({ ...im, url: im.img, artist: im.author, cap: im.caption }));
+      const localImages = (window.Deck?.lessonImages?.(p) || []).map(im => ({ ...im, url: im.img, artist: im.author, cap: im.caption, local: true }));
       let tried = 0;
       for (const [i, sl] of arr.entries()) {
         if (have >= target || tried >= target + 3) break;
