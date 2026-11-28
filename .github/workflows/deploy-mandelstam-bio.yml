@@ -38,6 +38,9 @@ jobs:
           curl -fsSL --retry 3 --retry-delay 2 'https://upload.wikimedia.org/wikipedia/commons/d/d2/Mandelstam%2C_Chukovsky%2C_Livshits_%26_Annenkov_1914_Karl_Bulla_%28with_smile%29.jpg' -o "$RUNNER_TEMP/mandel-images/literary-circle-1914.jpg"
           curl -fsSL --retry 3 --retry-delay 2 'https://upload.wikimedia.org/wikipedia/commons/e/e6/Om1923.jpg' -o "$RUNNER_TEMP/mandel-images/osip-1925.jpg"
           curl -fsSL --retry 3 --retry-delay 2 'https://upload.wikimedia.org/wikipedia/commons/5/56/Chulkov_Petrovykh_Akhmatova_Mandelstam.jpg' -o "$RUNNER_TEMP/mandel-images/literary-circle-1930s.jpg"
+          curl -fsSL --retry 3 --retry-delay 2 'https://commons.wikimedia.org/wiki/Special:FilePath/Anna_Akhmatova_(1912).jpg' -o "$RUNNER_TEMP/mandel-images/akhmatova-1912.jpg"
+          curl -fsSL --retry 3 --retry-delay 2 'https://commons.wikimedia.org/wiki/Special:FilePath/Nikolay_Gumilyov1.jpg' -o "$RUNNER_TEMP/mandel-images/gumilev-1907.jpg"
+          curl -fsSL --retry 3 --retry-delay 2 'https://commons.wikimedia.org/wiki/Special:FilePath/MP_tram_Petersburg.jpg' -o "$RUNNER_TEMP/mandel-images/leningrad-1933.jpg"
           for f in "$RUNNER_TEMP"/mandel-images/*.jpg; do
             test "$(wc -c < "$f")" -gt 3500
             aws s3 cp "$f" "s3://uchu-po-frp.ru/mandelstam-bio/img/$(basename "$f")" \
@@ -54,7 +57,7 @@ jobs:
         run: |
           set -euo pipefail
           aws s3api head-object --bucket uchu-po-frp.ru --key mandelstam-bio/index.html --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
-          for key in osip-1914.jpg osip-1934.jpg petersburg.jpg nadezhda-1925.jpg tenishev-2016.jpg literary-circle-1914.jpg osip-1925.jpg literary-circle-1930s.jpg; do
+          for key in osip-1914.jpg osip-1934.jpg petersburg.jpg nadezhda-1925.jpg tenishev-2016.jpg literary-circle-1914.jpg osip-1925.jpg literary-circle-1930s.jpg akhmatova-1912.jpg gumilev-1907.jpg leningrad-1933.jpg; do
             aws s3api head-object --bucket uchu-po-frp.ru --key "mandelstam-bio/img/$key" --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
           done
           http=$(curl -L --connect-timeout 10 --max-time 25 -sS -o "$RUNNER_TEMP/mandel-live.html" -w '%{http_code}' 'https://uchu-po-frp.ru/mandelstam-bio/index.html' || true)
