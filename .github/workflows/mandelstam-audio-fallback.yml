@@ -1,0 +1,50 @@
+name: Publish Mandelstam licensed Bach audio and current HTML
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/mandelstam-audio-fallback.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mandelstam-audio-fallback
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
+      AWS_DEFAULT_REGION: ru-central1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download licensed original organ recording
+        run: |
+          set -euo pipefail
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY"
+          curl -fL --retry 4 --retry-delay 2 --connect-timeout 15 --max-time 90 \
+            'https://upload.wikimedia.org/wikipedia/commons/d/d3/Rapha%C3%ABle_Garreau_de_Labarre_-_Bach_-_Wachet_auf%2C_ruft_uns_die_Stimme_-_28-07-2013.ogg' \
+            -o "$RUNNER_TEMP/bach-bwv645-original.ogg"
+          test "$(wc -c < "$RUNNER_TEMP/bach-bwv645-original.ogg")" -gt 3000000
+      - name: Upload audio and new biography page only
+        run: |
+          set -euo pipefail
+          aws s3 cp "$RUNNER_TEMP/bach-bwv645-original.ogg" \
+            s3://uchu-po-frp.ru/mandelstam-bio/audio/bach-bwv645-original.ogg \
+            --endpoint-url https://storage.yandexcloud.net \
+            --content-type "audio/ogg" --cache-control "public, max-age=86400" --no-progress
+          aws s3 cp mandelstam-bio/index.html \
+            s3://uchu-po-frp.ru/mandelstam-bio/index.html \
+            --endpoint-url https://storage.yandexcloud.net \
+            --content-type "text/html; charset=utf-8" --cache-control "public, max-age=120" --no-progress
+      - name: Verify public media and lesson
+        run: |
+          set -euo pipefail
+          aws s3api head-object --bucket uchu-po-frp.ru --key mandelstam-bio/audio/bach-bwv645-original.ogg \
+            --endpoint-url https://storage.yandexcloud.net --query '{size:ContentLength,type:ContentType}' --output json
+          http=$(curl -L --connect-timeout 10 --max-time 25 -sS -o "$RUNNER_TEMP/live.html" -w '%{http_code}' https://uchu-po-frp.ru/mandelstam-bio/index.html || true)
+          echo "Public page HTTP: $http"
+          test "$http" = "200"
+          grep -q 'ВАША ИНТЕЛЛЕКТ-КАРТА' "$RUNNER_TEMP/live.html"
