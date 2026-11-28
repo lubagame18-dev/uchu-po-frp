@@ -225,7 +225,28 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 }
 @media(prefers-reduced-motion:reduce){.mind-branch,.mind-branch .node-list li{animation:none!important;transition:none!important}}
 </style>
-</head>
+
+<style id="reflection-enhancements">
+.reflection-lab{background:linear-gradient(140deg,#fff8e9,#f2e3cf);border:1px solid #c9a88a;border-left:5px solid #8b4053;border-radius:16px;padding:20px 22px;margin:25px 0 12px;color:#392a27}
+.reflection-lab h3{margin:4px 0 7px;color:#682c3b;font-size:25px}
+.reflection-lab .ref-kicker{font:700 12px Arial,sans-serif;letter-spacing:.12em;color:#8b4053}
+.reflection-lab p{margin:7px 0 15px}
+.ref-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.ref-choice{display:flex;align-items:flex-start;gap:10px;background:#fffdf7;border:1px solid #d7c1ae;padding:11px;border-radius:9px;cursor:pointer}
+.ref-choice:has(input:checked){background:#f6e4dd;border-color:#8b4053}
+.ref-choice input{width:20px;height:20px;flex-shrink:0;accent-color:#813f4a;margin-top:3px}
+.ref-match{display:grid;grid-template-columns:minmax(130px,1fr) minmax(170px,1.4fr);gap:9px;align-items:center;margin:10px 0}
+.ref-match select,.reflection-lab textarea{width:100%;padding:10px;border:1px solid #c6a88f;border-radius:7px;background:#fffdf9;color:#302522}
+.reflection-lab textarea{min-height:90px;resize:vertical}
+.ref-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.ref-buttons button{border:1px solid #c29d83;border-radius:10px;background:#fff9ef;color:#4b2934;padding:10px 14px}
+.ref-buttons button[aria-pressed=true]{background:#753545;color:#fff}
+.ref-action{border:0;background:#753545;color:white;border-radius:8px;padding:10px 15px;min-height:43px;cursor:pointer;margin-top:12px}
+.ref-result{min-height:24px;margin-top:10px;font-weight:600;color:#643041}
+.ref-note{font-size:13px;color:#725a51}
+@media(max-width:650px){.ref-grid{grid-template-columns:1fr}.ref-match{grid-template-columns:1fr}.reflection-lab{padding:15px}}
+@media print{.reflection-lab{break-inside:avoid}}
+</style></head>
 <body>
 <div class="shell">
 
@@ -258,6 +279,11 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
  <p class="small">Позже мы прочитаем всё стихотворение «Дано мне тело — что мне делать с ним...». Его вопрос о благодарности за жизнь станет началом биографического рассказа.</p>
  </div><figure class="figure"><img alt="Молодой Осип Мандельштам, фотография 1914 года" src="img/osip-1914.jpg" loading="lazy"><figcaption>Осип Мандельштам, 1914. <a href="https://commons.wikimedia.org/wiki/File:Osip_Mandelstam_Russian_writer.jpg" target="_blank" rel="noopener">Источник фотографии</a></figcaption></figure></div>
 
+<div class="reflection-lab" data-ref="start"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 1</div><h3>Что звучит в начале стихотворения?</h3><p>Выберите два наблюдения, которые подтверждаются строками «За радость тихую дышать и жить / Кого, скажите, мне благодарить?»</p><div class="ref-grid">
+<label class="ref-choice"><input type="checkbox" value="a"> Благодарность за само существование</label>
+<label class="ref-choice"><input type="checkbox" value="b"> Размышление о ценности жизни</label>
+<label class="ref-choice"><input type="checkbox" value="c"> Описание исторических событий</label>
+<label class="ref-choice"><input type="checkbox" value="d"> Перечень достижений поэта</label></div><button type="button" class="ref-action" data-check>Проверить выбор</button><div class="ref-result" role="status"></div></div>
 </section>
 
 <section class="part" data-part="home" id="home" hidden>
@@ -278,6 +304,11 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <form class="collect-form" data-group="home" autocomplete="off"><label for="own-home">Своя заметка</label><div class="collect-row"><input id="own-home" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
 <div class="saved-chips" data-saved-group="home" aria-live="polite"></div>
 </div></details>
+<div class="reflection-lab" data-ref="home"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 2</div><h3>Соотнесите факты детства</h3><p>К каждому месту или человеку подберите точное сведение из главы.</p>
+<div class="ref-match"><label for="match-home-1">Варшава</label><select id="match-home-1" data-answer="birth"><option value="">Выберите ответ</option><option value="school">Учёба в Тенишевском училище</option><option value="birth">Место рождения, 1891 год</option><option value="music">Занятия музыкой в семье</option></select></div>
+<div class="ref-match"><label for="match-home-2">Тенишевское училище</label><select id="match-home-2" data-answer="school"><option value="">Выберите ответ</option><option value="school">Учебное заведение в Петербурге</option><option value="birth">Место рождения</option><option value="music">Первый сборник стихов</option></select></div>
+<div class="ref-match"><label for="match-home-3">Флора Осиповна</label><select id="match-home-3" data-answer="music"><option value="">Выберите ответ</option><option value="music">Мать поэта, игравшая на фортепиано</option><option value="birth">Учитель литературы</option><option value="school">Издатель «Камня»</option></select></div>
+<button type="button" class="ref-action" data-check>Проверить соответствия</button><div class="ref-result" role="status"></div></div>
 </section>
 
 <section class="part" data-part="study" id="study" hidden>
@@ -301,6 +332,8 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <form class="collect-form" data-group="study" autocomplete="off"><label for="own-study">Своя заметка</label><div class="collect-row"><input id="own-study" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
 <div class="saved-chips" data-saved-group="study" aria-live="polite"></div>
 </div></details>
+<div class="reflection-lab" data-ref="study"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 3</div><h3>Соберите образовательный маршрут</h3><p>Нажимайте на этапы в хронологическом порядке. Можно исправить последовательность.</p>
+<div class="ref-buttons" data-order><button type="button" data-value="1911">Петербургский университет · 1911</button><button type="button" data-value="1907">Окончание училища · 1907</button><button type="button" data-value="1908">Париж и Гейдельберг · 1908–1910</button></div><div class="ref-result" role="status"></div><button type="button" class="ref-action" data-reset-order>Начать порядок заново</button></div>
 </section>
 
 <section class="part" data-part="poem" id="poem" hidden>
@@ -331,6 +364,9 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <form class="collect-form" data-group="poetry" autocomplete="off"><label for="own-poem">Своя заметка</label><div class="collect-row"><input id="own-poem" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
 <div class="saved-chips" data-saved-group="poem" aria-live="polite"></div>
 </div></details>
+<div class="reflection-lab" data-ref="poem"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 4</div><h3>Установите связь образа и смысла</h3><p>Прочитайте стихотворение ещё раз. Какие образы позволяют говорить о человеческом следе, остающемся во времени?</p>
+<div class="ref-grid"><label class="ref-choice"><input type="checkbox" value="a"> Дыхание и тепло на стекле</label><label class="ref-choice"><input type="checkbox" value="b"> Узор, который «не зачеркнуть»</label><label class="ref-choice"><input type="checkbox" value="c"> Морские корабли Гомера</label><label class="ref-choice"><input type="checkbox" value="d"> Арест и ссылка</label></div>
+<button type="button" class="ref-action" data-check>Проверить образы</button><div class="ref-result" role="status"></div></div>
 </section>
 
 <section class="part" data-part="circle" id="circle" hidden>
@@ -359,6 +395,11 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <form class="collect-form" data-group="poetry" autocomplete="off"><label for="own-circle">Своя заметка</label><div class="collect-row"><input id="own-circle" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
 <div class="saved-chips" data-saved-group="circle" aria-live="polite"></div>
 </div></details>
+<div class="reflection-lab" data-ref="circle"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 5</div><h3>Что относится к литературе, а что — к музыке?</h3><p>Соотнесите название с точной характеристикой. После прослушивания добавьте собственное музыкальное наблюдение.</p>
+<div class="ref-match"><label for="circle-a">«Камень»</label><select id="circle-a" data-answer="book"><option value="">Выберите</option><option value="poem">Стихотворение 1913 года</option><option value="book">Первый сборник Мандельштама</option><option value="music">Органная композиция Баха</option></select></div>
+<div class="ref-match"><label for="circle-b">«Бах»</label><select id="circle-b" data-answer="poem"><option value="">Выберите</option><option value="book">Книга воспоминаний</option><option value="poem">Стихотворение Мандельштама</option><option value="music">Пьеса для фортепиано</option></select></div>
+<div class="ref-match"><label for="circle-c">BWV 645</label><select id="circle-c" data-answer="music"><option value="">Выберите</option><option value="music">Органное произведение Баха</option><option value="book">Сборник стихов</option><option value="poem">Стихотворение о Ленинграде</option></select></div>
+<button type="button" class="ref-action" data-check>Проверить соответствия</button><label for="music-reflection">Какое качество органного звучания вы заметили?</label><textarea id="music-reflection" data-free placeholder="Например, как менялись мелодия и звучание; ответ своими словами"></textarea><div class="ref-result" role="status"></div></div>
 </section>
 
 <section class="part" data-part="nadezhda" id="nadezhda" hidden>
@@ -378,6 +419,9 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <form class="collect-form" data-group="people" autocomplete="off"><label for="own-nadezhda">Своя заметка</label><div class="collect-row"><input id="own-nadezhda" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
 <div class="saved-chips" data-saved-group="nadezhda" aria-live="polite"></div>
 </div></details>
+<div class="reflection-lab" data-ref="nadezhda"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 6</div><h3>Выберите подтверждённые факты</h3><p>Отметьте всё, что соответствует рассказу о Надежде Мандельштам, а не предположению.</p>
+<div class="ref-grid"><label class="ref-choice"><input type="checkbox" value="a"> Познакомились в Киеве в 1919 году</label><label class="ref-choice"><input type="checkbox" value="b"> Надежда помогала сохранить стихи</label><label class="ref-choice"><input type="checkbox" value="c"> Надежда написала сборник «Камень»</label><label class="ref-choice"><input type="checkbox" value="d"> Супруги никогда не встречались после 1934 года</label></div>
+<button type="button" class="ref-action" data-check>Проверить факты</button><div class="ref-result" role="status"></div></div>
 </section>
 
 <section class="part" data-part="city" id="city" hidden>
@@ -425,6 +469,9 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <form class="collect-form" data-group="poetry" autocomplete="off"><label for="own-city">Своя заметка</label><div class="collect-row"><input id="own-city" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
 <div class="saved-chips" data-saved-group="city" aria-live="polite"></div>
 </div></details>
+<div class="reflection-lab" data-ref="city"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 7</div><h3>Как меняется образ города?</h3><p>Выберите точное сопоставление: в стихотворении «Ленинград» герой...</p>
+<div class="ref-grid"><label class="ref-choice"><input type="radio" name="city-sense" value="a"> Возвращается к знакомому городу, но ощущает тревогу и отчуждение</label><label class="ref-choice"><input type="radio" name="city-sense" value="b"> Описывает исключительно радостную встречу</label><label class="ref-choice"><input type="radio" name="city-sense" value="c"> Рассказывает о поездке в Париж</label></div>
+<button type="button" class="ref-action" data-check>Проверить наблюдение</button><div class="ref-result" role="status"></div></div>
 </section>
 
 <section class="part" data-part="memory" id="memory" hidden>
@@ -468,7 +515,14 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <div class="self-feedback" id="selfFeedback" hidden><b>Проверьте свой ответ:</b><ul>
 <li>Есть ли конкретный биографический факт?</li><li>Названо ли стихотворение или книга?</li><li>Объяснили ли вы, почему этот факт важен?</li></ul>
 <p id="selfFacts"></p></div>
-<p class="small">Это самопроверка по собственным наблюдениям. Сайт не оценивает литературное рассуждение автоматически.</p></section>
+<p class="small">Это самопроверка по собственным наблюдениям. Сайт не оценивает литературное рассуждение автоматически.</p><div class="reflection-lab" data-ref="memory"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 8</div><h3>Свяжите события с судьбой стихов</h3><p>Соотнесите даты и события. Затем запишите личный отклик — без правильного или неправильного чувства.</p>
+<div class="ref-match"><label for="mem-a">1934 год</label><select id="mem-a" data-answer="exile"><option value="">Выберите</option><option value="exile">Первый арест и ссылка</option><option value="voronezh">Воронежские стихи</option><option value="death">Гибель поэта</option></select></div>
+<div class="ref-match"><label for="mem-b">1934–1937 годы</label><select id="mem-b" data-answer="voronezh"><option value="">Выберите</option><option value="death">Повторный арест</option><option value="exile">Первый сборник</option><option value="voronezh">Работа над стихами в Воронеже</option></select></div>
+<div class="ref-match"><label for="mem-c">1938 год</label><select id="mem-c" data-answer="death"><option value="">Выберите</option><option value="voronezh">Учёба в Париже</option><option value="death">Второй арест и гибель</option><option value="exile">Знакомство с Надеждой</option></select></div>
+<button type="button" class="ref-action" data-check>Проверить события</button>
+<label for="personal-reflection">Что лично вас тронуло, удивило или заставило задуматься после знакомства с жизнью Мандельштама?</label><textarea id="personal-reflection" data-free placeholder="Меня особенно затронуло… потому что…"></textarea>
+<div class="ref-result" role="status"></div><p class="ref-note">Личный ответ сохраняется в браузере; оценка к нему не ставится.</p></div>
+</section>
 <div class="line-separator"></div>
 <p class="note">К следующему уроку: прочитайте «Бессонница. Гомер. Тугие паруса...» и выпишите два имени или слова, значение которых требует уточнения.</p>
 </section>
@@ -582,6 +636,52 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
   input.value="";
  }));
  renderFacts();
+
+ // End-of-chapter reflection: local-only persistence; no changes to preexisting facts and map.
+ if(!data.reflections||typeof data.reflections!=="object")data.reflections={};
+ const reflectionCorrect={start:["a","b"],poem:["a","b"],nadezhda:["a","b"],city:["a"]};
+ document.querySelectorAll(".reflection-lab").forEach(lab=>{
+   const id=lab.dataset.ref;
+   const fields=[...lab.querySelectorAll("input,select,textarea[data-free]")];
+   const saved=data.reflections[id]||{};
+   fields.forEach(field=>{
+     const k=field.type==="checkbox"||field.type==="radio"?field.value:(field.id||"field");
+     if(field.type==="checkbox"||field.type==="radio")field.checked=!!saved[k];
+     else if(typeof saved[k]==="string")field.value=saved[k];
+     field.addEventListener("change",()=>{
+       if(field.type==="radio"){lab.querySelectorAll('input[type="radio"]').forEach(other=>saved[other.value]=other.checked);}
+       else if(field.type==="checkbox")saved[k]=field.checked;
+       else saved[k]=field.value;
+       data.reflections[id]=saved;save();lab.querySelector(".ref-result").textContent="";
+     });
+     if(field.tagName==="TEXTAREA")field.addEventListener("input",()=>{saved[k]=field.value.slice(0,1500);data.reflections[id]=saved;save()});
+   });
+   const result=lab.querySelector(".ref-result");
+   const verify=lab.querySelector("[data-check]");
+   if(verify)verify.addEventListener("click",()=>{
+     const selects=[...lab.querySelectorAll("select")];
+     if(selects.length){
+       const filled=selects.filter(x=>x.value).length,correct=selects.filter(x=>x.value===x.dataset.answer).length;
+       result.textContent=filled<selects.length?"Выберите ответ в каждой строке ("+filled+" из "+selects.length+").":correct===selects.length?"Верно: все соответствия найдены.":correct+" из "+selects.length+" верно. Проверьте оставшиеся пары по тексту главы.";
+     } else {
+       const chosen=[...lab.querySelectorAll('input:checked')].map(x=>x.value).sort();
+       const right=reflectionCorrect[id];
+       if(!chosen.length){result.textContent="Сначала отметьте вариант.";return}
+       result.textContent=JSON.stringify(chosen)===JSON.stringify(right)?"Верно! Ответ подтверждён материалом главы.":"Есть неточность: перечитайте главу и попробуйте ещё раз.";
+     }
+   });
+   if(id==="study"){
+     const order=lab.querySelector("[data-order]"),selected=Array.isArray(saved.order)?saved.order.filter(x=>["1907","1908","1911"].includes(x)):[];
+     function drawOrder(){
+       order.querySelectorAll("button").forEach(b=>{b.disabled=selected.includes(b.dataset.value);b.setAttribute("aria-pressed",String(selected.includes(b.dataset.value)))});
+       result.textContent=selected.length?("Ваш маршрут: "+selected.join(" → ")+(selected.length===3?(selected.join(",")==="1907,1908,1911"?" · Верно!":" · Проверьте хронологию."):"")):"Выберите первый этап.";
+     }
+     order.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{if(selected.includes(b.dataset.value))return;selected.push(b.dataset.value);saved.order=[...selected];data.reflections[id]=saved;save();drawOrder()}));
+     lab.querySelector("[data-reset-order]").addEventListener("click",()=>{selected.length=0;saved.order=[];data.reflections[id]=saved;save();drawOrder()});
+     drawOrder();
+   }
+ });
+
  const conclusion=document.getElementById("ownConclusion");
  conclusion.value=data.conclusion;
  conclusion.addEventListener("input",()=>{data.conclusion=conclusion.value.slice(0,3000);save()});
