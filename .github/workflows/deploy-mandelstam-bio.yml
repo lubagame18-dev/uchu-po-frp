@@ -1,0 +1,31 @@
+name: Deploy Mandelstam biography page to Yandex Cloud
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mandelstam-bio/index.html'
+      - '.github/workflows/deploy-mandelstam-bio.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: deploy-mandelstam-bio
+  cancel-in-progress: false
+jobs:
+  deploy-single-page:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET }}
+      AWS_DEFAULT_REGION: ru-central1
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+      - name: Check credentials
+        run: |
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY"
+          test -s mandelstam-bio/index.html
+      - name: Upload only biography page
+        run: |
+          aws s3 cp mandelstam-bio/index.html s3://uchu-po-frp.ru/mandelstam-bio/index.html             --endpoint-url https://storage.yandexcloud.net             --content-type "text/html; charset=utf-8"             --cache-control "public, max-age=120" --no-progress
