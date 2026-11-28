@@ -47,3 +47,14 @@ jobs:
             --endpoint-url https://storage.yandexcloud.net \
             --content-type 'text/html; charset=utf-8' \
             --cache-control 'public, max-age=120' --no-progress
+      - name: Verify published object and public page
+        run: |
+          set -euo pipefail
+          aws s3api head-object --bucket uchu-po-frp.ru --key mandelstam-bio/index.html --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
+          for key in osip-1914.jpg osip-1934.jpg petersburg.jpg nadezhda-1925.jpg tenishev-2016.jpg; do
+            aws s3api head-object --bucket uchu-po-frp.ru --key "mandelstam-bio/img/$key" --endpoint-url https://storage.yandexcloud.net --query 'ContentLength' --output text
+          done
+          http=$(curl -L --connect-timeout 10 --max-time 25 -sS -o "$RUNNER_TEMP/mandel-live.html" -w '%{http_code}' 'https://uchu-po-frp.ru/mandelstam-bio/index.html' || true)
+          echo "Public page HTTP status: $http"
+          test "$http" = "200"
+          grep -q 'Осип Мандельштам' "$RUNNER_TEMP/mandel-live.html"
