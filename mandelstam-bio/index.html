@@ -246,6 +246,18 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 .mind-branch.flash{animation:branchGlow .9s ease-out}
 @keyframes branchGlow{0%{box-shadow:0 0 36px 7px #d49145ba}100%{box-shadow:0 0 15px #ce903e80}}
 @media(prefers-reduced-motion:reduce){.mind-branch.flash,.mind-branch .node-list li{animation:none}}
+</style><style>
+.lesson-footer-actions{display:grid;justify-items:center;gap:12px;margin:12px auto 0;max-width:760px}
+.lesson-footer-actions .btn{text-align:center;text-decoration:none;display:inline-block}
+.teacher-results{width:100%;text-align:left;background:#fff7ea;color:#39282b;padding:16px;border-radius:14px}
+.teacher-results summary{cursor:pointer;font-weight:700}
+.teacher-results form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:12px}
+.teacher-results label{display:grid;gap:5px;font-weight:700}
+.teacher-results input{font:16px Arial,sans-serif;width:100%;max-width:300px;padding:9px;border:1px solid #ae8274;border-radius:7px}
+.teacher-results article{border-top:1px solid #d4b9a7;padding:12px 0;overflow-wrap:anywhere}
+.teacher-results article h3,.teacher-results article p{margin:0 0 8px}
+.teacher-results article dd{white-space:pre-wrap;margin:4px 0 8px}
+.teacher-results article dt{font-weight:700}
 </style></head>
 <body>
 <div class="shell">
@@ -517,8 +529,23 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 </main>
 <div class="controls"><button id="prev" class="btn secondary" type="button">← Предыдущая глава</button><div class="progress">Выполнено <span id="visitedCount">0 из 5 заданий</span><div class="pbar"><span id="barFill"></span></div></div><button id="next" class="btn" type="button">Следующая глава →</button></div>
 
-<footer>Учу по ФРП · Автор: Гладышева Любовь</footer>
 </div>
+<footer>
+<div>Учу по ФРП · Автор: Гладышева Любовь</div>
+<div class="lesson-footer-actions">
+<a class="btn" href="worksheets/mandelstam-lesson-worksheets.pdf" download>Скачать рабочие листы · PDF</a>
+<details class="teacher-results" id="teacherResults">
+<summary>Посмотреть результаты</summary>
+<p>Здесь видны сохранённые ответы учеников, которые работали в этом браузере.</p>
+<form id="teacherCodeForm">
+<label for="teacherCode">Код учителя<input id="teacherCode" type="password" required maxlength="64" autocomplete="off"></label>
+<button class="btn" type="submit">Открыть результаты</button>
+</form>
+<p id="teacherStatus" role="status"></p>
+<div id="teacherOutput" hidden></div>
+</details>
+</div>
+</footer>
 </div>
 <script>
 (function(){
@@ -537,6 +564,90 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
  function profileStorage(profile){
    return legacyKey+":student:"+profileId(profile);
  }
+ const teacherResults=document.getElementById("teacherResults");
+ const teacherForm=document.getElementById("teacherCodeForm");
+ const teacherCode=document.getElementById("teacherCode");
+ const teacherStatus=document.getElementById("teacherStatus");
+ const teacherOutput=document.getElementById("teacherOutput");
+ const tasksForTeacher=[
+   ["study","Учёба в России и Европе"],["poem","Дыхание, стекло и узор"],
+   ["circle","Камень и Бах"],["city","Ленинград"],["memory","Как стихи дошли до читателей"]
+ ];
+ const studentPrefix=legacyKey+":student:";
+ function savedStudents(){
+   const students=[];
+   for(let i=0;i<localStorage.length;i++){
+     const key=localStorage.key(i);
+     if(!key?.startsWith(studentPrefix))continue;
+     try{
+       const data=JSON.parse(localStorage.getItem(key));
+       const values=JSON.parse(key.slice(studentPrefix.length));
+       const [surname,name,schoolClass]=values;
+       const fallbackName=s=>s.charAt(0).toLocaleUpperCase("ru")+s.slice(1);
+       const profile=data?.student??{surname:fallbackName(surname),givenName:fallbackName(name),schoolClass:schoolClass.toLocaleUpperCase("ru")};
+       const answers=tasksForTeacher.flatMap(([id,title])=>{
+         const answer=data?.tasks?.[id]?.answer;
+         return typeof answer==="string"&&answer.trim()?[[title,answer]]:[];
+       });
+       if(answers.length)students.push({profile,answers});
+     }catch(_){}
+   }
+   return students.sort((a,b)=>a.profile.schoolClass.localeCompare(b.profile.schoolClass,"ru",{numeric:true})||
+     a.profile.surname.localeCompare(b.profile.surname,"ru")||a.profile.givenName.localeCompare(b.profile.givenName,"ru"));
+ }
+ function displayResults(students){
+   teacherOutput.replaceChildren();
+   for(const {profile,answers} of students){
+     const card=document.createElement("article");
+     const heading=document.createElement("h3");
+     heading.textContent=profile.surname+" "+profile.givenName+" · "+profile.schoolClass+" класс";
+     const count=document.createElement("p");
+     count.textContent="Выполнено "+answers.length+" из "+tasksForTeacher.length+" заданий";
+     const list=document.createElement("dl");
+     for(const [task,answer] of answers){
+       const label=document.createElement("dt");
+       const value=document.createElement("dd");
+       label.textContent=task;
+       value.textContent=answer;
+       list.append(label,value);
+     }
+     card.append(heading,count,list);
+     teacherOutput.append(card);
+   }
+   teacherOutput.hidden=false;
+   teacherStatus.textContent=students.length?"Результаты открыты.":"В этом браузере пока нет сохранённых ответов.";
+ }
+ let teacherAttempt=0;
+ teacherResults.addEventListener("toggle",()=>{
+   if(teacherResults.open)return;
+   ++teacherAttempt;
+   teacherCode.value="";
+   teacherStatus.textContent="";
+   teacherOutput.replaceChildren();
+   teacherOutput.hidden=true;
+ });
+ teacherForm.addEventListener("submit",async event=>{
+   event.preventDefault();
+   const attempt=++teacherAttempt;
+   teacherOutput.replaceChildren();
+   teacherOutput.hidden=true;
+   teacherStatus.textContent="";
+   const value=teacherCode.value.trim();
+   teacherCode.value="";
+   try{
+     const bytes=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));
+     if(attempt!==teacherAttempt||!teacherResults.open)return;
+     const hash=Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,"0")).join("");
+     if(hash!=="488698e805661dc1e43e63d0aa3e32d629c93f5ec901b781a4b34189041540df"){
+       teacherStatus.textContent="Неверный код.";
+       teacherCode.focus();
+       return;
+     }
+     displayResults(savedStudents());
+   }catch(_){
+     teacherStatus.textContent="Не удалось открыть результаты в этом браузере.";
+   }
+ });
  function openLesson(profile){
    entry.hidden=true;
    lesson.hidden=false;
@@ -602,7 +713,7 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
  if(!Array.isArray(data.feelings))data.feelings=[];
  if(typeof data.conclusion!=="string")data.conclusion="";
  const save=()=>{
-   try{localStorage.setItem(key,JSON.stringify(data));return true;}
+   try{localStorage.setItem(key,JSON.stringify({...data,student:profile}));return true;}
    catch(_){
      document.getElementById("currentStudent").textContent=profile.surname+" "+profile.givenName+" · Не удалось сохранить изменения в браузере";
      return false;

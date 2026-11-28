@@ -5,6 +5,7 @@ on:
     paths:
       - 'mandelstam-bio/index.html'
       - 'mandelstam-bio/pdf/**'
+      - 'mandelstam-bio/worksheets/**'
       - 'mandelstam-bio/img/archive-*.webp'
       - '.github/workflows/deploy-mandelstam-bio.yml'
   workflow_dispatch:
@@ -40,6 +41,12 @@ jobs:
         run: |
           aws s3 cp mandelstam-bio/pdf/ s3://uchu-po-frp.ru/mandelstam-bio/pdf/ \
             --recursive --endpoint-url https://storage.yandexcloud.net --no-progress
+      - name: Upload printable worksheets
+        run: |
+          aws s3 cp mandelstam-bio/worksheets/mandelstam-lesson-worksheets.pdf \
+            s3://uchu-po-frp.ru/mandelstam-bio/worksheets/mandelstam-lesson-worksheets.pdf \
+            --content-type application/pdf --content-disposition 'attachment; filename="mandelstam-lesson-worksheets.pdf"' \
+            --endpoint-url https://storage.yandexcloud.net --no-progress
       - name: Cache historical photographs from Wikimedia Commons
         run: |
           set -euo pipefail
