@@ -123,13 +123,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 .portraits-archive{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:25px 0}
 .portraits-archive .figure img{height:275px;object-fit:contain;background:#e7d5bc}
 .portraits-archive.cities .figure img{height:270px;object-fit:cover}
-.feeling-panel{background:#fff7e9;border:1px solid #cfae8c;border-radius:17px;padding:19px 23px;margin:22px 0}
-.feeling-panel h3{font-size:28px}
-.feeling-panel p{font-size:16px;margin:7px 0 12px}
-.feeling-choices{display:flex;gap:8px;flex-wrap:wrap}
-.feeling{font-size:15px;background:#fffefa;border:1.5px solid #ae796b;border-radius:999px;padding:9px 15px;color:#5f3640}
-.feeling[aria-pressed="true"]{background:#682f3d;color:#fff7eb;border-color:#682f3d}
-.feeling-result{font-size:15px;font-weight:600;color:#653640;min-height:26px}
 .mindmap{margin:24px 0;border:1px solid #c7a787;border-radius:20px;background:#fff7ea;padding:21px}
 .mindmap-title>h3{font-size:clamp(25px,3vw,33px)}
 .mindmap-title>p{font-size:16px;line-height:1.5}
@@ -146,28 +139,9 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 .mind-branch{border-left:3px solid #a65f63;background:#fffaf0;border-radius:6px;padding:9px 10px;min-height:55px;display:grid;gap:3px}
 .mind-branch b{font:700 12px Arial,sans-serif;color:#894154}
 .mind-branch span{font-size:15px;color:#443238}
-@media(max-width:740px){.portraits-archive{gap:9px}.portraits-archive .figure{padding:6px}.portraits-archive .figure img{height:185px}.portraits-archive.cities .figure img{height:155px}.portraits-archive figcaption{font-size:11px}.mind-layout{grid-template-columns:1fr}.mind-output{position:static}.mindmap{padding:15px}.feeling-panel{padding:16px}}
+@media(max-width:740px){.portraits-archive{gap:9px}.portraits-archive .figure{padding:6px}.portraits-archive .figure img{height:185px}.portraits-archive.cities .figure img{height:155px}.portraits-archive figcaption{font-size:11px}.mind-layout{grid-template-columns:1fr}.mind-output{position:static}.mindmap{padding:15px}}
 
 /* Новая карта: все факты сохраняются, аккуратное накопление по ходу чтения */
-.collect-panel{background:linear-gradient(115deg,#fffaf0,#f1ddcc);border:1px solid #c7a283;border-radius:16px;margin:24px 0 10px;overflow:hidden}
-.collect-panel summary{list-style:none;display:flex;align-items:center;gap:11px;cursor:pointer;padding:14px 16px;color:#542a38;font:700 16px/1.35 Georgia,serif}
-.collect-panel summary::-webkit-details-marker{display:none}
-.collect-panel summary:after{content:"⌄";font:700 23px Arial,sans-serif;color:#85505d;margin-left:1px;transition:transform .2s}
-.collect-panel[open] summary:after{transform:rotate(180deg)}
-.collect-icon{background:#633446;color:#f7dfb5;width:32px;height:32px;display:flex;justify-content:center;align-items:center;border-radius:50%;font-size:17px}
-.collect-title{flex:1}.collect-count{border-radius:20px;padding:2px 10px;font:700 14px Arial,sans-serif;background:#e6c7a1;min-width:28px;text-align:center}
-.collect-body{padding:4px 16px 17px;border-top:1px solid #e2c5a9}
-.collect-body>p{font-size:15px;color:#72534d;line-height:1.45}
-.collect-options{display:flex;flex-wrap:wrap;gap:9px;padding:8px 0}
-.collect-fact{border:1px solid #ab7f77;background:#fffaf3;border-radius:11px;padding:11px 14px;color:#57303a;font:15px/1.35 Arial,sans-serif;text-align:left}
-.collect-fact[aria-pressed=true]{background:#693744;color:#fff4e4;border-color:#693744;box-shadow:0 0 0 2px #efc9946b}
-.added-mark{display:none}.collect-fact[aria-pressed=true] .added-mark{display:inline}
-.collect-form{margin-top:12px}.collect-form label{font:700 13px Arial,sans-serif;color:#703d4b;display:block;margin-bottom:6px}
-.collect-row{display:flex;gap:7px;align-items:stretch}
-.collect-row input{flex:1;min-width:0;border:1px solid #c4a48c;border-radius:10px;background:white;padding:11px 12px;font:15px Arial,sans-serif;color:#3e2930}
-.collect-add{background:#633445;color:#fff3dc;border:0;border-radius:10px;padding:8px 12px;font:700 14px Arial,sans-serif}
-.saved-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-.saved-chips span{font:13px Arial,sans-serif;color:#5c3641;background:#e9d0b5;border-radius:100px;padding:6px 9px}
 .mindmap{background:linear-gradient(130deg,#faf0df,#f3ddc3);border:1px solid #b9906f;box-shadow:0 20px 44px #6d444827}
 .mindmap-title h3{margin:10px 0;font-size:clamp(27px,3vw,40px)}
 .mind-progress{display:flex;gap:13px;align-items:center;margin:18px 0 24px;font:700 14px Arial,sans-serif;color:#593039}
@@ -194,11 +168,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 @keyframes factAppear{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes mapHighlight{0%{box-shadow:0 0 0 0 #d6a15a99}55%{box-shadow:0 0 0 9px #d6a15a33}100%{box-shadow:none}}
 .map-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:22px}
-.self-check{background:#fffaee;padding:20px;border:1px solid #d1b89d;border-radius:16px;margin:18px 0}
-.self-check>p{font-size:16px}
-.self-check textarea{resize:vertical;min-height:125px}
-.self-feedback{margin:15px 0;padding:16px;background:#f1e3d1;border-left:4px solid #996574;border-radius:10px;font-size:15px}
-.self-feedback li{margin:6px 0}
 .audio-card{background:#fff8eb;border:1px solid #ccae8e;border-radius:17px;padding:17px 19px;margin:16px 0}
 .audio-label{font:700 12px Arial,sans-serif;color:#7c4451;letter-spacing:.1em}
 .audio-card audio{display:block;width:100%;margin:13px 0 10px}
@@ -208,10 +177,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 .audio-credit{font:13px/1.55 Arial,sans-serif;color:#6c5750;margin-top:14px}
 .audio-credit a{color:#8b3a4f}
 @media (max-width:740px){
-.collect-panel summary{padding:11px 12px;font-size:15px}
-.collect-body{padding:4px 12px 13px}
-.collect-fact{padding:9px 10px;font-size:14px}
-.collect-add{font-size:13px}
 .mind-branches{grid-template-columns:1fr;gap:12px}
 .mind-branches:before{left:13px;right:auto;top:0;bottom:0;height:auto;width:2px}
 .mind-branch:before{top:19px;left:-13px;height:2px;width:12px}
@@ -226,25 +191,21 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 @media(prefers-reduced-motion:reduce){.mind-branch,.mind-branch .node-list li{animation:none!important;transition:none!important}}
 </style>
 
-<style id="reflection-enhancements">
+<style>
 .reflection-lab{background:linear-gradient(140deg,#fff8e9,#f2e3cf);border:1px solid #c9a88a;border-left:5px solid #8b4053;border-radius:16px;padding:20px 22px;margin:25px 0 12px;color:#392a27}
-.reflection-lab h3{margin:4px 0 7px;color:#682c3b;font-size:25px}
-.reflection-lab .ref-kicker{font:700 12px Arial,sans-serif;letter-spacing:.12em;color:#8b4053}
-.reflection-lab p{margin:7px 0 15px}
-.ref-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
-.ref-choice{display:flex;align-items:flex-start;gap:10px;background:#fffdf7;border:1px solid #d7c1ae;padding:11px;border-radius:9px;cursor:pointer}
-.ref-choice:has(input:checked){background:#f6e4dd;border-color:#8b4053}
-.ref-choice input{width:20px;height:20px;flex-shrink:0;accent-color:#813f4a;margin-top:3px}
-.ref-match{display:grid;grid-template-columns:minmax(130px,1fr) minmax(170px,1.4fr);gap:9px;align-items:center;margin:10px 0}
-.ref-match select,.reflection-lab textarea{width:100%;padding:10px;border:1px solid #c6a88f;border-radius:7px;background:#fffdf9;color:#302522}
-.reflection-lab textarea{min-height:90px;resize:vertical}
-.ref-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.ref-buttons button{border:1px solid #c29d83;border-radius:10px;background:#fff9ef;color:#4b2934;padding:10px 14px}
-.ref-buttons button[aria-pressed=true]{background:#753545;color:#fff}
-.ref-action{border:0;background:#753545;color:white;border-radius:8px;padding:10px 15px;min-height:43px;cursor:pointer;margin-top:12px}
-.ref-result{min-height:24px;margin-top:10px;font-weight:600;color:#643041}
-.ref-note{font-size:13px;color:#725a51}
-@media(max-width:650px){.ref-grid{grid-template-columns:1fr}.ref-match{grid-template-columns:1fr}.reflection-lab{padding:15px}}
+.reflection-lab h3{margin:0 0 10px;color:#682c3b;font-size:25px}
+.reflection-lab label{display:block;margin:0 0 9px;font-weight:700}
+.reflection-lab textarea{width:100%;min-height:105px;resize:vertical;padding:10px;border:1px solid #c6a88f;border-radius:7px;background:#fffdf9;color:#302522;font:16px/1.45 Arial,sans-serif}
+.ref-actions,.ref-choices{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ref-choices button{text-align:left}
+.ref-choices button:disabled{opacity:.6}
+.tab.task-complete::after{content:" ✓";font-weight:700}
+.ref-result{color:#682c3b;font-weight:700;margin:10px 0 0}
+.ref-result:empty{display:none}
+.ref-order{padding-inline-start:24px;margin:12px 0}
+.ref-order:empty{display:none}
+.node-list li{overflow-wrap:anywhere;white-space:pre-line}
+@media(max-width:650px){.reflection-lab{padding:15px}.ref-choices{display:grid}.ref-choices button{width:100%}}
 @media print{.reflection-lab{break-inside:avoid}}
 </style><style id="further-reading-style">
 .further-reading{margin:28px 0 10px;padding:20px;border:1px solid #cfb89d;border-radius:16px;background:#f4e8d7;color:#332622}
@@ -311,11 +272,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <a href="img/archive-apollo-page.webp" target="_blank" rel="noopener"><img src="img/archive-apollo-page.webp" alt="Страница 5 журнала «Аполлон» со стихами Мандельштама" loading="lazy" decoding="async"></a>
 <figcaption><strong>Дебют в журнале «Аполлон», № 9, 1910.</strong> В нижней половине страницы – ранняя редакция стихотворения с началом «Имею тело: что мне делать с ним…». <a href="https://mandelstam.hse.ru/archive/958750428" target="_blank" rel="noopener">Подборка страниц · архив НИУ ВШЭ, экземпляр РНБ</a></figcaption>
 </figure>
-<div class="reflection-lab" data-ref="start"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 1</div><h3>Что звучит в начале стихотворения?</h3><p>Выберите два наблюдения, которые подтверждаются строками «За радость тихую дышать и жить / Кого, скажите, мне благодарить?»</p><div class="ref-grid">
-<label class="ref-choice"><input type="checkbox" value="a"> Благодарность за само существование</label>
-<label class="ref-choice"><input type="checkbox" value="b"> Размышление о ценности жизни</label>
-<label class="ref-choice"><input type="checkbox" value="c"> Описание исторических событий</label>
-<label class="ref-choice"><input type="checkbox" value="d"> Перечень достижений поэта</label></div><button type="button" class="ref-action" data-check>Проверить выбор</button><div class="ref-result" role="status"></div></div>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://www.culture.ru/persons/9327/osip-mandelshtam" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Биография и исторический контекст · Культура.РФ</b><span>Краткая справка для первого знакомства с жизнью поэта.</span><em>Открыть источник ↗</em></a><a href="https://rvb.ru/20vek/mandelstam/02index/bio.htm" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Хронология жизни и творчества · РВБ</b><span>Можно сверить даты и события с подробной научной хронологией.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 
@@ -333,19 +289,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <figure class="figure archive-figure"><img src="img/archive-tenishev-postcard.webp" alt="Старинная открытка с Тенишевским училищем на Моховой улице" loading="lazy" decoding="async"><figcaption><strong>Моховая улица, Тенишевское училище.</strong> Дореволюционная открытка. <a href="https://lebedev.ru/data/books/skobelcin.pdf#page=11" target="_blank" rel="noopener">Репродукция в издании о Д. В. Скобельцыне · ФИАН, с. 19</a></figcaption></figure>
 </div>
 
-<details class="collect-panel" data-collector="home">
-<summary><span class="collect-icon" aria-hidden="true">✦</span><span class="collect-title">Что запомнилось о детстве?</span><span class="collect-count" data-collect-count="home">0</span></summary>
-<div class="collect-body">
-<p>Отметьте факты, которые хотите сохранить в своей интеллект-карте. Можно выбрать несколько или добавить собственный.</p>
-<div class="collect-options"><button type="button" class="collect-fact" data-group="home" data-value="Варшава, 1891" aria-pressed="false">Варшава – место рождения, 1891<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="home" data-value="Петербургское детство" aria-pressed="false">Петербург – город детства<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="home" data-value="Музыка матери" aria-pressed="false">Мать играла на фортепиано<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="home" data-value="Тенишевское училище" aria-pressed="false">1900–1907 – Тенишевское училище<span class="added-mark" aria-hidden="true"> ✓</span></button></div>
-<form class="collect-form" data-group="home" autocomplete="off"><label for="own-home">Своя заметка</label><div class="collect-row"><input id="own-home" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
-<div class="saved-chips" data-saved-group="home" aria-live="polite"></div>
-</div></details>
-<div class="reflection-lab" data-ref="home"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 2</div><h3>Соотнесите факты детства</h3><p>К каждому месту или человеку подберите точное сведение из главы.</p>
-<div class="ref-match"><label for="match-home-1">Варшава</label><select id="match-home-1" data-answer="birth"><option value="">Выберите ответ</option><option value="school">Учёба в Тенишевском училище</option><option value="birth">Место рождения, 1891 год</option><option value="music">Занятия музыкой в семье</option></select></div>
-<div class="ref-match"><label for="match-home-2">Тенишевское училище</label><select id="match-home-2" data-answer="school"><option value="">Выберите ответ</option><option value="school">Учебное заведение в Петербурге</option><option value="birth">Место рождения</option><option value="music">Первый сборник стихов</option></select></div>
-<div class="ref-match"><label for="match-home-3">Флора Осиповна</label><select id="match-home-3" data-answer="music"><option value="">Выберите ответ</option><option value="music">Мать поэта, игравшая на фортепиано</option><option value="birth">Учитель литературы</option><option value="school">Издатель «Камня»</option></select></div>
-<button type="button" class="ref-action" data-check>Проверить соответствия</button><div class="ref-result" role="status"></div></div>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://mandelstam.hse.ru/memory1" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Места памяти Мандельштама · НИУ ВШЭ</b><span>Города, здания и биографические места.</span><em>Открыть источник ↗</em></a><a href="https://mandelstam.hse.ru/archive" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Объединённый электронный архив · НИУ ВШЭ</b><span>Документы, письма, фотографии и исторические свидетельства.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 
@@ -365,16 +308,19 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 </div>
 <div><h3>Учёба и чтение</h3><p>В Париже Мандельштам слушал лекции Сорбонны. В Гейдельберге занимался филологией. Он много читал французских поэтов и постепенно входил в европейскую литературную традицию, которая позднее отразится в его собственных стихах.</p><p class="small">Подробнее: <a href="https://mandelstam.hse.ru/memory1" target="_blank" rel="noopener">Места памяти Мандельштама · НИУ ВШЭ ↗</a></p></div>
 
-<details class="collect-panel" data-collector="study">
-<summary><span class="collect-icon" aria-hidden="true">✦</span><span class="collect-title">Что запомнилось об учёбе?</span><span class="collect-count" data-collect-count="study">0</span></summary>
-<div class="collect-body">
-<p>Отметьте факты, которые хотите сохранить в своей интеллект-карте. Можно выбрать несколько или добавить собственный.</p>
-<div class="collect-options"><button type="button" class="collect-fact" data-group="study" data-value="Учёба в Париже" aria-pressed="false">Учился и слушал лекции в Париже<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="study" data-value="Гейдельберг" aria-pressed="false">Занимался в Гейдельберге<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="study" data-value="Петербургский университет, 1911" aria-pressed="false">1911 – поступил в университет<span class="added-mark" aria-hidden="true"> ✓</span></button></div>
-<form class="collect-form" data-group="study" autocomplete="off"><label for="own-study">Своя заметка</label><div class="collect-row"><input id="own-study" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
-<div class="saved-chips" data-saved-group="study" aria-live="polite"></div>
-</div></details>
-<div class="reflection-lab" data-ref="study"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 3</div><h3>Соберите образовательный маршрут</h3><p>Нажимайте на этапы в хронологическом порядке. Можно исправить последовательность.</p>
-<div class="ref-buttons" data-order><button type="button" data-value="1911">Петербургский университет · 1911</button><button type="button" data-value="1907">Окончание училища · 1907</button><button type="button" data-value="1908">Париж и Гейдельберг · 1908–1910</button></div><div class="ref-result" role="status"></div><button type="button" class="ref-action" data-reset-order>Начать порядок заново</button></div>
+<div class="reflection-lab" data-task="study" data-branch="study">
+<h3>Учёба в России и Европе</h3>
+<p>Нажмите на три события в том порядке, в котором они произошли. При необходимости сверьтесь с хронологией главы.</p>
+<p><strong>Как Мандельштам продолжил учёбу после Тенишевского училища?</strong></p>
+<div class="ref-choices" aria-label="События">
+<button class="btn secondary" type="button" data-step="university">Поступил в Петербургский университет</button>
+<button class="btn secondary" type="button" data-step="school">Окончил Тенишевское училище</button>
+<button class="btn secondary" type="button" data-step="europe">Занимался в Париже и Гейдельберге</button>
+</div>
+<ol class="ref-order" aria-label="Выбранная последовательность" aria-live="polite"></ol>
+<div class="ref-actions"><button type="button" class="btn" data-order-check>Проверить порядок</button><button type="button" class="btn secondary" data-order-clear>Сбросить выбор</button></div>
+<p class="ref-result" role="status"></p>
+</div>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://rvb.ru/20vek/mandelstam/02index/bio.htm" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Хронология учёбы и путешествий · РВБ</b><span>Проследите маршрут поэта по годам.</span><em>Открыть источник ↗</em></a><a href="https://statearchive.ru/713" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>«Слово и судьба» · выставка Государственного архива РФ</b><span>О выставке с материалами архивов и Гейдельбергского университета.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 
@@ -398,18 +344,15 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 Узора милого не зачеркнуть.</div>
 
 <p class="small">Сверенный текст: <a href="https://rvb.ru/20vek/mandelstam/dvuhtomnik/01text/vol_1/01versus/0007.htm" target="_blank" rel="noopener">Русская виртуальная библиотека ↗</a></p>
-<details class="collect-panel" data-collector="poem">
-<summary><span class="collect-icon" aria-hidden="true">✦</span><span class="collect-title">Что запомнилось из ранних стихов?</span><span class="collect-count" data-collect-count="poem">0</span></summary>
-<div class="collect-body">
-<p>Отметьте факты, которые хотите сохранить в своей интеллект-карте. Можно выбрать несколько или добавить собственный.</p>
-<div class="collect-options"><button type="button" class="collect-fact" data-group="poetry" data-value="«Дано мне тело...», 1909" aria-pressed="false">«Дано мне тело...» – 1909 год<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="poetry" data-value="Садовник и цветок" aria-pressed="false">Образы садовника и цветка<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="poetry" data-value="Дыхание на стекле" aria-pressed="false">Образ дыхания на стекле<span class="added-mark" aria-hidden="true"> ✓</span></button></div>
-<form class="collect-form" data-group="poetry" autocomplete="off"><label for="own-poem">Своя заметка</label><div class="collect-row"><input id="own-poem" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
-<div class="saved-chips" data-saved-group="poem" aria-live="polite"></div>
-</div></details>
 <figure class="figure archive-figure archive-scan"><a href="img/archive-kamen-page.webp" target="_blank" rel="noopener"><img src="img/archive-kamen-page.webp" alt="Страница 1 первого издания «Камня» со стихотворением «Дыхание»" loading="lazy" decoding="async"></a><figcaption><strong>«Дыхание», 1913.</strong> Первая страница сборника «Камень». Найдите на скане знакомые строки и обратите внимание на заглавие и дореформенное написание. <a href="https://commons.wikimedia.org/wiki/File:Osip_Mandelstam_Kamen_1913_01.jpg" target="_blank" rel="noopener">Оригинал · Wikimedia Commons</a></figcaption></figure>
-<div class="reflection-lab" data-ref="poem"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 4</div><h3>Установите связь образа и смысла</h3><p>Прочитайте стихотворение ещё раз. Какие образы позволяют говорить о человеческом следе, остающемся во времени?</p>
-<div class="ref-grid"><label class="ref-choice"><input type="checkbox" value="a"> Дыхание и тепло на стекле</label><label class="ref-choice"><input type="checkbox" value="b"> Узор, который «не зачеркнуть»</label><label class="ref-choice"><input type="checkbox" value="c"> Морские корабли Гомера</label><label class="ref-choice"><input type="checkbox" value="d"> Арест и ссылка</label></div>
-<button type="button" class="ref-action" data-check>Проверить образы</button><div class="ref-result" role="status"></div></div>
+<form class="reflection-lab" data-task="poem" data-branch="poetry">
+<h3>Дыхание, стекло и узор</h3>
+<p>Перечитайте строки от «На стекла вечности уже легло» до конца стихотворения. Начните с того, что происходит со следом дыхания на обычном стекле. В ответе сошлитесь на последнюю строку.</p>
+<label for="answer-poem">Чем узор в стихотворении отличается от обычного следа дыхания на стекле?</label>
+<textarea id="answer-poem" rows="4" maxlength="1500" required></textarea>
+<div class="ref-actions"><button type="submit" class="btn">Сохранить ответ в карту</button></div>
+<p class="ref-result" role="status"></p>
+</form>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://rvb.ru/20vek/mandelstam/toc.htm" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Собрание произведений Мандельштама · РВБ</b><span>Другие ранние стихотворения и текстологические материалы.</span><em>Открыть источник ↗</em></a><a href="https://rvb.ru/20vek/mandelstam/02index/bio.htm" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Научная биографическая хронология · РВБ</b><span>Что происходило в жизни поэта в годы первых публикаций.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 
@@ -433,23 +376,18 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <div>
 <figure class="figure archive-figure"><img src="img/archive-organ.webp" alt="Орган церкви Сен-Максимен в Тьонвиле" loading="lazy" decoding="async"><figcaption><strong>Орган церкви Сен-Максимен, Тьонвиль.</strong> На этом инструменте исполнен хорал в аудиозаписи. Фото Fredamas, 2013, уменьшенная копия. <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. <a href="https://commons.wikimedia.org/wiki/File:Orgue_Saint-Maximin_-_Thionville.jpg" target="_blank" rel="noopener">Оригинал · Wikimedia Commons</a></figcaption></figure>
 <div class="tile"><div class="year">МУЗЫКА В СТИХАХ</div><h3>«Бах» (1913)</h3><p>Стихотворение посвящено музыкальному переживанию. Поэт создаёт словесный образ мощного и многоголосого звучания органа.</p><p class="small">Текст: <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">собрание произведений · РВБ ↗</a></p></div></div></div>
+<form class="reflection-lab" data-task="circle" data-branch="poetry">
+<h3>Как звучит «многосложный крик»</h3>
+<p>Послушайте фрагмент хорала. Обратите внимание, звучит ли одна мелодия или одновременно слышны разные голоса. Сопоставьте услышанное со словами «Органа многосложный крик» из стихотворения Мандельштама «Бах».</p>
+<label for="answer-circle">Какая деталь звучания помогает вам объяснить выбор слова «многосложный»?</label>
+<textarea id="answer-circle" rows="4" maxlength="1500" required></textarea>
+<div class="ref-actions"><button type="submit" class="btn">Сохранить ответ в карту</button></div>
+<p class="ref-result" role="status"></p>
+</form>
 <figure class="figure archive-figure archive-scan">
 <a href="img/archive-poetry-poster.webp" target="_blank" rel="noopener"><img src="img/archive-poetry-poster.webp" alt="Афиша Вечера современной поэзии и музыки со списком участников" loading="lazy" decoding="async"></a>
 <figcaption><strong>«Вечер современной поэзии и музыки», Петроград, 15 апреля 1916 года.</strong> На афише указаны Мандельштам, Ахматова, Блок и другие участники. Вечер прошёл в концертном зале Тенишевского училища. <a href="https://lebedev.ru/data/books/skobelcin.pdf#page=12" target="_blank" rel="noopener">Репродукция афиши · ФИАН, с. 20</a></figcaption>
 </figure>
-<details class="collect-panel" data-collector="circle">
-<summary><span class="collect-icon" aria-hidden="true">✦</span><span class="collect-title">Что запомнилось о литературной жизни?</span><span class="collect-count" data-collect-count="circle">0</span></summary>
-<div class="collect-body">
-<p>Отметьте факты, которые хотите сохранить в своей интеллект-карте. Можно выбрать несколько или добавить собственный.</p>
-<div class="collect-options"><button type="button" class="collect-fact" data-group="poetry" data-value="«Камень», 1913" aria-pressed="false">«Камень» – первая книга, 1913<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="poetry" data-value="Акмеизм" aria-pressed="false">Мандельштам – один из акмеистов<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="poetry" data-value="«Цех поэтов»" aria-pressed="false">«Цех поэтов» – литературное объединение<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="poetry" data-value="Стихотворение «Бах», 1913" aria-pressed="false">Стихотворение «Бах» – 1913<span class="added-mark" aria-hidden="true"> ✓</span></button></div>
-<form class="collect-form" data-group="poetry" autocomplete="off"><label for="own-circle">Своя заметка</label><div class="collect-row"><input id="own-circle" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
-<div class="saved-chips" data-saved-group="circle" aria-live="polite"></div>
-</div></details>
-<div class="reflection-lab" data-ref="circle"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 5</div><h3>Что относится к литературе, а что – к музыке?</h3><p>Соотнесите название с точной характеристикой. После прослушивания добавьте собственное музыкальное наблюдение.</p>
-<div class="ref-match"><label for="circle-a">«Камень»</label><select id="circle-a" data-answer="book"><option value="">Выберите</option><option value="poem">Стихотворение 1913 года</option><option value="book">Первый сборник Мандельштама</option><option value="music">Органная композиция Баха</option></select></div>
-<div class="ref-match"><label for="circle-b">«Бах»</label><select id="circle-b" data-answer="poem"><option value="">Выберите</option><option value="book">Книга воспоминаний</option><option value="poem">Стихотворение Мандельштама</option><option value="music">Пьеса для фортепиано</option></select></div>
-<div class="ref-match"><label for="circle-c">BWV 645</label><select id="circle-c" data-answer="music"><option value="">Выберите</option><option value="music">Органное произведение Баха</option><option value="book">Сборник стихов</option><option value="poem">Стихотворение о Ленинграде</option></select></div>
-<button type="button" class="ref-action" data-check>Проверить соответствия</button><label for="music-reflection">Какое качество органного звучания вы заметили?</label><textarea id="music-reflection" data-free placeholder="Например, как менялись мелодия и звучание; ответ своими словами"></textarea><div class="ref-result" role="status"></div></div>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://rvb.ru/20vek/mandelstam/toc.htm" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Мандельштам: собрание сочинений · РВБ</b><span>Стихотворения, проза и критические тексты.</span><em>Открыть источник ↗</em></a><a href="https://www.hse.ru/news/211258806.html" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Экспозиция Мандельштамовского центра · НИУ ВШЭ</b><span>Реальные фотографии, афиши и материалы о литературном окружении.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 
@@ -462,17 +400,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <div class="insight"><span class="cap">Посвящение в книге «Tristia»</span><p>В 1922 году появилась поэтическая книга «Tristia». В начале помещено посвящение «Н. Х.» – Надежде Хазиной. Её присутствие заметно в самом литературном наследии. <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Сведения об издании · РВБ ↗</a></p></div>
 <figure class="figure archive-figure"><img src="img/archive-kiev.webp" alt="Улица Крещатик в Киеве на историческом фотохроме" loading="lazy" decoding="async"><figcaption><strong>Киев, Крещатик, около 1890–1900 годов.</strong> Вид города до знакомства Осипа Мандельштама и Надежды Хазиной в 1919 году. Библиотека Конгресса США. <a href="https://commons.wikimedia.org/wiki/File:Krestchatik%2C_%28i.e.%2C_Kreshchatik%29%2C_street%2C_Kiev%2C_Russia%2C_%28i.e.%2C_Ukraine%29-LCCN2001697433.jpg" target="_blank" rel="noopener">Оригинал · Wikimedia Commons</a></figcaption></figure>
 <p class="note">Надежда Мандельштам пережила мужа более чем на сорок лет. Её воспоминания и сохранённые копии стихов стали важнейшими источниками для изучения его жизни и творчества.</p>
-<details class="collect-panel" data-collector="nadezhda">
-<summary><span class="collect-icon" aria-hidden="true">✦</span><span class="collect-title">Каких людей вы запомнили?</span><span class="collect-count" data-collect-count="nadezhda">0</span></summary>
-<div class="collect-body">
-<p>Отметьте факты, которые хотите сохранить в своей интеллект-карте. Можно выбрать несколько или добавить собственный.</p>
-<div class="collect-options"><button type="button" class="collect-fact" data-group="people" data-value="Надежда Хазина, 1919" aria-pressed="false">1919 – встреча с Надеждой Хазиной<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="people" data-value="Анна Ахматова" aria-pressed="false">Анна Ахматова – литературный собеседник<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="people" data-value="Николай Гумилёв" aria-pressed="false">Николай Гумилёв – литературный собеседник<span class="added-mark" aria-hidden="true"> ✓</span></button></div>
-<form class="collect-form" data-group="people" autocomplete="off"><label for="own-nadezhda">Своя заметка</label><div class="collect-row"><input id="own-nadezhda" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
-<div class="saved-chips" data-saved-group="nadezhda" aria-live="polite"></div>
-</div></details>
-<div class="reflection-lab" data-ref="nadezhda"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 6</div><h3>Выберите подтверждённые факты</h3><p>Отметьте всё, что соответствует рассказу о Надежде Мандельштам, а не предположению.</p>
-<div class="ref-grid"><label class="ref-choice"><input type="checkbox" value="a"> Познакомились в Киеве в 1919 году</label><label class="ref-choice"><input type="checkbox" value="b"> Надежда помогала сохранить стихи</label><label class="ref-choice"><input type="checkbox" value="c"> Надежда написала сборник «Камень»</label><label class="ref-choice"><input type="checkbox" value="d"> Супруги никогда не встречались после 1934 года</label></div>
-<button type="button" class="ref-action" data-check>Проверить факты</button><div class="ref-result" role="status"></div></div>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://mandelstam.hse.ru/archive" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Объединённый электронный архив · НИУ ВШЭ</b><span>Исторические письма, открытки и документы.</span><em>Открыть источник ↗</em></a><a href="https://mandelstam.hse.ru/memory1" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Места памяти Осипа и Надежды Мандельштам · НИУ ВШЭ</b><span>Биография двух людей через места их жизни.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 
@@ -500,30 +427,15 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 И всю ночь напролет жду гостей дорогих,
 Шевеля кандалами цепочек дверных.</div>
 <div class="small">Текст стихотворения: <a href="https://rvb.ru/20vek/mandelstam/01text/vol_3/01versus/01versus/3_021.htm" target="_blank" rel="noopener">РВБ ↗</a></div>
-<div class="feeling-panel">
-<h3>Как меняется впечатление от города?</h3>
-<p>Выберите до двух слов, которые передают ваше ощущение после чтения «Ленинграда». Варианты равноправны – это читательское впечатление, а не проверка.</p>
-<div class="feeling-choices" aria-label="Ощущения от стихотворения">
-<button type="button" class="feeling" data-feel="Узнавание" aria-pressed="false">Узнавание</button>
-<button type="button" class="feeling" data-feel="Тревога" aria-pressed="false">Тревога</button>
-<button type="button" class="feeling" data-feel="Тоска" aria-pressed="false">Тоска</button>
-<button type="button" class="feeling" data-feel="Нежность" aria-pressed="false">Нежность</button>
-<button type="button" class="feeling" data-feel="Ожидание" aria-pressed="false">Ожидание</button>
-</div>
-<p class="feeling-result" id="feelingResult" aria-live="polite">Выбранные слова появятся здесь.</p>
-</div>
 
-<details class="collect-panel" data-collector="city">
-<summary><span class="collect-icon" aria-hidden="true">✦</span><span class="collect-title">Что запомнилось о стихотворении «Ленинград»?</span><span class="collect-count" data-collect-count="city">0</span></summary>
-<div class="collect-body">
-<p>Отметьте факты, которые хотите сохранить в своей интеллект-карте. Можно выбрать несколько или добавить собственный.</p>
-<div class="collect-options"><button type="button" class="collect-fact" data-group="poetry" data-value="«Ленинград», 1930" aria-pressed="false">«Ленинград» написан в 1930 году<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="poetry" data-value="Возвращение к стихам, 1930" aria-pressed="false">В 1930 году поэт вернулся к созданию стихов<span class="added-mark" aria-hidden="true"> ✓</span></button></div>
-<form class="collect-form" data-group="poetry" autocomplete="off"><label for="own-city">Своя заметка</label><div class="collect-row"><input id="own-city" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
-<div class="saved-chips" data-saved-group="city" aria-live="polite"></div>
-</div></details>
-<div class="reflection-lab" data-ref="city"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 7</div><h3>Как меняется образ города?</h3><p>Выберите точное сопоставление: в стихотворении «Ленинград» герой...</p>
-<div class="ref-grid"><label class="ref-choice"><input type="radio" name="city-sense" value="a"> Возвращается к знакомому городу, но ощущает тревогу и отчуждение</label><label class="ref-choice"><input type="radio" name="city-sense" value="b"> Описывает исключительно радостную встречу</label><label class="ref-choice"><input type="radio" name="city-sense" value="c"> Рассказывает о поездке в Париж</label></div>
-<button type="button" class="ref-action" data-check>Проверить наблюдение</button><div class="ref-result" role="status"></div></div>
+<form class="reflection-lab" data-task="city" data-branch="poetry">
+<h3>От возвращения к ожиданию</h3>
+<p>Прочитайте первые две и последние четыре строки «Ленинграда». Назовите по одной детали из начала и конца стихотворения и объясните, какое впечатление создаёт каждая.</p>
+<label for="answer-city">Как меняется ощущение города от первых строк к финалу?</label>
+<textarea id="answer-city" rows="4" maxlength="1500" required></textarea>
+<div class="ref-actions"><button type="submit" class="btn">Сохранить ответ в карту</button></div>
+<p class="ref-result" role="status"></p>
+</form>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://rvb.ru/20vek/mandelstam/toc.htm" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Стихотворения и комментарии · РВБ</b><span>Дополнительные тексты для сопоставления образа города.</span><em>Открыть источник ↗</em></a><a href="https://mandelstam.hse.ru/memory1" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Места памяти · НИУ ВШЭ</b><span>Исторические адреса Ленинграда и Петербурга.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 
@@ -567,52 +479,36 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 </figure>
 <p class="small"><a href="https://mandelstam.hse.ru/Voronezh" target="_blank" rel="noopener">Мандельштам в Воронеже · музейные материалы</a> · <a href="https://mandelstam.hse.ru/data/2020/03/10/1565817816/Ясная%20Наташа.pdf" target="_blank" rel="noopener">Переписка Натальи Штемпель о рукописях и копиях стихов</a></p>
 <div class="insight"><span class="cap">Строки, к которым возвращаемся</span><div class="quote">«На стекла вечности уже легло<br>Мое дыхание, мое тепло»</div><div class="quote">«Узора милого не зачеркнуть»</div><p>Эти строки написаны в юности. После знакомства с историей Надежды Мандельштам они приобретают дополнительное звучание: стихи действительно сохранились в человеческой памяти и в рукописных копиях.</p></div>
-<details class="collect-panel" data-collector="memory">
-<summary><span class="collect-icon" aria-hidden="true">✦</span><span class="collect-title">Что запомнилось о судьбе поэта?</span><span class="collect-count" data-collect-count="memory">0</span></summary>
-<div class="collect-body">
-<p>Отметьте факты, которые хотите сохранить в своей интеллект-карте. Можно выбрать несколько или добавить собственный.</p>
-<div class="collect-options"><button type="button" class="collect-fact" data-group="legacy" data-value="Арест и ссылка, 1934" aria-pressed="false">1934 – первый арест и ссылка<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="legacy" data-value="Воронежские стихи, 1934–1937" aria-pressed="false">1934–1937 – Воронежские стихи<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="legacy" data-value="1938 – гибель поэта" aria-pressed="false">1938 – второй арест и гибель<span class="added-mark" aria-hidden="true"> ✓</span></button><button type="button" class="collect-fact" data-group="legacy" data-value="Память Надежды и друзей" aria-pressed="false">Стихи сохранила Надежда и близкие<span class="added-mark" aria-hidden="true"> ✓</span></button></div>
-<form class="collect-form" data-group="legacy" autocomplete="off"><label for="own-memory">Своя заметка</label><div class="collect-row"><input id="own-memory" type="text" maxlength="125" placeholder="Напишите запомнившийся факт" aria-label="Собственный факт по главе"><button type="submit" class="collect-add">Добавить</button></div></form>
-<div class="saved-chips" data-saved-group="memory" aria-live="polite"></div>
-</div></details>
+<form class="reflection-lab" data-task="memory" data-branch="legacy">
+<h3>Как стихи дошли до читателей</h3>
+<p>Вернитесь к рассказу о Надежде Мандельштам в этой главе. Назовите конкретный способ сохранения стихов и объясните, почему он был важен.</p>
+<label for="answer-memory">Как поступки Надежды Мандельштам помогли сохранить стихи поэта?</label>
+<textarea id="answer-memory" rows="4" maxlength="1500" required></textarea>
+<div class="ref-actions"><button type="submit" class="btn">Сохранить ответ в карту</button></div>
+<p class="ref-result" role="status"></p>
+</form>
 <div class="mindmap" id="mindmap">
+<details id="previousConclusion" hidden><summary>Ваш прежний вывод</summary><p></p></details>
 <div class="mindmap-title"><span class="tag">ВАША ИНТЕЛЛЕКТ-КАРТА</span>
 <h3>Что запомнилось об Осипе Мандельштаме?</h3>
-<p>Здесь собрано всё, что вы отмечали во время чтения биографии. Новые факты сохраняются и подсвечивают ветви карты. Записи остаются на этом устройстве после закрытия страницы.</p></div>
-<div class="mind-progress"><span id="mapTotal">0 фактов</span><div class="mind-progress-track"><span id="mapProgressBar"></span></div><span id="mapComplete">0 из 5 тем</span></div>
+<p>Здесь собраны ваши сохранённые ответы и прежние заметки. Они остаются в этом браузере после закрытия страницы.</p></div>
+<div class="mind-progress"><span id="mapTotal">Записей: 0</span><div class="mind-progress-track"><span id="mapProgressBar"></span></div><span id="mapComplete">0 из 5 тем</span></div>
 <div class="mind-canvas" aria-label="Собранная интеллект-карта">
 <div class="mind-center"><span class="mind-star">✦</span>ОСИП<br>МАНДЕЛЬШТАМ<small>1891–1938</small></div>
 <div id="mindBranches" class="mind-branches" aria-live="polite">
-<div class="mind-branch"><b>Дом и детство</b><span>Факты появятся здесь</span></div>
-<div class="mind-branch"><b>Образование</b><span>Факты появятся здесь</span></div>
-<div class="mind-branch"><b>Творчество</b><span>Факты появятся здесь</span></div>
-<div class="mind-branch"><b>Люди рядом</b><span>Факты появятся здесь</span></div>
-<div class="mind-branch"><b>Судьба и память</b><span>Факты появятся здесь</span></div></div></div>
+<div class="mind-branch"><b>Дом и детство</b><span>Здесь пока нет записей</span></div>
+<div class="mind-branch"><b>Образование</b><span>Здесь пока нет записей</span></div>
+<div class="mind-branch"><b>Творчество</b><span>Здесь пока нет записей</span></div>
+<div class="mind-branch"><b>Люди рядом</b><span>Здесь пока нет записей</span></div>
+<div class="mind-branch"><b>Судьба и память</b><span>Здесь пока нет записей</span></div></div></div>
 <div class="map-actions"><button class="btn secondary" id="copyMap" type="button">Скопировать карту текстом</button><span id="copyStatus" aria-live="polite" class="small"></span></div>
 </div>
-<section class="self-check" aria-labelledby="self-check-head">
-<h3 id="self-check-head">Главное, что я узнал(а) о Мандельштаме</h3>
-<p>Сформулируйте собственный вывод. Чем запомнилась его жизнь? Какие факты помогают понять его стихи?</p>
-<textarea id="ownConclusion" rows="4" placeholder="Мне запомнилось... Теперь я понимаю..."></textarea>
-<button type="button" class="btn" id="checkConclusion" aria-expanded="false">Сверить с интеллект-картой</button>
-<div class="self-feedback" id="selfFeedback" hidden><b>Проверьте свой ответ:</b><ul>
-<li>Есть ли конкретный биографический факт?</li><li>Названо ли стихотворение или книга?</li><li>Объяснили ли вы, почему этот факт важен?</li></ul>
-<p id="selfFacts"></p></div>
-<p class="small">Это самопроверка по собственным наблюдениям. Сайт не оценивает литературное рассуждение автоматически.</p>
-</section>
 <div class="line-separator"></div>
 <p class="note">К следующему уроку: прочитайте «Бессонница. Гомер. Тугие паруса...» и выпишите два имени или слова, значение которых требует уточнения.</p>
-<div class="reflection-lab" data-ref="memory"><div class="ref-kicker">ЗАКРЕПЛЕНИЕ · 8</div><h3>Свяжите события с судьбой стихов</h3><p>Соотнесите даты и события. Затем запишите личный отклик – без правильного или неправильного чувства.</p>
-<div class="ref-match"><label for="mem-a">1934 год</label><select id="mem-a" data-answer="exile"><option value="">Выберите</option><option value="exile">Первый арест и ссылка</option><option value="voronezh">Воронежские стихи</option><option value="death">Гибель поэта</option></select></div>
-<div class="ref-match"><label for="mem-b">1934–1937 годы</label><select id="mem-b" data-answer="voronezh"><option value="">Выберите</option><option value="death">Повторный арест</option><option value="exile">Первый сборник</option><option value="voronezh">Работа над стихами в Воронеже</option></select></div>
-<div class="ref-match"><label for="mem-c">1938 год</label><select id="mem-c" data-answer="death"><option value="">Выберите</option><option value="voronezh">Учёба в Париже</option><option value="death">Второй арест и гибель</option><option value="exile">Знакомство с Надеждой</option></select></div>
-<button type="button" class="ref-action" data-check>Проверить события</button>
-<label for="personal-reflection">Что лично вас тронуло, удивило или заставило задуматься после знакомства с жизнью Мандельштама?</label><textarea id="personal-reflection" data-free placeholder="Меня особенно затронуло… потому что…"></textarea>
-<div class="ref-result" role="status"></div><p class="ref-note">Личный ответ сохраняется в браузере; оценка к нему не ставится.</p></div>
 <aside class="further-reading" aria-label="Источники для дополнительного изучения"><h3>Изучить дополнительно</h3><div class="further-reading-grid"><a href="https://mandelstam.hse.ru/archive" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>Архив Мандельштама · НИУ ВШЭ</b><span>Сохранившиеся документы и свидетельства эпохи.</span><em>Открыть источник ↗</em></a><a href="https://www.rgali.ru/storage-unit/2677721" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>РГАЛИ: архивные материалы Мандельштама</b><span>Описание рукописных и машинописных материалов.</span><em>Открыть источник ↗</em></a><a href="https://statearchive.ru/713" class="further-reading-item" target="_blank" rel="noopener noreferrer"><b>«Осип Мандельштам. Слово и судьба» · ГАРФ</b><span>Выставочный проект с архивными свидетельствами о жизни и судьбе поэта.</span><em>Открыть источник ↗</em></a></div></aside>
 </section>
 </main>
-<div class="controls"><button id="prev" class="btn secondary" type="button">← Предыдущая глава</button><div class="progress">Выполнено <span id="visitedCount">0 из 8 заданий</span><div class="pbar"><span id="barFill"></span></div></div><button id="next" class="btn" type="button">Следующая глава →</button></div>
+<div class="controls"><button id="prev" class="btn secondary" type="button">← Предыдущая глава</button><div class="progress">Выполнено <span id="visitedCount">0 из 5 заданий</span><div class="pbar"><span id="barFill"></span></div></div><button id="next" class="btn" type="button">Следующая глава →</button></div>
 
 <footer>Учу по ФРП · Автор: Гладышева Любовь</footer>
 </div>
@@ -662,40 +558,37 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
  document.getElementById("next").addEventListener("click",()=>{const n=parts.findIndex(p=>!p.hidden);go(parts[Math.min(parts.length-1,n+1)].dataset.part)});
  document.getElementById("begin").addEventListener("click",e=>{e.preventDefault();go("start")});
  window.addEventListener("hashchange",()=>go(location.hash.slice(1)||"start"));
- const feels=document.querySelectorAll(".feeling");
- function renderFeelings(){
-  feels.forEach(b=>b.setAttribute("aria-pressed",String(data.feelings.includes(b.dataset.feel))));
-  document.getElementById("feelingResult").textContent=data.feelings.length?"Ваше впечатление: "+data.feelings.join(" · "):"Можно выбрать одно или два слова.";
+ const tasks=[...document.querySelectorAll("[data-task]")];
+ if(!data.tasks||typeof data.tasks!=="object")data.tasks={};
+ function branchEntries(group){
+   const entries=data.facts[group].map(text=>({text}));
+   for(const task of tasks){
+     const id=task.dataset.task;
+     const answer=data.tasks[id]?.answer;
+     if(task.dataset.branch===group && typeof answer==="string" && answer.trim())entries.push({text:answer,id});
+   }
+   return entries;
  }
- feels.forEach(b=>b.addEventListener("click",()=>{
-  const v=b.dataset.feel;if(data.feelings.includes(v))data.feelings=data.feelings.filter(x=>x!==v);
-  else if(data.feelings.length<2)data.feelings.push(v);
-  else data.feelings=[data.feelings[1],v];
-  renderFeelings();save();
- }));
- renderFeelings();
  const map=document.getElementById("mindBranches"),mapCounter=document.getElementById("mapTotal"),progressBar=document.getElementById("mapProgressBar");
  let lastGroup="";
  function renderFacts(){
-  document.querySelectorAll(".collect-fact").forEach(b=>b.setAttribute("aria-pressed",String((data.facts[b.dataset.group]||[]).includes(b.dataset.value))));
-  document.querySelectorAll("[data-collector]").forEach(panel=>{
-   const group=panel.querySelector(".collect-form").dataset.group;
-   const arr=data.facts[group]||[];
-   const counter=panel.querySelector(".collect-count");counter.textContent=String(arr.length);
-   const chips=panel.querySelector(".saved-chips");chips.textContent="";
-   // Show only facts relevant to this chapter, except custom notes which are attached to the group's historical branch.
-   for(const value of arr){const chip=document.createElement("span");chip.textContent=value;chips.append(chip);}
-  });
   map.textContent="";
   for(const [code,label] of groupNames){
-    const box=document.createElement("div");box.className="mind-branch"+(data.facts[code].length?" lit":"");
+    const entries=branchEntries(code);
+    const box=document.createElement("div");box.className="mind-branch"+(entries.length?" lit":"");
     if(code===lastGroup){box.className+=" flash";box.addEventListener("animationend",()=>box.classList.remove("flash"),{once:true})}
     const b=document.createElement("b");b.textContent=label;box.append(b);
-    if(!data.facts[code].length){const empty=document.createElement("span");empty.className="empty-map";empty.textContent="Ещё нет выбранных фактов";box.append(empty)}
+    if(!entries.length){const empty=document.createElement("span");empty.className="empty-map";empty.textContent="Здесь пока нет записей";box.append(empty)}
     else{
       const ul=document.createElement("ul");ul.className="node-list";
-      for(const fact of data.facts[code]){
-        const li=document.createElement("li");li.append(document.createTextNode(fact));
+      for(const {text,id} of entries){
+        const li=document.createElement("li");li.textContent=text;
+        if(id){
+          const edit=document.createElement("button");edit.type="button";edit.textContent="↗";edit.setAttribute("aria-label","Открыть задание, чтобы просмотреть или уточнить ответ");
+          edit.addEventListener("click",()=>{go(id,false);const target=document.querySelector(`[data-task="${id}"]`);target.scrollIntoView({block:"center"});target.querySelector("textarea,button").focus({preventScroll:true})});
+          li.append(edit);ul.append(li);continue;
+        }
+        const fact=text;
         const remove=document.createElement("button");remove.type="button";remove.textContent="×";remove.setAttribute("aria-label","Убрать из карты: "+fact);
         remove.addEventListener("click",()=>toggleFact(code,fact));
         li.append(remove);ul.append(li);
@@ -703,10 +596,11 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
     }
     map.append(box);
   }
-  const filled=groupNames.filter(([g])=>data.facts[g].length).length,total=groupNames.reduce((n,[g])=>n+data.facts[g].length,0);
-  mapCounter.textContent=total+" "+(total%10===1&&total%100!==11?"факт":(total%10>=2&&total%10<=4&&(total%100<12||total%100>14)?"факта":"фактов"));
-  document.getElementById("mapComplete").textContent=filled+" из 5 тем";
-  progressBar.style.width=(filled/5*100)+"%";
+  const filled=groupNames.filter(([g])=>branchEntries(g).length).length;
+  const total=groupNames.reduce((n,[g])=>n+branchEntries(g).length,0);
+  mapCounter.textContent="Записей: "+total;
+  document.getElementById("mapComplete").textContent=filled+" из "+groupNames.length+" тем";
+  progressBar.style.width=(filled/groupNames.length*100)+"%";
   lastGroup="";
  }
  function toggleFact(group,fact){
@@ -715,97 +609,82 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
   if(idx>=0)data.facts[group].splice(idx,1);else data.facts[group].push(fact);
   lastGroup=group;save();renderFacts();
  }
- document.querySelectorAll(".collect-fact").forEach(btn=>btn.addEventListener("click",()=>toggleFact(btn.dataset.group,btn.dataset.value)));
- document.querySelectorAll(".collect-form").forEach(form=>form.addEventListener("submit",e=>{
-  e.preventDefault();const input=form.querySelector("input");const v=input.value.trim().replace(/\s+/g," ");
-  if(v && !data.facts[form.dataset.group].includes(v)){toggleFact(form.dataset.group,v)}
-  input.value="";
- }));
- renderFacts();
-
- // End-of-chapter reflection: local-only persistence; no changes to preexisting facts and map.
- if(!data.reflections||typeof data.reflections!=="object")data.reflections={};
- const reflectionCorrect={start:["a","b"],poem:["a","b"],nadezhda:["a","b"],city:["a"]};
- const reflectionIds=["start","home","study","poem","circle","nadezhda","city","memory"];
  function renderCompletion(){
-   const done=reflectionIds.filter(id=>!!data.reflections?.[id]?.verified).length;
-   document.getElementById("visitedCount").textContent=done+" из 8 заданий";
-   document.getElementById("barFill").style.width=(done/8*100)+"%";
-   document.querySelectorAll(".tab").forEach(t=>{
-     const complete=!!data.reflections?.[t.dataset.tab]?.verified;
-     t.classList.toggle("task-complete",complete);
-     t.setAttribute("data-task-complete",complete?"true":"false");
-   });
+   const done=tasks.filter(task=>data.tasks[task.dataset.task]?.answer).length;
+   document.getElementById("visitedCount").textContent=done+" из "+tasks.length+" заданий";
+   document.getElementById("barFill").style.width=(done/tasks.length*100)+"%";
+   tabs.forEach(tab=>tab.classList.toggle("task-complete",Boolean(data.tasks[tab.dataset.tab]?.answer)));
  }
- function setReflectionDone(id,saved,isDone){
-   saved.verified=!!isDone;
-   data.reflections[id]=saved;
+ function saveAnswer(task,record,answer){
+   record.answer=answer;
+   lastGroup=task.dataset.branch;
    save();
+   renderFacts();
    renderCompletion();
  }
- document.querySelectorAll(".reflection-lab").forEach(lab=>{
-   const id=lab.dataset.ref;
-   const fields=[...lab.querySelectorAll("input,select,textarea[data-free]")];
-   const saved=data.reflections[id]||{};
-   fields.forEach(field=>{
-     const k=field.type==="checkbox"||field.type==="radio"?field.value:(field.id||"field");
-     if(field.type==="checkbox"||field.type==="radio")field.checked=!!saved[k];
-     else if(typeof saved[k]==="string")field.value=saved[k];
-     field.addEventListener("change",()=>{
-       if(field.type==="radio"){lab.querySelectorAll('input[type="radio"]').forEach(other=>saved[other.value]=other.checked);}
-       else if(field.type==="checkbox")saved[k]=field.checked;
-       else saved[k]=field.value;
-       setReflectionDone(id,saved,false);lab.querySelector(".ref-result").textContent="";
+ for(const task of tasks){
+   const id=task.dataset.task;
+   const result=task.querySelector(".ref-result");
+   const record=data.tasks[id]??={};
+   const field=task.querySelector("textarea");
+   if(field){
+     const oldDraft=id==="circle"?data.reflections?.circle?.["music-reflection"]:id==="memory"?data.reflections?.memory?.["personal-reflection"]:"";
+     field.value=String(record.draft??record.answer??oldDraft??"").slice(0,field.maxLength);
+     if(record.answer)result.textContent=field.value.trim()===record.answer?"Ответ сохранён в карте.":"В карте пока предыдущая версия ответа.";
+     field.addEventListener("input",()=>{
+       record.draft=field.value;
+       save();
+       result.textContent=record.answer?"В карте пока предыдущая версия ответа.":"Черновик сохранён в браузере.";
      });
-     if(field.tagName==="TEXTAREA")field.addEventListener("input",()=>{saved[k]=field.value.slice(0,1500);setReflectionDone(id,saved,false)});
-   });
-   const result=lab.querySelector(".ref-result");
-   const verify=lab.querySelector("[data-check]");
-   if(verify)verify.addEventListener("click",()=>{
-     const selects=[...lab.querySelectorAll("select")];
-     if(selects.length){
-       const filled=selects.filter(x=>x.value).length,correct=selects.filter(x=>x.value===x.dataset.answer).length;
-       const free=lab.querySelector("textarea[data-free]");
-       const needFree=!!free && !free.value.trim();
-       const correctAll=correct===selects.length;
-       setReflectionDone(id,saved,correctAll&&!needFree);
-       result.textContent=filled<selects.length?"Выберите ответ в каждой строке ("+filled+" из "+selects.length+").":!correctAll?correct+" из "+selects.length+" верно. Проверьте оставшиеся пары по тексту главы.":needFree?"Соответствия верны. Допишите своё наблюдение, затем проверьте ещё раз.":"Задание выполнено: соответствия проверены, ответ записан.";
-     } else {
-       const chosen=[...lab.querySelectorAll('input:checked')].map(x=>x.value).sort();
-       const right=reflectionCorrect[id];
-       if(!chosen.length){setReflectionDone(id,saved,false);result.textContent="Сначала отметьте вариант.";return}
-       const correct=JSON.stringify(chosen)===JSON.stringify(right);
-       setReflectionDone(id,saved,correct);
-       result.textContent=correct?"Верно! Задание выполнено.":"Есть неточность: перечитайте главу и попробуйте ещё раз.";
-     }
-   });
-   if(id==="study"){
-     const order=lab.querySelector("[data-order]"),selected=Array.isArray(saved.order)?saved.order.filter(x=>["1907","1908","1911"].includes(x)):[];
-     function drawOrder(){
-       order.querySelectorAll("button").forEach(b=>{b.disabled=selected.includes(b.dataset.value);b.setAttribute("aria-pressed",String(selected.includes(b.dataset.value)))});
-       result.textContent=selected.length?("Ваш маршрут: "+selected.join(" → ")+(selected.length===3?(selected.join(",")==="1907,1908,1911"?" · Верно!":" · Проверьте хронологию."):"")):"Выберите первый этап.";
-     }
-     order.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{if(selected.includes(b.dataset.value))return;selected.push(b.dataset.value);saved.order=[...selected];setReflectionDone(id,saved,selected.join(",")==="1907,1908,1911");drawOrder()}));
-     lab.querySelector("[data-reset-order]").addEventListener("click",()=>{selected.length=0;saved.order=[];setReflectionDone(id,saved,false);drawOrder()});
-     drawOrder();
+     task.addEventListener("submit",e=>{
+       e.preventDefault();
+       const answer=field.value.trim();
+       if(!answer){result.textContent="Напишите ответ на вопрос.";field.focus();return;}
+       record.draft=field.value;
+       saveAnswer(task,record,answer);
+       result.textContent="Ответ сохранён в карте.";
+     });
+     continue;
    }
-   if(saved.verified)result.textContent="Задание выполнено. Ответ сохранён в браузере.";
- });
+   const choices=[...task.querySelectorAll("[data-step]")];
+   const labels=new Map(choices.map(button=>[button.dataset.step,button.textContent]));
+   const steps=Array.isArray(record.steps)?[...new Set(record.steps.filter(step=>labels.has(step)))]:[];
+   const correct=["school","europe","university"];
+   const list=task.querySelector(".ref-order");
+   function drawOrder(){
+     choices.forEach(button=>button.disabled=steps.includes(button.dataset.step));
+     list.replaceChildren(...steps.map(step=>{
+       const li=document.createElement("li");li.textContent=labels.get(step);return li;
+     }));
+   }
+   function saveOrder(){
+     record.steps=[...steps];
+     save();
+     drawOrder();
+     result.textContent=record.answer?"В карте сохранён последний проверенный маршрут.":"";
+   }
+   choices.forEach(button=>button.addEventListener("click",()=>{steps.push(button.dataset.step);saveOrder();}));
+   task.querySelector("[data-order-clear]").addEventListener("click",()=>{steps.length=0;saveOrder();choices[0].focus();});
+   task.querySelector("[data-order-check]").addEventListener("click",()=>{
+     if(steps.length!==correct.length){result.textContent="Добавьте в маршрут все три события.";return;}
+     if(!correct.every((step,index)=>steps[index]===step)){
+       result.textContent="Порядок пока неверный. Сверьтесь с хронологией главы и соберите маршрут заново.";
+       return;
+     }
+     saveAnswer(task,record,steps.map(step=>labels.get(step)).join(" → "));
+     result.textContent="Верно. Маршрут сохранён в карте.";
+   });
+   drawOrder();
+   if(record.answer)result.textContent="Проверенный маршрут сохранён в карте.";
+ }
+ const previousConclusion=document.getElementById("previousConclusion");
+ if(data.conclusion.trim()){previousConclusion.hidden=false;previousConclusion.querySelector("p").textContent=data.conclusion;}
+ renderFacts();
  renderCompletion();
 
- const conclusion=document.getElementById("ownConclusion");
- conclusion.value=data.conclusion;
- conclusion.addEventListener("input",()=>{data.conclusion=conclusion.value.slice(0,3000);save()});
- const review=document.getElementById("selfFeedback");
- document.getElementById("checkConclusion").addEventListener("click",function(){
-  review.hidden=!review.hidden;this.setAttribute("aria-expanded",String(!review.hidden));
-  this.textContent=review.hidden?"Сверить с интеллект-картой":"Скрыть самопроверку";
-  const factText=groupNames.flatMap(([g])=>data.facts[g]);
-  document.getElementById("selfFacts").textContent=factText.length?"Ваши опорные факты: "+factText.join(" · "):"В карте пока нет отмеченных фактов. Вернитесь к главам и добавьте те, что запомнились.";
- });
  document.getElementById("copyMap").addEventListener("click",()=>{
    const lines=["Осип Мандельштам (1891–1938)"];
-   for(const [g,n] of groupNames)lines.push(n+": "+(data.facts[g].length?data.facts[g].join("; "):"–"));
+   for(const [g,n] of groupNames)lines.push(n+": "+(branchEntries(g).map(entry=>entry.text).join("\n")||"–"));
    if(data.conclusion.trim())lines.push("Мой вывод: "+data.conclusion.trim());
    const text=lines.join("\n");
    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>{document.getElementById("copyStatus").textContent="Карта скопирована"}).catch(()=>{document.getElementById("copyStatus").textContent="Копирование недоступно; факты остаются на странице"});
