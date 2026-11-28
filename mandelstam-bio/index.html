@@ -228,16 +228,38 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 .archive-route ol{list-style:none;padding:0;margin:0;display:grid;gap:10px;grid-template-columns:repeat(3,minmax(0,1fr))}
 .archive-route li{background:#fff9ee;border:1px solid #d7c5ae;border-top:3px solid #813f4a;border-radius:8px;padding:10px 12px}
 .archive-route b,.archive-route span{display:block}
-.archive-route svg{display:block;width:100%;height:auto;margin:0 0 12px;background:#fff9ee;border:1px solid #d7c5ae;border-radius:8px}
-.archive-route svg text{font:700 15px Arial,sans-serif;text-anchor:middle;dominant-baseline:central;fill:white}
 .archive-route span{line-height:1.4;margin-top:4px}
 .archive-route figcaption{margin-top:12px;font-size:14px}
 @media(max-width:740px){.archive-route ol{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.archive-route ol{grid-template-columns:1fr}}
 @media print{.archive-figure,.archive-route{break-inside:avoid}}
+</style><style>
+#lesson[hidden],#studentEntry[hidden]{display:none}
+.student-entry{max-width:520px;margin:48px auto;padding:24px;border-radius:18px;background:#fff7ea;color:#522d39}
+.student-entry h1{font-size:clamp(28px,6vw,38px);line-height:1.15;margin:0 0 12px}
+.student-entry label{display:block;margin:12px 0;font:700 15px Arial,sans-serif}
+.student-entry input{display:block;width:100%;margin-top:5px;padding:10px;border:1px solid #b88e76;border-radius:8px;font:16px Arial,sans-serif}
+.student-entry .btn{margin-top:8px}
+.student-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 0;color:#fff4df;font:15px Arial,sans-serif;overflow-wrap:anywhere}
+.mind-branch.lit{border-color:#bd854c;background:#fff6da;box-shadow:0 0 15px #ce903e80,inset 0 0 20px #f2ce7c61}
+.mind-canvas:has(.lit) .mind-center{box-shadow:0 0 26px #c4864bab}
+.mind-branch.flash{animation:branchGlow .9s ease-out}
+@keyframes branchGlow{0%{box-shadow:0 0 36px 7px #d49145ba}100%{box-shadow:0 0 15px #ce903e80}}
+@media(prefers-reduced-motion:reduce){.mind-branch.flash,.mind-branch .node-list li{animation:none}}
 </style></head>
 <body>
 <div class="shell">
+<form id="studentEntry" class="student-entry">
+<h1>Урок об Осипе Мандельштаме</h1>
+<p>Введите свои данные. Ответы сохраняются в профиле в этом браузере.</p>
+<label>Фамилия<input name="surname" autocomplete="family-name" maxlength="45" required></label>
+<label>Имя<input name="givenName" autocomplete="given-name" maxlength="45" required></label>
+<label>Класс<input name="schoolClass" placeholder="Например, 11А" maxlength="12" required></label>
+<button class="btn" type="submit">Открыть урок</button>
+<p id="profileStatus" role="status"></p>
+</form>
+<div id="lesson" hidden>
+<div class="student-bar"><span id="currentStudent"></span><button class="btn secondary" id="switchStudent" type="button">Сменить ученика</button></div>
 
 <section class="hero" aria-label="Обложка урока">
 <div class="hero-art" role="img" aria-label="Петербург начала XX века: Невский проспект и Гостиный двор"></div>
@@ -347,7 +369,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <figure class="figure archive-figure archive-scan"><a href="img/archive-kamen-page.webp" target="_blank" rel="noopener"><img src="img/archive-kamen-page.webp" alt="Страница 1 первого издания «Камня» со стихотворением «Дыхание»" loading="lazy" decoding="async"></a><figcaption><strong>«Дыхание», 1913.</strong> Первая страница сборника «Камень». Найдите на скане знакомые строки и обратите внимание на заглавие и дореформенное написание. <a href="https://commons.wikimedia.org/wiki/File:Osip_Mandelstam_Kamen_1913_01.jpg" target="_blank" rel="noopener">Оригинал · Wikimedia Commons</a></figcaption></figure>
 <form class="reflection-lab" data-task="poem" data-branch="poetry">
 <h3>Дыхание, стекло и узор</h3>
-<p>Перечитайте строки от «На стекла вечности уже легло» до конца стихотворения. Начните с того, что происходит со следом дыхания на обычном стекле. В ответе сошлитесь на последнюю строку.</p>
 <label for="answer-poem">Чем узор в стихотворении отличается от обычного следа дыхания на стекле?</label>
 <textarea id="answer-poem" rows="4" maxlength="1500" required></textarea>
 <div class="ref-actions"><button type="submit" class="btn">Сохранить ответ в карту</button></div>
@@ -453,20 +474,6 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 </div></div>
 <figure class="archive-route">
 <h3>Последние годы поэта</h3>
-<svg viewBox="0 0 690 192" aria-hidden="true" focusable="false">
-<defs><marker id="route-arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0L5 2.5L0 5Z" fill="#813f4a"/></marker></defs>
-<path d="M20 37H670M20 100H670M20 163H670M35 17V175M188 17V175M341 17V175M494 17V175M647 17V175" fill="none" stroke="#e2d2bd" stroke-dasharray="3 5"/>
-<g fill="none" stroke="#813f4a" stroke-width="2" marker-end="url(#route-arrow)">
-<path d="M45 43L65 65"/><path d="M90 66L176 45"/><path d="M181 52L95 95"/>
-<path d="M75 102Q44 110 54 95"/><path d="M69 93Q355 100 644 156"/>
-</g>
-<g fill="#813f4a">
-<circle cx="35" cy="37" r="12"/><circle cx="77" cy="71" r="12"/><circle cx="188" cy="42" r="12"/>
-<circle cx="83" cy="102" r="12"/><circle cx="57" cy="83" r="12"/><circle cx="656" cy="161" r="12"/>
-</g>
-<text x="35" y="37">1</text><text x="77" y="71">2</text><text x="188" y="42">3</text>
-<text x="83" y="102">4</text><text x="57" y="83">5</text><text x="656" y="161">6</text>
-</svg>
 <ol>
 <li><b>1. Ленинград · 1930</b><span>Возвращение в город детства и стихотворение «Ленинград»</span></li>
 <li><b>2. Москва · 1934</b><span>Первый арест</span></li>
@@ -475,7 +482,7 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <li><b>5. Саматиха · 1938</b><span>Второй арест</span></li>
 <li><b>6. Под Владивостоком · 1938</b><span>Пересыльный лагерь, гибель поэта</span></li>
 </ol>
-<figcaption>Карта-схема отмечает основные места. Линии показывают последовательность событий. <a href="https://rvb.ru/20vek/mandelstam/02index/bio.htm" target="_blank" rel="noopener">Хронология П. Нерлера · РВБ</a> · <a href="https://mandelstam.hse.ru/data/2020/03/15/1566123954/Moscow_map.pdf" target="_blank" rel="noopener">Карта «Мандельштамовская Москва» · НИУ ВШЭ</a>.</figcaption>
+<figcaption><a href="https://rvb.ru/20vek/mandelstam/02index/bio.htm" target="_blank" rel="noopener">Хронология П. Нерлера · РВБ</a> · <a href="https://mandelstam.hse.ru/data/2020/03/15/1566123954/Moscow_map.pdf" target="_blank" rel="noopener">Карта «Мандельштамовская Москва» · НИУ ВШЭ</a>.</figcaption>
 </figure>
 <p class="small"><a href="https://mandelstam.hse.ru/Voronezh" target="_blank" rel="noopener">Мандельштам в Воронеже · музейные материалы</a> · <a href="https://mandelstam.hse.ru/data/2020/03/10/1565817816/Ясная%20Наташа.pdf" target="_blank" rel="noopener">Переписка Натальи Штемпель о рукописях и копиях стихов</a></p>
 <div class="insight"><span class="cap">Строки, к которым возвращаемся</span><div class="quote">«На стекла вечности уже легло<br>Мое дыхание, мое тепло»</div><div class="quote">«Узора милого не зачеркнуть»</div><p>Эти строки написаны в юности. После знакомства с историей Надежды Мандельштам они приобретают дополнительное звучание: стихи действительно сохранились в человеческой памяти и в рукописных копиях.</p></div>
@@ -501,7 +508,7 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <div class="mind-branch"><b>Творчество</b><span>Здесь пока нет записей</span></div>
 <div class="mind-branch"><b>Люди рядом</b><span>Здесь пока нет записей</span></div>
 <div class="mind-branch"><b>Судьба и память</b><span>Здесь пока нет записей</span></div></div></div>
-<div class="map-actions"><button class="btn secondary" id="copyMap" type="button">Скопировать карту текстом</button><span id="copyStatus" aria-live="polite" class="small"></span></div>
+<div class="map-actions"><button class="btn" id="downloadMap" type="button">Скачать карту в PDF</button><span id="pdfStatus" role="status"></span><button class="btn secondary" id="copyMap" type="button">Скопировать карту текстом</button><span id="copyStatus" aria-live="polite" class="small"></span></div>
 </div>
 <div class="line-separator"></div>
 <p class="note">К следующему уроку: прочитайте «Бессонница. Гомер. Тугие паруса...» и выпишите два имени или слова, значение которых требует уточнения.</p>
@@ -512,19 +519,76 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 
 <footer>Учу по ФРП · Автор: Гладышева Любовь</footer>
 </div>
+</div>
 <script>
 (function(){
  "use strict";
+ const entry=document.getElementById("studentEntry");
+ const lesson=document.getElementById("lesson");
+ const profileStatus=document.getElementById("profileStatus");
+ const activeKey="uchu_mandelstam_active_student";
+ const legacyOwnerKey="uchu_mandelstam_legacy_owner";
+ const legacyKey="uchu_mandelstam_bio_2026_v3";
+ const profileKeys=["surname","givenName","schoolClass"];
+ const tidy=value=>value.normalize("NFC").trim().replace(/\s+/g," ");
+ function profileId(profile){
+   return JSON.stringify(profileKeys.map(key=>profile[key].toLocaleLowerCase("ru").replace(/ё/g,"е")));
+ }
+ function profileStorage(profile){
+   return legacyKey+":student:"+profileId(profile);
+ }
+ function openLesson(profile){
+   entry.hidden=true;
+   lesson.hidden=false;
+   document.getElementById("currentStudent").textContent=profile.surname+" "+profile.givenName+" · "+profile.schoolClass+" класс";
+   startLesson(profile);
+ }
+ entry.addEventListener("submit",event=>{
+   event.preventDefault();
+   const values=new FormData(entry);
+   const profile=Object.fromEntries(profileKeys.map(key=>[key,tidy(String(values.get(key)??""))]));
+   profile.schoolClass=profile.schoolClass.replace(/\s+/g,"").replace(/класс$/iu,"").toLocaleUpperCase("ru");
+   if(!profileKeys.every(key=>profile[key])){
+     profileStatus.textContent="Заполните фамилию, имя и класс.";
+     return;
+   }
+   try{
+     const key=profileStorage(profile);
+     if(localStorage.getItem(key)===null){
+       const legacy=localStorage.getItem(legacyKey);
+       const old=localStorage.getItem("uchu_mandelstam_bio_2026_v2");
+       const owner=localStorage.getItem(legacyOwnerKey);
+       if((legacy||old)&&(!owner||owner===key)){
+         localStorage.setItem(legacyOwnerKey,key);
+         if(legacy)localStorage.setItem(key,legacy);
+       }else localStorage.setItem(key,"{}");
+     }
+   }catch(_){
+     profileStatus.textContent="Браузер сейчас не позволяет сохранять результаты. Разрешите хранение данных для сайта.";
+     return;
+   }
+   try{sessionStorage.setItem(activeKey,JSON.stringify(profile));}catch(_){}
+   openLesson(profile);
+ });
+ document.getElementById("switchStudent").addEventListener("click",()=>{
+   try{sessionStorage.removeItem(activeKey);}catch(_){}
+   location.reload();
+ });
+ let activeProfile;
+ try{activeProfile=JSON.parse(sessionStorage.getItem(activeKey)||"null");}catch(_){}
+ if(activeProfile&&profileKeys.every(key=>typeof activeProfile[key]==="string"&&activeProfile[key]))openLesson(activeProfile);
+
+ function startLesson(profile){
  const parts=[...document.querySelectorAll(".part")];
  const tabs=[...document.querySelectorAll(".tab")];
- const key="uchu_mandelstam_bio_2026_v3";
+ const key=profileStorage(profile);
  const groupNames=[["home","Дом и детство"],["study","Образование"],["poetry","Творчество"],["people","Люди рядом"],["legacy","Судьба и память"]];
  let data={visited:["start"],facts:{home:[],study:[],poetry:[],people:[],legacy:[]},feelings:[],conclusion:""};
  try{
   const prev=JSON.parse(localStorage.getItem(key)||"null");
   if(prev&&typeof prev==="object")data=Object.assign(data,prev);
   else{
-   const old=JSON.parse(localStorage.getItem("uchu_mandelstam_bio_2026_v2")||"null");
+   const old=JSON.parse((localStorage.getItem(legacyOwnerKey)===key&&localStorage.getItem("uchu_mandelstam_bio_2026_v2"))||"null");
    if(old&&typeof old==="object"){
       if(Array.isArray(old.visited))data.visited=old.visited;
       if(Array.isArray(old.feelings))data.feelings=old.feelings;
@@ -537,7 +601,13 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
  if(!Array.isArray(data.visited))data.visited=["start"];
  if(!Array.isArray(data.feelings))data.feelings=[];
  if(typeof data.conclusion!=="string")data.conclusion="";
- const save=()=>{try{localStorage.setItem(key,JSON.stringify(data))}catch(_){}};
+ const save=()=>{
+   try{localStorage.setItem(key,JSON.stringify(data));return true;}
+   catch(_){
+     document.getElementById("currentStudent").textContent=profile.surname+" "+profile.givenName+" · Не удалось сохранить изменения в браузере";
+     return false;
+   }
+ };
  function go(id,scrollPage=true){
    if(!parts.some(p=>p.dataset.part===id))id="start";
    parts.forEach(p=>p.hidden=p.dataset.part!==id);
@@ -690,6 +760,60 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>{document.getElementById("copyStatus").textContent="Карта скопирована"}).catch(()=>{document.getElementById("copyStatus").textContent="Копирование недоступно; факты остаются на странице"});
    else document.getElementById("copyStatus").textContent="Копирование недоступно; факты остаются на странице";
  });
+ const download=document.getElementById("downloadMap");
+ const pdfStatus=document.getElementById("pdfStatus");
+ download.addEventListener("click",async()=>{
+   download.disabled=true;
+   pdfStatus.textContent="Подготавливаем PDF…";
+   try{
+     if(!window.jspdf){
+       await new Promise((resolve,reject)=>{
+         const script=document.createElement("script");
+         script.src="pdf/jspdf.umd.min.js";
+         script.onload=resolve;
+         script.onerror=reject;
+         document.head.append(script);
+       });
+     }
+     const font=await fetch("pdf/noto-sans.ttf");
+     if(!font.ok)throw new Error("PDF font unavailable");
+     const bytes=new Uint8Array(await font.arrayBuffer());
+     let binary="";
+     for(const byte of bytes)binary+=String.fromCharCode(byte);
+     const doc=new window.jspdf.jsPDF({compress:true});
+     doc.addFileToVFS("noto.ttf",btoa(binary));
+     doc.addFont("noto.ttf","Noto","normal");
+     doc.setFont("Noto");
+     doc.setProperties({title:"Интеллект-карта · Осип Мандельштам"});
+     let y=18;
+     function write(text,size,color){
+       doc.setFontSize(size);
+       doc.setTextColor(color);
+       const lineHeight=size*.47;
+       for(const line of doc.splitTextToSize(text,174)){
+         if(y+lineHeight>278){doc.addPage();y=18;}
+         doc.text(line,18,y);
+         y+=lineHeight;
+       }
+     }
+     write("Осип Мандельштам. Интеллект-карта",19,"#6e3545");
+     write(profile.surname+" "+profile.givenName+" · "+profile.schoolClass+" класс",11,"#514037");
+     write("Выполнено "+document.getElementById("visitedCount").textContent,10,"#514037");
+     for(const [group,name] of groupNames){
+       const entries=branchEntries(group);
+       if(!entries.length)continue;
+       if(y>254){doc.addPage();y=18;}
+       y+=5;
+       write(name,15,"#6e3545");
+       for(const entry of entries){write("• "+entry.text,11,"#29211f");y+=2;}
+     }
+     if(data.conclusion.trim()){y+=4;write("Прежний вывод",15,"#6e3545");write(data.conclusion.trim(),11,"#29211f");}
+     doc.save("Мандельштам — интеллект-карта — "+profile.surname.replace(/[^\p{L}0-9 -]/gu,"")+".pdf");
+     pdfStatus.textContent="PDF готов.";
+   }catch(_){
+     pdfStatus.textContent="Не удалось скачать PDF. Попробуйте ещё раз.";
+   }finally{download.disabled=false;}
+ });
  const player=document.getElementById("bachPlayer");
  const sample=document.getElementById("audioSample");
  let sampleActive=false;
@@ -711,6 +835,7 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
   img.parentNode.insertBefore(p,img);
  }));
  go(location.hash.slice(1)||"start",false);
+ }
 })();
 </script>
 </body>

@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'mandelstam-bio/index.html'
+      - 'mandelstam-bio/pdf/**'
       - 'mandelstam-bio/img/archive-*.webp'
       - '.github/workflows/deploy-mandelstam-bio.yml'
   workflow_dispatch:
@@ -35,6 +36,10 @@ jobs:
               --endpoint-url https://storage.yandexcloud.net \
               --content-type image/webp --cache-control 'public, max-age=86400' --no-progress
           done
+      - name: Upload PDF export dependencies
+        run: |
+          aws s3 cp mandelstam-bio/pdf/ s3://uchu-po-frp.ru/mandelstam-bio/pdf/ \
+            --recursive --endpoint-url https://storage.yandexcloud.net --no-progress
       - name: Cache historical photographs from Wikimedia Commons
         run: |
           set -euo pipefail
