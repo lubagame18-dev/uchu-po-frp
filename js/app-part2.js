@@ -2253,6 +2253,12 @@ async function buildLessonFromForm() {
   p.prevHw = await resolvePrevHw(p); // проверка д/з — только по тому, что действительно задавали
   if ($("#prevHw")) { $("#prevHw").value = ""; $("#prevHwHint").textContent = ""; }
   p.find = ""; // что найти — только для этого урока
+  if (window.Notes?.resolveLinks) {
+    // ссылки в пожеланиях: читаем страницы до сборки, чтобы текст попал в материалы урока
+    try { if ($("#createHint")) $("#createHint").textContent = "Читаю ссылки из пожеланий…"; await Notes.resolveLinks(); }
+    catch { }
+    finally { if ($("#createHint") && /Читаю ссылки/.test($("#createHint").textContent || "")) $("#createHint").textContent = ""; }
+  }
   p.notes = window.Notes ? Notes.snapshot() : null;
   // пожелания и свои файлы — только для этого урока: на следующем уроке поле пустое
   p.extra = { ...state.extra };
