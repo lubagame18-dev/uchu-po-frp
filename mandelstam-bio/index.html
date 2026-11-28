@@ -118,6 +118,35 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
   footer{font-size:14px}
   h2{overflow-wrap:break-word}
 }
+
+/* Биографический лонгрид: минимум действий и обоснованная интеллект-карта */
+.portraits-archive{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:25px 0}
+.portraits-archive .figure img{height:275px;object-fit:contain;background:#e7d5bc}
+.portraits-archive.cities .figure img{height:270px;object-fit:cover}
+.feeling-panel{background:#fff7e9;border:1px solid #cfae8c;border-radius:17px;padding:19px 23px;margin:22px 0}
+.feeling-panel h3{font-size:28px}
+.feeling-panel p{font-size:16px;margin:7px 0 12px}
+.feeling-choices{display:flex;gap:8px;flex-wrap:wrap}
+.feeling{font-size:15px;background:#fffefa;border:1.5px solid #ae796b;border-radius:999px;padding:9px 15px;color:#5f3640}
+.feeling[aria-pressed="true"]{background:#682f3d;color:#fff7eb;border-color:#682f3d}
+.feeling-result{font-size:15px;font-weight:600;color:#653640;min-height:26px}
+.mindmap{margin:24px 0;border:1px solid #c7a787;border-radius:20px;background:#fff7ea;padding:21px}
+.mindmap-title>h3{font-size:clamp(25px,3vw,33px)}
+.mindmap-title>p{font-size:16px;line-height:1.5}
+.mind-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:15px;align-items:start}
+.mind-choices{display:grid;grid-template-columns:1fr;gap:8px}
+.mind-group{background:#f2e5d2;border:1px solid #d7baa0;border-radius:12px;padding:12px 13px}
+.mind-group h4{font:700 15px Arial,sans-serif;color:#6d3541;margin:0 0 9px}
+.mind-group .fact{border:1px solid #bba38e;background:#fffdf7;padding:8px 9px;border-radius:9px;font:14px/1.4 Arial,sans-serif;color:#3a272a;margin:0 5px 6px 0;max-width:100%;white-space:normal}
+.mind-group .fact[aria-pressed="true"]{background:#7a3544;border-color:#7a3544;color:#fff}
+.mind-output{padding:14px;background:#f4e8d7;border-radius:14px;position:sticky;top:8px}
+.mind-center{text-align:center;background:#572c39;color:#fff7e3;padding:16px 10px;border-radius:12px;line-height:1.3;font:700 20px Georgia,serif}
+.mind-center small{font-size:13px;color:#edcfad;font-weight:400}
+.mind-branches{padding:8px 4px;display:flex;flex-direction:column;gap:9px}
+.mind-branch{border-left:3px solid #a65f63;background:#fffaf0;border-radius:6px;padding:9px 10px;min-height:55px;display:grid;gap:3px}
+.mind-branch b{font:700 12px Arial,sans-serif;color:#894154}
+.mind-branch span{font-size:15px;color:#443238}
+@media(max-width:740px){.portraits-archive{gap:9px}.portraits-archive .figure{padding:6px}.portraits-archive .figure img{height:185px}.portraits-archive.cities .figure img{height:155px}.portraits-archive figcaption{font-size:11px}.mind-layout{grid-template-columns:1fr}.mind-output{position:static}.mindmap{padding:15px}.feeling-panel{padding:16px}}
 </style>
 </head>
 <body>
@@ -128,7 +157,7 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <div class="hero-copy"><span class="eyebrow">Литература · 11 класс · Урок 1</span>
 <h1>Осип<br>Мандельштам</h1><p class="sub">Страницы жизни и творчества</p>
 <p class="line">«За радость тихую дышать и жить<br>Кого, скажите, мне благодарить?»</p>
-<div class="hero-actions"><a class="action" href="#start" id="begin">Начать урок</a><button class="action out" id="printBtn" type="button">Рабочий лист · печать</button></div></div>
+<div class="hero-actions"><a class="action" href="#start" id="begin">Начать урок</a></div></div>
 </section>
 <div class="lesson-strip"><div class="stat"><b>45 минут</b>весь биографический урок</div><div class="stat"><b>8 глав</b>культура, стихи, судьба</div><div class="stat"><b>2 стихотворения</b>читаем и исследуем</div></div>
 <nav class="tabs" aria-label="Разделы урока" id="tabs">
@@ -145,14 +174,13 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <section class="part" data-part="start" id="start">
 <div class="kicker">Часть I · Вход в тему · 0–4 мин</div>
 <h2>Мгновение, которое хочется сохранить</h2>
-<p class="lead">Вспомните самый обычный момент, когда вам было хорошо. Что запомнилось — свет, звук, движение, разговор?</p>
+<p class="lead">1909 год. Юный Мандельштам пишет стихотворение, в котором обращается к самым простым и самым важным человеческим ощущениям.</p>
 <div class="split"><div>
  <div class="quote">«За радость тихую дышать и жить<br>Кого, скажите, мне благодарить?»</div>
  <p>Эти строки Мандельштам написал в 1909 году, когда ему было восемнадцать. Они станут нашей отправной точкой.</p><p class="small">Рядом — подлинный фотопортрет молодого поэта 1914 года.</p>
- <div class="insight"><span class="cap">Наблюдение</span><p>В строках звучит вопрос. К кому обращается лирический герой? Выберите одну деталь и объясните, почему она показалась вам значительной.</p></div>
+ <p class="small">Позже мы прочитаем всё стихотворение «Дано мне тело — что мне делать с ним...». Его вопрос о благодарности за жизнь станет началом биографического рассказа.</p>
  </div><figure class="figure"><img alt="Молодой Осип Мандельштам, фотография 1914 года" src="img/osip-1914.jpg" loading="lazy"><figcaption>Осип Мандельштам, 1914. <a href="https://commons.wikimedia.org/wiki/File:Osip_Mandelstam_Russian_writer.jpg" target="_blank" rel="noopener">Источник фотографии</a></figcaption></figure></div>
-<label class="field" for="moment">Какую мысль или ощущение вы унесёте из этих строк?</label>
-<textarea id="moment" data-save="moment" placeholder="Одна-две фразы. Можно оставить поле пустым до обсуждения."></textarea>
+
 </section>
 
 <section class="part" data-part="home" id="home" hidden>
@@ -161,15 +189,15 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <p class="lead">Мандельштам родился в Варшаве в 1891 году. Детство прошло преимущественно в Петербурге — городе, к которому он будет возвращаться и в стихах.</p>
 <div class="split">
  <figure class="figure"><img loading="lazy" src="img/petersburg.jpg" alt="Невский проспект в начале XX века"><figcaption>Петербург, Невский проспект, начало XX века. <a href="https://commons.wikimedia.org/wiki/File:Nevsky_prospect_and_Gostiny_dvor_in_1900s.jpg" target="_blank" rel="noopener">Архивное изображение</a></figcaption></figure>
- <div><h3>Две линии семейного мира</h3><p><strong>Эмиль Вениаминович</strong>, отец поэта, занимался торговлей кожевенными товарами. <strong>Флора Осиповна</strong>, мать, играла на фортепиано. Музыкальные впечатления и книги окружали Осипа с детства.</p><p>С 1900 по 1907 год он учился в <strong>Тенишевском училище</strong> — одном из заметных учебных заведений Петербурга. Там он получил гуманитарную подготовку и рано заинтересовался словом, историей, культурой.</p><p class="small">В дальнейшей поэзии возникнут и музыка, и Петербург, и культура разных веков — проследим эти связи по текстам.</p><p class="note">На уроке ищем в биографии факты, которые позднее сможем проверить по стихам.</p></div>
+ <div><h3>Родители и детство</h3><p><strong>Эмиль Вениаминович</strong>, отец поэта, занимался торговлей кожевенными товарами. <strong>Флора Осиповна</strong>, мать, играла на фортепиано. Музыкальные впечатления и книги окружали Осипа с детства.</p><p>С 1900 по 1907 год он учился в <strong>Тенишевском училище</strong> — одном из заметных учебных заведений Петербурга. Там он получил гуманитарную подготовку и рано заинтересовался словом, историей, культурой.</p></div>
 </div>
-<div class="split"><div><h3>Здание, которое помнит эпоху</h3><p>Тенишевское училище находилось на Моховой улице. На фотографии — сохранившийся исторический комплекс в современном виде. Сам снимок не относится к годам учёбы Мандельштама.</p><p><a class="ext" href="https://www.citywalls.ru/house5044.html" target="_blank" rel="noopener">Посмотреть историю здания ↗</a></p></div><figure class="figure"><img loading="lazy" src="img/tenishev-2016.jpg" alt="Сохранившийся комплекс здания Тенишевского училища на Моховой, современное фото"><figcaption>Моховая, 33–35. Фото: Екатерина Борисова, 2016, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. <a href="https://commons.wikimedia.org/wiki/File:Моховая_33-35_03.jpg" target="_blank" rel="noopener">Оригинал</a></figcaption></figure></div>
-<div class="insight"><span class="cap">Связь с рабочим листом · задание 1</span><p>Выберите <strong>два факта</strong> из жизни юного Мандельштама, которые помогут понять его будущую поэзию. Объясните выбор, опираясь на прочитанное.</p></div>
+<div class="split"><div><h3>Тенишевское училище: Моховая улица</h3><p>Тенишевское училище находилось на Моховой улице. На фотографии — сохранившийся исторический комплекс в современном виде. Сам снимок не относится к годам учёбы Мандельштама.</p><p><a class="ext" href="https://www.citywalls.ru/house5044.html" target="_blank" rel="noopener">Посмотреть историю здания ↗</a></p></div><figure class="figure"><img loading="lazy" src="img/tenishev-2016.jpg" alt="Сохранившийся комплекс здания Тенишевского училища на Моховой, современное фото"><figcaption>Моховая, 33–35. Фото: Екатерина Борисова, 2016, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. <a href="https://commons.wikimedia.org/wiki/File:Моховая_33-35_03.jpg" target="_blank" rel="noopener">Оригинал</a></figcaption></figure></div>
+
 </section>
 
 <section class="part" data-part="study" id="study" hidden>
 <div class="kicker">Часть III · Собственный путь · 10–15 мин</div>
-<h2>Образование без одной границы</h2>
+<h2>Париж, Гейдельберг, университет</h2>
 <p class="lead">После училища Мандельштам знакомился с европейской культурой в Париже и Гейдельберге. Его читательский мир выходил далеко за пределы одной страны.</p>
 <div class="timeline">
  <div class="time"><b>1907</b><p>Окончание Тенишевского училища. Далее — поездка в Европу.</p></div>
@@ -178,44 +206,45 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
  <div class="time"><b>1917</b><p>Университетский курс остался незавершённым. Чтение, разговоры о литературе и самостоятельное изучение культуры продолжались.</p></div>
 </div>
 <div class="split"><figure class="figure contain"><img loading="lazy" src="img/osip-1925.jpg" alt="Осип Мандельштам около 1925 года"><figcaption>Осип Мандельштам, около 1925 года. <a href="https://commons.wikimedia.org/wiki/File:Om1923.jpg" target="_blank" rel="noopener">Подлинная фотография, Wikimedia Commons ↗</a></figcaption></figure>
-<div><h3>Культура как личная работа</h3><p>В университете изучают дисциплины по программе. Мандельштам продолжал образование и вне аудитории — через языки, чтение, разговоры и поездки.</p><div class="insight"><span class="cap">Подумаем</span><p>Какой опыт поэта мог позже помочь ему обращаться к Гомеру, Данте и европейской литературе без длинных пояснений? Назовите конкретные факты.</p></div></div></div>
-<label class="field">Что из образования Мандельштама кажется вам особенно значимым?</label><textarea data-save="study" placeholder="Выберите факт и объясните его роль."></textarea>
+<div><h3>Учёба и чтение</h3><p>В Париже Мандельштам слушал лекции Сорбонны. В Гейдельберге занимался филологией. Он много читал французских поэтов и постепенно входил в европейскую литературную традицию, которая позднее отразится в его собственных стихах.</p><p class="small">Подробнее: <a href="https://mandelstam.hse.ru/memory1" target="_blank" rel="noopener">Места памяти Мандельштама · НИУ ВШЭ ↗</a></p></div></div>
+
 </section>
 
 <section class="part" data-part="poem" id="poem" hidden>
 <div class="kicker">Часть IV · Чтение и анализ · 15–22 мин</div>
 <h2>«Дано мне тело — что мне делать с ним...»</h2>
-<p class="lead">Прочитайте стихотворение целиком. При первом чтении отметьте одну строку, которая вызывает чувство, и одну, над которой хочется подумать.</p>
+<p class="lead">Полный текст стихотворения 1909 года. В нём появляются образы садовника, цветка, стекла и узора.</p>
 <div class="poem">Дано мне тело — что мне делать с ним,
 Таким единым и таким моим?
 За радость тихую дышать и жить
 Кого, скажите, мне благодарить?
 
-Я и <button class="mark" data-note="garden" type="button">садовник</button>, я же и <button class="mark" data-note="flower" type="button">цветок</button>,
-В <button class="mark" data-note="prison" type="button">темнице мира</button> я не одинок.
-На <button class="mark" data-note="glass" type="button">стекла вечности</button> уже легло
+Я и садовник, я же и цветок,
+В темнице мира я не одинок.
+На стекла вечности уже легло
 Мое дыхание, мое тепло.
 
 Запечатлеется на нем узор,
 Неузнаваемый с недавних пор.
 Пускай мгновения стекает муть —
 Узора милого не зачеркнуть.</div>
-<div class="small">О. Э. Мандельштам, 1909. Выделенные образы можно нажимать; объяснения откроются ниже.</div>
-<div id="noteBox" class="interpret" aria-live="polite">Нажмите на один из выделенных образов. Сначала предложите свою версию его смысла.</div>
-<div class="insight"><span class="cap">Анализ без готовых ответов</span><p>Поэт называет себя одновременно садовником и цветком. Какие отношения между человеком и миром создаёт такое сочетание?</p><p>Что меняется в восприятии после слов «темница мира» и «не одинок»?</p><p>Почему след дыхания оказывается связан с вечностью?</p></div>
-<label class="field">Запишите одну интерпретацию с опорой на две строки.</label><textarea data-save="poem" placeholder="Я понимаю образ ... потому что в тексте ..."></textarea>
+
 <p class="small">Сверенный текст: <a href="https://rvb.ru/20vek/mandelstam/dvuhtomnik/01text/vol_1/01versus/0007.htm" target="_blank" rel="noopener">Русская виртуальная библиотека ↗</a></p>
 </section>
 
 <section class="part" data-part="circle" id="circle" hidden>
 <div class="kicker">Часть V · Поэты и музыка · 22–26 мин</div>
-<h2>«Камень»: как рождается поэтический мир</h2>
+<h2>Первая книга «Камень» и литературный круг</h2>
 <div class="split">
 <figure class="figure contain"><img loading="lazy" src="https://bookvica.cdn.bibliopolis.com/pictures/2034.png?auto=webp&amp;v=1714755046" alt="Обложка первого сборника стихов Осипа Мандельштама Камень, 1913" referrerpolicy="no-referrer"><figcaption>Первое издание сборника «Камень», 1913. <a href="https://www.bookvica.com/pages/books/2034/o-mandelstam/the-first-book-by-osip-mandelstam-kamen-stikhi-i-e-a-stone-verses?soldItem=true" target="_blank" rel="noopener">Открыть описание и изображение ↗</a></figcaption></figure>
-<div><p><strong>1910:</strong> стихи Мандельштама появляются в журнале «Аполлон».</p><p><strong>1912–1913:</strong> поэт участвует в литературной жизни акмеистов. Среди близких поэтических собеседников — Николай Гумилёв и Анна Ахматова.</p><p><strong>1913:</strong> выходит первая книга «Камень» — в первом издании 23 стихотворения. В этих текстах важны предметный мир, точность слова, античность и европейская культура. <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Сведения об издании · РВБ ↗</a></p><div class="insight"><span class="cap">Смысл названия</span><p>Вернитесь к образам тела, цветка, стекла и узора. Какое предположение о названии «Камень» вы можете предложить?</p></div></div>
+<div><p><strong>1910:</strong> стихи Мандельштама появляются в журнале «Аполлон».</p><p><strong>1912–1913:</strong> поэт участвует в литературной жизни акмеистов. Среди близких поэтических собеседников — Николай Гумилёв и Анна Ахматова.</p><p><strong>1913:</strong> выходит первая книга «Камень» — в первом издании 23 стихотворения. В этих текстах важны предметный мир, точность слова, античность и европейская культура. <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Сведения об издании · РВБ ↗</a></p><div class="note">Акмеизм — литературное направление начала XX века. Для акмеистов существенны точность слова, предметный образ и связь с мировой культурой. Мандельштам участвовал в объединении «Цех поэтов».</div></div>
 </div>
-<div class="wide-photo"><figure class="figure"><img loading="lazy" src="img/literary-circle-1914.jpg" alt="Осип Мандельштам, Корней Чуковский, Бенедикт Лившиц, Юрий Анненков — 1914 год"><figcaption>1914 год. Слева направо: Осип Мандельштам, Корней Чуковский, Бенедикт Лившиц, Юрий Анненков. Фото Карла Буллы. <a href="https://commons.wikimedia.org/wiki/File:Mandelstam,_Chukovsky,_Livshits_%26_Annenkov_1914_Karl_Bulla_(with_smile).jpg" target="_blank" rel="noopener">Wikimedia Commons · общественное достояние ↗</a></figcaption></figure><div><span class="tag">ЛИТЕРАТУРНАЯ ЖИЗНЬ</span><h3>Поэты и художники рядом</h3><p>Это фотография 1914 года — реальный эпизод литературного Петербурга. Мандельштам сидит рядом с Чуковским, Лившицем и Анненковым. Новые произведения обсуждали с друзьями, читали вслух, спорили о точности слова.</p><p class="note">Найдите Мандельштама на снимке. Как этот момент его жизни связан с изданием «Камня» в 1913 году?</p></div></div><div class="split"><div><h3>А теперь — послушайте</h3><p>Мандельштам писал и о музыке. Прочитайте его строку из стихотворения «Бах» (1913):</p><div class="quote">«Органа многосложный крик»</div><p>Откройте запись <strong>И. С. Баха, BWV 645</strong> и послушайте 20–25 секунд. Какие особенности звучания делают слово «многосложный» удачным или спорным?</p><a class="ext" href="https://www.bachvereniging.nl/en/bwv/bwv-645" target="_blank" rel="noopener">Послушать Баха · официальный проект ↗</a></div>
-<div class="tile"><div class="year">ДИАЛОГ ИСКУССТВ</div><h3>Музыка и слово</h3><p>Выберите одно наблюдение о звучании органа: повтор, сочетание голосов, протяжённость, изменение громкости. Затем сравните его со строкой Мандельштама.</p><label class="field">Моё наблюдение</label><textarea data-save="bach" placeholder="В звуке я услышал(а)... Поэтому выражение..."></textarea></div></div>
+<div class="portraits-archive" aria-label="Поэты Серебряного века: исторические фотографии">
+<figure class="figure"><img loading="lazy" src="img/akhmatova-1912.jpg" alt="Анна Ахматова, фотография 1912 года"><figcaption>Анна Ахматова, 1912 год. <a href="https://commons.wikimedia.org/wiki/File:Anna_Akhmatova_(1912).jpg" target="_blank" rel="noopener">Архивный оригинал ↗</a></figcaption></figure>
+<figure class="figure"><img loading="lazy" src="img/gumilev-1907.jpg" alt="Николай Гумилёв, Париж, 1907 год"><figcaption>Николай Гумилёв, Париж, 1907 год. <a href="https://commons.wikimedia.org/wiki/File:Nikolay_Gumilyov1.jpg" target="_blank" rel="noopener">Архивный оригинал ↗</a></figcaption></figure>
+</div>
+<div class="wide-photo"><figure class="figure"><img loading="lazy" src="img/literary-circle-1914.jpg" alt="Осип Мандельштам, Корней Чуковский, Бенедикт Лившиц, Юрий Анненков — 1914 год"><figcaption>1914 год. Слева направо: Осип Мандельштам, Корней Чуковский, Бенедикт Лившиц, Юрий Анненков. Фото Карла Буллы. <a href="https://commons.wikimedia.org/wiki/File:Mandelstam,_Chukovsky,_Livshits_%26_Annenkov_1914_Karl_Bulla_(with_smile).jpg" target="_blank" rel="noopener">Wikimedia Commons · общественное достояние ↗</a></figcaption></figure><div><span class="tag">ЛИТЕРАТУРНАЯ ЖИЗНЬ</span><h3>Поэты и художники рядом</h3><p>Это фотография 1914 года — реальный эпизод литературного Петербурга. Мандельштам сидит рядом с Чуковским, Лившицем и Анненковым. Новые произведения обсуждали с друзьями, читали вслух, спорили о точности слова.</p><p class="small">Фотография сделана через год после выхода первого издания «Камня».</p></div></div><div class="split"><div><h3>А теперь — послушайте</h3><p>Мандельштам писал и о музыке. Прочитайте его строку из стихотворения «Бах» (1913):</p><div class="quote">«Органа многосложный крик»</div><p>Органные произведения Баха помогают услышать, как несколько мелодических линий складываются в одно звучание. По желанию можно открыть запись хоральной прелюдии <strong>BWV 645</strong>.</p><a class="ext" href="https://www.bachvereniging.nl/en/bwv/bwv-645" target="_blank" rel="noopener">Послушать Баха · официальный проект ↗</a></div>
+<div class="tile"><div class="year">МУЗЫКА В СТИХАХ</div><h3>«Бах» (1913)</h3><p>Стихотворение посвящено музыкальному переживанию. Поэт создаёт словесный образ мощного и многоголосого звучания органа.</p><p class="small">Текст: <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">собрание произведений · РВБ ↗</a></p></div></div>
 </section>
 
 <section class="part" data-part="nadezhda" id="nadezhda" hidden>
@@ -224,18 +253,20 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <div class="split">
 <figure class="figure"><img loading="lazy" src="img/nadezhda-1925.jpg" alt="Надежда Яковлевна Мандельштам, фотография 1925 года"><figcaption>Надежда Мандельштам, фотография 1925 года. <a href="https://commons.wikimedia.org/wiki/Category:Nadezhda_Mandelstam" target="_blank" rel="noopener">Источник ↗</a></figcaption></figure>
 <div><div class="timeline"><div class="time"><b>1919 · Киев</b><p>Осип Мандельштам знакомится с молодой художницей Надеждой Хазиной.</p></div><div class="time"><b>1922</b><p>Они регистрируют брак. В последующие годы часто переезжают и живут в непростых материальных условиях.</p></div><div class="time"><b>Поэтическая жизнь</b><p>Надежда слышала многие стихи одной из первых, обсуждала их с поэтом. Её роль в сохранении произведений станет особенно важной позднее.</p></div></div></div></div>
-<div class="insight"><span class="cap">Факт из истории книги</span><p>В 1922 году появилась поэтическая книга «Tristia». В начале помещено посвящение «Н. Х.» — Надежде Хазиной. Её присутствие заметно в самом литературном наследии. <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Сведения об издании · РВБ ↗</a></p></div>
+<div class="insight"><span class="cap">Посвящение в книге «Tristia»</span><p>В 1922 году появилась поэтическая книга «Tristia». В начале помещено посвящение «Н. Х.» — Надежде Хазиной. Её присутствие заметно в самом литературном наследии. <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Сведения об издании · РВБ ↗</a></p></div>
 <div class="split"><figure class="figure"><img loading="lazy" src="img/literary-circle-1930s.jpg" alt="Георгий Чулков, Мария Петровых, Анна Ахматова, Осип Мандельштам, фотография 1930-х годов"><figcaption>1930-е годы. Георгий Чулков, Мария Петровых, Анна Ахматова, Осип Мандельштам. <a href="https://commons.wikimedia.org/wiki/File:Chulkov_Petrovykh_Akhmatova_Mandelstam.jpg" target="_blank" rel="noopener">Подлинный снимок · Wikimedia Commons ↗</a></figcaption></figure><div><h3>Люди, которые слышали его стихи</h3><p>На снимке — современники и литературные собеседники Мандельштама. Эта фотография относится к 1930-м годам и помогает увидеть окружение поэта, уже известного своими книгами.</p><p>Она не относится к первой встрече Мандельштама и Надежды в Киеве в 1919 году.</p></div></div>
-<div class="insight"><span class="cap">Вопрос для разговора</span><p>Почему поэту важен человек, который слышит новые строки раньше остальных? Что в этом можно подтвердить фактами биографии, а что пока будет только предположением?</p></div>
-<label class="field">Один факт о Надежде Яковлевне, который вы запомнили</label><textarea data-save="nadezhda" placeholder="Факт — и почему он важен в истории поэта."></textarea>
+<p class="note">Надежда Мандельштам пережила мужа более чем на сорок лет. Её воспоминания и сохранённые копии стихов стали важнейшими источниками для изучения его жизни и творчества.</p>
 </section>
 
 <section class="part" data-part="city" id="city" hidden>
 <div class="kicker">Часть VII · Город и личная память · 31–37 мин</div>
 <h2>Возвращение в Ленинград</h2>
 <p class="lead">Петербург был городом детства Мандельштама. В стихотворении 1930 года он возвращается к нему уже взрослым человеком. Это произведение написано <strong>до ареста 1934 года</strong>.</p>
-<figure class="figure"><img loading="lazy" src="img/petersburg.jpg" alt="Исторический Петербург, начало XX века"><figcaption>Архивный вид Петербурга начала XX века, не фотография 1930 года. <a href="https://commons.wikimedia.org/wiki/File:Nevsky_prospect_and_Gostiny_dvor_in_1900s.jpg" target="_blank" rel="noopener">Источник ↗</a></figcaption></figure>
-<div class="insight"><span class="cap">Важный поворот в творчестве</span><p>С 1925 года до осени 1930-го Мандельштам не создавал новых оригинальных стихов: работал переводчиком, писал книги для детей. Он вернулся к стихам в 1930 году после поездки в Армению. Этот биографический контекст помогает услышать новое напряжение «Ленинграда». <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Биография · РВБ ↗</a></p></div><h3>«Ленинград» (1930)</h3>
+<div class="portraits-archive cities">
+<figure class="figure"><img loading="lazy" src="img/petersburg.jpg" alt="Петербург, Невский проспект, начало XX века"><figcaption>Петербург начала XX века. <a href="https://commons.wikimedia.org/wiki/File:Nevsky_prospect_and_Gostiny_dvor_in_1900s.jpg" target="_blank" rel="noopener">Историческая фотография ↗</a></figcaption></figure>
+<figure class="figure"><img loading="lazy" src="img/leningrad-1933.jpg" alt="Ленинградский трамвай на Строгановском мосту в 1933 году"><figcaption>Ленинград, трамвай на Строгановском мосту, 1933 год. <a href="https://commons.wikimedia.org/wiki/File:MP_tram_Petersburg.jpg" target="_blank" rel="noopener">Исторический снимок ↗</a>. Снимок сделан позднее стихотворения 1930 года.</figcaption></figure>
+</div>
+<div class="insight"><span class="cap">Возвращение к стихам в 1930 году</span><p>С 1925 года до осени 1930-го Мандельштам не создавал новых оригинальных стихов: работал переводчиком, писал книги для детей. Он вернулся к стихам в 1930 году после поездки в Армению. Этот биографический контекст помогает услышать новое напряжение «Ленинграда». <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Биография · РВБ ↗</a></p></div><h3>«Ленинград» (1930)</h3>
 <div class="poem">Я вернулся в мой город, знакомый до слез,
 До прожилок, до детских припухлых желез.
 Ты вернулся сюда, так глотай же скорей
@@ -251,12 +282,19 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 И всю ночь напролет жду гостей дорогих,
 Шевеля кандалами цепочек дверных.</div>
 <div class="small">Текст стихотворения: <a href="https://rvb.ru/20vek/mandelstam/01text/vol_3/01versus/01versus/3_021.htm" target="_blank" rel="noopener">РВБ ↗</a></div>
-<div class="split">
-<div><label class="field">Найдите в тексте два слова или образа, в которых город остаётся личным, знакомым.</label><textarea data-save="leningrad-memory" placeholder="Цитаты + одно объяснение."></textarea></div>
-<div><label class="field">Найдите слова или детали, которые изменяют интонацию стихотворения.</label><textarea data-save="leningrad-tension" placeholder="Цитаты + одно объяснение."></textarea></div>
+<div class="feeling-panel">
+<h3>Как меняется впечатление от города?</h3>
+<p>Выберите до двух слов, которые передают ваше ощущение после чтения «Ленинграда». Варианты равноправны — это читательское впечатление, а не проверка.</p>
+<div class="feeling-choices" aria-label="Ощущения от стихотворения">
+<button type="button" class="feeling" data-feel="Узнавание" aria-pressed="false">Узнавание</button>
+<button type="button" class="feeling" data-feel="Тревога" aria-pressed="false">Тревога</button>
+<button type="button" class="feeling" data-feel="Тоска" aria-pressed="false">Тоска</button>
+<button type="button" class="feeling" data-feel="Нежность" aria-pressed="false">Нежность</button>
+<button type="button" class="feeling" data-feel="Ожидание" aria-pressed="false">Ожидание</button>
 </div>
-<button id="showCompare" type="button" class="btn secondary" aria-expanded="false">После ответа — показать пример сопоставления</button>
-<div id="compare" class="interpret" hidden>«Знакомый до слез», «номера», «адреса» связывают город с личной памятью. «Мертвецов голоса», «вырванный с мясом звонок», «кандалами цепочек» меняют звучание повседневных деталей. Возможны и другие наблюдения, подтверждённые строками.</div>
+<p class="feeling-result" id="feelingResult" aria-live="polite">Выбранные слова появятся здесь.</p>
+</div>
+
 </section>
 
 <section class="part" data-part="memory" id="memory" hidden>
@@ -268,16 +306,26 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 <div class="time"><b>1938</b><p>Второй арест. Поэт умер 27 декабря 1938 года в пересыльном лагере под Владивостоком.</p></div>
 <div class="time"><b>После 1938 года</b><p>Надежда Яковлевна и близкие друзья сохраняли стихотворения: заучивали, переписывали, передавали надёжным людям.</p></div></div></div>
 <figure class="figure"><img loading="lazy" src="img/osip-1934.jpg" alt="Архивное фото Осипа Мандельштама после первого ареста 1934 года"><figcaption>Осип Мандельштам, фотография после ареста 1934 года. <a href="https://commons.wikimedia.org/wiki/File:Osip_Mandelstam_1934.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></figcaption></figure></div>
-<div class="insight"><span class="cap">Замыкаем сюжет первого урока</span><div class="quote">«На стекла вечности уже легло<br>Мое дыхание, мое тепло»</div><div class="quote">«Узора милого не зачеркнуть»</div><p>Как вы теперь понимаете эти слова, зная, что многие стихотворения сохранились благодаря памяти Надежды Яковлевны и людей, которым она доверяла?</p></div>
-<label class="field">Ваш финальный вывод — со ссылкой на биографический факт</label><textarea data-save="final" placeholder="Теперь эти строки для меня означают ... потому что ..."></textarea>
+<div class="insight"><span class="cap">Строки, к которым возвращаемся</span><div class="quote">«На стекла вечности уже легло<br>Мое дыхание, мое тепло»</div><div class="quote">«Узора милого не зачеркнуть»</div><p>Эти строки написаны в юности. После знакомства с историей Надежды Мандельштам они приобретают дополнительное звучание: стихи действительно сохранились в человеческой памяти и в рукописных копиях.</p></div>
+<div class="mindmap" id="mindmap">
+<div class="mindmap-title"><span class="tag">ИНТЕЛЛЕКТ-КАРТА</span><h3>Какие факты помогают понять Мандельштама?</h3><p>Выберите по одному факту в каждой теме. Карта справа или ниже будет дополняться автоматически. Никаких оценок: вы составляете краткий портрет поэта.</p></div>
+<div class="mind-layout"><div class="mind-choices">
+<div class="mind-group" data-group="home"><h4>Дом и детство</h4><button class="fact" type="button" data-fact="Музыка матери" data-group="home">Музыка матери</button><button class="fact" type="button" data-fact="Петербургское детство" data-group="home">Петербургское детство</button></div>
+<div class="mind-group" data-group="study"><h4>Учёба</h4><button class="fact" type="button" data-fact="Тенишевское училище" data-group="study">Тенишевское училище</button><button class="fact" type="button" data-fact="Сорбонна и Гейдельберг" data-group="study">Сорбонна и Гейдельберг</button></div>
+<div class="mind-group" data-group="poetry"><h4>Творчество</h4><button class="fact" type="button" data-fact="«Камень», 1913" data-group="poetry">Первая книга «Камень»</button><button class="fact" type="button" data-fact="Акмеизм и «Цех поэтов»" data-group="poetry">Акмеизм и «Цех поэтов»</button></div>
+<div class="mind-group" data-group="people"><h4>Близкие люди</h4><button class="fact" type="button" data-fact="Надежда Яковлевна" data-group="people">Надежда Яковлевна</button><button class="fact" type="button" data-fact="Ахматова и Гумилёв" data-group="people">Ахматова и Гумилёв</button></div>
+<div class="mind-group" data-group="legacy"><h4>Судьба стихов</h4><button class="fact" type="button" data-fact="«Воронежские тетради»" data-group="legacy">Стихи в воронежской ссылке</button><button class="fact" type="button" data-fact="Память Надежды и друзей" data-group="legacy">Стихи, сохранённые близкими</button></div>
+</div>
+<div class="mind-output"><div class="mind-center">ОСИП МАНДЕЛЬШТАМ<br><small>1891–1938</small></div>
+<div id="mindBranches" class="mind-branches" aria-live="polite">
+<div class="mind-branch"><b>Дом и детство</b><span>Выберите факт</span></div>
+<div class="mind-branch"><b>Учёба</b><span>Выберите факт</span></div>
+<div class="mind-branch"><b>Творчество</b><span>Выберите факт</span></div>
+<div class="mind-branch"><b>Близкие люди</b><span>Выберите факт</span></div>
+<div class="mind-branch"><b>Судьба стихов</b><span>Выберите факт</span></div>
+</div><p class="small" id="mindCounter">Заполнено: 0 из 5 ветвей.</p></div></div>
+</div>
 <div class="line-separator"></div>
-<h3>Проверьте опорные факты</h3><p class="small">Четыре коротких вопроса без оценки. Вы узнаете результат сразу; ничего не отправляется учителю или на сервер.</p>
-<div id="quiz" class="quiz">
-<div class="question" data-answer="b"><strong>1. Где родился Осип Мандельштам?</strong><div class="choices"><button type="button" class="choice" data-v="a">В Петербурге</button><button type="button" class="choice" data-v="b">В Варшаве</button><button type="button" class="choice" data-v="c">В Париже</button></div><div class="qfeedback" aria-live="polite"></div></div>
-<div class="question" data-answer="c"><strong>2. Как назывался его первый сборник стихов?</strong><div class="choices"><button type="button" class="choice" data-v="a">«Tristia»</button><button type="button" class="choice" data-v="b">«Шум времени»</button><button type="button" class="choice" data-v="c">«Камень»</button></div><div class="qfeedback" aria-live="polite"></div></div>
-<div class="question" data-answer="a"><strong>3. Когда написано стихотворение «Ленинград»?</strong><div class="choices"><button type="button" class="choice" data-v="a">В 1930 году</button><button type="button" class="choice" data-v="b">После ареста 1934 года</button><button type="button" class="choice" data-v="c">В 1913 году</button></div><div class="qfeedback" aria-live="polite"></div></div>
-<div class="question" data-answer="c"><strong>4. Как Надежда Мандельштам помогала сохранять стихи?</strong><div class="choices"><button type="button" class="choice" data-v="a">Только печатала их в газетах</button><button type="button" class="choice" data-v="b">Хранила лишь фотографии</button><button type="button" class="choice" data-v="c">Помнила, переписывала и передавала доверенным людям</button></div><div class="qfeedback" aria-live="polite"></div></div>
-</div><button class="btn" id="checkQuiz" type="button">Проверить ответы</button><p id="quizResult" class="result" aria-live="polite"></p>
 <p class="note">К следующему уроку: прочитайте «Бессонница. Гомер. Тугие паруса...» и выпишите два имени или слова, значение которых требует уточнения.</p>
 </section>
 </main>
@@ -285,54 +333,73 @@ footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;
 
 <footer>Учу по ФРП · Автор: Гладышева Любовь</footer>
 </div>
-<div class="print-sheet" id="worksheet">
-<div class="print-page">
-<div class="print-top"><span>ЛИТЕРАТУРА · 11 КЛАСС</span><span>О. Э. МАНДЕЛЬШТАМ · БИОГРАФИЯ</span></div>
-<h1>Рабочий лист. Что остаётся после человека?</h1>
-<div class="print-instr">Фамилия, имя: _____________________________________ Класс: ______. Записывайте только то, что можете подтвердить фактом биографии или строкой стихотворения. Сайт — источник, лист — место для ваших выводов.</div>
-<h2>1. Что формировало будущего поэта?</h2><p>Выберите два факта (семья, город, учёба, культура). Объясните, как каждый мог повлиять на литературные интересы Мандельштама.</p>
-<div class="print-grid"><div>Факт 1<div class="print-answer"></div><div class="print-answer"></div>Возможная связь с поэзией<div class="print-answer"></div><div class="print-answer"></div></div><div>Факт 2<div class="print-answer"></div><div class="print-answer"></div>Возможная связь с поэзией<div class="print-answer"></div><div class="print-answer"></div></div></div>
-<h2>2. «Дано мне тело...» (1909)</h2><div class="print-quote">«Я и садовник, я же и цветок...»</div>
-<p>Как вы понимаете сочетание этих двух образов? Подтвердите мысль ещё одной строкой стихотворения.</p><div class="print-answer tall"></div>
-<div class="print-quote">«На стекла вечности уже легло / Мое дыхание, мое тепло»</div>
-<p>Почему поэт использует образ исчезающего следа? Какую роль играет слово «вечности»?</p><div class="print-answer tall"></div>
-</div>
-<div class="print-page">
-<div class="print-top"><span>РАБОЧИЙ ЛИСТ · ОБОРОТ</span><span>МАНДЕЛЬШТАМ · 2 / 2</span></div>
-<h1>Город, близкие люди, память</h1>
-<h2>3. «Ленинград» (1930)</h2><p>Выпишите по одному точному текстовому доказательству к двум наблюдениям. Назовите, как меняется интонация стихотворения.</p>
-<div class="print-grid"><div><b>Город личной памяти</b><div class="print-answer"></div><div class="print-answer"></div></div><div><b>Город тревоги</b><div class="print-answer"></div><div class="print-answer"></div></div></div>
-<p>Моё объяснение изменения интонации:</p><div class="print-answer tall"></div>
-<h2>4. Надежда Яковлевна</h2><p>Назовите два конкретных способа, которыми были сохранены стихи. Почему они требовали мужества или настойчивости?</p><div class="print-answer tall"></div>
-<h2>5. Возвращение к началу</h2><div class="print-quote">«Узора милого не зачеркнуть»</div>
-<p>Как меняется смысл этих слов после знакомства с биографией поэта? Сошлитесь на один факт.</p><div class="print-answer tall"></div>
-<div class="print-instr" style="margin-top:8mm">Ко второму уроку: прочитать «Бессонница. Гомер. Тугие паруса...»; выписать два неизвестных вам слова или имени.</div>
-</div>
-</div>
 <script>
 (function(){
-  "use strict";
-  const parts=[...document.querySelectorAll(".part")];
-  const tabs=[...document.querySelectorAll(".tab")];
-  const key="uchu_mandelstam_bio_2026_v1";
-  let data={visited:["start"],answers:{},quiz:{}};
-  try{const x=JSON.parse(localStorage.getItem(key)||"null");if(x&&typeof x==="object"){data.visited=Array.isArray(x.visited)?x.visited:["start"];data.answers=x.answers||{};data.quiz=x.quiz||{}}}catch(e){}
-  const save=()=>{try{localStorage.setItem(key,JSON.stringify(data))}catch(e){}};
-  const notes={garden:"Садовник ухаживает, выращивает, действует. Как человек может быть «садовником» собственной жизни?",flower:"Цветок растёт и зависит от условий вокруг. Почему говорящий одновременно и тот, кто заботится, и тот, кто нуждается в заботе?",prison:"«Темница» предполагает границы и несвободу. Попробуйте объяснить, как с этим образом может соседствовать «не одинок».",glass:"След дыхания на стекле легко исчезает. Слово «вечности» меняет масштаб образа. Как поэт заставляет читателя сопоставить краткое мгновение и долгую память?"};
-  function go(id, scrollPage=true){if(!parts.some(p=>p.dataset.part===id))id="start";parts.forEach(p=>p.hidden=p.dataset.part!==id);tabs.forEach(t=>{const yes=t.dataset.tab===id;t.setAttribute("aria-selected",yes?"true":"false");t.classList.toggle("visited",data.visited.includes(t.dataset.tab))});if(!data.visited.includes(id))data.visited.push(id);const n=parts.findIndex(p=>p.dataset.part===id);document.getElementById("prev").disabled=n===0;document.getElementById("next").disabled=n===parts.length-1;document.getElementById("visitedCount").textContent=data.visited.length+"/8";document.getElementById("barFill").style.width=(data.visited.length/8*100)+"%";save();if(scrollPage)window.scrollTo({top:document.getElementById("tabs").offsetTop-8,behavior:"smooth"});if(location.hash!=="#"+id)history.replaceState(null,"","#"+id);}
-  tabs.forEach(t=>t.addEventListener("click",()=>go(t.dataset.tab)));
-  document.getElementById("prev").addEventListener("click",()=>{const n=parts.findIndex(p=>!p.hidden);go(parts[Math.max(0,n-1)].dataset.part)});
-  document.getElementById("next").addEventListener("click",()=>{const n=parts.findIndex(p=>!p.hidden);go(parts[Math.min(parts.length-1,n+1)].dataset.part)});
-  document.getElementById("begin").addEventListener("click",e=>{e.preventDefault();go("start")});
-  window.addEventListener("hashchange",()=>go(location.hash.slice(1)||"start"));
-  document.querySelectorAll("[data-save]").forEach(t=>{const k=t.dataset.save;t.value=data.answers[k]||"";t.addEventListener("input",()=>{data.answers[k]=t.value;save()})});
-  document.querySelectorAll("[data-note]").forEach(b=>b.addEventListener("click",()=>{document.getElementById("noteBox").textContent=notes[b.dataset.note]||""}));
-  document.getElementById("printBtn").addEventListener("click",()=>window.print());
-  document.getElementById("showCompare").addEventListener("click",function(){const el=document.getElementById("compare");el.hidden=!el.hidden;this.setAttribute("aria-expanded",String(!el.hidden));this.textContent=el.hidden?"После ответа — показать пример сопоставления":"Скрыть пример"});
-  document.querySelectorAll(".question").forEach((q,i)=>{q.querySelectorAll(".choice").forEach(c=>{if(data.quiz[i]===c.dataset.v)c.classList.add("picked");c.addEventListener("click",()=>{q.querySelectorAll(".choice").forEach(x=>x.classList.toggle("picked",x===c));data.quiz[i]=c.dataset.v;save();q.querySelector(".qfeedback").textContent=""})})});
-  document.getElementById("checkQuiz").addEventListener("click",()=>{let good=0;document.querySelectorAll(".question").forEach((q,i)=>{const given=data.quiz[i];const correct=q.dataset.answer;const fb=q.querySelector(".qfeedback");if(given===correct){good++;fb.textContent="Верно."}else if(!given){fb.textContent="Выберите ответ."}else{fb.textContent="Проверьте этот факт по предыдущим главам."}});const r=document.getElementById("quizResult");r.style.display="block";r.textContent="Верных ответов: "+good+" из 4. Вернитесь к нужным главам и при желании исправьте ответы."});
-  document.querySelectorAll(".figure img").forEach(img=>img.addEventListener("error",()=>{img.style.display="none";const p=document.createElement("div");p.className="imgfail";p.style.display="block";p.textContent="Изображение временно недоступно. Откройте ссылку на источник под ним.";img.parentNode.insertBefore(p,img)}));
-  go(location.hash.slice(1)||"start",false);
+ "use strict";
+ const parts=[...document.querySelectorAll(".part")];
+ const tabs=[...document.querySelectorAll(".tab")];
+ const key="uchu_mandelstam_bio_2026_v2";
+ let data={visited:["start"],map:{},feelings:[]};
+ try{const x=JSON.parse(localStorage.getItem(key)||"null");if(x&&typeof x==="object"){data.visited=Array.isArray(x.visited)?x.visited:["start"];data.map=x.map&&typeof x.map==="object"?x.map:{};data.feelings=Array.isArray(x.feelings)?x.feelings:[]}}catch(_){}
+ const save=()=>{try{localStorage.setItem(key,JSON.stringify(data))}catch(_){}};
+ function go(id,scrollPage=true){
+   if(!parts.some(p=>p.dataset.part===id))id="start";
+   parts.forEach(p=>p.hidden=p.dataset.part!==id);
+   tabs.forEach(t=>{const active=t.dataset.tab===id;t.setAttribute("aria-selected",active?"true":"false");t.classList.toggle("visited",data.visited.includes(t.dataset.tab))});
+   if(!data.visited.includes(id))data.visited.push(id);
+   const n=parts.findIndex(p=>p.dataset.part===id);
+   document.getElementById("prev").disabled=n===0;
+   document.getElementById("next").disabled=n===parts.length-1;
+   document.getElementById("visitedCount").textContent=data.visited.length+"/8";
+   document.getElementById("barFill").style.width=(data.visited.length/8*100)+"%";
+   save();
+   if(scrollPage)document.getElementById("tabs").scrollIntoView({behavior:"smooth",block:"start"});
+   if(location.hash!=="#"+id)history.replaceState(null,"","#"+id);
+ }
+ tabs.forEach(t=>t.addEventListener("click",()=>go(t.dataset.tab)));
+ document.getElementById("prev").addEventListener("click",()=>{const n=parts.findIndex(p=>!p.hidden);go(parts[Math.max(0,n-1)].dataset.part)});
+ document.getElementById("next").addEventListener("click",()=>{const n=parts.findIndex(p=>!p.hidden);go(parts[Math.min(parts.length-1,n+1)].dataset.part)});
+ document.getElementById("begin").addEventListener("click",e=>{e.preventDefault();go("start")});
+ window.addEventListener("hashchange",()=>go(location.hash.slice(1)||"start"));
+ const feels=document.querySelectorAll(".feeling");
+ function renderFeelings(){
+   feels.forEach(b=>b.setAttribute("aria-pressed",String(data.feelings.includes(b.dataset.feel))));
+   document.getElementById("feelingResult").textContent=data.feelings.length?"Ваше впечатление: "+data.feelings.join(" · "):"Можно выбрать одно или два слова.";
+ }
+ feels.forEach(b=>b.addEventListener("click",()=>{
+   const v=b.dataset.feel;
+   if(data.feelings.includes(v))data.feelings=data.feelings.filter(x=>x!==v);
+   else if(data.feelings.length<2)data.feelings.push(v);
+   else data.feelings=[data.feelings[1],v];
+   renderFeelings();save();
+ }));
+ renderFeelings();
+ const mapNames=[["home","Дом и детство"],["study","Учёба"],["poetry","Творчество"],["people","Близкие люди"],["legacy","Судьба стихов"]];
+ function renderMap(){
+   document.querySelectorAll(".fact").forEach(b=>b.setAttribute("aria-pressed",String(data.map[b.dataset.group]===b.dataset.fact)));
+   const wrap=document.getElementById("mindBranches");wrap.textContent="";
+   for(const [code,label] of mapNames){
+      const div=document.createElement("div");div.className="mind-branch";
+      const b=document.createElement("b");b.textContent=label;
+      const t=document.createElement("span");t.textContent=data.map[code]||"Выберите факт";
+      div.append(b,t);wrap.append(div);
+   }
+   const done=mapNames.filter(([code])=>data.map[code]).length;
+   document.getElementById("mindCounter").textContent="Заполнено: "+done+" из 5 ветвей.";
+ }
+ document.querySelectorAll(".fact").forEach(b=>b.addEventListener("click",()=>{
+   const g=b.dataset.group,v=b.dataset.fact;
+   if(data.map[g]===v)delete data.map[g];else data.map[g]=v;
+   renderMap();save();
+ }));
+ renderMap();
+ document.querySelectorAll(".figure img").forEach(img=>img.addEventListener("error",()=>{
+   img.style.display="none";
+   const p=document.createElement("div");p.className="imgfail";p.style.display="block";
+   p.textContent="Фотография временно недоступна. Её источник указан под рамкой.";
+   img.parentNode.insertBefore(p,img);
+ }));
+ go(location.hash.slice(1)||"start",false);
 })();
 </script>
 </body>
