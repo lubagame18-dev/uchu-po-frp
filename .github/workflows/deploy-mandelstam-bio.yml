@@ -55,6 +55,7 @@ jobs:
             'https://upload.wikimedia.org/wikipedia/commons/d/d3/Rapha%C3%ABle_Garreau_de_Labarre_-_Bach_-_Wachet_auf%2C_ruft_uns_die_Stimme_-_28-07-2013.ogg' \
             -o "$RUNNER_TEMP/mandel-audio/bach-source.ogg"
           test "$(wc -c < "$RUNNER_TEMP/mandel-audio/bach-source.ogg")" -gt 3000000
+          command -v ffmpeg || { sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends ffmpeg; }
           command -v ffmpeg
           ffmpeg -nostdin -hide_banner -loglevel error -y -i "$RUNNER_TEMP/mandel-audio/bach-source.ogg" \
             -t 70 -codec:a libmp3lame -qscale:a 4 \
