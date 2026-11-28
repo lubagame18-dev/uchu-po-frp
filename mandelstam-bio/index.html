@@ -68,19 +68,67 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 @media(max-width:740px){.shell{padding:0 12px 45px}.hero{grid-template-columns:1fr}.hero-copy{padding:31px 23px 23px}.hero-art{min-height:265px;grid-row:1}.hero h1{font-size:48px}.hero .sub{font-size:22px}.lesson-strip{grid-template-columns:1fr}.part{padding:25px 18px;min-height:600px}.split{grid-template-columns:1fr;gap:16px}.grid3{grid-template-columns:1fr}.figure img{max-height:390px}.tabs{margin-top:9px}.poem{font-size:20px;padding:18px 12px}.controls{flex-wrap:wrap}}
 @page{size:A4;margin:12mm}
 @media print{body{background:white;color:#1c1c1c}.shell,.mast,.sources,footer{display:none!important}.print-sheet{display:block!important;font-family:"Times New Roman",serif;color:#1b1616}.print-page{page-break-after:always;break-after:page;height:265mm;position:relative}.print-page:last-child{page-break-after:auto}.print-sheet h1{font-size:25pt;text-align:center;margin:3mm 0 3mm}.print-sheet h2{font-size:16pt;margin:7mm 0 3mm;color:#231d1d}.print-sheet h3{font-size:13pt;margin:5mm 0 2mm}.print-top{display:flex;justify-content:space-between;border-bottom:2px solid #333;padding:4mm 0;font-size:10pt}.print-answer{border-bottom:1px solid #aaa;min-height:11mm;margin-top:2mm}.print-answer.tall{height:33mm}.print-grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}.print-instr{font-size:10pt;background:#f4f1ee;padding:3mm}.print-quote{font-size:14pt;padding:3mm 5mm;border-left:2px solid #888;margin:4mm 0}}
+
+/* Редакция: индивидуальные экраны, архивные фото, адаптивный первый экран */
+.mast{display:none!important}
+.shell{max-width:1150px}
+.hero{display:grid;grid-template-columns:44% 56%;min-height:350px;background:#432731}
+.hero-art{grid-column:1;grid-row:1;min-height:350px;background:linear-gradient(0deg,#23171e44,transparent 42%),url("img/petersburg.jpg") center/cover no-repeat;filter:sepia(.22)}
+.hero-art:after{content:"Невский проспект, начало XX века · Wikimedia Commons";font-size:11px;left:13px;right:13px}
+.hero-copy{grid-column:2;grid-row:1;min-width:0;padding:35px 32px 31px}
+.hero h1{font-size:clamp(39px,5.2vw,68px);overflow-wrap:anywhere;letter-spacing:-.035em;line-height:1.06;margin:16px 0 12px}
+.hero .sub{font-size:clamp(20px,2.1vw,26px);line-height:1.26;margin:0 0 12px}
+.hero .line{font-size:18px;margin:15px 0 21px}
+.hero .eyebrow{font-size:11px}
+.tabs{position:relative;top:auto;z-index:1;padding-top:8px;padding-bottom:12px;background:none}
+.tab{font-size:13px}
+.part{border:1px solid #dfc7a2;background-image:linear-gradient(140deg,rgba(255,255,255,.12),rgba(143,91,62,.035))}
+.part[data-part="start"]{background:#fff9ed}
+.part[data-part="home"]{background:#f4e9d7}
+.part[data-part="study"]{background:linear-gradient(130deg,#eff0e9,#f8ecd9)}
+.part[data-part="poem"]{background:linear-gradient(140deg,#fffaf0,#f2e5d3)}
+.part[data-part="circle"]{background:#f5e7d8}
+.part[data-part="nadezhda"]{background:linear-gradient(135deg,#f7ebdf,#ead5d2)}
+.part[data-part="city"]{background:linear-gradient(135deg,#e9e8e0,#f4e9d6)}
+.part[data-part="memory"]{background:linear-gradient(135deg,#efdec7,#faf4e5)}
+.part[data-part="start"] .quote,.part[data-part="poem"] .poem{box-shadow:0 15px 30px #66442f10}
+.wide-photo{display:grid;grid-template-columns:1.24fr .9fr;gap:25px;align-items:center;margin:22px 0;padding:13px;background:#fbf4e9;border-radius:18px;border:1px solid #d7c4ac}
+.wide-photo .figure img{max-height:340px;object-fit:contain}
+.wide-photo p{font-size:16px}
+.figure img{height:auto}
+.figure figcaption{font-size:12px}
+footer{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#dabe9a;text-align:center;margin-top:24px;padding:23px 5px 12px;letter-spacing:.025em;border-top:1px solid #695045}
+@media(max-width:740px){
+  .shell{padding:0 12px 32px}
+  .hero{grid-template-columns:1fr;min-height:0;border-radius:18px}
+  .hero-art{grid-column:1;grid-row:1;min-height:210px;max-height:240px;background-position:center 52%}
+  .hero-copy{grid-column:1;grid-row:2;padding:23px 20px 24px}
+  .hero h1{font-size:clamp(36px,10.4vw,48px);overflow-wrap:anywhere;line-height:1.06;margin:12px 0}
+  .hero .sub{font-size:21px;margin:0 0 9px}
+  .hero .line{font-size:17px;margin:13px 0 17px}
+  .hero-actions{align-items:stretch}
+  .hero-actions .action{font-size:14px;padding:11px 13px}
+  .lesson-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .stat{font-size:11px;padding:10px 8px;line-height:1.24}
+  .stat b{font-size:15px;margin-bottom:3px}
+  .part{padding:23px 18px;min-height:0}
+  .wide-photo{grid-template-columns:1fr}
+  .tabs{gap:6px;overflow-x:auto}
+  .tab{padding:8px 11px;font-size:12px}
+  footer{font-size:14px}
+  h2{overflow-wrap:break-word}
+}
 </style>
 </head>
 <body>
 <div class="shell">
-<header class="mast"><span>УЧУ ПО ФРП / ЛИТЕРАТУРА / 11 КЛАСС</span><a href="https://uchu-po-frp.ru/">На главную</a></header>
-<section class="hero">
-  <div class="hero-copy">
-    <span class="eyebrow">Биографический лонгрид · урок 1 из 2</span>
-    <h1>Осип<br>Мандельштам</h1>
-    <p class="sub">Что человек берёт с собой через всю жизнь?</p>
-    <p class="line">«За радость тихую дышать и жить<br>Кого, скажите, мне благодарить?»</p>
-    <div class="hero-actions"><a class="action" href="#start" id="begin">Начать исследование</a><button class="action out" id="printBtn" type="button">Рабочий лист · печать</button></div>
-  </div><div class="hero-art" role="img" aria-label="Подлинный фотопортрет Осипа Мандельштама, 1914 год"></div>
+
+<section class="hero" aria-label="Обложка урока">
+<div class="hero-art" role="img" aria-label="Петербург начала XX века: Невский проспект и Гостиный двор"></div>
+<div class="hero-copy"><span class="eyebrow">Литература · 11 класс · Урок 1</span>
+<h1>Осип<br>Мандельштам</h1><p class="sub">Страницы жизни и творчества</p>
+<p class="line">«За радость тихую дышать и жить<br>Кого, скажите, мне благодарить?»</p>
+<div class="hero-actions"><a class="action" href="#start" id="begin">Начать урок</a><button class="action out" id="printBtn" type="button">Рабочий лист · печать</button></div></div>
 </section>
 <div class="lesson-strip"><div class="stat"><b>45 минут</b>весь биографический урок</div><div class="stat"><b>8 глав</b>культура, стихи, судьба</div><div class="stat"><b>2 стихотворения</b>читаем и исследуем</div></div>
 <nav class="tabs" aria-label="Разделы урока" id="tabs">
@@ -100,7 +148,7 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 <p class="lead">Вспомните самый обычный момент, когда вам было хорошо. Что запомнилось — свет, звук, движение, разговор?</p>
 <div class="split"><div>
  <div class="quote">«За радость тихую дышать и жить<br>Кого, скажите, мне благодарить?»</div>
- <p>Эти строки Мандельштам написал в 1909 году, когда ему было восемнадцать. Они станут нашей отправной точкой.</p>
+ <p>Эти строки Мандельштам написал в 1909 году, когда ему было восемнадцать. Они станут нашей отправной точкой.</p><p class="small">Рядом — подлинный фотопортрет молодого поэта 1914 года.</p>
  <div class="insight"><span class="cap">Наблюдение</span><p>В строках звучит вопрос. К кому обращается лирический герой? Выберите одну деталь и объясните, почему она показалась вам значительной.</p></div>
  </div><figure class="figure"><img alt="Молодой Осип Мандельштам, фотография 1914 года" src="img/osip-1914.jpg" loading="lazy"><figcaption>Осип Мандельштам, 1914. <a href="https://commons.wikimedia.org/wiki/File:Osip_Mandelstam_Russian_writer.jpg" target="_blank" rel="noopener">Источник фотографии</a></figcaption></figure></div>
 <label class="field" for="moment">Какую мысль или ощущение вы унесёте из этих строк?</label>
@@ -113,7 +161,7 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 <p class="lead">Мандельштам родился в Варшаве в 1891 году. Детство прошло преимущественно в Петербурге — городе, к которому он будет возвращаться и в стихах.</p>
 <div class="split">
  <figure class="figure"><img loading="lazy" src="img/petersburg.jpg" alt="Невский проспект в начале XX века"><figcaption>Петербург, Невский проспект, начало XX века. <a href="https://commons.wikimedia.org/wiki/File:Nevsky_prospect_and_Gostiny_dvor_in_1900s.jpg" target="_blank" rel="noopener">Архивное изображение</a></figcaption></figure>
- <div><h3>Две линии семейного мира</h3><p><strong>Эмиль Вениаминович</strong>, отец поэта, занимался торговлей кожевенными товарами. <strong>Флора Осиповна</strong>, мать, играла на фортепиано. Музыкальные впечатления и книги окружали Осипа с детства.</p><p>С 1900 по 1907 год он учился в <strong>Тенишевском училище</strong> — одном из заметных учебных заведений Петербурга. Там он получил гуманитарную подготовку и рано заинтересовался словом, историей, культурой.</p><p class="note">На уроке ищем в биографии факты, которые позднее сможем проверить по стихам.</p></div>
+ <div><h3>Две линии семейного мира</h3><p><strong>Эмиль Вениаминович</strong>, отец поэта, занимался торговлей кожевенными товарами. <strong>Флора Осиповна</strong>, мать, играла на фортепиано. Музыкальные впечатления и книги окружали Осипа с детства.</p><p>С 1900 по 1907 год он учился в <strong>Тенишевском училище</strong> — одном из заметных учебных заведений Петербурга. Там он получил гуманитарную подготовку и рано заинтересовался словом, историей, культурой.</p><p class="small">В дальнейшей поэзии возникнут и музыка, и Петербург, и культура разных веков — проследим эти связи по текстам.</p><p class="note">На уроке ищем в биографии факты, которые позднее сможем проверить по стихам.</p></div>
 </div>
 <div class="split"><div><h3>Здание, которое помнит эпоху</h3><p>Тенишевское училище находилось на Моховой улице. На фотографии — сохранившийся исторический комплекс в современном виде. Сам снимок не относится к годам учёбы Мандельштама.</p><p><a class="ext" href="https://www.citywalls.ru/house5044.html" target="_blank" rel="noopener">Посмотреть историю здания ↗</a></p></div><figure class="figure"><img loading="lazy" src="img/tenishev-2016.jpg" alt="Сохранившийся комплекс здания Тенишевского училища на Моховой, современное фото"><figcaption>Моховая, 33–35. Фото: Екатерина Борисова, 2016, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. <a href="https://commons.wikimedia.org/wiki/File:Моховая_33-35_03.jpg" target="_blank" rel="noopener">Оригинал</a></figcaption></figure></div>
 <div class="insight"><span class="cap">Связь с рабочим листом · задание 1</span><p>Выберите <strong>два факта</strong> из жизни юного Мандельштама, которые помогут понять его будущую поэзию. Объясните выбор, опираясь на прочитанное.</p></div>
@@ -129,7 +177,7 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
  <div class="time"><b>1911</b><p>Поступление на романо-германское отделение Петербургского университета. Препятствием были существовавшие ограничения для еврейских абитуриентов; перед поступлением поэт принял крещение.</p></div>
  <div class="time"><b>1917</b><p>Университетский курс остался незавершённым. Чтение, разговоры о литературе и самостоятельное изучение культуры продолжались.</p></div>
 </div>
-<div class="split"><figure class="figure contain"><img loading="lazy" src="https://commons.wikimedia.org/wiki/Special:FilePath/Osip_Mandelstam_Russian_writer.jpg" alt="Осип Мандельштам в молодости"><figcaption>Фотопортрет поэта, 1914. Источник — Wikimedia Commons.</figcaption></figure>
+<div class="split"><figure class="figure contain"><img loading="lazy" src="img/osip-1925.jpg" alt="Осип Мандельштам около 1925 года"><figcaption>Осип Мандельштам, около 1925 года. <a href="https://commons.wikimedia.org/wiki/File:Om1923.jpg" target="_blank" rel="noopener">Подлинная фотография, Wikimedia Commons ↗</a></figcaption></figure>
 <div><h3>Культура как личная работа</h3><p>В университете изучают дисциплины по программе. Мандельштам продолжал образование и вне аудитории — через языки, чтение, разговоры и поездки.</p><div class="insight"><span class="cap">Подумаем</span><p>Какой опыт поэта мог позже помочь ему обращаться к Гомеру, Данте и европейской литературе без длинных пояснений? Назовите конкретные факты.</p></div></div></div>
 <label class="field">Что из образования Мандельштама кажется вам особенно значимым?</label><textarea data-save="study" placeholder="Выберите факт и объясните его роль."></textarea>
 </section>
@@ -164,9 +212,9 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 <h2>«Камень»: как рождается поэтический мир</h2>
 <div class="split">
 <figure class="figure contain"><img loading="lazy" src="https://bookvica.cdn.bibliopolis.com/pictures/2034.png?auto=webp&amp;v=1714755046" alt="Обложка первого сборника стихов Осипа Мандельштама Камень, 1913" referrerpolicy="no-referrer"><figcaption>Первое издание сборника «Камень», 1913. <a href="https://www.bookvica.com/pages/books/2034/o-mandelstam/the-first-book-by-osip-mandelstam-kamen-stikhi-i-e-a-stone-verses?soldItem=true" target="_blank" rel="noopener">Открыть описание и изображение ↗</a></figcaption></figure>
-<div><p><strong>1910:</strong> стихи Мандельштама появляются в журнале «Аполлон».</p><p><strong>1912–1913:</strong> поэт участвует в литературной жизни акмеистов. Среди близких поэтических собеседников — Николай Гумилёв и Анна Ахматова.</p><p><strong>1913:</strong> выходит первая книга «Камень». В её стихах важны предметный мир, точность слова, античность и европейская культура.</p><div class="insight"><span class="cap">Смысл названия</span><p>Вернитесь к образам тела, цветка, стекла и узора. Какое предположение о названии «Камень» вы можете предложить?</p></div></div>
+<div><p><strong>1910:</strong> стихи Мандельштама появляются в журнале «Аполлон».</p><p><strong>1912–1913:</strong> поэт участвует в литературной жизни акмеистов. Среди близких поэтических собеседников — Николай Гумилёв и Анна Ахматова.</p><p><strong>1913:</strong> выходит первая книга «Камень» — в первом издании 23 стихотворения. В этих текстах важны предметный мир, точность слова, античность и европейская культура. <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Сведения об издании · РВБ ↗</a></p><div class="insight"><span class="cap">Смысл названия</span><p>Вернитесь к образам тела, цветка, стекла и узора. Какое предположение о названии «Камень» вы можете предложить?</p></div></div>
 </div>
-<div class="split"><div><h3>А теперь — послушайте</h3><p>Мандельштам писал и о музыке. Прочитайте его строку из стихотворения «Бах» (1913):</p><div class="quote">«Органа многосложный крик»</div><p>Откройте запись <strong>И. С. Баха, BWV 645</strong> и послушайте 20–25 секунд. Какие особенности звучания делают слово «многосложный» удачным или спорным?</p><a class="ext" href="https://www.bachvereniging.nl/en/bwv/bwv-645" target="_blank" rel="noopener">Послушать Баха · официальный проект ↗</a></div>
+<div class="wide-photo"><figure class="figure"><img loading="lazy" src="img/literary-circle-1914.jpg" alt="Осип Мандельштам, Корней Чуковский, Бенедикт Лившиц, Юрий Анненков — 1914 год"><figcaption>1914 год. Слева направо: Осип Мандельштам, Корней Чуковский, Бенедикт Лившиц, Юрий Анненков. Фото Карла Буллы. <a href="https://commons.wikimedia.org/wiki/File:Mandelstam,_Chukovsky,_Livshits_%26_Annenkov_1914_Karl_Bulla_(with_smile).jpg" target="_blank" rel="noopener">Wikimedia Commons · общественное достояние ↗</a></figcaption></figure><div><span class="tag">ЛИТЕРАТУРНАЯ ЖИЗНЬ</span><h3>Поэты и художники рядом</h3><p>Это фотография 1914 года — реальный эпизод литературного Петербурга. Мандельштам сидит рядом с Чуковским, Лившицем и Анненковым. Новые произведения обсуждали с друзьями, читали вслух, спорили о точности слова.</p><p class="note">Найдите Мандельштама на снимке. Как этот момент его жизни связан с изданием «Камня» в 1913 году?</p></div></div><div class="split"><div><h3>А теперь — послушайте</h3><p>Мандельштам писал и о музыке. Прочитайте его строку из стихотворения «Бах» (1913):</p><div class="quote">«Органа многосложный крик»</div><p>Откройте запись <strong>И. С. Баха, BWV 645</strong> и послушайте 20–25 секунд. Какие особенности звучания делают слово «многосложный» удачным или спорным?</p><a class="ext" href="https://www.bachvereniging.nl/en/bwv/bwv-645" target="_blank" rel="noopener">Послушать Баха · официальный проект ↗</a></div>
 <div class="tile"><div class="year">ДИАЛОГ ИСКУССТВ</div><h3>Музыка и слово</h3><p>Выберите одно наблюдение о звучании органа: повтор, сочетание голосов, протяжённость, изменение громкости. Затем сравните его со строкой Мандельштама.</p><label class="field">Моё наблюдение</label><textarea data-save="bach" placeholder="В звуке я услышал(а)... Поэтому выражение..."></textarea></div></div>
 </section>
 
@@ -176,6 +224,8 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 <div class="split">
 <figure class="figure"><img loading="lazy" src="img/nadezhda-1925.jpg" alt="Надежда Яковлевна Мандельштам, фотография 1925 года"><figcaption>Надежда Мандельштам, фотография 1925 года. <a href="https://commons.wikimedia.org/wiki/Category:Nadezhda_Mandelstam" target="_blank" rel="noopener">Источник ↗</a></figcaption></figure>
 <div><div class="timeline"><div class="time"><b>1919 · Киев</b><p>Осип Мандельштам знакомится с молодой художницей Надеждой Хазиной.</p></div><div class="time"><b>1922</b><p>Они регистрируют брак. В последующие годы часто переезжают и живут в непростых материальных условиях.</p></div><div class="time"><b>Поэтическая жизнь</b><p>Надежда слышала многие стихи одной из первых, обсуждала их с поэтом. Её роль в сохранении произведений станет особенно важной позднее.</p></div></div></div></div>
+<div class="insight"><span class="cap">Факт из истории книги</span><p>В 1922 году появилась поэтическая книга «Tristia». В начале помещено посвящение «Н. Х.» — Надежде Хазиной. Её присутствие заметно в самом литературном наследии. <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Сведения об издании · РВБ ↗</a></p></div>
+<div class="split"><figure class="figure"><img loading="lazy" src="img/literary-circle-1930s.jpg" alt="Георгий Чулков, Мария Петровых, Анна Ахматова, Осип Мандельштам, фотография 1930-х годов"><figcaption>1930-е годы. Георгий Чулков, Мария Петровых, Анна Ахматова, Осип Мандельштам. <a href="https://commons.wikimedia.org/wiki/File:Chulkov_Petrovykh_Akhmatova_Mandelstam.jpg" target="_blank" rel="noopener">Подлинный снимок · Wikimedia Commons ↗</a></figcaption></figure><div><h3>Люди, которые слышали его стихи</h3><p>На снимке — современники и литературные собеседники Мандельштама. Эта фотография относится к 1930-м годам и помогает увидеть окружение поэта, уже известного своими книгами.</p><p>Она не относится к первой встрече Мандельштама и Надежды в Киеве в 1919 году.</p></div></div>
 <div class="insight"><span class="cap">Вопрос для разговора</span><p>Почему поэту важен человек, который слышит новые строки раньше остальных? Что в этом можно подтвердить фактами биографии, а что пока будет только предположением?</p></div>
 <label class="field">Один факт о Надежде Яковлевне, который вы запомнили</label><textarea data-save="nadezhda" placeholder="Факт — и почему он важен в истории поэта."></textarea>
 </section>
@@ -185,7 +235,7 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 <h2>Возвращение в Ленинград</h2>
 <p class="lead">Петербург был городом детства Мандельштама. В стихотворении 1930 года он возвращается к нему уже взрослым человеком. Это произведение написано <strong>до ареста 1934 года</strong>.</p>
 <figure class="figure"><img loading="lazy" src="img/petersburg.jpg" alt="Исторический Петербург, начало XX века"><figcaption>Архивный вид Петербурга начала XX века, не фотография 1930 года. <a href="https://commons.wikimedia.org/wiki/File:Nevsky_prospect_and_Gostiny_dvor_in_1900s.jpg" target="_blank" rel="noopener">Источник ↗</a></figcaption></figure>
-<h3>«Ленинград» (1930)</h3>
+<div class="insight"><span class="cap">Важный поворот в творчестве</span><p>С 1925 года до осени 1930-го Мандельштам не создавал новых оригинальных стихов: работал переводчиком, писал книги для детей. Он вернулся к стихам в 1930 году после поездки в Армению. Этот биографический контекст помогает услышать новое напряжение «Ленинграда». <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Биография · РВБ ↗</a></p></div><h3>«Ленинград» (1930)</h3>
 <div class="poem">Я вернулся в мой город, знакомый до слез,
 До прожилок, до детских припухлых желез.
 Ты вернулся сюда, так глотай же скорей
@@ -213,7 +263,7 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 <div class="kicker">Часть VIII · Последние годы и след в культуре · 37–45 мин</div>
 <h2>Стихи, которые дошли до нас</h2>
 <div class="split">
-<div><div class="timeline"><div class="time"><b>1934</b><p>Первый арест. Чердынь, затем ссылка в Воронеж.</p></div>
+<div><div class="timeline"><div class="time"><b>1934</b><p>В мае поэт был арестован, отправлен в Чердынь, затем в Воронеж. Надежда Яковлевна находилась рядом с ним в ссылке.</p></div>
 <div class="time"><b>1934–1937</b><p>Воронежская ссылка. Мандельштам продолжает писать; позднее эти стихи вошли в «Воронежские тетради».</p></div>
 <div class="time"><b>1938</b><p>Второй арест. Поэт умер 27 декабря 1938 года в пересыльном лагере под Владивостоком.</p></div>
 <div class="time"><b>После 1938 года</b><p>Надежда Яковлевна и близкие друзья сохраняли стихотворения: заучивали, переписывали, передавали надёжным людям.</p></div></div></div>
@@ -232,12 +282,8 @@ footer{border-top:1px solid #5b4541;margin-top:22px;padding-top:22px;color:#c9af
 </section>
 </main>
 <div class="controls"><button id="prev" class="btn secondary" type="button">← Предыдущая глава</button><div class="progress">Пройдено <span id="visitedCount">1/8</span><div class="pbar"><span id="barFill"></span></div></div><button id="next" class="btn" type="button">Следующая глава →</button></div>
-<section class="sources">
-<h3 style="color:#e6d1b0">Источники и изображения</h3>
-<p>Биографические даты и история изданий: <a href="https://rvb.ru/20vek/mandelstam/" target="_blank" rel="noopener">Русская виртуальная библиотека</a>; <a href="https://mandelstam.hse.ru/memory1" target="_blank" rel="noopener">Центр Мандельштама НИУ ВШЭ</a>. Фотографии поэта и Надежды: Wikimedia Commons (прямые ссылки приведены под изображениями). Исторический Петербург: Wikimedia Commons. Тенишевское училище: фото Екатерины Борисовой (2016), Wikimedia Commons, CC BY-SA 4.0. Обложка «Камня»: Bookvica, фотография исторического издания. Музыка: Netherlands Bach Society.</p>
-<p>Материал для образовательного использования. Основные исторические фотографии размещены в папке урока с указанием источников; обложка исторического издания открывается со стороннего ресурса. Фото и книжные обложки не создавались генератором изображений.</p>
-</section>
-<footer>Учу по ФРП · Биография Осипа Мандельштама · Самостоятельная работа и обсуждение в 11 классе. Заметки сохраняются только в браузере этого устройства; сайт не собирает фамилии и результаты теста.</footer>
+
+<footer>Учу по ФРП · Автор: Гладышева Любовь</footer>
 </div>
 <div class="print-sheet" id="worksheet">
 <div class="print-page">
